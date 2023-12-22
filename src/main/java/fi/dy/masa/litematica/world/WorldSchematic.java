@@ -364,11 +364,6 @@ public class WorldSchematic extends World {
     public void syncWorldEvent(@Nullable PlayerEntity entity, int id, BlockPos pos, int data) {
     }
 
-    // @Override
-    public void emitGameEvent(GameEvent event, Vec3d pos, @Nullable GameEvent.Emitter emitter) {
-        // NO-OP
-    }
-
     @Override
     public void playSound(@Nullable PlayerEntity except, double x, double y, double z, SoundEvent sound,
             SoundCategory category, float volume, float pitch, long seed) {
@@ -378,11 +373,6 @@ public class WorldSchematic extends World {
     @Override
     public void playSoundFromEntity(@javax.annotation.Nullable PlayerEntity except, Entity entity,
             RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed) {
-        // NO-OP
-    }
-
-    // @Override
-    public void emitGameEvent(@Nullable Entity entity, GameEvent event, BlockPos pos) {
         // NO-OP
     }
 
@@ -459,5 +449,20 @@ public class WorldSchematic extends World {
     public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, Emitter emitter) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'emitGameEvent'");
+    }
+
+    @Override
+    public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, Vec3d pos) {
+        // NO-OP
+    }
+
+    @Override
+    public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, BlockPos pos) {
+        // NO-OP
+    }
+
+    @Override
+    public void emitGameEvent(RegistryEntry<GameEvent> event, BlockPos pos, @Nullable Emitter emitter) {
+        // NO-OP
     }
 }
