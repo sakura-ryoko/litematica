@@ -70,8 +70,7 @@ public class NbtUtils
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("Failed to read NBT data from file '{}' (failed to create the input stream)",
-                    file.getAbsolutePath());
+            Litematica.logger.warn("Failed to read NBT data from file '{}' (failed to create the input stream)", file.getAbsolutePath());
             return null;
         }
 
@@ -91,9 +90,7 @@ public class NbtUtils
                     is = new FileInputStream(file);
                     nbt = NbtIo.read(file.toPath());
                 }
-                catch (Exception ignore)
-                {
-                }
+                catch (Exception ignore) {}
             }
 
             try
