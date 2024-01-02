@@ -549,7 +549,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected BlockPos placeNbtPickedBlock(BlockPos pos, BlockState state, BlockEntity be,
                                            World schematicWorld, ClientWorld clientWorld)
     {
-        double reach = this.mc.interactionManager.getReachDistance();
+        double reach = this.mc.player.getBlockInteractionRange();
         BlockPos placementPos = this.findEmptyNearbyPosition(clientWorld, this.mc.player.getPos(), 4, reach);
 
         if (placementPos != null && preparePickedStack(pos, state, be, schematicWorld, this.mc))
