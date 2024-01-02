@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
@@ -15,10 +14,13 @@ import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.malilib.util.Constants;
 
-public class NbtUtils {
+public class NbtUtils
+{
     @Nullable
-    public static BlockPos readBlockPosFromArrayTag(NbtCompound tag, String tagName) {
-        if (tag.contains(tagName, Constants.NBT.TAG_INT_ARRAY)) {
+    public static BlockPos readBlockPosFromArrayTag(NbtCompound tag, String tagName)
+    {
+        if (tag.contains(tagName, Constants.NBT.TAG_INT_ARRAY))
+        {
             int[] pos = tag.getIntArray("Pos");
 
             if (pos.length == 3) {
@@ -30,16 +32,20 @@ public class NbtUtils {
     }
 
     @Nullable
-    public static Vec3d readVec3dFromListTag(@Nullable NbtCompound tag) {
+    public static Vec3d readVec3dFromListTag(@Nullable NbtCompound tag)
+    {
         return readVec3dFromListTag(tag, "Pos");
     }
 
     @Nullable
-    public static Vec3d readVec3dFromListTag(@Nullable NbtCompound tag, String tagName) {
-        if (tag != null && tag.contains(tagName, Constants.NBT.TAG_LIST)) {
+    public static Vec3d readVec3dFromListTag(@Nullable NbtCompound tag, String tagName)
+    {
+        if (tag != null && tag.contains(tagName, Constants.NBT.TAG_LIST))
+        {
             NbtList tagList = tag.getList(tagName, Constants.NBT.TAG_DOUBLE);
 
-            if (tagList.getHeldType() == Constants.NBT.TAG_DOUBLE && tagList.size() == 3) {
+            if (tagList.getHeldType() == Constants.NBT.TAG_DOUBLE && tagList.size() == 3)
+            {
                 return new Vec3d(tagList.getDouble(0), tagList.getDouble(1), tagList.getDouble(2));
             }
         }
@@ -48,8 +54,10 @@ public class NbtUtils {
     }
 
     @Nullable
-    public static NbtCompound readNbtFromFile(File file) {
-        if (file.exists() == false || file.canRead() == false) {
+    public static NbtCompound readNbtFromFile(File file)
+    {
+        if (file.exists() == false || file.canRead() == false)
+        {
             return null;
         }
 
@@ -65,25 +73,36 @@ public class NbtUtils {
 
         NbtCompound nbt = null;
 
-        if (is != null) {
-            try {
+        if (is != null)
+        {
+            try
+            {
                 nbt = NbtIo.readCompressed(is, NbtSizeTracker.ofUnlimitedBytes());
-            } catch (Exception e) {
-                try {
+            }
+            catch (Exception e)
+            {
+                try
+                {
                     is.close();
                     is = new FileInputStream(file);
                     nbt = NbtIo.read(file.toPath());
-                } catch (Exception ignore) {
+                }
+                catch (Exception ignore)
+                {
                 }
             }
 
-            try {
+            try
+            {
                 is.close();
-            } catch (Exception ignore) {
+            }
+            catch (Exception ignore)
+            {
             }
         }
 
-        if (nbt == null) {
+        if (nbt == null)
+        {
             Litematica.logger.warn("Failed to read NBT data from file '{}'", file.getAbsolutePath());
         }
 
