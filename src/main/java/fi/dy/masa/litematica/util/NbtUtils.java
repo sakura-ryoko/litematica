@@ -23,7 +23,8 @@ public class NbtUtils
         {
             int[] pos = tag.getIntArray("Pos");
 
-            if (pos.length == 3) {
+            if (pos.length == 3)
+            {
                 return new BlockPos(pos[0], pos[1], pos[2]);
             }
         }
@@ -63,9 +64,12 @@ public class NbtUtils
 
         FileInputStream is;
 
-        try {
+        try
+        {
             is = new FileInputStream(file);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Litematica.logger.warn("Failed to read NBT data from file '{}' (failed to create the input stream)",
                     file.getAbsolutePath());
             return null;
@@ -96,9 +100,7 @@ public class NbtUtils
             {
                 is.close();
             }
-            catch (Exception ignore)
-            {
-            }
+            catch (Exception ignore) {}
         }
 
         if (nbt == null)
