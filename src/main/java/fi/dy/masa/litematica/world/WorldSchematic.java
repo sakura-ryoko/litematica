@@ -415,10 +415,12 @@ public class WorldSchematic extends World
     @Override
     public void syncWorldEvent(@Nullable PlayerEntity entity, int id, BlockPos pos, int data)
     {
+        // NO-OP
     }
 
     @Override
-    public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter) {
+    public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter)
+    {
         // NO-OP
     }
 
@@ -505,6 +507,7 @@ public class WorldSchematic extends World
     {
         return "Chunks[SCH] W: " + this.getChunkManager().getDebugString() + " E: " + this.getRegularEntityCount();
     }
+
     @Override
     public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, Vec3d pos)
     {
@@ -513,12 +516,6 @@ public class WorldSchematic extends World
 
     @Override
     public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, BlockPos pos)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void emitGameEvent(RegistryEntry<GameEvent> event, BlockPos pos, @Nullable GameEvent.Emitter emitter)
     {
         // NO-OP
     }
