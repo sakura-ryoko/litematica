@@ -50,7 +50,7 @@ import net.minecraft.world.tick.TickManager;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
-public abstract class WorldSchematic extends World
+public class WorldSchematic extends World
 {
     protected static final RegistryKey<World> REGISTRY_KEY = RegistryKey.of(RegistryKeys.WORLD, new Identifier(Reference.MOD_ID, "schematic_world"));
 
@@ -418,6 +418,11 @@ public abstract class WorldSchematic extends World
     }
 
     @Override
+    public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter) {
+        // NO-OP
+    }
+
+    @Override
     public void playSound(@Nullable PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed)
     {
         // NO-OP
@@ -501,22 +506,26 @@ public abstract class WorldSchematic extends World
         return "Chunks[SCH] W: " + this.getChunkManager().getDebugString() + " E: " + this.getRegularEntityCount();
     }
     @Override
-    public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, Vec3d pos) {
+    public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, Vec3d pos)
+    {
         // NO-OP
     }
 
     @Override
-    public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, BlockPos pos) {
+    public void emitGameEvent(@Nullable Entity entity, RegistryEntry<GameEvent> event, BlockPos pos)
+    {
         // NO-OP
     }
 
     @Override
-    public void emitGameEvent(RegistryEntry<GameEvent> event, BlockPos pos, @Nullable GameEvent.Emitter emitter) {
+    public void emitGameEvent(RegistryEntry<GameEvent> event, BlockPos pos, @Nullable GameEvent.Emitter emitter)
+    {
         // NO-OP
     }
 
     @Override
-    public void emitGameEvent(RegistryKey<GameEvent> event, BlockPos pos, @Nullable GameEvent.Emitter emitter) {
+    public void emitGameEvent(RegistryKey<GameEvent> event, BlockPos pos, @Nullable GameEvent.Emitter emitter)
+    {
         // NO-OP
     }
 }
