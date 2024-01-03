@@ -417,13 +417,6 @@ public abstract class WorldSchematic extends World
     {
     }
 
-    /*
-    @Override
-    public void emitGameEvent(GameEvent event, Vec3d pos, @Nullable GameEvent.Emitter emitter)
-    {
-        // NO-OP
-     }
-    */
     @Override
     public void playSound(@Nullable PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed)
     {
@@ -436,13 +429,6 @@ public abstract class WorldSchematic extends World
         // NO-OP
     }
 
-    /*
-    @Override
-    public void emitGameEvent(@Nullable Entity entity, GameEvent event, BlockPos pos)
-    {
-        // NO-OP
-    }
-    */
     @Override
     public void addParticle(ParticleEffect particleParameters_1, double double_1, double double_2, double double_3, double double_4, double double_5, double double_6)
     {
