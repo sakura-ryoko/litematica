@@ -1,20 +1,16 @@
 package fi.dy.masa.litematica;
 
+import fi.dy.masa.litematica.event.*;
+import fi.dy.masa.litematica.network.packet.PacketProvider;
+import fi.dy.masa.malilib.event.*;
+import fi.dy.masa.malilib.network.ClientNetworkPlayInitHandler;
 import net.minecraft.client.MinecraftClient;
 
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.event.InputHandler;
-import fi.dy.masa.litematica.event.KeyCallbacks;
-import fi.dy.masa.litematica.event.RenderHandler;
-import fi.dy.masa.litematica.event.WorldLoadListener;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
 import fi.dy.masa.litematica.scheduler.ClientTickHandler;
 import fi.dy.masa.malilib.config.ConfigManager;
-import fi.dy.masa.malilib.event.InputEventHandler;
-import fi.dy.masa.malilib.event.RenderEventHandler;
-import fi.dy.masa.malilib.event.TickHandler;
-import fi.dy.masa.malilib.event.WorldLoadHandler;
 import fi.dy.masa.malilib.interfaces.IInitializationHandler;
 import fi.dy.masa.malilib.interfaces.IRenderer;
 
@@ -41,6 +37,12 @@ public class InitHandler implements IInitializationHandler
 
         KeyCallbacks.init(MinecraftClient.getInstance());
         StatusInfoRenderer.init();
+
+        // Register Networking
+        ClientNetworkPlayInitHandler.registerPlayChannels();
+        ServerListener litematica_serverListener = new ServerListener();
+        ServerHandler.getInstance().registerServerHandler(litematica_serverListener);
+        PacketProvider.registerPayloads();
 
         DataManager.getAreaSelectionsBaseDirectory();
         DataManager.getSchematicsBaseDirectory();

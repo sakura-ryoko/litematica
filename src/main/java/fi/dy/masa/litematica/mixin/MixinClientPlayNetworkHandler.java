@@ -1,18 +1,18 @@
 package fi.dy.masa.litematica.mixin;
 
+import fi.dy.masa.malilib.network.ClientNetworkPlayInitHandler;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.network.CarpetHelloPacketHandler;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
 @Mixin(ClientPlayNetworkHandler.class)
@@ -38,7 +38,7 @@ public abstract class MixinClientPlayNetworkHandler
     @Inject(method = "onUnloadChunk", at = @At("RETURN"))
     private void litematica_onChunkUnload(UnloadChunkS2CPacket packet, CallbackInfo ci)
     {
-        if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
+        if (!Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue())
         {
             Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
             DataManager.getSchematicPlacementManager().onClientChunkUnload(packet.pos().x, packet.pos().z);
@@ -55,15 +55,17 @@ public abstract class MixinClientPlayNetworkHandler
         }
     }
 
-    @Inject(method = "onCustomPayload", at = @At("HEAD"))
-    private void litematica_onCustomPayload(CustomPayload payload, CallbackInfo ci)
+    @Inject(method = "onGameJoin", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/MinecraftClient;joinWorld(" +
+                    "Lnet/minecraft/client/world/ClientWorld;)V"))
+    private void litematica_onPreGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
     {
-        // Call to debugLog just to verify this works.
-        Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onCustomPayload(): payload_id: {}", payload.getId().id());
-        if (CarpetHelloPacketHandler.HELLO_CHANNEL.equals(payload.getId().id()))
-        {
-            DataManager.setIsCarpetServer(true);
-            Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onCustomPayload(): Received Carpet Hello packet.");
-        }
+        ClientNetworkPlayInitHandler.registerPlayChannels();
+    }
+
+    @Inject(method = "onGameJoin", at = @At("RETURN"))
+    private void litematica_onPostGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
+    {
+        ClientNetworkPlayInitHandler.registerReceivers();
     }
 }

@@ -18,7 +18,6 @@
 
 	"license": "LGPLv3",
 	"icon": "assets/litematica/icon.png",
-
 	"environment": "client",
 	"entrypoints": {
 		"main": [
@@ -28,13 +27,14 @@
 			"fi.dy.masa.litematica.compat.modmenu.ModMenuImpl"
 		]
 	},
-
 	"mixins": [
 		"mixins.litematica.json"
 	],
 
 	"depends": {
 		"minecraft": ">=1.20.4",
+		"fabric-networking-api-v1": ">=4.0.0",
+		"fabric-resource-loader-v0": "*",
 		"malilib": ">=0.19.0-snap"
 	}
 }
