@@ -1,17 +1,16 @@
 package fi.dy.masa.litematica.event;
 
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.network.test.ClientDebugSuite;
 import fi.dy.masa.malilib.interfaces.IServerListener;
 import fi.dy.masa.malilib.network.ClientNetworkPlayInitHandler;
 import fi.dy.masa.malilib.network.ClientNetworkPlayRegister;
+import fi.dy.masa.malilib.network.test.ClientDebugSuite;
 import net.minecraft.server.MinecraftServer;
 
 public class ServerListener implements IServerListener
 {
     /**
      * This interface for IntegratedServers() works much more reliably than invoking a WorldLoadHandler
-     * @param minecraftServer
      */
 
     public void onServerStarting(MinecraftServer minecraftServer)
@@ -22,7 +21,7 @@ public class ServerListener implements IServerListener
     }
     public void onServerStarted(MinecraftServer minecraftServer)
     {
-        ClientNetworkPlayRegister.registerDefaultReceivers();
+        ClientNetworkPlayRegister.registerReceivers();
         ClientDebugSuite.checkGlobalChannels();
         Litematica.debugLog("MinecraftServerEvents#onServerStarted(): invoked.");
     }
@@ -33,7 +32,7 @@ public class ServerListener implements IServerListener
     }
     public void onServerStopped(MinecraftServer minecraftServer)
     {
-        ClientNetworkPlayRegister.unregisterDefaultReceivers();
+        ClientNetworkPlayRegister.unregisterReceivers();
         ClientDebugSuite.checkGlobalChannels();
         Litematica.debugLog("MinecraftServerEvents#onServerStopped(): invoked.");
     }
