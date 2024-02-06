@@ -47,8 +47,8 @@ public class SchematicaSchematic
     private final SchematicConverter converter;
     private final BlockState[] palette = new BlockState[65536];
     private LitematicaBlockStateContainer blocks;
-    private Map<BlockPos, NbtCompound> tiles = new HashMap<>();
-    private List<NbtCompound> entities = new ArrayList<>();
+    private final Map<BlockPos, NbtCompound> tiles = new HashMap<>();
+    private final List<NbtCompound> entities = new ArrayList<>();
     private Vec3i size = Vec3i.ZERO;
     private String fileName;
     private IdentityHashMap<BlockState, IStateFixer> postProcessingFilter;
@@ -74,13 +74,10 @@ public class SchematicaSchematic
         List<EntityInfo> entityList = new ArrayList<>();
         final int size = this.entities.size();
 
-        for (int i = 0; i < size; ++i)
-        {
-            NbtCompound entityData = this.entities.get(i);
+        for (NbtCompound entityData : this.entities) {
             Vec3d posVec = NBTUtils.readEntityPositionFromTag(entityData);
 
-            if (posVec != null && entityData.isEmpty() == false)
-            {
+            if (posVec != null && !entityData.isEmpty()) {
                 entityList.add(new EntityInfo(posVec, entityData));
             }
         }
@@ -143,7 +140,8 @@ public class SchematicaSchematic
 
                                 try
                                 {
-                                    te.readNbt(teNBT);
+                                    // registryLookup ?
+                                    te.readNbt(teNBT, null);
                                 }
                                 catch (Exception e)
                                 {
@@ -184,7 +182,7 @@ public class SchematicaSchematic
                 }
             }
 
-            if (placement.shouldIgnoreEntities() == false)
+            if (!placement.shouldIgnoreEntities())
             {
                 this.addEntitiesToWorld(world, posStart, placement);
             }
@@ -276,7 +274,8 @@ public class SchematicaSchematic
 
                                         try
                                         {
-                                            te.readNbt(teNBT);
+                                            // Why?
+                                            te.readNbt(teNBT, null);
                                         }
                                         catch (Exception e)
                                         {
@@ -290,7 +289,7 @@ public class SchematicaSchematic
                 }
             }
 
-            if (placement.shouldIgnoreEntities() == false)
+            if (!placement.shouldIgnoreEntities())
             {
                 this.addEntitiesToWorld(world, posStart, placement);
             }
@@ -305,6 +304,7 @@ public class SchematicaSchematic
         for (NbtCompound tag : this.entities)
         {
             Vec3d relativePos = NBTUtils.readEntityPositionFromTag(tag);
+            assert relativePos != null;
             Vec3d transformedRelativePos = PositionUtils.getTransformedPosition(relativePos, mirror, rotation);
             Vec3d realPos = transformedRelativePos.add(posStart.getX(), posStart.getY(), posStart.getZ());
             Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
@@ -373,7 +373,8 @@ public class SchematicaSchematic
                     {
                         try
                         {
-                            NbtCompound nbt = te.createNbtWithId();
+                            // Why ?
+                            NbtCompound nbt = te.createNbtWithId(null);
                             BlockPos pos = new BlockPos(relX, relY, relZ);
                             NBTUtils.writeBlockPosToTag(pos, nbt);
 
@@ -393,7 +394,7 @@ public class SchematicaSchematic
     private void readEntitiesFromWorld(World world, BlockPos posStart, BlockPos size)
     {
         this.entities.clear();
-        List<Entity> entities = world.getOtherEntities(null, PositionUtils.createEnclosingAABB(posStart, posStart.add(size)), (e) -> (e instanceof PlayerEntity) == false);
+        List<Entity> entities = world.getOtherEntities(null, PositionUtils.createEnclosingAABB(posStart, posStart.add(size)), (e) -> !(e instanceof PlayerEntity));
 
         for (Entity entity : entities)
         {
@@ -415,7 +416,7 @@ public class SchematicaSchematic
 
         schematic.readBlocksFromWorld(world, posStart, size);
 
-        if (ignoreEntities == false)
+        if (!ignoreEntities)
         {
             schematic.readEntitiesFromWorld(world, posStart, size);
         }
@@ -483,7 +484,7 @@ public class SchematicaSchematic
                     return false;
                 }
 
-                if (this.converter.getConvertedStatesForBlock(id, key, this.palette) == false)
+                if (!this.converter.getConvertedStatesForBlock(id, key, this.palette))
                 {
                     String str = String.format("SchematicaSchematic: Missing/non-existing block '%s' in SchematicaMapping", key);
                     InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
@@ -522,7 +523,7 @@ public class SchematicaSchematic
                     return false;
                 }
 
-                if (this.converter.getConvertedStatesForBlock(id, key, this.palette) == false)
+                if (!this.converter.getConvertedStatesForBlock(id, key, this.palette))
                 {
                     String str = String.format("SchematicaSchematic: Missing/non-existing block '%s' in MCEdit2 palette", key);
                     InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
@@ -547,11 +548,11 @@ public class SchematicaSchematic
 
     private boolean readBlocksFromNBT(NbtCompound nbt)
     {
-        if (nbt.contains("Blocks", Constants.NBT.TAG_BYTE_ARRAY) == false ||
-            nbt.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) == false ||
-            nbt.contains("Width", Constants.NBT.TAG_SHORT) == false ||
-            nbt.contains("Height", Constants.NBT.TAG_SHORT) == false ||
-            nbt.contains("Length", Constants.NBT.TAG_SHORT) == false)
+        if (!nbt.contains("Blocks", Constants.NBT.TAG_BYTE_ARRAY) ||
+                !nbt.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) ||
+                !nbt.contains("Width", Constants.NBT.TAG_SHORT) ||
+                !nbt.contains("Height", Constants.NBT.TAG_SHORT) ||
+                !nbt.contains("Length", Constants.NBT.TAG_SHORT))
         {
             return false;
         }
@@ -582,7 +583,7 @@ public class SchematicaSchematic
             return false;
         }
 
-        if (this.readPaletteFromNBT(nbt) == false)
+        if (!this.readPaletteFromNBT(nbt))
         {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "SchematicaSchematic: Failed to read the block palette");
             return false;

@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.util;
 
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Objects;
 import java.util.Set;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
@@ -40,7 +41,7 @@ public class ItemUtils
                     continue;
                 }
 
-                if (tagReference.get(key).equals(tagToCheck.get(key)) == false)
+                if (!Objects.equals(tagReference.get(key), tagToCheck.get(key)))
                 {
                     return false;
                 }
@@ -60,7 +61,7 @@ public class ItemUtils
 
     public static void setItemForBlock(World world, BlockPos pos, BlockState state)
     {
-        if (ITEMS_FOR_STATES.containsKey(state) == false)
+        if (!ITEMS_FOR_STATES.containsKey(state))
         {
             ITEMS_FOR_STATES.put(state, getItemForBlock(world, pos, state, false));
         }
@@ -128,7 +129,7 @@ public class ItemUtils
 
     public static ItemStack storeTEInStack(ItemStack stack, BlockEntity te)
     {
-        NbtCompound nbt = te.createNbtWithId();
+        NbtCompound nbt = te.createNbtWithId(null);
 
         if (nbt.contains("Owner") && stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
@@ -157,7 +158,7 @@ public class ItemUtils
 
     public static String getStackString(ItemStack stack)
     {
-        if (stack.isEmpty() == false)
+        if (!stack.isEmpty())
         {
             Identifier rl = Registries.ITEM.getId(stack.getItem());
 

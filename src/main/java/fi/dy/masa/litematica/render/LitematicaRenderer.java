@@ -258,6 +258,7 @@ public class LitematicaRenderer
                 this.calculateFinishTime();
 
                 this.mc.getProfiler().swap("litematica_terrain_setup");
+                assert this.mc.player != null;
                 worldRenderer.setupTerrain(this.getCamera(), frustum, this.frameCount++, this.mc.player.isSpectator());
 
                 this.mc.getProfiler().swap("litematica_update_chunks");

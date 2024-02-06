@@ -28,7 +28,7 @@ import fi.dy.masa.malilib.util.Constants;
 
 public class EntityUtils
 {
-    public static final Predicate<Entity> NOT_PLAYER = entity -> (entity instanceof PlayerEntity) == false;
+    public static final Predicate<Entity> NOT_PLAYER = entity -> !(entity instanceof PlayerEntity);
 
     public static boolean isCreativeMode(PlayerEntity player)
     {
@@ -56,7 +56,7 @@ public class EntityUtils
 
         if (ItemStack.areItemsEqual(toolItem, stackHand))
         {
-            return toolItem.hasNbt() == false || ItemUtils.areTagsEqualIgnoreDamage(toolItem, stackHand);
+            return !toolItem.hasNbt() || ItemUtils.areTagsEqualIgnoreDamage(toolItem, stackHand);
         }
 
         return false;
@@ -89,7 +89,7 @@ public class EntityUtils
 
     public static boolean areStacksEqualIgnoreDurability(ItemStack stack1, ItemStack stack2)
     {
-        return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.canCombine(stack1, stack2);
+        return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemsAndNbtEqual(stack1, stack2);
     }
 
     public static Direction getHorizontalLookingDirection(Entity entity)
@@ -251,8 +251,8 @@ public class EntityUtils
     public static boolean shouldPickBlock(PlayerEntity player)
     {
         return Configs.Generic.PICK_BLOCK_ENABLED.getBooleanValue() &&
-                (Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue() == false ||
-                hasToolItem(player) == false) &&
+                (!Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue() ||
+                        !hasToolItem(player)) &&
                 Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                 Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue();
     }

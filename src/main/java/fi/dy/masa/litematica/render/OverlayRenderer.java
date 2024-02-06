@@ -16,7 +16,6 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
@@ -52,6 +51,7 @@ import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
+import org.joml.Matrix4f;
 
 public class OverlayRenderer
 {
@@ -84,19 +84,19 @@ public class OverlayRenderer
 
     private final MinecraftClient mc;
     private final Map<SchematicPlacement, ImmutableMap<String, Box>> placements = new HashMap<>();
-    private Color4f colorPos1 = new Color4f(1f, 0.0625f, 0.0625f);
-    private Color4f colorPos2 = new Color4f(0.0625f, 0.0625f, 1f);
-    private Color4f colorOverlapping = new Color4f(1f, 0.0625f, 1f);
-    private Color4f colorX = new Color4f(   1f, 0.25f, 0.25f);
-    private Color4f colorY = new Color4f(0.25f,    1f, 0.25f);
-    private Color4f colorZ = new Color4f(0.25f, 0.25f,    1f);
-    private Color4f colorArea = new Color4f(1f, 1f, 1f);
-    private Color4f colorBoxPlacementSelected = new Color4f(0x16 / 255f, 1f, 1f);
-    private Color4f colorSelectedCorner = new Color4f(0f, 1f, 1f);
-    private Color4f colorAreaOrigin = new Color4f(1f, 0x90 / 255f, 0x10 / 255f);
+    private final Color4f colorPos1 = new Color4f(1f, 0.0625f, 0.0625f);
+    private final Color4f colorPos2 = new Color4f(0.0625f, 0.0625f, 1f);
+    private final Color4f colorOverlapping = new Color4f(1f, 0.0625f, 1f);
+    private final Color4f colorX = new Color4f(   1f, 0.25f, 0.25f);
+    private final Color4f colorY = new Color4f(0.25f,    1f, 0.25f);
+    private final Color4f colorZ = new Color4f(0.25f, 0.25f,    1f);
+    private final Color4f colorArea = new Color4f(1f, 1f, 1f);
+    private final Color4f colorBoxPlacementSelected = new Color4f(0x16 / 255f, 1f, 1f);
+    private final Color4f colorSelectedCorner = new Color4f(0f, 1f, 1f);
+    private final Color4f colorAreaOrigin = new Color4f(1f, 0x90 / 255f, 0x10 / 255f);
 
     private long infoUpdateTime;
-    private List<String> blockInfoLines = new ArrayList<>();
+    private final List<String> blockInfoLines = new ArrayList<>();
     private int blockInfoX;
     private int blockInfoY;
 
@@ -124,12 +124,12 @@ public class OverlayRenderer
         }
     }
 
-    public void renderBoxes(MatrixStack matrices)
+    public void renderBoxes(Matrix4f matrices)
     {
         SelectionManager sm = DataManager.getSelectionManager();
         AreaSelection currentSelection = sm.getCurrentSelection();
         boolean renderAreas = currentSelection != null && Configs.Visuals.ENABLE_AREA_SELECTION_RENDERING.getBooleanValue();
-        boolean renderPlacements = this.placements.isEmpty() == false && Configs.Visuals.ENABLE_PLACEMENT_BOXES_RENDERING.getBooleanValue();
+        boolean renderPlacements = !this.placements.isEmpty() && Configs.Visuals.ENABLE_PLACEMENT_BOXES_RENDERING.getBooleanValue();
         boolean isProjectMode = DataManager.getSchematicProjectsManager().hasProjectOpen();
         float expand = 0.001f;
         float lineWidthBlockBox = 2f;
@@ -201,6 +201,8 @@ public class OverlayRenderer
 
                         if (schematicPlacement.shouldRenderEnclosingBox() && box != null)
                         {
+                            assert box.getPos1() != null;
+                            assert box.getPos2() != null;
                             RenderUtils.renderAreaOutline(box.getPos1(), box.getPos2(), 1f, color, color, color, this.mc);
 
                             if (Configs.Visuals.RENDER_PLACEMENT_ENCLOSING_BOX_SIDES.getBooleanValue())
@@ -229,7 +231,7 @@ public class OverlayRenderer
     }
 
     public void renderSelectionBox(Box box, BoxType boxType, float expand,
-            float lineWidthBlockBox, float lineWidthArea, @Nullable SchematicPlacement placement, MatrixStack matrices)
+            float lineWidthBlockBox, float lineWidthArea, @Nullable SchematicPlacement placement, Matrix4f matrices)
     {
         BlockPos pos1 = box.getPos1();
         BlockPos pos2 = box.getPos2();
@@ -263,6 +265,7 @@ public class OverlayRenderer
                 colorZ = this.colorBoxPlacementSelected;
                 break;
             case PLACEMENT_UNSELECTED:
+                assert placement != null;
                 Color4f color = placement.getBoxesBBColor();
                 colorX = color;
                 colorY = color;
@@ -297,7 +300,7 @@ public class OverlayRenderer
 
         if (pos1 != null && pos2 != null)
         {
-            if (pos1.equals(pos2) == false)
+            if (!pos1.equals(pos2))
             {
                 RenderUtils.renderAreaOutlineNoCorners(pos1, pos2, lineWidthArea, colorX, colorY, colorZ, this.mc);
 
@@ -343,7 +346,7 @@ public class OverlayRenderer
         }
     }
 
-    public void renderSchematicVerifierMismatches(MatrixStack matrices)
+    public void renderSchematicVerifierMismatches(Matrix4f matrices)
     {
         SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
 
@@ -353,7 +356,7 @@ public class OverlayRenderer
 
             List<MismatchRenderPos> list = verifier.getSelectedMismatchPositionsForRender();
 
-            if (list.isEmpty() == false)
+            if (!list.isEmpty())
             {
                 Entity entity = fi.dy.masa.malilib.util.EntityUtils.getCameraEntity();
                 List<BlockPos> posList = verifier.getSelectedMismatchBlockPositionsForRender();
@@ -364,7 +367,7 @@ public class OverlayRenderer
         }
     }
 
-    private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, MatrixStack matrices)
+    private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, Matrix4f matrices)
     {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
@@ -382,7 +385,7 @@ public class OverlayRenderer
         {
             Color4f color = entry.type.getColor();
 
-            if (entry.pos.equals(lookPos) == false)
+            if (!entry.pos.equals(lookPos))
             {
                 RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(entry.pos, color, 0.002, buffer, this.mc);
             }
@@ -453,7 +456,7 @@ public class OverlayRenderer
             }
 
             boolean renderBlockInfoLines = Configs.InfoOverlays.BLOCK_INFO_LINES_ENABLED.getBooleanValue();
-            boolean renderBlockInfoOverlay = verifierOverlayRendered == false && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
+            boolean renderBlockInfoOverlay = !verifierOverlayRendered && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
             RayTraceWrapper traceWrapper = null;
 
             if (renderBlockInfoLines || renderBlockInfoOverlay)
@@ -541,6 +544,7 @@ public class OverlayRenderer
         BlockState air = Blocks.AIR.getDefaultState();
         World worldSchematic = SchematicWorldHandler.getSchematicWorld();
         World worldClient = WorldUtils.getBestWorld(mc);
+        assert traceWrapper.getBlockHitResult() != null;
         BlockPos pos = traceWrapper.getBlockHitResult().getBlockPos();
 
         BlockState stateClient = mc.world.getBlockState(pos);
@@ -615,7 +619,7 @@ public class OverlayRenderer
         BlockState stateSchematic = worldSchematic.getBlockState(pos);
         String ul = GuiBase.TXT_UNDERLINE;
 
-        if (stateSchematic != stateClient && stateClient.isAir() == false && stateSchematic.isAir() == false)
+        if (stateSchematic != stateClient && !stateClient.isAir() && !stateSchematic.isAir())
         {
             this.blockInfoLines.add(ul + "Schematic:");
             this.addBlockInfoLines(stateSchematic);
@@ -637,7 +641,7 @@ public class OverlayRenderer
         this.blockInfoLines.addAll(BlockUtils.getFormattedBlockStateProperties(state));
     }
 
-    public void renderSchematicRebuildTargetingOverlay(MatrixStack matrixStack)
+    public void renderSchematicRebuildTargetingOverlay(Matrix4f matrixStack)
     {
         RayTraceWrapper traceWrapper = null;
         Color4f color = null;
@@ -717,11 +721,11 @@ public class OverlayRenderer
         fi.dy.masa.malilib.render.RenderUtils.drawOutline(x, y, longerSide, longerSide, 2, 0xFFFFFFFF);
     }
 
-    private enum BoxType
+    public enum BoxType
     {
         AREA_SELECTED,
         AREA_UNSELECTED,
         PLACEMENT_SELECTED,
-        PLACEMENT_UNSELECTED;
+        PLACEMENT_UNSELECTED
     }
 }

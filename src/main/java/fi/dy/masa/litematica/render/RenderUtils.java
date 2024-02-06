@@ -13,7 +13,6 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -30,6 +29,7 @@ import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import org.joml.Matrix4f;
 
 public class RenderUtils
 {
@@ -116,7 +116,7 @@ public class RenderUtils
     }
 
     public static void renderBlockOutlineOverlapping(BlockPos pos, float expand, float lineWidth,
-            Color4f color1, Color4f color2, Color4f color3, MatrixStack matrices, MinecraftClient mc)
+            Color4f color1, Color4f color2, Color4f color3, Matrix4f matrices, MinecraftClient mc)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         final double dx = cameraPos.x;
@@ -256,7 +256,7 @@ public class RenderUtils
         buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
     }
 
-    public static void renderAreaSides(BlockPos pos1, BlockPos pos2, Color4f color, MatrixStack matrices, MinecraftClient mc)
+    public static void renderAreaSides(BlockPos pos1, BlockPos pos2, Color4f color, Matrix4f matrices, MinecraftClient mc)
     {
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
@@ -472,9 +472,8 @@ public class RenderUtils
     {
         final int size = quads.size();
 
-        for (int i = 0; i < size; i++)
-        {
-            renderQuadOutlinesBatched(pos, buffer, color, quads.get(i).getVertexData());
+        for (BakedQuad quad : quads) {
+            renderQuadOutlinesBatched(pos, buffer, color, quad.getVertexData());
         }
     }
 
@@ -484,9 +483,9 @@ public class RenderUtils
         final int y = pos.getY();
         final int z = pos.getZ();
         final int vertexSize = vertexData.length / 4;
-        final float fx[] = new float[4];
-        final float fy[] = new float[4];
-        final float fz[] = new float[4];
+        final float[] fx = new float[4];
+        final float[] fy = new float[4];
+        final float[] fz = new float[4];
 
         for (int index = 0; index < 4; ++index)
         {
@@ -531,9 +530,8 @@ public class RenderUtils
     {
         final int size = quads.size();
 
-        for (int i = 0; i < size; i++)
-        {
-            renderModelQuadOverlayBatched(pos, buffer, color, quads.get(i).getVertexData());
+        for (BakedQuad quad : quads) {
+            renderModelQuadOverlayBatched(pos, buffer, color, quad.getVertexData());
         }
     }
 
@@ -657,19 +655,16 @@ public class RenderUtils
              Inventory inv, InventoryRenderType type, InventoryProperties props, MinecraftClient mc, DrawContext drawContext)
     {
         int xInv = 0;
-        int yInv = 0;
-
-        switch (align)
-        {
-            case CENTER:
+        int yInv = switch (align) {
+            case CENTER -> {
                 xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yInv = GuiUtils.getScaledWindowHeight() / 2 - props.height - offY;
-                break;
-            case TOP_CENTER:
+                yield GuiUtils.getScaledWindowHeight() / 2 - props.height - offY;
+            }
+            case TOP_CENTER -> {
                 xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yInv = offY;
-                break;
-        }
+                yield offY;
+            }
+        };
 
         if      (side == LeftRight.LEFT)  { xInv -= (props.width / 2 + 4); }
         else if (side == LeftRight.RIGHT) { xInv += (props.width / 2 + 4); }

@@ -2,9 +2,11 @@ package fi.dy.masa.litematica.world;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.item.map.MapId;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -67,11 +69,12 @@ public class WorldSchematic extends World
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer)
     {
-        super(properties, REGISTRY_KEY, MinecraftClient.getInstance().getNetworkHandler().getRegistryManager(), dimension, supplier, true, false, 0L, 0);
+        super(properties, REGISTRY_KEY, Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
+        assert this.mc.world != null;
         this.biome = this.mc.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
         this.tickManager = new TickManager();
     }
@@ -91,6 +94,15 @@ public class WorldSchematic extends World
     public TickManager getTickManager()
     {
         return this.tickManager;
+    }
+
+    @Nullable
+    @Override
+    public MapState getMapState(MapId id) { return null; }
+
+    @Override
+    public void putMapState(MapId id, MapState state) {
+
     }
 
     @Override
@@ -153,14 +165,14 @@ public class WorldSchematic extends World
         int chunkX = MathHelper.floor(entity.getX() / 16.0D);
         int chunkZ = MathHelper.floor(entity.getZ() / 16.0D);
 
-        if (this.chunkManagerSchematic.isChunkLoaded(chunkX, chunkZ) == false)
+        if (!this.chunkManagerSchematic.isChunkLoaded(chunkX, chunkZ))
         {
             return false;
         }
         else
         {
             entity.setId(this.nextEntityId++);
-            this.chunkManagerSchematic.getChunk(chunkX, chunkZ).addEntity(entity);
+            Objects.requireNonNull(this.chunkManagerSchematic.getChunk(chunkX, chunkZ)).addEntity(entity);
             ++this.entityCount;
 
             return true;
@@ -192,23 +204,23 @@ public class WorldSchematic extends World
         return this.mc.world != null ? this.mc.world.getTime() : 0;
     }
 
-    @Override
+    //@Override
     @Nullable
     public MapState getMapState(String id)
     {
         return null;
     }
 
-    @Override
+    //@Override
     public void putMapState(String name, MapState mapState)
     {
         // NO-OP
     }
 
     @Override
-    public int getNextMapId()
+    public MapId getNextMapId()
     {
-        return 0;
+        return null;
     }
 
     @Override
@@ -493,12 +505,14 @@ public class WorldSchematic extends World
     @Override
     public DynamicRegistryManager getRegistryManager()
     {
+        assert this.mc.world != null;
         return this.mc.world.getRegistryManager();
     }
 
     @Override
     public FeatureSet getEnabledFeatures()
     {
+        assert this.mc.world != null;
         return this.mc.world.getEnabledFeatures();
     }
 

@@ -4,7 +4,6 @@ import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
 
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -19,7 +18,7 @@ import fi.dy.masa.malilib.util.GuiUtils;
 public class RenderHandler implements IRenderer
 {
     @Override
-    public void onRenderWorldLast(MatrixStack matrices, Matrix4f projMatrix)
+    public void onRenderWorldLast(Matrix4f matrices, Matrix4f projMatrix)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
 

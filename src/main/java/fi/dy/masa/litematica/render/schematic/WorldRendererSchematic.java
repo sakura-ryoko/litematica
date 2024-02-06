@@ -128,7 +128,7 @@ public class WorldRendererSchematic
         {
             ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
 
-            if (data != ChunkRenderDataSchematic.EMPTY && data.isEmpty() == false)
+            if (data != ChunkRenderDataSchematic.EMPTY && !data.isEmpty())
             {
                 ++count;
             }
@@ -226,6 +226,7 @@ public class WorldRendererSchematic
 
         this.world.getProfiler().push("camera");
 
+        assert entity != null;
         double entityX = entity.getX();
         double entityY = entity.getY();
         double entityZ = entity.getZ();
@@ -257,7 +258,7 @@ public class WorldRendererSchematic
         final int renderDistance = this.mc.options.getViewDistance().getValue();
         ChunkPos viewChunk = new ChunkPos(viewPos);
 
-        this.displayListEntitiesDirty = this.displayListEntitiesDirty || this.chunksToUpdate.isEmpty() == false ||
+        this.displayListEntitiesDirty = this.displayListEntitiesDirty || !this.chunksToUpdate.isEmpty() ||
                 entityX != this.lastCameraX ||
                 entityY != this.lastCameraY ||
                 entityZ != this.lastCameraZ ||
@@ -331,7 +332,7 @@ public class WorldRendererSchematic
                 BlockPos pos = chunkRendererTmp.getOrigin().add(8, 8, 8);
                 boolean isNear = pos.getSquaredDistance(viewPos) < 1024.0D;
 
-                if (chunkRendererTmp.needsImmediateUpdate() == false && isNear == false)
+                if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
                 {
                     this.chunksToUpdate.add(chunkRendererTmp);
                 }
@@ -361,7 +362,7 @@ public class WorldRendererSchematic
 
         this.mc.getProfiler().swap("litematica_check_update");
 
-        if (this.chunksToUpdate.isEmpty() == false)
+        if (!this.chunksToUpdate.isEmpty())
         {
             Iterator<ChunkRendererSchematicVbo> iterator = this.chunksToUpdate.iterator();
 
@@ -402,7 +403,7 @@ public class WorldRendererSchematic
         this.mc.getProfiler().pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, MatrixStack matrices, Camera camera, Matrix4f projMatrix)
+    public void renderBlockLayer(RenderLayer renderLayer, MatrixStack matrices, Camera camera, Matrix4f projMatrix)
     {
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
@@ -463,6 +464,7 @@ public class WorldRendererSchematic
         }
 
         initShader(shader, matrices, projMatrix);
+        assert shader != null;
         RenderSystem.setupShaderLights(shader);
         shader.bind();
 
@@ -473,7 +475,7 @@ public class WorldRendererSchematic
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
 
-            if (renderer.getChunkRenderData().isBlockLayerEmpty(renderLayer) == false)
+            if (!renderer.getChunkRenderData().isBlockLayerEmpty(renderLayer))
             {
                 BlockPos chunkOrigin = renderer.getOrigin();
                 VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
@@ -515,7 +517,6 @@ public class WorldRendererSchematic
         this.world.getProfiler().pop();
         this.world.getProfiler().pop();
 
-        return count;
     }
 
     public void renderBlockOverlays(MatrixStack matrices, Camera camera, Matrix4f projMatrix)
@@ -528,6 +529,7 @@ public class WorldRendererSchematic
     {
         for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
+        //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
         if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
@@ -579,13 +581,13 @@ public class WorldRendererSchematic
             {
                 ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
 
-                if (compiledChunk.isOverlayTypeEmpty(type) == false)
+                if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
                     matrixStack.push();
-                    matrixStack.translate(chunkOrigin.getX() - x, chunkOrigin.getY() - y, chunkOrigin.getZ() - z);
+                    matrixStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
                     buffer.draw(matrixStack.peek().getPositionMatrix(), projMatrix, shader);
                     VertexBuffer.unbind();
@@ -677,11 +679,11 @@ public class WorldRendererSchematic
                 ChunkSchematic chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
                 List<Entity> list = chunk.getEntityList();
 
-                if (list.isEmpty() == false)
+                if (!list.isEmpty())
                 {
                     for (Entity entityTmp : list)
                     {
-                        if (layerRange.isPositionWithinRange((int) entityTmp.getX(), (int) entityTmp.getY(), (int) entityTmp.getZ()) == false)
+                        if (!layerRange.isPositionWithinRange((int) entityTmp.getX(), (int) entityTmp.getY(), (int) entityTmp.getZ()))
                         {
                             continue;
                         }
@@ -709,7 +711,7 @@ public class WorldRendererSchematic
                 ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
                 List<BlockEntity> tiles = data.getBlockEntities();
 
-                if (tiles.isEmpty() == false) 
+                if (!tiles.isEmpty())
                 {
                     BlockPos chunkOrigin = chunkRenderer.getOrigin();
                     ChunkSchematic chunk = this.world.getChunkProvider().getChunk(chunkOrigin.getX() >> 4, chunkOrigin.getZ() >> 4);
@@ -721,6 +723,7 @@ public class WorldRendererSchematic
                             try
                             {
                                 BlockPos pos = te.getPos();
+
                                 matrices.push();
                                 matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 

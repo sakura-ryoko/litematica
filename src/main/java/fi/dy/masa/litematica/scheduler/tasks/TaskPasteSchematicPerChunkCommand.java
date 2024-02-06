@@ -128,7 +128,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     @Override
     protected void onStartNextBox(IntBoundingBox box)
     {
-        if (this.ignoreBlocks == false)
+        if (!this.ignoreBlocks)
         {
             this.prepareSettingBlocks(box);
         }
@@ -162,7 +162,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected void sendQueuedCommands()
     {
-        while (this.sentCommandsThisTick < this.maxCommandsPerTick && this.queuedCommands.isEmpty() == false)
+        while (this.sentCommandsThisTick < this.maxCommandsPerTick && !this.queuedCommands.isEmpty())
         {
             this.sendCommand(this.queuedCommands.poll());
         }
@@ -171,21 +171,26 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected void processBlocksInCurrentBoxUsingSetBlockOnly()
     {
         ChunkPos chunkPos = this.currentChunkPos;
+        assert chunkPos != null;
         ChunkSchematic schematicChunk = this.schematicWorld.getChunkProvider().getChunk(chunkPos.x, chunkPos.z);
+        assert this.mc.world != null;
         Chunk clientChunk = this.mc.world.getChunk(chunkPos.x, chunkPos.z);
         boolean ignoreLimit = Configs.Generic.PASTE_IGNORE_CMD_LIMIT.getBooleanValue();
 
-        while (this.positionIterator.hasNext() &&
-               this.queuedCommands.size() < this.maxCommandsPerTick &&
-               (ignoreLimit == false || this.sentCommandsThisTick < this.maxCommandsPerTick))
+        while (true)
         {
+            assert this.positionIterator != null;
+            if (!(this.positionIterator.hasNext() &&
+                           this.queuedCommands.size() < this.maxCommandsPerTick &&
+                           (!ignoreLimit || this.sentCommandsThisTick < this.maxCommandsPerTick))) break;
             BlockPos pos = this.positionIterator.next();
+            assert schematicChunk != null;
             this.pasteBlock(pos, schematicChunk, clientChunk, ignoreLimit);
         }
 
         this.sendQueuedCommands();
 
-        if (this.positionIterator.hasNext() == false && this.queuedCommands.isEmpty())
+        if (!this.positionIterator.hasNext() && this.queuedCommands.isEmpty())
         {
             if (this.ignoreEntities)
             {
@@ -193,6 +198,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             }
             else
             {
+                assert this.currentBox != null;
                 this.prepareSummoningEntities(this.currentBox);
             }
         }
@@ -201,12 +207,14 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected void processBlocksInCurrentBoxUsingFill()
     {
         ChunkPos chunkPos = this.currentChunkPos;
+        assert chunkPos != null;
         final int baseX = chunkPos.x << 4;
         final int baseZ = chunkPos.z << 4;
         ChunkSchematic schematicChunk = this.schematicWorld.getChunkProvider().getChunk(chunkPos.x, chunkPos.z);
+        assert this.mc.world != null;
         Chunk clientChunk = this.mc.world.getChunk(chunkPos.x, chunkPos.z);
 
-        while (this.fillVolumes.isEmpty() == false && this.queuedCommands.size() < this.maxCommandsPerTick)
+        while (!this.fillVolumes.isEmpty() && this.queuedCommands.size() < this.maxCommandsPerTick)
         {
             int index = this.fillVolumes.size() - 1;
             long encodedValue = this.fillVolumes.removeLong(index);
@@ -224,6 +232,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             }
             else
             {
+                assert this.currentBox != null;
                 this.prepareSummoningEntities(this.currentBox);
             }
         }
@@ -231,14 +240,16 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected void processEntitiesInCurrentBox()
     {
-        while (this.entityIterator.hasNext() && this.queuedCommands.size() < this.maxCommandsPerTick)
+        while (true)
         {
+            assert this.entityIterator != null;
+            if (!(this.entityIterator.hasNext() && this.queuedCommands.size() < this.maxCommandsPerTick)) break;
             this.summonEntity(this.entityIterator.next());
         }
 
         this.sendQueuedCommands();
 
-        if (this.entityIterator.hasNext() == false && this.queuedCommands.isEmpty())
+        if (!this.entityIterator.hasNext() && this.queuedCommands.isEmpty())
         {
             this.onFinishedProcessingBox(this.currentChunkPos, this.currentBox);
         }
@@ -300,7 +311,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         }
 
         return (this.replace != ReplaceBehavior.NONE || stateClient.isAir()) &&
-                (this.replace != ReplaceBehavior.WITH_NON_AIR || stateSchematic.isAir() == false);
+                (this.replace != ReplaceBehavior.WITH_NON_AIR || !stateSchematic.isAir());
     }
 
     protected void summonEntity(Entity entity)
@@ -325,7 +336,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         ItemStack stack = itemFrame.getHeldItemStack();
 
-        if (stack.isEmpty() == false)
+        if (!stack.isEmpty())
         {
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
             int facingId = itemFrame.getHorizontalFacing().getId();
@@ -447,7 +458,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
             try
             {
-                Set<String> keys = new HashSet<>(be.createNbt().getKeys());
+                // Why Mojang ?
+                Set<String> keys = new HashSet<>(be.createNbt(null).getKeys());
                 keys.remove("id");
                 keys.remove("x");
                 keys.remove("y");
@@ -486,22 +498,22 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (be instanceof SignBlockEntity signBe)
         {
-            NbtCompound tag = be.createNbt();
+            NbtCompound tag = be.createNbt(null);
 
             if (tag != null)
             {
                 // Remove redundant tags to save on the command string length
-                if (signBe.getBackText().hasText(this.mc.player) == false)
+                if (!signBe.getBackText().hasText(this.mc.player))
                 {
                     tag.remove("back_text");
                 }
 
-                if (signBe.getFrontText().hasText(this.mc.player) == false)
+                if (!signBe.getFrontText().hasText(this.mc.player))
                 {
                     tag.remove("front_text");
                 }
 
-                if (signBe.isWaxed() == false)
+                if (!signBe.isWaxed())
                 {
                     tag.remove("is_waxed");
                 }
@@ -549,6 +561,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected BlockPos placeNbtPickedBlock(BlockPos pos, BlockState state, BlockEntity be,
                                            World schematicWorld, ClientWorld clientWorld)
     {
+        assert this.mc.player != null;
         double reach = this.mc.player.getBlockInteractionRange();
         BlockPos placementPos = this.findEmptyNearbyPosition(clientWorld, this.mc.player.getPos(), 4, reach);
 
@@ -557,6 +570,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             Vec3d posVec = new Vec3d(placementPos.getX() + 0.5, placementPos.getY() + 0.5, placementPos.getZ() + 0.5);
             BlockHitResult hitResult = new BlockHitResult(posVec, Direction.UP, placementPos, true);
 
+            assert this.mc.interactionManager != null;
             this.mc.interactionManager.interactBlock(this.mc.player, Hand.OFF_HAND, hitResult);
             this.placedPositionTimestamps.put(placementPos.asLong(), System.nanoTime());
 
@@ -613,6 +627,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             this.workArr = new int[16][height][16];
         }
 
+        assert chunk != null;
         this.generateStrips(this.workArr, Direction.EAST, box, chunk, ignoreBeFromFill);
         this.combineStripsToLayers(this.workArr, Direction.EAST, Direction.SOUTH, Direction.UP,
                                    box, chunk, this.fillVolumes, ignoreBeFromFill);
@@ -667,7 +682,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     mutablePos.set(x, y, z);
                     BlockState state = chunk.getBlockState(mutablePos);
 
-                    if (state.isAir() == false || replace == ReplaceBehavior.ALL)
+                    if (!state.isAir() || replace == ReplaceBehavior.ALL)
                     {
                         if (state.hasBlockEntity())
                         {
@@ -738,7 +753,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                         mutablePos.set(x, y, z);
                         BlockState state = chunk.getBlockState(mutablePos);
 
-                        if (ignoreBe == false || state.hasBlockEntity() == false)
+                        if (!ignoreBe || !state.hasBlockEntity())
                         {
                             // Find identical adjacent strips, and set their data in the array to zero,
                             // since they are being combined into one layer starting from the first position.
@@ -795,7 +810,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                         mutablePos.set(x, y, z);
                         BlockState state = chunk.getBlockState(mutablePos);
 
-                        if (ignoreBe == false || state.hasBlockEntity() == false)
+                        if (!ignoreBe || !state.hasBlockEntity())
                         {
                             // Find identical adjacent layers
                             while (nextX <= 15 && nextY <= box.maxY && nextZ <= 15 &&
@@ -969,14 +984,14 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     public static boolean isPositionAndSidesEmpty(World world, BlockPos centerPos, BlockPos.Mutable pos)
     {
-        if (world.isAir(centerPos) == false)
+        if (!world.isAir(centerPos))
         {
             return false;
         }
 
         for (Direction side : PositionUtils.ALL_DIRECTIONS)
         {
-            if (world.isAir(pos.set(centerPos, side)) == false)
+            if (!world.isAir(pos.set(centerPos, side)))
             {
                 return false;
             }
@@ -990,10 +1005,12 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         ItemStack stack = state.getBlock().getPickStack(world, pos, state);
 
-        if (stack.isEmpty() == false)
+        if (!stack.isEmpty())
         {
             addBlockEntityNbt(stack, be);
+            assert mc.player != null;
             mc.player.getInventory().offHand.set(0, stack);
+            assert mc.interactionManager != null;
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;
         }
@@ -1003,7 +1020,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     public static void addBlockEntityNbt(ItemStack stack, BlockEntity be)
     {
-        NbtCompound tag = be.createNbt();
+        NbtCompound tag = be.createNbt(null);
 
         if (stack.getItem() instanceof PlayerHeadItem && tag.contains("SkullOwner"))
         {
