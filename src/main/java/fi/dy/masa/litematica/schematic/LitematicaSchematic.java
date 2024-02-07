@@ -282,12 +282,12 @@ public class LitematicaSchematic
         this.entities.put(subRegionName, schematic.getEntities());
     }
 
-    public void placeToWorld(World world, SchematicPlacement schematicPlacement, boolean notifyNeighbors)
+    public boolean placeToWorld(World world, SchematicPlacement schematicPlacement, boolean notifyNeighbors)
     {
-        this.placeToWorld(world, schematicPlacement, notifyNeighbors, false);
+        return this.placeToWorld(world, schematicPlacement, notifyNeighbors, false);
     }
 
-    public void placeToWorld(World world, SchematicPlacement schematicPlacement, boolean notifyNeighbors, boolean ignoreEntities)
+    public boolean placeToWorld(World world, SchematicPlacement schematicPlacement, boolean notifyNeighbors, boolean ignoreEntities)
     {
         WorldUtils.setShouldPreventBlockUpdates(world, true);
 
@@ -327,9 +327,10 @@ public class LitematicaSchematic
 
         WorldUtils.setShouldPreventBlockUpdates(world, false);
 
+        return true;
     }
 
-    private void placeBlocksToWorld(World world, BlockPos origin, BlockPos regionPos, BlockPos regionSize,
+    private boolean placeBlocksToWorld(World world, BlockPos origin, BlockPos regionPos, BlockPos regionSize,
                                     SchematicPlacement schematicPlacement, SubRegionPlacement placement,
                                     LitematicaBlockStateContainer container, Map<BlockPos, NbtCompound> tileMap,
                                     @Nullable Map<BlockPos, OrderedTick<Block>> scheduledBlockTicks,
@@ -525,6 +526,7 @@ public class LitematicaSchematic
         }
         */
 
+        return true;
     }
 
     private void placeEntitiesToWorld(World world, BlockPos origin, BlockPos regionPos, BlockPos regionSize, SchematicPlacement schematicPlacement, SubRegionPlacement placement, List<EntityInfo> entityList)

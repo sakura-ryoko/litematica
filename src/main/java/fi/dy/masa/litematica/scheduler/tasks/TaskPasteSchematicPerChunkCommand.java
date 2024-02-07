@@ -177,14 +177,11 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         Chunk clientChunk = this.mc.world.getChunk(chunkPos.x, chunkPos.z);
         boolean ignoreLimit = Configs.Generic.PASTE_IGNORE_CMD_LIMIT.getBooleanValue();
 
-        while (true)
+        while (this.positionIterator.hasNext() &&
+                this.queuedCommands.size() < this.maxCommandsPerTick &&
+                (ignoreLimit == false || this.sentCommandsThisTick < this.maxCommandsPerTick))
         {
-            assert this.positionIterator != null;
-            if (!(this.positionIterator.hasNext() &&
-                           this.queuedCommands.size() < this.maxCommandsPerTick &&
-                           (!ignoreLimit || this.sentCommandsThisTick < this.maxCommandsPerTick))) break;
             BlockPos pos = this.positionIterator.next();
-            assert schematicChunk != null;
             this.pasteBlock(pos, schematicChunk, clientChunk, ignoreLimit);
         }
 
@@ -240,10 +237,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected void processEntitiesInCurrentBox()
     {
-        while (true)
+        while (this.entityIterator.hasNext() && this.queuedCommands.size() < this.maxCommandsPerTick)
         {
-            assert this.entityIterator != null;
-            if (!(this.entityIterator.hasNext() && this.queuedCommands.size() < this.maxCommandsPerTick)) break;
             this.summonEntity(this.entityIterator.next());
         }
 

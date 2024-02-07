@@ -74,10 +74,13 @@ public class SchematicaSchematic
         List<EntityInfo> entityList = new ArrayList<>();
         final int size = this.entities.size();
 
-        for (NbtCompound entityData : this.entities) {
+        for (int i = 0; i < size; ++i)
+        {
+            NbtCompound entityData = this.entities.get(i);
             Vec3d posVec = NBTUtils.readEntityPositionFromTag(entityData);
 
-            if (posVec != null && !entityData.isEmpty()) {
+            if (posVec != null && !entityData.isEmpty())
+            {
                 entityList.add(new EntityInfo(posVec, entityData));
             }
         }

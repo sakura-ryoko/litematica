@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.util.math.MatrixStack;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(net.minecraft.client.render.WorldRenderer.class)
 public abstract class MixinWorldRenderer
@@ -35,38 +34,44 @@ public abstract class MixinWorldRenderer
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
-    private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrixStack, Matrix4f matrix4f, CallbackInfo ci)
+    private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
-        MatrixStack newStack = new MatrixStack();
-        newStack.multiplyPositionMatrix(matrixStack);
+        MatrixStack matrixStack = new MatrixStack();
+        //matrixStack.push();
+        matrixStack.multiplyPositionMatrix(matrix4f);
+        //matrixStack.pop();
 
         if (renderLayer == RenderLayer.getSolid())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderSolid(newStack, matrix4f);
+            LitematicaRenderer.getInstance().piecewiseRenderSolid(matrixStack, positionMatrix);
         }
         else if (renderLayer == RenderLayer.getCutoutMipped())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderCutoutMipped(newStack, matrix4f);
+            LitematicaRenderer.getInstance().piecewiseRenderCutoutMipped(matrixStack, positionMatrix);
         }
         else if (renderLayer == RenderLayer.getCutout())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderCutout(newStack, matrix4f);
+            LitematicaRenderer.getInstance().piecewiseRenderCutout(matrixStack, positionMatrix);
         }
         else if (renderLayer == RenderLayer.getTranslucent())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderTranslucent(newStack, matrix4f);
-            LitematicaRenderer.getInstance().piecewiseRenderOverlay(newStack, matrix4f);
+            LitematicaRenderer.getInstance().piecewiseRenderTranslucent(matrixStack, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderOverlay(matrixStack, positionMatrix);
         }
     }
 
     @Inject(method = "render",
             at = @At(value = "INVOKE_STRING", args = "ldc=blockentities",
-                     target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"),
-    locals = LocalCapture.CAPTURE_FAILHARD)
-    private void onPostRenderEntities(float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+                    target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
+    private void onPostRenderEntities(
+            float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera,
+            GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
+            Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
         MatrixStack matrixStack = new MatrixStack();
+        matrixStack.push();
         matrixStack.multiplyPositionMatrix(matrix4f);
+        matrixStack.pop();
 
         LitematicaRenderer.getInstance().piecewiseRenderEntities(matrixStack, tickDelta);
     }

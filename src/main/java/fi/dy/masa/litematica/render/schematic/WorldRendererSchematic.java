@@ -403,7 +403,7 @@ public class WorldRendererSchematic
         this.mc.getProfiler().pop();
     }
 
-    public void renderBlockLayer(RenderLayer renderLayer, MatrixStack matrices, Camera camera, Matrix4f projMatrix)
+    public int renderBlockLayer(RenderLayer renderLayer, MatrixStack matrices, Camera camera, Matrix4f projMatrix)
     {
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
@@ -517,6 +517,7 @@ public class WorldRendererSchematic
         this.world.getProfiler().pop();
         this.world.getProfiler().pop();
 
+        return count;
     }
 
     public void renderBlockOverlays(MatrixStack matrices, Camera camera, Matrix4f projMatrix)
@@ -529,7 +530,6 @@ public class WorldRendererSchematic
     {
         for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
-        //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
         if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
@@ -587,7 +587,7 @@ public class WorldRendererSchematic
                     BlockPos chunkOrigin = renderer.getOrigin();
 
                     matrixStack.push();
-                    matrixStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                    matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
                     buffer.bind();
                     buffer.draw(matrixStack.peek().getPositionMatrix(), projMatrix, shader);
                     VertexBuffer.unbind();
@@ -723,7 +723,6 @@ public class WorldRendererSchematic
                             try
                             {
                                 BlockPos pos = te.getPos();
-
                                 matrices.push();
                                 matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
