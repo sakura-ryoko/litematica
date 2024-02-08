@@ -409,9 +409,6 @@ public class WorldRendererSchematic
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
 
-        //MatrixStack matrixStack = new MatrixStack();
-        //matrixStack.multiplyPositionMatrix(matrices);
-
         renderLayer.startDrawing();
         //RenderUtils.disableDiffuseLighting();
         Vec3d cameraPos = camera.getPos();
@@ -590,7 +587,7 @@ public class WorldRendererSchematic
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    // FIXME --> Verify this works as a matrix4f -- it doesn't; Because of the push() / pop() is missing perhaps? :)
+                    // FIXME --> It doesn't work as a Matrix4f; Because of the push() / pop() is missing perhaps?
                     MatrixStack matrixStack = new MatrixStack();
                     matrixStack.multiplyPositionMatrix(matrix4f);
 
@@ -682,7 +679,10 @@ public class WorldRendererSchematic
             this.world.getProfiler().swap("regular_entities");
             //List<Entity> entitiesMultipass = Lists.<Entity>newArrayList();
 
-            // TODO -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
+            // FIXME -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
+            //  Causes strange entity behavior if this is missing ( Including the push() and pop() )
+            //  Doing this restores the expected behavior, but why?
+
             MatrixStack matrixStack = new MatrixStack();
             matrixStack.push();
             matrixStack.multiplyPositionMatrix(matrices);

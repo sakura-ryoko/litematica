@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
