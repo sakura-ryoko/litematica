@@ -49,7 +49,6 @@ import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
-import org.joml.Matrix4fStack;
 
 public class WorldRendererSchematic
 {
@@ -410,10 +409,8 @@ public class WorldRendererSchematic
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
 
-        // FIXME --> this is to fix the "Schematic is not translucent" problem, I think it's a problem with Minecraft's render() versus our Shader process?
-        // FIXME --> I tried to shove the Matrix4f methods into Litematica only to get poor results, schematic tearing, being solid blocks, etc.
-        MatrixStack matrixStack = new MatrixStack();
-        matrixStack.multiplyPositionMatrix(matrices);
+        //MatrixStack matrixStack = new MatrixStack();
+        //matrixStack.multiplyPositionMatrix(matrices);
 
         renderLayer.startDrawing();
         //RenderUtils.disableDiffuseLighting();
@@ -469,7 +466,7 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         }
 
-        initShader(shader, matrixStack, projMatrix);
+        initShader(shader, matrices, projMatrix);
         assert shader != null;
         RenderSystem.setupShaderLights(shader);
         shader.bind();
@@ -532,12 +529,12 @@ public class WorldRendererSchematic
         this.renderBlockOverlay(OverlayRenderType.QUAD, matrices, camera, projMatrix);
     }
 
-    protected static void initShader(ShaderProgram shader, MatrixStack matrices, Matrix4f projMatrix)
+    protected static void initShader(ShaderProgram shader, Matrix4f matrices, Matrix4f projMatrix)
     {
         for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
-        if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
-        //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices);
+        //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
+        if (shader.modelViewMat != null) shader.modelViewMat.set(matrices);
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
         if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
         if (shader.fogStart != null) shader.fogStart.set(RenderSystem.getShaderFogStart());
@@ -593,18 +590,20 @@ public class WorldRendererSchematic
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    // FIXME --> Verify this works as a matrix4f
-                    //matrixStack.push();
-                    //matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
+                    // FIXME --> Verify this works as a matrix4f -- it doesn't; Because of the push() / pop() is missing perhaps? :)
+                    MatrixStack matrixStack = new MatrixStack();
+                    matrixStack.multiplyPositionMatrix(matrix4f);
 
-                    matrix4f.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                    matrixStack.push();
+                    matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
+
+                    //matrix4f.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrix4f, projMatrix, shader);
+                    //buffer.draw(matrix4f, projMatrix, shader);
+                    buffer.draw(matrixStack.peek().getPositionMatrix(), projMatrix, shader);
 
-                    //buffer.draw();
                     VertexBuffer.unbind();
-
-                    //matrix4f.pop();
+                    matrixStack.pop();
                 }
             }
         }

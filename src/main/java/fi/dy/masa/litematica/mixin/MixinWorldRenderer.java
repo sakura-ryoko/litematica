@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.client.util.math.MatrixStack;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
 @Mixin(net.minecraft.client.render.WorldRenderer.class)
@@ -38,10 +37,9 @@ public abstract class MixinWorldRenderer
     {
         /*
         MatrixStack matrixStack = new MatrixStack();
-        //matrixStack.push();
         matrixStack.multiplyPositionMatrix(matrix4f);
-        //matrixStack.pop();
          */
+
         if (renderLayer == RenderLayer.getSolid())
         {
             LitematicaRenderer.getInstance().piecewiseRenderSolid(matrix4f, positionMatrix);
