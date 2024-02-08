@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.event;
 
-import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -19,22 +18,22 @@ import fi.dy.masa.malilib.util.GuiUtils;
 public class RenderHandler implements IRenderer
 {
     @Override
-    public void onRenderWorldLast(MatrixStack matrices, Matrix4f projMatrix)
+    public void onRenderWorldLast(Matrix4f matrix4f, Matrix4f projMatrix)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
-            OverlayRenderer.getInstance().renderBoxes(matrices);
+            OverlayRenderer.getInstance().renderBoxes(matrix4f);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
-                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(matrices);
+                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(matrix4f);
             }
 
             if (DataManager.getToolMode() == ToolMode.REBUILD)
             {
-                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(matrices);
+                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(matrix4f);
             }
         }
     }

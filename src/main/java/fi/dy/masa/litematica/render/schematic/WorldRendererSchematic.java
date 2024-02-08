@@ -49,6 +49,7 @@ import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
+import org.joml.Matrix4fStack;
 
 public class WorldRendererSchematic
 {
@@ -403,11 +404,16 @@ public class WorldRendererSchematic
         this.mc.getProfiler().pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, MatrixStack matrices, Camera camera, Matrix4f projMatrix)
+    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
+
+        // FIXME --> this is to fix the "Schematic is not translucent" problem, I think it's a problem with Minecraft's render() versus our Shader process?
+        // FIXME --> I tried to shove the Matrix4f methods into Litematica only to get poor results, schematic tearing, being solid blocks, etc.
+        MatrixStack matrixStack = new MatrixStack();
+        matrixStack.multiplyPositionMatrix(matrices);
 
         renderLayer.startDrawing();
         //RenderUtils.disableDiffuseLighting();
@@ -463,7 +469,7 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         }
 
-        initShader(shader, matrices, projMatrix);
+        initShader(shader, matrixStack, projMatrix);
         assert shader != null;
         RenderSystem.setupShaderLights(shader);
         shader.bind();
@@ -520,7 +526,7 @@ public class WorldRendererSchematic
         return count;
     }
 
-    public void renderBlockOverlays(MatrixStack matrices, Camera camera, Matrix4f projMatrix)
+    public void renderBlockOverlays(Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
         this.renderBlockOverlay(OverlayRenderType.OUTLINE, matrices, camera, projMatrix);
         this.renderBlockOverlay(OverlayRenderType.QUAD, matrices, camera, projMatrix);
@@ -531,6 +537,7 @@ public class WorldRendererSchematic
         for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
+        //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices);
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
         if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
         if (shader.fogStart != null) shader.fogStart.set(RenderSystem.getShaderFogStart());
@@ -540,7 +547,7 @@ public class WorldRendererSchematic
         if (shader.gameTime != null) shader.gameTime.set(RenderSystem.getShaderGameTime());
     }
 
-    protected void renderBlockOverlay(OverlayRenderType type, MatrixStack matrixStack, Camera camera, Matrix4f projMatrix)
+    protected void renderBlockOverlay(OverlayRenderType type, Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
         RenderLayer renderLayer = RenderLayer.getTranslucent();
         renderLayer.startDrawing();
@@ -586,12 +593,18 @@ public class WorldRendererSchematic
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    matrixStack.push();
-                    matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
+                    // FIXME --> Verify this works as a matrix4f
+                    //matrixStack.push();
+                    //matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
+
+                    matrix4f.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrixStack.peek().getPositionMatrix(), projMatrix, shader);
+                    buffer.draw(matrix4f, projMatrix, shader);
+
+                    //buffer.draw();
                     VertexBuffer.unbind();
-                    matrixStack.pop();
+
+                    //matrix4f.pop();
                 }
             }
         }
@@ -644,7 +657,7 @@ public class WorldRendererSchematic
         return this.blockRenderManager.getModel(state);
     }
 
-    public void renderEntities(Camera camera, Frustum frustum, MatrixStack matrices, float partialTicks)
+    public void renderEntities(Camera camera, Frustum frustum, Matrix4f matrices, float partialTicks)
     {
         if (this.renderEntitiesStartupCounter > 0)
         {
@@ -669,6 +682,12 @@ public class WorldRendererSchematic
 
             this.world.getProfiler().swap("regular_entities");
             //List<Entity> entitiesMultipass = Lists.<Entity>newArrayList();
+
+            // TODO -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
+            MatrixStack matrixStack = new MatrixStack();
+            matrixStack.push();
+            matrixStack.multiplyPositionMatrix(matrices);
+            matrixStack.pop();
 
             VertexConsumerProvider.Immediate entityVertexConsumers = this.bufferBuilders.getEntityVertexConsumers();
             LayerRange layerRange = DataManager.getRenderLayerRange();
@@ -696,8 +715,12 @@ public class WorldRendererSchematic
                             double y = entityTmp.getY() - cameraY;
                             double z = entityTmp.getZ() - cameraZ;
 
-                            this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrices, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
+                            matrixStack.push();
+
+                            this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrixStack, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
                             ++this.countEntitiesRendered;
+
+                            matrixStack.pop();
                         }
                     }
                 }
@@ -723,12 +746,13 @@ public class WorldRendererSchematic
                             try
                             {
                                 BlockPos pos = te.getPos();
-                                matrices.push();
-                                matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                                renderer.render(te, partialTicks, matrices, entityVertexConsumers);
+                                matrixStack.push();
+                                matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                                matrices.pop();
+                                renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
+
+                                matrixStack.pop();
                             }
                             catch (Exception ignore)
                             {
@@ -745,12 +769,12 @@ public class WorldRendererSchematic
                     try
                     {
                         BlockPos pos = te.getPos();
-                        matrices.push();
-                        matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
+                        matrixStack.push();
+                        matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                        renderer.render(te, partialTicks, matrices, entityVertexConsumers);
+                        renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
-                        matrices.pop();
+                        matrixStack.pop();
                     }
                     catch (Exception ignore)
                     {

@@ -36,27 +36,28 @@ public abstract class MixinWorldRenderer
     @Inject(method = "renderLayer", at = @At("TAIL"))
     private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
+        /*
         MatrixStack matrixStack = new MatrixStack();
         //matrixStack.push();
         matrixStack.multiplyPositionMatrix(matrix4f);
         //matrixStack.pop();
-
+         */
         if (renderLayer == RenderLayer.getSolid())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderSolid(matrixStack, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderSolid(matrix4f, positionMatrix);
         }
         else if (renderLayer == RenderLayer.getCutoutMipped())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderCutoutMipped(matrixStack, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderCutoutMipped(matrix4f, positionMatrix);
         }
         else if (renderLayer == RenderLayer.getCutout())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderCutout(matrixStack, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderCutout(matrix4f, positionMatrix);
         }
         else if (renderLayer == RenderLayer.getTranslucent())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderTranslucent(matrixStack, positionMatrix);
-            LitematicaRenderer.getInstance().piecewiseRenderOverlay(matrixStack, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderTranslucent(matrix4f, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderOverlay(matrix4f, positionMatrix);
         }
     }
 
@@ -68,12 +69,14 @@ public abstract class MixinWorldRenderer
             GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
             Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
+        /*
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.push();
         matrixStack.multiplyPositionMatrix(matrix4f);
         matrixStack.pop();
+         */
 
-        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrixStack, tickDelta);
+        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickDelta);
     }
 
     /*

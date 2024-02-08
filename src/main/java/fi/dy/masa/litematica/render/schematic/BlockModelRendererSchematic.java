@@ -22,6 +22,7 @@ import net.minecraft.world.BlockRenderView;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import org.joml.Matrix4f;
 
 public class BlockModelRendererSchematic
 {
@@ -40,8 +41,13 @@ public class BlockModelRendererSchematic
         boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelIn.useAmbientOcclusion();
 
         Vec3d offset = stateIn.getModelOffset(worldIn, posIn);
-        matrices.translate(offset.x, offset.y, offset.z);
+        matrices.translate((float) offset.x, (float) offset.y, (float) offset.z);
         int overlay = OverlayTexture.DEFAULT_UV;
+
+        // TODO -- Make sure this works --> the VertexCustomer.quad() call uses MartrixStack.Entry, maybe Matrix4f in the future?
+        //MatrixStack matrixStack = new MatrixStack();
+        //matrixStack.multiplyPositionMatrix(matrices);
+        // --> Do we need to push() / pop() ?
 
         try
         {
@@ -354,7 +360,7 @@ public class BlockModelRendererSchematic
     }
     */
 
-    class AmbientOcclusionCalculator
+    protected static class AmbientOcclusionCalculator
     {
         private final float[] brightness = new float[4];
         private final int[] light = new int[4];

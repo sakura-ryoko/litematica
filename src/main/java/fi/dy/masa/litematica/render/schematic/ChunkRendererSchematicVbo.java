@@ -49,6 +49,7 @@ import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.LayerRange;
+import org.joml.Matrix4f;
 
 public class ChunkRendererSchematicVbo
 {
@@ -271,6 +272,7 @@ public class ChunkRendererSchematicVbo
                 float z = (float) cameraPos.z - this.position.getZ();
                 Set<RenderLayer> usedLayers = new HashSet<>();
                 BufferBuilderCache buffers = task.getBufferCache();
+                // TODO -- Do we need to change this to a Matrix4f ?
                 MatrixStack matrices = new MatrixStack();
                 int bottomY = this.position.getY();
 
@@ -351,7 +353,7 @@ public class ChunkRendererSchematicVbo
     }
 
     protected void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities,
-            Set<RenderLayer> usedLayers, MatrixStack matrices, BufferBuilderCache buffers)
+                                          Set<RenderLayer> usedLayers, MatrixStack matrices, BufferBuilderCache buffers)
     {
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);
         BlockState stateClient    = this.clientWorldView.getBlockState(pos);

@@ -16,7 +16,6 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
@@ -52,6 +51,7 @@ import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
+import org.joml.Matrix4f;
 
 public class OverlayRenderer
 {
@@ -124,7 +124,7 @@ public class OverlayRenderer
         }
     }
 
-    public void renderBoxes(MatrixStack matrices)
+    public void renderBoxes(Matrix4f matrices)
     {
         SelectionManager sm = DataManager.getSelectionManager();
         AreaSelection currentSelection = sm.getCurrentSelection();
@@ -231,7 +231,7 @@ public class OverlayRenderer
     }
 
     public void renderSelectionBox(Box box, BoxType boxType, float expand,
-            float lineWidthBlockBox, float lineWidthArea, @Nullable SchematicPlacement placement, MatrixStack matrices)
+            float lineWidthBlockBox, float lineWidthArea, @Nullable SchematicPlacement placement, Matrix4f matrices)
     {
         BlockPos pos1 = box.getPos1();
         BlockPos pos2 = box.getPos2();
@@ -346,7 +346,7 @@ public class OverlayRenderer
         }
     }
 
-    public void renderSchematicVerifierMismatches(MatrixStack matrices)
+    public void renderSchematicVerifierMismatches(Matrix4f matrices)
     {
         SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
 
@@ -367,7 +367,7 @@ public class OverlayRenderer
         }
     }
 
-    private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, MatrixStack matrices)
+    private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, Matrix4f matrices)
     {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
@@ -641,7 +641,7 @@ public class OverlayRenderer
         this.blockInfoLines.addAll(BlockUtils.getFormattedBlockStateProperties(state));
     }
 
-    public void renderSchematicRebuildTargetingOverlay(MatrixStack matrixStack)
+    public void renderSchematicRebuildTargetingOverlay(Matrix4f matrix4f)
     {
         RayTraceWrapper traceWrapper = null;
         Color4f color = null;
@@ -695,12 +695,12 @@ public class OverlayRenderer
             if (direction)
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlay(
-                        entity, pos, trace.getSide(), trace.getPos(), color, matrixStack, this.mc);
+                        entity, pos, trace.getSide(), trace.getPos(), color, matrix4f, this.mc);
             }
             else
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlaySimple(
-                        entity, pos, trace.getSide(), color, matrixStack, this.mc);
+                        entity, pos, trace.getSide(), color, matrix4f, this.mc);
             }
 
             RenderSystem.disablePolygonOffset();

@@ -2,13 +2,13 @@ package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.util.math.MatrixStack;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
@@ -208,7 +208,7 @@ public class LitematicaRenderer
     }
     */
 
-    public void renderSchematicOverlay(MatrixStack matrices, Matrix4f projMatrix)
+    public void renderSchematicOverlay(Matrix4f matrices, Matrix4f projMatrix)
     {
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
@@ -271,7 +271,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderSolid(MatrixStack matrices, Matrix4f projMatrix)
+    public void piecewiseRenderSolid(Matrix4f matrices, Matrix4f projMatrix)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -295,7 +295,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderCutoutMipped(MatrixStack matrices, Matrix4f projMatrix)
+    public void piecewiseRenderCutoutMipped(Matrix4f matrices, Matrix4f projMatrix)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -319,7 +319,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderCutout(MatrixStack matrices, Matrix4f projMatrix)
+    public void piecewiseRenderCutout(Matrix4f matrices, Matrix4f projMatrix)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -343,7 +343,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderTranslucent(MatrixStack matrices, Matrix4f projMatrix)
+    public void piecewiseRenderTranslucent(Matrix4f matrices, Matrix4f projMatrix)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -367,7 +367,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderOverlay(MatrixStack matrices, Matrix4f matrix4f)
+    public void piecewiseRenderOverlay(Matrix4f matrices, Matrix4f matrix4f)
     {
         if (this.renderPiecewiseSchematic)
         {
@@ -393,7 +393,7 @@ public class LitematicaRenderer
         this.cleanup();
     }
 
-    public void piecewiseRenderEntities(MatrixStack matrices, float partialTicks)
+    public void piecewiseRenderEntities(Matrix4f matrices, float partialTicks)
     {
         if (this.renderPiecewiseBlocks)
         {
