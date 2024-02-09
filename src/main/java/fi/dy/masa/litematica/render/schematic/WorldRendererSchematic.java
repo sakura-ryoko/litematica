@@ -520,18 +520,18 @@ public class WorldRendererSchematic
         return count;
     }
 
-    public void renderBlockOverlays(Matrix4f matrices, Camera camera, Matrix4f projMatrix)
+    public void renderBlockOverlays(Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
-        this.renderBlockOverlay(OverlayRenderType.OUTLINE, matrices, camera, projMatrix);
-        this.renderBlockOverlay(OverlayRenderType.QUAD, matrices, camera, projMatrix);
+        this.renderBlockOverlay(OverlayRenderType.OUTLINE, matrix4f, camera, projMatrix);
+        this.renderBlockOverlay(OverlayRenderType.QUAD, matrix4f, camera, projMatrix);
     }
 
-    protected static void initShader(ShaderProgram shader, Matrix4f matrices, Matrix4f projMatrix)
+    protected static void initShader(ShaderProgram shader, Matrix4f matrix4f, Matrix4f projMatrix)
     {
         for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
         //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
-        if (shader.modelViewMat != null) shader.modelViewMat.set(matrices);
+        if (shader.modelViewMat != null) shader.modelViewMat.set(matrix4f);
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
         if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
         if (shader.fogStart != null) shader.fogStart.set(RenderSystem.getShaderFogStart());
@@ -613,8 +613,9 @@ public class WorldRendererSchematic
         this.world.getProfiler().pop();
     }
 
-    public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrices, BufferBuilder bufferBuilderIn)
+    public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, Matrix4f matrix4f, BufferBuilder bufferBuilderIn)
     {
+        // FIXME try matrix4f
         try
         {
             BlockRenderType renderType = state.getRenderType();
@@ -626,7 +627,7 @@ public class WorldRendererSchematic
             else
             {
                 return renderType == BlockRenderType.MODEL &&
-                       this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrices, bufferBuilderIn, state.getRenderingSeed(pos));
+                       this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrix4f, bufferBuilderIn, state.getRenderingSeed(pos));
             }
         }
         catch (Throwable throwable)
@@ -653,7 +654,7 @@ public class WorldRendererSchematic
         return this.blockRenderManager.getModel(state);
     }
 
-    public void renderEntities(Camera camera, Frustum frustum, Matrix4f matrices, float partialTicks)
+    public void renderEntities(Camera camera, Frustum frustum, Matrix4f matrix4f, float partialTicks)
     {
         if (this.renderEntitiesStartupCounter > 0)
         {
@@ -681,11 +682,11 @@ public class WorldRendererSchematic
 
             // FIXME -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
             //  Causes strange entity behavior if this is missing ( Including the push() and pop() )
-            //  Doing this restores the expected behavior, but why?
+            //  Doing this restores the expected behavior of Entities
 
             MatrixStack matrixStack = new MatrixStack();
             matrixStack.push();
-            matrixStack.multiplyPositionMatrix(matrices);
+            matrixStack.multiplyPositionMatrix(matrix4f);
             matrixStack.pop();
 
             VertexConsumerProvider.Immediate entityVertexConsumers = this.bufferBuilders.getEntityVertexConsumers();

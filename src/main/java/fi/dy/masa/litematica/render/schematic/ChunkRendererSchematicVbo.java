@@ -197,7 +197,7 @@ public class ChunkRendererSchematicVbo
 
         if (bufferState != null)
         {
-            if (data.isBlockLayerEmpty(layerTranslucent) == false)
+            if (!data.isBlockLayerEmpty(layerTranslucent))
             {
                 BufferBuilder buffer = buffers.getBlockBufferByLayer(layerTranslucent);
 
@@ -214,7 +214,7 @@ public class ChunkRendererSchematicVbo
             OverlayRenderType type = OverlayRenderType.QUAD;
             bufferState = data.getOverlayBufferState(type);
 
-            if (bufferState != null && data.isOverlayTypeEmpty(type) == false)
+            if (bufferState != null && !data.isOverlayTypeEmpty(type))
             {
                 BufferBuilder buffer = buffers.getOverlayBuffer(type);
 
@@ -260,8 +260,8 @@ public class ChunkRendererSchematicVbo
             int maxY = minY + this.world.getHeight();
             int maxZ = minZ + 15;
 
-            if (this.boxes.isEmpty() == false &&
-                (this.schematicWorldView.isEmpty() == false || this.clientWorldView.isEmpty() == false) &&
+            if (!this.boxes.isEmpty() &&
+                (!this.schematicWorldView.isEmpty() || !this.clientWorldView.isEmpty()) &&
                  range.intersectsBox(minX, minY, minZ, maxX, maxY, maxZ))
             {
                 ++schematicRenderChunksUpdated;
@@ -272,8 +272,11 @@ public class ChunkRendererSchematicVbo
                 float z = (float) cameraPos.z - this.position.getZ();
                 Set<RenderLayer> usedLayers = new HashSet<>();
                 BufferBuilderCache buffers = task.getBufferCache();
+
                 // TODO -- Do we need to change this to a Matrix4f ?
-                MatrixStack matrices = new MatrixStack();
+                MatrixStack matrixStack = new MatrixStack();
+                //Matrix4f matrix4f = new Matrix4f();
+                //Matrix4fStack matrix4fStack = new Matrix4fStack();
                 int bottomY = this.position.getY();
 
                 for (IntBoundingBox box : this.boxes)
@@ -294,12 +297,16 @@ public class ChunkRendererSchematicVbo
                         // Fluid models and the overlay use the VertexConsumer#vertex(x, y, z) method.
                         // Fluid rendering and the overlay do not use the MatrixStack.
                         // Block models use the VertexConsumer#quad() method, and they use the MatrixStack.
-                        matrices.push();
-                        matrices.translate(posMutable.getX() & 0xF, posMutable.getY() - bottomY, posMutable.getZ() & 0xF);
 
-                        this.renderBlocksAndOverlay(posMutable, data, tileEntities, usedLayers, matrices, buffers);
+                        //matrix4fStack.pushMatrix();
+                        matrixStack.push();
 
-                        matrices.pop();
+                        matrixStack.translate(posMutable.getX() & 0xF, posMutable.getY() - bottomY, posMutable.getZ() & 0xF);
+
+                        this.renderBlocksAndOverlay(posMutable, data, tileEntities, usedLayers, matrixStack.peek().getPositionMatrix(), buffers);
+
+                        matrixStack.pop();
+                        //matrix4fStack.popMatrix();
                     }
                 }
 
@@ -353,8 +360,9 @@ public class ChunkRendererSchematicVbo
     }
 
     protected void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities,
-                                          Set<RenderLayer> usedLayers, MatrixStack matrices, BufferBuilderCache buffers)
+                                          Set<RenderLayer> usedLayers, Matrix4f matrix4f, BufferBuilderCache buffers)
     {
+        // FIXME try Matrix4f ?
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);
         BlockState stateClient    = this.clientWorldView.getBlockState(pos);
         boolean clientHasAir = stateClient.isAir();
@@ -380,14 +388,14 @@ public class ChunkRendererSchematicVbo
             // TODO change when the fluids become separate
             FluidState fluidState = stateSchematic.getFluidState();
 
-            if (fluidState.isEmpty() == false)
+            if (!fluidState.isEmpty())
             {
                 RenderLayer layer = RenderLayers.getFluidLayer(fluidState);
                 int offsetY = ((pos.getY() >> 4) << 4) - this.position.getY();
                 OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder bufferSchematic = buffers.getBlockBufferByLayer(layer);
                 bufferSchematic.setYOffset(offsetY);
 
-                if (data.isBlockLayerStarted(layer) == false)
+                if (!data.isBlockLayerStarted(layer))
                 {
                     data.setBlockLayerStarted(layer);
                     this.preRenderBlocks(bufferSchematic, layer);
@@ -403,13 +411,13 @@ public class ChunkRendererSchematicVbo
                 RenderLayer layer = translucent ? RenderLayer.getTranslucent() : RenderLayers.getBlockLayer(stateSchematic);
                 BufferBuilder bufferSchematic = buffers.getBlockBufferByLayer(layer);
 
-                if (data.isBlockLayerStarted(layer) == false)
+                if (!data.isBlockLayerStarted(layer))
                 {
                     data.setBlockLayerStarted(layer);
                     this.preRenderBlocks(bufferSchematic, layer);
                 }
 
-                if (this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, matrices, bufferSchematic))
+                if (this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, matrix4f, bufferSchematic))
                 {
                     usedLayers.add(layer);
                 }
@@ -443,7 +451,7 @@ public class ChunkRendererSchematicVbo
         {
             BufferBuilder bufferOverlayQuads = buffers.getOverlayBuffer(OverlayRenderType.QUAD);
 
-            if (data.isOverlayTypeStarted(OverlayRenderType.QUAD) == false)
+            if (!data.isOverlayTypeStarted(OverlayRenderType.QUAD))
             {
                 data.setOverlayTypeStarted(OverlayRenderType.QUAD);
                 this.preRenderOverlay(bufferOverlayQuads, OverlayRenderType.QUAD);
@@ -468,7 +476,7 @@ public class ChunkRendererSchematicVbo
                         BakedModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
 
                         if (type.getRenderPriority() > typeAdj.getRenderPriority() ||
-                            Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side) == false)
+                                !Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side))
                         {
                             RenderUtils.drawBlockModelQuadOverlayBatched(bakedModel, stateSchematic, relPos, side, this.overlayColor, 0, bufferOverlayQuads);
                         }
@@ -501,7 +509,7 @@ public class ChunkRendererSchematicVbo
         {
             BufferBuilder bufferOverlayOutlines = buffers.getOverlayBuffer(OverlayRenderType.OUTLINE);
 
-            if (data.isOverlayTypeStarted(OverlayRenderType.OUTLINE) == false)
+            if (!data.isOverlayTypeStarted(OverlayRenderType.OUTLINE))
             {
                 data.setOverlayTypeStarted(OverlayRenderType.OUTLINE);
                 this.preRenderOverlay(bufferOverlayOutlines, OverlayRenderType.OUTLINE);
@@ -593,6 +601,7 @@ public class ChunkRendererSchematicVbo
                 // Find the position(s) around a given edge line that have the shared greatest rendering priority
                 for (int i = 0; i < 4; ++i)
                 {
+                    assert offsets != null;
                     Vec3i offset = offsets[i];
                     OverlayType type = adjTypes[offset.getX() + 1][offset.getY() + 1][offset.getZ() + 1];
 
@@ -753,7 +762,7 @@ public class ChunkRendererSchematicVbo
 
     private void postRenderBlocks(RenderLayer layer, float x, float y, float z, BufferBuilder buffer, ChunkRenderDataSchematic chunkRenderData)
     {
-        if (layer == RenderLayer.getTranslucent() && chunkRenderData.isBlockLayerEmpty(layer) == false)
+        if (layer == RenderLayer.getTranslucent() && !chunkRenderData.isBlockLayerEmpty(layer))
         {
             buffer.setSorter(VertexSorter.byDistance(x, y, z));
             chunkRenderData.setBlockBufferState(layer, buffer.getSortingData());
@@ -780,7 +789,7 @@ public class ChunkRendererSchematicVbo
     private void postRenderOverlay(OverlayRenderType type, float x, float y, float z, BufferBuilder buffer, ChunkRenderDataSchematic chunkRenderData)
     {
         RenderSystem.applyModelViewMatrix();
-        if (type == OverlayRenderType.QUAD && chunkRenderData.isOverlayTypeEmpty(type) == false)
+        if (type == OverlayRenderType.QUAD && !chunkRenderData.isOverlayTypeEmpty(type))
         {
             buffer.setSorter(VertexSorter.byDistance(x, y, z));
             chunkRenderData.setOverlayBufferState(type, buffer.getSortingData());
