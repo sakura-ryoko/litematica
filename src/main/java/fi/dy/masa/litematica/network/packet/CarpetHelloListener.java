@@ -5,7 +5,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.malilib.interfaces.ICarpetHelloListener;
 import fi.dy.masa.malilib.network.ClientNetworkPlayHandler;
-import fi.dy.masa.malilib.network.payload.CarpetHelloPayload;
+import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.nbt.NbtCompound;
 
