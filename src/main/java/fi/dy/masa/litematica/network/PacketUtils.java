@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.network;
 
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.network.handlers.CarpetHelloPlayListener;
 import fi.dy.masa.malilib.network.handler.ClientPlayHandler;
 import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 

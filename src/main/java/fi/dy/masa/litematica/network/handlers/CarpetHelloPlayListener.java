@@ -1,8 +1,9 @@
-package fi.dy.masa.litematica.network;
+package fi.dy.masa.litematica.network.handlers;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.network.PacketType;
 import fi.dy.masa.malilib.network.handler.ClientCommonHandlerRegister;
 import fi.dy.masa.malilib.network.handler.ClientPlayHandler;
 import fi.dy.masa.malilib.network.handler.IPluginPlayHandler;
