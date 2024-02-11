@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.mixin;
 
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -53,6 +52,7 @@ public abstract class MixinClientPlayNetworkHandler
         }
     }
 
+    /*
     @Inject(method = "onGameJoin", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/MinecraftClient;joinWorld(" +
                     "Lnet/minecraft/client/world/ClientWorld;)V"))
@@ -66,4 +66,5 @@ public abstract class MixinClientPlayNetworkHandler
     {
         //PayloadTypeRegister.getInstance().registerAllHandlers();
     }
+     */
 }
