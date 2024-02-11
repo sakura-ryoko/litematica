@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.mixin;
 
-import fi.dy.masa.malilib.network.ClientNetworkPlayInitHandler;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -59,12 +58,12 @@ public abstract class MixinClientPlayNetworkHandler
                     "Lnet/minecraft/client/world/ClientWorld;)V"))
     private void litematica_onPreGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
     {
-        ClientNetworkPlayInitHandler.registerPlayChannels();
+        //PacketUtils.registerPayloads();
     }
 
     @Inject(method = "onGameJoin", at = @At("RETURN"))
     private void litematica_onPostGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
     {
-        ClientNetworkPlayInitHandler.registerReceivers();
+        //PayloadTypeRegister.getInstance().registerAllHandlers();
     }
 }

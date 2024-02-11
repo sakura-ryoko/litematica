@@ -1,19 +1,19 @@
-package fi.dy.masa.litematica.network.packet;
+package fi.dy.masa.litematica.deprecated;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.malilib.interfaces.ICarpetHelloListener;
-import fi.dy.masa.malilib.network.ClientNetworkPlayHandler;
 import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.nbt.NbtCompound;
 
-public class CarpetHelloListener implements ICarpetHelloListener
+@Deprecated(forRemoval = true)
+public class CarpetHelloListener
+        //implements ICarpetHelloListener
 {
     final String CARPET_HI = "69";
     final String CARPET_HELLO = "420";
-    @Override
+    //@Override
     public void receiveCarpetHello(NbtCompound data, ClientPlayNetworking.Context ctx)
     {
         String carpetVersion = data.getString(CARPET_HI);
@@ -26,10 +26,14 @@ public class CarpetHelloListener implements ICarpetHelloListener
         response.putString(CARPET_HELLO, Reference.MOD_ID+"-"+Reference.MOD_VERSION);
         sendCarpetHello(response);
     }
-    @Override
+    //@Override
     public void sendCarpetHello(NbtCompound data)
     {
         CarpetHelloPayload payload = new CarpetHelloPayload(data);
-        ClientNetworkPlayHandler.sendCarpetHello(payload);
+        if (ClientPlayNetworking.canSend(payload.getId()))
+            Litematica.debugLog("CarpetHelloListener#sendCarpetHello(): CanSend = true");
+        else
+            Litematica.debugLog("CarpetHelloListener#sendCarpetHello(): CanSend = false");
+        //ClientNetworkPlayHandler.sendCarpetHello(payload);
     }
 }

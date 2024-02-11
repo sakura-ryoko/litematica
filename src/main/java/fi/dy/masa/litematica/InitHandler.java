@@ -1,9 +1,8 @@
 package fi.dy.masa.litematica;
 
 import fi.dy.masa.litematica.event.*;
-import fi.dy.masa.litematica.network.packet.PacketProvider;
+import fi.dy.masa.litematica.network.PacketUtils;
 import fi.dy.masa.malilib.event.*;
-import fi.dy.masa.malilib.network.ClientNetworkPlayInitHandler;
 import net.minecraft.client.MinecraftClient;
 
 import fi.dy.masa.litematica.config.Configs;
@@ -38,11 +37,10 @@ public class InitHandler implements IInitializationHandler
         KeyCallbacks.init(MinecraftClient.getInstance());
         StatusInfoRenderer.init();
 
-        // Register Networking
-        ClientNetworkPlayInitHandler.registerPlayChannels();
-        ServerListener litematica_serverListener = new ServerListener();
-        ServerHandler.getInstance().registerServerHandler(litematica_serverListener);
-        PacketProvider.registerPayloads();
+        // Register Networking (Carpet Hello)
+        //ServerListener litematica_serverListener = new ServerListener();
+        //ServerHandler.getInstance().registerServerHandler(litematica_serverListener);
+        PacketUtils.registerPayloads();
 
         DataManager.getAreaSelectionsBaseDirectory();
         DataManager.getSchematicsBaseDirectory();
