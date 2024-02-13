@@ -5,6 +5,7 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
 
+// I am hoping that this method was typed out every single time.
 // Thanks plusls for this hack fix :p
 public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends BufferBuilder
 {
@@ -33,7 +34,7 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
     {
         if (this.lastRenderBuildBuffer == null)
         {
-            if (this.first == false)
+            if (!this.first)
             {
                 this.end();
             }

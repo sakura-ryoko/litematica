@@ -44,11 +44,6 @@ public class BlockModelRendererSchematic
         matrix4f.translate((float) offset.x, (float) offset.y, (float) offset.z);
         int overlay = OverlayTexture.DEFAULT_UV;
 
-        // FIXME -- Make sure this works --> the VertexCustomer.quad() call uses MartrixStack.Entry, maybe Matrix4f in the future?
-        //MatrixStack matrixStack = new MatrixStack();
-        //matrixStack.multiplyPositionMatrix(matrix4f);
-        // --> Do we need to push() / pop() ?
-
         try
         {
             if (ao)
@@ -155,10 +150,8 @@ public class BlockModelRendererSchematic
     {
         final int size = list.size();
 
-        for (int i = 0; i < size; ++i)
+        for (BakedQuad bakedQuad : list)
         {
-            BakedQuad bakedQuad = list.get(i);
-
             this.getQuadDimensions(world, state, pos, bakedQuad.getVertexData(), bakedQuad.getFace(), box, flags);
             ambientOcclusionCalculator.apply(world, state, pos, bakedQuad.getFace(), box, flags, bakedQuad.hasShade());
 
@@ -180,10 +173,8 @@ public class BlockModelRendererSchematic
     {
         final int size = list.size();
 
-        for (int i = 0; i < size; ++i)
+        for (BakedQuad bakedQuad : list)
         {
-            BakedQuad bakedQuad = list.get(i);
-
             if (useWorldLight)
             {
                 this.getQuadDimensions(world, state, pos, bakedQuad.getVertexData(), bakedQuad.getFace(), null, flags);
@@ -216,7 +207,8 @@ public class BlockModelRendererSchematic
             g = 1.0F;
             b = 1.0F;
         }
-        // FIXME Matrix4f will probably change in future
+        // TODO -- Make sure this works --> the VertexCustomer.quad() call uses MartrixStack.Entry,
+        //  maybe Matrix4f directly in the future?
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.multiplyPositionMatrix(matrix4f);
 
@@ -557,7 +549,7 @@ public class BlockModelRendererSchematic
         }
     }
 
-    public static enum EnumNeighborInfo
+    public enum EnumNeighborInfo
     {
         DOWN(new Direction[]{Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH}, 0.5F, true, new Orientation[]{Orientation.FLIP_WEST, Orientation.SOUTH, Orientation.FLIP_WEST, Orientation.FLIP_SOUTH, Orientation.WEST, Orientation.FLIP_SOUTH, Orientation.WEST, Orientation.SOUTH}, new Orientation[]{Orientation.FLIP_WEST, Orientation.NORTH, Orientation.FLIP_WEST, Orientation.FLIP_NORTH, Orientation.WEST, Orientation.FLIP_NORTH, Orientation.WEST, Orientation.NORTH}, new Orientation[]{Orientation.FLIP_EAST, Orientation.NORTH, Orientation.FLIP_EAST, Orientation.FLIP_NORTH, Orientation.EAST, Orientation.FLIP_NORTH, Orientation.EAST, Orientation.NORTH}, new Orientation[]{Orientation.FLIP_EAST, Orientation.SOUTH, Orientation.FLIP_EAST, Orientation.FLIP_SOUTH, Orientation.EAST, Orientation.FLIP_SOUTH, Orientation.EAST, Orientation.SOUTH}),
         UP(new Direction[]{Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH}, 1.0F, true, new Orientation[]{Orientation.EAST, Orientation.SOUTH, Orientation.EAST, Orientation.FLIP_SOUTH, Orientation.FLIP_EAST, Orientation.FLIP_SOUTH, Orientation.FLIP_EAST, Orientation.SOUTH}, new Orientation[]{Orientation.EAST, Orientation.NORTH, Orientation.EAST, Orientation.FLIP_NORTH, Orientation.FLIP_EAST, Orientation.FLIP_NORTH, Orientation.FLIP_EAST, Orientation.NORTH}, new Orientation[]{Orientation.WEST, Orientation.NORTH, Orientation.WEST, Orientation.FLIP_NORTH, Orientation.FLIP_WEST, Orientation.FLIP_NORTH, Orientation.FLIP_WEST, Orientation.NORTH}, new Orientation[]{Orientation.WEST, Orientation.SOUTH, Orientation.WEST, Orientation.FLIP_SOUTH, Orientation.FLIP_WEST, Orientation.FLIP_SOUTH, Orientation.FLIP_WEST, Orientation.SOUTH}),
@@ -575,7 +567,7 @@ public class BlockModelRendererSchematic
         private final Orientation[] vert3Weights;
         private static final EnumNeighborInfo[] VALUES = new EnumNeighborInfo[6];
 
-        private EnumNeighborInfo(Direction[] p_i46236_3_, float p_i46236_4_, boolean p_i46236_5_, Orientation[] p_i46236_6_, Orientation[] p_i46236_7_, Orientation[] p_i46236_8_, Orientation[] p_i46236_9_)
+        EnumNeighborInfo(Direction[] p_i46236_3_, float p_i46236_4_, boolean p_i46236_5_, Orientation[] p_i46236_6_, Orientation[] p_i46236_7_, Orientation[] p_i46236_8_, Orientation[] p_i46236_9_)
         {
             //this.corners = p_i46236_3_;
             //this.shadeWeight = p_i46236_4_;
@@ -602,7 +594,7 @@ public class BlockModelRendererSchematic
         }
     }
 
-    public static enum Orientation
+    public enum Orientation
     {
         DOWN(Direction.DOWN, false),
         UP(Direction.UP, false),
@@ -619,13 +611,13 @@ public class BlockModelRendererSchematic
 
         private final int shape;
 
-        private Orientation(Direction p_i46233_3_, boolean p_i46233_4_)
+        Orientation(Direction p_i46233_3_, boolean p_i46233_4_)
         {
             this.shape = p_i46233_3_.getId() + (p_i46233_4_ ? Direction.values().length : 0);
         }
     }
 
-    static enum VertexTranslations
+    enum VertexTranslations
     {
         DOWN(0, 1, 2, 3),
         UP(2, 3, 0, 1),
@@ -640,7 +632,7 @@ public class BlockModelRendererSchematic
         private final int vert3;
         private static final VertexTranslations[] VALUES = new VertexTranslations[6];
 
-        private VertexTranslations(int p_i46234_3_, int p_i46234_4_, int p_i46234_5_, int p_i46234_6_)
+        VertexTranslations(int p_i46234_3_, int p_i46234_4_, int p_i46234_5_, int p_i46234_6_)
         {
             this.vert0 = p_i46234_3_;
             this.vert1 = p_i46234_4_;

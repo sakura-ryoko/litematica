@@ -65,9 +65,6 @@ public class EntityUtils
     /**
      * Checks if the requested item is currently in the player's hand such that it would be used for using/placing.
      * This means, that it must either be in the main hand, or the main hand must be empty and the item is in the offhand.
-     * @param player
-     * @param stack
-     * @return
      */
     @Nullable
     public static Hand getUsedHandForItem(PlayerEntity player, ItemStack stack)
@@ -166,9 +163,6 @@ public class EntityUtils
 
     /**
      * Note: This does NOT spawn any of the entities in the world!
-     * @param nbt
-     * @param world
-     * @return
      */
     @Nullable
     public static Entity createEntityAndPassengersFromNBT(NbtCompound nbt, World world)
@@ -213,6 +207,8 @@ public class EntityUtils
                         passenger.getYaw(), passenger.getPitch());
                 setEntityRotations(passenger, passenger.getYaw(), passenger.getPitch());
                 spawnEntityAndPassengersInWorld(passenger, world);
+                // TODO does this function recurse itself ?
+                //  Not to infinity I would hope...
             }
         }
     }

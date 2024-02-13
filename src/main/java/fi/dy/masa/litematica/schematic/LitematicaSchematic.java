@@ -2,14 +2,7 @@ package fi.dy.masa.litematica.schematic;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -235,9 +228,6 @@ public class LitematicaSchematic
     /**
      * Creates an empty schematic with all the maps and lists and containers already created.
      * This is intended to be used for the chunk-wise schematic creation.
-     * @param area
-     * @param author
-     * @return
      */
     public static LitematicaSchematic createEmptySchematic(AreaSelection area, String author)
     {
@@ -298,6 +288,7 @@ public class LitematicaSchematic
         {
             SubRegionPlacement placement = relativePlacements.get(regionName);
 
+            assert placement != null;
             if (placement.isEnabled())
             {
                 BlockPos regionPos = placement.getPos();
@@ -570,6 +561,8 @@ public class LitematicaSchematic
     {
         for (Box box : boxes)
         {
+            assert box.getPos1() != null;
+            assert box.getPos2() != null;
             net.minecraft.util.math.Box bb = PositionUtils.createEnclosingAABB(box.getPos1(), box.getPos2());
             BlockPos regionPosAbs = box.getPos1();
             List<EntityInfo> list = new ArrayList<>();
@@ -624,6 +617,7 @@ public class LitematicaSchematic
 
                     if (entity.saveNbt(tag))
                     {
+                        assert regionPosAbs != null;
                         Vec3d posVec = new Vec3d(entity.getX() - regionPosAbs.getX(), entity.getY() - regionPosAbs.getY(), entity.getZ() - regionPosAbs.getZ());
 
                         // Annoying special case for any hanging/decoration entities, to avoid the console
@@ -664,6 +658,8 @@ public class LitematicaSchematic
             // We want to loop nice & easy from 0 to n here, but the per-sub-region pos1 can be at
             // any corner of the area. Thus we need to offset from the total area origin
             // to the minimum/negative corner (ie. 0,0 in the loop) corner here.
+            assert box.getPos1() != null;
+            assert box.getPos2() != null;
             final BlockPos minCorner = PositionUtils.getMinCorner(box.getPos1(), box.getPos2());
             final int startX = minCorner.getX();
             final int startY = minCorner.getY();
@@ -702,7 +698,7 @@ public class LitematicaSchematic
                             {
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
-                                // What is this even for Mojang? "registeryLookup" -- It's just unused code
+                                // What is this even for Mojang? "registeryLookup" -- It's just unused code?
                                 NbtCompound tag = te.createNbtWithId(null);
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
@@ -902,6 +898,8 @@ public class LitematicaSchematic
             // We want to loop nice & easy from 0 to n here, but the per-sub-region pos1 can be at
             // any corner of the area. Thus we need to offset from the total area origin
             // to the minimum/negative corner (ie. 0,0 in the loop) corner here.
+            assert box.getPos1() != null;
+            assert box.getPos2() != null;
             final BlockPos minCorner = PositionUtils.getMinCorner(box.getPos1(), box.getPos2());
             final int offsetX = minCorner.getX();
             final int offsetY = minCorner.getY();
@@ -978,6 +976,7 @@ public class LitematicaSchematic
     {
         for (Box box : boxes)
         {
+            assert box.getPos1() != null;
             this.subRegionPositions.put(box.getName(), box.getPos1().subtract(areaOrigin));
         }
     }
@@ -1179,7 +1178,7 @@ public class LitematicaSchematic
     {
         for (String regionName : tag.getKeys())
         {
-            if (tag.get(regionName).getType() == Constants.NBT.TAG_COMPOUND)
+            if (Objects.requireNonNull(tag.get(regionName)).getType() == Constants.NBT.TAG_COMPOUND)
             {
                 NbtCompound regionTag = tag.getCompound(regionName);
                 BlockPos regionPos = NBTUtils.readBlockPos(regionTag.getCompound("Position"));
@@ -1900,11 +1899,13 @@ public class LitematicaSchematic
             {
                 if (schematicType == FileType.SPONGE_SCHEMATIC)
                 {
+                    assert this.schematicFile != null;
                     String name = FileUtils.getNameWithoutExtension(this.schematicFile.getName()) + " (Converted Structure)";
                     return this.readFromSpongeSchematic(name, nbt);
                 }
                 if (schematicType == FileType.VANILLA_STRUCTURE)
                 {
+                    assert this.schematicFile != null;
                     String name = FileUtils.getNameWithoutExtension(this.schematicFile.getName()) + " (Converted Structure)";
                     return this.readFromVanillaStructure(name, nbt);
                 }
@@ -1916,6 +1917,7 @@ public class LitematicaSchematic
         }
         catch (Exception e)
         {
+            assert this.schematicFile != null;
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.exception", this.schematicFile.getAbsolutePath());
             Litematica.logger.error(e);
         }

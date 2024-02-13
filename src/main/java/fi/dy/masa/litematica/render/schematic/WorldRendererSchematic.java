@@ -615,7 +615,6 @@ public class WorldRendererSchematic
 
     public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, Matrix4f matrix4f, BufferBuilder bufferBuilderIn)
     {
-        // FIXME try matrix4f
         try
         {
             BlockRenderType renderType = state.getRenderType();
@@ -680,9 +679,10 @@ public class WorldRendererSchematic
             this.world.getProfiler().swap("regular_entities");
             //List<Entity> entitiesMultipass = Lists.<Entity>newArrayList();
 
-            // FIXME -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
+            // TODO -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
             //  Causes strange entity behavior if this is missing ( Including the push() and pop() )
-            //  Doing this restores the expected behavior of Entities
+            //  Doing this restores the expected behavior of Entities ... but Why?
+            //  Each call includes it's own push() then pop() ?
 
             MatrixStack matrixStack = new MatrixStack();
             matrixStack.push();

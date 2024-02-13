@@ -169,6 +169,7 @@ public class ChunkRendererSchematicVbo
     {
         Entity entity = EntityUtils.getCameraEntity();
 
+        assert entity != null;
         double x = this.position.getX() + 8.0D - entity.getX();
         double z = this.position.getZ() + 8.0D - entity.getZ();
 
@@ -273,10 +274,9 @@ public class ChunkRendererSchematicVbo
                 Set<RenderLayer> usedLayers = new HashSet<>();
                 BufferBuilderCache buffers = task.getBufferCache();
 
-                // TODO -- Do we need to change this to a Matrix4f ?
+                // TODO -- Do we need to change this to a Matrix4f in the future?
+                //  You can try but doing so will break things in practical testing?
                 MatrixStack matrixStack = new MatrixStack();
-                //Matrix4f matrix4f = new Matrix4f();
-                //Matrix4fStack matrix4fStack = new Matrix4fStack();
                 int bottomY = this.position.getY();
 
                 for (IntBoundingBox box : this.boxes)
@@ -362,7 +362,6 @@ public class ChunkRendererSchematicVbo
     protected void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities,
                                           Set<RenderLayer> usedLayers, Matrix4f matrix4f, BufferBuilderCache buffers)
     {
-        // FIXME try Matrix4f ?
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);
         BlockState stateClient    = this.clientWorldView.getBlockState(pos);
         boolean clientHasAir = stateClient.isAir();
@@ -674,6 +673,8 @@ public class ChunkRendererSchematicVbo
             boolean clientHasAir = stateClient.isAir();
             boolean schematicHasAir = stateSchematic.isAir();
 
+            // TODO Maybe someday Mojang will add something to replace isLiquid(), isSolid(),
+            //  etc that doesn't require a hacky Mixin & I've tried without success.
             if (schematicHasAir)
             {
                 return (clientHasAir || (this.ignoreClientWorldFluids && stateClient.isLiquid())) ? OverlayType.NONE : OverlayType.EXTRA;
