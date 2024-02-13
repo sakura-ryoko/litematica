@@ -108,7 +108,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         }
         else
         {
-            // TODO --> Handle additional Carpet Packets
+            // TODO --> Handle additional Carpet Packets (The HELLO is followed by a list of the Carpet Rules, etc)
             Litematica.debugLog("CarpetHelloPlayListener#decodeS2CNbtCompound(): received unhandled Carpet Hello packet. (size: {})", data.getSizeInBytes());
         }
     }
