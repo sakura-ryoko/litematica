@@ -10,7 +10,7 @@ import fi.dy.masa.malilib.network.handler.IPluginPlayHandler;
 import fi.dy.masa.malilib.network.payload.PayloadCodec;
 import fi.dy.masa.malilib.network.payload.PayloadType;
 import fi.dy.masa.malilib.network.payload.PayloadTypeRegister;
-import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
+import fi.dy.masa.malilib.network.payload.channel.CarpetS2CHelloPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -18,22 +18,24 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class CarpetHelloPlayListener<T extends CustomPayload> implements IPluginPlayHandler<T>
 {
-    public final static CarpetHelloPlayListener<CarpetHelloPayload> INSTANCE = new CarpetHelloPlayListener<>()
+    public final static CarpetHelloPlayListener<CarpetS2CHelloPayload> INSTANCE = new CarpetHelloPlayListener<>()
     {
         @Override
-        public void receive(CarpetHelloPayload payload, ClientPlayNetworking.Context context)
+        public void receive(CarpetS2CHelloPayload payload, ClientPlayNetworking.Context context)
         {
             ClientPlayNetworkHandler handler = MinecraftClient.getInstance().getNetworkHandler();
+            CallbackInfo ci = new CallbackInfo("CarpetHelloPlayListener", false);
 
             if (handler != null)
             {
-                CarpetHelloPlayListener.INSTANCE.receiveS2CPlayPayload(PayloadType.CARPET_HELLO, payload, handler);
+                CarpetHelloPlayListener.INSTANCE.receiveS2CPlayPayload(PayloadType.CARPET_HELLO, payload, handler, ci);
                 // TODO --> the networkHandler interface must be used for Carpet Server
                 //  because they don't use Fabric API.
             }
@@ -66,18 +68,21 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
     {
         Litematica.debugLog("CarpetHelloPlayListener#receiveS2CPlayPayload(): handling packet via Fabric Network API.");
 
-        CarpetHelloPayload packet = (CarpetHelloPayload) payload;
+        CarpetS2CHelloPayload packet = (CarpetS2CHelloPayload) payload;
         ((ClientPlayHandler<?>) ClientPlayHandler.getInstance()).decodeS2CNbtCompound(PayloadType.CARPET_HELLO, packet.data());
     }
 
     @Override
-    public <P extends CustomPayload> void receiveS2CPlayPayload(PayloadType type, P payload, ClientPlayNetworkHandler handler)
+    public <P extends CustomPayload> void receiveS2CPlayPayload(PayloadType type, P payload, ClientPlayNetworkHandler handler, CallbackInfo ci)
     {
         // Store the network handler here if wanted
         Litematica.debugLog("CarpetHelloPlayListener#receiveS2CPlayPayload(): handling packet via network handler interface.");
 
-        CarpetHelloPayload packet = (CarpetHelloPayload) payload;
+        CarpetS2CHelloPayload packet = (CarpetS2CHelloPayload) payload;
         ((ClientPlayHandler<?>) ClientPlayHandler.getInstance()).decodeS2CNbtCompound(PayloadType.CARPET_HELLO, packet.data());
+
+        if (ci.isCancellable())
+            ci.cancel();
     }
 
     @Override
@@ -117,7 +122,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
     public void encodeC2SNbtCompound(PayloadType type, NbtCompound data)
     {
         // Encode Payload
-        CarpetHelloPayload newPayload = new CarpetHelloPayload(data);
+        CarpetS2CHelloPayload newPayload = new CarpetS2CHelloPayload(data);
 
         // TODO --> Try the NetworkHandler method first for carpet servers
         //  should we store it somewhere?
@@ -128,7 +133,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
             CarpetHelloPlayListener.INSTANCE.sendC2SPlayPayload(type, newPayload);
     }
     //@Override
-    public void sendC2SPlayPayload(PayloadType type, CarpetHelloPayload payload)
+    public void sendC2SPlayPayload(PayloadType type, CarpetS2CHelloPayload payload)
     {
         if (ClientPlayNetworking.canSend(payload.getId()))
         {
@@ -138,7 +143,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
             Litematica.debugLog("CarpetHelloPlayListener#sendC2SPlayPayload(): [ERROR] canSend = false;");
     }
     //@Override
-    public void sendC2SPlayPayload(PayloadType type, CarpetHelloPayload payload, ClientPlayNetworkHandler handler)
+    public void sendC2SPlayPayload(PayloadType type, CarpetS2CHelloPayload payload, ClientPlayNetworkHandler handler)
     {
         Packet<?> packet = new CustomPayloadC2SPacket(payload);
 
@@ -182,7 +187,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         if (codec.isPlayRegistered())
         {
             //Litematica.debugLog("CarpetHelloPlayListener#registerPlayHandler(): received for type {}", type.toString());
-            ClientCommonHandlerRegister.getInstance().registerPlayHandler((CustomPayload.Id<T>) CarpetHelloPayload.TYPE, this);
+            ClientCommonHandlerRegister.getInstance().registerPlayHandler((CustomPayload.Id<T>) CarpetS2CHelloPayload.TYPE, this);
             if (this.registered.containsKey(type))
                 this.registered.replace(type, true);
             else
@@ -205,7 +210,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         {
             //Litematica.debugLog("CarpetHelloPlayListener#unregisterPlayHandler(): received for type {}", type.toString());
             //PayloadTypeRegister.getInstance().registerPlayChannel(type, ClientCommonHandlerRegister.getInstance().getPayload(type), ClientCommonHandlerRegister.getInstance().getPacketCodec(type));
-            ClientCommonHandlerRegister.getInstance().unregisterPlayHandler((CustomPayload.Id<T>) CarpetHelloPayload.TYPE);
+            ClientCommonHandlerRegister.getInstance().unregisterPlayHandler((CustomPayload.Id<T>) CarpetS2CHelloPayload.TYPE);
             if (this.registered.containsKey(type))
                 this.registered.replace(type, false);
             else
