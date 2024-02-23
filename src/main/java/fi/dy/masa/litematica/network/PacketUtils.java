@@ -2,12 +2,12 @@ package fi.dy.masa.litematica.network;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.network.handlers.CarpetHelloPlayListener;
-import fi.dy.masa.malilib.network.handler.ClientPlayHandler;
-import fi.dy.masa.malilib.network.payload.channel.CarpetS2CHelloPayload;
+import fi.dy.masa.malilib.network.handler.play.ClientPlayHandler;
+import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 
 public class PacketUtils
 {
-    static CarpetHelloPlayListener<CarpetS2CHelloPayload> litematica_CarpetHelloListener = CarpetHelloPlayListener.INSTANCE;
+    static CarpetHelloPlayListener<CarpetHelloPayload> litematica_CarpetHelloListener = CarpetHelloPlayListener.INSTANCE;
     private static boolean payloadsRegistered = false;
     public static void registerPayloads()
     {

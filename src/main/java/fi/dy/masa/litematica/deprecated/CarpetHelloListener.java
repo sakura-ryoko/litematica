@@ -3,7 +3,7 @@ package fi.dy.masa.litematica.deprecated;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.malilib.network.payload.channel.CarpetS2CHelloPayload;
+import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.nbt.NbtCompound;
 
@@ -29,7 +29,7 @@ public class CarpetHelloListener
     //@Override
     public void sendCarpetHello(NbtCompound data)
     {
-        CarpetS2CHelloPayload payload = new CarpetS2CHelloPayload(data);
+        CarpetHelloPayload payload = new CarpetHelloPayload(data);
         if (ClientPlayNetworking.canSend(payload.getId()))
             Litematica.debugLog("CarpetHelloListener#sendCarpetHello(): CanSend = true");
         else

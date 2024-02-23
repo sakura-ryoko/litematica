@@ -37,9 +37,6 @@ public class InitHandler implements IInitializationHandler
         KeyCallbacks.init(MinecraftClient.getInstance());
         StatusInfoRenderer.init();
 
-        // Register Networking (Carpet Hello)
-        //ServerListener litematica_serverListener = new ServerListener();
-        //ServerHandler.getInstance().registerServerHandler(litematica_serverListener);
         PacketUtils.registerPayloads();
 
         DataManager.getAreaSelectionsBaseDirectory();

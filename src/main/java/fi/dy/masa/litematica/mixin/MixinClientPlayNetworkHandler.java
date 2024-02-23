@@ -52,13 +52,13 @@ public abstract class MixinClientPlayNetworkHandler
         }
     }
 
-    /*
+/*
     @Inject(method = "onGameJoin", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/MinecraftClient;joinWorld(" +
                     "Lnet/minecraft/client/world/ClientWorld;)V"))
     private void litematica_onPreGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
     {
-        //PacketUtils.registerPayloads();
+        PacketUtils.registerPayloads();
     }
 
     @Inject(method = "onGameJoin", at = @At("RETURN"))
