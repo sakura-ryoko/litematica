@@ -44,6 +44,7 @@ public class EntityUtils
     public static boolean hasToolItemInHand(LivingEntity entity, Hand hand)
     {
         // If the configured tool item has NBT data, then the NBT is compared, otherwise it's ignored
+        // New DataComponents methods, the tools *always* has data
 
         ItemStack toolItem = DataManager.getToolItem();
 
@@ -56,7 +57,8 @@ public class EntityUtils
 
         if (ItemStack.areItemsEqual(toolItem, stackHand))
         {
-            return !toolItem.hasNbt() || ItemUtils.areTagsEqualIgnoreDamage(toolItem, stackHand);
+            // !toolItem.hasNbt() ||
+            return ItemUtils.areTagsEqualIgnoreDamage(toolItem, stackHand);
         }
 
         return false;

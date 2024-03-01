@@ -1,15 +1,17 @@
 package fi.dy.masa.litematica.util;
 
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Objects;
-import java.util.Set;
+
+import fi.dy.masa.litematica.data.DataManager;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.SlabType;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -27,27 +29,31 @@ public class ItemUtils
 
     public static boolean areTagsEqualIgnoreDamage(ItemStack stackReference, ItemStack stackToCheck)
     {
-        NbtCompound tagReference = stackReference.getNbt();
-        NbtCompound tagToCheck = stackToCheck.getNbt();
+        //NbtCompound tagReference = stackReference.getNbt();
+        //NbtCompound tagToCheck = stackToCheck.getNbt();
+
+        ComponentMap tagReference = stackReference.getComponents();
+        ComponentMap tagToCheck = stackToCheck.getComponents();
 
         if (tagReference != null && tagToCheck != null)
         {
-            Set<String> keysReference = new HashSet<>(tagReference.getKeys());
-
-            for (String key : keysReference)
+            if (tagReference.contains(DataComponentTypes.DAMAGE) && tagToCheck.contains(DataComponentTypes.DAMAGE))
             {
-                if (key.equals("Damage"))
-                {
-                    continue;
-                }
+                /*
+                Set<String> keysReference = new HashSet<>(tagReference.getKeys());
 
-                if (!Objects.equals(tagReference.get(key), tagToCheck.get(key)))
-                {
-                    return false;
+                for (String key : keysReference) {
+                    if (key.equals("Damage")) {
+                        continue;
+                    }
+
+                    if (!Objects.equals(tagReference.get(key), tagToCheck.get(key))) {
+                        return false;
+                    }
                 }
+                 */
+                return Objects.equals(stackReference.get(DataComponentTypes.DAMAGE), stackToCheck.get(DataComponentTypes.DAMAGE));
             }
-
-            return true;
         }
 
         return (tagReference == null) && (tagToCheck == null);
@@ -129,7 +135,7 @@ public class ItemUtils
 
     public static ItemStack storeTEInStack(ItemStack stack, BlockEntity te)
     {
-        NbtCompound nbt = te.createNbtWithId(null);
+        NbtCompound nbt = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
 
         if (nbt.contains("Owner") && stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
@@ -164,7 +170,7 @@ public class ItemUtils
 
             return String.format("[%s - display: %s - NBT: %s] (%s)",
                                  rl != null ? rl.toString() : "null", stack.getName().getString(),
-                                 stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>", stack);
+                                 stack.getComponents() != null ? stack.getComponents().toString() : "<no NBT>", stack);
         }
 
         return "<empty>";

@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.item.map.MapId;
+import net.minecraft.component.type.MapIdComponent;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -98,12 +98,13 @@ public class WorldSchematic extends World
 
     @Nullable
     @Override
-    public MapState getMapState(MapId id) { return null; }
+    public MapState getMapState(MapIdComponent id) { return null; }
 
     @Override
-    public void putMapState(MapId id, MapState state) {
+    public void putMapState(MapIdComponent id, MapState state) { }
 
-    }
+    @Override
+    public MapIdComponent getNextMapId() { return null; }
 
     @Override
     public QueryableTickScheduler<Block> getBlockTickScheduler()
@@ -202,25 +203,6 @@ public class WorldSchematic extends World
     public long getTime()
     {
         return this.mc.world != null ? this.mc.world.getTime() : 0;
-    }
-
-    //@Override
-    @Nullable
-    public MapState getMapState(String id)
-    {
-        return null;
-    }
-
-    //@Override
-    public void putMapState(String name, MapState mapState)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public MapId getNextMapId()
-    {
-        return null;
     }
 
     @Override

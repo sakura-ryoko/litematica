@@ -1,14 +1,11 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import com.google.common.collect.Queues;
+import com.mojang.authlib.GameProfile;
+import fi.dy.masa.malilib.util.*;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.BlockState;
@@ -17,15 +14,21 @@ import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.argument.BlockArgumentParser;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -36,10 +39,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
@@ -336,17 +335,21 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
             int facingId = itemFrame.getHorizontalFacing().getId();
             String nbtStr = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b}}", facingId, itemId);
-            NbtCompound tag = stack.getNbt();
+            ComponentMap data = stack.getComponents();
 
-            if (tag != null)
+            if (data != null && data.contains(DataComponentTypes.ENTITY_DATA))
             {
-                String itemNbt = tag.toString();
-                String tmp = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b,tag:%s}}",
-                                           facingId, itemId, itemNbt);
-
-                if (originalCommand.length() + tmp.length() < 255)
+                NbtComponent entityComp = stack.get(DataComponentTypes.ENTITY_DATA);
+                if (entityComp != null && !entityComp.isEmpty())
                 {
-                    nbtStr = tmp;
+                    String itemNbt = entityComp.toString();
+                    String tmp = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b,tag:%s}}",
+                            facingId, itemId, itemNbt);
+
+                    if (originalCommand.length() + tmp.length() < 255)
+                    {
+                        nbtStr = tmp;
+                    }
                 }
             }
 
@@ -1015,16 +1018,88 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     public static void addBlockEntityNbt(ItemStack stack, BlockEntity be)
     {
-        NbtCompound tag = be.createNbt(null);
+        NbtCompound tag = be.createNbt(DataManager.getInstance().getWorldRegistryManager());
+        ComponentMap data = stack.getComponents();
 
-        if (stack.getItem() instanceof PlayerHeadItem && tag.contains("SkullOwner"))
+        if (stack.getItem() instanceof PlayerHeadItem)
         {
-            NbtCompound ownerTag = tag.getCompound("SkullOwner");
-            stack.getOrCreateNbt().put("SkullOwner", ownerTag);
+            if (tag.contains("SkullOwner", 10))
+            {
+                NbtCompound ownerTag = tag.getCompound("SkullOwner");
+
+                //stack.getOrCreateNbt().put("SkullOwner", ownerTag);
+                // There was a time when this was more simple.
+
+                if (data != null && data.contains(DataComponentTypes.PROFILE))
+                {
+                    ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
+                    if (profile != null)
+                    {
+                        // Compare the UUID
+                        if (!ownerTag.getUuid("Id").equals(profile.gameProfile().getId()))
+                        {
+                            GameProfile newGameProfile = NbtHelper.toGameProfile(ownerTag);
+                            if (newGameProfile != null)
+                            {
+                                ProfileComponent newProfile = new ProfileComponent(newGameProfile);
+                                stack.set(DataComponentTypes.PROFILE, newProfile);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // DataCompoent doesn't exist, add it.
+                    GameProfile newGameProfile = NbtHelper.toGameProfile(ownerTag);
+                    if (newGameProfile != null)
+                    {
+                        ProfileComponent newProfile = new ProfileComponent(newGameProfile);
+                        stack.set(DataComponentTypes.PROFILE, newProfile);
+                    }
+                }
+            }
+            else if (tag.contains("ExtraType", 8))
+            {
+                String extraUUID = tag.getString("ExtraType");
+                if (!extraUUID.isEmpty())
+                {
+                    UUID uuid = UUID.fromString(extraUUID);
+
+                    if (data != null && data.contains(DataComponentTypes.PROFILE))
+                    {
+                        ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
+                        if (profile != null)
+                        {
+                            // Compare the UUID
+                            if (!uuid.equals(profile.gameProfile().getId()))
+                            {
+                                GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
+                                ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
+                                stack.set(DataComponentTypes.PROFILE, newProfile);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // DataCompoent doesn't exist, add it.
+                        GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
+                        ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
+                        stack.set(DataComponentTypes.PROFILE, newProfile);
+                    }
+                }
+            }
         }
         else
         {
-            stack.setSubNbt("BlockEntityTag", tag);
+            //stack.setSubNbt("BlockEntityTag", tag);
+            if (data != null && data.contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+            {
+                //NbtComponent component = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
+                NbtComponent nbt = NbtComponent.of(tag);
+
+                // Overwrite existing data
+                stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, nbt);
+            }
         }
     }
 }

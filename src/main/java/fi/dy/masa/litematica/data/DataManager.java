@@ -10,12 +10,10 @@ import javax.annotation.Nullable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mojang.brigadier.StringReader;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -44,8 +42,7 @@ import fi.dy.masa.litematica.util.ToBooleanFunction;
 
 public class DataManager implements IDirectoryCache
 {
-    private static final DataManager INSTANCE = new DataManager();
-
+    public static final DataManager INSTANCE = new DataManager();
     private static final Pattern PATTERN_ITEM_NBT = Pattern.compile("^(?<name>[a-z0-9\\._-]+:[a-z0-9\\._-]+)(?<nbt>\\{.*\\})$");
     private static final Pattern PATTERN_ITEM_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
     private static final Map<String, File> LAST_DIRECTORIES = new HashMap<>();
@@ -57,7 +54,7 @@ public class DataManager implements IDirectoryCache
     private static boolean canSave;
     private static boolean isCarpetServer;
     private static long clientTickStart;
-
+    private DynamicRegistryManager registryManager = DynamicRegistryManager.EMPTY;
     private final SelectionManager selectionManager = new SelectionManager();
     private final SchematicPlacementManager schematicPlacementManager = new SchematicPlacementManager();
     private final SchematicProjectsManager schematicProjectsManager = new SchematicProjectsManager();
@@ -71,7 +68,7 @@ public class DataManager implements IDirectoryCache
     {
     }
 
-    private static DataManager getInstance()
+    public static DataManager getInstance()
     {
         return INSTANCE;
     }
@@ -339,6 +336,27 @@ public class DataManager implements IDirectoryCache
         setIsCarpetServer(false);
     }
 
+    /**
+     * Store's the world registry manager for Dynamic Lookup
+     * Set this at WorldLoadPost
+     * @param manager
+     */
+    public void setWorldRegistryManager(DynamicRegistryManager manager)
+    {
+        if (manager != null && manager != DynamicRegistryManager.EMPTY)
+            this.registryManager = manager;
+        else
+            this.registryManager = DynamicRegistryManager.EMPTY;
+    }
+
+    public DynamicRegistryManager getWorldRegistryManager()
+    {
+        if (this.registryManager != DynamicRegistryManager.EMPTY)
+            return this.registryManager;
+        else
+            return DynamicRegistryManager.EMPTY;
+    }
+
     private void savePerDimensionData()
     {
         this.schematicProjectsManager.saveCurrentProject();
@@ -509,46 +527,44 @@ public class DataManager implements IDirectoryCache
         return new File(dir, StringUtils.getStorageFileName(globalData, Reference.MOD_ID + "_", ".json", "default"));
     }
 
-    public static void setToolItem(String itemNameIn)
-    {
-        if (itemNameIn.isEmpty() || itemNameIn.equals("empty"))
+    public static void setToolItem(String itemNameIn) {
+        if (itemNameIn.isEmpty() || itemNameIn.equals("empty") || itemNameIn.equals("minecraft:air"))
         {
             toolItem = ItemStack.EMPTY;
             return;
         }
-
-        try
+        else
         {
-            Matcher matcherNbt = PATTERN_ITEM_NBT.matcher(itemNameIn);
             Matcher matcherBase = PATTERN_ITEM_BASE.matcher(itemNameIn);
 
-            String itemName = null;
+            String itemName;
+            /*
+            Matcher matcherNbt = PATTERN_ITEM_NBT.matcher(itemNameIn);
             NbtCompound nbt = null;
 
             if (matcherNbt.matches())
             {
                 itemName = matcherNbt.group("name");
-                nbt = (new StringNbtReader(new StringReader(matcherNbt.group("nbt")))).parseCompound();
+                nbt = (new StringNbtReader(new StringReader(matcherNbt.group("nbt")))).parseElement();
             }
-            else if (matcherBase.matches())
+            else
+            */
+            if (matcherBase.matches())
             {
                 itemName = matcherBase.group("name");
-            }
 
-            if (itemName != null)
-            {
-                Item item = Registries.ITEM.get(new Identifier(itemName));
-
-                if (item != null && item != Items.AIR)
+                if (itemName != null)
                 {
-                    toolItem = new ItemStack(item);
-                    toolItem.setNbt(nbt);
-                    return;
+                    Item item = Registries.ITEM.get(new Identifier(itemName));
+
+                    if (item != null && item != Items.AIR)
+                    {
+                        toolItem = new ItemStack(item);
+                        //toolItem.setNbt(nbt);
+                        return;
+                    }
                 }
             }
-        }
-        catch (Exception ignore)
-        {
         }
 
         // Fall back to a stick

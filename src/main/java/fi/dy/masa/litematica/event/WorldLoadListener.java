@@ -32,6 +32,7 @@ public class WorldLoadListener implements IWorldLoadListener
         if (worldAfter != null)
         {
             DataManager.load();
+            DataManager.getInstance().setWorldRegistryManager(worldAfter.getRegistryManager());
             SchematicConversionMaps.computeMaps();
         }
         else
