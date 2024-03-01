@@ -136,15 +136,19 @@ public class ItemUtils
     public static ItemStack storeTEInStack(ItemStack stack, BlockEntity te)
     {
         NbtCompound nbt = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
+        ComponentMap data = stack.getComponents();
 
-        if (nbt.contains("Owner") && stack.getItem() instanceof BlockItem &&
+        if (stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
         {
-            NbtCompound tagOwner = nbt.getCompound("Owner");
-            NbtCompound tagSkull = new NbtCompound();
+            if (nbt.contains("Owner"))
+            {
+                NbtCompound tagOwner = nbt.getCompound("Owner");
+                NbtCompound tagSkull = new NbtCompound();
 
-            tagSkull.put("SkullOwner", tagOwner);
-            stack.setNbt(tagSkull);
+                tagSkull.put("SkullOwner", tagOwner);
+                stack.setNbt(tagSkull);
+            }
 
             return stack;
         }

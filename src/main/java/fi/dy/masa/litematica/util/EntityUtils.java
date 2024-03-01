@@ -88,7 +88,7 @@ public class EntityUtils
 
     public static boolean areStacksEqualIgnoreDurability(ItemStack stack1, ItemStack stack2)
     {
-        return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemsAndNbtEqual(stack1, stack2);
+        return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemsAndComponentsEqual(stack1, stack2);
     }
 
     public static Direction getHorizontalLookingDirection(Entity entity)
