@@ -5,9 +5,11 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import com.google.common.collect.Queues;
 import com.mojang.authlib.GameProfile;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.malilib.util.*;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
@@ -20,6 +22,7 @@ import net.minecraft.component.type.NbtComponent;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
@@ -1021,11 +1024,17 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         NbtCompound tag = be.createNbt(DataManager.getInstance().getWorldRegistryManager());
         ComponentMap data = stack.getComponents();
 
-        if (stack.getItem() instanceof PlayerHeadItem)
+        Litematica.debugLog("addBlockEntityNbt(): te tag: {}", tag.toString());
+
+        if ((stack.getItem() instanceof BlockItem &&
+                ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
+                || (stack.getItem() instanceof PlayerHeadItem))
         {
             if (tag.contains("SkullOwner", 10))
             {
-                NbtCompound ownerTag = tag.getCompound("SkullOwner");
+                NbtCompound tagOwner = tag.getCompound("SkullOwner");
+
+                Litematica.debugLog("addBlockEntityNbt(): SkullOwner: {}", tagOwner.toString());
 
                 //stack.getOrCreateNbt().put("SkullOwner", ownerTag);
                 // There was a time when this was more simple.
@@ -1036,13 +1045,15 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     if (profile != null)
                     {
                         // Compare the UUID
-                        if (!ownerTag.getUuid("Id").equals(profile.gameProfile().getId()))
+                        if (!tagOwner.getUuid("Id").equals(profile.gameProfile().getId()))
                         {
-                            GameProfile newGameProfile = NbtHelper.toGameProfile(ownerTag);
+                            GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
                             if (newGameProfile != null)
                             {
                                 ProfileComponent newProfile = new ProfileComponent(newGameProfile);
                                 stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                                Litematica.debugLog("addBlockEntityNbt(): newProfile set 1 {}", newProfile.toString());
                             }
                         }
                     }
@@ -1050,17 +1061,22 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 else
                 {
                     // DataCompoent doesn't exist, add it.
-                    GameProfile newGameProfile = NbtHelper.toGameProfile(ownerTag);
+                    GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
                     if (newGameProfile != null)
                     {
                         ProfileComponent newProfile = new ProfileComponent(newGameProfile);
                         stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                        Litematica.debugLog("addBlockEntityNbt(): newProfile set 2 {}", newProfile.toString());
                     }
                 }
             }
             else if (tag.contains("ExtraType", 8))
             {
                 String extraUUID = tag.getString("ExtraType");
+
+                Litematica.debugLog("addBlockEntityNbt(): extraUUID {}", extraUUID);
+
                 if (!extraUUID.isEmpty())
                 {
                     UUID uuid = UUID.fromString(extraUUID);
@@ -1076,6 +1092,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                                 GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
                                 ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
                                 stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                                Litematica.debugLog("addBlockEntityNbt(): newProfile set 3 {}", newProfile.toString());
                             }
                         }
                     }
@@ -1085,6 +1103,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                         GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
                         ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
                         stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                        Litematica.debugLog("addBlockEntityNbt(): newProfile set 4 {}", newProfile.toString());
                     }
                 }
             }
@@ -1099,6 +1119,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
                 // Overwrite existing data
                 stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, nbt);
+
+                Litematica.debugLog("addBlockEntityNbt(): set block entity data: {}", nbt.toString());
             }
         }
     }

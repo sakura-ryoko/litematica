@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
+import fi.dy.masa.litematica.data.DataManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
 import net.minecraft.SharedConstants;
@@ -451,8 +452,7 @@ public class LitematicaSchematic
                             try
                             {
                                 // What is this even for Mojang?
-                                //RegistryWrapper.WrapperLookup registryLookup = null;
-                                te.readNbt(teNBT, null);
+                                te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
                                 {
@@ -698,8 +698,8 @@ public class LitematicaSchematic
                             {
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
-                                // What is this even for Mojang? "registeryLookup" -- It's just unused code?
-                                NbtCompound tag = te.createNbtWithId(null);
+
+                                NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
                             }
@@ -946,7 +946,7 @@ public class LitematicaSchematic
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
                                 // Why Mojang?
-                                NbtCompound tag = te.createNbtWithId(null);
+                                NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
                             }

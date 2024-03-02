@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -58,7 +59,11 @@ public class EntityUtils
         if (ItemStack.areItemsEqual(toolItem, stackHand))
         {
             // !toolItem.hasNbt() ||
-            return ItemUtils.areTagsEqualIgnoreDamage(toolItem, stackHand);
+            //Litematica.debugLog("hasToolItemInHand(): toolItem {} // {}", toolItem.getItem().toString(), toolItem.getComponents().getTypes().toString());
+            //Litematica.debugLog("hasToolItemInHand(): stackHand {} // {}", stackHand.getItem().toString(), stackHand.getComponents().getTypes().toString());
+
+            // Let's use the Minecraft method.
+            return ItemStack.areItemsAndComponentsEqual(toolItem, stackHand);
         }
 
         return false;

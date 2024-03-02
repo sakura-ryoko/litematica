@@ -11,6 +11,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.BundleItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3i;
@@ -149,7 +151,8 @@ public class MaterialListUtils
             {
                 map.addTo(new ItemType(stack, true, false), stack.getCount());
 
-                if (stack.getItem() instanceof BlockItem &&
+                Item item = stack.getItem();
+                if (item instanceof BlockItem &&
                     ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock &&
                     InventoryUtils.shulkerBoxHasItems(stack))
                 {
@@ -158,6 +161,15 @@ public class MaterialListUtils
                     for (ItemType type : boxCounts.keySet())
                     {
                         map.addTo(type, boxCounts.getInt(type));
+                    }
+                }
+                else if (item instanceof BundleItem && InventoryUtils.bundleHasItems(stack))
+                {
+                    Object2IntOpenHashMap<ItemType> bundleCounts = getBundleItemCounts(stack);
+
+                    for (ItemType type : bundleCounts.keySet())
+                    {
+                        map.addTo(type, bundleCounts.getInt(type));
                     }
                 }
             }
@@ -173,7 +185,23 @@ public class MaterialListUtils
 
         for (ItemStack stack : items)
         {
-            if (stack.isEmpty() == false)
+            if (!stack.isEmpty())
+            {
+                map.addTo(new ItemType(stack, true, false), stack.getCount());
+            }
+        }
+
+        return map;
+    }
+
+    public static Object2IntOpenHashMap<ItemType> getBundleItemCounts(ItemStack stackBundle)
+    {
+        Object2IntOpenHashMap<ItemType> map = new Object2IntOpenHashMap<>();
+        DefaultedList<ItemStack> items = InventoryUtils.getBundleItems(stackBundle);
+
+        for (ItemStack stack : items)
+        {
+            if (!stack.isEmpty())
             {
                 map.addTo(new ItemType(stack, true, false), stack.getCount());
             }

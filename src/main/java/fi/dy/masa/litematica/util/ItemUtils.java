@@ -2,7 +2,10 @@ package fi.dy.masa.litematica.util;
 
 import java.util.IdentityHashMap;
 import java.util.Objects;
+import java.util.UUID;
 
+import com.mojang.authlib.GameProfile;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
@@ -12,14 +15,17 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -27,19 +33,21 @@ public class ItemUtils
 {
     private static final IdentityHashMap<BlockState, ItemStack> ITEMS_FOR_STATES = new IdentityHashMap<>();
 
+    /*
+
+    *** Irrelevant to use any further; ComponentMap's are set, but are EMPTY so why bother checking them this way?
+
     public static boolean areTagsEqualIgnoreDamage(ItemStack stackReference, ItemStack stackToCheck)
     {
-        //NbtCompound tagReference = stackReference.getNbt();
-        //NbtCompound tagToCheck = stackToCheck.getNbt();
-
         ComponentMap tagReference = stackReference.getComponents();
         ComponentMap tagToCheck = stackToCheck.getComponents();
 
         if (tagReference != null && tagToCheck != null)
         {
-            if (tagReference.contains(DataComponentTypes.DAMAGE) && tagToCheck.contains(DataComponentTypes.DAMAGE))
+            if (tagReference.contains(DataComponentTypes.DAMAGE) || tagToCheck.contains(DataComponentTypes.DAMAGE))
             {
-                /*
+                return false;
+            }
                 Set<String> keysReference = new HashSet<>(tagReference.getKeys());
 
                 for (String key : keysReference) {
@@ -51,13 +59,12 @@ public class ItemUtils
                         return false;
                     }
                 }
-                 */
                 return Objects.equals(stackReference.get(DataComponentTypes.DAMAGE), stackToCheck.get(DataComponentTypes.DAMAGE));
-            }
         }
 
         return (tagReference == null) && (tagToCheck == null);
     }
+*/
 
     public static ItemStack getItemForState(BlockState state)
     {
@@ -133,36 +140,119 @@ public class ItemUtils
         }
     }
 
-    public static ItemStack storeTEInStack(ItemStack stack, BlockEntity te)
+    public static void storeTEInStack(ItemStack stack, BlockEntity te)
     {
-        NbtCompound nbt = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
+        NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
         ComponentMap data = stack.getComponents();
 
-        if (stack.getItem() instanceof BlockItem &&
+        Litematica.debugLog("storeTEInStack(): te tag: {}", tag.toString());
+
+        if ((stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
+                || (stack.getItem() instanceof PlayerHeadItem))
         {
-            if (nbt.contains("Owner"))
+            if (tag.contains("SkullOwner", 10))
             {
-                NbtCompound tagOwner = nbt.getCompound("Owner");
-                NbtCompound tagSkull = new NbtCompound();
+                NbtCompound tagOwner = tag.getCompound("SkullOwner");
 
-                tagSkull.put("SkullOwner", tagOwner);
-                stack.setNbt(tagSkull);
+                Litematica.debugLog("storeTEInStack(): SkullOwner: {}", tagOwner.toString());
+
+                //NbtCompound tagSkull = new NbtCompound();
+                //tagSkull.put("SkullOwner", tagOwner);
+                //stack.setNbt(tagSkull);
+
+                if (data != null && data.contains(DataComponentTypes.PROFILE))
+                {
+                    ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
+                    if (profile != null)
+                    {
+                        // Compare the UUID
+                        if (!tagOwner.getUuid("Id").equals(profile.gameProfile().getId()))
+                        {
+                            GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
+                            if (newGameProfile != null)
+                            {
+                                ProfileComponent newProfile = new ProfileComponent(newGameProfile);
+                                stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                                Litematica.debugLog("storeTEInStack(): newProfile set 1 {}", newProfile.toString());
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // DataCompoent doesn't exist, add it.
+                    GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
+                    if (newGameProfile != null)
+                    {
+                        ProfileComponent newProfile = new ProfileComponent(newGameProfile);
+                        stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                        Litematica.debugLog("storeTEInStack(): newProfile set 2 {}", newProfile.toString());
+                    }
+                }
             }
+            else if (tag.contains("ExtraType", 8))
+            {
+                String extraUUID = tag.getString("ExtraType");
 
-            return stack;
+                Litematica.debugLog("storeTEInStack(): extraUUID {}", extraUUID);
+
+                if (!extraUUID.isEmpty())
+                {
+                    UUID uuid = UUID.fromString(extraUUID);
+
+                    if (data != null && data.contains(DataComponentTypes.PROFILE))
+                    {
+                        ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
+                        if (profile != null)
+                        {
+                            // Compare the UUID
+                            if (!uuid.equals(profile.gameProfile().getId()))
+                            {
+                                GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
+                                ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
+                                stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                                Litematica.debugLog("storeTEInStack(): newProfile set 3 {}", newProfile.toString());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // DataComponent doesn't exist, add it.
+                        GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
+                        ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
+                        stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                        Litematica.debugLog("storeTEInStack(): newProfile set 4 {}", newProfile.toString());
+                    }
+                }
+            }
         }
         else
         {
+            // So this is where the now "infamous" Purple (+NBT) lore comes from on my Shulker boxes?
+            /*
             NbtCompound tagLore = new NbtCompound();
             NbtList tagList = new NbtList();
 
             tagList.add(NbtString.of("(+NBT)"));
             tagLore.put("Lore", tagList);
             stack.setSubNbt("display", tagLore);
-            stack.setSubNbt("BlockEntityTag", nbt);
+            stack.setSubNbt("BlockEntityTag", tag);
+             */
 
-            return stack;
+            if (data != null && data.contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+            {
+                NbtComponent nbt = NbtComponent.of(tag);
+
+                // Overwrite existing data
+                stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, nbt);
+
+                Litematica.debugLog("storeTEInStack(): set block entity data: {}", nbt.toString());
+            }
         }
     }
 

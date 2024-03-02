@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+
+import fi.dy.masa.litematica.data.DataManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -144,7 +146,7 @@ public class SchematicaSchematic
                                 try
                                 {
                                     // registryLookup ?
-                                    te.readNbt(teNBT, null);
+                                    te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
                                 }
                                 catch (Exception e)
                                 {
@@ -278,7 +280,7 @@ public class SchematicaSchematic
                                         try
                                         {
                                             // Why?
-                                            te.readNbt(teNBT, null);
+                                            te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
                                         }
                                         catch (Exception e)
                                         {
