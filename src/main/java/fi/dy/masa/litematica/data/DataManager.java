@@ -4,24 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.item.Item;
+import fi.dy.masa.malilib.util.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
-import fi.dy.masa.malilib.util.FileUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -43,8 +36,8 @@ import fi.dy.masa.litematica.util.ToBooleanFunction;
 public class DataManager implements IDirectoryCache
 {
     public static final DataManager INSTANCE = new DataManager();
-    private static final Pattern PATTERN_ITEM_NBT = Pattern.compile("^(?<name>[a-z0-9\\._-]+:[a-z0-9\\._-]+)(?<nbt>\\{.*\\})$");
-    private static final Pattern PATTERN_ITEM_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
+    //private static final Pattern PATTERN_ITEM_NBT = Pattern.compile("^(?<name>[a-z0-9\\._-]+:[a-z0-9\\._-]+)(?<nbt>\\{.*\\})$");
+    //private static final Pattern PATTERN_ITEM_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
     private static final Map<String, File> LAST_DIRECTORIES = new HashMap<>();
     private static final ArrayList<ToBooleanFunction<Text>> CHAT_LISTENERS = new ArrayList<>();
     private static ItemStack toolItem = new ItemStack(Items.STICK);
@@ -273,7 +266,7 @@ public class DataManager implements IDirectoryCache
                 {
                     configGuiTab = ConfigGuiTab.valueOf(root.get("config_gui_tab").getAsString());
                 }
-                catch (Exception e) {}
+                catch (Exception ignored) {}
 
                 if (configGuiTab == null)
                 {
@@ -410,7 +403,7 @@ public class DataManager implements IDirectoryCache
             {
                 this.operationMode = ToolMode.valueOf(obj.get("operation_mode").getAsString());
             }
-            catch (Exception e) {}
+            catch (Exception ignored) {}
 
             if (this.operationMode == null)
             {
@@ -526,7 +519,9 @@ public class DataManager implements IDirectoryCache
         return new File(dir, StringUtils.getStorageFileName(globalData, Reference.MOD_ID + "_", ".json", "default"));
     }
 
-    public static void setToolItem(String itemNameIn) {
+    public static void setToolItem(String itemNameIn)
+    {
+        /*
         if (itemNameIn.isEmpty() || itemNameIn.equals("empty") || itemNameIn.equals("minecraft:air"))
         {
             toolItem = ItemStack.EMPTY;
@@ -547,7 +542,6 @@ public class DataManager implements IDirectoryCache
                 nbt = (new StringNbtReader(new StringReader(matcherNbt.group("nbt")))).parseElement();
             }
             else
-            */
             if (matcherBase.matches())
             {
                 itemName = matcherBase.group("name");
@@ -565,9 +559,13 @@ public class DataManager implements IDirectoryCache
                 }
             }
         }
-
-        // Fall back to a stick
-        toolItem = new ItemStack(Items.STICK);
-        Configs.Generic.TOOL_ITEM.setValueFromString(Registries.ITEM.getId(Items.STICK).toString());
+            */
+        toolItem = InventoryUtils.getItemStackFromString(itemNameIn);
+        if (toolItem.isEmpty())
+        {
+            // Fall back to a stick
+            toolItem = new ItemStack(Items.STICK);
+            Configs.Generic.TOOL_ITEM.setValueFromString(Registries.ITEM.getId(Items.STICK).toString());
+        }
     }
 }
