@@ -197,7 +197,7 @@ public class SchematicConversionMaps
                     newStateTag.putString("Name", newName);
                 }
 
-                if (oldName.equals(newName) == false)
+                if (!oldName.equals(newName))
                 {
                     OLD_NAME_TO_NEW_NAME.putIfAbsent(oldName, newName);
                     NEW_NAME_TO_OLD_NAME.putIfAbsent(newName, oldName);
@@ -241,7 +241,7 @@ public class SchematicConversionMaps
                     String oldBlockName = oldStateTag.getString("Name");
                     String newBlockName = OLD_NAME_TO_NEW_NAME.get(oldBlockName);
 
-                    if (newBlockName != null && newBlockName.equals(oldBlockName) == false)
+                    if (newBlockName != null && !newBlockName.equals(oldBlockName))
                     {
                         for (String oldStateString : oldStateStrings)
                         {

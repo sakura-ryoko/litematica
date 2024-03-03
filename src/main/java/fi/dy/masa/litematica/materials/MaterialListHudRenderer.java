@@ -82,6 +82,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
 
         if (currentTime - this.lastUpdateTime > 2000)
         {
+            assert mc.player != null;
             MaterialListUtils.updateAvailableCounts(this.materialList.getMaterialsAll(), mc.player);
             list = this.materialList.getMaterialsMissingOnly(true);
             Collections.sort(list, this.sorter);
@@ -277,7 +278,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
         for (Slot slot : slots)
         {
             if (slot.hasStack() &&
-                (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqual(slot.getStack(), referenceItem) ||
+                (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreNbt(slot.getStack(), referenceItem) ||
                  InventoryUtils.doesShulkerBoxContainItem(slot.getStack(), referenceItem)))
             {
                 renderOutlinedBox(guiX + slot.x, guiY + slot.y, 16, 16, color.intValue, color.intValue | 0xFF000000, 1f);

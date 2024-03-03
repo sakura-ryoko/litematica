@@ -99,7 +99,7 @@ public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunk
             }
         }
 
-        return this.placementsPerChunk.containsKey(pos) == false;
+        return !this.placementsPerChunk.containsKey(pos);
     }
 
     @Override

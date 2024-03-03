@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.util;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +39,7 @@ public class InventoryUtils
                 int slotNum = Integer.parseInt(str) - 1;
 
                 if (PlayerInventory.isValidHotbarIndex(slotNum) &&
-                    PICK_BLOCKABLE_SLOTS.contains(slotNum) == false)
+                        !PICK_BLOCKABLE_SLOTS.contains(slotNum))
                 {
                     PICK_BLOCKABLE_SLOTS.add(slotNum);
                 }
@@ -69,9 +71,11 @@ public class InventoryUtils
                 return;
             }
 
+            Litematica.debugLog("setPickedItemToHand(): item: {}", stack.getItem().toString());
+
             int hotbarSlot = sourceSlot;
 
-            if (sourceSlot == -1 || PlayerInventory.isValidHotbarIndex(sourceSlot) == false)
+            if (sourceSlot == -1 || !PlayerInventory.isValidHotbarIndex(sourceSlot))
             {
                 hotbarSlot = getEmptyPickBlockableHotbarSlot(inventory);
             }
@@ -106,10 +110,12 @@ public class InventoryUtils
     public static void schematicWorldPickBlock(ItemStack stack, BlockPos pos,
                                                World schematicWorld, MinecraftClient mc)
     {
-        if (stack.isEmpty() == false)
+        if (!stack.isEmpty())
         {
             PlayerInventory inv = mc.player.getInventory();
             stack = stack.copy();
+
+            //Litematica.debugLog("schematicWorldPickBlock(): item: {} pos: {}", stack.getItem().toString(), pos.toShortString());
 
             if (EntityUtils.isCreativeMode(mc.player))
             {
@@ -238,7 +244,7 @@ public class InventoryUtils
         {
             for (ItemStack item : items)
             {
-                if (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqual(item, referenceItem))
+                if (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreNbt(item, referenceItem))
                 {
                     return true;
                 }

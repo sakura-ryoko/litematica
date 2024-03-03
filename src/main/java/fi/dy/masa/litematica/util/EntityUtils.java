@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
-import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.malilib.util.InventoryUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -56,17 +56,7 @@ public class EntityUtils
 
         ItemStack stackHand = entity.getStackInHand(hand);
 
-        if (ItemStack.areItemsEqual(toolItem, stackHand))
-        {
-            // !toolItem.hasNbt() ||
-            //Litematica.debugLog("hasToolItemInHand(): toolItem {} // {}", toolItem.getItem().toString(), toolItem.getComponents().getTypes().toString());
-            //Litematica.debugLog("hasToolItemInHand(): stackHand {} // {}", stackHand.getItem().toString(), stackHand.getComponents().getTypes().toString());
-
-            // Let's use the Minecraft method.
-            return ItemStack.areItemsAndComponentsEqual(toolItem, stackHand);
-        }
-
-        return false;
+        return InventoryUtils.areStacksEqualIgnoreNbt(toolItem, stackHand);
     }
 
     /**
@@ -78,12 +68,12 @@ public class EntityUtils
     {
         Hand hand = null;
 
-        if (ItemStack.areItemsEqual(player.getMainHandStack(), stack))
+        if (InventoryUtils.areStacksEqualIgnoreNbt(player.getMainHandStack(), stack))
         {
             hand = Hand.MAIN_HAND;
         }
         else if (player.getMainHandStack().isEmpty() &&
-                 ItemStack.areItemsEqual(player.getOffHandStack(), stack))
+                InventoryUtils.areStacksEqualIgnoreNbt(player.getOffHandStack(), stack))
         {
             hand = Hand.OFF_HAND;
         }
@@ -93,7 +83,7 @@ public class EntityUtils
 
     public static boolean areStacksEqualIgnoreDurability(ItemStack stack1, ItemStack stack2)
     {
-        return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemsAndComponentsEqual(stack1, stack2);
+        return InventoryUtils.areStacksEqualIgnoreDurability(stack1, stack2);
     }
 
     public static Direction getHorizontalLookingDirection(Entity entity)

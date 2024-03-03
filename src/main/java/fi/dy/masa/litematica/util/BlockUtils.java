@@ -75,14 +75,14 @@ public class BlockUtils
                     {
                         Iterator<String> valIter = EQUAL_SPLITTER.split(propAndVal).iterator();
 
-                        if (valIter.hasNext() == false)
+                        if (!valIter.hasNext())
                         {
                             continue;
                         }
 
                         Property<?> prop = stateManager.getProperty(valIter.next());
 
-                        if (prop == null || valIter.hasNext() == false)
+                        if (prop == null || !valIter.hasNext())
                         {
                             continue;
                         }

@@ -717,6 +717,7 @@ public class WorldRendererSchematic
 
                             matrixStack.push();
 
+                            // TODO this render() call includes a push() and pop()
                             this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrixStack, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
                             ++this.countEntitiesRendered;
 
@@ -750,6 +751,7 @@ public class WorldRendererSchematic
                                 matrixStack.push();
                                 matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
+                                // TODO this call does not have a push() and pop()
                                 renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
                                 matrixStack.pop();
@@ -772,6 +774,7 @@ public class WorldRendererSchematic
                         matrixStack.push();
                         matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
+                        // TODO this call does not have a push() and pop()
                         renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
                         matrixStack.pop();

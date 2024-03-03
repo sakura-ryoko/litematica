@@ -1,6 +1,12 @@
 package fi.dy.masa.litematica.mixin;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientConnectionState;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.resource.featuretoggle.FeatureSet;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,6 +21,8 @@ import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler
 {
+    @Shadow @Final private FeatureSet enabledFeatures;
+
     @Inject(method = "onChunkData", at = @At("RETURN"))
     private void litematica_onUpdateChunk(ChunkDataS2CPacket packet, CallbackInfo ci)
     {
@@ -52,19 +60,11 @@ public abstract class MixinClientPlayNetworkHandler
         }
     }
 
-/*
-    @Inject(method = "onGameJoin", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;joinWorld(" +
-                    "Lnet/minecraft/client/world/ClientWorld;)V"))
-    private void litematica_onPreGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void litematica_onClientPlayInit(MinecraftClient client, ClientConnection clientConnection, ClientConnectionState clientConnectionState, CallbackInfo ci)
     {
-        PacketUtils.registerPayloads();
+        // We're just storing these values for now
+        // in case they are required later for additional issues that may come up
+        DataManager.getInstance().setClientFeatureSet(this.enabledFeatures);
     }
-
-    @Inject(method = "onGameJoin", at = @At("RETURN"))
-    private void litematica_onPostGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
-    {
-        //PayloadTypeRegister.getInstance().registerAllHandlers();
-    }
-     */
 }

@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.schematic.conversion;
 
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.block.AbstractBannerBlock;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.AbstractRedstoneGateBlock;
@@ -385,6 +386,8 @@ public class SchematicConversionFixers
         if (tag != null)
         {
             int id = MathHelper.clamp(tag.getByte("SkullType"), 0, 5);
+
+            Litematica.debugLog("IStateFixer(FIXER_SKULL): tag: {} // SkullType: {}", tag.toString(), id);
 
             // ;_; >_> <_<
             if (id == 2) { id = 3; } else if (id == 3) { id = 2; }

@@ -131,7 +131,7 @@ public class WorldUtils
 
         LitematicaSchematic litematicaSchematic = LitematicaSchematic.createFromWorld(world, area, info, "?", feedback);
 
-        if (litematicaSchematic != null && ignoreEntities == false)
+        if (litematicaSchematic != null && !ignoreEntities)
         {
             litematicaSchematic.takeEntityDataFromSchematicaSchematic(schematic, subRegionName);
         }
@@ -558,6 +558,7 @@ public class WorldUtils
 
                 //System.out.printf("pos: %s side: %s, hit: %s\n", pos, side, hitPos);
                 // pos, side, hitPos
+                assert mc.interactionManager != null;
                 mc.interactionManager.interactBlock(mc.player, hand, hitResult);
 
                 if (stateSchematic.getBlock() instanceof SlabBlock && stateSchematic.get(SlabBlock.TYPE) == SlabType.DOUBLE)

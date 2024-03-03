@@ -249,7 +249,6 @@ public class SchematicPlacingUtils
 
                             try
                             {
-                                // Why Mojang?
                                 te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)

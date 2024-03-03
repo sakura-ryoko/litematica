@@ -459,8 +459,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
             try
             {
-                // Why Mojang ?
-                Set<String> keys = new HashSet<>(be.createNbt(null).getKeys());
+                Set<String> keys = new HashSet<>(be.createNbt(DataManager.getInstance().getWorldRegistryManager()).getKeys());
                 keys.remove("id");
                 keys.remove("x");
                 keys.remove("y");

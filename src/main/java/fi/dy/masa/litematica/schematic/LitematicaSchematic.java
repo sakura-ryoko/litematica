@@ -9,10 +9,7 @@ import fi.dy.masa.litematica.data.DataManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CarpetBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
@@ -451,7 +448,6 @@ public class LitematicaSchematic
 
                             try
                             {
-                                // What is this even for Mojang?
                                 te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
@@ -945,7 +941,6 @@ public class LitematicaSchematic
                             {
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
-                                // Why Mojang?
                                 NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);

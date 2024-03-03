@@ -1,11 +1,9 @@
 package fi.dy.masa.litematica.util;
 
 import java.util.IdentityHashMap;
-import java.util.Objects;
 import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
@@ -145,7 +143,7 @@ public class ItemUtils
         NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
         ComponentMap data = stack.getComponents();
 
-        Litematica.debugLog("storeTEInStack(): te tag: {}", tag.toString());
+        //Litematica.debugLog("storeTEInStack(): TE tag: {} -> item: {}", tag.toString(), stack.getItem().toString());
 
         if ((stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
@@ -155,11 +153,7 @@ public class ItemUtils
             {
                 NbtCompound tagOwner = tag.getCompound("SkullOwner");
 
-                Litematica.debugLog("storeTEInStack(): SkullOwner: {}", tagOwner.toString());
-
-                //NbtCompound tagSkull = new NbtCompound();
-                //tagSkull.put("SkullOwner", tagOwner);
-                //stack.setNbt(tagSkull);
+                //Litematica.debugLog("storeTEInStack(): SkullOwner: {}", tagOwner.toString());
 
                 if (data != null && data.contains(DataComponentTypes.PROFILE))
                 {
@@ -175,7 +169,7 @@ public class ItemUtils
                                 ProfileComponent newProfile = new ProfileComponent(newGameProfile);
                                 stack.set(DataComponentTypes.PROFILE, newProfile);
 
-                                Litematica.debugLog("storeTEInStack(): newProfile set 1 {}", newProfile.toString());
+                                //Litematica.debugLog("storeTEInStack(): newProfile set 1 {}", newProfile.toString());
                             }
                         }
                     }
@@ -189,7 +183,7 @@ public class ItemUtils
                         ProfileComponent newProfile = new ProfileComponent(newGameProfile);
                         stack.set(DataComponentTypes.PROFILE, newProfile);
 
-                        Litematica.debugLog("storeTEInStack(): newProfile set 2 {}", newProfile.toString());
+                        //Litematica.debugLog("storeTEInStack(): newProfile set 2 {}", newProfile.toString());
                     }
                 }
             }
@@ -197,7 +191,7 @@ public class ItemUtils
             {
                 String extraUUID = tag.getString("ExtraType");
 
-                Litematica.debugLog("storeTEInStack(): extraUUID {}", extraUUID);
+                //Litematica.debugLog("storeTEInStack(): extraUUID {}", extraUUID);
 
                 if (!extraUUID.isEmpty())
                 {
@@ -215,7 +209,7 @@ public class ItemUtils
                                 ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
                                 stack.set(DataComponentTypes.PROFILE, newProfile);
 
-                                Litematica.debugLog("storeTEInStack(): newProfile set 3 {}", newProfile.toString());
+                                //Litematica.debugLog("storeTEInStack(): newProfile set 3 {}", newProfile.toString());
                             }
                         }
                     }
@@ -226,7 +220,7 @@ public class ItemUtils
                         ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
                         stack.set(DataComponentTypes.PROFILE, newProfile);
 
-                        Litematica.debugLog("storeTEInStack(): newProfile set 4 {}", newProfile.toString());
+                        //Litematica.debugLog("storeTEInStack(): newProfile set 4 {}", newProfile.toString());
                     }
                 }
             }
@@ -244,14 +238,17 @@ public class ItemUtils
             stack.setSubNbt("BlockEntityTag", tag);
              */
 
-            if (data != null && data.contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+            if (data != null)
             {
-                NbtComponent nbt = NbtComponent.of(tag);
+                if (data.getTypes().contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+                {
+                    NbtComponent entityData = NbtComponent.of(tag);
 
-                // Overwrite existing data
-                stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, nbt);
+                    // Overwrite existing data
+                    stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, entityData);
 
-                Litematica.debugLog("storeTEInStack(): set block entity data: {}", nbt.toString());
+                    //Litematica.debugLog("storeTEInStack(): set block entity data: {}", entityData.toString());
+                }
             }
         }
     }
