@@ -1036,9 +1036,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
                 Litematica.debugLog("addBlockEntityNbt(): SkullOwner: {}", tagOwner.toString());
 
-                //stack.getOrCreateNbt().put("SkullOwner", ownerTag);
                 // There was a time when this was more simple.
-
                 if (data != null && data.contains(DataComponentTypes.PROFILE))
                 {
                     ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
@@ -1060,7 +1058,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 }
                 else
                 {
-                    // DataCompoent doesn't exist, add it.
+                    // DataComponent doesn't exist, add it.
                     GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
                     if (newGameProfile != null)
                     {
@@ -1099,7 +1097,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     }
                     else
                     {
-                        // DataCompoent doesn't exist, add it.
+                        // DataComponent doesn't exist, add it.
                         GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
                         ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
                         stack.set(DataComponentTypes.PROFILE, newProfile);
@@ -1111,10 +1109,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         }
         else
         {
-            //stack.setSubNbt("BlockEntityTag", tag);
             if (data != null && data.contains(DataComponentTypes.BLOCK_ENTITY_DATA))
             {
-                //NbtComponent component = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
                 NbtComponent nbt = NbtComponent.of(tag);
 
                 // Overwrite existing data
