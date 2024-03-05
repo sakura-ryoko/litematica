@@ -2,7 +2,7 @@ package fi.dy.masa.litematica.event;
 
 import javax.annotation.Nullable;
 
-import fi.dy.masa.litematica.network.PacketUtils;
+import fi.dy.masa.litematica.network.PacketListenerRegister;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import fi.dy.masa.litematica.data.DataManager;
@@ -20,7 +20,7 @@ public class WorldLoadListener implements IWorldLoadListener
         {
             DataManager.save();
 
-            PacketUtils.registerPayloads();
+            PacketListenerRegister.registerListeners();
         }
     }
 

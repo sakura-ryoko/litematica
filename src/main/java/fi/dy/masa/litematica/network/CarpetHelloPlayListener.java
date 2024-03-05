@@ -1,19 +1,20 @@
-package fi.dy.masa.litematica.network.handlers;
+package fi.dy.masa.litematica.network;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.network.PacketType;
 
 import fi.dy.masa.malilib.MaLiLibReference;
 import fi.dy.masa.malilib.network.handler.ClientCommonHandlerRegister;
-import fi.dy.masa.malilib.network.handler.play.ClientPlayHandler;
-import fi.dy.masa.malilib.network.handler.play.IPluginPlayHandler;
+import fi.dy.masa.malilib.network.handler.client.ClientPlayHandler;
+import fi.dy.masa.malilib.network.handler.client.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.payload.PayloadCodec;
 import fi.dy.masa.malilib.network.payload.PayloadType;
 import fi.dy.masa.malilib.network.payload.PayloadTypeRegister;
 import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -26,7 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class CarpetHelloPlayListener<T extends CustomPayload> implements IPluginPlayHandler<T>
+@Environment(EnvType.CLIENT)
+public abstract class CarpetHelloPlayListener<T extends CustomPayload> implements IPluginClientPlayHandler<T>
 {
     public final static CarpetHelloPlayListener<CarpetHelloPayload> INSTANCE = new CarpetHelloPlayListener<>()
     {
@@ -35,8 +37,6 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         {
             ClientPlayNetworkHandler handler = MinecraftClient.getInstance().getNetworkHandler();
             CallbackInfo ci = new CallbackInfo("CarpetHelloPlayListener", false);
-
-            //Litematica.debugLog("CarpetHelloPlayListener#receive(): invoked");
 
             if (handler != null)
             {
@@ -100,9 +100,13 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         {
             String carpetVersion = data.getString(PacketType.CarpetHello.HI);
             if (carpetVersion.contains("malilib"))
-                Litematica.logger.info("Litematica Received [FAKE] Carpet Hello packet. (Carpet Server {})", carpetVersion);
+            {
+                Litematica.logger.info("received [FAKE] Carpet Hello packet. (Carpet Server {})", carpetVersion);
+            }
             else
-                Litematica.logger.info("Litematica Received [REAL] Carpet Hello packet. (Carpet Server {})", carpetVersion);
+            {
+                Litematica.logger.info("received [REAL] Carpet Hello packet. (Carpet Server {})", carpetVersion);
+            }
 
             // We have a Carpet server.
             this.carpetRegister = true;
@@ -125,7 +129,9 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         {
             // Handle additional Carpet Packets (The HELLO is followed by a list of the Carpet Rules, etc. ?)
             if (!MaLiLibReference.hasCarpetClient())
+            {
                 Litematica.debugLog("CarpetHelloPlayListener#decodeS2CNbtCompound(): received unhandled Carpet Hello packet. (size: {})", data.getSizeInBytes());
+            }
             // Ignore if we have Carpet Client installed.
         }
     }
@@ -193,7 +199,6 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
                 PayloadTypeRegister.getInstance().registerPlayChannel(type, ClientCommonHandlerRegister.getInstance().getPayloadType(type), ClientCommonHandlerRegister.getInstance().getPacketCodec(type));
             }
         }
-        //ClientDebugSuite.checkGlobalPlayChannels();
     }
     @Override
     @SuppressWarnings("unchecked")
@@ -207,8 +212,6 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         }
         if (codec.isPlayRegistered())
         {
-            //Litematica.debugLog("CarpetHelloPlayListener#registerPlayHandler(): received for type {}", type.toString());
-
             // Don't register carpet:hello --> This will Break CarpetClient from working!
             if (!MaLiLibReference.hasCarpetClient())
                 ClientCommonHandlerRegister.getInstance().registerPlayHandler((CustomPayload.Id<T>) CarpetHelloPayload.TYPE, this);
@@ -231,8 +234,6 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         }
         if (codec.isPlayRegistered())
         {
-            //Litematica.debugLog("CarpetHelloPlayListener#unregisterPlayHandler(): received for type {}", type.toString());
-
             // Don't register carpet:hello --> This will Break CarpetClient from working!
             if (!MaLiLibReference.hasCarpetClient())
                 ClientCommonHandlerRegister.getInstance().unregisterPlayHandler((CustomPayload.Id<T>) CarpetHelloPayload.TYPE);

@@ -1,7 +1,7 @@
 package fi.dy.masa.litematica;
 
 import fi.dy.masa.litematica.event.*;
-import fi.dy.masa.litematica.network.PacketUtils;
+import fi.dy.masa.litematica.network.PacketListenerRegister;
 import fi.dy.masa.malilib.event.*;
 import net.minecraft.client.MinecraftClient;
 
@@ -37,7 +37,7 @@ public class InitHandler implements IInitializationHandler
         KeyCallbacks.init(MinecraftClient.getInstance());
         StatusInfoRenderer.init();
 
-        PacketUtils.registerPayloads();
+        PacketListenerRegister.registerListeners();
 
         DataManager.getAreaSelectionsBaseDirectory();
         DataManager.getSchematicsBaseDirectory();
