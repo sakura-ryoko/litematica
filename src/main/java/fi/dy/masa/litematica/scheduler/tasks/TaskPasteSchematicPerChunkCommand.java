@@ -1053,6 +1053,15 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                             {
                                 newGameProfile = new GameProfile(tagOwner.getUuid("Id"), tagOwner.getString("Name"));
                             }
+                            // Sometimes it's stored in lower case
+                            else if (tagOwner.contains("name"))
+                            {
+                                newGameProfile = new GameProfile(tagOwner.getUuid("id"), tagOwner.getString("name"));
+                            }
+                            else if (tagOwner.contains("id"))
+                            {
+                                newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("id").toString());
+                            }
                             else
                             {
                                 newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("Id").toString());
@@ -1071,6 +1080,15 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     if (tagOwner.contains("Name"))
                     {
                         newGameProfile = new GameProfile(tagOwner.getUuid("Id"), tagOwner.getString("Name"));
+                    }
+                    // Sometimes it's stored in lower case
+                    else if (tagOwner.contains("name"))
+                    {
+                        newGameProfile = new GameProfile(tagOwner.getUuid("id"), tagOwner.getString("name"));
+                    }
+                    else if (tagOwner.contains("id"))
+                    {
+                        newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("id").toString());
                     }
                     else
                     {
