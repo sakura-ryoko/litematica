@@ -18,6 +18,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.Entity;
@@ -26,9 +27,12 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -1044,29 +1048,41 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                         // Compare the UUID
                         if (!tagOwner.getUuid("Id").equals(profile.gameProfile().getId()))
                         {
-                            GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
-                            if (newGameProfile != null)
+                            GameProfile newGameProfile;
+                            if (tagOwner.contains("Name"))
                             {
-                                ProfileComponent newProfile = new ProfileComponent(newGameProfile);
-                                stack.set(DataComponentTypes.PROFILE, newProfile);
-
-                                Litematica.debugLog("addBlockEntityNbt(): newProfile set 1 {}", newProfile.toString());
+                                newGameProfile = new GameProfile(tagOwner.getUuid("Id"), tagOwner.getString("Name"));
                             }
+                            else
+                            {
+                                newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("Id").toString());
+                            }
+                            ProfileComponent newProfile = new ProfileComponent(newGameProfile);
+                            stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                            Litematica.debugLog("addBlockEntityNbt(): newProfile set 1 {}", newProfile.toString());
                         }
                     }
                 }
                 else
                 {
                     // DataComponent doesn't exist, add it.
-                    GameProfile newGameProfile = NbtHelper.toGameProfile(tagOwner);
-                    if (newGameProfile != null)
+                    GameProfile newGameProfile;
+                    if (tagOwner.contains("Name"))
                     {
-                        ProfileComponent newProfile = new ProfileComponent(newGameProfile);
-                        stack.set(DataComponentTypes.PROFILE, newProfile);
-
-                        Litematica.debugLog("addBlockEntityNbt(): newProfile set 2 {}", newProfile.toString());
+                        newGameProfile = new GameProfile(tagOwner.getUuid("Id"), tagOwner.getString("Name"));
                     }
+                    else
+                    {
+                        newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("Id").toString());
+                    }
+                    ProfileComponent newProfile = new ProfileComponent(newGameProfile);
+                    stack.set(DataComponentTypes.PROFILE, newProfile);
+
+                    Litematica.debugLog("addBlockEntityNbt(): newProfile set 1 {}", newProfile.toString());
                 }
+                // Remove
+                tag.remove("SkullOwner");
             }
             else if (tag.contains("ExtraType", 8))
             {
@@ -1105,17 +1121,83 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     }
                 }
             }
+            // Remove
+            tag.remove("ExtraType");
         }
-        else
-        {
-            if (data != null && data.contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+        if (data != null) {
+            if (data.getTypes().contains(DataComponentTypes.CUSTOM_NAME))
             {
-                NbtComponent nbt = NbtComponent.of(tag);
+                if (tag.contains("display"))
+                {
+                    NbtCompound nbt = tag.getCompound("display");
+                    if (tag.contains("Name"))
+                    {
+                        MutableText dispName = Text.empty().append(Text.Serialization.fromJson(nbt.getString("Name"), DataManager.getInstance().getWorldRegistryManager()));
+                        if (nbt.contains("color", 99))
+                        {
+                            dispName.append(Text.translatable("item.color", String.format(Locale.ROOT, "#%06X", nbt.getInt("color"))).formatted(Formatting.GRAY));
+                        }
+
+                        // Overwrite existing data
+                        stack.set(DataComponentTypes.CUSTOM_NAME, dispName);
+
+                        Litematica.debugLog("addBlockEntityNbt(): set custom display name: {}", dispName);
+                    }
+                    else
+                    {
+                        Litematica.debugLog("addBlockEntityNbt(): ignoring empty Custom Display Name data {}", nbt.toString());
+                    }
+                }
+
+                // Remove
+                tag.remove("display");
+            }
+            if (data.getTypes().contains(DataComponentTypes.LORE))
+            {
+                if (tag.getType("Lore") == 9)
+                {
+                    NbtList loreNbt = tag.getList("Lore", 8);
+                    List<Text> loreList = new ArrayList<>();
+
+                    for (int i = 0; i < loreNbt.size(); ++i)
+                    {
+                        String ele = loreNbt.getString(i);
+
+                        try
+                        {
+                            MutableText eleMutable = Text.Serialization.fromJson(ele, DataManager.getInstance().getWorldRegistryManager());
+                            if (eleMutable != null)
+                            {
+                                // I am going to assume that the new Serialization sets the Text Style
+                                loreList.add(eleMutable);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Litematica.debugLog("addBlockEntityNbt(): ignoring invalid Lore data {}", loreNbt.toString());
+                            tag.remove("Lore");
+                        }
+                    }
+                    LoreComponent loreComp = new LoreComponent(loreList);
+                    if (!Objects.equals(data.get(DataComponentTypes.LORE), loreComp))
+                    {
+                        stack.set(DataComponentTypes.LORE, loreComp);
+
+                        Litematica.debugLog("addBlockEntityNbt(): set Lore data {}", loreComp.toString());
+                    }
+                }
+                // Remove
+                tag.remove("Lore");
+            }
+            // TODO Add more Data types here as needed
+            if (data.getTypes().contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+            {
+                NbtComponent entityData = NbtComponent.of(tag);
 
                 // Overwrite existing data
-                stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, nbt);
+                stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, entityData);
 
-                Litematica.debugLog("addBlockEntityNbt(): set block entity data: {}", nbt.toString());
+                Litematica.debugLog("addBlockEntityNbt(): set block entity data: {}", entityData.toString());
             }
         }
     }
