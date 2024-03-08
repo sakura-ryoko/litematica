@@ -49,6 +49,7 @@ import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
+import org.joml.Matrix4fStack;
 
 public class WorldRendererSchematic
 {
@@ -574,6 +575,8 @@ public class WorldRendererSchematic
         ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
 
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+
         for (int i = this.renderInfos.size() - 1; i >= 0; --i)
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
@@ -587,20 +590,23 @@ public class WorldRendererSchematic
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    // FIXME --> It doesn't work as a Matrix4f; Because of the push() / pop() is missing perhaps?
-                    MatrixStack matrixStack = new MatrixStack();
-                    matrixStack.multiplyPositionMatrix(matrix4f);
+                    // FIXME --> It doesn't work as a Matrix4f; Because of the push() / pop() is missing
+                    //MatrixStack matrixStack = new MatrixStack();
+                    //matrixStack.multiplyPositionMatrix(matrix4f);
 
-                    matrixStack.push();
-                    matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
+                    //matrixStack.push();
+                    matrix4fStack.pushMatrix();
 
-                    //matrix4f.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                    //matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
+
+                    matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
                     //buffer.draw(matrix4f, projMatrix, shader);
-                    buffer.draw(matrixStack.peek().getPositionMatrix(), projMatrix, shader);
+                    buffer.draw(matrix4fStack, projMatrix, shader);
 
                     VertexBuffer.unbind();
-                    matrixStack.pop();
+                    //matrixStack.pop();
+                    matrix4fStack.popMatrix();
                 }
             }
         }
@@ -717,7 +723,7 @@ public class WorldRendererSchematic
 
                             matrixStack.push();
 
-                            // TODO this render() call includes a push() and pop()
+                            // TODO this render() call includes a push() and pop(), and does not accept Matrix4f/Matrix4fStack as a parameter
                             this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrixStack, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
                             ++this.countEntitiesRendered;
 
@@ -751,7 +757,7 @@ public class WorldRendererSchematic
                                 matrixStack.push();
                                 matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                                // TODO this call does not have a push() and pop()
+                                // TODO this call does not have a push() and pop(), and does not accept Matrix4f/Matrix4fStack as a parameter
                                 renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
                                 matrixStack.pop();
@@ -774,7 +780,7 @@ public class WorldRendererSchematic
                         matrixStack.push();
                         matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                        // TODO this call does not have a push() and pop()
+                        // TODO this call does not have a push() and pop(), and does not accept Matrix4f/Matrix4fStack as a parameter
                         renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
                         matrixStack.pop();
