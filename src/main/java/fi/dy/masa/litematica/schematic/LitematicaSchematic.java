@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
-import fi.dy.masa.litematica.data.DataManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
 import net.minecraft.SharedConstants;
@@ -448,7 +447,7 @@ public class LitematicaSchematic
 
                             try
                             {
-                                te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
+                                te.readNbt(teNBT, world.getRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
                                 {
@@ -695,7 +694,7 @@ public class LitematicaSchematic
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
 
-                                NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
+                                NbtCompound tag = te.createNbtWithId(world.getRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
                             }
@@ -941,7 +940,7 @@ public class LitematicaSchematic
                             {
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
-                                NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
+                                NbtCompound tag = te.createNbtWithId(world.getRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
                             }
