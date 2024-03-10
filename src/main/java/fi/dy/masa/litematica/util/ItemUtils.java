@@ -149,6 +149,9 @@ public class ItemUtils
 
         Litematica.logger.info("storeTEInStack(): TE tag: {} -> item: {}", tag.toString(), stack.getItem().toString());
 
+        // FIXME this is for the "Hold CTRL" and pick block functionality from the Schematic World --
+        //  I've been working on an MaLiLib-based solution to this mess under "ComponentUtils" .
+
         if ((stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
                 || (stack.getItem() instanceof PlayerHeadItem))
@@ -337,7 +340,7 @@ public class ItemUtils
                 // Remove
                 tag.remove("Lore");
             }
-            // TODO Add more Data types here as needed
+            // TODO Add more Data types here as needed ?
             if (data.getTypes().contains(DataComponentTypes.BLOCK_ENTITY_DATA))
             {
                 NbtComponent entityData = NbtComponent.of(tag);
