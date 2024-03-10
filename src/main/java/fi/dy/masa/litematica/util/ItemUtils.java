@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.mojang.authlib.GameProfile;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.data.DataManager;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -22,6 +21,7 @@ import net.minecraft.item.Items;
 import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -142,12 +142,12 @@ public class ItemUtils
         }
     }
 
-    public static void storeTEInStack(ItemStack stack, BlockEntity te)
+    public static void storeTEInStack(ItemStack stack, BlockEntity te, DynamicRegistryManager registryManager)
     {
-        NbtCompound tag = te.createNbtWithId(DataManager.getInstance().getWorldRegistryManager());
+        NbtCompound tag = te.createNbtWithId(registryManager);
         ComponentMap data = stack.getComponents();
 
-        Litematica.debugLog("storeTEInStack(): TE tag: {} -> item: {}", tag.toString(), stack.getItem().toString());
+        Litematica.logger.info("storeTEInStack(): TE tag: {} -> item: {}", tag.toString(), stack.getItem().toString());
 
         if ((stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
@@ -280,7 +280,7 @@ public class ItemUtils
                     NbtCompound nbt = tag.getCompound("display");
                     if (tag.contains("Name"))
                     {
-                        MutableText dispName = Text.empty().append(Text.Serialization.fromJson(nbt.getString("Name"), DataManager.getInstance().getWorldRegistryManager()));
+                        MutableText dispName = Text.empty().append(Text.Serialization.fromJson(nbt.getString("Name"), registryManager));
                         if (nbt.contains("color", 99))
                         {
                             dispName.append(Text.translatable("item.color", String.format(Locale.ROOT, "#%06X", nbt.getInt("color"))).formatted(Formatting.GRAY));
@@ -313,7 +313,7 @@ public class ItemUtils
 
                         try
                         {
-                            MutableText eleMutable = Text.Serialization.fromJson(ele, DataManager.getInstance().getWorldRegistryManager());
+                            MutableText eleMutable = Text.Serialization.fromJson(ele, registryManager);
                             if (eleMutable != null)
                             {
                                 // I am going to assume that the new Serialization sets the Text Style

@@ -8,6 +8,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
 import net.minecraft.screen.PlayerScreenHandler;
@@ -71,8 +72,6 @@ public class InventoryUtils
                 return;
             }
 
-            Litematica.debugLog("setPickedItemToHand(): item: {}", stack.getItem().toString());
-
             int hotbarSlot = sourceSlot;
 
             if (sourceSlot == -1 || !PlayerInventory.isValidHotbarIndex(sourceSlot))
@@ -89,13 +88,18 @@ public class InventoryUtils
             {
                 inventory.selectedSlot = hotbarSlot;
 
+                int count = stack.getCount();
+                Item item = stack.getItem();
+
+                Litematica.debugLog("setPickedItemToHand(): item: {}, count {}", item.toString(), count);
+
                 if (EntityUtils.isCreativeMode(player))
                 {
-                    inventory.main.set(hotbarSlot, stack.copy());
+                    inventory.main.set(hotbarSlot, stack.copyComponentsToNewStack(item, count));
                 }
                 else
                 {
-                    fi.dy.masa.malilib.util.InventoryUtils.swapItemToMainHand(stack.copy(), mc);
+                    fi.dy.masa.malilib.util.InventoryUtils.swapItemToMainHand(stack.copyComponentsToNewStack(item, count), mc);
                 }
 
                 WorldUtils.setEasyPlaceLastPickBlockTime();
@@ -126,7 +130,7 @@ public class InventoryUtils
                 // Otherwise it would try to write whatever that TE is into the picked ItemStack.
                 if (GuiBase.isCtrlDown() && te != null && mc.world.isAir(pos))
                 {
-                    ItemUtils.storeTEInStack(stack, te);
+                    ItemUtils.storeTEInStack(stack, te, schematicWorld.getRegistryManager());
                 }
 
                 setPickedItemToHand(stack, mc);

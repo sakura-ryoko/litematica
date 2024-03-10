@@ -28,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.text.MutableText;
@@ -463,7 +464,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
             try
             {
-                Set<String> keys = new HashSet<>(be.createNbt(DataManager.getInstance().getWorldRegistryManager()).getKeys());
+                Set<String> keys = new HashSet<>(be.createNbt(clientWorld.getRegistryManager()).getKeys());
                 keys.remove("id");
                 keys.remove("x");
                 keys.remove("y");
@@ -1011,7 +1012,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (!stack.isEmpty())
         {
-            addBlockEntityNbt(stack, be);
+            addBlockEntityNbt(stack, be, world.getRegistryManager());
             assert mc.player != null;
             mc.player.getInventory().offHand.set(0, stack);
             assert mc.interactionManager != null;
@@ -1022,12 +1023,12 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         return false;
     }
 
-    public static void addBlockEntityNbt(ItemStack stack, BlockEntity be)
+    public static void addBlockEntityNbt(ItemStack stack, BlockEntity be, DynamicRegistryManager registryManager)
     {
-        NbtCompound tag = be.createNbt(DataManager.getInstance().getWorldRegistryManager());
+        NbtCompound tag = be.createNbt(registryManager);
         ComponentMap data = stack.getComponents();
 
-        Litematica.debugLog("addBlockEntityNbt(): te tag: {}", tag.toString());
+        Litematica.logger.info("addBlockEntityNbt(): te tag: {}", tag.toString());
 
         if ((stack.getItem() instanceof BlockItem &&
                 ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
@@ -1150,7 +1151,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     NbtCompound nbt = tag.getCompound("display");
                     if (tag.contains("Name"))
                     {
-                        MutableText dispName = Text.empty().append(Text.Serialization.fromJson(nbt.getString("Name"), DataManager.getInstance().getWorldRegistryManager()));
+                        MutableText dispName = Text.empty().append(Text.Serialization.fromJson(nbt.getString("Name"), registryManager));
                         if (nbt.contains("color", 99))
                         {
                             dispName.append(Text.translatable("item.color", String.format(Locale.ROOT, "#%06X", nbt.getInt("color"))).formatted(Formatting.GRAY));
@@ -1183,7 +1184,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
                         try
                         {
-                            MutableText eleMutable = Text.Serialization.fromJson(ele, DataManager.getInstance().getWorldRegistryManager());
+                            MutableText eleMutable = Text.Serialization.fromJson(ele, registryManager);
                             if (eleMutable != null)
                             {
                                 // I am going to assume that the new Serialization sets the Text Style

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-import fi.dy.masa.litematica.data.DataManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -250,7 +249,7 @@ public class SchematicPlacingUtils
 
                             try
                             {
-                                te.readNbt(teNBT, DataManager.getInstance().getWorldRegistryManager());
+                                te.readNbt(teNBT, world.getRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
                                 {
