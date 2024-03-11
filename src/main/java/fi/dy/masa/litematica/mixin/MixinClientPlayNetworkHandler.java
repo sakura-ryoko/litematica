@@ -1,8 +1,10 @@
 package fi.dy.masa.litematica.mixin;
 
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +20,7 @@ import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
-@Mixin(ClientPlayNetworkHandler.class)
+@Mixin(value = ClientPlayNetworkHandler.class, priority = 1000)
 public abstract class MixinClientPlayNetworkHandler
 {
     @Shadow @Final private FeatureSet enabledFeatures;
@@ -66,5 +68,16 @@ public abstract class MixinClientPlayNetworkHandler
         // We're just storing these values for now
         // in case they are required later for additional issues that may come up
         DataManager.getInstance().setClientFeatureSet(this.enabledFeatures);
+    }
+
+    @Inject(method ="onCustomPayload", at = @At("HEAD"))
+    private void litematica_onCustomPayload(CustomPayload payload, CallbackInfo ci)
+    {
+        if (payload.getId().id().equals(DataManager.CARPET_HELLO))
+        {
+            DataManager.setIsCarpetServer(true);
+
+            Litematica.debugLog("litematica_onCustomPayload(): Detected Carpet Server");
+        }
     }
 }

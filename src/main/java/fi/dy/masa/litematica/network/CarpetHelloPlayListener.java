@@ -1,32 +1,33 @@
 package fi.dy.masa.litematica.network;
 
-import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.data.DataManager;
-
-import fi.dy.masa.malilib.MaLiLibReference;
-import fi.dy.masa.malilib.network.handler.ClientCommonHandlerRegister;
-import fi.dy.masa.malilib.network.handler.client.ClientPlayHandler;
 import fi.dy.masa.malilib.network.handler.client.IPluginClientPlayHandler;
-import fi.dy.masa.malilib.network.payload.PayloadCodec;
 import fi.dy.masa.malilib.network.payload.PayloadType;
-import fi.dy.masa.malilib.network.payload.PayloadTypeRegister;
 import fi.dy.masa.malilib.network.payload.channel.CarpetHelloPayload;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * We could fully implement the Carpet Protocol, but the problem is;
+ * it will *disable* the Real Carpet Mod (Client) from working.
+ * I tried hacks, but eventually failed, such as using the "Fake" carpet Payload;
+ * It worked under 24w09a and below just fine, but then we returned to the same problem afterward.
+ * -
+ * Also, if Gnembon ever decides to use Fabric API, we will never see the Carpet Hello packets,
+ * even using the Mixin, unless we simply want to code a "check" against Registered Play Channels.
+ * I have tried this by implementing Fabric API under Carpet Mod, and Litematica will not see the packets.
+ * So, the best course of action is to "go back" to the way that the Carpet Server detection used to function,
+ * because it works, and always has.
+ * -
+ * I was simply using this as a debugging tool for our Network API, using Carpet Mod as a "standard"
+ * to test the code with.
+ */
+@Deprecated(forRemoval = true)
 @Environment(EnvType.CLIENT)
 public abstract class CarpetHelloPlayListener<T extends CustomPayload> implements IPluginClientPlayHandler<T>
 {
@@ -35,6 +36,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         @Override
         public void receive(CarpetHelloPayload payload, ClientPlayNetworking.Context context)
         {
+            /*
             ClientPlayNetworkHandler handler = MinecraftClient.getInstance().getNetworkHandler();
             CallbackInfo ci = new CallbackInfo("CarpetHelloPlayListener", false);
 
@@ -46,7 +48,9 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
             }
             else
                 CarpetHelloPlayListener.INSTANCE.receiveS2CPlayPayload(PayloadType.CARPET_HELLO, payload, context);
+             */
         }
+
     };
     private final Map<PayloadType, Boolean> registered = new HashMap<>();
     private final boolean carpetRespond = false;
@@ -68,7 +72,7 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
         else
             this.registered.put(type, false);
     }
-
+    /*
     @Override
     public <P extends CustomPayload> void receiveS2CPlayPayload(PayloadType type, P payload, ClientPlayNetworking.Context ctx)
     {
@@ -243,4 +247,6 @@ public abstract class CarpetHelloPlayListener<T extends CustomPayload> implement
                 this.registered.put(type, false);
         }
     }
+
+     */
 }

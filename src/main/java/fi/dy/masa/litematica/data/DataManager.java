@@ -33,6 +33,7 @@ import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.tool.ToolModeData;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import fi.dy.masa.litematica.util.ToBooleanFunction;
+import net.minecraft.util.Identifier;
 
 public class DataManager implements IDirectoryCache
 {
@@ -47,6 +48,7 @@ public class DataManager implements IDirectoryCache
     private static boolean canSave;
     private static boolean isCarpetServer;
     private static long clientTickStart;
+    public static Identifier CARPET_HELLO = Identifier.of("carpet", "hello");
     private DynamicRegistryManager registryManager = DynamicRegistryManager.EMPTY;
     private FeatureSet enabledFeatures = FeatureSet.empty();
     private final SelectionManager selectionManager = new SelectionManager();

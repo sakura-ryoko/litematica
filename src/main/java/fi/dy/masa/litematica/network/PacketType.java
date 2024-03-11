@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.network;
 /**
  * Example PacketType file for Downstream Mods
  */
+@Deprecated(forRemoval = true)
 public class PacketType
 {
     public record CarpetHello()
