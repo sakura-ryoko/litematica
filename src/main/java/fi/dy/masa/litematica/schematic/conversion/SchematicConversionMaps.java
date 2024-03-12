@@ -16,7 +16,6 @@ import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -103,23 +102,31 @@ public class SchematicConversionMaps
      * In order for us to properly perform this NBT -> Components fix, we need to Map Block States to Tile Entities,
      * I assume by BlockPos, and then perform the NBT compare.
      */
-    public static NbtCompound get_1_20_4_StateTagFor_1_20_5_Components(NbtCompound oldStateTag,
-                                                                      BlockPos regionPos, BlockPos regionSize)
+    /*
+    public static NbtCompound get_1_20_4_StateTagFor_1_20_5_Components(NbtCompound oldStateTag)
     {
         NbtCompound newStateTag;
-        newStateTag = SchematicConversionComponents.processBlockStateTags_1_20_4_to_1_20_5(oldStateTag);
+        //newStateTag = SchematicConversionComponents.processBlockStateTags_1_20_4_to_1_20_5(oldStateTag);
 
-        return newStateTag;
+        return oldStateTag;
     }
 
-    public static NbtCompound get_1_20_4_TileEntityFor_1_20_5_Components(BlockPos pos, NbtCompound oldTETag,
-                                                                         BlockPos regionPos, BlockPos regionSize)
+    public static NbtCompound get_1_20_4_TileEntityFor_1_20_5_Components(BlockPos pos, NbtCompound oldTETag)
     {
         NbtCompound newTETag;
-        newTETag = SchematicConversionComponents.processTileEntityTags_1_20_4_to_1_20_5(pos, oldTETag);
+        //newTETag = SchematicConversionComponents.processTileEntityTags_1_20_4_to_1_20_5(pos, oldTETag);
 
-        return newTETag;
+        return oldTETag;
     }
+
+    public static NbtCompound get_1_20_4_EntityFor_1_20_5_Components(NbtCompound oldEntityTag)
+    {
+        NbtCompound newEntityTag;
+        //newEntityTag = SchematicConversionComponents.processEntityTags_1_20_4_to_1_20_5(oldEntityTag);
+
+        return oldEntityTag;
+    }
+     */
 
     public static int getOldNameToShiftedBlockId(String oldBlockname)
     {
@@ -303,6 +310,39 @@ public class SchematicConversionMaps
 
         return MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr),
                         1139, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
+    }
+
+    /**
+     * These are the Vanilla Data Fixer's for the 1.20.4 -> 1.20.5 changes, and will handle all the heavy lifting for us.
+     */
+    public static NbtCompound updateBlockStates(NbtCompound oldBlockState, int oldVersion)
+    {
+        NbtElement newBlockState;
+
+        newBlockState = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState),
+                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+
+        return (NbtCompound) newBlockState;
+    }
+
+    public static NbtCompound updateBlockEntity(NbtCompound oldBlockEntity, int oldVersion)
+    {
+        NbtElement newBlockEntity;
+
+        newBlockEntity = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity),
+                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+
+        return (NbtCompound) newBlockEntity;
+    }
+
+    public static NbtCompound updateEntity(NbtCompound oldEntity, int oldVersion)
+    {
+        NbtElement newEntity;
+
+        newEntity = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity),
+                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+
+        return (NbtCompound) newEntity;
     }
 
     private static class ConversionData
