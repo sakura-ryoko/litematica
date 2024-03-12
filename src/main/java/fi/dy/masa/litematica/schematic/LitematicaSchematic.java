@@ -72,10 +72,14 @@ public class LitematicaSchematic
 {
     public static final String FILE_EXTENSION = ".litematic";
     public static final int SCHEMATIC_VERSION_1_13_2 = 5;
+    public static final int SCHEMATIC_VERSION_1_20_5 = 7;
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
-
+    public static final int MINECRAFT_DATA_VERSION_1_20_4 = 3700; // MC 1.20.4
+    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3821; // MC 24w10a
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
-    public static final int SCHEMATIC_VERSION = 6;
+
+    // FIXME --> Bumping Schematic version to 7 for 1.20.5
+    public static final int SCHEMATIC_VERSION = 7;
     // This is basically a "sub-version" for the schematic version,
     // intended to help with possible data fix needs that are discovered.
     public static final int SCHEMATIC_VERSION_SUB = 1; // Bump to one after the sleeping entity position fix
@@ -938,10 +942,16 @@ public class LitematicaSchematic
 
                             if (te != null)
                             {
+                                // This function is called when creating a Litematic from the "real" world, so this NBT data is correct.
+                                //Litematica.logger.info("takeBlocksFromWorldWithinChunk(): create NBT (createNbtWithId) from pos {} {} {}, write Block Entity {} to BlockPos via NBTUtils.writeBlockPosToTag()", x, y ,z, te.getType().toString());
+
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
                                 NbtCompound tag = te.createNbtWithId(world.getRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
+
+                                //Litematica.logger.info("Created NBT: {}", tag.toString());
+
                                 tileEntityMap.put(pos, tag);
                             }
                         }
@@ -1187,6 +1197,11 @@ public class LitematicaSchematic
                     if (version >= 2)
                     {
                         tiles = this.readTileEntitiesFromNBT(regionTag.getList("TileEntities", Constants.NBT.TAG_COMPOUND));
+
+                        Litematica.logger.info("readSubRegionsFromNBT(): reading TileEntities to NBT -> convertTileEntities_*()");
+
+                        tiles = this.convertTileEntities_1_20_4_to_1_20_5(tiles, version, minecraftDataVersion, regionPos, regionSize);
+
                         this.tileEntities.put(regionName, tiles);
                         this.entities.put(regionName, this.readEntitiesFromNBT(regionTag.getList("Entities", Constants.NBT.TAG_COMPOUND)));
                     }
@@ -1222,7 +1237,11 @@ public class LitematicaSchematic
                         BlockPos posMax = PositionUtils.getMaxCorner(regionPos, posEndRel);
                         BlockPos size = posMax.subtract(posMin).add(1, 1, 1);
 
+                        Litematica.logger.info("readSubRegionsFromNBT(): reading BlockStatePalette to NBT -> convertBlockStatePalette_*()");
+                        Litematica.logger.info("-->: posEndRel {}, posMin {}, posMax {}, size {}", posEndRel.toShortString(), posMin.toShortString(), posMax.toShortString(), size);
+
                         palette = this.convertBlockStatePalette_1_12_to_1_13_2(palette, version, minecraftDataVersion);
+                        palette = this.convertBlockStatePalette_1_20_4_to_1_20_5(palette, version, minecraftDataVersion, regionPos, regionSize);
 
                         LitematicaBlockStateContainer container = LitematicaBlockStateContainer.createFrom(palette, blockStateArr, size);
 
@@ -1237,7 +1256,6 @@ public class LitematicaSchematic
             }
         }
     }
-
     public static boolean isSizeValid(@Nullable Vec3i size)
     {
         return size != null && size.getX() > 0 && size.getY() > 0 && size.getZ() > 0;
@@ -1683,6 +1701,8 @@ public class LitematicaSchematic
             NbtCompound tag = palette.getCompound(i);
             BlockState state = NbtHelper.toBlockState(lookup, tag);
 
+            Litematica.debugLog("getStatesFromPaletteTag(): block state palette tag {}", tag.toString());
+
             if (i > 0 || state != LitematicaBlockStateContainer.AIR_BLOCK_STATE)
             {
                 states.add(state);
@@ -1710,6 +1730,51 @@ public class LitematicaSchematic
         }
 
         return oldPalette;
+    }
+
+    private NbtList convertBlockStatePalette_1_20_4_to_1_20_5(NbtList oldPalette,
+                                                              int version, int minecraftDataVersion,
+                                                              BlockPos regionPos, BlockPos regionSize)
+    {
+        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5 && minecraftDataVersion > 0))
+        {
+            NbtList newPalette = new NbtList();
+            final int count = oldPalette.size();
+
+            for (int i = 0; i < count; ++i)
+            {
+                newPalette.add(SchematicConversionMaps.get_1_20_4_StateTagFor_1_20_5_Components(oldPalette.getCompound(i), regionPos, regionSize));
+            }
+
+            return newPalette;
+        }
+
+        return oldPalette;
+    }
+
+    private Map<BlockPos, NbtCompound> convertTileEntities_1_20_4_to_1_20_5(Map<BlockPos, NbtCompound> oldTE,
+                                                                            int version, int minecraftDataVersion,
+                                                                            BlockPos regionPos, BlockPos regionSize)
+    {
+        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5 && minecraftDataVersion > 0))
+        {
+            Map<BlockPos, NbtCompound> newTE = new HashMap<>();
+            final int count = oldTE.size();
+            int index = 0;
+
+            for (BlockPos key : oldTE.keySet())
+            {
+                NbtCompound oldNbt = oldTE.get(key);
+                NbtCompound newNbt = SchematicConversionMaps.get_1_20_4_TileEntityFor_1_20_5_Components(key, oldNbt, regionPos, regionSize);
+
+                newTE.put(key, newNbt);
+                index++;
+            }
+
+            return newTE;
+        }
+
+        return oldTE;
     }
 
     private List<EntityInfo> readEntitiesFromNBT(NbtList tagList)

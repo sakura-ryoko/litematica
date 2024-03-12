@@ -69,14 +69,17 @@ public class ComponentUtils
         return compResult.build();
     }
 
-    public ComponentMap fromBlockEntityNBT(NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
+    /**
+     * Execute this prior to "reading in" a BlockEntity's NBT tags, so that Vanilla can handle the rest.
+     */
+    public ComponentMap fromBlockEntityNBT(@Nonnull ItemStack stackIn, BlockEntity be, @Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
     {
         BlockPos blockPos;
         Identifier blockId;
         BlockEntityType<?> blockType;
         Text customName;
 
-        if (nbt == null || nbt.isEmpty())
+        if (nbt.isEmpty())
         {
             Litematica.logger.error("fromBlockEntityNBT(): nbt given is empty");
             return null;
@@ -906,7 +909,7 @@ public class ComponentUtils
      *  Is there a simpler way to do this to translate from pre-1.20.5?
      */
     @Nullable
-    private RegistryEntry<BannerPattern> getBannerPatternEntryByIdPre1205(String patternId, DynamicRegistryManager registryManager)
+    public static RegistryEntry<BannerPattern> getBannerPatternEntryByIdPre1205(String patternId, DynamicRegistryManager registryManager)
     {
         RegistryKey<BannerPattern> key;
 

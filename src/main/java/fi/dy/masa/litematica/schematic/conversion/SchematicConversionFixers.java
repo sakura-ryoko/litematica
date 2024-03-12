@@ -58,10 +58,14 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BANNER = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null)
+        if (tag != null && tag.contains("Base"))
         {
+            Litematica.debugLog("FIXER_BANNER(): tag {}", tag);
+
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
             DyeColor colorFromData = DyeColor.byId(15 - tag.getInt("Base"));
+
+            Litematica.debugLog("FIXER_BANNER(): orig {}, data {}", colorOrig.getName(), colorFromData.getName());
 
             if (colorOrig != colorFromData)
             {
@@ -97,10 +101,14 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BANNER_WALL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null)
+        if (tag != null && tag.contains("Base"))
         {
+            Litematica.debugLog("FIXER_BANNER(): tag {}", tag);
+
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
             DyeColor colorFromData = DyeColor.byId(15 - tag.getInt("Base"));
+
+            Litematica.debugLog("FIXER_BANNER(): orig {}, data {}", colorOrig.getName(), colorFromData.getName());
 
             if (colorOrig != colorFromData)
             {
@@ -259,11 +267,11 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_FLOWER_POT = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null)
+        if (tag != null && tag.contains("Item", 8))
         {
             String itemName = tag.getString("Item");
 
-            if (itemName.length() > 0)
+            if (itemName.length() > 0 && tag.contains("Data"))
             {
                 int meta = tag.getInt("Data");
 
@@ -383,11 +391,13 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_SKULL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null)
+        if (tag != null && tag.contains("SkullType"))
         {
+            //Litematica.logger.info("FIXER_SKULL: tag {}", tag.toString());
+
             int id = MathHelper.clamp(tag.getByte("SkullType"), 0, 5);
 
-            Litematica.debugLog("IStateFixer(FIXER_SKULL): tag: {} // SkullType: {}", tag.toString(), id);
+            //Litematica.debugLog("FIXER_SKULL: tag: {} // SkullType: {}", tag.toString(), id);
 
             // ;_; >_> <_<
             if (id == 2) { id = 3; } else if (id == 3) { id = 2; }
@@ -432,9 +442,13 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_SKULL_WALL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null)
+        if (tag != null && tag.contains("SkullType"))
         {
+            //Litematica.logger.info("FIXER_SKULL: tag {}", tag.toString());
+
             int id = MathHelper.clamp(tag.getByte("SkullType"), 0, 5);
+
+            //Litematica.debugLog("FIXER_SKULL: tag: {} // SkullType: {}", tag.toString(), id);
 
             // ;_; >_> <_<
             if (id == 2) { id = 3; } else if (id == 3) { id = 2; }

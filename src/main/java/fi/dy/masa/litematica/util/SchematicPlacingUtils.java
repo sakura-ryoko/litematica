@@ -392,6 +392,8 @@ public class SchematicPlacingUtils
                 NbtCompound tag = info.nbt.copy();
                 String id = tag.getString("id");
 
+                Litematica.logger.info("placeEntitiesToWorldWithinChunk(): NBT read for id {}", id);
+
                 // Avoid warning about invalid hanging position.
                 // Note that this position isn't technically correct, but it only needs to be within 16 blocks
                 // of the entity position to avoid the warning.

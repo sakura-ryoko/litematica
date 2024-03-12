@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.scheduler.tasks;
 
 import java.util.*;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.Queues;
 import com.mojang.authlib.GameProfile;
@@ -564,13 +565,17 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     @Nullable
     protected BlockPos placeNbtPickedBlock(BlockPos pos, BlockState state, BlockEntity be,
-                                           World schematicWorld, ClientWorld clientWorld)
+                                           @Nonnull World schematicWorld, @Nonnull ClientWorld clientWorld)
     {
         assert this.mc.player != null;
         double reach = this.mc.player.getBlockInteractionRange();
         BlockPos placementPos = this.findEmptyNearbyPosition(clientWorld, this.mc.player.getPos(), 4, reach);
 
-        if (placementPos != null && preparePickedStack(pos, state, be, schematicWorld, this.mc))
+        Litematica.logger.info("placeNbtPickedBlock(): called -> preparePickedStack()");
+
+        // Use registryManager from the "Destination" World,
+        // because it's used to read all sorts of data related to NBT / Components
+        if (placementPos != null && preparePickedStack(pos, state, be, schematicWorld, this.mc, clientWorld.getRegistryManager()))
         {
             Vec3d posVec = new Vec3d(placementPos.getX() + 0.5, placementPos.getY() + 0.5, placementPos.getZ() + 0.5);
             BlockHitResult hitResult = new BlockHitResult(posVec, Direction.UP, placementPos, true);
@@ -1006,13 +1011,16 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     }
 
     protected static boolean preparePickedStack(BlockPos pos, BlockState state, BlockEntity be,
-                                                World world, MinecraftClient mc)
+                                                World world, MinecraftClient mc,
+                                                @Nonnull DynamicRegistryManager registryManager)
     {
         ItemStack stack = state.getBlock().getPickStack(world, pos, state);
 
         if (!stack.isEmpty())
         {
-            addBlockEntityNbt(stack, be, world.getRegistryManager());
+            Litematica.logger.info("preparePickedStack(): called -> addBlockEntityNbt()");
+
+            addBlockEntityNbt(stack, be, registryManager);
             assert mc.player != null;
             mc.player.getInventory().offHand.set(0, stack);
             assert mc.interactionManager != null;
@@ -1023,7 +1031,9 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         return false;
     }
 
-    public static void addBlockEntityNbt(ItemStack stack, BlockEntity be, DynamicRegistryManager registryManager)
+    public static void addBlockEntityNbt(@Nonnull ItemStack stack,
+                                         @Nonnull BlockEntity be,
+                                         @Nonnull DynamicRegistryManager registryManager)
     {
         NbtCompound tag = be.createNbt(registryManager);
         ComponentMap data = stack.getComponents();

@@ -13,13 +13,10 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.PillarBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.datafixer.TypeReferences;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -100,6 +97,28 @@ public class SchematicConversionMaps
     {
         NbtCompound tag = NEW_STATE_TO_OLD_STATE.get(newStateTag);
         return tag != null ? tag : newStateTag;
+    }
+
+    /**
+     * In order for us to properly perform this NBT -> Components fix, we need to Map Block States to Tile Entities,
+     * I assume by BlockPos, and then perform the NBT compare.
+     */
+    public static NbtCompound get_1_20_4_StateTagFor_1_20_5_Components(NbtCompound oldStateTag,
+                                                                      BlockPos regionPos, BlockPos regionSize)
+    {
+        NbtCompound newStateTag;
+        newStateTag = SchematicConversionComponents.processBlockStateTags_1_20_4_to_1_20_5(oldStateTag);
+
+        return newStateTag;
+    }
+
+    public static NbtCompound get_1_20_4_TileEntityFor_1_20_5_Components(BlockPos pos, NbtCompound oldTETag,
+                                                                         BlockPos regionPos, BlockPos regionSize)
+    {
+        NbtCompound newTETag;
+        newTETag = SchematicConversionComponents.processTileEntityTags_1_20_4_to_1_20_5(pos, oldTETag);
+
+        return newTETag;
     }
 
     public static int getOldNameToShiftedBlockId(String oldBlockname)
