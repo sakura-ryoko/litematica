@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.util;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.malilib.util.InventoryUtils;
 import net.minecraft.block.entity.*;
 import net.minecraft.component.*;
 import net.minecraft.component.type.*;
@@ -31,12 +32,6 @@ import java.util.regex.Pattern;
 
 /**
  * This file is meant to be a new central place for managing Component <-> NBT data
- * *** A WORK IN PROGRESS ***
- * -
- * These tend to be annoying, because for 24w09a and below, the NBT was the same.
- * Now, for 24w10a (And beyond) they are all stored IN LOWER CASE!
- * (i.e. "Slot" becomes "slot") So, in order to maintain this for backwards compatibility;
- * *all* of the possible NBT values need to be managed and translated!
  */
 public class ComponentUtils
 {
@@ -792,24 +787,8 @@ public class ComponentUtils
         else if (nbt.contains("bees"))
         {
             NbtList beeNbtList = nbt.getList("bees", 10);
+            BeehiveBlockEntity.BeeData beeData;
 
-            for (int i = 0; i < beeNbtList.size(); i++)
-            {
-                NbtCompound beeNbt = beeNbtList.getCompound(i);
-                BeehiveBlockEntity.BeeData beeData;
-
-                if (beeNbt.contains("entity_data"))
-                {
-                    NbtCompound beeEnt2 = beeNbt.getCompound("entity_data");
-                    String beeId = beeEnt2.getString("id");
-                    // beeId = Registries.ENTITY_TYPE.getId(EntityType.BEE).toString();
-                    int beeTicksInHive2 = beeNbt.getInt("ticks_in_hive");
-                    int occupationTicks2 = beeNbt.getInt("min_ticks_in_hive");
-
-                    beeData = new BeehiveBlockEntity.BeeData(NbtComponent.of(beeEnt2), beeTicksInHive2, occupationTicks2);
-                    beeList.add(beeData);
-                }
-            }
             /*
             BeehiveBlockEntity.BeeData.LIST_CODEC.parse(NbtOps.INSTANCE, nbt.get("bees")).resultOrPartial((result) ->
             {
@@ -825,6 +804,39 @@ public class ComponentUtils
 
         return List.of();
     }
+
+    public static List<BeehiveBlockEntity.BeeData> getBeesDataFromNbt(NbtList beeNbtList)
+    {
+        List<BeehiveBlockEntity.BeeData> beeList = new ArrayList<>();
+
+        for (int i = 0; i < beeNbtList.size(); i++)
+        {
+            NbtCompound beeNbt = beeNbtList.getCompound(i);
+            BeehiveBlockEntity.BeeData beeData;
+
+            if (beeNbt.contains("entity_data"))
+            {
+                NbtCompound beeEnt2 = beeNbt.getCompound("entity_data");
+                String beeId = beeEnt2.getString("id");
+                // beeId = Registries.ENTITY_TYPE.getId(EntityType.BEE).toString();
+                int beeTicksInHive2 = beeNbt.getInt("ticks_in_hive");
+                int occupationTicks2 = beeNbt.getInt("min_ticks_in_hive");
+
+                beeData = new BeehiveBlockEntity.BeeData(NbtComponent.of(beeEnt2), beeTicksInHive2, occupationTicks2);
+
+                beeList.add(beeData);
+            }
+        }
+        if (beeList.isEmpty())
+        {
+            return List.of();
+        }
+        else
+        {
+            return beeList;
+        }
+    }
+
     private BannerPatternsComponent getBannerPatternsFromNBT(NbtCompound nbt, DynamicRegistryManager registryLookup)
     {
         List<BannerPatternsComponent.Layer> layerList = new ArrayList<>();
@@ -967,67 +979,56 @@ public class ComponentUtils
     }
 
     @Nullable
-    private ProfileComponent getSkullProfileFromProfile(NbtCompound profile)
+    public static ProfileComponent getSkullProfileFromProfile(NbtCompound profile)
     {
-        UUID uuid = Util.NIL_UUID;
-        String name = "";
-        NbtCompound properties;
+        UUID skullUUID = Util.NIL_UUID;
+        String skullName = "";
         GameProfile skullProfile;
 
         if (profile.contains("id"))
         {
-            uuid = profile.getUuid("id");
+            skullUUID = profile.getUuid("id");
         }
         if (profile.contains("name"))
         {
-            name = profile.getString("name");
+            skullName = profile.getString("name");
         }
-        if (!name.isEmpty())
+        Litematica.debugLog("getSkullProfileFromProfile(): try uuid: {} // name: {}", skullUUID.toString(), skullName);
+        try
         {
-            try
+            skullProfile = new GameProfile(skullUUID, skullName);
+        }
+        catch (Exception failure)
+        {
+            Litematica.logger.error("getSkullProfileFromProfile() failed to retrieve GameProfile");
+            return null;
+        }
+
+        if (profile.contains("properties"))
+        {
+            NbtList propList = profile.getList("properties", 10);
+
+            for (int i = 0; i < propList.size(); i++)
             {
-                skullProfile = new GameProfile(uuid, name);
-                if (profile.contains("properties"))
+                NbtCompound propNbt = propList.getCompound(i);
+
+                String propValue = propNbt.getString("value");
+                String propName = propNbt.getString("name");
+
+                if (propNbt.contains("signature", 8))
                 {
-                    properties = profile.getCompound("properties");
+                    String propSignature = propNbt.getString("signature");
 
-                    for (String key : properties.getKeys())
-                    {
-                        NbtList propList = properties.getList(key, 10);
-
-                        for (int i = 0; i < propList.size(); i++)
-                        {
-                            NbtCompound propNbt = propList.getCompound(i);
-
-                            String value = propNbt.getString("value");
-                            String propName = propNbt.getString("name");
-
-                            if (propNbt.contains("signature", 8))
-                            {
-                                skullProfile.getProperties().put(key, new Property(propName, value, propNbt.getString("signature")));
-                            }
-                            else
-                            {
-                                skullProfile.getProperties().put(key, new Property(propName, value));
-                            }
-
-                        }
-                    }
+                    skullProfile.getProperties().put(propName, new Property(propName, propValue, propSignature));
                 }
-
-                return new ProfileComponent(skullProfile);
-            }
-            catch (Exception failure)
-            {
-                Litematica.logger.error("getSkullProfileFromProfile() failed to retrieve GameProfile from post-24w09a type data");
+                else
+                {
+                    skullProfile.getProperties().put(propName, new Property(propName, propValue));
+                }
             }
         }
-        else
-        {
-            Litematica.logger.warn("getSkullProfileFromProfile() failed to retrieve GameProfile from post-24w09a type data (name or id is empty)");
-        }
 
-        return null;
+        return new ProfileComponent(skullProfile);
     }
 
     @Nullable
@@ -1244,11 +1245,11 @@ public class ComponentUtils
 
                     if (itemCount > 0)
                     {
-                        stack = fi.dy.masa.malilib.util.InventoryUtils.getItemStackFromString(itemId, itemCount);
+                        stack = InventoryUtils.getItemStackFromString(itemId, itemCount);
                     }
                     else
                     {
-                        stack = fi.dy.masa.malilib.util.InventoryUtils.getItemStackFromString(itemId);
+                        stack = InventoryUtils.getItemStackFromString(itemId);
                     }
 
                     if (skullProfile != null)
@@ -1334,11 +1335,11 @@ public class ComponentUtils
 
             if (itemCount > 0)
             {
-                stack = fi.dy.masa.malilib.util.InventoryUtils.getItemStackFromString(itemId, itemCount);
+                stack = InventoryUtils.getItemStackFromString(itemId, itemCount);
             }
             else
             {
-                stack = fi.dy.masa.malilib.util.InventoryUtils.getItemStackFromString(itemId);
+                stack = InventoryUtils.getItemStackFromString(itemId);
             }
 
             if (skullProfile != null)

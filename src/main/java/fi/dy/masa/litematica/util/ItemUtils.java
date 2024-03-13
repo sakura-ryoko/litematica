@@ -2,18 +2,12 @@ package fi.dy.masa.litematica.util;
 
 import java.util.*;
 
-import com.mojang.authlib.GameProfile;
 import fi.dy.masa.litematica.Litematica;
-import net.minecraft.block.AbstractSkullBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.SlabType;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -23,11 +17,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -145,212 +135,83 @@ public class ItemUtils
     public static void storeTEInStack(ItemStack stack, BlockEntity te, DynamicRegistryManager registryManager)
     {
         NbtCompound tag = te.createNbtWithId(registryManager);
-        ComponentMap data = stack.getComponents();
 
-        Litematica.logger.info("storeTEInStack(): TE tag: {} -> item: {}", tag.toString(), stack.getItem().toString());
-
-        // FIXME this is for the "Hold CTRL" and pick block functionality from the Schematic World --
-        //  I've been working on an MaLiLib-based solution to this mess under "ComponentUtils" .
+        // This is for the "Hold CTRL" and pick block functionality from the Schematic World
 
         if ((stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
                 || (stack.getItem() instanceof PlayerHeadItem))
         {
-            if (tag.contains("SkullOwner", 10))
+            //Litematica.logger.info("storeTEInStack(): is skull item");
+
+            if (tag.contains("profile"))
             {
-                NbtCompound tagOwner = tag.getCompound("SkullOwner");
+                NbtCompound skullNbt = tag.getCompound("profile");
+                ProfileComponent skullProfile = ComponentUtils.getSkullProfileFromProfile(skullNbt);
 
-                Litematica.debugLog("storeTEInStack(): SkullOwner: {}", tagOwner.toString());
-
-                if (data != null && data.contains(DataComponentTypes.PROFILE))
+                if (skullProfile != null)
                 {
-                    ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
-                    if (profile != null)
-                    {
-                        // Compare the UUID
-                        if (!tagOwner.getUuid("Id").equals(profile.gameProfile().getId()))
-                        {
-                            GameProfile newGameProfile;
-                            if (tagOwner.contains("Name"))
-                            {
-                                newGameProfile = new GameProfile(tagOwner.getUuid("Id"), tagOwner.getString("Name"));
-                            }
-                            // Sometimes it's stored in lower case
-                            else if (tagOwner.contains("name"))
-                            {
-                                newGameProfile = new GameProfile(tagOwner.getUuid("id"), tagOwner.getString("name"));
-                            }
-                            else if (tagOwner.contains("id"))
-                            {
-                                newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("id").toString());
-                            }
-                            else
-                            {
-                                newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("Id").toString());
-                            }
-                            ProfileComponent newProfile = new ProfileComponent(newGameProfile);
-                            stack.set(DataComponentTypes.PROFILE, newProfile);
+                    Litematica.debugLog("storeTEInStack(): applying skull profile component from NBT");
 
-                            Litematica.debugLog("storeTEInStack(): newProfile set 1 {}", newProfile.toString());
-                        }
-                    }
+                    stack.set(DataComponentTypes.PROFILE, skullProfile);
                 }
                 else
                 {
-                    // DataComponent doesn't exist, add it.
-                    GameProfile newGameProfile;
-                    if (tagOwner.contains("Name"))
-                    {
-                        newGameProfile = new GameProfile(tagOwner.getUuid("Id"), tagOwner.getString("Name"));
-                    }
-                    // Sometimes it's stored in lower case
-                    else if (tagOwner.contains("name"))
-                    {
-                        newGameProfile = new GameProfile(tagOwner.getUuid("id"), tagOwner.getString("name"));
-                    }
-                    else if (tagOwner.contains("id"))
-                    {
-                        newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("id").toString());
-                    }
-                    else
-                    {
-                        newGameProfile = new GameProfile(Util.NIL_UUID, tagOwner.getUuid("Id").toString());
-                    }
-                    ProfileComponent newProfile = new ProfileComponent(newGameProfile);
-                    stack.set(DataComponentTypes.PROFILE, newProfile);
-
-                    Litematica.debugLog("storeTEInStack(): newProfile set 1 {}", newProfile.toString());
+                    Litematica.logger.warn("storeTEInStack(): failed to fetch user profile from NBT data (null output)");
                 }
-                // Remove
-                tag.remove("SkullOwner");
             }
-            else if (tag.contains("ExtraType", 8))
+            else
             {
-                String extraUUID = tag.getString("ExtraType");
-
-                Litematica.debugLog("storeTEInStack(): extraUUID {}", extraUUID);
-
-                if (!extraUUID.isEmpty())
-                {
-                    UUID uuid = UUID.fromString(extraUUID);
-
-                    if (data != null && data.contains(DataComponentTypes.PROFILE))
-                    {
-                        ProfileComponent profile = stack.get(DataComponentTypes.PROFILE);
-                        if (profile != null)
-                        {
-                            // Compare the UUID
-                            if (!uuid.equals(profile.gameProfile().getId()))
-                            {
-                                GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
-                                ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
-                                stack.set(DataComponentTypes.PROFILE, newProfile);
-
-                                Litematica.debugLog("storeTEInStack(): newProfile set 3 {}", newProfile.toString());
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // DataComponent doesn't exist, add it.
-                        GameProfile extraGameProfile = new GameProfile(Util.NIL_UUID, extraUUID);
-                        ProfileComponent newProfile = new ProfileComponent(extraGameProfile);
-                        stack.set(DataComponentTypes.PROFILE, newProfile);
-
-                        Litematica.debugLog("storeTEInStack(): newProfile set 4 {}", newProfile.toString());
-                    }
-                }
-                // Remove
-                tag.remove("ExtraType");
+                Litematica.logger.warn("storeTEInStack(): failed to fetch user profile from NBT data (profile not found)");
             }
         }
-            // So this is where the now "infamous" Purple (+NBT) lore comes from on my Shulker boxes?
-            /*
-            NbtCompound tagLore = new NbtCompound();
-            NbtList tagList = new NbtList();
+        if ((stack.getItem() instanceof BlockItem &&
+                ((BlockItem) stack.getItem()).getBlock() instanceof BeehiveBlock))
+        {
+            //Litematica.logger.info("storeTEInStack(): is beehive item");
 
-            tagList.add(NbtString.of("(+NBT)"));
-            tagLore.put("Lore", tagList);
-            stack.setSubNbt("display", tagLore);
-            stack.setSubNbt("BlockEntityTag", tag);
-             */
-
-        if (data != null) {
-            if (data.getTypes().contains(DataComponentTypes.CUSTOM_NAME))
+            if (tag.contains("bees"))
             {
-                if (tag.contains("display"))
+                NbtList beeNbtList = tag.getList("bees", 10);
+                List<BeehiveBlockEntity.BeeData> beeList = ComponentUtils.getBeesDataFromNbt(beeNbtList);
+
+                if (beeList.isEmpty())
                 {
-                    NbtCompound nbt = tag.getCompound("display");
-                    if (tag.contains("Name"))
-                    {
-                        MutableText dispName = Text.empty().append(Text.Serialization.fromJson(nbt.getString("Name"), registryManager));
-                        if (nbt.contains("color", 99))
-                        {
-                            dispName.append(Text.translatable("item.color", String.format(Locale.ROOT, "#%06X", nbt.getInt("color"))).formatted(Formatting.GRAY));
-                        }
-
-                        // Overwrite existing data
-                        stack.set(DataComponentTypes.CUSTOM_NAME, dispName);
-
-                        Litematica.debugLog("storeTEInStack(): set custom display name: {}", dispName);
-                    }
-                    else
-                    {
-                        Litematica.debugLog("storeTEInStack(): ignoring empty Custom Display Name data {}", nbt.toString());
-                    }
+                    Litematica.logger.warn("storeTEInStack(): beeList is empty");
                 }
-
-                // Remove
-                tag.remove("display");
-            }
-            if (data.getTypes().contains(DataComponentTypes.LORE))
-            {
-                if (tag.getType("Lore") == 9)
+                else
                 {
-                    NbtList loreNbt = tag.getList("Lore", 8);
-                    List<Text> loreList = new ArrayList<>();
+                    Litematica.debugLog("storeTEInStack(): applying bees component from NBT");
 
-                    for (int i = 0; i < loreNbt.size(); ++i)
-                    {
-                        String ele = loreNbt.getString(i);
-
-                        try
-                        {
-                            MutableText eleMutable = Text.Serialization.fromJson(ele, registryManager);
-                            if (eleMutable != null)
-                            {
-                                // I am going to assume that the new Serialization sets the Text Style
-                                loreList.add(eleMutable);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Litematica.debugLog("storeTEInStack(): ignoring invalid Lore data {}", loreNbt.toString());
-                            tag.remove("Lore");
-                        }
-                    }
-                    LoreComponent loreComp = new LoreComponent(loreList);
-                    if (!Objects.equals(data.get(DataComponentTypes.LORE), loreComp))
-                    {
-                        stack.set(DataComponentTypes.LORE, loreComp);
-
-                        Litematica.debugLog("storeTEInStack(): set Lore data {}", loreComp.toString());
-                    }
+                    stack.set(DataComponentTypes.BEES, beeList);
                 }
-                // Remove
-                tag.remove("Lore");
             }
-            // TODO Add more Data types here as needed ?
-            if (data.getTypes().contains(DataComponentTypes.BLOCK_ENTITY_DATA))
+            else
             {
-                NbtComponent entityData = NbtComponent.of(tag);
-
-                // Overwrite existing data
-                stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, entityData);
-
-                Litematica.debugLog("storeTEInStack(): set block entity data: {}", entityData.toString());
+                Litematica.logger.warn("storeTEInStack(): failed to fetch beeList from NBT data (bees not found)");
             }
         }
+
+        // TODO So this is where the now "infamous" Purple (+NBT) lore comes from?
+        //  To re-add this, you would need to build the LoreComponent
+        /*
+        Text newNbtLore = Text.of("(+NBT)");
+        List<Text> newLoreList = new ArrayList<>();
+
+        newLoreList.add(newNbtLore);
+
+        LoreComponent lore = new LoreComponent(newLoreList);
+        stack.set(DataComponentTypes.LORE, lore);
+        */
+        // TODO
+
+        /*
+        tagList.add(NbtString.of("(+NBT)"));
+
+        stack.setSubNbt("BlockEntityTag", tag);
+         */
+
+        //Litematica.logger.info("storeTEInStack(): new components: {}", stack.getComponents());
     }
 
     public static String getStackString(ItemStack stack)

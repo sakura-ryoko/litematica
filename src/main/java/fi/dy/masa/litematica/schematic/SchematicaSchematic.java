@@ -43,6 +43,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class SchematicaSchematic
 {
+    // TODO --> May need to add vanilla DataFixer's here?
     public static final String FILE_EXTENSION = ".schematic";
 
     private final SchematicConverter converter;

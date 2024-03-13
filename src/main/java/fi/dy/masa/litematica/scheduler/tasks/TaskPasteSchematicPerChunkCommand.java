@@ -571,7 +571,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         double reach = this.mc.player.getBlockInteractionRange();
         BlockPos placementPos = this.findEmptyNearbyPosition(clientWorld, this.mc.player.getPos(), 4, reach);
 
-        Litematica.logger.info("placeNbtPickedBlock(): called -> preparePickedStack()");
+        Litematica.debugLog("placeNbtPickedBlock(): called -> preparePickedStack()");
 
         // Use registryManager from the "Destination" World,
         // because it's used to read all sorts of data related to NBT / Components
@@ -1018,7 +1018,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (!stack.isEmpty())
         {
-            Litematica.logger.info("preparePickedStack(): called -> addBlockEntityNbt()");
+            Litematica.debugLog("preparePickedStack(): called -> addBlockEntityNbt()");
 
             addBlockEntityNbt(stack, be, registryManager);
             assert mc.player != null;
@@ -1038,7 +1038,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         NbtCompound tag = be.createNbt(registryManager);
         ComponentMap data = stack.getComponents();
 
-        Litematica.logger.info("addBlockEntityNbt(): te tag: {}", tag.toString());
+        // TODO find out when this gets called so I can adjust this soup
+        Litematica.logger.error("addBlockEntityNbt(): te tag: {}", tag.toString());
 
         if ((stack.getItem() instanceof BlockItem &&
                 ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
@@ -1218,7 +1219,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 // Remove
                 tag.remove("Lore");
             }
-            // TODO Add more Data types here as needed
+            // TODO Add more Data types here as needed ?
             if (data.getTypes().contains(DataComponentTypes.BLOCK_ENTITY_DATA))
             {
                 NbtComponent entityData = NbtComponent.of(tag);
