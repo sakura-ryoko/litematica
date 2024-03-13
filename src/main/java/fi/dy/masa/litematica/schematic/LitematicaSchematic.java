@@ -1705,7 +1705,7 @@ public class LitematicaSchematic
             NbtCompound tag = palette.getCompound(i);
             BlockState state = NbtHelper.toBlockState(lookup, tag);
 
-            Litematica.debugLog("getStatesFromPaletteTag(): block state palette tag {}", tag.toString());
+            //Litematica.debugLog("getStatesFromPaletteTag(): block state palette tag {}", tag.toString());
 
             if (i > 0 || state != LitematicaBlockStateContainer.AIR_BLOCK_STATE)
             {

@@ -162,7 +162,7 @@ public class ItemUtils
             }
             else
             {
-                Litematica.logger.warn("storeTEInStack(): failed to fetch user profile from NBT data (profile not found)");
+                Litematica.debugLog("storeTEInStack(): failed to fetch user profile from NBT data (profile not found)");
             }
         }
         if ((stack.getItem() instanceof BlockItem &&
@@ -177,7 +177,7 @@ public class ItemUtils
 
                 if (beeList.isEmpty())
                 {
-                    Litematica.logger.warn("storeTEInStack(): beeList is empty");
+                    Litematica.debugLog("storeTEInStack(): beeList is empty");
                 }
                 else
                 {
@@ -188,7 +188,7 @@ public class ItemUtils
             }
             else
             {
-                Litematica.logger.warn("storeTEInStack(): failed to fetch beeList from NBT data (bees not found)");
+                Litematica.debugLog("storeTEInStack(): failed to fetch beeList from NBT data (bees not found)");
             }
         }
 
