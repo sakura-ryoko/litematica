@@ -322,6 +322,7 @@ public class SchematicConversionMaps
         newBlockState = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState),
                 oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
 
+        // Type 10
         return (NbtCompound) newBlockState;
     }
 
@@ -332,6 +333,7 @@ public class SchematicConversionMaps
         newBlockEntity = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity),
                 oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
 
+        // Type 10
         return (NbtCompound) newBlockEntity;
     }
 
@@ -342,6 +344,7 @@ public class SchematicConversionMaps
         newEntity = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity),
                 oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
 
+        // Type 10
         return (NbtCompound) newEntity;
     }
 
