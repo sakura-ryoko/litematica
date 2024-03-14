@@ -496,7 +496,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (be instanceof SignBlockEntity signBe)
         {
-            NbtCompound tag = be.createNbt(null);
+            NbtCompound tag = be.createNbt(schematicWorld.getRegistryManager());
 
             if (tag != null)
             {
@@ -1032,27 +1032,21 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         // TODO find out when this gets called so I can adjust this properly
         //Litematica.debugLog("addBlockEntityNbt(): te tag: {}", tag.toString());
 
-        if (stack.getItem() instanceof PlayerHeadItem)
+        if (stack.getItem() instanceof PlayerHeadItem && tag.contains("profile"))
         {
-            if (tag.contains("profile"))
+
+            NbtCompound skullNbt = tag.getCompound("profile");
+            ProfileComponent skullProfile = ComponentUtils.getSkullProfileFromProfile(skullNbt);
+
+            if (skullProfile != null)
             {
-                NbtCompound skullNbt = tag.getCompound("profile");
-                ProfileComponent skullProfile = ComponentUtils.getSkullProfileFromProfile(skullNbt);
+                Litematica.debugLog("addBlockEntityNbt(): applying skull profile component from NBT");
 
-                if (skullProfile != null)
-                {
-                    Litematica.debugLog("addBlockEntityNbt(): applying skull profile component from NBT");
-
-                    stack.set(DataComponentTypes.PROFILE, skullProfile);
-                }
-                else
-                {
-                    Litematica.logger.warn("addBlockEntityNbt(): failed to fetch user profile from NBT data (null output)");
-                }
+                stack.set(DataComponentTypes.PROFILE, skullProfile);
             }
             else
             {
-                Litematica.debugLog("addBlockEntityNbt(): failed to fetch user profile from NBT data (profile not found)");
+                Litematica.logger.warn("addBlockEntityNbt(): failed to fetch user profile from NBT data (null output)");
             }
         }
         if (tag.contains("BlockEntityTag"))

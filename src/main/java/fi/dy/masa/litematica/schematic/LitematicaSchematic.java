@@ -1196,7 +1196,7 @@ public class LitematicaSchematic
                     {
                         tiles = this.readTileEntitiesFromNBT(regionTag.getList("TileEntities", Constants.NBT.TAG_COMPOUND));
 
-                        Litematica.debugLog("readSubRegionsFromNBT(): reading TileEntities to NBT -> convertTileEntities_*()");
+                        //Litematica.debugLog("readSubRegionsFromNBT(): reading TileEntities to NBT -> convertTileEntities_*()");
 
                         tiles = this.convertTileEntities_1_20_4_to_1_20_5(tiles, version, minecraftDataVersion);
 
@@ -1204,7 +1204,7 @@ public class LitematicaSchematic
 
                         NbtList entities = regionTag.getList("Entities", Constants.NBT.TAG_COMPOUND);
 
-                        Litematica.debugLog("readSubRegionsFromNBT(): reading Entities to NBT -> convertEntities_*()");
+                        //Litematica.debugLog("readSubRegionsFromNBT(): reading Entities to NBT -> convertEntities_*()");
 
                         entities = this.convertEntities_1_20_4_to_1_20_5(entities, version, minecraftDataVersion);
 
@@ -1242,7 +1242,7 @@ public class LitematicaSchematic
                         BlockPos posMax = PositionUtils.getMaxCorner(regionPos, posEndRel);
                         BlockPos size = posMax.subtract(posMin).add(1, 1, 1);
 
-                        Litematica.debugLog("readSubRegionsFromNBT(): reading BlockStatePalette to NBT -> convertBlockStatePalette_*()");
+                        //Litematica.debugLog("readSubRegionsFromNBT(): reading BlockStatePalette to NBT -> convertBlockStatePalette_*()");
 
                         palette = this.convertBlockStatePalette_1_12_to_1_13_2(palette, version, minecraftDataVersion);
                         palette = this.convertBlockStatePalette_1_20_4_to_1_20_5(palette, version, minecraftDataVersion);
@@ -1374,7 +1374,7 @@ public class LitematicaSchematic
         return palette.setMapping(list);
     }
 
-    protected boolean readSpongeBlocksFromTag(NbtCompound tag, String schematicName, Vec3i size)
+    protected boolean readSpongeBlocksFromTag(NbtCompound tag, String schematicName, Vec3i size, int dataVersion)
     {
         if (tag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
             tag.contains("BlockData", Constants.NBT.TAG_BYTE_ARRAY))
@@ -1400,7 +1400,7 @@ public class LitematicaSchematic
         return false;
     }
 
-    protected Map<BlockPos, NbtCompound> readSpongeBlockEntitiesFromTag(NbtCompound tag)
+    protected Map<BlockPos, NbtCompound> readSpongeBlockEntitiesFromTag(NbtCompound tag, int dataVersion)
     {
         Map<BlockPos, NbtCompound> blockEntities = new HashMap<>();
 
@@ -1435,7 +1435,7 @@ public class LitematicaSchematic
         return blockEntities;
     }
 
-    protected List<EntityInfo> readSpongeEntitiesFromTag(NbtCompound tag, Vec3i offset)
+    protected List<EntityInfo> readSpongeEntitiesFromTag(NbtCompound tag, Vec3i offset, int dataVersion)
     {
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("Entities", Constants.NBT.TAG_COMPOUND);
@@ -1471,7 +1471,20 @@ public class LitematicaSchematic
 
         Vec3i size = readSizeFromTagSponge(tag);
 
-        if (!this.readSpongeBlocksFromTag(tag, name, size))
+        // Reads "DataVersion"
+        int dataVersion;
+        if (tag.contains("DataVersion"))
+        {
+            dataVersion = tag.getInt("DataVersion");
+        }
+        else
+        {
+            // Oldest Data Version that Vanilla Data Fixer's support
+            dataVersion = 99;
+        }
+        // TODO Implement "Sponge" compatible DataFixer for 1.20.5 if "DataVersion" exists
+
+        if (!this.readSpongeBlocksFromTag(tag, name, size, dataVersion))
         {
             return false;
         }
@@ -1481,8 +1494,8 @@ public class LitematicaSchematic
         if (offset == null)
             offset = Vec3i.ZERO;
 
-        this.tileEntities.put(name, this.readSpongeBlockEntitiesFromTag(tag));
-        this.entities.put(name, this.readSpongeEntitiesFromTag(tag, offset));
+        this.tileEntities.put(name, this.readSpongeBlockEntitiesFromTag(tag, dataVersion));
+        this.entities.put(name, this.readSpongeEntitiesFromTag(tag, offset, dataVersion));
 
         if (tag.contains("author", Constants.NBT.TAG_STRING))
         {
