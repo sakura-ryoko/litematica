@@ -166,7 +166,7 @@ public class InventoryUtils
 
     private static boolean canPickToSlot(PlayerInventory inventory, int slotNum)
     {
-        if (PICK_BLOCKABLE_SLOTS.contains(slotNum) == false)
+        if (!PICK_BLOCKABLE_SLOTS.contains(slotNum))
         {
             return false;
         }
@@ -178,10 +178,10 @@ public class InventoryUtils
             return true;
         }
 
-        return (Configs.Generic.PICK_BLOCK_AVOID_DAMAGEABLE.getBooleanValue() == false ||
-                stack.getItem().isDamageable() == false) &&
-               (Configs.Generic.PICK_BLOCK_AVOID_TOOLS.getBooleanValue() == false ||
-                (stack.getItem() instanceof ToolItem) == false);
+        return (!Configs.Generic.PICK_BLOCK_AVOID_DAMAGEABLE.getBooleanValue() ||
+                !stack.isDamageable()) &&
+               (!Configs.Generic.PICK_BLOCK_AVOID_TOOLS.getBooleanValue() ||
+                       !(stack.getItem() instanceof ToolItem));
     }
 
     private static int getPickBlockTargetSlot(PlayerEntity player)

@@ -13,6 +13,8 @@ import net.minecraft.inventory.ContainerLock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -174,7 +176,10 @@ public class ComponentUtils
         // Loot table
         if (lootTableId != null && !lootTableId.isEmpty() && lootSeed > 0)
         {
-            ContainerLootComponent lootContainer = new ContainerLootComponent(Identifier.tryParse(lootTableId), lootSeed);
+            Identifier lootId = Identifier.tryParse(lootTableId);
+            RegistryKey<LootTable> regKey = LootTables.EMPTY;
+            // FIXME RegistryLookup by Id
+            ContainerLootComponent lootContainer = new ContainerLootComponent(regKey, lootSeed);
             compResult.add(DataComponentTypes.CONTAINER_LOOT, lootContainer);
         }
 
