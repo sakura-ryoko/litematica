@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
 
 /**
  * This file is meant to be a new central place for managing Component <-> NBT data
+ * --> The Deprecated functions have been replaced by using the Vanilla DataFixer upon a schematic load.
+ * This is useful code to reference, so I didn't delete it, and this still has used functions.
  */
 public class ComponentUtils
 {
@@ -43,7 +45,8 @@ public class ComponentUtils
     /**
      * So far, these exist under 24w10a
      */
-    public ComponentMap fromItemNBT(NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
+    @Deprecated
+    private ComponentMap fromItemNBT(@Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
     {
         ComponentMap.Builder compResult = ComponentMap.builder();
 
@@ -69,7 +72,8 @@ public class ComponentUtils
     /**
      * Execute this prior to "reading in" a BlockEntity's NBT tags, so that Vanilla can handle the rest.
      */
-    public ComponentMap fromBlockEntityNBT(@Nonnull ItemStack stackIn, BlockEntity be, @Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
+    @Deprecated
+    private ComponentMap fromBlockEntityNBT(@Nonnull ItemStack stackIn, BlockEntity be, @Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
     {
         BlockPos blockPos;
         Identifier blockId;
