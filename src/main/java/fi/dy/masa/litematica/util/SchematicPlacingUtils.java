@@ -249,7 +249,8 @@ public class SchematicPlacingUtils
 
                             try
                             {
-                                te.readNbt(teNBT, world.getRegistryManager());
+                                // FIXME readNbt -> method_58690() aka "loadWithComponents()"
+                                te.method_58690(teNBT, world.getRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
                                 {

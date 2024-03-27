@@ -145,7 +145,8 @@ public class SchematicaSchematic
 
                                 try
                                 {
-                                    te.readNbt(teNBT, world.getRegistryManager());
+                                    // FIXME readNbt -> method_58690() aka "loadWithComponents()"
+                                    te.method_58690(teNBT, world.getRegistryManager());
                                 }
                                 catch (Exception e)
                                 {
@@ -278,8 +279,8 @@ public class SchematicaSchematic
 
                                         try
                                         {
-                                            // Why?
-                                            te.readNbt(teNBT, world.getRegistryManager());
+                                            // FIXME readNbt -> method_58690() aka "loadWithComponents()"
+                                            te.method_58690(teNBT, world.getRegistryManager());
                                         }
                                         catch (Exception e)
                                         {

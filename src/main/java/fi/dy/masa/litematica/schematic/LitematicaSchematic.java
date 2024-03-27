@@ -74,7 +74,7 @@ public class LitematicaSchematic
     public static final int SCHEMATIC_VERSION_1_13_2 = 5;
     public static final int SCHEMATIC_VERSION_1_20_5 = 7;
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
-    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3821; // MC 24w10a
+    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3826; // MC 24w13a
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
 
     public static final int SCHEMATIC_VERSION = 7;
@@ -449,7 +449,8 @@ public class LitematicaSchematic
 
                             try
                             {
-                                te.readNbt(teNBT, world.getRegistryManager());
+                                // FIXME readNbt -> method_58690() aka "loadWithComponents()"
+                                te.method_58690(teNBT, world.getRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
                                 {
