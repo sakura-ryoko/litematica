@@ -3,34 +3,16 @@ package fi.dy.masa.litematica.util;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.malilib.util.InventoryUtils;
 import net.minecraft.block.entity.*;
-import net.minecraft.component.*;
 import net.minecraft.component.type.*;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.inventory.ContainerLock;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * This file is meant to be a new central place for managing Component <-> NBT data
@@ -39,12 +21,13 @@ import java.util.regex.Pattern;
  */
 public class ComponentUtils
 {
-    public static final ComponentMap EMPTY = ComponentMap.EMPTY;
-    public static final Pattern PATTERN_COMPONENT_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
+    //public static final ComponentMap EMPTY = ComponentMap.EMPTY;
+    //public static final Pattern PATTERN_COMPONENT_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
 
     /**
      * So far, these exist under 24w10a
      */
+    /*
     @Deprecated
     private ComponentMap fromItemNBT(@Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
     {
@@ -68,10 +51,13 @@ public class ComponentUtils
 
         return compResult.build();
     }
+     */
 
     /**
      * Execute this prior to "reading in" a BlockEntity's NBT tags, so that Vanilla can handle the rest.
+     * --> Deprecated, but this is an exhaustive list of older valid NBT tags.
      */
+    /*
     @Deprecated
     private ComponentMap fromBlockEntityNBT(@Nonnull ItemStack stackIn, BlockEntity be, @Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registryLookup)
     {
@@ -182,7 +168,7 @@ public class ComponentUtils
         {
             Identifier lootId = Identifier.tryParse(lootTableId);
             RegistryKey<LootTable> regKey = LootTables.EMPTY;
-            // FIXME RegistryLookup by Id
+            // RegistryLookup by Id ?
             ContainerLootComponent lootContainer = new ContainerLootComponent(regKey, lootSeed);
             compResult.add(DataComponentTypes.CONTAINER_LOOT, lootContainer);
         }
@@ -726,7 +712,10 @@ public class ComponentUtils
 
         return compResult.build();
     }
+     */
 
+
+/*
     private Sherds getSherdsFromNbt(NbtCompound nbt, DynamicRegistryManager registryLookup)
     {
         NbtList sherdList = nbt.getList("sherds", 8);
@@ -760,7 +749,9 @@ public class ComponentUtils
         }
         return new Sherds(backSherd, leftSherd, rightSherd, frontSherd);
     }
+ */
 
+    /*
     private List<BeehiveBlockEntity.BeeData> getBeeDataFromNbt(NbtCompound nbt, DynamicRegistryManager registryManager)
     {
         List<BeehiveBlockEntity.BeeData> beeList = new ArrayList<>();
@@ -803,7 +794,6 @@ public class ComponentUtils
             {
                 // ignore
             }).ifPresent(beeList::addAll);
-*/
             nbt.remove("bees");
             if (!beeList.isEmpty())
             {
@@ -813,7 +803,11 @@ public class ComponentUtils
 
         return List.of();
     }
+*/
 
+    /**
+     * In use by ItemUtils -> PickTE from Schematic World.
+     */
     public static List<BeehiveBlockEntity.BeeData> getBeesDataFromNbt(NbtList beeNbtList)
     {
         List<BeehiveBlockEntity.BeeData> beeList = new ArrayList<>();
@@ -846,6 +840,7 @@ public class ComponentUtils
         }
     }
 
+    /*
     private BannerPatternsComponent getBannerPatternsFromNBT(NbtCompound nbt, DynamicRegistryManager registryLookup)
     {
         List<BannerPatternsComponent.Layer> layerList = new ArrayList<>();
@@ -904,10 +899,12 @@ public class ComponentUtils
 
         return patternsComp;
     }
+     */
 
     /**
-     * I attempted to use the Mojang method first, but it wasn't working.  Iterator it.
+     * I attempted to use the Mojang method first, but it wasn't working.  Iterator it. xD
      */
+    /*
     private RegistryEntry<BannerPattern> getBannerPatternEntryByIdPost1205(String patternId, DynamicRegistryManager registryLookup)
     {
         Iterator<BannerPattern> iter = registryLookup.get(RegistryKeys.BANNER_PATTERN).stream().iterator();
@@ -925,6 +922,7 @@ public class ComponentUtils
         Litematica.logger.error("getBannerPatternEntryByIdPost1205(): invalid banner pattern of id {}", patternId);
         return null;
     }
+     */
 
     /**
      *  Is there a simpler way to do this to translate from pre-1.20.5?
@@ -987,6 +985,9 @@ public class ComponentUtils
         return registryManager.get(RegistryKeys.BANNER_PATTERN).entryOf(key);
     }
 
+    /**
+     * In use by ItemUtils -> PickTE from Schematic World.
+     */
     @Nullable
     public static ProfileComponent getSkullProfileFromProfile(NbtCompound profile)
     {
@@ -1040,6 +1041,7 @@ public class ComponentUtils
         return new ProfileComponent(skullProfile);
     }
 
+    /*
     @Nullable
     private ProfileComponent getSkullProfileFromNBT(NbtCompound skullOwner)
     {
@@ -1107,10 +1109,12 @@ public class ComponentUtils
         GameProfile skullProfile = new GameProfile(Util.NIL_UUID, skullString);
         return new ProfileComponent(skullProfile);
     }
+     */
 
     /**
      * I would assume there is a better way to do this, but I couldn't find it
      */
+    /*
     private AttributeModifierSlot getAttribModSlot(String attribSlot)
     {
         if (AttributeModifierSlot.ANY.asString().equals(attribSlot))
@@ -1154,7 +1158,9 @@ public class ComponentUtils
             return AttributeModifierSlot.ANY;
         }
     }
+     */
 
+    /*
     public AttributeModifiersComponent getAttribModifiersFromNbt(NbtCompound nbt)
     {
         if (nbt == null || nbt.isEmpty())
@@ -1200,7 +1206,9 @@ public class ComponentUtils
 
         return attribs.build();
     }
+     */
 
+/*
     public DefaultedList<ItemStack> getItemStackListFromNbt(NbtList itemList, DynamicRegistryManager registryManager)
     {
         DefaultedList<ItemStack> itemInv = DefaultedList.ofSize(itemList.size(), ItemStack.EMPTY);
@@ -1298,7 +1306,9 @@ public class ComponentUtils
 
         return itemInv;
     }
+ */
 
+/*
     private ItemStack getItemStackFromNbt(NbtCompound itemNbt, DynamicRegistryManager registryManager)
     {
         ItemStack stack;
@@ -1383,4 +1393,5 @@ public class ComponentUtils
         Litematica.logger.error("getItemStackFromNbt() received invalid Inventory data, \"id\" is missing");
         return ItemStack.EMPTY;
     }
+ */
 }

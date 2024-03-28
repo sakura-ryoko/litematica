@@ -132,6 +132,12 @@ public class ItemUtils
         }
     }
 
+    /**
+     * This is realistically only used by Holding CTRL and picking a block from the Schematic World,
+     * and I can only find Skulls and Bee Hives (?)
+     * being a potential issue beyond the Vanilla pick-block via ItemStack.copy()
+     * capabilities.
+     */
     public static void storeTEInStack(ItemStack stack, BlockEntity te, DynamicRegistryManager registryManager)
     {
         NbtCompound tag = te.createNbtWithId(registryManager);
@@ -193,7 +199,7 @@ public class ItemUtils
         }
 
         // TODO So this is where the now "infamous" Purple (+NBT) lore comes from?
-        //  To re-add this, you would need to build the LoreComponent
+        //  To re-add this, you would need to build the LoreComponent like this.
         /*
         Text newNbtLore = Text.of("(+NBT)");
         List<Text> newLoreList = new ArrayList<>();
@@ -203,8 +209,8 @@ public class ItemUtils
         LoreComponent lore = new LoreComponent(newLoreList);
         stack.set(DataComponentTypes.LORE, lore);
         */
-        // TODO
 
+        // Legacy Code
         /*
         tagList.add(NbtString.of("(+NBT)"));
 

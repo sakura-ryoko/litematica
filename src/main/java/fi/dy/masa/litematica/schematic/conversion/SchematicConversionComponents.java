@@ -3,39 +3,30 @@ package fi.dy.masa.litematica.schematic.conversion;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import com.mojang.serialization.Dynamic;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.util.ComponentUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BannerPattern;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
- * I was coding with this until masa taught me to research how to use the Vanilla Data Fixer. xD
+ * I was coding with this until masa taught me to research how to use the Vanilla Data Fixer.
+ * I would keep it for now for reference.
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public class SchematicConversionComponents
 {
+    /*
     public static NbtCompound processBlockStateTags_1_20_4_to_1_20_5(@Nonnull NbtCompound oldBlockStateTag, int version)
     {
         NbtElement newBlockStateTag;
@@ -122,7 +113,7 @@ public class SchematicConversionComponents
 
         if (MinecraftClient.getInstance().world != null)
         {
-            /*
+            *
             World clientWorld = MinecraftClient.getInstance().world;
             DynamicRegistryManager registryManager = clientWorld.getRegistryManager();
 
@@ -154,7 +145,7 @@ public class SchematicConversionComponents
                 Litematica.logger.error("processTileEntityTags_1_20_4_to_1_20_5(): pos: {} does not contain \"x, y, z\" values", oldPos.toShortString());
                 return oldTE;
             }
-             */
+             *
 
             Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5(): oldTE {}", oldTE.toString());
 
@@ -178,6 +169,7 @@ public class SchematicConversionComponents
             return oldTE;
         }
     }
+     */
 
     private static NbtCompound processTileEntityTags_1_20_4_to_1_20_5_Each(@Nonnull BlockPos inPos, @Nonnull Identifier inId,
                                                                            @Nonnull NbtCompound inTE,
@@ -350,8 +342,8 @@ public class SchematicConversionComponents
 
                     outTags = processTileEntityTags_1_20_4_to_1_20_5_Each(inPos, itemId, itemTag, registryLookup);
 
-                    // FIXME Minecraft outputs it's "Components" in a different format under the Items {} tag!
-                    //  It will need a "second tier" filter mechanism, or just ignore the NBTdata inside of ItemStacks from old versions.
+                    // Minecraft outputs it's "Components" in a different format under the Items {} tag!
+                    //  It will need a "second tier" filter mechanism, or just ignore the NBT inside of ItemStacks from old versions.
                     outComps = processTileEntityTags_1_20_4_to_1_20_5_EachComponent(inPos, itemId, outTags, registryLookup);
 
                     itemEntry.remove("tag");
@@ -682,10 +674,11 @@ public class SchematicConversionComponents
     private static NbtList processTileEntityTags_1_20_4_to_1_20_5_Pages_Written(NbtList inPages, NbtCompound bookData,
                                                                                 DynamicRegistryManager registryLookup)
     {
+        // This is where I stopped writing this code, working on the Book NBT.
         return null;
     }
 
-
+/*
     public static NbtCompound processEntityTags_1_20_4_to_1_20_5(@Nonnull NbtCompound oldEntityTag, int version)
     {
         NbtElement newEntityTag;
@@ -767,4 +760,5 @@ public class SchematicConversionComponents
         newEntityTag.copyFrom(oldEntityTag);
         return newEntityTag;
     }
+ */
 }
