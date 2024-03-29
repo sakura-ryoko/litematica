@@ -449,8 +449,7 @@ public class LitematicaSchematic
 
                             try
                             {
-                                // FIXME readNbt -> method_58690() aka "loadWithComponents()"
-                                te.method_58690(teNBT, world.getRegistryManager());
+                                te.read(teNBT, world.getRegistryManager());
 
                                 if (ignoreInventories && te instanceof Inventory)
                                 {
