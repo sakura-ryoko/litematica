@@ -19,7 +19,7 @@ public abstract class MixinModelOverrideList
               target = "Lnet/minecraft/client/item/ModelPredicateProvider;call(" +
                        "Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;" +
                        "Lnet/minecraft/entity/LivingEntity;I)F"))
-    private float fixCrashWithNullWorld(ModelPredicateProvider provider,
+    private float litematica$fixCrashWithNullWorld(ModelPredicateProvider provider,
                                         ItemStack stack,
                                         @Nullable ClientWorld world,
                                         @Nullable LivingEntity entity,

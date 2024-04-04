@@ -20,17 +20,16 @@ import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
-@Mixin(value = ClientPlayNetworkHandler.class, priority = 1000)
+@Mixin(value = ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler
 {
     @Shadow @Final private FeatureSet enabledFeatures;
 
     @Inject(method = "onChunkData", at = @At("RETURN"))
-    private void litematica_onUpdateChunk(ChunkDataS2CPacket packet, CallbackInfo ci)
+    private void litematica$onUpdateChunk(ChunkDataS2CPacket packet, CallbackInfo ci)
     {
         int chunkX = packet.getChunkX();
         int chunkZ = packet.getChunkZ();
-        //Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onUpdateChunk({}, {})", chunkX, chunkZ);
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())
@@ -43,18 +42,17 @@ public abstract class MixinClientPlayNetworkHandler
     }
 
     @Inject(method = "onUnloadChunk", at = @At("RETURN"))
-    private void litematica_onChunkUnload(UnloadChunkS2CPacket packet, CallbackInfo ci)
+    private void litematica$onChunkUnload(UnloadChunkS2CPacket packet, CallbackInfo ci)
     {
-        if (!Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue())
+        if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
         {
-            //Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
             DataManager.getSchematicPlacementManager().onClientChunkUnload(packet.pos().x, packet.pos().z);
         }
     }
 
     @Inject(method = "onGameMessage", cancellable = true, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/network/message/MessageHandler;onGameMessage(Lnet/minecraft/text/Text;Z)V"))
-    private void litematica_onGameMessage(GameMessageS2CPacket packet, CallbackInfo ci)
+    private void litematica$onGameMessage(GameMessageS2CPacket packet, CallbackInfo ci)
     {
         if (DataManager.onChatMessage(packet.content()))
         {
@@ -63,7 +61,7 @@ public abstract class MixinClientPlayNetworkHandler
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void litematica_onClientPlayInit(MinecraftClient client, ClientConnection clientConnection, ClientConnectionState clientConnectionState, CallbackInfo ci)
+    private void litematica$onClientPlayInit(MinecraftClient client, ClientConnection clientConnection, ClientConnectionState clientConnectionState, CallbackInfo ci)
     {
         // We're just storing these values for now
         // in case they are required later for additional issues that may come up
@@ -71,13 +69,13 @@ public abstract class MixinClientPlayNetworkHandler
     }
 
     @Inject(method ="onCustomPayload", at = @At("HEAD"))
-    private void litematica_onCustomPayload(CustomPayload payload, CallbackInfo ci)
+    private void litematica$onCustomPayload(CustomPayload payload, CallbackInfo ci)
     {
         if (payload.getId().id().equals(DataManager.CARPET_HELLO))
         {
             DataManager.setIsCarpetServer(true);
 
-            Litematica.debugLog("litematica_onCustomPayload(): Detected Carpet Server");
+            Litematica.debugLog("litematica$onCustomPayload(): Detected Carpet Server");
         }
     }
 }

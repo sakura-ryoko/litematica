@@ -81,7 +81,7 @@ public class BlockModelRendererSchematic
             random.setSeed(seedIn);
             List<BakedQuad> quads = modelIn.getQuads(stateIn, side, random);
 
-            if (!quads.isEmpty())
+            if (quads.isEmpty() == false)
             {
                 if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side))
                 {
@@ -94,7 +94,7 @@ public class BlockModelRendererSchematic
         random.setSeed(seedIn);
         List<BakedQuad> quads = modelIn.getQuads(stateIn, null, random);
 
-        if (!quads.isEmpty())
+        if (quads.isEmpty() == false)
         {
             this.renderQuadsSmooth(worldIn, stateIn, posIn, matrix4f, vertexConsumer, quads, quadBounds, bitset, aoFace, overlay);
             renderedSomething = true;
@@ -115,7 +115,7 @@ public class BlockModelRendererSchematic
             random.setSeed(seedIn);
             List<BakedQuad> quads = modelIn.getQuads(stateIn, side, random);
 
-            if (!quads.isEmpty())
+            if (quads.isEmpty() == false)
             {
                 if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side))
                 {
@@ -129,7 +129,7 @@ public class BlockModelRendererSchematic
         random.setSeed(seedIn);
         List<BakedQuad> quads = modelIn.getQuads(stateIn, null, random);
 
-        if (!quads.isEmpty())
+        if (quads.isEmpty() == false)
         {
             this.renderQuadsFlat(worldIn, stateIn, posIn, -1, overlay, true, matrix4f, vertexConsumer, quads, bitset);
             renderedSomething = true;
@@ -155,7 +155,6 @@ public class BlockModelRendererSchematic
             this.getQuadDimensions(world, state, pos, bakedQuad.getVertexData(), bakedQuad.getFace(), box, flags);
             ambientOcclusionCalculator.apply(world, state, pos, bakedQuad.getFace(), box, flags, bakedQuad.hasShade());
 
-            //this.renderQuad(world, state, pos, vertexConsumer, matrices.peek(), bakedQuad,
             this.renderQuad(world, state, pos, vertexConsumer, matrix4f, bakedQuad,
                     ambientOcclusionCalculator.brightness[0],
                     ambientOcclusionCalculator.brightness[1],

@@ -98,36 +98,6 @@ public class SchematicConversionMaps
         return tag != null ? tag : newStateTag;
     }
 
-    /**
-     * In order for us to properly perform this NBT -> Components fix, we need to Map Block States to Tile Entities,
-     * I assume by BlockPos, and then perform the NBT compare.
-     */
-    /*
-    public static NbtCompound get_1_20_4_StateTagFor_1_20_5_Components(NbtCompound oldStateTag)
-    {
-        NbtCompound newStateTag;
-        //newStateTag = SchematicConversionComponents.processBlockStateTags_1_20_4_to_1_20_5(oldStateTag);
-
-        return oldStateTag;
-    }
-
-    public static NbtCompound get_1_20_4_TileEntityFor_1_20_5_Components(BlockPos pos, NbtCompound oldTETag)
-    {
-        NbtCompound newTETag;
-        //newTETag = SchematicConversionComponents.processTileEntityTags_1_20_4_to_1_20_5(pos, oldTETag);
-
-        return oldTETag;
-    }
-
-    public static NbtCompound get_1_20_4_EntityFor_1_20_5_Components(NbtCompound oldEntityTag)
-    {
-        NbtCompound newEntityTag;
-        //newEntityTag = SchematicConversionComponents.processEntityTags_1_20_4_to_1_20_5(oldEntityTag);
-
-        return oldEntityTag;
-    }
-     */
-
     public static int getOldNameToShiftedBlockId(String oldBlockname)
     {
         return OLD_BLOCK_NAME_TO_SHIFTED_BLOCK_ID.getInt(oldBlockname);
@@ -223,7 +193,7 @@ public class SchematicConversionMaps
                     newStateTag.putString("Name", newName);
                 }
 
-                if (!oldName.equals(newName))
+                if (oldName.equals(newName) == false)
                 {
                     OLD_NAME_TO_NEW_NAME.putIfAbsent(oldName, newName);
                     NEW_NAME_TO_OLD_NAME.putIfAbsent(newName, oldName);
@@ -267,7 +237,7 @@ public class SchematicConversionMaps
                     String oldBlockName = oldStateTag.getString("Name");
                     String newBlockName = OLD_NAME_TO_NEW_NAME.get(oldBlockName);
 
-                    if (newBlockName != null && !newBlockName.equals(oldBlockName))
+                    if (newBlockName != null && newBlockName.equals(oldBlockName) == false)
                     {
                         for (String oldStateString : oldStateStrings)
                         {

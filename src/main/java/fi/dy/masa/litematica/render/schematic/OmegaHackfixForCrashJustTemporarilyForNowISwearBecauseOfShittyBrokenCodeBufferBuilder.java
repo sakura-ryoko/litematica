@@ -34,7 +34,7 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
     {
         if (this.lastRenderBuildBuffer == null)
         {
-            if (!this.first)
+            if (this.first == false)
             {
                 this.end();
             }

@@ -37,7 +37,7 @@ import net.minecraft.util.Identifier;
 
 public class DataManager implements IDirectoryCache
 {
-    public static final DataManager INSTANCE = new DataManager();
+    private static final DataManager INSTANCE = new DataManager();
     //private static final Pattern PATTERN_ITEM_NBT = Pattern.compile("^(?<name>[a-z0-9\\._-]+:[a-z0-9\\._-]+)(?<nbt>\\{.*\\})$");
     //private static final Pattern PATTERN_ITEM_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
     private static final Map<String, File> LAST_DIRECTORIES = new HashMap<>();

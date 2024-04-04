@@ -86,7 +86,7 @@ public class ChunkSchematic extends WorldChunk
 
             y &= 0xF;
 
-            if (!state.isAir())
+            if (state.isAir() == false)
             {
                 this.isEmpty = false;
             }

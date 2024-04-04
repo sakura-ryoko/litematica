@@ -129,7 +129,7 @@ public class WorldRendererSchematic
         {
             ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
 
-            if (data != ChunkRenderDataSchematic.EMPTY && !data.isEmpty())
+            if (data != ChunkRenderDataSchematic.EMPTY && data.isEmpty() == false)
             {
                 ++count;
             }
@@ -227,7 +227,6 @@ public class WorldRendererSchematic
 
         this.world.getProfiler().push("camera");
 
-        assert entity != null;
         double entityX = entity.getX();
         double entityY = entity.getY();
         double entityZ = entity.getZ();
@@ -259,7 +258,7 @@ public class WorldRendererSchematic
         final int renderDistance = this.mc.options.getViewDistance().getValue();
         ChunkPos viewChunk = new ChunkPos(viewPos);
 
-        this.displayListEntitiesDirty = this.displayListEntitiesDirty || !this.chunksToUpdate.isEmpty() ||
+        this.displayListEntitiesDirty = this.displayListEntitiesDirty || this.chunksToUpdate.isEmpty() == false ||
                 entityX != this.lastCameraX ||
                 entityY != this.lastCameraY ||
                 entityZ != this.lastCameraZ ||
@@ -333,7 +332,7 @@ public class WorldRendererSchematic
                 BlockPos pos = chunkRendererTmp.getOrigin().add(8, 8, 8);
                 boolean isNear = pos.getSquaredDistance(viewPos) < 1024.0D;
 
-                if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
+                if (chunkRendererTmp.needsImmediateUpdate() == false && isNear == false)
                 {
                     this.chunksToUpdate.add(chunkRendererTmp);
                 }
@@ -363,7 +362,7 @@ public class WorldRendererSchematic
 
         this.mc.getProfiler().swap("litematica_check_update");
 
-        if (!this.chunksToUpdate.isEmpty())
+        if (this.chunksToUpdate.isEmpty() == false)
         {
             Iterator<ChunkRendererSchematicVbo> iterator = this.chunksToUpdate.iterator();
 
@@ -465,7 +464,6 @@ public class WorldRendererSchematic
         }
 
         initShader(shader, matrices, projMatrix);
-        assert shader != null;
         RenderSystem.setupShaderLights(shader);
         shader.bind();
 
@@ -476,7 +474,7 @@ public class WorldRendererSchematic
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
 
-            if (!renderer.getChunkRenderData().isBlockLayerEmpty(renderLayer))
+            if (renderer.getChunkRenderData().isBlockLayerEmpty(renderLayer) == false)
             {
                 BlockPos chunkOrigin = renderer.getOrigin();
                 VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
@@ -531,7 +529,6 @@ public class WorldRendererSchematic
     {
         for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
-        //if (shader.modelViewMat != null) shader.modelViewMat.set(matrices.peek().getPositionMatrix());
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrix4f);
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
         if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
@@ -585,27 +582,17 @@ public class WorldRendererSchematic
             {
                 ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
 
-                if (!compiledChunk.isOverlayTypeEmpty(type))
+                if (compiledChunk.isOverlayTypeEmpty(type) == false)
                 {
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    // FIXME --> It doesn't work as a Matrix4f; Because of the push() / pop() is missing
-                    //MatrixStack matrixStack = new MatrixStack();
-                    //matrixStack.multiplyPositionMatrix(matrix4f);
-
-                    //matrixStack.push();
                     matrix4fStack.pushMatrix();
-
-                    //matrixStack.translate((chunkOrigin.getX() - x), (chunkOrigin.getY() - y), (chunkOrigin.getZ() - z));
-
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    //buffer.draw(matrix4f, projMatrix, shader);
                     buffer.draw(matrix4fStack, projMatrix, shader);
 
                     VertexBuffer.unbind();
-                    //matrixStack.pop();
                     matrix4fStack.popMatrix();
                 }
             }
@@ -688,7 +675,6 @@ public class WorldRendererSchematic
             // TODO -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
             //  Causes strange entity behavior if this is missing ( Including the push() and pop() )
             //  Doing this restores the expected behavior of Entities ... but Why?
-            //  Each call includes it's own push() then pop() ?
 
             MatrixStack matrixStack = new MatrixStack();
             matrixStack.push();
@@ -704,11 +690,11 @@ public class WorldRendererSchematic
                 ChunkSchematic chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
                 List<Entity> list = chunk.getEntityList();
 
-                if (!list.isEmpty())
+                if (list.isEmpty() == false)
                 {
                     for (Entity entityTmp : list)
                     {
-                        if (!layerRange.isPositionWithinRange((int) entityTmp.getX(), (int) entityTmp.getY(), (int) entityTmp.getZ()))
+                        if (layerRange.isPositionWithinRange((int) entityTmp.getX(), (int) entityTmp.getY(), (int) entityTmp.getZ()) == false)
                         {
                             continue;
                         }
@@ -741,7 +727,7 @@ public class WorldRendererSchematic
                 ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
                 List<BlockEntity> tiles = data.getBlockEntities();
 
-                if (!tiles.isEmpty())
+                if (tiles.isEmpty() == false)
                 {
                     BlockPos chunkOrigin = chunkRenderer.getOrigin();
                     ChunkSchematic chunk = this.world.getChunkProvider().getChunk(chunkOrigin.getX() >> 4, chunkOrigin.getZ() >> 4);

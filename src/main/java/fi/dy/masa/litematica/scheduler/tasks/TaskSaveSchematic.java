@@ -70,7 +70,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         ImmutableMap<String, IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x, pos.z, this.subRegions);
         this.schematic.takeBlocksFromWorldWithinChunk(world, volumes, this.subRegions, this.info);
 
-        if (!this.info.ignoreEntities)
+        if (this.info.ignoreEntities == false)
         {
             this.schematic.takeEntitiesFromWorldWithinChunk(world, pos.x, pos.z, volumes, this.subRegions, this.existingEntities, this.origin);
         }

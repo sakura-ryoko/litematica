@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -43,7 +42,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class SchematicaSchematic
 {
-    // TODO --> May need to add vanilla DataFixer's here?
+    // TODO --> May need to add vanilla DataFixer's here also?
     public static final String FILE_EXTENSION = ".schematic";
 
     private final SchematicConverter converter;
@@ -81,7 +80,7 @@ public class SchematicaSchematic
             NbtCompound entityData = this.entities.get(i);
             Vec3d posVec = NBTUtils.readEntityPositionFromTag(entityData);
 
-            if (posVec != null && !entityData.isEmpty())
+            if (posVec != null && entityData.isEmpty() == false)
             {
                 entityList.add(new EntityInfo(posVec, entityData));
             }
@@ -186,7 +185,7 @@ public class SchematicaSchematic
                 }
             }
 
-            if (!placement.shouldIgnoreEntities())
+            if (placement.shouldIgnoreEntities() == false)
             {
                 this.addEntitiesToWorld(world, posStart, placement);
             }
@@ -292,7 +291,7 @@ public class SchematicaSchematic
                 }
             }
 
-            if (!placement.shouldIgnoreEntities())
+            if (placement.shouldIgnoreEntities() == false)
             {
                 this.addEntitiesToWorld(world, posStart, placement);
             }
@@ -307,7 +306,6 @@ public class SchematicaSchematic
         for (NbtCompound tag : this.entities)
         {
             Vec3d relativePos = NBTUtils.readEntityPositionFromTag(tag);
-            assert relativePos != null;
             Vec3d transformedRelativePos = PositionUtils.getTransformedPosition(relativePos, mirror, rotation);
             Vec3d realPos = transformedRelativePos.add(posStart.getX(), posStart.getY(), posStart.getZ());
             Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
@@ -376,8 +374,7 @@ public class SchematicaSchematic
                     {
                         try
                         {
-                            // Why ?
-                            NbtCompound nbt = te.createNbtWithId(null);
+                            NbtCompound nbt = te.createNbtWithId(world.getRegistryManager());
                             BlockPos pos = new BlockPos(relX, relY, relZ);
                             NBTUtils.writeBlockPosToTag(pos, nbt);
 
@@ -397,7 +394,7 @@ public class SchematicaSchematic
     private void readEntitiesFromWorld(World world, BlockPos posStart, BlockPos size)
     {
         this.entities.clear();
-        List<Entity> entities = world.getOtherEntities(null, PositionUtils.createEnclosingAABB(posStart, posStart.add(size)), (e) -> !(e instanceof PlayerEntity));
+        List<Entity> entities = world.getOtherEntities(null, PositionUtils.createEnclosingAABB(posStart, posStart.add(size)), (e) -> (e instanceof PlayerEntity) == false);
 
         for (Entity entity : entities)
         {
@@ -419,7 +416,7 @@ public class SchematicaSchematic
 
         schematic.readBlocksFromWorld(world, posStart, size);
 
-        if (!ignoreEntities)
+        if (ignoreEntities == false)
         {
             schematic.readEntitiesFromWorld(world, posStart, size);
         }
@@ -487,7 +484,7 @@ public class SchematicaSchematic
                     return false;
                 }
 
-                if (!this.converter.getConvertedStatesForBlock(id, key, this.palette))
+                if (this.converter.getConvertedStatesForBlock(id, key, this.palette) == false)
                 {
                     String str = String.format("SchematicaSchematic: Missing/non-existing block '%s' in SchematicaMapping", key);
                     InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
@@ -526,7 +523,7 @@ public class SchematicaSchematic
                     return false;
                 }
 
-                if (!this.converter.getConvertedStatesForBlock(id, key, this.palette))
+                if (this.converter.getConvertedStatesForBlock(id, key, this.palette) == false)
                 {
                     String str = String.format("SchematicaSchematic: Missing/non-existing block '%s' in MCEdit2 palette", key);
                     InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
@@ -551,11 +548,11 @@ public class SchematicaSchematic
 
     private boolean readBlocksFromNBT(NbtCompound nbt)
     {
-        if (!nbt.contains("Blocks", Constants.NBT.TAG_BYTE_ARRAY) ||
-                !nbt.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) ||
-                !nbt.contains("Width", Constants.NBT.TAG_SHORT) ||
-                !nbt.contains("Height", Constants.NBT.TAG_SHORT) ||
-                !nbt.contains("Length", Constants.NBT.TAG_SHORT))
+        if (nbt.contains("Blocks", Constants.NBT.TAG_BYTE_ARRAY) == false ||
+                nbt.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) == false ||
+                nbt.contains("Width", Constants.NBT.TAG_SHORT) == false ||
+                nbt.contains("Height", Constants.NBT.TAG_SHORT) == false ||
+                nbt.contains("Length", Constants.NBT.TAG_SHORT) == false)
         {
             return false;
         }
@@ -586,7 +583,7 @@ public class SchematicaSchematic
             return false;
         }
 
-        if (!this.readPaletteFromNBT(nbt))
+        if (this.readPaletteFromNBT(nbt) == false)
         {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "SchematicaSchematic: Failed to read the block palette");
             return false;

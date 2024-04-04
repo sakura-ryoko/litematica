@@ -54,7 +54,7 @@ public class SchematicPlacingUtils
 
         try
         {
-            if (!notifyNeighbors)
+            if (notifyNeighbors == false)
             {
                 WorldUtils.setShouldPreventBlockUpdates(world, true);
             }
@@ -71,16 +71,15 @@ public class SchematicPlacingUtils
 
                 SubRegionPlacement placement = schematicPlacement.getRelativeSubRegionPlacement(regionName);
 
-                assert placement != null;
                 if (placement.isEnabled())
                 {
                     Map<BlockPos, NbtCompound> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
                     Map<BlockPos, OrderedTick<Block>> scheduledBlockTicks = schematic.getScheduledBlockTicksForRegion(regionName);
                     Map<BlockPos, OrderedTick<Fluid>> scheduledFluidTicks = schematic.getScheduledFluidTicksForRegion(regionName);
 
-                    if (!placeBlocksWithinChunk(world, chunkPos, regionName, container, blockEntityMap,
+                    if (placeBlocksWithinChunk(world, chunkPos, regionName, container, blockEntityMap,
                             origin, schematicPlacement, placement, scheduledBlockTicks,
-                            scheduledFluidTicks, replace, notifyNeighbors))
+                            scheduledFluidTicks, replace, notifyNeighbors) == false)
                     {
                         allSuccess = false;
                         Litematica.logger.warn("Invalid/missing schematic data in schematic '{}' for sub-region '{}'", schematic.getMetadata().getName(), regionName);
@@ -88,8 +87,8 @@ public class SchematicPlacingUtils
 
                     List<EntityInfo> entityList = schematic.getEntityListForRegion(regionName);
 
-                    if (!schematicPlacement.ignoreEntities() &&
-                            !placement.ignoreEntities() && entityList != null)
+                    if (schematicPlacement.ignoreEntities() == false &&
+                            placement.ignoreEntities() == false && entityList != null)
                     {
                         placeEntitiesToWorldWithinChunk(world, chunkPos, entityList, origin, schematicPlacement, placement);
                     }
@@ -209,8 +208,8 @@ public class SchematicPlacingUtils
 
                     BlockState stateOld = world.getBlockState(pos);
 
-                    if ((replace == ReplaceBehavior.NONE && !stateOld.isAir()) ||
-                        (replace == ReplaceBehavior.WITH_NON_AIR && state.isAir()))
+                    if ((replace == ReplaceBehavior.NONE && stateOld.isAir() == false) ||
+                        (replace == ReplaceBehavior.WITH_NON_AIR && state.isAir() == true))
                     {
                         continue;
                     }
@@ -270,7 +269,7 @@ public class SchematicPlacingUtils
         {
             IntBoundingBox box = new IntBoundingBox(startX, startY, startZ, endX, endY, endZ);
 
-            if (scheduledBlockTicks != null && !scheduledBlockTicks.isEmpty())
+            if (scheduledBlockTicks != null && scheduledBlockTicks.isEmpty() == false)
             {
                 WorldTickScheduler<Block> scheduler = serverWorld.getBlockTickScheduler();
 
@@ -296,7 +295,7 @@ public class SchematicPlacingUtils
                 }
             }
 
-            if (scheduledFluidTicks != null && !scheduledFluidTicks.isEmpty())
+            if (scheduledFluidTicks != null && scheduledFluidTicks.isEmpty() == false)
             {
                 WorldTickScheduler<Fluid> scheduler = serverWorld.getFluidTickScheduler();
 
@@ -391,8 +390,6 @@ public class SchematicPlacingUtils
             {
                 NbtCompound tag = info.nbt.copy();
                 String id = tag.getString("id");
-
-                //Litematica.logger.info("placeEntitiesToWorldWithinChunk(): NBT read for id {}", id);
 
                 // Avoid warning about invalid hanging position.
                 // Note that this position isn't technically correct, but it only needs to be within 16 blocks

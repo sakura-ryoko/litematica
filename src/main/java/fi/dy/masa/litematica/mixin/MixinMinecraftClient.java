@@ -20,7 +20,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
 
     @Inject(method = "doItemUse()V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/item/ItemStack;getCount()I", ordinal = 0), cancellable = true)
-    private void handlePlacementRestriction(CallbackInfo ci)
+    private void litematica$handlePlacementRestriction(CallbackInfo ci)
     {
         if (Configs.Generic.PLACEMENT_RESTRICTION.getBooleanValue())
         {
@@ -32,7 +32,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     }
 
     @Inject(method = "tick()V", at = @At("HEAD"))
-    private void onRunTickStart(CallbackInfo ci)
+    private void litematica$onRunTickStart(CallbackInfo ci)
     {
         DataManager.onClientTickStart();
     }

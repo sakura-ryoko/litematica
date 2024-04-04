@@ -66,7 +66,7 @@ public class ItemUtils
 
     public static void setItemForBlock(World world, BlockPos pos, BlockState state)
     {
-        if (!ITEMS_FOR_STATES.containsKey(state))
+        if (ITEMS_FOR_STATES.containsKey(state) == false)
         {
             ITEMS_FOR_STATES.put(state, getItemForBlock(world, pos, state, false));
         }
@@ -142,14 +142,12 @@ public class ItemUtils
     {
         NbtCompound tag = te.createNbtWithId(registryManager);
 
-        // This is for the "Hold CTRL" and pick block functionality from the Schematic World
-
+        // This is for the "Hold CTRL" and pick block functionality from the Schematic World,
+        // but we only need to "fix" the Skull Owner and BeeHive...
         if ((stack.getItem() instanceof BlockItem &&
             ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
                 || (stack.getItem() instanceof PlayerHeadItem))
         {
-            //Litematica.logger.info("storeTEInStack(): is skull item");
-
             if (tag.contains("profile"))
             {
                 NbtCompound skullNbt = tag.getCompound("profile");
@@ -168,14 +166,12 @@ public class ItemUtils
             }
             else
             {
-                Litematica.debugLog("storeTEInStack(): failed to fetch user profile from NBT data (profile not found)");
+                Litematica.logger.warn("storeTEInStack(): failed to fetch user profile from NBT data (profile not found)");
             }
         }
         if ((stack.getItem() instanceof BlockItem &&
                 ((BlockItem) stack.getItem()).getBlock() instanceof BeehiveBlock))
         {
-            //Litematica.logger.info("storeTEInStack(): is beehive item");
-
             if (tag.contains("bees"))
             {
                 NbtList beeNbtList = tag.getList("bees", 10);
@@ -183,7 +179,7 @@ public class ItemUtils
 
                 if (beeList.isEmpty())
                 {
-                    Litematica.debugLog("storeTEInStack(): beeList is empty");
+                    Litematica.logger.warn("storeTEInStack(): beeList is empty");
                 }
                 else
                 {
@@ -194,18 +190,19 @@ public class ItemUtils
             }
             else
             {
-                Litematica.debugLog("storeTEInStack(): failed to fetch beeList from NBT data (bees not found)");
+                Litematica.logger.warn("storeTEInStack(): failed to fetch beeList from NBT data (bees not found)");
             }
         }
 
         // TODO So this is where the now "infamous" Purple (+NBT) lore comes from?
         //  To re-add this, you would need to build the LoreComponent like this.
+
+        // New Code
         /*
         Text newNbtLore = Text.of("(+NBT)");
         List<Text> newLoreList = new ArrayList<>();
 
         newLoreList.add(newNbtLore);
-
         LoreComponent lore = new LoreComponent(newLoreList);
         stack.set(DataComponentTypes.LORE, lore);
         */
@@ -216,13 +213,11 @@ public class ItemUtils
 
         stack.setSubNbt("BlockEntityTag", tag);
          */
-
-        //Litematica.logger.info("storeTEInStack(): new components: {}", stack.getComponents());
     }
 
     public static String getStackString(ItemStack stack)
     {
-        if (!stack.isEmpty())
+        if (stack.isEmpty() == false)
         {
             Identifier rl = Registries.ITEM.getId(stack.getItem());
 

@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import fi.dy.masa.litematica.Litematica;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -41,7 +40,7 @@ public class InventoryUtils
                 int slotNum = Integer.parseInt(str) - 1;
 
                 if (PlayerInventory.isValidHotbarIndex(slotNum) &&
-                        !PICK_BLOCKABLE_SLOTS.contains(slotNum))
+                        PICK_BLOCKABLE_SLOTS.contains(slotNum) == false)
                 {
                     PICK_BLOCKABLE_SLOTS.add(slotNum);
                 }
@@ -75,7 +74,7 @@ public class InventoryUtils
 
             int hotbarSlot = sourceSlot;
 
-            if (sourceSlot == -1 || !PlayerInventory.isValidHotbarIndex(sourceSlot))
+            if (sourceSlot == -1 || PlayerInventory.isValidHotbarIndex(sourceSlot) == false)
             {
                 hotbarSlot = getEmptyPickBlockableHotbarSlot(inventory);
             }
@@ -115,12 +114,12 @@ public class InventoryUtils
     public static void schematicWorldPickBlock(ItemStack stack, BlockPos pos,
                                                World schematicWorld, MinecraftClient mc)
     {
-        if (!stack.isEmpty())
+        if (stack.isEmpty() == false)
         {
             PlayerInventory inv = mc.player.getInventory();
             stack = stack.copy();
 
-            Litematica.logger.info("schematicWorldPickBlock(): item: {} pos: {}", stack.getItem().toString(), pos.toShortString());
+            Litematica.debugLog("schematicWorldPickBlock(): item: {} pos: {}", stack.getItem().toString(), pos.toShortString());
 
             if (EntityUtils.isCreativeMode(mc.player))
             {
@@ -166,7 +165,7 @@ public class InventoryUtils
 
     private static boolean canPickToSlot(PlayerInventory inventory, int slotNum)
     {
-        if (!PICK_BLOCKABLE_SLOTS.contains(slotNum))
+        if (PICK_BLOCKABLE_SLOTS.contains(slotNum) == false)
         {
             return false;
         }
@@ -178,10 +177,10 @@ public class InventoryUtils
             return true;
         }
 
-        return (!Configs.Generic.PICK_BLOCK_AVOID_DAMAGEABLE.getBooleanValue() ||
-                !stack.isDamageable()) &&
-               (!Configs.Generic.PICK_BLOCK_AVOID_TOOLS.getBooleanValue() ||
-                       !(stack.getItem() instanceof ToolItem));
+        return (Configs.Generic.PICK_BLOCK_AVOID_DAMAGEABLE.getBooleanValue() == false ||
+                stack.isDamageable() == false) &&
+               (Configs.Generic.PICK_BLOCK_AVOID_TOOLS.getBooleanValue() == false ||
+                       (stack.getItem() instanceof ToolItem) == false);
     }
 
     private static int getPickBlockTargetSlot(PlayerEntity player)

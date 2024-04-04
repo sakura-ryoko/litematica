@@ -82,7 +82,6 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
 
         if (currentTime - this.lastUpdateTime > 2000)
         {
-            assert mc.player != null;
             MaterialListUtils.updateAvailableCounts(this.materialList.getMaterialsAll(), mc.player);
             list = this.materialList.getMaterialsMissingOnly(true);
             Collections.sort(list, this.sorter);
@@ -272,8 +271,8 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
         List<Slot> slots = gui.getScreenHandler().slots;
 
         RenderUtils.setupBlend();
-        int guiX = ((IMixinHandledScreen) gui).litematica_getX();
-        int guiY = ((IMixinHandledScreen) gui).litematica_getY();
+        int guiX = ((IMixinHandledScreen) gui).litematica$getX();
+        int guiY = ((IMixinHandledScreen) gui).litematica$getY();
 
         for (Slot slot : slots)
         {

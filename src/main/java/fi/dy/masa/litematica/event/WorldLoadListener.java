@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.event;
 
 import javax.annotation.Nullable;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import fi.dy.masa.litematica.data.DataManager;
@@ -18,8 +17,6 @@ public class WorldLoadListener implements IWorldLoadListener
         if (worldBefore != null)
         {
             DataManager.save();
-
-            //PacketListenerRegister.registerListeners();
         }
     }
 

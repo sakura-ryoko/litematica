@@ -8,8 +8,8 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 public interface IMixinHandledScreen
 {
     @Accessor("x")
-    int litematica_getX();
+    int litematica$getX();
 
     @Accessor("y")
-    int litematica_getY();
+    int litematica$getY();
 }

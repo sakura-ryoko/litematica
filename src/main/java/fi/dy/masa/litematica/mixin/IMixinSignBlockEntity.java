@@ -10,8 +10,8 @@ import net.minecraft.block.entity.SignText;
 public interface IMixinSignBlockEntity
 {
     @Accessor("frontText")
-    SignText litematica_getFrontText();
+    SignText litematica$getFrontText();
 
     @Accessor("backText")
-    SignText litematica_getBackText();
+    SignText litematica$getBackText();
 }

@@ -185,7 +185,7 @@ public class MaterialListUtils
 
         for (ItemStack stack : items)
         {
-            if (!stack.isEmpty())
+            if (stack.isEmpty() == false)
             {
                 map.addTo(new ItemType(stack, true, false), stack.getCount());
             }
@@ -201,7 +201,7 @@ public class MaterialListUtils
 
         for (ItemStack stack : items)
         {
-            if (!stack.isEmpty())
+            if (stack.isEmpty() == false)
             {
                 map.addTo(new ItemType(stack, true, false), stack.getCount());
             }

@@ -18,6 +18,7 @@
 
 	"license": "LGPLv3",
 	"icon": "assets/litematica/icon.png",
+
 	"environment": "client",
 	"entrypoints": {
 		"main": [
@@ -27,6 +28,7 @@
 			"fi.dy.masa.litematica.compat.modmenu.ModMenuImpl"
 		]
 	},
+
 	"mixins": [
 		"mixins.litematica.json"
 	],

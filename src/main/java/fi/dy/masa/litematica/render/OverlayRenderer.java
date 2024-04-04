@@ -129,7 +129,7 @@ public class OverlayRenderer
         SelectionManager sm = DataManager.getSelectionManager();
         AreaSelection currentSelection = sm.getCurrentSelection();
         boolean renderAreas = currentSelection != null && Configs.Visuals.ENABLE_AREA_SELECTION_RENDERING.getBooleanValue();
-        boolean renderPlacements = !this.placements.isEmpty() && Configs.Visuals.ENABLE_PLACEMENT_BOXES_RENDERING.getBooleanValue();
+        boolean renderPlacements = this.placements.isEmpty() == false && Configs.Visuals.ENABLE_PLACEMENT_BOXES_RENDERING.getBooleanValue();
         boolean isProjectMode = DataManager.getSchematicProjectsManager().hasProjectOpen();
         float expand = 0.001f;
         float lineWidthBlockBox = 2f;
@@ -300,7 +300,7 @@ public class OverlayRenderer
 
         if (pos1 != null && pos2 != null)
         {
-            if (!pos1.equals(pos2))
+            if (pos1.equals(pos2) == false)
             {
                 RenderUtils.renderAreaOutlineNoCorners(pos1, pos2, lineWidthArea, colorX, colorY, colorZ, this.mc);
 
@@ -356,7 +356,7 @@ public class OverlayRenderer
 
             List<MismatchRenderPos> list = verifier.getSelectedMismatchPositionsForRender();
 
-            if (!list.isEmpty())
+            if (list.isEmpty() == false)
             {
                 Entity entity = fi.dy.masa.malilib.util.EntityUtils.getCameraEntity();
                 List<BlockPos> posList = verifier.getSelectedMismatchBlockPositionsForRender();
@@ -456,7 +456,7 @@ public class OverlayRenderer
             }
 
             boolean renderBlockInfoLines = Configs.InfoOverlays.BLOCK_INFO_LINES_ENABLED.getBooleanValue();
-            boolean renderBlockInfoOverlay = !verifierOverlayRendered && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
+            boolean renderBlockInfoOverlay = verifierOverlayRendered == false && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
             RayTraceWrapper traceWrapper = null;
 
             if (renderBlockInfoLines || renderBlockInfoOverlay)
@@ -544,7 +544,6 @@ public class OverlayRenderer
         BlockState air = Blocks.AIR.getDefaultState();
         World worldSchematic = SchematicWorldHandler.getSchematicWorld();
         World worldClient = WorldUtils.getBestWorld(mc);
-        assert traceWrapper.getBlockHitResult() != null;
         BlockPos pos = traceWrapper.getBlockHitResult().getBlockPos();
 
         BlockState stateClient = mc.world.getBlockState(pos);
@@ -619,7 +618,7 @@ public class OverlayRenderer
         BlockState stateSchematic = worldSchematic.getBlockState(pos);
         String ul = GuiBase.TXT_UNDERLINE;
 
-        if (stateSchematic != stateClient && !stateClient.isAir() && !stateSchematic.isAir())
+        if (stateSchematic != stateClient && stateClient.isAir() == false && stateSchematic.isAir() == false)
         {
             this.blockInfoLines.add(ul + "Schematic:");
             this.addBlockInfoLines(stateSchematic);
@@ -721,7 +720,7 @@ public class OverlayRenderer
         fi.dy.masa.malilib.render.RenderUtils.drawOutline(x, y, longerSide, longerSide, 2, 0xFFFFFFFF);
     }
 
-    public enum BoxType
+    private enum BoxType
     {
         AREA_SELECTED,
         AREA_UNSELECTED,

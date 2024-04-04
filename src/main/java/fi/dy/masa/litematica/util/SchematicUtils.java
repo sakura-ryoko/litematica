@@ -327,12 +327,12 @@ public class SchematicUtils
                 {
                     // Smuggle in a reference to the Schematic world to the use context
                     World worldClient = mc.player.getWorld();
-                    ((IMixinEntity) mc.player).litematica_setWorld(worldSchematic);
+                    ((IMixinEntity) mc.player).litematica$setWorld(worldSchematic);
 
                     BlockHitResult hit = new BlockHitResult(trace.getPos(), side, pos.offset(side), false);
                     ItemPlacementContext ctx = new ItemPlacementContext(new ItemUsageContext(mc.player, Hand.MAIN_HAND, hit));
 
-                    ((IMixinEntity) mc.player).litematica_setWorld(worldClient);
+                    ((IMixinEntity) mc.player).litematica$setWorld(worldClient);
 
                     stateNew = ((BlockItem) stack.getItem()).getBlock().getPlacementState(ctx);
                 }

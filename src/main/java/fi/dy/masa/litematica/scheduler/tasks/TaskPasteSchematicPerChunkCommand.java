@@ -128,7 +128,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     @Override
     protected void onStartNextBox(IntBoundingBox box)
     {
-        if (!this.ignoreBlocks)
+        if (this.ignoreBlocks == false)
         {
             this.prepareSettingBlocks(box);
         }
@@ -162,7 +162,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected void sendQueuedCommands()
     {
-        while (this.sentCommandsThisTick < this.maxCommandsPerTick && !this.queuedCommands.isEmpty())
+        while (this.sentCommandsThisTick < this.maxCommandsPerTick && this.queuedCommands.isEmpty() == false)
         {
             this.sendCommand(this.queuedCommands.poll());
         }
@@ -171,9 +171,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected void processBlocksInCurrentBoxUsingSetBlockOnly()
     {
         ChunkPos chunkPos = this.currentChunkPos;
-        assert chunkPos != null;
         ChunkSchematic schematicChunk = this.schematicWorld.getChunkProvider().getChunk(chunkPos.x, chunkPos.z);
-        assert this.mc.world != null;
         Chunk clientChunk = this.mc.world.getChunk(chunkPos.x, chunkPos.z);
         boolean ignoreLimit = Configs.Generic.PASTE_IGNORE_CMD_LIMIT.getBooleanValue();
 
@@ -187,7 +185,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         this.sendQueuedCommands();
 
-        if (!this.positionIterator.hasNext() && this.queuedCommands.isEmpty())
+        if (this.positionIterator.hasNext() == false && this.queuedCommands.isEmpty())
         {
             if (this.ignoreEntities)
             {
@@ -195,7 +193,6 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             }
             else
             {
-                assert this.currentBox != null;
                 this.prepareSummoningEntities(this.currentBox);
             }
         }
@@ -204,14 +201,12 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected void processBlocksInCurrentBoxUsingFill()
     {
         ChunkPos chunkPos = this.currentChunkPos;
-        assert chunkPos != null;
         final int baseX = chunkPos.x << 4;
         final int baseZ = chunkPos.z << 4;
         ChunkSchematic schematicChunk = this.schematicWorld.getChunkProvider().getChunk(chunkPos.x, chunkPos.z);
-        assert this.mc.world != null;
         Chunk clientChunk = this.mc.world.getChunk(chunkPos.x, chunkPos.z);
 
-        while (!this.fillVolumes.isEmpty() && this.queuedCommands.size() < this.maxCommandsPerTick)
+        while (this.fillVolumes.isEmpty() == false && this.queuedCommands.size() < this.maxCommandsPerTick)
         {
             int index = this.fillVolumes.size() - 1;
             long encodedValue = this.fillVolumes.removeLong(index);
@@ -229,7 +224,6 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             }
             else
             {
-                assert this.currentBox != null;
                 this.prepareSummoningEntities(this.currentBox);
             }
         }
@@ -244,7 +238,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         this.sendQueuedCommands();
 
-        if (!this.entityIterator.hasNext() && this.queuedCommands.isEmpty())
+        if (this.entityIterator.hasNext() == false && this.queuedCommands.isEmpty())
         {
             this.onFinishedProcessingBox(this.currentChunkPos, this.currentBox);
         }
@@ -306,7 +300,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         }
 
         return (this.replace != ReplaceBehavior.NONE || stateClient.isAir()) &&
-                (this.replace != ReplaceBehavior.WITH_NON_AIR || !stateSchematic.isAir());
+                (this.replace != ReplaceBehavior.WITH_NON_AIR || stateSchematic.isAir() == false);
     }
 
     protected void summonEntity(Entity entity)
@@ -331,7 +325,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         ItemStack stack = itemFrame.getHeldItemStack();
 
-        if (!stack.isEmpty())
+        if (stack.isEmpty() == false)
         {
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
             int facingId = itemFrame.getHorizontalFacing().getId();
@@ -501,17 +495,17 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             if (tag != null)
             {
                 // Remove redundant tags to save on the command string length
-                if (!signBe.getBackText().hasText(this.mc.player))
+                if (signBe.getBackText().hasText(this.mc.player) == false)
                 {
                     tag.remove("back_text");
                 }
 
-                if (!signBe.getFrontText().hasText(this.mc.player))
+                if (signBe.getFrontText().hasText(this.mc.player) == false)
                 {
                     tag.remove("front_text");
                 }
 
-                if (!signBe.isWaxed())
+                if (signBe.isWaxed() == false)
                 {
                     tag.remove("is_waxed");
                 }
@@ -559,20 +553,14 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected BlockPos placeNbtPickedBlock(BlockPos pos, BlockState state, BlockEntity be,
                                            @Nonnull World schematicWorld, @Nonnull ClientWorld clientWorld)
     {
-        assert this.mc.player != null;
         double reach = this.mc.player.getBlockInteractionRange();
         BlockPos placementPos = this.findEmptyNearbyPosition(clientWorld, this.mc.player.getPos(), 4, reach);
 
-        //Litematica.debugLog("placeNbtPickedBlock(): called -> preparePickedStack()");
-
-        // Use registryManager from the "Destination" World,
-        // because it's used to read all sorts of data related to NBT / Components
         if (placementPos != null && preparePickedStack(pos, state, be, schematicWorld, this.mc, clientWorld.getRegistryManager()))
         {
             Vec3d posVec = new Vec3d(placementPos.getX() + 0.5, placementPos.getY() + 0.5, placementPos.getZ() + 0.5);
             BlockHitResult hitResult = new BlockHitResult(posVec, Direction.UP, placementPos, true);
 
-            assert this.mc.interactionManager != null;
             this.mc.interactionManager.interactBlock(this.mc.player, Hand.OFF_HAND, hitResult);
             this.placedPositionTimestamps.put(placementPos.asLong(), System.nanoTime());
 
@@ -629,7 +617,6 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             this.workArr = new int[16][height][16];
         }
 
-        assert chunk != null;
         this.generateStrips(this.workArr, Direction.EAST, box, chunk, ignoreBeFromFill);
         this.combineStripsToLayers(this.workArr, Direction.EAST, Direction.SOUTH, Direction.UP,
                                    box, chunk, this.fillVolumes, ignoreBeFromFill);
@@ -684,7 +671,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     mutablePos.set(x, y, z);
                     BlockState state = chunk.getBlockState(mutablePos);
 
-                    if (!state.isAir() || replace == ReplaceBehavior.ALL)
+                    if (state.isAir() == false || replace == ReplaceBehavior.ALL)
                     {
                         if (state.hasBlockEntity())
                         {
@@ -755,7 +742,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                         mutablePos.set(x, y, z);
                         BlockState state = chunk.getBlockState(mutablePos);
 
-                        if (!ignoreBe || !state.hasBlockEntity())
+                        if (ignoreBe == false || state.hasBlockEntity() == false)
                         {
                             // Find identical adjacent strips, and set their data in the array to zero,
                             // since they are being combined into one layer starting from the first position.
@@ -812,7 +799,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                         mutablePos.set(x, y, z);
                         BlockState state = chunk.getBlockState(mutablePos);
 
-                        if (!ignoreBe || !state.hasBlockEntity())
+                        if (ignoreBe == false || state.hasBlockEntity() == false)
                         {
                             // Find identical adjacent layers
                             while (nextX <= 15 && nextY <= box.maxY && nextZ <= 15 &&
@@ -993,7 +980,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         for (Direction side : PositionUtils.ALL_DIRECTIONS)
         {
-            if (!world.isAir(pos.set(centerPos, side)))
+            if (world.isAir(pos.set(centerPos, side)) == false)
             {
                 return false;
             }
@@ -1008,14 +995,10 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         ItemStack stack = state.getBlock().getPickStack(world, pos, state);
 
-        if (!stack.isEmpty())
+        if (stack.isEmpty() == false)
         {
-            //Litematica.logger.info("preparePickedStack(): called -> addBlockEntityNbt()");
-
             addBlockEntityNbt(stack, be, registryManager);
-            assert mc.player != null;
             mc.player.getInventory().offHand.set(0, stack);
-            assert mc.interactionManager != null;
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;
         }
@@ -1029,8 +1012,9 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         NbtCompound tag = be.createNbtWithId(registryManager);
 
-        // TODO find out when this gets called so I can adjust this properly
-        //Litematica.debugLog("addBlockEntityNbt(): te tag: {}", tag.toString());
+        // TODO find out when this gets called so I can adjust this properly,
+        //  but I have yet to find when this gets called
+        Litematica.debugLog("addBlockEntityNbt(): te tag: {}", tag.toString());
 
         if (stack.getItem() instanceof PlayerHeadItem && tag.contains("profile"))
         {

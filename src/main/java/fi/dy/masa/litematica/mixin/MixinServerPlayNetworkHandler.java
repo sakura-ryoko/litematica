@@ -13,7 +13,7 @@ public class MixinServerPlayNetworkHandler
     @Redirect(method = "onPlayerInteractBlock", require = 0,
               at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/util/math/Vec3d;subtract(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"))
-    private Vec3d litematica_removeHitPosCheck(Vec3d hitVec, Vec3d blockCenter)
+    private Vec3d litematica$removeHitPosCheck(Vec3d hitVec, Vec3d blockCenter)
     {
         if (Configs.Generic.ITEM_USE_PACKET_CHECK_BYPASS.getBooleanValue())
         {

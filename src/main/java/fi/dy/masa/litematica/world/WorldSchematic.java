@@ -74,7 +74,6 @@ public class WorldSchematic extends World
         this.mc = MinecraftClient.getInstance();
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
-        assert this.mc.world != null;
         this.biome = this.mc.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
         this.tickManager = new TickManager();
     }
@@ -166,14 +165,14 @@ public class WorldSchematic extends World
         int chunkX = MathHelper.floor(entity.getX() / 16.0D);
         int chunkZ = MathHelper.floor(entity.getZ() / 16.0D);
 
-        if (!this.chunkManagerSchematic.isChunkLoaded(chunkX, chunkZ))
+        if (this.chunkManagerSchematic.isChunkLoaded(chunkX, chunkZ) == false)
         {
             return false;
         }
         else
         {
             entity.setId(this.nextEntityId++);
-            Objects.requireNonNull(this.chunkManagerSchematic.getChunk(chunkX, chunkZ)).addEntity(entity);
+            this.chunkManagerSchematic.getChunk(chunkX, chunkZ).addEntity(entity);
             ++this.entityCount;
 
             return true;
@@ -487,14 +486,12 @@ public class WorldSchematic extends World
     @Override
     public DynamicRegistryManager getRegistryManager()
     {
-        assert this.mc.world != null;
         return this.mc.world.getRegistryManager();
     }
 
     @Override
     public FeatureSet getEnabledFeatures()
     {
-        assert this.mc.world != null;
         return this.mc.world.getEnabledFeatures();
     }
 

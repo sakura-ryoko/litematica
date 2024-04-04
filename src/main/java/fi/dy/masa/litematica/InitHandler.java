@@ -36,8 +36,6 @@ public class InitHandler implements IInitializationHandler
         KeyCallbacks.init(MinecraftClient.getInstance());
         StatusInfoRenderer.init();
 
-        //PacketListenerRegister.registerListeners();
-
         DataManager.getAreaSelectionsBaseDirectory();
         DataManager.getSchematicsBaseDirectory();
     }

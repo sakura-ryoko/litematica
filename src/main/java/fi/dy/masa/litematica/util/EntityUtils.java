@@ -29,7 +29,7 @@ import fi.dy.masa.malilib.util.Constants;
 
 public class EntityUtils
 {
-    public static final Predicate<Entity> NOT_PLAYER = entity -> !(entity instanceof PlayerEntity);
+    public static final Predicate<Entity> NOT_PLAYER = entity -> (entity instanceof PlayerEntity) == false;
 
     public static boolean isCreativeMode(PlayerEntity player)
     {
@@ -44,9 +44,6 @@ public class EntityUtils
 
     public static boolean hasToolItemInHand(LivingEntity entity, Hand hand)
     {
-        // If the configured tool item has NBT data, then the NBT is compared, otherwise it's ignored
-        // New DataComponents methods, the tools *always* has data
-
         ItemStack toolItem = DataManager.getToolItem();
 
         if (toolItem.isEmpty())
@@ -56,6 +53,11 @@ public class EntityUtils
 
         ItemStack stackHand = entity.getStackInHand(hand);
 
+        // It's better to just ignore the NBT/DataComponents.
+        // It would just create extra code to compare empty fields,
+        // unless you want to type the entire DataComponents String in the "toolItem" config to be compared,
+        // even if you just want a simple "stick".
+        // Have fun with that.
         return InventoryUtils.areStacksEqualIgnoreNbt(toolItem, stackHand);
     }
 
@@ -244,8 +246,8 @@ public class EntityUtils
     public static boolean shouldPickBlock(PlayerEntity player)
     {
         return Configs.Generic.PICK_BLOCK_ENABLED.getBooleanValue() &&
-                (!Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue() ||
-                        !hasToolItem(player)) &&
+                (Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue() == false ||
+                        hasToolItem(player) == false) &&
                 Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                 Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue();
     }
