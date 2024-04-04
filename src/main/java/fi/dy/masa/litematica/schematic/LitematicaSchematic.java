@@ -307,7 +307,7 @@ public class LitematicaSchematic
                 }
 
                 if (ignoreEntities == false && schematicPlacement.ignoreEntities() == false &&
-                        placement.ignoreEntities() == false && entityList != null)
+                    placement.ignoreEntities() == false && entityList != null)
                 {
                     this.placeEntitiesToWorld(world, origin, regionPos, regionSize, schematicPlacement, placement, entityList);
                 }
@@ -667,7 +667,7 @@ public class LitematicaSchematic
                         posMutable.set(x + startX, y + startY, z + startZ);
 
                         if (visibleOnly &&
-                                isExposed(world, posMutable) == false &&
+                            isExposed(world, posMutable) == false &&
                             (includeSupport == false || isSupport(world, posMutable) == false))
                         {
                             continue;
@@ -770,7 +770,7 @@ public class LitematicaSchematic
             BlockState stateAdj = world.getBlockState(posAdj);
 
             if (stateAdj.isOpaque() == false ||
-                    stateAdj.isSideSolidFullSquare(world, posAdj, dir.getOpposite()) == false)
+                stateAdj.isSideSolidFullSquare(world, posAdj, dir.getOpposite()) == false)
             {
                 return true;
             }
@@ -911,7 +911,7 @@ public class LitematicaSchematic
                         posMutable.set(x + offsetX, y + offsetY, z + offsetZ);
 
                         if (visibleOnly &&
-                                isExposed(world, posMutable) == false &&
+                            isExposed(world, posMutable) == false &&
                             (includeSupport == false || isSupport(world, posMutable) == false))
                         {
                             continue;
@@ -1235,6 +1235,7 @@ public class LitematicaSchematic
             }
         }
     }
+
     public static boolean isSizeValid(@Nullable Vec3i size)
     {
         return size != null && size.getX() > 0 && size.getY() > 0 && size.getZ() > 0;

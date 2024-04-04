@@ -549,10 +549,10 @@ public class SchematicaSchematic
     private boolean readBlocksFromNBT(NbtCompound nbt)
     {
         if (nbt.contains("Blocks", Constants.NBT.TAG_BYTE_ARRAY) == false ||
-                nbt.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) == false ||
-                nbt.contains("Width", Constants.NBT.TAG_SHORT) == false ||
-                nbt.contains("Height", Constants.NBT.TAG_SHORT) == false ||
-                nbt.contains("Length", Constants.NBT.TAG_SHORT) == false)
+            nbt.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) == false ||
+            nbt.contains("Width", Constants.NBT.TAG_SHORT) == false ||
+            nbt.contains("Height", Constants.NBT.TAG_SHORT) == false ||
+            nbt.contains("Length", Constants.NBT.TAG_SHORT) == false)
         {
             return false;
         }

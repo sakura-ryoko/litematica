@@ -211,7 +211,7 @@ public class BlockModelRendererSchematic
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.multiplyPositionMatrix(matrix4f);
 
-        // New Opacity value.  Let's do 100% for now.
+        // New Opacity value.  Let's use 100% (1.0f) for now.
         float opacity = 1.0f;
 
         vertexConsumer.quad(matrixStack.peek(), quad, new float[]{ brightness0, brightness1, brightness2, brightness3 },

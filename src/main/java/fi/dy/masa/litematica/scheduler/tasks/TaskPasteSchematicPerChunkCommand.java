@@ -176,8 +176,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         boolean ignoreLimit = Configs.Generic.PASTE_IGNORE_CMD_LIMIT.getBooleanValue();
 
         while (this.positionIterator.hasNext() &&
-                this.queuedCommands.size() < this.maxCommandsPerTick &&
-                (ignoreLimit == false || this.sentCommandsThisTick < this.maxCommandsPerTick))
+               this.queuedCommands.size() < this.maxCommandsPerTick &&
+               (ignoreLimit == false || this.sentCommandsThisTick < this.maxCommandsPerTick))
         {
             BlockPos pos = this.positionIterator.next();
             this.pasteBlock(pos, schematicChunk, clientChunk, ignoreLimit);
@@ -973,7 +973,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     public static boolean isPositionAndSidesEmpty(World world, BlockPos centerPos, BlockPos.Mutable pos)
     {
-        if (!world.isAir(centerPos))
+        if (world.isAir(centerPos) == false)
         {
             return false;
         }

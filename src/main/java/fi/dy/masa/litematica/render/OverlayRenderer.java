@@ -201,8 +201,6 @@ public class OverlayRenderer
 
                         if (schematicPlacement.shouldRenderEnclosingBox() && box != null)
                         {
-                            assert box.getPos1() != null;
-                            assert box.getPos2() != null;
                             RenderUtils.renderAreaOutline(box.getPos1(), box.getPos2(), 1f, color, color, color, this.mc);
 
                             if (Configs.Visuals.RENDER_PLACEMENT_ENCLOSING_BOX_SIDES.getBooleanValue())
@@ -265,7 +263,6 @@ public class OverlayRenderer
                 colorZ = this.colorBoxPlacementSelected;
                 break;
             case PLACEMENT_UNSELECTED:
-                assert placement != null;
                 Color4f color = placement.getBoxesBBColor();
                 colorX = color;
                 colorY = color;
@@ -385,7 +382,7 @@ public class OverlayRenderer
         {
             Color4f color = entry.type.getColor();
 
-            if (!entry.pos.equals(lookPos))
+            if (entry.pos.equals(lookPos) == false)
             {
                 RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(entry.pos, color, 0.002, buffer, this.mc);
             }

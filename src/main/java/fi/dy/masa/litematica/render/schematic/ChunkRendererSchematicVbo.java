@@ -296,6 +296,7 @@ public class ChunkRendererSchematicVbo
                         // Fluid models and the overlay use the VertexConsumer#vertex(x, y, z) method.
                         // Fluid rendering and the overlay do not use the MatrixStack.
                         // Block models use the VertexConsumer#quad() method, and they use the MatrixStack.
+                        // == Mind blown.
 
                         //matrix4fStack.pushMatrix();
                         matrixStack.push();

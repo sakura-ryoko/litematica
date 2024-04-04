@@ -40,7 +40,7 @@ public class InventoryUtils
                 int slotNum = Integer.parseInt(str) - 1;
 
                 if (PlayerInventory.isValidHotbarIndex(slotNum) &&
-                        PICK_BLOCKABLE_SLOTS.contains(slotNum) == false)
+                    PICK_BLOCKABLE_SLOTS.contains(slotNum) == false)
                 {
                     PICK_BLOCKABLE_SLOTS.add(slotNum);
                 }
@@ -180,7 +180,7 @@ public class InventoryUtils
         return (Configs.Generic.PICK_BLOCK_AVOID_DAMAGEABLE.getBooleanValue() == false ||
                 stack.isDamageable() == false) &&
                (Configs.Generic.PICK_BLOCK_AVOID_TOOLS.getBooleanValue() == false ||
-                       (stack.getItem() instanceof ToolItem) == false);
+                (stack.getItem() instanceof ToolItem) == false);
     }
 
     private static int getPickBlockTargetSlot(PlayerEntity player)

@@ -69,7 +69,10 @@ public class WorldSchematic extends World
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer)
     {
-        super(properties, REGISTRY_KEY, Objects.requireNonNull(MinecraftClient.getInstance().world != null ? MinecraftClient.getInstance().world.getRegistryManager() : DynamicRegistryManager.EMPTY), dimension, supplier, true, false, 0L, 0);
+        super(properties, REGISTRY_KEY,
+                Objects.requireNonNull(MinecraftClient.getInstance().world != null ?
+                        MinecraftClient.getInstance().world.getRegistryManager() : DynamicRegistryManager.EMPTY),
+                dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
         this.worldRenderer = worldRenderer;
