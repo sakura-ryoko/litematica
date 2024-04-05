@@ -26,151 +26,6 @@ import java.util.*;
 @Deprecated
 public class SchematicConversionComponents
 {
-    /*
-    public static NbtCompound processBlockStateTags_1_20_4_to_1_20_5(@Nonnull NbtCompound oldBlockStateTag, int version)
-    {
-        NbtElement newBlockStateTag;
-
-        if (MinecraftClient.getInstance().world != null)
-        {
-            World clientWorld = MinecraftClient.getInstance().world;
-            DynamicRegistryManager registryManager = clientWorld.getRegistryManager();
-
-            Litematica.debugLog("processBlockStateTags_1_20_4_to_1_20_5(): NBT in: {}", oldBlockStateTag.toString());
-
-            //newBlockStateTag = processBlockStateTags_1_20_4_to_1_20_5_Each(oldBlockStateTag, registryManager);
-
-            newBlockStateTag = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockStateTag),
-                    version, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-
-            Litematica.debugLog("processBlockStateTags_1_20_4_to_1_20_5(): NBT out: {}", newBlockStateTag.toString());
-
-            return (NbtCompound) newBlockStateTag;
-        }
-        else
-        {
-            Litematica.logger.error("processBlockStateTags_1_20_4_to_1_20_5(): called while clientWorld == null");
-
-            return oldBlockStateTag;
-        }
-    }
-
-    private static NbtCompound processBlockStateTags_1_20_4_to_1_20_5_Each(@Nonnull NbtCompound oldBlockStateTag,
-                                                                           @Nonnull DynamicRegistryManager registryLookup)
-    {
-        NbtCompound newBlockStateTag = new NbtCompound();
-
-        if (oldBlockStateTag.contains("Name", 8))
-        {
-            String blockName = oldBlockStateTag.getString("Name");
-            Identifier blockId = new Identifier(blockName);
-            Block block = Registries.BLOCK.get(blockId);
-
-            Litematica.debugLog("processBlockStateTags_1_20_4_to_1_20_5_Each(): Name {}, blockId {}, block {}", blockName, blockId.toString(), block.toString());
-
-            if (!block.equals(Blocks.AIR))
-            {
-                BlockState blockState = block.getDefaultState();
-
-                if (oldBlockStateTag.contains("Properties", 10))
-                {
-                    NbtCompound blockStateTag = oldBlockStateTag.getCompound("Properties");
-
-                    //Litematica.debugLog("processBlockStateTags_1_20_4_to_1_20_5_Each(): Properties NBT {}", blockStateTag.toString());
-
-                    for (String key : blockStateTag.getKeys())
-                    {
-                        NbtElement blockStateElement = blockStateTag.get(key);
-
-                        if (blockStateElement != null)
-                        {
-                            Litematica.debugLog("processBlockStateTags_1_20_4_to_1_20_5_Each(): Properties -> Element[{}//{}]: {}", blockStateElement.getType(), key, blockStateElement.toString());
-                        }
-                        else
-                        {
-                            Litematica.logger.error("processBlockStateTags_1_20_4_to_1_20_5_Each(): element failed to be read");
-                        }
-                    }
-                }
-
-                newBlockStateTag.copyFrom(oldBlockStateTag);
-            }
-            else
-            {
-                Litematica.debugLog("processBlockStateTags_1_20_4_to_1_20_5_Each(): ignoring AIR block.");
-                return oldBlockStateTag;
-            }
-        }
-
-        return newBlockStateTag;
-    }
-
-    public static NbtCompound processTileEntityTags_1_20_4_to_1_20_5(@Nonnull BlockPos oldPos,
-                                                                     @Nonnull NbtCompound oldTE,
-                                                                     int version)
-    {
-        NbtElement newTE;
-
-        if (MinecraftClient.getInstance().world != null)
-        {
-            *
-            World clientWorld = MinecraftClient.getInstance().world;
-            DynamicRegistryManager registryManager = clientWorld.getRegistryManager();
-
-            //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5(): pos: {}, NBT in: {}", oldPos.toShortString(), oldTE.toString());
-
-            String teString;
-            Identifier teId = null;
-            BlockPos tePos;
-
-            if (oldTE.contains("id"))
-            {
-                teString = oldTE.getString("id");
-                teId = new Identifier(teString);
-            }
-            else
-            {
-                Litematica.logger.error("processTileEntityTags_1_20_4_to_1_20_5(): pos: {} does not contain an \"id\" (not fixing)", oldPos.toShortString());
-                return oldTE;
-            }
-            if (oldTE.contains("x") && oldTE.contains("y") && oldTE.contains("z"))
-            {
-                int teX = oldTE.getInt("x");
-                int teY = oldTE.getInt("y");
-                int teZ = oldTE.getInt("z");
-                tePos = new BlockPos(teX, teY, teZ);
-            }
-            else
-            {
-                Litematica.logger.error("processTileEntityTags_1_20_4_to_1_20_5(): pos: {} does not contain \"x, y, z\" values", oldPos.toShortString());
-                return oldTE;
-            }
-             *
-
-            Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5(): oldTE {}", oldTE.toString());
-
-            newTE = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldTE),
-                    version, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-
-            Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5(): newTE {}", newTE.toString());
-
-            //Litematica.debugLog("Old TE: id {}, pos {}", teId.toString(), tePos.toShortString());
-
-            //NbtCompound newTE = processTileEntityTags_1_20_4_to_1_20_5_Each(tePos, teId, oldTE, registryManager);
-
-            //Litematica.debugLog("New TE: id {}, nbt {}", teId.toString(), newTE.toString());
-
-            return (NbtCompound) newTE;
-        }
-        else
-        {
-            Litematica.logger.error("processBlockStateTags_1_20_4_to_1_20_5(): called while clientWorld == null");
-
-            return oldTE;
-        }
-    }
-     */
-
     private static NbtCompound processTileEntityTags_1_20_4_to_1_20_5_Each(@Nonnull BlockPos inPos, @Nonnull Identifier inId,
                                                                            @Nonnull NbtCompound inTE,
                                                                            @Nonnull DynamicRegistryManager registryLookup)
@@ -338,8 +193,6 @@ public class SchematicConversionComponents
                     NbtCompound outTags;
                     NbtCompound outComps;
 
-                    //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_ItemList(): [Slot:{}//Count:{}] id {} // each item NBT tag {}", itemSlot, itemCount, itemId, itemTag.toString());
-
                     outTags = processTileEntityTags_1_20_4_to_1_20_5_Each(inPos, itemId, itemTag, registryLookup);
 
                     // Minecraft outputs it's "Components" in a different format under the Items {} tag!
@@ -450,15 +303,8 @@ public class SchematicConversionComponents
                 NbtCompound outPotTag;
                 NbtCompound outPotComp;
 
-                //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PotItem(): tag NBT (IN): {}", inPotTag.toString());
-
                 outPotTag = processTileEntityTags_1_20_4_to_1_20_5_Each(inPos, itemId, inPotTag, registryLookup);
-
-                //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PotItem(): tag NBT (OUT): {}", outPotTag.toString());
-
                 outPotComp = processTileEntityTags_1_20_4_to_1_20_5_EachComponent(inPos, itemId, outPotTag, registryLookup);
-
-                //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PotItem(): components tag (OUT): {}", outPotComp.toString());
 
                 outItemPot.put("components", outPotComp);
             }
@@ -494,8 +340,6 @@ public class SchematicConversionComponents
                 //BannerPatternsComponent.Layer patternLayer = new BannerPatternsComponent.Layer(patternReg, dyeColor);
                 NbtCompound compElement = new NbtCompound();
 
-                //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PatternList(): pattern[{}]: layer {}", i, patternLayer.toString());
-
                 compElement.putString("pattern", patternReg.getIdAsString());
                 compElement.putString("color", dyeColor.getName());
 
@@ -509,17 +353,10 @@ public class SchematicConversionComponents
 
                 outList.add(patternEntry);
             }
-
-            //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PatternList(): each pattern NBT {}", patternEntry.toString());
-
         }
         if (!outList.isEmpty())
         {
             //patternsComp = new BannerPatternsComponent(layerList);
-
-            //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PatternList(): patterns component {}", patternsComp.toString());
-
-            //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_PatternList(): outList {}", outList.toString());
 
             return outList;
         }
@@ -538,8 +375,6 @@ public class SchematicConversionComponents
         {
             NbtCompound beeEntry = inBeeList.getCompound(i);
             NbtCompound beeData = new NbtCompound();
-
-            //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_BeeList(): each pattern NBT {}", beeEntry.toString());
 
             if (beeEntry.contains("EntityData"))
             {
@@ -572,8 +407,6 @@ public class SchematicConversionComponents
         String skullName = "";
         GameProfile skullProfile;
 
-        //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_SkullOwner(): in NBT {}", inSkullOwner);
-
         if (inSkullOwner.contains("Id"))
         {
             skullUUID = inSkullOwner.getUuid("Id");
@@ -597,8 +430,6 @@ public class SchematicConversionComponents
         if (inSkullOwner.contains("Properties"))
         {
             skullProperties = inSkullOwner.getCompound("Properties");
-
-            //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_SkullOwner(): old properties in: {}", skullProperties.toString());
 
             for (String key : skullProperties.getKeys())
             {
@@ -649,11 +480,7 @@ public class SchematicConversionComponents
             }
         }
 
-        //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_SkullOwner(): newProperties -> {}", newSkullProperties.toString());
-
         newSkullProfile.put("properties", newSkullProperties);
-
-        //Litematica.debugLog("processTileEntityTags_1_20_4_to_1_20_5_SkullOwner(): newProfile -> {}", newSkullProfile.toString());
 
         return newSkullProfile;
     }
@@ -677,88 +504,4 @@ public class SchematicConversionComponents
         // This is where I stopped writing this code, working on the Book NBT.
         return null;
     }
-
-/*
-    public static NbtCompound processEntityTags_1_20_4_to_1_20_5(@Nonnull NbtCompound oldEntityTag, int version)
-    {
-        NbtElement newEntityTag;
-
-        if (MinecraftClient.getInstance().world != null)
-        {
-            World clientWorld = MinecraftClient.getInstance().world;
-            DynamicRegistryManager registryManager = clientWorld.getRegistryManager();
-
-            Litematica.debugLog("processEntityTags_1_20_4_to_1_20_5(): NBT in: {}", oldEntityTag.toString());
-
-            //newEntityTag = processEntityTags_1_20_4_to_1_20_5_Each(oldEntityTag, registryManager);
-
-            newEntityTag = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntityTag),
-                    version, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-
-            Litematica.debugLog("processEntityTags_1_20_4_to_1_20_5(): NBT out: {}", newEntityTag.toString());
-
-            //newEntityTag.copyFrom(oldEntityTag);
-            return (NbtCompound) newEntityTag;
-        }
-        else
-        {
-            Litematica.logger.error("processEntityTags_1_20_4_to_1_20_5(): called while clientWorld == null");
-
-            return oldEntityTag;
-        }
-    }
-
-    private static NbtCompound processEntityTags_1_20_4_to_1_20_5_Each(@Nonnull NbtCompound oldEntityTag,
-                                                                       @Nonnull DynamicRegistryManager registryManager)
-    {
-        NbtCompound newEntityTag = new NbtCompound();
-        String entityIdString;
-        Identifier entityId;
-        UUID entityUUID;
-        BlockPos inPos = new BlockPos(0, 0 ,0);
-        // Only for calling the (Items) Nbt fixer ... I probably should remove that.
-
-        Litematica.debugLog("processEntityTags_1_20_4_to_1_20_5_Each(): oldEntityTag: {}", oldEntityTag.toString());
-
-        if (oldEntityTag.contains("id"))
-        {
-            entityIdString = oldEntityTag.getString("id");
-            entityId = new Identifier(entityIdString);
-
-            oldEntityTag.remove("id");
-            newEntityTag.putString("id", entityIdString);
-        }
-        else
-        {
-            Litematica.logger.error("processEntityTags_1_20_4_to_1_20_5_Each(): entity does not contain an \"id\" (not fixing)");
-            return oldEntityTag;
-        }
-        if (oldEntityTag.contains("UUID"))
-        {
-            entityUUID = oldEntityTag.getUuid("UUID");
-
-            oldEntityTag.remove("UUID");
-            newEntityTag.putUuid("UUID", entityUUID);
-        }
-        else
-        {
-            Litematica.logger.error("processEntityTags_1_20_4_to_1_20_5_Each(): entity id {} does not contain a \"UUID\" (not fixing)", entityId.toString());
-            return oldEntityTag;
-        }
-
-        if (oldEntityTag.contains("Items"))
-        {
-            NbtList inItemList = oldEntityTag.getList("Items", 10);
-            NbtList outItemList;
-
-            outItemList = processTileEntityTags_1_20_4_to_1_20_5_ItemList(inPos, inItemList, registryManager);
-
-            oldEntityTag.remove("Items");
-            newEntityTag.put("Items", outItemList);
-        }
-
-        newEntityTag.copyFrom(oldEntityTag);
-        return newEntityTag;
-    }
- */
 }
