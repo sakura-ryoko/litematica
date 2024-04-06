@@ -337,7 +337,7 @@
   "litematica.gui.title.area_selection_manager": "区域选择管理器",
   "litematica.gui.title.configure_schematic_placement": "配置原理图放置",
   "litematica.gui.title.configure_schematic_sub_region": "配置放置子区域",
-  "litematica.gui.title.configs": "投影配置",
+  "litematica.gui.title.configs": "投影配置 - %s",
   "litematica.gui.title.confirm_file_deletion": "确认文件删除",
   "litematica.gui.title.copy_area_selection": "复制区域选择 '%s'",
   "litematica.gui.title.create_area_selection": "新建区域选择",

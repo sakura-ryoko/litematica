@@ -337,7 +337,7 @@
   "litematica.gui.title.area_selection_manager": "Gestionnaire de sélection de zone",
   "litematica.gui.title.configure_schematic_placement": "Configurer le placement du schéma",
   "litematica.gui.title.configure_schematic_sub_region": "Configurer la sous-région de placement",
-  "litematica.gui.title.configs": "Configurations Litematica",
+  "litematica.gui.title.configs": "Configurations Litematica - %s",
   "litematica.gui.title.confirm_file_deletion": "Confirmer la suppression de fichier",
   "litematica.gui.title.copy_area_selection": "Copier la sélection de zone '%s'",
   "litematica.gui.title.create_area_selection": "Créer une nouvelle sélection de zone",

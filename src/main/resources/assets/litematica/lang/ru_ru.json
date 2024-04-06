@@ -337,7 +337,7 @@
     "litematica.gui.title.area_selection_manager": "Менеджер областей выделения",
     "litematica.gui.title.configure_schematic_placement": "Настройка размещения схемы",
     "litematica.gui.title.configure_schematic_sub_region": "Настройка размещения подрегиона",
-    "litematica.gui.title.configs": "Настройки Litematica",
+    "litematica.gui.title.configs": "Настройки Litematica - %s",
     "litematica.gui.title.confirm_file_deletion": "Подтвердите удаление файла",
     "litematica.gui.title.copy_area_selection": "Копировать область выделения \"%s\"",
     "litematica.gui.title.create_area_selection": "Создать новую область выделения",

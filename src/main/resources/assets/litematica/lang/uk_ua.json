@@ -285,7 +285,7 @@
   "litematica.gui.title.area_selection_manager": "Менеджер з вибору району",
   "litematica.gui.title.configure_schematic_placement": "Налаштувати розташування схеми",
   "litematica.gui.title.configure_schematic_sub_region": "Налаштувати підрегіон розміщення",
-  "litematica.gui.title.configs": "Конфігурації Litematica",
+  "litematica.gui.title.configs": "Конфігурації Litematica - %s",
   "litematica.gui.title.confirm_file_deletion": "Підтвердити видалення файлу",
   "litematica.gui.title.copy_area_selection": "Копіювати виділення області \"%s\"",
   "litematica.gui.title.create_area_selection": "Створіть нове виділення області",
