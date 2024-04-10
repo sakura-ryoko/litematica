@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.component.type.MapIdComponent;
+import net.minecraft.recipe.BrewingRecipeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -490,6 +491,13 @@ public class WorldSchematic extends World
     public DynamicRegistryManager getRegistryManager()
     {
         return this.mc.world.getRegistryManager();
+    }
+
+    @Override
+    public BrewingRecipeRegistry method_59547()
+    {
+        // NO-OP
+        return null;
     }
 
     @Override
