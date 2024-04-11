@@ -34,7 +34,7 @@
 	],
 
 	"depends": {
-		"minecraft": ">=1.20.4",
+		"minecraft": ">=1.20.5-beta.1",
 		"fabric-networking-api-v1": ">=4.0.6",
 		"fabric-resource-loader-v0": "*",
 		"malilib": ">=0.19.0-beta.1"

@@ -494,10 +494,9 @@ public class WorldSchematic extends World
     }
 
     @Override
-    public BrewingRecipeRegistry method_59547()
+    public BrewingRecipeRegistry getBrewingRecipeRegistry()
     {
-        // NO-OP
-        return null;
+        return this.mc.world.getBrewingRecipeRegistry();
     }
 
     @Override
