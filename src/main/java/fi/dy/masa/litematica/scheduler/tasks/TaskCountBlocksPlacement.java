@@ -13,12 +13,19 @@ import fi.dy.masa.litematica.util.BlockInfoListType;
 public class TaskCountBlocksPlacement extends TaskCountBlocksBase
 {
     protected final SchematicPlacement schematicPlacement;
+    protected final boolean ignoreState;
 
     public TaskCountBlocksPlacement(SchematicPlacement schematicPlacement, IMaterialList materialList)
+    {
+        this(schematicPlacement, materialList, false);
+    }
+
+    public TaskCountBlocksPlacement(SchematicPlacement schematicPlacement, IMaterialList materialList, boolean ignoreState)
     {
         super(materialList, "litematica.gui.label.task_name.material_list");
 
         this.schematicPlacement = schematicPlacement;
+        this.ignoreState = ignoreState;
         Collection<Box> boxes = schematicPlacement.getSubRegionBoxes(RequiredEnabled.PLACEMENT_ENABLED).values();
 
         // Filter/clamp the boxes to intersect with the render layer
@@ -54,7 +61,8 @@ public class TaskCountBlocksPlacement extends TaskCountBlocksBase
             {
                 this.countsMissing.addTo(stateSchematic, 1);
             }
-            else if (stateClient != stateSchematic)
+            else if (stateClient != stateSchematic &&
+                    (this.ignoreState == false || stateClient.getBlock() != stateSchematic.getBlock()))
             {
                 this.countsMissing.addTo(stateSchematic, 1);
                 this.countsMismatch.addTo(stateSchematic, 1);
