@@ -1411,7 +1411,7 @@ public class LitematicaSchematic
         return blockEntities;
     }
 
-    protected List<EntityInfo> readSpongeEntitiesFromTag(NbtCompound tag, Vec3i offset, int dataVersion)
+    protected List<EntityInfo> readSpongeEntitiesFromTag(NbtCompound tag, Vec3i offset)
     {
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("Entities", Constants.NBT.TAG_COMPOUND);
@@ -1474,7 +1474,7 @@ public class LitematicaSchematic
         tileEntities = this.convertSpongeTileEntities_to_1_20_5(tileEntities, dataVersion);
         this.tileEntities.put(name, tileEntities);
 
-        List<LitematicaSchematic.EntityInfo> enities = this.readSpongeEntitiesFromTag(tag, offset, dataVersion);
+        List<LitematicaSchematic.EntityInfo> enities = this.readSpongeEntitiesFromTag(tag, offset);
         enities = this.convertSpongeEntities_to_1_20_5(enities, dataVersion);
         this.entities.put(name, enities);
 
