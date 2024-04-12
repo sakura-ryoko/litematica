@@ -11,9 +11,7 @@ import com.google.gson.JsonPrimitive;
 import fi.dy.masa.malilib.util.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.text.Text;
 import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
 import fi.dy.masa.litematica.Litematica;
@@ -49,8 +47,6 @@ public class DataManager implements IDirectoryCache
     private static boolean isCarpetServer;
     private static long clientTickStart;
     public static Identifier CARPET_HELLO = Identifier.of("carpet", "hello");
-    private DynamicRegistryManager registryManager = DynamicRegistryManager.EMPTY;
-    private FeatureSet enabledFeatures = FeatureSet.empty();
     private final SelectionManager selectionManager = new SelectionManager();
     private final SchematicPlacementManager schematicPlacementManager = new SchematicPlacementManager();
     private final SchematicProjectsManager schematicProjectsManager = new SchematicProjectsManager();
@@ -330,46 +326,6 @@ public class DataManager implements IDirectoryCache
 
         InfoHud.getInstance().reset(); // remove the line providers and clear the data
         setIsCarpetServer(false);
-    }
-
-    /**
-     * Store's the world registry manager for Dynamic Lookup
-     * Set this at WorldLoadPost
-     * @param manager
-     */
-    public void setWorldRegistryManager(DynamicRegistryManager manager)
-    {
-        if (manager != null && manager != DynamicRegistryManager.EMPTY)
-            this.registryManager = manager;
-        else
-            this.registryManager = DynamicRegistryManager.EMPTY;
-    }
-
-    public DynamicRegistryManager getWorldRegistryManager()
-    {
-        if (this.registryManager != DynamicRegistryManager.EMPTY)
-            return this.registryManager;
-        else
-            return DynamicRegistryManager.EMPTY;
-    }
-
-    /**
-     * Store's the Client FeatureSet
-     */
-    public void setClientFeatureSet(FeatureSet features)
-    {
-        if (features != null && features != FeatureSet.empty())
-            this.enabledFeatures = features;
-        else
-            this.enabledFeatures = FeatureSet.empty();
-    }
-
-    public FeatureSet getClientFeatureSet()
-    {
-        if (this.enabledFeatures != FeatureSet.empty())
-            return this.enabledFeatures;
-        else
-            return FeatureSet.empty();
     }
 
     private void savePerDimensionData()

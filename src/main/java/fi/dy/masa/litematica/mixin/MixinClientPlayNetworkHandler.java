@@ -1,9 +1,6 @@
 package fi.dy.masa.litematica.mixin;
 
 import fi.dy.masa.litematica.Litematica;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientConnectionState;
-import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import org.spongepowered.asm.mixin.Final;
@@ -58,14 +55,6 @@ public abstract class MixinClientPlayNetworkHandler
         {
             ci.cancel();
         }
-    }
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void litematica$onClientPlayInit(MinecraftClient client, ClientConnection clientConnection, ClientConnectionState clientConnectionState, CallbackInfo ci)
-    {
-        // We're just storing these values for now
-        // in case they are required later for additional issues that may come up
-        DataManager.getInstance().setClientFeatureSet(this.enabledFeatures);
     }
 
     @Inject(method ="onCustomPayload", at = @At("HEAD"))
