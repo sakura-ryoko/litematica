@@ -278,7 +278,8 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
         {
             if (slot.hasStack() &&
                 (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreNbt(slot.getStack(), referenceItem) ||
-                 InventoryUtils.doesShulkerBoxContainItem(slot.getStack(), referenceItem)))
+                 InventoryUtils.doesShulkerBoxContainItem(slot.getStack(), referenceItem) ||
+                 InventoryUtils.doesBundleContainItem(slot.getStack(), referenceItem)))
             {
                 renderOutlinedBox(guiX + slot.x, guiY + slot.y, 16, 16, color.intValue, color.intValue | 0xFF000000, 1f);
             }

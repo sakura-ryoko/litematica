@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
@@ -51,7 +53,7 @@ public class EntityUtils
 
         ItemStack stackHand = entity.getStackInHand(hand);
 
-        // It's better to just ignore the NBT/DataComponents.
+        // It's better to just ignore the NBT/DataComponents for your toolItem
         return InventoryUtils.areStacksEqualIgnoreNbt(toolItem, stackHand);
     }
 

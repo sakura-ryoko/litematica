@@ -1,22 +1,20 @@
 package fi.dy.masa.litematica.util;
 
-import java.util.*;
-
-import fi.dy.masa.litematica.Litematica;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BeehiveBlockEntity;
+import javax.annotation.Nonnull;
+import java.util.IdentityHashMap;
+import com.google.common.collect.ImmutableList;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SlabBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.PlayerHeadItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -133,86 +131,12 @@ public class ItemUtils
     }
 
     /**
-     * This is realistically only used by Holding CTRL and picking a block from the Schematic World,
-     * and I can only find Skulls and Bee Hives (?)
-     * being a potential issue beyond the Vanilla pick-block via ItemStack.copy()
-     * capabilities.
+     * This is used by Holding CTRL and picking a block from the Schematic World
      */
-    public static void storeTEInStack(ItemStack stack, BlockEntity te, DynamicRegistryManager registryManager)
+    public static void storeTEInStack(@Nonnull ItemStack stack, @Nonnull BlockEntity te, @Nonnull DynamicRegistryManager registryManager)
     {
-        NbtCompound tag = te.createNbtWithId(registryManager);
-
-        // This is for the "Hold CTRL" and pick block functionality from the Schematic World,
-        // but we only need to "fix" the Skull Owner and BeeHive...
-        if ((stack.getItem() instanceof BlockItem &&
-            ((BlockItem) stack.getItem()).getBlock() instanceof AbstractSkullBlock)
-                || (stack.getItem() instanceof PlayerHeadItem))
-        {
-            if (tag.contains("profile"))
-            {
-                NbtCompound skullNbt = tag.getCompound("profile");
-                ProfileComponent skullProfile = ComponentUtils.getSkullProfileFromProfile(skullNbt);
-
-                if (skullProfile != null)
-                {
-                    Litematica.debugLog("storeTEInStack(): applying skull profile component from NBT");
-
-                    stack.set(DataComponentTypes.PROFILE, skullProfile);
-                }
-                else
-                {
-                    Litematica.logger.warn("storeTEInStack(): failed to fetch user profile from NBT data (null output)");
-                }
-            }
-            else
-            {
-                Litematica.logger.warn("storeTEInStack(): failed to fetch user profile from NBT data (profile not found)");
-            }
-        }
-        if ((stack.getItem() instanceof BlockItem &&
-                ((BlockItem) stack.getItem()).getBlock() instanceof BeehiveBlock))
-        {
-            if (tag.contains("bees"))
-            {
-                NbtList beeNbtList = tag.getList("bees", 10);
-                List<BeehiveBlockEntity.BeeData> beeList = ComponentUtils.getBeesDataFromNbt(beeNbtList);
-
-                if (beeList.isEmpty())
-                {
-                    Litematica.logger.warn("storeTEInStack(): beeList is empty");
-                }
-                else
-                {
-                    Litematica.debugLog("storeTEInStack(): applying bees component from NBT");
-
-                    stack.set(DataComponentTypes.BEES, beeList);
-                }
-            }
-            else
-            {
-                Litematica.logger.warn("storeTEInStack(): failed to fetch beeList from NBT data (bees not found)");
-            }
-        }
-
-        // TODO So this is where the now "infamous" Purple (+NBT) lore comes from?
-        //  To re-add this, you would need to build the LoreComponent like this.
-
-        // New Code
-        /*
-        Text newNbtLore = Text.of("(+NBT)");
-        List<Text> newLoreList = new ArrayList<>();
-
-        newLoreList.add(newNbtLore);
-        LoreComponent lore = new LoreComponent(newLoreList);
-        stack.set(DataComponentTypes.LORE, lore);
-        */
-
-        // Legacy Code
-        /*
-        tagList.add(NbtString.of("(+NBT)"));
-
-        stack.setSubNbt("BlockEntityTag", tag);
-         */
+        te.setStackNbt(stack, registryManager);
+        stack.set(DataComponentTypes.LORE, new LoreComponent(ImmutableList.of(Text.of("(+NBT)"))));
     }
 
     public static String getStackString(ItemStack stack)

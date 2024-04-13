@@ -2,15 +2,12 @@ package fi.dy.masa.litematica.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import fi.dy.masa.litematica.Litematica;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -18,10 +15,10 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.litematica.config.Configs;
 
 public class InventoryUtils
 {
@@ -49,13 +46,13 @@ public class InventoryUtils
         }
     }
 
-    public static void setPickedItemToHand(ItemStack stack, MinecraftClient mc, DynamicRegistryManager registryManager)
+    public static void setPickedItemToHand(ItemStack stack, MinecraftClient mc)
     {
         int slotNum = mc.player.getInventory().getSlotWithStack(stack);
-        setPickedItemToHand(slotNum, stack, mc, registryManager);
+        setPickedItemToHand(slotNum, stack, mc);
     }
 
-    public static void setPickedItemToHand(int sourceSlot, ItemStack stack, MinecraftClient mc, DynamicRegistryManager registryManager)
+    public static void setPickedItemToHand(int sourceSlot, ItemStack stack, MinecraftClient mc)
     {
         PlayerEntity player = mc.player;
         PlayerInventory inventory = player.getInventory();
@@ -88,10 +85,9 @@ public class InventoryUtils
             {
                 inventory.selectedSlot = hotbarSlot;
 
-                int count = stack.getCount();
-                Item item = stack.getItem();
-
-                Litematica.debugLog("setPickedItemToHand(): item: {}, count {}", item.toString(), count);
+                //int count = stack.getCount();
+                //Item item = stack.getItem();
+                //Litematica.debugLog("setPickedItemToHand(): item: {}, count {}", item.toString(), count);
 
                 if (EntityUtils.isCreativeMode(player))
                 {
@@ -119,7 +115,7 @@ public class InventoryUtils
             PlayerInventory inv = mc.player.getInventory();
             stack = stack.copy();
 
-            Litematica.debugLog("schematicWorldPickBlock(): item: {} pos: {}", stack.getItem().toString(), pos.toShortString());
+            //Litematica.debugLog("schematicWorldPickBlock(): item: {} pos: {}", stack.getItem().toString(), pos.toShortString());
 
             if (EntityUtils.isCreativeMode(mc.player))
             {
@@ -133,7 +129,7 @@ public class InventoryUtils
                     ItemUtils.storeTEInStack(stack, te, schematicWorld.getRegistryManager());
                 }
 
-                setPickedItemToHand(stack, mc, schematicWorld.getRegistryManager());
+                setPickedItemToHand(stack, mc);
                 mc.interactionManager.clickCreativeStack(mc.player.getStackInHand(Hand.MAIN_HAND), 36 + inv.selectedSlot);
 
                 //return true;
@@ -145,7 +141,7 @@ public class InventoryUtils
 
                 if (shouldPick && slot != -1)
                 {
-                    setPickedItemToHand(stack, mc, schematicWorld.getRegistryManager());
+                    setPickedItemToHand(stack, mc);
                 }
                 else if (slot == -1 && Configs.Generic.PICK_BLOCK_SHULKERS.getBooleanValue())
                 {
@@ -154,7 +150,7 @@ public class InventoryUtils
                     if (slot != -1)
                     {
                         ItemStack boxStack = mc.player.playerScreenHandler.slots.get(slot).getStack();
-                        setPickedItemToHand(boxStack, mc, schematicWorld.getRegistryManager());
+                        setPickedItemToHand(boxStack, mc);
                     }
                 }
 
@@ -243,6 +239,24 @@ public class InventoryUtils
     public static boolean doesShulkerBoxContainItem(ItemStack stack, ItemStack referenceItem)
     {
         DefaultedList<ItemStack> items = fi.dy.masa.malilib.util.InventoryUtils.getStoredItems(stack);
+
+        if (items.size() > 0)
+        {
+            for (ItemStack item : items)
+            {
+                if (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreNbt(item, referenceItem))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean doesBundleContainItem(ItemStack stack, ItemStack referenceItem)
+    {
+        DefaultedList<ItemStack> items = fi.dy.masa.malilib.util.InventoryUtils.getBundleItems(stack);
 
         if (items.size() > 0)
         {
