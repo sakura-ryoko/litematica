@@ -27,7 +27,7 @@ public abstract class MixinBlockItem extends Item
     @Shadow public abstract Block getBlock();
 
     @Inject(method = "getPlacementState", at = @At("HEAD"), cancellable = true)
-    private void litematica$modifyPlacementState(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> cir)
+    private void modifyPlacementState(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> cir)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
             Configs.Generic.EASY_PLACE_SP_HANDLING.getBooleanValue())

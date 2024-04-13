@@ -9,5 +9,5 @@ import net.minecraft.world.World;
 @Mixin(Entity.class)
 public interface IMixinEntity {
     @Accessor("world")
-    void litematica$setWorld(World world);
+    void litematica_setWorld(World world);
 }

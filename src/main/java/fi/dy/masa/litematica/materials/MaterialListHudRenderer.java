@@ -271,8 +271,8 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
         List<Slot> slots = gui.getScreenHandler().slots;
 
         RenderUtils.setupBlend();
-        int guiX = ((IMixinHandledScreen) gui).litematica$getX();
-        int guiY = ((IMixinHandledScreen) gui).litematica$getY();
+        int guiX = ((IMixinHandledScreen) gui).litematica_getX();
+        int guiY = ((IMixinHandledScreen) gui).litematica_getY();
 
         for (Slot slot : slots)
         {

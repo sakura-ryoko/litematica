@@ -9,5 +9,5 @@ import net.minecraft.util.math.ChunkSectionPos;
 public interface IMixinChunkDeltaUpdateS2CPacket
 {
     @Accessor("sectionPos")
-    ChunkSectionPos litematica$getSection();
+    ChunkSectionPos litematica_getSection();
 }

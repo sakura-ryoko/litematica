@@ -1,19 +1,18 @@
 package fi.dy.masa.litematica.data;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import fi.dy.masa.malilib.util.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
-import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
+import net.minecraft.util.Identifier;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -31,21 +30,23 @@ import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.tool.ToolModeData;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import fi.dy.masa.litematica.util.ToBooleanFunction;
-import net.minecraft.util.Identifier;
+import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
+import fi.dy.masa.malilib.util.*;
 
 public class DataManager implements IDirectoryCache
 {
     private static final DataManager INSTANCE = new DataManager();
-    //private static final Pattern PATTERN_ITEM_NBT = Pattern.compile("^(?<name>[a-z0-9\\._-]+:[a-z0-9\\._-]+)(?<nbt>\\{.*\\})$");
-    //private static final Pattern PATTERN_ITEM_BASE = Pattern.compile("^(?<name>(?:[a-z0-9\\._-]+:)[a-z0-9\\._-]+)$");
+
     private static final Map<String, File> LAST_DIRECTORIES = new HashMap<>();
     private static final ArrayList<ToBooleanFunction<Text>> CHAT_LISTENERS = new ArrayList<>();
+
     private static ItemStack toolItem = new ItemStack(Items.STICK);
     private static ConfigGuiTab configGuiTab = ConfigGuiTab.GENERIC;
     private static boolean createPlacementOnLoad = true;
     private static boolean canSave;
     private static boolean isCarpetServer;
     private static long clientTickStart;
+
     public static Identifier CARPET_HELLO = Identifier.of("carpet", "hello");
     private final SelectionManager selectionManager = new SelectionManager();
     private final SchematicPlacementManager schematicPlacementManager = new SchematicPlacementManager();
@@ -266,7 +267,7 @@ public class DataManager implements IDirectoryCache
                 {
                     configGuiTab = ConfigGuiTab.valueOf(root.get("config_gui_tab").getAsString());
                 }
-                catch (Exception ignored) {}
+                catch (Exception e) {}
 
                 if (configGuiTab == null)
                 {
@@ -498,48 +499,14 @@ public class DataManager implements IDirectoryCache
         return new File(dir, StringUtils.getStorageFileName(globalData, Reference.MOD_ID + "_", ".json", "default"));
     }
 
+    /**
+     * Sets the current toolItem, if itemNameIn is invalid, sets toolItem to the default minecraft:stick
+     * @param itemNameIn (String representation of the item Identifier)
+     */
     public static void setToolItem(String itemNameIn)
     {
-        /*
-        if (itemNameIn.isEmpty() || itemNameIn.equals("empty") || itemNameIn.equals("minecraft:air"))
-        {
-            toolItem = ItemStack.EMPTY;
-            return;
-        }
-        else
-        {
-            Matcher matcherBase = PATTERN_ITEM_BASE.matcher(itemNameIn);
+        toolItem = InventoryUtils.getItemStackFromString(itemNameIn);   // Moved to MaLiLib
 
-            String itemName;
-            /*
-            Matcher matcherNbt = PATTERN_ITEM_NBT.matcher(itemNameIn);
-            NbtCompound nbt = null;
-
-            if (matcherNbt.matches())
-            {
-                itemName = matcherNbt.group("name");
-                nbt = (new StringNbtReader(new StringReader(matcherNbt.group("nbt")))).parseElement();
-            }
-            else
-            if (matcherBase.matches())
-            {
-                itemName = matcherBase.group("name");
-
-                if (itemName != null)
-                {
-                    Item item = Registries.ITEM.get(new Identifier(itemName));
-
-                    if (item != null && item != Items.AIR)
-                    {
-                        toolItem = new ItemStack(item);
-                        //toolItem.setNbt(nbt);
-                        return;
-                    }
-                }
-            }
-        }
-            */
-        toolItem = InventoryUtils.getItemStackFromString(itemNameIn);
         if (toolItem.isEmpty())
         {
             // Fall back to a stick

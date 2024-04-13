@@ -1,13 +1,10 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import java.util.*;
-import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Consumer;
 import com.google.common.collect.Queues;
-import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.util.ComponentUtils;
-import fi.dy.masa.malilib.util.*;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.BlockState;
@@ -19,11 +16,9 @@ import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
-import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
@@ -31,15 +26,10 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
-import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
@@ -48,6 +38,11 @@ import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PasteNbtBehavior;
 import fi.dy.masa.litematica.util.ReplaceBehavior;
 import fi.dy.masa.litematica.world.ChunkSchematic;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.PositionUtils;
 
 public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChunkBase
 {
@@ -997,49 +992,12 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (stack.isEmpty() == false)
         {
-            addBlockEntityNbt(stack, be, registryManager);
+            be.setStackNbt(stack, registryManager);         // Let Vanilla handle the ComponentMap for us
             mc.player.getInventory().offHand.set(0, stack);
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;
         }
 
         return false;
-    }
-
-    public static void addBlockEntityNbt(@Nonnull ItemStack stack,
-                                         @Nonnull BlockEntity be,
-                                         @Nonnull DynamicRegistryManager registryManager)
-    {
-        NbtCompound tag = be.createNbtWithId(registryManager);
-
-        // TODO find out when this gets called so I can adjust this properly,
-        //  but I have yet to find when this gets called
-        Litematica.debugLog("addBlockEntityNbt(): te tag: {}", tag.toString());
-
-        if (stack.getItem() instanceof PlayerHeadItem && tag.contains("profile"))
-        {
-
-            NbtCompound skullNbt = tag.getCompound("profile");
-            ProfileComponent skullProfile = ComponentUtils.getSkullProfileFromProfile(skullNbt);
-
-            if (skullProfile != null)
-            {
-                Litematica.debugLog("addBlockEntityNbt(): applying skull profile component from NBT");
-
-                stack.set(DataComponentTypes.PROFILE, skullProfile);
-            }
-            else
-            {
-                Litematica.logger.warn("addBlockEntityNbt(): failed to fetch user profile from NBT data (null output)");
-            }
-        }
-        if (tag.contains("BlockEntityTag"))
-        {
-            NbtComponent entityData = NbtComponent.of(tag.getCompound("BlockEntityTag"));
-
-            Litematica.debugLog("addBlockEntityNbt(): set block entity data: {}", entityData.toString());
-
-            stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, entityData);
-        }
     }
 }

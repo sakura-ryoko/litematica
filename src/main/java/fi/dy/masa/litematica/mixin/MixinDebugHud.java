@@ -19,7 +19,7 @@ import fi.dy.masa.malilib.gui.GuiBase;
 public abstract class MixinDebugHud
 {
     @Inject(method = "getLeftText", at = @At("RETURN"))
-    private void litematica$addDebugLines(CallbackInfoReturnable<List<String>> cir)
+    private void addDebugLines(CallbackInfoReturnable<List<String>> cir)
     {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 

@@ -16,7 +16,7 @@ public class MixinBlock
 {
     @Inject(method = "dropStack(Lnet/minecraft/world/World;Ljava/util/function/Supplier;Lnet/minecraft/item/ItemStack;)V",
             at = @At("HEAD"), cancellable = true)
-    private static void litematica$preventItemDrops(World world,
+    private static void litematica_preventItemDrops(World world,
                                                     Supplier<ItemEntity> itemEntitySupplier,
                                                     ItemStack stack,
                                                     CallbackInfo ci)

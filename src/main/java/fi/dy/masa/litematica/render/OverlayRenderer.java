@@ -1,13 +1,13 @@
 package fi.dy.masa.litematica.render;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
+import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -22,7 +22,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -46,12 +45,7 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
-import fi.dy.masa.malilib.util.BlockUtils;
-import fi.dy.masa.malilib.util.Color4f;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.WorldUtils;
-import org.joml.Matrix4f;
+import fi.dy.masa.malilib.util.*;
 
 public class OverlayRenderer
 {
@@ -84,19 +78,19 @@ public class OverlayRenderer
 
     private final MinecraftClient mc;
     private final Map<SchematicPlacement, ImmutableMap<String, Box>> placements = new HashMap<>();
-    private final Color4f colorPos1 = new Color4f(1f, 0.0625f, 0.0625f);
-    private final Color4f colorPos2 = new Color4f(0.0625f, 0.0625f, 1f);
-    private final Color4f colorOverlapping = new Color4f(1f, 0.0625f, 1f);
-    private final Color4f colorX = new Color4f(   1f, 0.25f, 0.25f);
-    private final Color4f colorY = new Color4f(0.25f,    1f, 0.25f);
-    private final Color4f colorZ = new Color4f(0.25f, 0.25f,    1f);
-    private final Color4f colorArea = new Color4f(1f, 1f, 1f);
-    private final Color4f colorBoxPlacementSelected = new Color4f(0x16 / 255f, 1f, 1f);
-    private final Color4f colorSelectedCorner = new Color4f(0f, 1f, 1f);
-    private final Color4f colorAreaOrigin = new Color4f(1f, 0x90 / 255f, 0x10 / 255f);
+    private Color4f colorPos1 = new Color4f(1f, 0.0625f, 0.0625f);
+    private Color4f colorPos2 = new Color4f(0.0625f, 0.0625f, 1f);
+    private Color4f colorOverlapping = new Color4f(1f, 0.0625f, 1f);
+    private Color4f colorX = new Color4f(   1f, 0.25f, 0.25f);
+    private Color4f colorY = new Color4f(0.25f,    1f, 0.25f);
+    private Color4f colorZ = new Color4f(0.25f, 0.25f,    1f);
+    private Color4f colorArea = new Color4f(1f, 1f, 1f);
+    private Color4f colorBoxPlacementSelected = new Color4f(0x16 / 255f, 1f, 1f);
+    private Color4f colorSelectedCorner = new Color4f(0f, 1f, 1f);
+    private Color4f colorAreaOrigin = new Color4f(1f, 0x90 / 255f, 0x10 / 255f);
 
     private long infoUpdateTime;
-    private final List<String> blockInfoLines = new ArrayList<>();
+    private List<String> blockInfoLines = new ArrayList<>();
     private int blockInfoX;
     private int blockInfoY;
 
@@ -722,6 +716,6 @@ public class OverlayRenderer
         AREA_SELECTED,
         AREA_UNSELECTED,
         PLACEMENT_SELECTED,
-        PLACEMENT_UNSELECTED
+        PLACEMENT_UNSELECTED;
     }
 }

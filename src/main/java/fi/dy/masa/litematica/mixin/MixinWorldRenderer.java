@@ -16,7 +16,7 @@ public abstract class MixinWorldRenderer
     private net.minecraft.client.world.ClientWorld world;
 
     @Inject(method = "reload()V", at = @At("RETURN"))
-    private void litematica$onLoadRenderers(CallbackInfo ci)
+    private void onLoadRenderers(CallbackInfo ci)
     {
         // Also (re-)load our renderer when the vanilla renderer gets reloaded
         if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
@@ -26,14 +26,14 @@ public abstract class MixinWorldRenderer
     }
 
     @Inject(method = "setupTerrain", at = @At("TAIL"))
-    private void litematica$onPostSetupTerrain(
+    private void onPostSetupTerrain(
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
-    private void litematica$onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
+    private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -56,8 +56,8 @@ public abstract class MixinWorldRenderer
 
     @Inject(method = "render",
             at = @At(value = "INVOKE_STRING", args = "ldc=blockentities",
-                    target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
-    private void litematica$onPostRenderEntities(
+                     target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
+    private void onPostRenderEntities(
             float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera,
             GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
             Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)

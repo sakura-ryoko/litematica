@@ -2,7 +2,7 @@ package fi.dy.masa.litematica.util;
 
 public interface IWorldUpdateSuppressor
 {
-    boolean litematica$getShouldPreventBlockUpdates();
+    boolean litematica_getShouldPreventBlockUpdates();
 
-    void litematica$setShouldPreventBlockUpdates(boolean preventUpdates);
+    void litematica_setShouldPreventBlockUpdates(boolean preventUpdates);
 }

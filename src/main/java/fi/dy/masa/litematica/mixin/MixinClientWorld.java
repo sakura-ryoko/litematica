@@ -35,7 +35,7 @@ public abstract class MixinClientWorld extends World
     }
 
     @Inject(method = "handleBlockUpdate", at = @At("HEAD"))
-    private void litematica$onHandleBlockUpdate(BlockPos pos, BlockState state, int flags, CallbackInfo ci)
+    private void litematica_onHandleBlockUpdate(BlockPos pos, BlockState state, int flags, CallbackInfo ci)
     {
         SchematicVerifier.markVerifierBlockChanges(pos);
 

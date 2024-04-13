@@ -17,7 +17,7 @@ import fi.dy.masa.litematica.util.BlockUtils;
 public class MixinChestBlock
 {
     @Inject(method = "mirror", at = @At("HEAD"), cancellable = true)
-    private void litematica$fixChestMirror(BlockState state, BlockMirror mirror, CallbackInfoReturnable<BlockState> cir)
+    private void litematica_fixChestMirror(BlockState state, BlockMirror mirror, CallbackInfoReturnable<BlockState> cir)
     {
         ChestType type = state.get(ChestBlock.CHEST_TYPE);
 

@@ -1,16 +1,12 @@
 package fi.dy.masa.litematica.render;
 
 import java.util.List;
+import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.inventory.Inventory;
@@ -20,7 +16,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.world.World;
-
 import fi.dy.masa.litematica.util.BlockInfoAlignment;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.malilib.gui.LeftRight;
@@ -29,7 +24,6 @@ import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import org.joml.Matrix4f;
 
 public class RenderUtils
 {
@@ -116,7 +110,7 @@ public class RenderUtils
     }
 
     public static void renderBlockOutlineOverlapping(BlockPos pos, float expand, float lineWidth,
-                                                     Color4f color1, Color4f color2, Color4f color3, Matrix4f matrix4f, MinecraftClient mc)
+            Color4f color1, Color4f color2, Color4f color3, Matrix4f matrix4f, MinecraftClient mc)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         final double dx = cameraPos.x;
@@ -472,8 +466,9 @@ public class RenderUtils
     {
         final int size = quads.size();
 
-        for (BakedQuad quad : quads) {
-            renderQuadOutlinesBatched(pos, buffer, color, quad.getVertexData());
+        for (int i = 0; i < size; i++)
+        {
+            renderQuadOutlinesBatched(pos, buffer, color, quads.get(i).getVertexData());
         }
     }
 
@@ -483,9 +478,9 @@ public class RenderUtils
         final int y = pos.getY();
         final int z = pos.getZ();
         final int vertexSize = vertexData.length / 4;
-        final float[] fx = new float[4];
-        final float[] fy = new float[4];
-        final float[] fz = new float[4];
+        final float fx[] = new float[4];
+        final float fy[] = new float[4];
+        final float fz[] = new float[4];
 
         for (int index = 0; index < 4; ++index)
         {
@@ -530,8 +525,9 @@ public class RenderUtils
     {
         final int size = quads.size();
 
-        for (BakedQuad quad : quads) {
-            renderModelQuadOverlayBatched(pos, buffer, color, quad.getVertexData());
+        for (int i = 0; i < size; i++)
+        {
+            renderModelQuadOverlayBatched(pos, buffer, color, quads.get(i).getVertexData());
         }
     }
 
@@ -655,16 +651,19 @@ public class RenderUtils
              Inventory inv, InventoryRenderType type, InventoryProperties props, MinecraftClient mc, DrawContext drawContext)
     {
         int xInv = 0;
-        int yInv = switch (align) {
-            case CENTER -> {
+        int yInv = 0;
+
+        switch (align)
+        {
+            case CENTER:
                 xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yield GuiUtils.getScaledWindowHeight() / 2 - props.height - offY;
-            }
-            case TOP_CENTER -> {
+                yInv = GuiUtils.getScaledWindowHeight() / 2 - props.height - offY;
+                break;
+            case TOP_CENTER:
                 xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yield offY;
-            }
-        };
+                yInv = offY;
+                break;
+        }
 
         if      (side == LeftRight.LEFT)  { xInv -= (props.width / 2 + 4); }
         else if (side == LeftRight.RIGHT) { xInv += (props.width / 2 + 4); }

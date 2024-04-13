@@ -1,12 +1,12 @@
 package fi.dy.masa.litematica.schematic.conversion;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.annotation.Nullable;
-import com.mojang.datafixers.DataFixUtils;
-import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import com.mojang.datafixers.DataFixUtils;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -186,10 +186,11 @@ public class SchematicConversionMaps
                 NbtCompound oldStateTag = getStateTagFromString(oldStateStrings[0]);
                 String oldName = oldStateTag.getString("Name");
 
-                // Don't run the vanilla block rename for overidden names
+                // Don't run the vanilla block rename for overridden names
                 if (overriddenName == null)
                 {
-                    newName = updateBlockName(newName);
+                    // DataVersion 1139 is from 1.12
+                    newName = updateBlockName(newName, 1139);
                     newStateTag.putString("Name", newName);
                 }
 
@@ -274,12 +275,12 @@ public class SchematicConversionMaps
         }
     }
 
-    public static String updateBlockName(String oldName)
+    public static String updateBlockName(String oldName, int oldVersion)
     {
         NbtString tagStr = NbtString.of(oldName);
 
         return MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr),
-                        1139, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
+                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
     }
 
     /**

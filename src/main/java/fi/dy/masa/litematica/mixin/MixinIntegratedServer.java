@@ -34,7 +34,7 @@ public abstract class MixinIntegratedServer extends MinecraftServer
 
     @Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER,
             target = "Lnet/minecraft/server/MinecraftServer;tick(Ljava/util/function/BooleanSupplier;)V"))
-    private void litematica$onPostTick(BooleanSupplier supplier, CallbackInfo ci)
+    private void onPostTick(BooleanSupplier supplier, CallbackInfo ci)
     {
         TaskScheduler.getInstanceServer().runTasks();
     }

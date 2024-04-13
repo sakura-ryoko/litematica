@@ -84,12 +84,12 @@ public class WorldUtils
 
     public static boolean shouldPreventBlockUpdates(World world)
     {
-        return ((IWorldUpdateSuppressor) world).litematica$getShouldPreventBlockUpdates();
+        return ((IWorldUpdateSuppressor) world).litematica_getShouldPreventBlockUpdates();
     }
 
     public static void setShouldPreventBlockUpdates(World world, boolean preventUpdates)
     {
-        ((IWorldUpdateSuppressor) world).litematica$setShouldPreventBlockUpdates(preventUpdates);
+        ((IWorldUpdateSuppressor) world).litematica_setShouldPreventBlockUpdates(preventUpdates);
     }
 
     public static boolean convertSchematicaSchematicToLitematicaSchematic(
@@ -381,7 +381,7 @@ public class WorldUtils
             if (beSchem instanceof SignBlockEntity)
             {
                 IMixinSignBlockEntity beMixinSchem = (IMixinSignBlockEntity) beSchem;
-                SignText textSchematic = front ? beMixinSchem.litematica$getFrontText() : beMixinSchem.litematica$getBackText();
+                SignText textSchematic = front ? beMixinSchem.litematica_getFrontText() : beMixinSchem.litematica_getBackText();
 
                 if (textSchematic != null)
                 {

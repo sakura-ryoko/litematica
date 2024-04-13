@@ -1,44 +1,36 @@
 package fi.dy.masa.litematica.schematic;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
-import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-
 import net.minecraft.SharedConstants;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.CarpetBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtLongArray;
-import net.minecraft.registry.*;
+import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.TickPriority;
-
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.mixin.IMixinWorldTickScheduler;
@@ -53,20 +45,12 @@ import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.BlockUtils;
 import fi.dy.masa.litematica.util.EntityUtils;
-import fi.dy.masa.litematica.util.FileType;
-import fi.dy.masa.litematica.util.NbtUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
-import fi.dy.masa.litematica.util.ReplaceBehavior;
-import fi.dy.masa.litematica.util.SchematicPlacingUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
+import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
-import fi.dy.masa.malilib.util.Constants;
-import fi.dy.masa.malilib.util.FileUtils;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.NBTUtils;
-import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.*;
 
 public class LitematicaSchematic
 {
@@ -76,7 +60,6 @@ public class LitematicaSchematic
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
     public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3827; // MC 24w14a
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
-
     public static final int SCHEMATIC_VERSION = 7;
     // This is basically a "sub-version" for the schematic version,
     // intended to help with possible data fix needs that are discovered.
@@ -227,6 +210,9 @@ public class LitematicaSchematic
     /**
      * Creates an empty schematic with all the maps and lists and containers already created.
      * This is intended to be used for the chunk-wise schematic creation.
+     * @param area
+     * @param author
+     * @return
      */
     public static LitematicaSchematic createEmptySchematic(AreaSelection area, String author)
     {
@@ -320,10 +306,10 @@ public class LitematicaSchematic
     }
 
     private boolean placeBlocksToWorld(World world, BlockPos origin, BlockPos regionPos, BlockPos regionSize,
-                                    SchematicPlacement schematicPlacement, SubRegionPlacement placement,
-                                    LitematicaBlockStateContainer container, Map<BlockPos, NbtCompound> tileMap,
-                                    @Nullable Map<BlockPos, OrderedTick<Block>> scheduledBlockTicks,
-                                    @Nullable Map<BlockPos, OrderedTick<Fluid>> scheduledFluidTicks, boolean notifyNeighbors)
+            SchematicPlacement schematicPlacement, SubRegionPlacement placement,
+            LitematicaBlockStateContainer container, Map<BlockPos, NbtCompound> tileMap,
+            @Nullable Map<BlockPos, OrderedTick<Block>> scheduledBlockTicks,
+            @Nullable Map<BlockPos, OrderedTick<Fluid>> scheduledFluidTicks, boolean notifyNeighbors)
     {
         // These are the untransformed relative positions
         BlockPos posEndRelSub = PositionUtils.getRelativeEndPositionFromAreaSize(regionSize);
@@ -705,10 +691,10 @@ public class LitematicaSchematic
                         startX + sizeX, startY + sizeY, startZ + sizeZ);
                 long currentTick = world.getTime();
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Block>) serverWorld.getBlockTickScheduler()).litematica$getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Block>) serverWorld.getBlockTickScheduler()).litematica_getChunkTickSchedulers(),
                                            blockTickMap, tickBox, minCorner, currentTick);
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Fluid>) serverWorld.getFluidTickScheduler()).litematica$getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Fluid>) serverWorld.getFluidTickScheduler()).litematica_getChunkTickSchedulers(),
                                            fluidTickMap, tickBox, minCorner, currentTick);
             }
 
@@ -931,7 +917,6 @@ public class LitematicaSchematic
 
                             if (te != null)
                             {
-                                // This function is called when creating a Litematic from the "real" world, so this NBT data is correct.
                                 // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
                                 NbtCompound tag = te.createNbtWithId(world.getRegistryManager());
@@ -951,10 +936,10 @@ public class LitematicaSchematic
 
                 long currentTick = world.getTime();
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Block>) serverWorld.getBlockTickScheduler()).litematica$getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Block>) serverWorld.getBlockTickScheduler()).litematica_getChunkTickSchedulers(),
                                            blockTickMap, tickBox, minCorner, currentTick);
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Fluid>) serverWorld.getFluidTickScheduler()).litematica$getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Fluid>) serverWorld.getFluidTickScheduler()).litematica_getChunkTickSchedulers(),
                                            fluidTickMap, tickBox, minCorner, currentTick);
             }
         }
@@ -1454,11 +1439,10 @@ public class LitematicaSchematic
         }
         else
         {
-            // Oldest Data Version that Vanilla Data Fixer's support
             dataVersion = 99;
         }
 
-        // Can't really use the Data Fixer for the Block State Palette in this format easily,
+        // Can't really use the Data Fixer for the Block State Palette in this format,
         // so we're just going to ignore it, as long as we fix the Tile/Entities.
         if (this.readSpongeBlocksFromTag(tag, name, size, dataVersion) == false)
         {
@@ -1735,11 +1719,11 @@ public class LitematicaSchematic
             // Lowest possible value for Vanilla DataFixer Schema
             minecraftDataVersion = 99;
         }
-        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5) || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
+        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
         {
             NbtList newPalette = new NbtList();
             final int count = oldPalette.size();
-            Litematica.debugLog("convertBlockStatePalette_to_1_20_5(): executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.warn("LitematicaSchematic: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (int i = 0; i < count; ++i)
             {
@@ -1759,12 +1743,12 @@ public class LitematicaSchematic
             // Lowest possible value for Vanilla DataFixer Schema
             minecraftDataVersion = 99;
         }
-        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5) || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
+        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
 
         {
             Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
-            Litematica.debugLog("convertTileEntities_to_1_20_5(): executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.warn("LitematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (BlockPos key : oldTE.keySet())
             {
@@ -1787,13 +1771,13 @@ public class LitematicaSchematic
             // Lowest possible value for Vanilla DataFixer Schema
             minecraftDataVersion = 99;
         }
-        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5) || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
+        if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
 
         {
             NbtList newEntitiesList = new NbtList();
             final int size = oldEntitiesList.size();
 
-            Litematica.debugLog("convertEntities_to_1_20_5(): executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.warn("LitematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (int i = 0; i < size; i++)
             {
@@ -1823,7 +1807,7 @@ public class LitematicaSchematic
         {
             Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
-            Litematica.debugLog("convertSpongeTileEntities_to_1_20_5(): executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.warn("SpongeSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
             for (BlockPos key : oldTE.keySet())
             {
                 NbtCompound oldNbt = oldTE.get(key);
@@ -1851,7 +1835,7 @@ public class LitematicaSchematic
         {
             List<LitematicaSchematic.EntityInfo> newEntitiesList = new ArrayList<>();
 
-            Litematica.debugLog("convertSpongeEntities_to_1_20_5(): executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.warn("SpongeSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (EntityInfo oldEntityInfo : oldEntitiesList)
             {

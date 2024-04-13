@@ -22,7 +22,7 @@ public class MixinAbstractSignEditScreen
     @Shadow @Final private boolean front;
 
     @Inject(method = "init", at = @At("HEAD"))
-    private void litematica$insertSignText(CallbackInfo ci)
+    private void insertSignText(CallbackInfo ci)
     {
         if (Configs.Generic.SIGN_TEXT_PASTE.getBooleanValue())
         {

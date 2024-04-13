@@ -11,5 +11,5 @@ import net.minecraft.world.BlockView;
 public interface IMixinVineBlock
 {
     @Invoker("shouldHaveSide")
-    boolean litematica$invokeShouldConnectUp(BlockView blockReader, BlockPos pos, Direction side);
+    boolean invokeShouldConnectUp(BlockView blockReader, BlockPos pos, Direction side);
 }

@@ -27,6 +27,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
+import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
@@ -42,7 +43,6 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class SchematicaSchematic
 {
-    // TODO --> May need to add vanilla DataFixer's here also?
     public static final String FILE_EXTENSION = ".schematic";
 
     private final SchematicConverter converter;
@@ -441,6 +441,7 @@ public class SchematicaSchematic
     {
         if (this.readBlocksFromNBT(nbt))
         {
+            // Do we know what DataVersion these were created under?
             this.readEntitiesFromNBT(nbt);
             this.readTileEntitiesFromNBT(nbt);
 
@@ -687,9 +688,14 @@ public class SchematicaSchematic
         this.entities.clear();
         NbtList tagList = nbt.getList("Entities", Constants.NBT.TAG_COMPOUND);
 
+        Litematica.logger.warn("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion 1139 -> {}", LitematicaSchematic.MINECRAFT_DATA_VERSION);
+
         for (int i = 0; i < tagList.size(); ++i)
         {
-            this.entities.add(tagList.getCompound(i));
+            // Throw this data to the Data Fixer gods from Version 1139 (1.12)
+            // since we have no clue how old this schematic file is.
+            NbtCompound newTag = SchematicConversionMaps.updateEntity(tagList.getCompound(i), 1139);
+            this.entities.add(newTag);
         }
     }
 
@@ -697,6 +703,8 @@ public class SchematicaSchematic
     {
         this.tiles.clear();
         NbtList tagList = nbt.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
+
+        Litematica.logger.warn("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion 1139 -> {}", LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
         for (int i = 0; i < tagList.size(); ++i)
         {
@@ -708,8 +716,11 @@ public class SchematicaSchematic
                 pos.getY() >= 0 && pos.getY() < size.getY() &&
                 pos.getZ() >= 0 && pos.getZ() < size.getZ())
             {
-                tag = this.converter.fixTileEntityNBT(tag, this.blocks.get(pos.getX(), pos.getY(), pos.getZ()));
-                this.tiles.put(pos, tag);
+                // tag = this.converter.fixTileEntityNBT(tag, this.blocks.get(pos.getX(), pos.getY(), pos.getZ()));
+                // Throw this data to the Data Fixer gods from Version 1139 (1.12)
+                // since we have no clue how old this schematic file is.
+                NbtCompound newTag = SchematicConversionMaps.updateBlockEntity(tag, 1139);
+                this.tiles.put(pos, newTag);
             }
         }
     }

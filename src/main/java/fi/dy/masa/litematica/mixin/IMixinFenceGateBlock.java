@@ -9,5 +9,5 @@ import net.minecraft.block.FenceGateBlock;
 public interface IMixinFenceGateBlock
 {
     @Invoker("isWall")
-    boolean litematica$invokeIsWall(BlockState state);
+    boolean invokeIsWall(BlockState state);
 }

@@ -1,16 +1,10 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
-import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.*;
 import org.joml.Matrix4f;
-
+import org.joml.Matrix4fStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -18,14 +12,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -40,7 +27,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
-
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -49,7 +35,6 @@ import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
-import org.joml.Matrix4fStack;
 
 public class WorldRendererSchematic
 {
@@ -572,6 +557,7 @@ public class WorldRendererSchematic
         ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
 
+        // I tried using the matrix4f value here, only to have things break --> Call RenderSystem.
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
 
         for (int i = this.renderInfos.size() - 1; i >= 0; --i)
@@ -672,9 +658,10 @@ public class WorldRendererSchematic
             this.world.getProfiler().swap("regular_entities");
             //List<Entity> entitiesMultipass = Lists.<Entity>newArrayList();
 
-            // TODO -- Convert Matrix4f to MatrixStack -- Minecraft will "probably" change this in a later snapshot.
-            //  Causes strange entity behavior if this is missing ( Including the push() and pop() )
-            //  Doing this restores the expected behavior of Entities ... but Why?
+            // TODO --> Convert Matrix4f back to to MatrixStack?
+            //  Causes strange entity behavior (translations not applied)
+            //  if this is missing ( Including the push() and pop() ... ?)
+            //  Doing this restores the expected behavior of Entity Rendering in the Schematic World
 
             MatrixStack matrixStack = new MatrixStack();
             matrixStack.push();
@@ -709,7 +696,8 @@ public class WorldRendererSchematic
 
                             matrixStack.push();
 
-                            // TODO this render() call includes a push() and pop(), and does not accept Matrix4f/Matrix4fStack as a parameter
+                            // TODO --> this render() call does not seem to have a push() and pop(),
+                            //  and does not accept Matrix4f/Matrix4fStack as a parameter
                             this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrixStack, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
                             ++this.countEntitiesRendered;
 
@@ -739,11 +727,11 @@ public class WorldRendererSchematic
                             try
                             {
                                 BlockPos pos = te.getPos();
-
                                 matrixStack.push();
                                 matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                                // TODO this call does not have a push() and pop(), and does not accept Matrix4f/Matrix4fStack as a parameter
+                                // TODO --> this render() call does not seem to have a push() and pop(),
+                                //  and does not accept Matrix4f/Matrix4fStack as a parameter
                                 renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
                                 matrixStack.pop();
@@ -766,7 +754,8 @@ public class WorldRendererSchematic
                         matrixStack.push();
                         matrixStack.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
 
-                        // TODO this call does not have a push() and pop(), and does not accept Matrix4f/Matrix4fStack as a parameter
+                        // TODO --> this render() call does not seem to have a push() and pop(),
+                        //  and does not accept Matrix4f/Matrix4fStack as a parameter
                         renderer.render(te, partialTicks, matrixStack, entityVertexConsumers);
 
                         matrixStack.pop();
