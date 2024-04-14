@@ -5,6 +5,7 @@ import java.util.*;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -27,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
+
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -557,7 +559,7 @@ public class WorldRendererSchematic
         ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
 
-        // I tried using the matrix4f value here, only to have things break --> Call RenderSystem.
+        // I tried using the matrix4f value here, only to have things break
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
 
         for (int i = this.renderInfos.size() - 1; i >= 0; --i)

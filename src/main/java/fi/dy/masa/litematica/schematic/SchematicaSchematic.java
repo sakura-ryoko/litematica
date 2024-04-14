@@ -48,8 +48,8 @@ public class SchematicaSchematic
     private final SchematicConverter converter;
     private final BlockState[] palette = new BlockState[65536];
     private LitematicaBlockStateContainer blocks;
-    private final Map<BlockPos, NbtCompound> tiles = new HashMap<>();
-    private final List<NbtCompound> entities = new ArrayList<>();
+    private Map<BlockPos, NbtCompound> tiles = new HashMap<>();
+    private List<NbtCompound> entities = new ArrayList<>();
     private Vec3i size = Vec3i.ZERO;
     private String fileName;
     private IdentityHashMap<BlockState, IStateFixer> postProcessingFilter;
@@ -441,7 +441,6 @@ public class SchematicaSchematic
     {
         if (this.readBlocksFromNBT(nbt))
         {
-            // Do we know what DataVersion these were created under?
             this.readEntitiesFromNBT(nbt);
             this.readTileEntitiesFromNBT(nbt);
 
@@ -692,10 +691,8 @@ public class SchematicaSchematic
 
         for (int i = 0; i < tagList.size(); ++i)
         {
-            // Throw this data to the Data Fixer gods from Version 1139 (1.12)
-            // since we have no clue how old this schematic file is.
-            NbtCompound newTag = SchematicConversionMaps.updateEntity(tagList.getCompound(i), 1139);
-            this.entities.add(newTag);
+            // Throw this data to the Data Fixer gods from Version MINECRAFT_DEFAULT_DATA_VERSION
+            this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompound(i), LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION));
         }
     }
 
@@ -717,10 +714,8 @@ public class SchematicaSchematic
                 pos.getZ() >= 0 && pos.getZ() < size.getZ())
             {
                 // tag = this.converter.fixTileEntityNBT(tag, this.blocks.get(pos.getX(), pos.getY(), pos.getZ()));
-                // Throw this data to the Data Fixer gods from Version 1139 (1.12)
-                // since we have no clue how old this schematic file is.
-                NbtCompound newTag = SchematicConversionMaps.updateBlockEntity(tag, 1139);
-                this.tiles.put(pos, newTag);
+                // Throw this data to the Data Fixer gods from Version MINECRAFT_DEFAULT_DATA_VERSION
+                this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(tag, LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION));
             }
         }
     }

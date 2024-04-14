@@ -85,10 +85,6 @@ public class InventoryUtils
             {
                 inventory.selectedSlot = hotbarSlot;
 
-                //int count = stack.getCount();
-                //Item item = stack.getItem();
-                //Litematica.debugLog("setPickedItemToHand(): item: {}, count {}", item.toString(), count);
-
                 if (EntityUtils.isCreativeMode(player))
                 {
                     inventory.main.set(hotbarSlot, stack.copy());
@@ -114,8 +110,6 @@ public class InventoryUtils
         {
             PlayerInventory inv = mc.player.getInventory();
             stack = stack.copy();
-
-            //Litematica.debugLog("schematicWorldPickBlock(): item: {} pos: {}", stack.getItem().toString(), pos.toShortString());
 
             if (EntityUtils.isCreativeMode(mc.player))
             {
@@ -240,24 +234,18 @@ public class InventoryUtils
     {
         DefaultedList<ItemStack> items = fi.dy.masa.malilib.util.InventoryUtils.getStoredItems(stack);
 
-        if (items.size() > 0)
-        {
-            for (ItemStack item : items)
-            {
-                if (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreNbt(item, referenceItem))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return doesListContainItem(items, referenceItem);
     }
 
     public static boolean doesBundleContainItem(ItemStack stack, ItemStack referenceItem)
     {
         DefaultedList<ItemStack> items = fi.dy.masa.malilib.util.InventoryUtils.getBundleItems(stack);
 
+        return doesListContainItem(items, referenceItem);
+    }
+
+    private static boolean doesListContainItem(DefaultedList<ItemStack> items, ItemStack referenceItem)
+    {
         if (items.size() > 0)
         {
             for (ItemStack item : items)

@@ -190,7 +190,7 @@ public class SchematicConversionMaps
                 if (overriddenName == null)
                 {
                     // DataVersion 1139 is from 1.12
-                    newName = updateBlockName(newName, 1139);
+                    newName = updateBlockName(newName, LitematicaSchematic.MINECRAFT_DATA_VERSION_1_12);
                     newStateTag.putString("Name", newName);
                 }
 

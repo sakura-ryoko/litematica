@@ -23,38 +23,22 @@ public class ItemUtils
 {
     private static final IdentityHashMap<BlockState, ItemStack> ITEMS_FOR_STATES = new IdentityHashMap<>();
 
-    /*
-
-    *** Irrelevant to use any further; ComponentMap's are set, but are EMPTY so why bother checking them this way?
-
     public static boolean areTagsEqualIgnoreDamage(ItemStack stackReference, ItemStack stackToCheck)
     {
-        ComponentMap tagReference = stackReference.getComponents();
-        ComponentMap tagToCheck = stackToCheck.getComponents();
+        ItemStack ref = stackReference.copy();
+        ItemStack check = stackToCheck.copy();
 
-        if (tagReference != null && tagToCheck != null)
+        if (ref.isDamageable() && ref.isDamaged())
         {
-            if (tagReference.contains(DataComponentTypes.DAMAGE) || tagToCheck.contains(DataComponentTypes.DAMAGE))
-            {
-                return false;
-            }
-                Set<String> keysReference = new HashSet<>(tagReference.getKeys());
-
-                for (String key : keysReference) {
-                    if (key.equals("Damage")) {
-                        continue;
-                    }
-
-                    if (!Objects.equals(tagReference.get(key), tagToCheck.get(key))) {
-                        return false;
-                    }
-                }
-                return Objects.equals(stackReference.get(DataComponentTypes.DAMAGE), stackToCheck.get(DataComponentTypes.DAMAGE));
+            ref.setDamage(0);
+        }
+        if (check.isDamageable() && check.isDamaged())
+        {
+            check.setDamage(0);
         }
 
-        return (tagReference == null) && (tagToCheck == null);
+        return ItemStack.areItemsAndComponentsEqual(ref, check);
     }
-*/
 
     public static ItemStack getItemForState(BlockState state)
     {

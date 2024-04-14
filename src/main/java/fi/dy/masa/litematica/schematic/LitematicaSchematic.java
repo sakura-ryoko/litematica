@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.util.*;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+
 import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -31,6 +32,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.TickPriority;
+
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.mixin.IMixinWorldTickScheduler;
@@ -57,6 +59,7 @@ public class LitematicaSchematic
     public static final String FILE_EXTENSION = ".litematic";
     public static final int SCHEMATIC_VERSION_1_13_2 = 5;
     public static final int SCHEMATIC_VERSION_1_20_5 = 7;
+    public static final int MINECRAFT_DATA_VERSION_1_12   = 1139; // MC 1.12
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
     public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3827; // MC 24w14a
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
@@ -64,6 +67,8 @@ public class LitematicaSchematic
     // This is basically a "sub-version" for the schematic version,
     // intended to help with possible data fix needs that are discovered.
     public static final int SCHEMATIC_VERSION_SUB = 1; // Bump to one after the sleeping entity position fix
+    public static final int MINECRAFT_DEFAULT_DATA_VERSION = MINECRAFT_DATA_VERSION_1_12;
+    // Lowest possible value for passing into the Vanilla DataFixer's
 
     private final Map<String, LitematicaBlockStateContainer> blockContainers = new HashMap<>();
     private final Map<String, Map<BlockPos, NbtCompound>> tileEntities = new HashMap<>();
@@ -1439,7 +1444,7 @@ public class LitematicaSchematic
         }
         else
         {
-            dataVersion = 99;
+            dataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
         }
 
         // Can't really use the Data Fixer for the Block State Palette in this format,
@@ -1714,10 +1719,9 @@ public class LitematicaSchematic
 
     private NbtList convertBlockStatePalette_to_1_20_5(NbtList oldPalette, int version, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < 99)
+        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
         {
-            // Lowest possible value for Vanilla DataFixer Schema
-            minecraftDataVersion = 99;
+            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
         }
         if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
         {
@@ -1738,10 +1742,9 @@ public class LitematicaSchematic
 
     private Map<BlockPos, NbtCompound> convertTileEntities_to_1_20_5(Map<BlockPos, NbtCompound> oldTE, int version, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < 99)
+        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
         {
-            // Lowest possible value for Vanilla DataFixer Schema
-            minecraftDataVersion = 99;
+            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
         }
         if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
 
@@ -1752,10 +1755,7 @@ public class LitematicaSchematic
 
             for (BlockPos key : oldTE.keySet())
             {
-                NbtCompound oldNbt = oldTE.get(key);
-                NbtCompound newNbt = SchematicConversionMaps.updateBlockEntity(oldNbt, minecraftDataVersion);
-
-                newTE.put(key, newNbt);
+                newTE.put(key, SchematicConversionMaps.updateBlockEntity(oldTE.get(key), minecraftDataVersion));
             }
 
             return newTE;
@@ -1766,10 +1766,9 @@ public class LitematicaSchematic
 
     private NbtList convertEntities_to_1_20_5(NbtList oldEntitiesList, int version, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < 99)
+        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
         {
-            // Lowest possible value for Vanilla DataFixer Schema
-            minecraftDataVersion = 99;
+            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
         }
         if (version < SCHEMATIC_VERSION_1_20_5 || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
 
@@ -1781,11 +1780,7 @@ public class LitematicaSchematic
 
             for (int i = 0; i < size; i++)
             {
-                NbtCompound oldNbt = oldEntitiesList.getCompound(i);
-
-                NbtCompound newNbt = SchematicConversionMaps.updateEntity(oldNbt, minecraftDataVersion);
-
-                newEntitiesList.add(newNbt);
+                newEntitiesList.add(SchematicConversionMaps.updateEntity(oldEntitiesList.getCompound(i), minecraftDataVersion));
             }
 
             return newEntitiesList;
@@ -1796,10 +1791,9 @@ public class LitematicaSchematic
 
     private Map<BlockPos, NbtCompound> convertSpongeTileEntities_to_1_20_5(Map<BlockPos, NbtCompound> oldTE, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < 99)
+        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
         {
-            // Lowest possible value for Vanilla DataFixer Schema
-            minecraftDataVersion = 99;
+            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
         }
 
         if ((minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5) || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
@@ -1810,10 +1804,7 @@ public class LitematicaSchematic
             Litematica.logger.warn("SpongeSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
             for (BlockPos key : oldTE.keySet())
             {
-                NbtCompound oldNbt = oldTE.get(key);
-                NbtCompound newNbt = SchematicConversionMaps.updateBlockEntity(oldNbt, minecraftDataVersion);
-
-                newTE.put(key, newNbt);
+                newTE.put(key, SchematicConversionMaps.updateBlockEntity(oldTE.get(key), minecraftDataVersion));
             }
 
             return newTE;
@@ -1824,10 +1815,9 @@ public class LitematicaSchematic
 
     private List<LitematicaSchematic.EntityInfo> convertSpongeEntities_to_1_20_5(List<LitematicaSchematic.EntityInfo> oldEntitiesList, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < 99)
+        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
         {
-            // Lowest possible value for Vanilla DataFixer Schema
-            minecraftDataVersion = 99;
+            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
         }
 
         if ((minecraftDataVersion < MINECRAFT_DATA_VERSION_1_20_5) || (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION))
@@ -1839,10 +1829,7 @@ public class LitematicaSchematic
 
             for (EntityInfo oldEntityInfo : oldEntitiesList)
             {
-                NbtCompound newNbt = SchematicConversionMaps.updateEntity(oldEntityInfo.nbt, minecraftDataVersion);
-
-                EntityInfo newEntityInfo = new EntityInfo(oldEntityInfo.posVec, newNbt);
-                newEntitiesList.add(newEntityInfo);
+                newEntitiesList.add(new EntityInfo(oldEntityInfo.posVec, SchematicConversionMaps.updateEntity(oldEntityInfo.nbt, minecraftDataVersion)));
             }
 
             return newEntitiesList;

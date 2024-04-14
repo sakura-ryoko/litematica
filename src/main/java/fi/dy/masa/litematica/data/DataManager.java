@@ -383,7 +383,7 @@ public class DataManager implements IDirectoryCache
             {
                 this.operationMode = ToolMode.valueOf(obj.get("operation_mode").getAsString());
             }
-            catch (Exception ignored) {}
+            catch (Exception e) {}
 
             if (this.operationMode == null)
             {

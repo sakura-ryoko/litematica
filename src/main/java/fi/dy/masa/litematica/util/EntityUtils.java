@@ -53,7 +53,6 @@ public class EntityUtils
 
         ItemStack stackHand = entity.getStackInHand(hand);
 
-        // It's better to just ignore the NBT/DataComponents for your toolItem
         return InventoryUtils.areStacksEqualIgnoreNbt(toolItem, stackHand);
     }
 
