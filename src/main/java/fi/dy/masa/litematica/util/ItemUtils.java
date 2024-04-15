@@ -1,20 +1,13 @@
 package fi.dy.masa.litematica.util;
 
-import javax.annotation.Nonnull;
 import java.util.IdentityHashMap;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.SlabType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -112,15 +105,6 @@ public class ItemUtils
         {
             stack.setCount(2);
         }
-    }
-
-    /**
-     * This is used by Holding CTRL and picking a block from the Schematic World
-     */
-    public static void storeTEInStack(@Nonnull ItemStack stack, @Nonnull BlockEntity te, @Nonnull DynamicRegistryManager registryManager)
-    {
-        te.setStackNbt(stack, registryManager);
-        stack.set(DataComponentTypes.LORE, new LoreComponent(ImmutableList.of(Text.of("(+NBT)"))));
     }
 
     public static String getStackString(ItemStack stack)
