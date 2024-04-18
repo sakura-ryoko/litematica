@@ -86,7 +86,7 @@ public class MaterialListUtils
 
             for (ItemType type : itemTypesTotal.keySet())
             {
-                list.add(new MaterialListEntry(type.getStack().copy(),
+                list.add(new MaterialListEntry(type.getStack(),
                         itemTypesTotal.getInt(type),
                         itemTypesMissing.getInt(type),
                         itemTypesMismatch.getInt(type),
@@ -133,6 +133,7 @@ public class MaterialListUtils
         for (MaterialListEntry entry : list)
         {
             ItemType type = new ItemType(entry.getStack(), true, false);
+
             int countAvailable = playerInvItems.getInt(type);
             entry.setCountAvailable(countAvailable);
         }
@@ -149,28 +150,35 @@ public class MaterialListUtils
 
             if (stack.isEmpty() == false)
             {
-                map.addTo(new ItemType(stack, true, false), stack.getCount());
-
                 Item item = stack.getItem();
+
                 if (item instanceof BlockItem &&
                     ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock &&
                     InventoryUtils.shulkerBoxHasItems(stack))
                 {
                     Object2IntOpenHashMap<ItemType> boxCounts = getStoredItemCounts(stack);
 
-                    for (ItemType type : boxCounts.keySet())
+                    for (ItemType boxType : boxCounts.keySet())
                     {
-                        map.addTo(type, boxCounts.getInt(type));
+                        map.addTo(boxType, boxCounts.getInt(boxType));
                     }
+
+                    boxCounts.clear();
                 }
                 else if (item instanceof BundleItem && InventoryUtils.bundleHasItems(stack))
                 {
                     Object2IntOpenHashMap<ItemType> bundleCounts = getBundleItemCounts(stack);
 
-                    for (ItemType type : bundleCounts.keySet())
+                    for (ItemType bundleType : bundleCounts.keySet())
                     {
-                        map.addTo(type, bundleCounts.getInt(type));
+                        map.addTo(bundleType, bundleCounts.getInt(bundleType));
                     }
+
+                    bundleCounts.clear();
+                }
+                else
+                {
+                    map.addTo(new ItemType(stack, true, false), stack.getCount());
                 }
             }
         }
@@ -180,33 +188,33 @@ public class MaterialListUtils
 
     public static Object2IntOpenHashMap<ItemType> getStoredItemCounts(ItemStack stackShulkerBox)
     {
-        Object2IntOpenHashMap<ItemType> map = new Object2IntOpenHashMap<>();
-        DefaultedList<ItemStack> items = InventoryUtils.getStoredItems(stackShulkerBox);
+        Object2IntOpenHashMap<ItemType> boxMap = new Object2IntOpenHashMap<>();
+        DefaultedList<ItemStack> boxItems = InventoryUtils.getStoredItems(stackShulkerBox);
 
-        for (ItemStack stack : items)
+        for (ItemStack boxStack : boxItems)
         {
-            if (stack.isEmpty() == false)
+            if (boxStack.isEmpty() == false)
             {
-                map.addTo(new ItemType(stack, true, false), stack.getCount());
+                boxMap.addTo(new ItemType(boxStack, false, false), boxStack.getCount());
             }
         }
 
-        return map;
+        return boxMap;
     }
 
     public static Object2IntOpenHashMap<ItemType> getBundleItemCounts(ItemStack stackBundle)
     {
-        Object2IntOpenHashMap<ItemType> map = new Object2IntOpenHashMap<>();
-        DefaultedList<ItemStack> items = InventoryUtils.getBundleItems(stackBundle);
+        Object2IntOpenHashMap<ItemType> bundleMap = new Object2IntOpenHashMap<>();
+        DefaultedList<ItemStack> bundleItems = InventoryUtils.getBundleItems(stackBundle);
 
-        for (ItemStack stack : items)
+        for (ItemStack bundleStack : bundleItems)
         {
-            if (stack.isEmpty() == false)
+            if (bundleStack.isEmpty() == false)
             {
-                map.addTo(new ItemType(stack, true, false), stack.getCount());
+                bundleMap.addTo(new ItemType(bundleStack, false, false), bundleStack.getCount());
             }
         }
 
-        return map;
+        return bundleMap;
     }
 }
