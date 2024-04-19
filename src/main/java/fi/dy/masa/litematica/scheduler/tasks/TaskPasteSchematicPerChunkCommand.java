@@ -13,7 +13,6 @@ import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.argument.BlockArgumentParser;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
@@ -30,6 +29,11 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
@@ -38,11 +42,6 @@ import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PasteNbtBehavior;
 import fi.dy.masa.litematica.util.ReplaceBehavior;
 import fi.dy.masa.litematica.world.ChunkSchematic;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.PositionUtils;
 
 public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChunkBase
 {
@@ -325,21 +324,17 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
             int facingId = itemFrame.getHorizontalFacing().getId();
             String nbtStr = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b}}", facingId, itemId);
-            ComponentMap data = stack.getComponents();
+            NbtComponent entityComp = stack.get(DataComponentTypes.ENTITY_DATA);
 
-            if (data != null && data.contains(DataComponentTypes.ENTITY_DATA))
+            if (entityComp != null && entityComp.isEmpty() == false)
             {
-                NbtComponent entityComp = stack.get(DataComponentTypes.ENTITY_DATA);
-                if (entityComp != null && !entityComp.isEmpty())
-                {
-                    String itemNbt = entityComp.toString();
-                    String tmp = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b,tag:%s}}",
-                            facingId, itemId, itemNbt);
+                String itemNbt = entityComp.toString();
+                String tmp = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b,tag:%s}}",
+                        facingId, itemId, itemNbt);
 
-                    if (originalCommand.length() + tmp.length() < 255)
-                    {
-                        nbtStr = tmp;
-                    }
+                if (originalCommand.length() + tmp.length() < 255)
+                {
+                    nbtStr = tmp;
                 }
             }
 
@@ -992,7 +987,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (stack.isEmpty() == false)
         {
-            be.setStackNbt(stack, registryManager);         // Let Vanilla handle the ComponentMap for us
+            be.setStackNbt(stack, registryManager);
             mc.player.getInventory().offHand.set(0, stack);
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;

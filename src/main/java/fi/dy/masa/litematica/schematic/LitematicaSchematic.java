@@ -33,6 +33,9 @@ import net.minecraft.world.tick.ChunkTickScheduler;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.TickPriority;
 
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.interfaces.IStringConsumer;
+import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.mixin.IMixinWorldTickScheduler;
@@ -50,9 +53,6 @@ import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.util.*;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.interfaces.IStringConsumer;
-import fi.dy.masa.malilib.util.*;
 
 public class LitematicaSchematic
 {
@@ -61,7 +61,7 @@ public class LitematicaSchematic
     public static final int SCHEMATIC_VERSION_1_20_5 = 7;
     public static final int MINECRAFT_DATA_VERSION_1_12   = 1139; // MC 1.12
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
-    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3827; // MC 24w14a
+    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3834; // MC 1.20.5-rc.1
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
     public static final int SCHEMATIC_VERSION = 7;
     // This is basically a "sub-version" for the schematic version,

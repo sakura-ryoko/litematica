@@ -20,12 +20,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
+import fi.dy.masa.malilib.util.Constants;
+import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
-import fi.dy.masa.malilib.util.Constants;
-import fi.dy.masa.malilib.util.InventoryUtils;
 
 public class EntityUtils
 {

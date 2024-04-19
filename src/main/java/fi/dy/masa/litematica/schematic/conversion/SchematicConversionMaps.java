@@ -284,36 +284,24 @@ public class SchematicConversionMaps
     }
 
     /**
-     * These are the Vanilla Data Fixer's for the 1.20.4 -> 1.20.5 changes, and will handle all the heavy lifting for us.
+     * These are the Vanilla Data Fixer's for the 1.20.x -> 1.20.5 changes
      */
     public static NbtCompound updateBlockStates(NbtCompound oldBlockState, int oldVersion)
     {
-        NbtElement newBlockState;
-
-        newBlockState = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState),
+        return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState),
                 oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-
-        return (NbtCompound) newBlockState;
     }
 
     public static NbtCompound updateBlockEntity(NbtCompound oldBlockEntity, int oldVersion)
     {
-        NbtElement newBlockEntity;
-
-        newBlockEntity = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity),
+        return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity),
                 oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-
-        return (NbtCompound) newBlockEntity;
     }
 
     public static NbtCompound updateEntity(NbtCompound oldEntity, int oldVersion)
     {
-        NbtElement newEntity;
-
-        newEntity = MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity),
+        return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity),
                 oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-
-        return (NbtCompound) newEntity;
     }
 
     private static class ConversionData

@@ -13,6 +13,8 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
+import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -30,8 +32,6 @@ import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.tool.ToolModeData;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import fi.dy.masa.litematica.util.ToBooleanFunction;
-import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
-import fi.dy.masa.malilib.util.*;
 
 public class DataManager implements IDirectoryCache
 {
@@ -505,7 +505,7 @@ public class DataManager implements IDirectoryCache
      */
     public static void setToolItem(String itemNameIn)
     {
-        toolItem = InventoryUtils.getItemStackFromString(itemNameIn);   // Moved to MaLiLib
+        toolItem = InventoryUtils.getItemStackFromString(itemNameIn);
 
         if (toolItem.isEmpty())
         {

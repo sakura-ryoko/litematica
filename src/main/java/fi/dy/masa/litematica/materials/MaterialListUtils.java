@@ -86,7 +86,7 @@ public class MaterialListUtils
 
             for (ItemType type : itemTypesTotal.keySet())
             {
-                list.add(new MaterialListEntry(type.getStack(),
+                list.add(new MaterialListEntry(type.getStack().copy(),
                         itemTypesTotal.getInt(type),
                         itemTypesMissing.getInt(type),
                         itemTypesMismatch.getInt(type),
@@ -133,7 +133,6 @@ public class MaterialListUtils
         for (MaterialListEntry entry : list)
         {
             ItemType type = new ItemType(entry.getStack(), true, false);
-
             int countAvailable = playerInvItems.getInt(type);
             entry.setCountAvailable(countAvailable);
         }
@@ -188,33 +187,33 @@ public class MaterialListUtils
 
     public static Object2IntOpenHashMap<ItemType> getStoredItemCounts(ItemStack stackShulkerBox)
     {
-        Object2IntOpenHashMap<ItemType> boxMap = new Object2IntOpenHashMap<>();
-        DefaultedList<ItemStack> boxItems = InventoryUtils.getStoredItems(stackShulkerBox);
+        Object2IntOpenHashMap<ItemType> map = new Object2IntOpenHashMap<>();
+        DefaultedList<ItemStack> items = InventoryUtils.getStoredItems(stackShulkerBox);
 
-        for (ItemStack boxStack : boxItems)
+        for (ItemStack boxStack : items)
         {
             if (boxStack.isEmpty() == false)
             {
-                boxMap.addTo(new ItemType(boxStack, false, false), boxStack.getCount());
+                map.addTo(new ItemType(boxStack, false, false), boxStack.getCount());
             }
         }
 
-        return boxMap;
+        return map;
     }
 
     public static Object2IntOpenHashMap<ItemType> getBundleItemCounts(ItemStack stackBundle)
     {
-        Object2IntOpenHashMap<ItemType> bundleMap = new Object2IntOpenHashMap<>();
-        DefaultedList<ItemStack> bundleItems = InventoryUtils.getBundleItems(stackBundle);
+        Object2IntOpenHashMap<ItemType> map = new Object2IntOpenHashMap<>();
+        DefaultedList<ItemStack> items = InventoryUtils.getBundleItems(stackBundle);
 
-        for (ItemStack bundleStack : bundleItems)
+        for (ItemStack bundleStack : items)
         {
             if (bundleStack.isEmpty() == false)
             {
-                bundleMap.addTo(new ItemType(bundleStack, false, false), bundleStack.getCount());
+                map.addTo(new ItemType(bundleStack, false, false), bundleStack.getCount());
             }
         }
 
-        return bundleMap;
+        return map;
     }
 }
