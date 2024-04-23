@@ -330,7 +330,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             {
                 String itemNbt = entityComp.toString();
                 String tmp = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b,tag:%s}}",
-                        facingId, itemId, itemNbt);
+                                           facingId, itemId, itemNbt);
 
                 if (originalCommand.length() + tmp.length() < 255)
                 {
