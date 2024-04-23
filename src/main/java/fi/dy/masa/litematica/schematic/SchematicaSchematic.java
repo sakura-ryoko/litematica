@@ -681,7 +681,7 @@ public class SchematicaSchematic
         this.entities.clear();
         NbtList tagList = nbt.getList("Entities", Constants.NBT.TAG_COMPOUND);
 
-        Litematica.logger.warn("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion 1139 -> {}", LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
         for (int i = 0; i < tagList.size(); ++i)
         {
@@ -695,7 +695,7 @@ public class SchematicaSchematic
         this.tiles.clear();
         NbtList tagList = nbt.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
 
-        Litematica.logger.warn("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion 1139 -> {}", LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
         for (int i = 0; i < tagList.size(); ++i)
         {

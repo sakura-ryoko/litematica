@@ -61,7 +61,7 @@ public class LitematicaSchematic
     public static final int SCHEMATIC_VERSION_1_20_5 = 7;
     public static final int MINECRAFT_DATA_VERSION_1_12   = 1139; // MC 1.12
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
-    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3834; // MC 1.20.5-rc.1
+    public static final int MINECRAFT_DATA_VERSION_1_20_5 = 3837; // MC 1.20.5
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
     public static final int SCHEMATIC_VERSION = 7;
     // This is basically a "sub-version" for the schematic version,
@@ -1727,7 +1727,7 @@ public class LitematicaSchematic
         {
             NbtList newPalette = new NbtList();
             final int count = oldPalette.size();
-            Litematica.logger.warn("LitematicaSchematic: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (int i = 0; i < count; ++i)
             {
@@ -1751,7 +1751,7 @@ public class LitematicaSchematic
         {
             Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
-            Litematica.logger.warn("LitematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (BlockPos key : oldTE.keySet())
             {
@@ -1776,7 +1776,7 @@ public class LitematicaSchematic
             NbtList newEntitiesList = new NbtList();
             final int size = oldEntitiesList.size();
 
-            Litematica.logger.warn("LitematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (int i = 0; i < size; i++)
             {
@@ -1801,7 +1801,7 @@ public class LitematicaSchematic
         {
             Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
-            Litematica.logger.warn("SpongeSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.info("SpongeSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
             for (BlockPos key : oldTE.keySet())
             {
                 newTE.put(key, SchematicConversionMaps.updateBlockEntity(oldTE.get(key), minecraftDataVersion));
@@ -1825,7 +1825,7 @@ public class LitematicaSchematic
         {
             List<LitematicaSchematic.EntityInfo> newEntitiesList = new ArrayList<>();
 
-            Litematica.logger.warn("SpongeSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.logger.info("SpongeSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (EntityInfo oldEntityInfo : oldEntitiesList)
             {
