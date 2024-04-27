@@ -70,6 +70,10 @@ public class WorldSchematic extends World
         super(properties, REGISTRY_KEY, registryManager.equals(DynamicRegistryManager.EMPTY) == false ? registryManager : MinecraftClient.getInstance().world.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
+        if (this.mc == null || this.mc.world == null)
+        {
+            throw new RuntimeException("WorldSchematic invoked when MinecraftClient.getInstance() or mc.world is null");
+       }
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
         if (registryManager.equals(DynamicRegistryManager.EMPTY) == false)
