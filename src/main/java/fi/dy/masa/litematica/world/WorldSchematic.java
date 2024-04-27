@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.world;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -61,16 +62,24 @@ public class WorldSchematic extends World
     private final TickManager tickManager;
 
     public WorldSchematic(MutableWorldProperties properties,
+                          @Nonnull DynamicRegistryManager registryManager,
                           RegistryEntry<DimensionType> dimension,
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer)
     {
-        super(properties, REGISTRY_KEY, MinecraftClient.getInstance().world.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
+        super(properties, REGISTRY_KEY, registryManager.equals(DynamicRegistryManager.EMPTY) == false ? registryManager : MinecraftClient.getInstance().world.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
-        this.biome = this.mc.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
+        if (registryManager.equals(DynamicRegistryManager.EMPTY) == false)
+        {
+            this.biome = registryManager.get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
+        }
+        else
+        {
+            this.biome = this.mc.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
+        }
         this.tickManager = new TickManager();
     }
 
@@ -482,19 +491,40 @@ public class WorldSchematic extends World
     @Override
     public DynamicRegistryManager getRegistryManager()
     {
-        return this.mc.world.getRegistryManager();
+        if (this.mc != null && this.mc.world != null)
+        {
+            return this.mc.world.getRegistryManager();
+        }
+        else
+        {
+            return DynamicRegistryManager.EMPTY;
+        }
     }
 
     @Override
     public BrewingRecipeRegistry getBrewingRecipeRegistry()
     {
-        return this.mc.world.getBrewingRecipeRegistry();
+        if (this.mc != null && this.mc.world != null)
+        {
+            return this.mc.world.getBrewingRecipeRegistry();
+        }
+        else
+        {
+            return BrewingRecipeRegistry.EMPTY;
+        }
     }
 
     @Override
     public FeatureSet getEnabledFeatures()
     {
-        return this.mc.world.getEnabledFeatures();
+        if (this.mc != null && this.mc.world != null)
+        {
+            return this.mc.world.getEnabledFeatures();
+        }
+        else
+        {
+            return FeatureSet.empty();
+        }
     }
 
     @Override

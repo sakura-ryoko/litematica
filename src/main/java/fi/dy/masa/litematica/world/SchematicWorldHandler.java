@@ -79,7 +79,7 @@ public class SchematicWorldHandler
 
         ClientWorld.Properties levelInfo = new ClientWorld.Properties(Difficulty.PEACEFUL, false, true);
 
-        return new WorldSchematic(levelInfo, entry, MinecraftClient.getInstance()::getProfiler, worldRenderer);
+        return new WorldSchematic(levelInfo, world.getRegistryManager(), entry, MinecraftClient.getInstance()::getProfiler, worldRenderer);
     }
 
     public void recreateSchematicWorld(boolean remove)
