@@ -608,8 +608,7 @@ public class LitematicaSchematic
                         // warning about invalid hanging position when loading the entity from NBT
                         if (entity instanceof AbstractDecorationEntity decorationEntity)
                         {
-                            // FIXME method_59940() --> 'getBlockPos()' ?
-                            BlockPos p = decorationEntity.method_59940();
+                            BlockPos p = decorationEntity.getBlockPos();
                             tag.putInt("TileX", p.getX() - regionPosAbs.getX());
                             tag.putInt("TileY", p.getY() - regionPosAbs.getY());
                             tag.putInt("TileZ", p.getZ() - regionPosAbs.getZ());
