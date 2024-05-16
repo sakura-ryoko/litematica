@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.mixin;
 
+import net.minecraft.class_9779;
 import net.minecraft.client.render.*;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -58,11 +59,13 @@ public abstract class MixinWorldRenderer
             at = @At(value = "INVOKE_STRING", args = "ldc=blockentities",
                      target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
     private void onPostRenderEntities(
-            float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera,
-            GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
+            class_9779 arg, boolean bl, Camera camera,
+            GameRenderer gameRenderer,
+            LightmapTextureManager lightmapTextureManager,
             Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
-        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickDelta);
+        // FIXME class_9779 = DeltaTracker, method_60637 = getGameTimeDeltaPartialTick()
+        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, arg.method_60637(false));
     }
 
     /*
