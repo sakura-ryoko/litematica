@@ -1,13 +1,12 @@
 package fi.dy.masa.litematica.mixin;
 
-import net.minecraft.class_9779;
-import net.minecraft.client.render.*;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.render.*;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
 @Mixin(net.minecraft.client.render.WorldRenderer.class)
@@ -58,14 +57,9 @@ public abstract class MixinWorldRenderer
     @Inject(method = "render",
             at = @At(value = "INVOKE_STRING", args = "ldc=blockentities",
                      target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
-    private void onPostRenderEntities(
-            class_9779 arg, boolean bl, Camera camera,
-            GameRenderer gameRenderer,
-            LightmapTextureManager lightmapTextureManager,
-            Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    private void onPostRenderEntities(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
-        // FIXME class_9779 = DeltaTracker, method_60637 = getGameTimeDeltaPartialTick()
-        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, arg.method_60637(false));
+        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
     }
 
     /*
