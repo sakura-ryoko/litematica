@@ -34,9 +34,9 @@
 	],
 
 	"depends": {
-		"minecraft": ">=1.20.6",
+		"minecraft": ">=1.20.5",
 		"fabric-resource-loader-v0": "*",
-		"malilib": ">=0.18.999-sakura.3"
+		"malilib": ">=0.18.999-sakura.4"
 	},
 	"custom": {
 		"modmenu": {
