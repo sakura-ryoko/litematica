@@ -279,8 +279,16 @@ public class SchematicConversionMaps
     {
         NbtString tagStr = NbtString.of(oldName);
 
-        return MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr),
-                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
+        try
+        {
+            return MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.warn("updateBlockName: failed to update Block Name, preserving original state (data may become lost)");
+            return oldName;
+
+        }
     }
 
     /**
@@ -288,20 +296,41 @@ public class SchematicConversionMaps
      */
     public static NbtCompound updateBlockStates(NbtCompound oldBlockState, int oldVersion)
     {
-        return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState),
-                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+        try
+        {
+            return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.warn("updateBlockStates: failed to update Block State, preserving original state (data may become lost)");
+            return oldBlockState;
+        }
     }
 
     public static NbtCompound updateBlockEntity(NbtCompound oldBlockEntity, int oldVersion)
     {
-        return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity),
-                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+        try
+        {
+            return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.warn("updateBlockEntity: failed to update Block Entity NBT, preserving original state (data may become lost)");
+            return oldBlockEntity;
+        }
     }
 
     public static NbtCompound updateEntity(NbtCompound oldEntity, int oldVersion)
     {
-        return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity),
-                oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+        try
+        {
+            return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.warn("updateEntity: failed to update Entity NBT, preserving original state (data may become lost)");
+            return oldEntity;
+        }
     }
 
     private static class ConversionData
