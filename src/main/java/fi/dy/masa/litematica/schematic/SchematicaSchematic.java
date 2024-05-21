@@ -707,7 +707,7 @@ public class SchematicaSchematic
                 pos.getY() >= 0 && pos.getY() < size.getY() &&
                 pos.getZ() >= 0 && pos.getZ() < size.getZ())
             {
-                // tag = this.converter.fixTileEntityNBT(tag, this.blocks.get(pos.getX(), pos.getY(), pos.getZ()));
+                tag = this.converter.fixTileEntityNBT(tag, this.blocks.get(pos.getX(), pos.getY(), pos.getZ()));
                 // Throw this data to the Data Fixer gods from Version MINECRAFT_DEFAULT_DATA_VERSION
                 this.tiles.put(pos, tag);
                 //this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(tag, LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION));
