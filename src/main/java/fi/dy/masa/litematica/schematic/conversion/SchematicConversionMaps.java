@@ -16,8 +16,11 @@ import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import fi.dy.masa.malilib.util.NBTUtils;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 
 public class SchematicConversionMaps
@@ -189,8 +192,7 @@ public class SchematicConversionMaps
                 // Don't run the vanilla block rename for overridden names
                 if (overriddenName == null)
                 {
-                    // DataVersion 1139 is from 1.12
-                    newName = updateBlockName(newName, LitematicaSchematic.MINECRAFT_DATA_VERSION_1_12);
+                    newName = updateBlockName(newName, Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue());
                     newStateTag.putString("Name", newName);
                 }
 
@@ -285,9 +287,8 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateBlockName: failed to update Block Name, preserving original state (data may become lost)");
+            Litematica.logger.warn("updateBlockName: failed to update Block Name [{}], preserving original state (data may become lost)", oldName);
             return oldName;
-
         }
     }
 
@@ -302,7 +303,8 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateBlockStates: failed to update Block State, preserving original state (data may become lost)");
+            Litematica.logger.warn("updateBlockStates: failed to update Block State [{}], preserving original state (data may become lost)",
+                                   oldBlockState.contains("Name") ? oldBlockState.getString("Name") : "?");
             return oldBlockState;
         }
     }
@@ -315,7 +317,9 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateBlockEntity: failed to update Block Entity NBT, preserving original state (data may become lost)");
+            BlockPos pos = NBTUtils.readBlockPos(oldBlockEntity);
+            Litematica.logger.warn("updateBlockEntity: failed to update Block Entity [{}] at [{}], preserving original state (data may become lost)",
+                                   oldBlockEntity.contains("id") ? oldBlockEntity.getString("id") : "?", pos != null ? pos.toShortString() : "?");
             return oldBlockEntity;
         }
     }
@@ -328,7 +332,8 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateEntity: failed to update Entity NBT, preserving original state (data may become lost)");
+            Litematica.logger.warn("updateEntity: failed to update Entity [{}], preserving original state (data may become lost)",
+                                   oldEntity.contains("id") ? oldEntity.getString("id") : "?");
             return oldEntity;
         }
     }

@@ -26,6 +26,7 @@ import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.NBTUtils;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.IStateFixer;
@@ -681,13 +682,11 @@ public class SchematicaSchematic
         this.entities.clear();
         NbtList tagList = nbt.getList("Entities", Constants.NBT.TAG_COMPOUND);
 
-        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue(), LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
         for (int i = 0; i < tagList.size(); ++i)
         {
-            // Throw this data to the Data Fixer gods from Version MINECRAFT_DEFAULT_DATA_VERSION
-            //this.entities.add(tagList.getCompound(i));
-            this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompound(i), LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION));
+            this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompound(i), Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()));
         }
     }
 
@@ -696,7 +695,7 @@ public class SchematicaSchematic
         this.tiles.clear();
         NbtList tagList = nbt.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
 
-        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue(), LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
         for (int i = 0; i < tagList.size(); ++i)
         {
@@ -708,10 +707,7 @@ public class SchematicaSchematic
                 pos.getY() >= 0 && pos.getY() < size.getY() &&
                 pos.getZ() >= 0 && pos.getZ() < size.getZ())
             {
-                tag = this.converter.fixTileEntityNBT(tag, this.blocks.get(pos.getX(), pos.getY(), pos.getZ()));
-                // Throw this data to the Data Fixer gods from Version MINECRAFT_DEFAULT_DATA_VERSION
-                //this.tiles.put(pos, tag);
-                this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(tag, LitematicaSchematic.MINECRAFT_DEFAULT_DATA_VERSION));
+                this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(tag, Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()));
             }
         }
     }
