@@ -65,8 +65,6 @@ public class LitematicaSchematic
     // This is basically a "sub-version" for the schematic version,
     // intended to help with possible data fix needs that are discovered.
     public static final int SCHEMATIC_VERSION_SUB = 1; // Bump to one after the sleeping entity position fix
-    public static final int MINECRAFT_DEFAULT_DATA_VERSION = MINECRAFT_DATA_VERSION_1_12;
-    // Lowest possible value for passing into the Vanilla DataFixer's
 
     private final Map<String, LitematicaBlockStateContainer> blockContainers = new HashMap<>();
     private final Map<String, Map<BlockPos, NbtCompound>> tileEntities = new HashMap<>();
@@ -1127,7 +1125,7 @@ public class LitematicaSchematic
         if (nbt.contains("Version", Constants.NBT.TAG_INT))
         {
             final int version = nbt.getInt("Version");
-            final int minecraftDataVersion = nbt.getInt("MinecraftDataVersion");
+            final int minecraftDataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
 
             if (version >= 1 && version <= SCHEMATIC_VERSION)
             {
@@ -1435,15 +1433,7 @@ public class LitematicaSchematic
 
         Vec3i size = readSizeFromTagSponge(tag);
 
-        int dataVersion;
-        if (tag.contains("DataVersion"))
-        {
-            dataVersion = tag.getInt("DataVersion");
-        }
-        else
-        {
-            dataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
-        }
+        final int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
 
         // Can't really use the Data Fixer for the Block State Palette in this format,
         // so we're just going to ignore it, as long as we fix the Tile/Entities.
@@ -1458,11 +1448,11 @@ public class LitematicaSchematic
             offset = Vec3i.ZERO;
 
         Map<BlockPos, NbtCompound> tileEntities = this.readSpongeBlockEntitiesFromTag(tag);
-        tileEntities = this.convertTileEntities_to_1_20_5(tileEntities, dataVersion);
+        tileEntities = this.convertTileEntities_to_1_20_5(tileEntities, minecraftDataVersion);
         this.tileEntities.put(name, tileEntities);
 
         List<LitematicaSchematic.EntityInfo> enities = this.readSpongeEntitiesFromTag(tag, offset);
-        enities = this.convertSpongeEntities_to_1_20_5(enities, dataVersion);
+        enities = this.convertSpongeEntities_to_1_20_5(enities, minecraftDataVersion);
         this.entities.put(name, enities);
 
         if (tag.contains("author", Constants.NBT.TAG_STRING))
@@ -1492,6 +1482,7 @@ public class LitematicaSchematic
             isSizeValid(size))
         {
             NbtList paletteTag = tag.getList("palette", Constants.NBT.TAG_COMPOUND);
+            int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
 
             Map<BlockPos, NbtCompound> tileMap = new HashMap<>();
             this.tileEntities.put(name, tileMap);
@@ -1501,9 +1492,17 @@ public class LitematicaSchematic
             List<BlockState> list = new ArrayList<>(paletteSize);
             RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
 
+            if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+            {
+                Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            }
             for (int id = 0; id < paletteSize; ++id)
             {
                 NbtCompound t = paletteTag.getCompound(id);
+                if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+                {
+                    t = SchematicConversionMaps.updateBlockStates(t, minecraftDataVersion);
+                }
                 BlockState state = NbtHelper.toBlockState(lookup, t);
                 list.add(state);
             }
@@ -1620,7 +1619,7 @@ public class LitematicaSchematic
             }
 
             this.metadata.setTotalBlocks(totalBlocks);
-            this.entities.put(name, this.readEntitiesFromVanillaStructure(tag));
+            this.entities.put(name, this.readEntitiesFromVanillaStructure(tag, minecraftDataVersion));
 
             return true;
         }
@@ -1628,15 +1627,23 @@ public class LitematicaSchematic
         return false;
     }
 
-    protected List<EntityInfo> readEntitiesFromVanillaStructure(NbtCompound tag)
+    protected List<EntityInfo> readEntitiesFromVanillaStructure(NbtCompound tag, int minecraftDataVersion)
     {
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("entities", Constants.NBT.TAG_COMPOUND);
         final int size = tagList.size();
 
+        if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+        {
+            Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        }
         for (int i = 0; i < size; ++i)
         {
             NbtCompound entityData = tagList.getCompound(i);
+            if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+            {
+                entityData = SchematicConversionMaps.updateEntity(entityData, minecraftDataVersion);
+            }
             Vec3d pos = readVec3dFromNbtList(entityData, "pos");
 
             if (pos != null && entityData.contains("nbt", Constants.NBT.TAG_COMPOUND))
@@ -1717,9 +1724,9 @@ public class LitematicaSchematic
 
     private NbtList convertBlockStatePalette_to_1_20_5(NbtList oldPalette, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
+        if (minecraftDataVersion < Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue())
         {
-            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
+            minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
@@ -1740,9 +1747,9 @@ public class LitematicaSchematic
 
     private Map<BlockPos, NbtCompound> convertTileEntities_to_1_20_5(Map<BlockPos, NbtCompound> oldTE, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
+        if (minecraftDataVersion < Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue())
         {
-            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
+            minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
@@ -1763,9 +1770,9 @@ public class LitematicaSchematic
 
     private NbtList convertEntities_to_1_20_5(NbtList oldEntitiesList, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
+        if (minecraftDataVersion < Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue())
         {
-            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
+            minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
@@ -1787,9 +1794,9 @@ public class LitematicaSchematic
 
     private List<LitematicaSchematic.EntityInfo> convertSpongeEntities_to_1_20_5(List<LitematicaSchematic.EntityInfo> oldEntitiesList, int minecraftDataVersion)
     {
-        if (minecraftDataVersion < MINECRAFT_DEFAULT_DATA_VERSION)
+        if (minecraftDataVersion < Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue())
         {
-            minecraftDataVersion = MINECRAFT_DEFAULT_DATA_VERSION;
+            minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
         }
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
