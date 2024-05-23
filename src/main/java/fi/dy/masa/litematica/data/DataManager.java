@@ -507,7 +507,7 @@ public class DataManager implements IDirectoryCache
     {
         toolItem = InventoryUtils.getItemStackFromString(itemNameIn);
 
-        if (toolItem.isEmpty())
+        if (toolItem == null)
         {
             // Fall back to a stick
             toolItem = new ItemStack(Items.STICK);
