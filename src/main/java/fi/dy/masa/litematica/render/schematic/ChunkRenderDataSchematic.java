@@ -8,6 +8,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.class_9801;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
@@ -48,6 +49,7 @@ public class ChunkRenderDataSchematic
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
     // FIXME MeshData.SortState? (was BufferBuilder.TransparentSortingData)
     private final Map<RenderLayer, class_9801.class_9802> blockBufferStates = new HashMap<>();
+    private final Map<RenderLayer, VertexBuffer> vertexBuffers = new HashMap<>();
     private final class_9801.class_9802[] overlayBufferStates = new class_9801.class_9802[OverlayRenderType.values().length];
     private boolean overlayEmpty = true;
     private boolean empty = true;
@@ -124,6 +126,28 @@ public class ChunkRenderDataSchematic
     {
         this.overlayBufferStates[type.ordinal()] = state;
     }
+
+    /*
+    public VertexBuffer getVertexBuffer(RenderLayer layer)
+    {
+        if (this.vertexBuffers.containsKey(layer) == false)
+        {
+            this.setVertexBuffer(layer, new VertexBuffer(VertexBuffer.Usage.STATIC));
+        }
+
+        return this.vertexBuffers.get(layer);
+    }
+
+    public void setVertexBuffer(RenderLayer layer, VertexBuffer vertexBuffer)
+    {
+        this.vertexBuffers.put(layer, vertexBuffer);
+    }
+
+    public void closeVertexBuffers()
+    {
+        this.vertexBuffers.values().forEach(VertexBuffer::close);
+    }
+     */
 
     public List<BlockEntity> getBlockEntities()
     {

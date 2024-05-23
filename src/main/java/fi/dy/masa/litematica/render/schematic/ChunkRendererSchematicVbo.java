@@ -32,6 +32,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.chunk.WorldChunk;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.RenderUtils;
@@ -185,9 +186,7 @@ public class ChunkRendererSchematicVbo
         // FIXME MeshData.SortState (was BufferBuilder.OmegaTransparentSortingData)
         //BufferBuilder.TransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
         class_9801.class_9802 bufferState = data.getBlockBufferState(layerTranslucent);
-        //class_9801.DrawParameters drawParms = new class_9801.DrawParameters(VertexFormat.method_60833().method_60840(), 0, 0, VertexFormat.DrawMode.QUADS, VertexFormat.IndexType.INT);
         Vec3d cameraPos = task.getCameraPosSupplier().get();
-        //class_9799.class_9800 result = bufferState.method_60824();
 
         float x = (float) cameraPos.x - this.position.getX();
         float y = (float) cameraPos.y - this.position.getY();
@@ -201,11 +200,9 @@ public class ChunkRendererSchematicVbo
 
                 RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
                 BufferBuilder resultBuffer = this.preRenderBlocks(buffer, layerTranslucent);
-                // FIXME MeshData
-                //class_9801 meshData = resultBuffer.method_60800();
                 //buffer.beginSortedIndexBuffer(bufferState);
-                //meshData.close();
-                this.postRenderBlocks(layerTranslucent, x, y, z, resultBuffer, data);
+
+                this.postRenderBlocks(layerTranslucent, x, y, z, buffer, data);
             }
         }
 
@@ -217,10 +214,11 @@ public class ChunkRendererSchematicVbo
 
             if (bufferState != null && data.isOverlayTypeEmpty(type) == false)
             {
-                BufferBuilder buffer = buffers.getOverlayBuffer(type);
+                class_9799 buffer = buffers.getOverlayBuffer(type);
 
                 this.preRenderOverlay(buffer, type.getDrawMode());
-                buffer.beginSortedIndexBuffer(bufferState);
+                //buffer.beginSortedIndexBuffer(bufferState);
+
                 this.postRenderOverlay(type, x, y, z, buffer, data);
             }
         }
@@ -769,19 +767,39 @@ public class ChunkRendererSchematicVbo
         return VertexSorter.byDistance((float)(cam.x - (double)origin.getX()), (float)(cam.y - (double)origin.getY()), (float)(cam.z - (double)origin.getZ()));
     }
 
+    private void uploadSectionIndex(class_9799.class_9800 result, VertexBuffer vertexBuffer)
+    {
+        if (vertexBuffer.isClosed())
+        {
+            result.close();
+        }
+        else
+        {
+            vertexBuffer.bind();
+            vertexBuffer.method_60829(result);
+            VertexBuffer.unbind();
+        }
+    }
+
     private void postRenderBlocks(RenderLayer layer, float x, float y, float z, class_9799 builder, ChunkRenderDataSchematic chunkRenderData)
     {
         if (layer == RenderLayer.getTranslucent() && chunkRenderData.isBlockLayerEmpty(layer) == false)
         {
             class_9801.class_9802 state = chunkRenderData.getBlockBufferState(layer);
-            VertexSorter sorting = createVertexSorter(x, y, z);
-            class_9799.class_9800 result = state.method_60824(builder, sorting);
 
             //buffer.setSorter(VertexSorter.byDistance(x, y, z));
             //chunkRenderData.setBlockBufferState(layer, buffer.getSortingData());
+            try
+            {
+                this.uploadSectionIndex(state.method_60824(builder, createVertexSorter(x, y, z)), this.getBlocksVertexBufferByLayer(layer));
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("When uploading VertexBuffer");
+            }
         }
 
-        buffer.end();
+        //buffer.end();
     }
 
     private void preRenderOverlay(BufferBuilder buffer, OverlayRenderType type)
