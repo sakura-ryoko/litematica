@@ -25,7 +25,7 @@ import fi.dy.masa.litematica.Litematica;
  * Well, there is always a way to fix when Mojang deletes things <.<
  */
 @Environment(value = EnvType.CLIENT)
-public class OmegaBufferBuilder implements VertexConsumer
+public class OmegaBufferBuilder
 {
     // Hack Fix
     @Nullable public OmegaBufferBuilder.OmegaBuilt lastRenderBuildBuffer;
@@ -52,45 +52,6 @@ public class OmegaBufferBuilder implements VertexConsumer
     @Nullable
     private VertexSorter oldSorter;
     private boolean oldHasNoVertexBuffer;
-
-    // New BufferBuilder stuff
-    private static final long field_52068 = -1L;
-    private static final long field_52069 = -1L;
-    private static final boolean field_52070;
-    private final class_9799 field_52071;
-    private long field_52072 = -1L;
-    private int vertexCount;
-    private final VertexFormat format;
-    private final VertexFormat.DrawMode field_52073;
-    private final boolean canSkipElementChecks;
-    private final boolean hasOverlay;
-    private final int field_52074;
-    private final int field_52075;
-    private final int[] field_52076;
-    private int field_52077;
-    private boolean building = true;
-
-    public OmegaBufferBuilder(class_9799 arg, VertexFormat.DrawMode drawMode, VertexFormat vertexFormat,
-                              int capacity)
-    {
-        if (!vertexFormat.method_60836(VertexFormatElement.field_52107))
-        {
-            throw new IllegalArgumentException("Cannot build mesh with no position element");
-        }
-        else
-        {
-            this.field_52071 = arg;
-            this.field_52073 = drawMode;
-            this.format = vertexFormat;
-            this.field_52074 = vertexFormat.getVertexSizeByte();
-            this.field_52075 = vertexFormat.method_60839() & ~VertexFormatElement.field_52107.method_60843();
-            this.field_52076 = vertexFormat.method_60838();
-            boolean bl = vertexFormat == VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL;
-            boolean bl2 = vertexFormat == VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL;
-            this.canSkipElementChecks = bl || bl2;
-            this.hasOverlay = bl;
-        }
-    }
 
     public OmegaBufferBuilder(int capacity)
     {
@@ -122,7 +83,7 @@ public class OmegaBufferBuilder implements VertexConsumer
 
     private void grow()
     {
-        this.grow(this.format.getVertexSizeByte());
+        this.grow(this.oldFormat.getVertexSizeByte());
     }
 
     private void grow(int size)
@@ -235,7 +196,7 @@ public class OmegaBufferBuilder implements VertexConsumer
 
     private void setFormat(VertexFormat format)
     {
-        if (this.format == format)
+        if (this.oldFormat == format)
         {
             return;
         }
@@ -335,281 +296,12 @@ public class OmegaBufferBuilder implements VertexConsumer
         return new OmegaTransparentSortingData(this.oldDrawMode, this.oldVertexCount, this.oldSortingPrimitiveCenters, this.oldSorter);
     }
 
-    // Newer Code
-    @Nullable
-    public class_9801 method_60794()
-    {
-        this.method_60802();
-        this.method_60806();
-        class_9801 lv = this.method_60804();
-        this.building = false;
-        this.field_52072 = -1L;
-        return lv;
-    }
-
-    public class_9801 method_60800()
-    {
-        class_9801 lv = this.method_60794();
-        if (lv == null)
-        {
-            throw new IllegalStateException("BufferBuilder was empty");
-        }
-        else
-        {
-            return lv;
-        }
-    }
-
-    private void method_60802()
-    {
-        if (!this.building)
-        {
-            throw new IllegalStateException("Not building!");
-        }
-    }
-
-    @Nullable
-    private class_9801 method_60804()
-    {
-        if (this.vertexCount == 0)
-        {
-            return null;
-        }
-        else
-        {
-            class_9799.class_9800 lv = this.field_52071.method_60807();
-            if (lv == null)
-            {
-                return null;
-            }
-            else
-            {
-                int i = this.field_52073.getIndexCount(this.vertexCount);
-                VertexFormat.IndexType indexType = VertexFormat.IndexType.smallestFor(this.vertexCount);
-                return new class_9801(lv, new class_9801.DrawParameters(this.format, this.vertexCount, i, this.field_52073, indexType));
-            }
-        }
-    }
-
-    private long method_60805()
-    {
-        this.method_60802();
-        this.method_60806();
-        ++this.vertexCount;
-        long l = this.field_52071.method_60808(this.field_52074);
-        this.field_52072 = l;
-        return l;
-    }
-
-    private long method_60798(VertexFormatElement vertexFormatElement)
-    {
-        int i = this.field_52077;
-        int j = i & ~vertexFormatElement.method_60843();
-        if (j == i)
-        {
-            return -1L;
-        }
-        else
-        {
-            this.field_52077 = j;
-            long l = this.field_52072;
-            if (l == -1L)
-            {
-                throw new IllegalArgumentException("Not currently building vertex");
-            }
-            else
-            {
-                return l + (long)this.field_52076[vertexFormatElement.id()];
-            }
-        }
-    }
-
-    private void method_60806()
-    {
-        if (this.vertexCount != 0)
-        {
-            if (this.field_52077 != 0)
-            {
-                Stream var10000 = VertexFormatElement.method_60848(this.field_52077);
-                VertexFormat var10001 = this.format;
-                Objects.requireNonNull(var10001);
-                String string = (String)var10000.map(var10001::method_60837).collect(Collectors.joining(", "));
-                throw new IllegalStateException("Missing elements in vertex: " + string);
-            }
-            else
-            {
-                if (this.field_52073 == VertexFormat.DrawMode.LINES || this.field_52073 == VertexFormat.DrawMode.LINE_STRIP)
-                {
-                    long l = this.field_52071.method_60808(this.field_52074);
-                    MemoryUtil.memCopy(l - (long)this.field_52074, l, (long)this.field_52074);
-                    ++this.vertexCount;
-                }
-
-            }
-        }
-    }
-
-    private static void method_60797(long l, int i)
-    {
-        int j = ColorHelper.Abgr.method_60675(i);
-        MemoryUtil.memPutInt(l, field_52070 ? j : Integer.reverseBytes(j));
-    }
-
-    private static void method_60801(long l, int i)
-    {
-        if (field_52070)
-        {
-            MemoryUtil.memPutInt(l, i);
-        }
-        else
-        {
-            MemoryUtil.memPutShort(l, (short)(i & '\uffff'));
-            MemoryUtil.memPutShort(l + 2L, (short)(i >> 16 & '\uffff'));
-        }
-
-    }
-
     public VertexConsumer vertex(float f, float g, float h)
     {
         //return super.vertex(x, (float) (y + this.offsetY), z);
-
-        long l = this.method_60805() + (long)this.field_52076[VertexFormatElement.field_52107.id()];
-        this.field_52077 = this.field_52075;
-        MemoryUtil.memPutFloat(l, f);
-        MemoryUtil.memPutFloat(l + 4L, g);
-        MemoryUtil.memPutFloat(l + 8L, h);
-        return this;
+        return this.oldBuffer::vertex;
     }
 
-    public VertexConsumer color(int red, int green, int blue, int alpha)
-    {
-        long l = this.method_60798(VertexFormatElement.field_52108);
-        if (l != -1L) {
-            MemoryUtil.memPutByte(l, (byte)red);
-            MemoryUtil.memPutByte(l + 1L, (byte)green);
-            MemoryUtil.memPutByte(l + 2L, (byte)blue);
-            MemoryUtil.memPutByte(l + 3L, (byte)alpha);
-        }
-
-        return this;
-    }
-
-    public VertexConsumer color(int argb)
-    {
-        long l = this.method_60798(VertexFormatElement.field_52108);
-        if (l != -1L)
-        {
-            method_60797(l, argb);
-        }
-
-        return this;
-    }
-
-    public VertexConsumer texture(float u, float v)
-    {
-        long l = this.method_60798(VertexFormatElement.field_52109);
-        if (l != -1L)
-        {
-            MemoryUtil.memPutFloat(l, u);
-            MemoryUtil.memPutFloat(l + 4L, v);
-        }
-
-        return this;
-    }
-
-    public VertexConsumer method_60796(int i, int j)
-    {
-        return this.method_60799((short)i, (short)j, VertexFormatElement.field_52111);
-    }
-
-    public VertexConsumer overlay(int uv)
-    {
-        long l = this.method_60798(VertexFormatElement.field_52111);
-        if (l != -1L)
-        {
-            method_60801(l, uv);
-        }
-
-        return this;
-    }
-
-    public VertexConsumer light(int u, int v)
-    {
-        return this.method_60799((short)u, (short)v, VertexFormatElement.field_52112);
-    }
-
-    public VertexConsumer method_60803(int i)
-    {
-        long l = this.method_60798(VertexFormatElement.field_52112);
-        if (l != -1L)
-        {
-            method_60801(l, i);
-        }
-
-        return this;
-    }
-
-    private VertexConsumer method_60799(short s, short t, VertexFormatElement vertexFormatElement)
-    {
-        long l = this.method_60798(vertexFormatElement);
-        if (l != -1L)
-        {
-            MemoryUtil.memPutShort(l, s);
-            MemoryUtil.memPutShort(l + 2L, t);
-        }
-
-        return this;
-    }
-
-    public VertexConsumer normal(float x, float y, float z)
-    {
-        long l = this.method_60798(VertexFormatElement.field_52113);
-        if (l != -1L)
-        {
-            MemoryUtil.memPutByte(l, method_60795(x));
-            MemoryUtil.memPutByte(l + 1L, method_60795(y));
-            MemoryUtil.memPutByte(l + 2L, method_60795(z));
-        }
-
-        return this;
-    }
-
-    private static byte method_60795(float f) {
-        return (byte)((int)(MathHelper.clamp(f, -1.0F, 1.0F) * 127.0F) & 255);
-    }
-
-    public void vertex(float x, float y, float z, int i, float green, float blue, int j, int k, float v, float f, float g)
-    {
-        if (this.canSkipElementChecks)
-        {
-            long l = this.method_60805();
-            MemoryUtil.memPutFloat(l + 0L, x);
-            MemoryUtil.memPutFloat(l + 4L, y);
-            MemoryUtil.memPutFloat(l + 8L, z);
-            method_60797(l + 12L, i);
-            MemoryUtil.memPutFloat(l + 16L, green);
-            MemoryUtil.memPutFloat(l + 20L, blue);
-            long m;
-            if (this.hasOverlay)
-            {
-                method_60801(l + 24L, j);
-                m = l + 28L;
-            }
-            else
-            {
-                m = l + 24L;
-            }
-
-            method_60801(m + 0L, k);
-            MemoryUtil.memPutByte(m + 4L, method_60795(v));
-            MemoryUtil.memPutByte(m + 5L, method_60795(f));
-            MemoryUtil.memPutByte(m + 6L, method_60795(g));
-        }
-        else
-        {
-            VertexConsumer.super.vertex(x, y, z, i, green, blue, j, k, v, f, g);
-        }
-    }
 
     @Environment(value = EnvType.CLIENT)
     public static class OmegaTransparentSortingData
