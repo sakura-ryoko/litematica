@@ -7,15 +7,10 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
 
 // Thanks plusls for this hack fix :p
-public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends OmegaBufferBuilder
+public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends class_9799
 {
-    public OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder(int capacity)
-    {
-        super(capacity);
-    }
-    /*
     //@Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
-    @Nullable public OmegaBufferBuilder.OmegaBuilt lastRenderBuildBuffer;
+    @Nullable public class_9799.class_9800 lastRenderBuildBuffer;
     public boolean first = true;
     private double offsetY;
 
@@ -29,6 +24,7 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
         this.offsetY = offsetY;
     }
 
+    /*
     @Override
     public VertexConsumer vertex(double x, double y, double z)
     {
@@ -58,9 +54,9 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
     }
 
     @Override
-    public OmegaBufferBuilder.OmegaBuilt end()
+    public class_9799.class_9800 close()
     {
-        this.lastRenderBuildBuffer = super.end();
+        this.lastRenderBuildBuffer.close();
         return this.lastRenderBuildBuffer;
     }
      */

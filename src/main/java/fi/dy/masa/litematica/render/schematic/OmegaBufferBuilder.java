@@ -296,12 +296,14 @@ public class OmegaBufferBuilder
         return new OmegaTransparentSortingData(this.oldDrawMode, this.oldVertexCount, this.oldSortingPrimitiveCenters, this.oldSorter);
     }
 
+    /*
     public VertexConsumer vertex(float f, float g, float h)
     {
         //return super.vertex(x, (float) (y + this.offsetY), z);
-        return this.oldBuffer::vertex;
+        //return this.oldBuffer.vertex();
     }
 
+     */
 
     @Environment(value = EnvType.CLIENT)
     public static class OmegaTransparentSortingData
@@ -415,8 +417,5 @@ public class OmegaBufferBuilder
         {
             ALLOC.free(MemoryUtil.memAddress0(var));
         }
-    }
-    static {
-        field_52070 = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
     }
 }

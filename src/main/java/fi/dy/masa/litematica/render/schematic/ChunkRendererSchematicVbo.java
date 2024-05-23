@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
@@ -183,13 +184,10 @@ public class ChunkRendererSchematicVbo
         BufferBuilderCache buffers = task.getBufferCache();
         // FIXME MeshData.SortState (was BufferBuilder.OmegaTransparentSortingData)
         //BufferBuilder.TransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
-        OmegaTransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
+        class_9801.class_9802 bufferState = data.getBlockBufferState(layerTranslucent);
         //class_9801.DrawParameters drawParms = new class_9801.DrawParameters(VertexFormat.method_60833().method_60840(), 0, 0, VertexFormat.DrawMode.QUADS, VertexFormat.IndexType.INT);
-        // FIXME --> ByteBufferBuilder, as a buffer?
-        //class_9801 BUFFER = new class_9801(bufferState, drawParms);
         Vec3d cameraPos = task.getCameraPosSupplier().get();
-        //Tessellator tessellator = Tessellator.getInstance();
-        //class_9799.class_9800 result = bufferState.method_60824()
+        //class_9799.class_9800 result = bufferState.method_60824();
 
         float x = (float) cameraPos.x - this.position.getX();
         float y = (float) cameraPos.y - this.position.getY();
@@ -199,13 +197,15 @@ public class ChunkRendererSchematicVbo
         {
             if (data.isBlockLayerEmpty(layerTranslucent) == false)
             {
-                BufferBuilder buffer = buffers.getBlockBufferByLayer(layerTranslucent);
+                class_9799 buffer = buffers.getBlockBufferByLayer(layerTranslucent);
 
                 RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
-                this.preRenderBlocks(buffer, layerTranslucent);
-                buffer.beginSortedIndexBuffer(bufferState);
-                //buffer = tessellator.method_60827(VertexFormat.DrawMode.QUADS, layerTranslucent.getVertexFormat());
-                this.postRenderBlocks(layerTranslucent, x, y, z, buffer, data);
+                BufferBuilder resultBuffer = this.preRenderBlocks(buffer, layerTranslucent);
+                // FIXME MeshData
+                //class_9801 meshData = resultBuffer.method_60800();
+                //buffer.beginSortedIndexBuffer(bufferState);
+                //meshData.close();
+                this.postRenderBlocks(layerTranslucent, x, y, z, resultBuffer, data);
             }
         }
 
@@ -749,17 +749,36 @@ public class ChunkRendererSchematicVbo
         }
     }
 
-    private void preRenderBlocks(BufferBuilder buffer, RenderLayer layer, boolean x)
+    private BufferBuilder preRenderBlocks(class_9799 buffer, RenderLayer layer)
     {
-        //buffer.begin(VertexFormat.DrawMode.QUADS, layer.getVertexFormat());
+        return new BufferBuilder(buffer, VertexFormat.DrawMode.QUADS, layer.getVertexFormat());
     }
 
-    private void postRenderBlocks(RenderLayer layer, float x, float y, float z, BufferBuilder buffer, ChunkRenderDataSchematic chunkRenderData)
+    private VertexSorter createVertexSorter(float x, float y, float z)
+    {
+        return VertexSorter.byDistance(x, y, z);
+    }
+
+    private VertexSorter createVertexSorterVec3d(Vec3d cam)
+    {
+        return VertexSorter.byDistance((float) (cam.x), (float) (cam.y), (float) (cam.z));
+    }
+
+    private VertexSorter createVertexSorterWithOrigin(Vec3d cam, BlockPos origin)
+    {
+        return VertexSorter.byDistance((float)(cam.x - (double)origin.getX()), (float)(cam.y - (double)origin.getY()), (float)(cam.z - (double)origin.getZ()));
+    }
+
+    private void postRenderBlocks(RenderLayer layer, float x, float y, float z, class_9799 builder, ChunkRenderDataSchematic chunkRenderData)
     {
         if (layer == RenderLayer.getTranslucent() && chunkRenderData.isBlockLayerEmpty(layer) == false)
         {
-            buffer.setSorter(VertexSorter.byDistance(x, y, z));
-            chunkRenderData.setBlockBufferState(layer, buffer.getSortingData());
+            class_9801.class_9802 state = chunkRenderData.getBlockBufferState(layer);
+            VertexSorter sorting = createVertexSorter(x, y, z);
+            class_9799.class_9800 result = state.method_60824(builder, sorting);
+
+            //buffer.setSorter(VertexSorter.byDistance(x, y, z));
+            //chunkRenderData.setBlockBufferState(layer, buffer.getSortingData());
         }
 
         buffer.end();

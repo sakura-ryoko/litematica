@@ -47,8 +47,8 @@ public class ChunkRenderDataSchematic
     private final boolean[] overlayLayersUsed = new boolean[OverlayRenderType.values().length];
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
     // FIXME MeshData.SortState? (was BufferBuilder.TransparentSortingData)
-    private final Map<RenderLayer, OmegaBufferBuilder.OmegaTransparentSortingData> blockBufferStates = new HashMap<>();
-    private final OmegaBufferBuilder.OmegaTransparentSortingData[] overlayBufferStates = new OmegaBufferBuilder.OmegaTransparentSortingData[OverlayRenderType.values().length];
+    private final Map<RenderLayer, class_9801.class_9802> blockBufferStates = new HashMap<>();
+    private final class_9801.class_9802[] overlayBufferStates = new class_9801.class_9802[OverlayRenderType.values().length];
     private boolean overlayEmpty = true;
     private boolean empty = true;
     private long timeBuilt;
@@ -105,22 +105,22 @@ public class ChunkRenderDataSchematic
         return this.overlayLayersStarted[type.ordinal()];
     }
 
-    public OmegaBufferBuilder.OmegaTransparentSortingData getBlockBufferState(RenderLayer layer)
+    public class_9801.class_9802 getBlockBufferState(RenderLayer layer)
     {
         return this.blockBufferStates.get(layer);
     }
 
-    public void setBlockBufferState(RenderLayer layer, OmegaBufferBuilder.OmegaTransparentSortingData state)
+    public void setBlockBufferState(RenderLayer layer, class_9801.class_9802 state)
     {
         this.blockBufferStates.put(layer, state);
     }
 
-    public OmegaBufferBuilder.OmegaTransparentSortingData getOverlayBufferState(OverlayRenderType type)
+    public class_9801.class_9802 getOverlayBufferState(OverlayRenderType type)
     {
         return this.overlayBufferStates[type.ordinal()];
     }
 
-    public void setOverlayBufferState(OverlayRenderType type, OmegaBufferBuilder.OmegaTransparentSortingData state)
+    public void setOverlayBufferState(OverlayRenderType type, class_9801.class_9802 state)
     {
         this.overlayBufferStates[type.ordinal()] = state;
     }
