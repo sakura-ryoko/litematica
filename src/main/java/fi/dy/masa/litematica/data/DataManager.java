@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
@@ -505,5 +506,12 @@ public class DataManager implements IDirectoryCache
     public static void setToolItem(String itemNameIn)
     {
         toolItem = InventoryUtils.getItemStackFromString(itemNameIn);
+
+        if (toolItem == null)
+        {
+            // Fall back to a stick
+            toolItem = new ItemStack(Items.STICK);
+            Configs.Generic.TOOL_ITEM.setValueFromString(Registries.ITEM.getId(Items.STICK).toString());
+        }
     }
 }
