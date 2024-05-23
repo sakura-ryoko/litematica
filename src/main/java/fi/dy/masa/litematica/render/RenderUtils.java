@@ -5,6 +5,7 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.class_9801;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
@@ -43,11 +44,11 @@ public class RenderUtils
         return length;
     }
 
-    static void startDrawingLines(BufferBuilder buffer)
+    static void startDrawingLines()
     {
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         RenderSystem.applyModelViewMatrix();
-        buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        //buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
     }
 
     public static void renderBlockOutline(BlockPos pos, float expand, float lineWidth, Color4f color, MinecraftClient mc)
@@ -56,12 +57,18 @@ public class RenderUtils
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        startDrawingLines(buffer);
+        //BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        // FIXME MeshData
+        class_9801 meshData;
 
+        startDrawingLines();
         drawBlockBoundingBoxOutlinesBatchedLines(pos, color, expand, buffer, mc);
 
-        tessellator.draw();
+        //tessellator.draw();
+        meshData = buffer.method_60800();
+        BufferRenderer.drawWithGlobalProgram(meshData);
+        meshData.close();
     }
 
     public static void drawBlockBoundingBoxOutlinesBatchedLines(BlockPos pos, Color4f color,
@@ -72,12 +79,12 @@ public class RenderUtils
         final double dy = cameraPos.y;
         final double dz = cameraPos.z;
 
-        double minX = pos.getX() - dx - expand;
-        double minY = pos.getY() - dy - expand;
-        double minZ = pos.getZ() - dz - expand;
-        double maxX = pos.getX() - dx + expand + 1;
-        double maxY = pos.getY() - dy + expand + 1;
-        double maxZ = pos.getZ() - dz + expand + 1;
+        float minX = (float) (pos.getX() - dx - expand);
+        float minY = (float) (pos.getY() - dy - expand);
+        float minZ = (float) (pos.getZ() - dz - expand);
+        float maxX = (float) (pos.getX() - dx + expand + 1);
+        float maxY = (float) (pos.getY() - dy + expand + 1);
+        float maxZ = (float) (pos.getZ() - dz + expand + 1);
 
         fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
     }
@@ -90,25 +97,25 @@ public class RenderUtils
         final double dy = cameraPos.y;
         final double dz = cameraPos.z;
 
-        double x1 = pos1.getX() - dx;
-        double y1 = pos1.getY() - dy;
-        double z1 = pos1.getZ() - dz;
-        double x2 = pos2.getX() - dx;
-        double y2 = pos2.getY() - dy;
-        double z2 = pos2.getZ() - dz;
+        float x1 = (float) (pos1.getX() - dx);
+        float y1 = (float) (pos1.getY() - dy);
+        float z1 = (float) (pos1.getZ() - dz);
+        float x2 = (float) (pos2.getX() - dx);
+        float y2 = (float) (pos2.getY() - dy);
+        float z2 = (float) (pos2.getZ() - dz);
 
         if (center)
         {
-            x1 += 0.5;
-            y1 += 0.5;
-            z1 += 0.5;
-            x2 += 0.5;
-            y2 += 0.5;
-            z2 += 0.5;
+            x1 += 0.5F;
+            y1 += 0.5F;
+            z1 += 0.5F;
+            x2 += 0.5F;
+            y2 += 0.5F;
+            z2 += 0.5F;
         }
 
-        buffer.vertex(x1, y1, z1).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(x2, y2, z2).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(x1, y1, z1).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(x2, y2, z2).color(color.r, color.g, color.b, color.a);
     }
 
     public static void renderBlockOutlineOverlapping(BlockPos pos, float expand, float lineWidth,
@@ -119,59 +126,66 @@ public class RenderUtils
         final double dy = cameraPos.y;
         final double dz = cameraPos.z;
 
-        final double minX = pos.getX() - dx - expand;
-        final double minY = pos.getY() - dy - expand;
-        final double minZ = pos.getZ() - dz - expand;
-        final double maxX = pos.getX() - dx + expand + 1;
-        final double maxY = pos.getY() - dy + expand + 1;
-        final double maxZ = pos.getZ() - dz + expand + 1;
+        final float minX = (float) (pos.getX() - dx - expand);
+        final float minY = (float) (pos.getY() - dy - expand);
+        final float minZ = (float) (pos.getZ() - dz - expand);
+        final float maxX = (float) (pos.getX() - dx + expand + 1);
+        final float maxY = (float) (pos.getY() - dy + expand + 1);
+        final float maxZ = (float) (pos.getZ() - dz + expand + 1);
 
         RenderSystem.lineWidth(lineWidth);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        startDrawingLines(buffer);
+        //BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        // FIXME MeshData
+        class_9801 meshData;
+
+        startDrawingLines();
 
         // Min corner
-        buffer.vertex(minX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a).next();
-        buffer.vertex(maxX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a).next();
+        buffer.vertex(minX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a);
+        buffer.vertex(maxX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a);
 
-        buffer.vertex(minX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a).next();
-        buffer.vertex(minX, maxY, minZ).color(color1.r, color1.g, color1.b, color1.a).next();
+        buffer.vertex(minX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a);
+        buffer.vertex(minX, maxY, minZ).color(color1.r, color1.g, color1.b, color1.a);
 
-        buffer.vertex(minX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a).next();
-        buffer.vertex(minX, minY, maxZ).color(color1.r, color1.g, color1.b, color1.a).next();
+        buffer.vertex(minX, minY, minZ).color(color1.r, color1.g, color1.b, color1.a);
+        buffer.vertex(minX, minY, maxZ).color(color1.r, color1.g, color1.b, color1.a);
 
         // Max corner
-        buffer.vertex(minX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a).next();
+        buffer.vertex(minX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a);
 
-        buffer.vertex(maxX, minY, maxZ).color(color2.r, color2.g, color2.b, color2.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a).next();
+        buffer.vertex(maxX, minY, maxZ).color(color2.r, color2.g, color2.b, color2.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a);
 
-        buffer.vertex(maxX, maxY, minZ).color(color2.r, color2.g, color2.b, color2.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a).next();
+        buffer.vertex(maxX, maxY, minZ).color(color2.r, color2.g, color2.b, color2.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color2.r, color2.g, color2.b, color2.a);
 
         // The rest of the edges
-        buffer.vertex(minX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a).next();
-        buffer.vertex(maxX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a).next();
+        buffer.vertex(minX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a);
+        buffer.vertex(maxX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        buffer.vertex(minX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a).next();
-        buffer.vertex(maxX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a).next();
+        buffer.vertex(minX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
+        buffer.vertex(maxX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        buffer.vertex(maxX, minY, minZ).color(color3.r, color3.g, color3.b, color3.a).next();
-        buffer.vertex(maxX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a).next();
+        buffer.vertex(maxX, minY, minZ).color(color3.r, color3.g, color3.b, color3.a);
+        buffer.vertex(maxX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        buffer.vertex(minX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a).next();
-        buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a).next();
+        buffer.vertex(minX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
+        buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        buffer.vertex(maxX, minY, minZ).color(color3.r, color3.g, color3.b, color3.a).next();
-        buffer.vertex(maxX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a).next();
+        buffer.vertex(maxX, minY, minZ).color(color3.r, color3.g, color3.b, color3.a);
+        buffer.vertex(maxX, minY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        buffer.vertex(minX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a).next();
-        buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a).next();
+        buffer.vertex(minX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a);
+        buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        tessellator.draw();
+        //tessellator.draw();
+        meshData = buffer.method_60800();
+        BufferRenderer.drawWithGlobalProgram(meshData);
+        meshData.close();
     }
 
     public static void renderAreaOutline(BlockPos pos1, BlockPos pos2, float lineWidth,
@@ -191,65 +205,72 @@ public class RenderUtils
         double maxY = Math.max(pos1.getY(), pos2.getY()) - dy + 1;
         double maxZ = Math.max(pos1.getZ(), pos2.getZ()) - dz + 1;
 
-        drawBoundingBoxEdges(minX, minY, minZ, maxX, maxY, maxZ, colorX, colorY, colorZ);
+        drawBoundingBoxEdges((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, colorX, colorY, colorZ);
     }
 
-    private static void drawBoundingBoxEdges(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color4f colorX, Color4f colorY, Color4f colorZ)
+    private static void drawBoundingBoxEdges(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f colorX, Color4f colorY, Color4f colorZ)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        startDrawingLines(bufferbuilder);
+        //BufferBuilder bufferbuilder = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        // FIXME MeshData
+        class_9801 meshData;
 
-        drawBoundingBoxLinesX(bufferbuilder, minX, minY, minZ, maxX, maxY, maxZ, colorX);
-        drawBoundingBoxLinesY(bufferbuilder, minX, minY, minZ, maxX, maxY, maxZ, colorY);
-        drawBoundingBoxLinesZ(bufferbuilder, minX, minY, minZ, maxX, maxY, maxZ, colorZ);
+        startDrawingLines();
 
-        tessellator.draw();
+        drawBoundingBoxLinesX(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorX);
+        drawBoundingBoxLinesY(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorY);
+        drawBoundingBoxLinesZ(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorZ);
+
+        //tessellator.draw();
+        meshData = buffer.method_60800();
+        BufferRenderer.drawWithGlobalProgram(meshData);
+        meshData.close();
     }
 
-    private static void drawBoundingBoxLinesX(BufferBuilder buffer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color4f color)
+    private static void drawBoundingBoxLinesX(BufferBuilder buffer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color)
     {
-        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
     }
 
-    private static void drawBoundingBoxLinesY(BufferBuilder buffer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color4f color)
+    private static void drawBoundingBoxLinesY(BufferBuilder buffer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color)
     {
-        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
     }
 
-    private static void drawBoundingBoxLinesZ(BufferBuilder buffer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color4f color)
+    private static void drawBoundingBoxLinesZ(BufferBuilder buffer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color)
     {
-        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
     }
 
     public static void renderAreaSides(BlockPos pos1, BlockPos pos2, Color4f color, Matrix4f matrix4f, MinecraftClient mc)
@@ -259,12 +280,17 @@ public class RenderUtils
 
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        //BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        // FIXME MeshData
+        class_9801 meshData;
 
         renderAreaSidesBatched(pos1, pos2, color, 0.002, buffer, mc);
 
-        tessellator.draw();
+        //tessellator.draw();
+        meshData = buffer.method_60800();
+        BufferRenderer.drawWithGlobalProgram(meshData);
+        meshData.close();
 
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
@@ -287,7 +313,7 @@ public class RenderUtils
         double maxY = Math.max(pos1.getY(), pos2.getY()) + 1 - dy + expand;
         double maxZ = Math.max(pos1.getZ(), pos2.getZ()) + 1 - dz + expand;
 
-        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllSidesBatchedQuads(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
+        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllSidesBatchedQuads((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, color, buffer);
     }
 
     public static void renderAreaOutlineNoCorners(BlockPos pos1, BlockPos pos2,
@@ -306,27 +332,31 @@ public class RenderUtils
         final double dy = cameraPos.y;
         final double dz = cameraPos.z;
 
-        final double dxMin = -dx - expand;
-        final double dyMin = -dy - expand;
-        final double dzMin = -dz - expand;
-        final double dxMax = -dx + expand;
-        final double dyMax = -dy + expand;
-        final double dzMax = -dz + expand;
+        final float dxMin = (float) (-dx - expand);
+        final float dyMin = (float) (-dy - expand);
+        final float dzMin = (float) (-dz - expand);
+        final float dxMax = (float) (-dx + expand);
+        final float dyMax = (float) (-dy + expand);
+        final float dzMax = (float) (-dz + expand);
 
-        final double minX = xMin + dxMin;
-        final double minY = yMin + dyMin;
-        final double minZ = zMin + dzMin;
-        final double maxX = xMax + dxMax;
-        final double maxY = yMax + dyMax;
-        final double maxZ = zMax + dzMax;
+        final float minX = xMin + dxMin;
+        final float minY = yMin + dyMin;
+        final float minZ = zMin + dzMin;
+        final float maxX = xMax + dxMax;
+        final float maxY = yMax + dyMax;
+        final float maxZ = zMax + dzMax;
 
         int start, end;
 
         RenderSystem.lineWidth(lineWidth);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        startDrawingLines(buffer);
+        //BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        // FIXME MeshData
+        class_9801 meshData;
+
+        startDrawingLines();
 
         // Edges along the X-axis
         start = (pos1.getX() == xMin && pos1.getY() == yMin && pos1.getZ() == zMin) || (pos2.getX() == xMin && pos2.getY() == yMin && pos2.getZ() == zMin) ? xMin + 1 : xMin;
@@ -334,8 +364,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(start + dxMin, minY, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
-            buffer.vertex(end   + dxMax, minY, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
+            buffer.vertex(start + dxMin, minY, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a);
+            buffer.vertex(end   + dxMax, minY, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a);
         }
 
         start = (pos1.getX() == xMin && pos1.getY() == yMax && pos1.getZ() == zMin) || (pos2.getX() == xMin && pos2.getY() == yMax && pos2.getZ() == zMin) ? xMin + 1 : xMin;
@@ -343,8 +373,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(start + dxMin, maxY + 1, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
-            buffer.vertex(end   + dxMax, maxY + 1, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
+            buffer.vertex(start + dxMin, maxY + 1, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a);
+            buffer.vertex(end   + dxMax, maxY + 1, minZ).color(colorX.r, colorX.g, colorX.b, colorX.a);
         }
 
         start = (pos1.getX() == xMin && pos1.getY() == yMin && pos1.getZ() == zMax) || (pos2.getX() == xMin && pos2.getY() == yMin && pos2.getZ() == zMax) ? xMin + 1 : xMin;
@@ -352,8 +382,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(start + dxMin, minY, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
-            buffer.vertex(end   + dxMax, minY, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
+            buffer.vertex(start + dxMin, minY, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a);
+            buffer.vertex(end   + dxMax, minY, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a);
         }
 
         start = (pos1.getX() == xMin && pos1.getY() == yMax && pos1.getZ() == zMax) || (pos2.getX() == xMin && pos2.getY() == yMax && pos2.getZ() == zMax) ? xMin + 1 : xMin;
@@ -361,8 +391,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(start + dxMin, maxY + 1, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
-            buffer.vertex(end   + dxMax, maxY + 1, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a).next();
+            buffer.vertex(start + dxMin, maxY + 1, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a);
+            buffer.vertex(end   + dxMax, maxY + 1, maxZ + 1).color(colorX.r, colorX.g, colorX.b, colorX.a);
         }
 
         // Edges along the Y-axis
@@ -371,8 +401,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(minX, start + dyMin, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
-            buffer.vertex(minX, end   + dyMax, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
+            buffer.vertex(minX, start + dyMin, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a);
+            buffer.vertex(minX, end   + dyMax, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a);
         }
 
         start = (pos1.getX() == xMax && pos1.getY() == yMin && pos1.getZ() == zMin) || (pos2.getX() == xMax && pos2.getY() == yMin && pos2.getZ() == zMin) ? yMin + 1 : yMin;
@@ -380,8 +410,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(maxX + 1, start + dyMin, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
-            buffer.vertex(maxX + 1, end   + dyMax, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
+            buffer.vertex(maxX + 1, start + dyMin, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a);
+            buffer.vertex(maxX + 1, end   + dyMax, minZ).color(colorY.r, colorY.g, colorY.b, colorY.a);
         }
 
         start = (pos1.getX() == xMin && pos1.getY() == yMin && pos1.getZ() == zMax) || (pos2.getX() == xMin && pos2.getY() == yMin && pos2.getZ() == zMax) ? yMin + 1 : yMin;
@@ -389,8 +419,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(minX, start + dyMin, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
-            buffer.vertex(minX, end   + dyMax, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
+            buffer.vertex(minX, start + dyMin, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a);
+            buffer.vertex(minX, end   + dyMax, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a);
         }
 
         start = (pos1.getX() == xMax && pos1.getY() == yMin && pos1.getZ() == zMax) || (pos2.getX() == xMax && pos2.getY() == yMin && pos2.getZ() == zMax) ? yMin + 1 : yMin;
@@ -398,8 +428,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(maxX + 1, start + dyMin, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
-            buffer.vertex(maxX + 1, end   + dyMax, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a).next();
+            buffer.vertex(maxX + 1, start + dyMin, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a);
+            buffer.vertex(maxX + 1, end   + dyMax, maxZ + 1).color(colorY.r, colorY.g, colorY.b, colorY.a);
         }
 
         // Edges along the Z-axis
@@ -408,8 +438,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(minX, minY, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
-            buffer.vertex(minX, minY, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
+            buffer.vertex(minX, minY, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
+            buffer.vertex(minX, minY, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
         }
 
         start = (pos1.getX() == xMax && pos1.getY() == yMin && pos1.getZ() == zMin) || (pos2.getX() == xMax && pos2.getY() == yMin && pos2.getZ() == zMin) ? zMin + 1 : zMin;
@@ -417,8 +447,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(maxX + 1, minY, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
-            buffer.vertex(maxX + 1, minY, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
+            buffer.vertex(maxX + 1, minY, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
+            buffer.vertex(maxX + 1, minY, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
         }
 
         start = (pos1.getX() == xMin && pos1.getY() == yMax && pos1.getZ() == zMin) || (pos2.getX() == xMin && pos2.getY() == yMax && pos2.getZ() == zMin) ? zMin + 1 : zMin;
@@ -426,8 +456,8 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(minX, maxY + 1, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
-            buffer.vertex(minX, maxY + 1, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
+            buffer.vertex(minX, maxY + 1, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
+            buffer.vertex(minX, maxY + 1, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
         }
 
         start = (pos1.getX() == xMax && pos1.getY() == yMax && pos1.getZ() == zMin) || (pos2.getX() == xMax && pos2.getY() == yMax && pos2.getZ() == zMin) ? zMin + 1 : zMin;
@@ -435,11 +465,14 @@ public class RenderUtils
 
         if (end > start)
         {
-            buffer.vertex(maxX + 1, maxY + 1, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
-            buffer.vertex(maxX + 1, maxY + 1, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a).next();
+            buffer.vertex(maxX + 1, maxY + 1, start + dzMin).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
+            buffer.vertex(maxX + 1, maxY + 1, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
         }
 
-        tessellator.draw();
+        //tessellator.draw();
+        meshData = buffer.method_60800();
+        BufferRenderer.drawWithGlobalProgram(meshData);
+        meshData.close();
     }
 
     /**
@@ -491,17 +524,17 @@ public class RenderUtils
             fz[index] = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
         }
 
-        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a);
 
-        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
     }
 
     public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
@@ -547,7 +580,7 @@ public class RenderUtils
             fy = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
             fz = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
 
-            buffer.vertex(fx, fy, fz).color(color.r, color.g, color.b, color.a).next();
+            buffer.vertex(fx, fy, fz).color(color.r, color.g, color.b, color.a);
         }
     }
 
@@ -556,55 +589,55 @@ public class RenderUtils
      */
     public static void drawBlockBoxSideBatchedQuads(BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
     {
-        double minX = pos.getX() - expand;
-        double minY = pos.getY() - expand;
-        double minZ = pos.getZ() - expand;
-        double maxX = pos.getX() + expand + 1;
-        double maxY = pos.getY() + expand + 1;
-        double maxZ = pos.getZ() + expand + 1;
+        float minX = (float) (pos.getX() - expand);
+        float minY = (float) (pos.getY() - expand);
+        float minZ = (float) (pos.getZ() - expand);
+        float maxX = (float) (pos.getX() + expand + 1);
+        float maxY = (float) (pos.getY() + expand + 1);
+        float maxZ = (float) (pos.getZ() + expand + 1);
 
         switch (side)
         {
             case DOWN:
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case UP:
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case NORTH:
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case SOUTH:
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case WEST:
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case EAST:
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
         }
     }
@@ -621,8 +654,8 @@ public class RenderUtils
         double maxZ = pos.getZ() + offset.getZ() + (axis == Direction.Axis.Z ? 1 : 0);
 
         //System.out.printf("pos: %s, axis: %s, ind: %d\n", pos, axis, cornerIndex);
-        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+        buffer.vertex((float) minX, (float) minY, (float) minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex((float) maxX, (float) maxY, (float) maxZ).color(color.r, color.g, color.b, color.a);
     }
 
     public static int renderInventoryOverlays(BlockInfoAlignment align, int offY, World worldSchematic, World worldClient, BlockPos pos, MinecraftClient mc, DrawContext drawContext)

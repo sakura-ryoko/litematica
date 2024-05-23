@@ -1,14 +1,21 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
+import net.minecraft.class_9799;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
 
 // Thanks plusls for this hack fix :p
-public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends BufferBuilder
+public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends OmegaBufferBuilder
 {
-    @Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
+    public OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder(int capacity)
+    {
+        super(capacity);
+    }
+    /*
+    //@Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
+    @Nullable public OmegaBufferBuilder.OmegaBuilt lastRenderBuildBuffer;
     public boolean first = true;
     private double offsetY;
 
@@ -51,9 +58,10 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
     }
 
     @Override
-    public BufferBuilder.BuiltBuffer end()
+    public OmegaBufferBuilder.OmegaBuilt end()
     {
         this.lastRenderBuildBuffer = super.end();
         return this.lastRenderBuildBuffer;
     }
+     */
 }

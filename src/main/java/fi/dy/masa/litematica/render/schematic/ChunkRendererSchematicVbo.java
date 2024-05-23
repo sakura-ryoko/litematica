@@ -13,10 +13,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.class_9799;
+import net.minecraft.class_9801;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.chunk.BlockBufferBuilderStorage;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -178,8 +181,16 @@ public class ChunkRendererSchematicVbo
         RenderLayer layerTranslucent = RenderLayer.getTranslucent();
         ChunkRenderDataSchematic data = task.getChunkRenderData();
         BufferBuilderCache buffers = task.getBufferCache();
-        BufferBuilder.TransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
+        // FIXME MeshData.SortState (was BufferBuilder.OmegaTransparentSortingData)
+        //BufferBuilder.TransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
+        OmegaTransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
+        //class_9801.DrawParameters drawParms = new class_9801.DrawParameters(VertexFormat.method_60833().method_60840(), 0, 0, VertexFormat.DrawMode.QUADS, VertexFormat.IndexType.INT);
+        // FIXME --> ByteBufferBuilder, as a buffer?
+        //class_9801 BUFFER = new class_9801(bufferState, drawParms);
         Vec3d cameraPos = task.getCameraPosSupplier().get();
+        //Tessellator tessellator = Tessellator.getInstance();
+        //class_9799.class_9800 result = bufferState.method_60824()
+
         float x = (float) cameraPos.x - this.position.getX();
         float y = (float) cameraPos.y - this.position.getY();
         float z = (float) cameraPos.z - this.position.getZ();
@@ -193,6 +204,7 @@ public class ChunkRendererSchematicVbo
                 RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
                 this.preRenderBlocks(buffer, layerTranslucent);
                 buffer.beginSortedIndexBuffer(bufferState);
+                //buffer = tessellator.method_60827(VertexFormat.DrawMode.QUADS, layerTranslucent.getVertexFormat());
                 this.postRenderBlocks(layerTranslucent, x, y, z, buffer, data);
             }
         }
@@ -737,9 +749,9 @@ public class ChunkRendererSchematicVbo
         }
     }
 
-    private void preRenderBlocks(BufferBuilder buffer, RenderLayer layer)
+    private void preRenderBlocks(BufferBuilder buffer, RenderLayer layer, boolean x)
     {
-        buffer.begin(VertexFormat.DrawMode.QUADS, layer.getVertexFormat());
+        //buffer.begin(VertexFormat.DrawMode.QUADS, layer.getVertexFormat());
     }
 
     private void postRenderBlocks(RenderLayer layer, float x, float y, float z, BufferBuilder buffer, ChunkRenderDataSchematic chunkRenderData)
