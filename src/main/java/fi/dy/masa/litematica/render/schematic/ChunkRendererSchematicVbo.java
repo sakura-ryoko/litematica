@@ -57,7 +57,7 @@ public class ChunkRendererSchematicVbo
     protected final Map<OverlayRenderType, VertexBuffer> vertexBufferOverlay;
     protected final List<IntBoundingBox> boxes = new ArrayList<>();
     protected final EnumSet<OverlayRenderType> existingOverlays = EnumSet.noneOf(OverlayRenderType.class);
-    protected final MeshDataCache meshDataCache;
+    //protected final MeshDataCache meshDataCache;
     protected final SectionBufferCache sectionBufferCache;
 
     private net.minecraft.util.math.Box boundingBox;
@@ -85,14 +85,14 @@ public class ChunkRendererSchematicVbo
         this.vertexBufferOverlay = new IdentityHashMap<>();
         this.position = new BlockPos.Mutable();
         this.chunkRelativePos = new BlockPos.Mutable();
-        this.meshDataCache = new MeshDataCache();
+        //this.meshDataCache = new MeshDataCache();
         this.sectionBufferCache = new SectionBufferCache();
     }
 
-    public MeshDataCache getMeshDataCache()
-    {
-        return this.meshDataCache;
-    }
+    //public MeshDataCache getMeshDataCache()
+    //{
+        //return this.meshDataCache;
+    //}
 
     public SectionBufferCache getSectionBufferCache()
     {
@@ -195,7 +195,7 @@ public class ChunkRendererSchematicVbo
         BufferBuilderCache buffers = task.getBufferCache();
         // FIXME MeshData.SortState (was BufferBuilder.OmegaTransparentSortingData)
         //BufferBuilder.TransparentSortingData bufferState = data.getBlockBufferState(layerTranslucent);
-        class_9801.class_9802 bufferState = data.getBlockBufferState(layerTranslucent);
+        class_9801.class_9802 bufferState = data.getBlockSortState(layerTranslucent);
         Vec3d cameraPos = task.getCameraPosSupplier().get();
 
         float x = (float) cameraPos.x - this.position.getX();
@@ -206,7 +206,7 @@ public class ChunkRendererSchematicVbo
         {
             if (data.isBlockLayerEmpty(layerTranslucent) == false)
             {
-                BufferBuilderPatch buffer = buffers.getBufferByLayer(layerTranslucent);
+                //BufferBuilderPatch buffer = buffers.getBufferByLayer(layerTranslucent);
 
                 RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
 
@@ -216,12 +216,15 @@ public class ChunkRendererSchematicVbo
 
                 // FIXME store's MeshData into MeshDataCache
                 this.postRenderBlocks(layerTranslucent, x, y, z, resultBuffer, data);
-                //buffers.storeBufferByLayer(layerTranslucent, resultBuffer);
+                buffers.storeBufferByLayer(layerTranslucent, resultBuffer);
             }
         }
 
+        // We cannot use the SortState for OverlayRenderTypes
+
         //if (GuiBase.isCtrlDown()) System.out.printf("resortTransparency\n");
         //if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue())
+        /*
         {
             OverlayRenderType type = OverlayRenderType.QUAD;
             bufferState = data.getOverlayBufferState(type);
@@ -234,11 +237,11 @@ public class ChunkRendererSchematicVbo
                 BufferBuilderPatch resultBuffer = this.preRenderOverlay(new class_9799(RenderLayer.DEFAULT_BUFFER_SIZE), type.getDrawMode());
                 //buffer.beginSortedIndexBuffer(bufferState);
 
-                // FIXME store's MeshData into MeshDataCache
                 this.postRenderOverlay(type, x, y, z, resultBuffer, data);
                 //buffers.storeBufferByOverlay(type, resultBuffer);
             }
         }
+         */
     }
 
     public void rebuildChunk(ChunkRenderTaskSchematic task)
@@ -411,7 +414,7 @@ public class ChunkRendererSchematicVbo
                 {
                     data.setBlockLayerStarted(layer);
                     bufferSchematic = this.preRenderBlocks(new class_9799(layer.getExpectedBufferSize()), layer);
-                    //buffers.storeBufferByLayer(layer, bufferSchematic);
+                    buffers.storeBufferByLayer(layer, bufferSchematic);
                 }
                 // TODO
 
@@ -430,7 +433,7 @@ public class ChunkRendererSchematicVbo
                 {
                     data.setBlockLayerStarted(layer);
                     buffer = this.preRenderBlocks(new class_9799(layer.getExpectedBufferSize()), layer);
-                    //buffers.storeBufferByLayer(layer, buffer);
+                    buffers.storeBufferByLayer(layer, buffer);
                 }
                 else
                 {
@@ -476,7 +479,7 @@ public class ChunkRendererSchematicVbo
             {
                 data.setOverlayTypeStarted(OverlayRenderType.QUAD);
                 bufferOverlayQuads = this.preRenderOverlay(new class_9799(RenderLayer.DEFAULT_BUFFER_SIZE), OverlayRenderType.QUAD);
-                //buffers.storeBufferByOverlay(OverlayRenderType.QUAD, bufferOverlayQuads);
+                buffers.storeBufferByOverlay(OverlayRenderType.QUAD, bufferOverlayQuads);
             }
             else
             {
@@ -540,7 +543,7 @@ public class ChunkRendererSchematicVbo
             {
                 data.setOverlayTypeStarted(OverlayRenderType.OUTLINE);
                 bufferOverlayOutlines = this.preRenderOverlay(new class_9799(RenderLayer.DEFAULT_BUFFER_SIZE), OverlayRenderType.OUTLINE);
-                //buffers.storeBufferByOverlay(OverlayRenderType.OUTLINE, bufferOverlayOutlines);
+                buffers.storeBufferByOverlay(OverlayRenderType.OUTLINE, bufferOverlayOutlines);
             }
             else
             {
@@ -846,13 +849,14 @@ public class ChunkRendererSchematicVbo
             {
                 VertexSorter sorter = createVertexSorter(x, y, z);
                 class_9801.class_9802 newState = newMeshData.method_60819(this.sectionBufferCache.getBufferByLayer(layer), sorter);
-                chunkRenderData.setBlockBufferState(layer, newState);
+                chunkRenderData.setBlockSortState(layer, newState);
 
                 this.uploadSectionIndex(newState.method_60824(this.sectionBufferCache.getBufferByLayer(layer), sorter), this.getBlocksVertexBufferByLayer(layer));
             }
 
-            this.meshDataCache.storeMeshByLayer(layer, newMeshData);
+            //this.meshDataCache.storeMeshByLayer(layer, newMeshData);
             this.uploadSectionLayer(newMeshData, this.getBlocksVertexBufferByLayer(layer));
+            chunkRenderData.setBlockMeshDataByLayer(layer, newMeshData);
 
             //buffer.setSorter(VertexSorter.byDistance(x, y, z));
             //chunkRenderData.setBlockBufferState(layer, buffer.getSortingData());
@@ -890,8 +894,9 @@ public class ChunkRendererSchematicVbo
                 return;
             }
 
-            this.meshDataCache.storeMeshByOverlay(type, newMeshData);
+            //this.meshDataCache.storeMeshByOverlay(type, newMeshData);
             this.uploadSectionLayer(newMeshData, this.getOverlayVertexBuffer(type));
+            chunkRenderData.setBlockMeshDataByType(type, newMeshData);
 
             // TODO Mojang removed the Sorting State's from all non-translucent layers.
             //  No SortState's to store.

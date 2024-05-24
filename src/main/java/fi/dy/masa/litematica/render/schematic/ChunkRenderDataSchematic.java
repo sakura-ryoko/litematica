@@ -43,7 +43,8 @@ public class ChunkRenderDataSchematic
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
     // FIXME MeshData.SortState? (was BufferBuilder.TransparentSortingData)
     private final Map<RenderLayer, class_9801.class_9802> blockBufferStates = new HashMap<>();
-    private final class_9801.class_9802[] overlayBufferStates = new class_9801.class_9802[OverlayRenderType.values().length];
+    //private final class_9801.class_9802[] overlayBufferStates = new class_9801.class_9802[OverlayRenderType.values().length];
+    private final MeshDataCache meshDataCache = new MeshDataCache();
     private boolean overlayEmpty = true;
     private boolean empty = true;
     private long timeBuilt;
@@ -100,24 +101,34 @@ public class ChunkRenderDataSchematic
         return this.overlayLayersStarted[type.ordinal()];
     }
 
-    public class_9801.class_9802 getBlockBufferState(RenderLayer layer)
+    public class_9801.class_9802 getBlockSortState(RenderLayer layer)
     {
         return this.blockBufferStates.get(layer);
     }
 
-    public void setBlockBufferState(RenderLayer layer, class_9801.class_9802 state)
+    public void setBlockSortState(RenderLayer layer, class_9801.class_9802 state)
     {
         this.blockBufferStates.put(layer, state);
     }
 
-    public class_9801.class_9802 getOverlayBufferState(OverlayRenderType type)
+    public void setBlockMeshDataByLayer(RenderLayer layer, class_9801 meshData)
     {
-        return this.overlayBufferStates[type.ordinal()];
+        this.meshDataCache.storeMeshByLayer(layer, meshData);
     }
 
-    public void setOverlayBufferState(OverlayRenderType type, class_9801.class_9802 state)
+    public class_9801 getBlockMeshDataByLayer(RenderLayer layer)
     {
-        this.overlayBufferStates[type.ordinal()] = state;
+        return this.meshDataCache.getMeshByLayer(layer);
+    }
+
+    public void setBlockMeshDataByType(OverlayRenderType type, class_9801 meshData)
+    {
+        this.meshDataCache.storeMeshByOverlay(type, meshData);
+    }
+
+    public class_9801 getBlockMeshDataByType(OverlayRenderType type)
+    {
+        return this.meshDataCache.getMeshByType(type);
     }
 
     public List<BlockEntity> getBlockEntities()

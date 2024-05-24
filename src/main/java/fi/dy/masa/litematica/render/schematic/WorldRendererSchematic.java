@@ -466,18 +466,48 @@ public class WorldRendererSchematic
             if (renderer.getChunkRenderData().isBlockLayerEmpty(renderLayer) == false)
             {
                 BlockPos chunkOrigin = renderer.getOrigin();
+
+                Litematica.logger.error("renderBlockLayer: index [{}] count [{}] origin: [{}]", i, count, chunkOrigin.toShortString());
+
                 VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
 
-                if (chunkOffsetUniform != null)
+                if (buffer == null)
                 {
-                    chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
-                    chunkOffsetUniform.upload();
+                    Litematica.logger.error("renderBlockLayer: vertexBuffer = null");
+                    continue;
                 }
+                else
+                {
+                    if (buffer.isClosed())
+                    {
+                        Litematica.logger.error("renderBlockLayer: vertexBuffer is closed");
+                        continue;
+                    }
+                    else
+                    {
+                        if (buffer.getVertexFormat() == null)
+                        {
+                            Litematica.logger.error("renderBlockLayer: VertexFormat is null");
+                            continue;
+                        }
+                        else
+                        {
+                            Litematica.logger.warn("renderBlockLayer: VertexFormat: [{}]", buffer.getVertexFormat().toString());
 
-                buffer.bind();
-                buffer.draw();
-                VertexBuffer.unbind();
-                startedDrawing = true;
+                            if (chunkOffsetUniform != null)
+                            {
+                                chunkOffsetUniform.set((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                                chunkOffsetUniform.upload();
+                            }
+
+                            //BufferRenderer.drawWithGlobalProgram(renderer.getChunkRenderData().getBlockMeshDataByLayer(renderLayer));
+                            buffer.bind();
+                            buffer.draw();
+                            VertexBuffer.unbind();
+                            startedDrawing = true;
+                        }
+                    }
+                }
                 ++count;
             }
         }
