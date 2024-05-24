@@ -1871,7 +1871,7 @@ public class LitematicaSchematic
                 // Don't crash on invalid ResourceLocation in 1.13+
                 try
                 {
-                    target = registry.get(new Identifier(tag.getString(tagName)));
+                    target = registry.get(Identifier.tryParse(tag.getString(tagName)));
 
                     if (target == null || target == emptyValue)
                     {

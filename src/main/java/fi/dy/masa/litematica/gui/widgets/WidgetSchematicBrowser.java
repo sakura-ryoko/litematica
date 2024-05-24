@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3i;
 
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
 import fi.dy.masa.litematica.gui.Icons;
@@ -245,7 +246,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                 {
                     NativeImage image = new NativeImage(size, size, false);
                     NativeImageBackedTexture tex = new NativeImageBackedTexture(image);
-                    Identifier rl = new Identifier("litematica", DigestUtils.sha1Hex(file.getAbsolutePath()));
+                    Identifier rl = Identifier.of(Reference.MOD_ID, DigestUtils.sha1Hex(file.getAbsolutePath()));
                     this.mc.getTextureManager().registerTexture(rl, tex);
 
                     for (int y = 0, i = 0; y < size; ++y)

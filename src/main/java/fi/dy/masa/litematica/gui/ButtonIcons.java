@@ -17,7 +17,7 @@ public enum ButtonIcons implements IGuiIcon
     SCHEMATIC_PROJECTS      (102,  98, 14, 14),
     TASK_MANAGER            (102, 112, 14, 14),;
 
-    public static final Identifier TEXTURE = new Identifier(Reference.MOD_ID, "textures/gui/gui_widgets.png");
+    public static final Identifier TEXTURE = Identifier.of(Reference.MOD_ID, "textures/gui/gui_widgets.png");
 
     private final int u;
     private final int v;

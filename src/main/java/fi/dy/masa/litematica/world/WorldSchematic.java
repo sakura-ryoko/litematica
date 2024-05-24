@@ -51,7 +51,7 @@ import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
 public class WorldSchematic extends World
 {
-    protected static final RegistryKey<World> REGISTRY_KEY = RegistryKey.of(RegistryKeys.WORLD, new Identifier(Reference.MOD_ID, "schematic_world"));
+    protected static final RegistryKey<World> REGISTRY_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(Reference.MOD_ID, "schematic_world"));
 
     protected final MinecraftClient mc;
     protected final ChunkManagerSchematic chunkManagerSchematic;
@@ -112,7 +112,10 @@ public class WorldSchematic extends World
     public void putMapState(MapIdComponent id, MapState state) { }
 
     @Override
-    public MapIdComponent getNextMapId() { return null; }
+    public MapIdComponent increaseAndGetMapId()
+    {
+        return null;
+    }
 
     @Override
     public QueryableTickScheduler<Block> getBlockTickScheduler()

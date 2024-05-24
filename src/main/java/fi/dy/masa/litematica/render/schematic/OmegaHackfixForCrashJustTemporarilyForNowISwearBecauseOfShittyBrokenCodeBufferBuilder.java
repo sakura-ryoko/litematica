@@ -2,11 +2,9 @@ package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
 import net.minecraft.class_9799;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexFormat;
 
 // Thanks plusls for this hack fix :p
+@Deprecated
 public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends class_9799
 {
     //@Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;

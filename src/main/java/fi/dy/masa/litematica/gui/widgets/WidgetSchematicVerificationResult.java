@@ -1,26 +1,18 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import java.util.List;
 import javax.annotation.Nullable;
-import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.List;
 import org.joml.Quaternionf;
-
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.class_9799;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
@@ -31,16 +23,6 @@ import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.LocalRandom;
-
-import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.gui.GuiSchematicVerifier;
-import fi.dy.masa.litematica.gui.GuiSchematicVerifier.BlockMismatchEntry;
-import fi.dy.masa.litematica.gui.Icons;
-import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier;
-import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.BlockMismatch;
-import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.MismatchType;
-import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.SortCriteria;
-import fi.dy.masa.litematica.util.ItemUtils;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -51,6 +33,15 @@ import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.gui.GuiSchematicVerifier;
+import fi.dy.masa.litematica.gui.GuiSchematicVerifier.BlockMismatchEntry;
+import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier;
+import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.BlockMismatch;
+import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.MismatchType;
+import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.SortCriteria;
+import fi.dy.masa.litematica.util.ItemUtils;
 
 public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<BlockMismatchEntry>
 {
@@ -572,9 +563,9 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
     {
         if (model.isBuiltin() == false)
         {
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBuffer();
-            VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(buffer);
+            //Tessellator tessellator = Tessellator.getInstance();
+            //BufferBuilder buffer = tessellator.getBuffer();
+            VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new class_9799(RenderLayer.DEFAULT_BUFFER_SIZE));
             VertexConsumer vertexConsumer = immediate.getBuffer(RenderLayer.getTranslucent());
             MatrixStack.Entry matrixEntry = matrixStack.peek();
 

@@ -59,7 +59,7 @@ public class BlockUtils
 
         try
         {
-            Identifier id = new Identifier(blockName);
+            Identifier id = Identifier.tryParse(blockName);
 
             if (Registries.BLOCK.containsId(id))
             {
