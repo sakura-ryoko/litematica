@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -14,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFutureTask;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.class_9799;
+import net.minecraft.class_9801;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.RenderLayer;
@@ -271,14 +273,46 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final class_9799.class_9800 result,
-            final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
+    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final ChunkRendererSchematicVbo renderChunk,
+                                                      final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
     {
         if (MinecraftClient.getInstance().isOnThread())
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkBlocks()\n");
             // FIXME
-            this.uploadSectionIndex(result, renderChunk.getBlocksVertexBufferByLayer(layer));
+            if (layer == RenderLayer.getTranslucent())
+            {
+                class_9799.class_9800 result = renderChunk.getSectionBufferCache().getBufferByLayer(layer).method_60807();
+
+                try
+                {
+                    if (result != null)
+                    {
+                        this.uploadSectionIndex(result, renderChunk.getBlocksVertexBufferByLayer(layer));
+                    }
+                    else
+                    {
+                        Litematica.logger.error("uploadChunkBlocks: failed to uploadSectionIndex for Translucent layer");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Litematica.logger.error("uploadChunkBlocks: failed to upload results for Translucent layer");
+                }
+            }
+            else
+            {
+                class_9801 meshData = renderChunk.getMeshDataCache().getMeshByLayer(layer);
+
+                try
+                {
+                    this.uploadSectionLayer(meshData, renderChunk.getBlocksVertexBufferByLayer(layer));
+                }
+                catch (Exception e)
+                {
+                    Litematica.logger.error("uploadChunkBlocks: failed to upload MeshData");
+                }
+            }
             return Futures.<Object>immediateFuture(null);
         }
         else
@@ -288,7 +322,7 @@ public class ChunkRenderDispatcherLitematica
                 @Override
                 public void run()
                 {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, result, renderChunk, chunkRenderData, distanceSq);
+                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, renderChunk, chunkRenderData, distanceSq);
                 }
             }, null);
 
@@ -300,14 +334,25 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final class_9799.class_9800 result,
-            final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
+    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk,
+                                                       final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
     {
         if (MinecraftClient.getInstance().isOnThread())
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkOverlay()\n");
             // FIXME
-            this.uploadSectionIndex(result, renderChunk.getOverlayVertexBuffer(type));
+            //this.uploadSectionIndex(result, renderChunk.getOverlayVertexBuffer(type));
+            class_9801 meshData = renderChunk.getMeshDataCache().getMeshByType(type);
+
+            try
+            {
+                this.uploadSectionLayer(meshData, renderChunk.getOverlayVertexBuffer(type));
+            }
+            catch (Exception e)
+            {
+                Litematica.logger.error("uploadChunkOverlay: failed to upload MeshData");
+            }
+
             return Futures.<Object>immediateFuture(null);
         }
         else
@@ -317,7 +362,7 @@ public class ChunkRenderDispatcherLitematica
                 @Override
                 public void run()
                 {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, result, renderChunk, compiledChunk, distanceSq);
+                    ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, renderChunk, compiledChunk, distanceSq);
                 }
             }, null);
 
@@ -357,7 +402,19 @@ public class ChunkRenderDispatcherLitematica
     }
      */
 
-    private void uploadSectionIndex(class_9799.class_9800 result, VertexBuffer vertexBuffer)
+    private void uploadSectionLayer(@Nonnull class_9801 meshData, @Nonnull VertexBuffer vertexBuffer)
+    {
+        if (vertexBuffer.isClosed())
+        {
+            meshData.close();
+            return;
+        }
+        vertexBuffer.bind();
+        vertexBuffer.upload(meshData);
+        VertexBuffer.unbind();
+    }
+
+    private void uploadSectionIndex(@Nonnull class_9799.class_9800 result, @Nonnull VertexBuffer vertexBuffer)
     {
         if (vertexBuffer.isClosed())
         {
