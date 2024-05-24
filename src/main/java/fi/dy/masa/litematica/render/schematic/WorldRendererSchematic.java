@@ -29,6 +29,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -164,6 +165,7 @@ public class WorldRendererSchematic
         {
             if (this.renderDispatcher == null)
             {
+                Litematica.logger.error("loadRenderers");
                 this.renderDispatcher = new ChunkRenderDispatcherLitematica();
             }
 

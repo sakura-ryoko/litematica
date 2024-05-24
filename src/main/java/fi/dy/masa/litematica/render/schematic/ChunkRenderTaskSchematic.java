@@ -15,8 +15,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ReentrantLock lock = new ReentrantLock();
     private final Supplier<Vec3d> cameraPosSupplier;
     private final double distanceSq;
-    private ByteBufferCache byteBufferCache;
-    private BuilderResultCache builderResultCache;
+    private BufferBuilderCache bufferBuilderCache;
     private ChunkRenderDataSchematic chunkRenderData;
     private ChunkRenderTaskSchematic.Status status = ChunkRenderTaskSchematic.Status.PENDING;
     private boolean finished;
@@ -54,24 +53,14 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.chunkRenderData = chunkRenderData;
     }
 
-    public BuilderResultCache getBufferCache()
+    public BufferBuilderCache getBufferCache()
     {
-        return this.builderResultCache;
+        return this.bufferBuilderCache;
     }
 
-    public ByteBufferCache getByteBufferCache()
+    public void setRegionRenderCacheBuilder(BufferBuilderCache cache)
     {
-        return this.byteBufferCache;
-    }
-
-    public void setRegionRenderCacheBuilder(BuilderResultCache cache)
-    {
-        this.builderResultCache = cache;
-    }
-
-    public void setRegionRenderCacheByteBuilder(ByteBufferCache cache)
-    {
-        this.byteBufferCache = cache;
+        this.bufferBuilderCache = cache;
     }
 
     public void setStatus(ChunkRenderTaskSchematic.Status statusIn)

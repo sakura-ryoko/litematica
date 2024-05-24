@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.class_9799;
 
 // Thanks plusls for this hack fix :p
-@Deprecated
+@Deprecated(forRemoval = true)
 public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends class_9799
 {
     //@Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
@@ -17,12 +17,12 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
         super(initialCapacity);
     }
 
+    /*
     public void setYOffset(double offsetY)
     {
         this.offsetY = offsetY;
     }
 
-    /*
     @Override
     public VertexConsumer vertex(double x, double y, double z)
     {

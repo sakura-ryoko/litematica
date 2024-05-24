@@ -29,11 +29,9 @@ public class ChunkRenderDispatcherLitematica
     private final List<Thread> listWorkerThreads = new ArrayList<>();
     private final List<ChunkRenderWorkerLitematica> listThreadedWorkers = new ArrayList<>();
     private final PriorityBlockingQueue<ChunkRenderTaskSchematic> queueChunkUpdates = Queues.newPriorityBlockingQueue();
-    private final BlockingQueue<ByteBufferCache> queueFreeRenderBuilders;
-    private final BlockingQueue<BuilderResultCache> queueFreeRenderResults;
+    private final BlockingQueue<BufferBuilderCache> queueFreeRenderResults;
     private final Queue<ChunkRenderDispatcherLitematica.PendingUpload> queueChunkUploads = Queues.newPriorityQueue();
     private final ChunkRenderWorkerLitematica renderWorker;
-    private final int countRenderBuilders;
     private final int countRenderResults;
     private Vec3d cameraPos;
 
@@ -43,7 +41,6 @@ public class ChunkRenderDispatcherLitematica
         //int threadLimitMemory = Math.max(1, (int)((double)Runtime.getRuntime().maxMemory() * 0.3D) / 10485760);
         //int threadLimitCPU = Math.max(1, MathHelper.clamp(Runtime.getRuntime().availableProcessors(), 1, threadLimitMemory / 5));
         //this.countRenderBuilders = MathHelper.clamp(threadLimitCPU * 10, 1, threadLimitMemory);
-        this.countRenderBuilders = 2;
         this.countRenderResults = 2;
         this.cameraPos = Vec3d.ZERO;
 
@@ -63,18 +60,21 @@ public class ChunkRenderDispatcherLitematica
         }
         */
 
-        Litematica.logger.info("Using {} total ByteBufferBuilder caches", this.countRenderBuilders + 1);
         Litematica.logger.info("Using {} total BufferBuilder (Results) caches", this.countRenderResults + 1);
 
-        this.queueFreeRenderBuilders = Queues.newArrayBlockingQueue(this.countRenderBuilders);
         this.queueFreeRenderResults = Queues.newArrayBlockingQueue(this.countRenderResults);
 
-        for (int i = 0; i < this.countRenderBuilders; ++i)
+        for (int i = 0; i < this.countRenderResults; ++i)
         {
-            this.queueFreeRenderBuilders.add(new ByteBufferCache());
+            Litematica.logger.error("BufferBuilderCache[{}]", i);
+            this.queueFreeRenderResults.add(new BufferBuilderCache());
         }
 
-        this.renderWorker = new ChunkRenderWorkerLitematica(this, new ByteBufferCache(), new BuilderResultCache());
+        Litematica.logger.error("ChunkRenderDispatcherLitematica: assign renderWorker");
+
+        this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferBuilderCache());
+
+        Litematica.logger.error("ChunkRenderDispatcherLitematica: [DONE]");
     }
 
     public void setCameraPosition(Vec3d cameraPos)
@@ -89,7 +89,7 @@ public class ChunkRenderDispatcherLitematica
 
     public String getDebugInfo()
     {
-        return this.listWorkerThreads.isEmpty() ? String.format("pC: %03d, single-threaded", this.queueChunkUpdates.size()) : String.format("pC: %03d, pU: %1d, aB: %1d %1d", this.queueChunkUpdates.size(), this.queueChunkUploads.size(), this.queueFreeRenderBuilders.size(),  this.queueFreeRenderResults.size());
+        return this.listWorkerThreads.isEmpty() ? String.format("pC: %03d, single-threaded", this.queueChunkUpdates.size()) : String.format("pC: %03d, pU: %1d, aB: %1d", this.queueChunkUpdates.size(), this.queueChunkUploads.size(), this.queueFreeRenderResults.size());
     }
 
     public boolean runChunkUploads(long finishTimeNano)
@@ -203,24 +203,11 @@ public class ChunkRenderDispatcherLitematica
     public void stopChunkUpdates()
     {
         this.clearChunkUpdates();
-        List<ByteBufferCache> bufferList = new ArrayList<>();
-        List<BuilderResultCache> resultList = new ArrayList<>();
+        List<BufferBuilderCache> resultList = new ArrayList<>();
 
-        while (bufferList.size() != this.countRenderBuilders)
-        {
-            this.runChunkUploads(Long.MAX_VALUE);
-
-            try
-            {
-                bufferList.add(this.allocateRenderBuilder());
-            }
-            catch (InterruptedException e)
-            {
-            }
-        }
         while (resultList.size() != this.countRenderResults)
         {
-            //this.runChunkUploads(Long.MAX_VALUE);
+            this.runChunkUploads(Long.MAX_VALUE);
 
             try
             {
@@ -231,26 +218,15 @@ public class ChunkRenderDispatcherLitematica
             }
         }
 
-        this.queueFreeRenderBuilders.addAll(bufferList);
         this.queueFreeRenderResults.addAll(resultList);
     }
 
-    public void freeRenderBuilder(ByteBufferCache builderCache)
-    {
-        this.queueFreeRenderBuilders.add(builderCache);
-    }
-
-    public void freeRenderResults(BuilderResultCache resultCache)
+    public void freeRenderResults(BufferBuilderCache resultCache)
     {
         this.queueFreeRenderResults.add(resultCache);
     }
 
-    public ByteBufferCache allocateRenderBuilder() throws InterruptedException
-    {
-        return this.queueFreeRenderBuilders.take();
-    }
-
-    public BuilderResultCache allocateRenderResults() throws InterruptedException
+    public BufferBuilderCache allocateRenderResults() throws InterruptedException
     {
         return this.queueFreeRenderResults.take();
     }
@@ -435,12 +411,12 @@ public class ChunkRenderDispatcherLitematica
             }
         }
 
-        this.queueFreeRenderBuilders.clear();
+        this.queueFreeRenderResults.clear();
     }
 
     public boolean hasNoFreeRenderBuilders()
     {
-        return this.queueFreeRenderBuilders.isEmpty();
+        return this.queueFreeRenderResults.isEmpty();
     }
 
     public static class PendingUpload implements Comparable<ChunkRenderDispatcherLitematica.PendingUpload>
