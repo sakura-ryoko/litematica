@@ -68,7 +68,7 @@ public abstract class MixinWorldRenderer
     {
         //Litematica.logger.error("onPostRenderEntities()");
 
-        //LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
+        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
     }
 
     /*

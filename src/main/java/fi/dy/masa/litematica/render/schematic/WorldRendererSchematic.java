@@ -487,37 +487,30 @@ public class WorldRendererSchematic
                     Litematica.logger.error("renderBlockLayer: vertexBuffer = null");
                     continue;
                 }
+                if (buffer.isClosed())
+                {
+                    Litematica.logger.error("renderBlockLayer: vertexBuffer is closed");
+                    continue;
+                }
+                if (buffer.getVertexFormat() == null)
+                {
+                    Litematica.logger.error("renderBlockLayer: VertexFormat is null");
+                }
                 else
                 {
-                    if (buffer.isClosed())
-                    {
-                        Litematica.logger.error("renderBlockLayer: vertexBuffer is closed");
-                        continue;
-                    }
-                    else
-                    {
-                        if (buffer.getVertexFormat() == null)
-                        {
-                            Litematica.logger.error("renderBlockLayer: VertexFormat is null");
-                            continue;
-                        }
-                        else
-                        {
-                            Litematica.logger.warn("renderBlockLayer: VertexFormat: [{}]", buffer.getVertexFormat().toString());
+                    Litematica.logger.warn("renderBlockLayer: VertexFormat: {} // [{}]", buffer.getVertexFormat().getVertexSizeByte(), buffer.getVertexFormat().toString());
 
-                            if (chunkOffsetUniform != null)
-                            {
-                                chunkOffsetUniform.set((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-                                chunkOffsetUniform.upload();
-                            }
-
-                            //BufferRenderer.drawWithGlobalProgram(renderer.getChunkRenderData().getBlockMeshDataByLayer(renderLayer));
-                            buffer.bind();
-                            buffer.draw();
-                            VertexBuffer.unbind();
-                            startedDrawing = true;
-                        }
+                    if (chunkOffsetUniform != null)
+                    {
+                        chunkOffsetUniform.set((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                        chunkOffsetUniform.upload();
                     }
+
+                    //BufferRenderer.drawWithGlobalProgram(renderer.getChunkRenderData().getBlockMeshDataByLayer(renderLayer));
+                    buffer.bind();
+                    buffer.draw();
+                    VertexBuffer.unbind();
+                    startedDrawing = true;
                 }
                 ++count;
             }
@@ -620,13 +613,34 @@ public class WorldRendererSchematic
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    matrix4fStack.pushMatrix();
-                    matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-                    buffer.bind();
-                    buffer.draw(matrix4fStack, projMatrix, shader);
+                    Litematica.logger.warn("renderBlockOverlay: index [{}] origin [{}]", i, chunkOrigin.toShortString());
 
-                    VertexBuffer.unbind();
-                    matrix4fStack.popMatrix();
+                    if (buffer == null)
+                    {
+                        Litematica.logger.error("renderBlockOverlay: vertexBuffer for type {} is NULL", type.getDrawMode().name());
+                        continue;
+                    }
+                    if (buffer.isClosed())
+                    {
+                        Litematica.logger.error("renderBlockOverlay: vertexBuffer for type {} is CLOSED", type.getDrawMode().name());
+                        continue;
+                    }
+                    if (buffer.getVertexFormat() == null)
+                    {
+                        Litematica.logger.error("renderBlockOverlay: VertexFormat for type {} is NULL", type.getDrawMode().name());
+                    }
+                    else
+                    {
+                        Litematica.logger.warn("renderBlockOverlay: VertexFormat {} // [{}]", buffer.getVertexFormat().getVertexSizeByte(), buffer.getVertexFormat().toString());
+
+                        matrix4fStack.pushMatrix();
+                        matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                        buffer.bind();
+                        buffer.draw(matrix4fStack, projMatrix, shader);
+
+                        VertexBuffer.unbind();
+                        matrix4fStack.popMatrix();
+                    }
                 }
             }
         }
