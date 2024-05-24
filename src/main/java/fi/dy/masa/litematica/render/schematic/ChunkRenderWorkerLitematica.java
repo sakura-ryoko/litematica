@@ -64,6 +64,8 @@ public class ChunkRenderWorkerLitematica implements Runnable
     {
         task.getLock().lock();
 
+        Litematica.logger.warn("processTask()");
+
         try
         {
             if (task.getStatus() != ChunkRenderTaskSchematic.Status.PENDING)
@@ -91,7 +93,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
         else
         {
-            task.setRegionRenderCacheBuilder(this.getRegionRenderResultCache());
+            task.setRegionRenderCacheBuilder(this.getRegionRenderBufferCache());
 
             ChunkRenderTaskSchematic.Type taskType = task.getType();
 
@@ -115,7 +117,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         LOGGER.warn("Chunk render task was {} when I expected it to be compiling; aborting task", (Object) task.getStatus());
                     }
 
-                    this.freeRenderResults(task);
+                    this.freeRenderBufferCache(task);
                     return;
                 }
 
@@ -193,7 +195,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 @Override
                 public void onSuccess(@Nullable List<Object> list)
                 {
-                    ChunkRenderWorkerLitematica.this.freeRenderResults(task);
+                    ChunkRenderWorkerLitematica.this.freeRenderBufferCache(task);
 
                     task.getLock().lock();
 
@@ -226,7 +228,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 @Override
                 public void onFailure(Throwable throwable)
                 {
-                    ChunkRenderWorkerLitematica.this.freeRenderResults(task);
+                    ChunkRenderWorkerLitematica.this.freeRenderBufferCache(task);
 
                     if ((throwable instanceof CancellationException) == false && (throwable instanceof InterruptedException) == false)
                     {
@@ -237,13 +239,17 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
     }
 
-    private BufferBuilderCache getRegionRenderResultCache() throws InterruptedException
+    private BufferBuilderCache getRegionRenderBufferCache() throws InterruptedException
     {
+        Litematica.logger.warn("getRegionRenderBufferCache()");
+
         return this.resultCache != null ? this.resultCache : this.chunkRenderDispatcher.allocateRenderResults();
     }
 
-    private void freeRenderResults(ChunkRenderTaskSchematic generator)
+    private void freeRenderBufferCache(ChunkRenderTaskSchematic generator)
     {
+        Litematica.logger.warn("freeRenderBuffer()");
+
         BufferBuilderCache builderCache = generator.getBufferCache();
         builderCache.clear();
 

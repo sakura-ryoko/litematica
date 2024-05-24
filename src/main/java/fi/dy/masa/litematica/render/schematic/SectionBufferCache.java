@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraft.class_9799;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Util;
+import fi.dy.masa.litematica.Litematica;
 
 public class SectionBufferCache implements AutoCloseable
 {
@@ -28,20 +29,28 @@ public class SectionBufferCache implements AutoCloseable
         {
             this.overlayCache[i] = new class_9799(RenderLayer.DEFAULT_BUFFER_SIZE);
         }
+
+        Litematica.logger.error("SectionBufferCache: init()");
     }
 
     public class_9799 getBufferByLayer(RenderLayer layer)
     {
+        Litematica.logger.error("getBufferByLayer: layer {}", layer.getDrawMode().name());
+
         return this.layerCache.get(layer);
     }
 
     public class_9799 getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
+        Litematica.logger.error("getBufferByOverlay: type {}", type.getDrawMode().name());
+
         return this.overlayCache[type.ordinal()];
     }
 
     public void closeAll()
     {
+        Litematica.logger.error("SectionBufferCache: closeAll()");
+
         this.layerCache.values().forEach(class_9799::close);
         for (int i = 0; i < TYPES_2.length; i++)
         {
@@ -51,6 +60,8 @@ public class SectionBufferCache implements AutoCloseable
 
     public void discardAll()
     {
+        Litematica.logger.error("SectionBufferCache: discardAll()");
+
         this.layerCache.values().forEach(class_9799::method_60811);
         for (int i = 0; i < TYPES_2.length; i++)
         {
@@ -61,6 +72,8 @@ public class SectionBufferCache implements AutoCloseable
     @Override
     public void close()
     {
+        Litematica.logger.error("SectionBufferCache: close()");
+
         this.layerCache.values().forEach(class_9799::close);
         for (int i = 0; i < TYPES_2.length; i++)
         {

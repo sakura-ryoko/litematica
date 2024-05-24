@@ -85,6 +85,8 @@ public class WorldRendererSchematic
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
+
+        Litematica.logger.error("WorldRendererSchematic: init()");
     }
 
     public void markNeedsUpdate()
@@ -128,6 +130,8 @@ public class WorldRendererSchematic
 
     public void setWorldAndLoadRenderers(@Nullable WorldSchematic worldSchematic)
     {
+        Litematica.logger.warn("setWorldAndLoadRenderers()");
+
         this.lastCameraChunkUpdateX = Double.MIN_VALUE;
         this.lastCameraChunkUpdateY = Double.MIN_VALUE;
         this.lastCameraChunkUpdateZ = Double.MIN_VALUE;
@@ -161,11 +165,12 @@ public class WorldRendererSchematic
 
     public void loadRenderers()
     {
+        Litematica.logger.warn("loadRenderers()");
+
         if (this.hasWorld())
         {
             if (this.renderDispatcher == null)
             {
-                Litematica.logger.error("loadRenderers");
                 this.renderDispatcher = new ChunkRenderDispatcherLitematica();
             }
 
@@ -197,6 +202,8 @@ public class WorldRendererSchematic
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator)
     {
+        Litematica.logger.warn("setupTerrain()");
+
         this.world.getProfiler().push("setup_terrain");
 
         if (this.chunkRendererDispatcher == null ||
@@ -346,6 +353,8 @@ public class WorldRendererSchematic
 
     public void updateChunks(long finishTimeNano)
     {
+        Litematica.logger.warn("updateChunks()");
+
         this.mc.getProfiler().push("litematica_run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 
@@ -394,6 +403,8 @@ public class WorldRendererSchematic
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
+        Litematica.logger.warn("renderBlockLayer()");
+
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
@@ -560,6 +571,8 @@ public class WorldRendererSchematic
 
     protected void renderBlockOverlay(OverlayRenderType type, Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
+        Litematica.logger.warn("renderBlockOverlay()");
+
         RenderLayer renderLayer = RenderLayer.getTranslucent();
         renderLayer.startDrawing();
 
@@ -628,6 +641,8 @@ public class WorldRendererSchematic
 
     public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, Matrix4f matrix4f, BufferBuilder bufferBuilderIn)
     {
+        Litematica.logger.warn("renderBlock()");
+
         try
         {
             BlockRenderType renderType = state.getRenderType();
@@ -668,6 +683,8 @@ public class WorldRendererSchematic
 
     public void renderEntities(Camera camera, Frustum frustum, Matrix4f matrix4f, float partialTicks)
     {
+        Litematica.logger.warn("renderEntities()");
+
         if (this.renderEntitiesStartupCounter > 0)
         {
             --this.renderEntitiesStartupCounter;

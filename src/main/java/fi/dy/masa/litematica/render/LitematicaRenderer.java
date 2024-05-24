@@ -8,6 +8,7 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
@@ -209,6 +210,8 @@ public class LitematicaRenderer
 
     public void renderSchematicOverlay(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        Litematica.logger.error("renderSchematicOverlay()");
+
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
         if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue() != invert)
@@ -236,6 +239,8 @@ public class LitematicaRenderer
 
     public void piecewisePrepareAndUpdate(Frustum frustum)
     {
+        Litematica.logger.error("piecewisePrepareAndUpdate()");
+
         boolean render = Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() &&
                          Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                          this.mc.getCameraEntity() != null;
@@ -271,6 +276,8 @@ public class LitematicaRenderer
 
     public void piecewiseRenderSolid(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        Litematica.logger.error("piecewiseRenderSolid()");
+
         if (this.renderPiecewiseBlocks)
         {
             this.mc.getProfiler().push("litematica_blocks_solid");
@@ -295,6 +302,8 @@ public class LitematicaRenderer
 
     public void piecewiseRenderCutoutMipped(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        Litematica.logger.error("piecewiseRenderCutoutMipped()");
+
         if (this.renderPiecewiseBlocks)
         {
             this.mc.getProfiler().push("litematica_blocks_cutout_mipped");
@@ -319,6 +328,8 @@ public class LitematicaRenderer
 
     public void piecewiseRenderCutout(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        Litematica.logger.error("piecewiseRenderCutout()");
+
         if (this.renderPiecewiseBlocks)
         {
             this.mc.getProfiler().push("litematica_blocks_cutout");
@@ -343,6 +354,8 @@ public class LitematicaRenderer
 
     public void piecewiseRenderTranslucent(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        Litematica.logger.error("piecewiseRenderTranslucent()");
+
         if (this.renderPiecewiseBlocks)
         {
             this.mc.getProfiler().push("litematica_translucent");
@@ -367,6 +380,8 @@ public class LitematicaRenderer
 
     public void piecewiseRenderOverlay(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        Litematica.logger.error("piecewiseRenderOverlay()");
+
         if (this.renderPiecewiseSchematic)
         {
             this.mc.getProfiler().push("litematica_overlay");
@@ -393,6 +408,8 @@ public class LitematicaRenderer
 
     public void piecewiseRenderEntities(Matrix4f matrix4f, float partialTicks)
     {
+        Litematica.logger.error("piecewiseRenderEntities()");
+
         if (this.renderPiecewiseBlocks)
         {
             this.mc.getProfiler().push("litematica_entities");

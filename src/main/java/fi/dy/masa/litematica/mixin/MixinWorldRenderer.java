@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.render.*;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
 @Mixin(net.minecraft.client.render.WorldRenderer.class)
@@ -21,6 +22,8 @@ public abstract class MixinWorldRenderer
         // Also (re-)load our renderer when the vanilla renderer gets reloaded
         if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
         {
+            Litematica.logger.warn("onLoadRenderers()");
+
             LitematicaRenderer.getInstance().loadRenderers();
         }
     }
@@ -29,12 +32,16 @@ public abstract class MixinWorldRenderer
     private void onPostSetupTerrain(
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
+        Litematica.logger.warn("onPostSetupTerrain()");
+
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
     private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
+        //Litematica.logger.error("onRenderLayer(): layer: {}, [{}, {}, {}]", renderLayer.getDrawMode().name(), x, y, z);
+
         if (renderLayer == RenderLayer.getSolid())
         {
             LitematicaRenderer.getInstance().piecewiseRenderSolid(matrix4f, positionMatrix);
@@ -59,7 +66,9 @@ public abstract class MixinWorldRenderer
                      target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
     private void onPostRenderEntities(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
-        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
+        //Litematica.logger.error("onPostRenderEntities()");
+
+        //LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
     }
 
     /*

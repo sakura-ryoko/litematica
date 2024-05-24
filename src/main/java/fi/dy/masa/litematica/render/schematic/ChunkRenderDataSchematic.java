@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.class_9801;
 import net.minecraft.client.render.RenderLayer;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDataSchematic
@@ -103,31 +104,43 @@ public class ChunkRenderDataSchematic
 
     public class_9801.class_9802 getBlockSortState(RenderLayer layer)
     {
+        Litematica.logger.warn("getBlockSortState: layer: [{}]", layer.getDrawMode().name());
+
         return this.blockBufferStates.get(layer);
     }
 
     public void setBlockSortState(RenderLayer layer, class_9801.class_9802 state)
     {
+        Litematica.logger.warn("setBlockSortState: layer: [{}]", layer.getDrawMode().name());
+
         this.blockBufferStates.put(layer, state);
     }
 
     public void setBlockMeshDataByLayer(RenderLayer layer, class_9801 meshData)
     {
+        Litematica.logger.warn("setBlockMeshDataByLayer: layer: [{}]", layer.getDrawMode().name());
+
         this.meshDataCache.storeMeshByLayer(layer, meshData);
     }
 
     public class_9801 getBlockMeshDataByLayer(RenderLayer layer)
     {
+        Litematica.logger.warn("getBlockMeshDataByLayer: layer: [{}]", layer.getDrawMode().name());
+
         return this.meshDataCache.getMeshByLayer(layer);
     }
 
     public void setBlockMeshDataByType(OverlayRenderType type, class_9801 meshData)
     {
-        this.meshDataCache.storeMeshByOverlay(type, meshData);
+        Litematica.logger.warn("setBlockMeshDataByType: type: [{}]", type.getDrawMode().name());
+
+        this.meshDataCache.storeMeshByType(type, meshData);
     }
 
     public class_9801 getBlockMeshDataByType(OverlayRenderType type)
     {
+        Litematica.logger.warn("getBlockMeshDataByType: type: [{}]", type.getDrawMode().name());
+
         return this.meshDataCache.getMeshByType(type);
     }
 

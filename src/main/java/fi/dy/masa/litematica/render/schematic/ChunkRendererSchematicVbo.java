@@ -983,6 +983,7 @@ public class ChunkRendererSchematicVbo
     public void clear()
     {
         this.finishCompileTask();
+        this.sectionBufferCache.closeAll();
         this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
         //this.needsUpdate = true;
     }
