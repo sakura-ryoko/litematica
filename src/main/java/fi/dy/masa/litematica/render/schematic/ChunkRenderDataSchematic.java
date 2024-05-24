@@ -42,7 +42,7 @@ public class ChunkRenderDataSchematic
 
     private final boolean[] overlayLayersUsed = new boolean[OverlayRenderType.values().length];
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
-    // FIXME MeshData.SortState? (was BufferBuilder.TransparentSortingData)
+    // MeshData.SortState? (was BufferBuilder.TransparentSortingData)
     private final Map<RenderLayer, class_9801.class_9802> blockBufferStates = new HashMap<>();
     //private final class_9801.class_9802[] overlayBufferStates = new class_9801.class_9802[OverlayRenderType.values().length];
     private final MeshDataCache meshDataCache = new MeshDataCache();
