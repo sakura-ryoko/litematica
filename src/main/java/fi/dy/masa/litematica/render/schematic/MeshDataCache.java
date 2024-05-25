@@ -2,14 +2,14 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.class_9801;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
 
 public class MeshDataCache
 {
-    private final Map<RenderLayer, class_9801> meshLayerCache;
-    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, class_9801> meshOverlayCache;
+    private final Map<RenderLayer, BuiltBuffer> meshLayerCache;
+    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BuiltBuffer> meshOverlayCache;
 
     public MeshDataCache()
     {
@@ -24,22 +24,24 @@ public class MeshDataCache
         return this.meshLayerCache.containsKey(layer);
     }
 
-    public void storeMeshByLayer(RenderLayer layer, class_9801 newMeshData)
+    public void storeMeshByLayer(RenderLayer layer, BuiltBuffer newMeshData)
     {
-        Litematica.logger.warn("storeMeshByLayer: {}", layer.getDrawMode().name());
+        Litematica.logger.warn("storeMeshByLayer: {} has {}", layer.getDrawMode().name(), this.hasMeshByLayer(layer));
 
         if (this.meshLayerCache.containsKey(layer))
         {
             this.meshLayerCache.get(layer).close();
             this.meshLayerCache.replace(layer, newMeshData);
         }
-
-        this.meshLayerCache.put(layer, newMeshData);
+        else
+        {
+            this.meshLayerCache.put(layer, newMeshData);
+        }
     }
 
-    public class_9801 getMeshByLayer(RenderLayer layer)
+    public BuiltBuffer getMeshByLayer(RenderLayer layer)
     {
-        Litematica.logger.warn("getMeshByLayer: {}", layer.getDrawMode().name());
+        Litematica.logger.warn("getMeshByLayer: {} has {}", layer.getDrawMode().name(), this.hasMeshByLayer(layer));
 
         return this.meshLayerCache.get(layer);
     }
@@ -49,23 +51,33 @@ public class MeshDataCache
         return this.meshOverlayCache.containsKey(type);
     }
 
-    public void storeMeshByType(ChunkRendererSchematicVbo.OverlayRenderType type, class_9801 newMeshData)
+    public void storeMeshByType(ChunkRendererSchematicVbo.OverlayRenderType type, BuiltBuffer newMeshData)
     {
-        Litematica.logger.warn("storeMeshByOverlay: {}", type.getDrawMode().name());
+        Litematica.logger.warn("storeMeshByOverlay: {} has {}", type.getDrawMode().name(), this.hasMeshByType(type));
 
         if (this.meshOverlayCache.containsKey(type))
         {
             this.meshOverlayCache.get(type).close();
             this.meshOverlayCache.replace(type, newMeshData);
         }
-
-        this.meshOverlayCache.put(type, newMeshData);
+        else
+        {
+            this.meshOverlayCache.put(type, newMeshData);
+        }
     }
 
-    public class_9801 getMeshByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    public BuiltBuffer getMeshByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        Litematica.logger.warn("getMeshByType: {}", type.getDrawMode().name());
+        Litematica.logger.warn("getMeshByType: {} has {}", type.getDrawMode().name(), this.hasMeshByType(type));
 
         return this.meshOverlayCache.get(type);
+    }
+
+    public void clear()
+    {
+        Litematica.logger.error("MeshDataCache: clear()");
+
+        this.meshLayerCache.values().forEach(BuiltBuffer::close);
+        this.meshOverlayCache.values().forEach(BuiltBuffer::close);
     }
 }

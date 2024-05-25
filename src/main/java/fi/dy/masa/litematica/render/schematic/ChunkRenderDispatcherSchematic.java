@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.util.math.ChunkPos;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRenderDispatcherSchematic
@@ -23,6 +24,7 @@ public class ChunkRenderDispatcherSchematic
         this.renderer = worldRenderer;
         this.world = world;
         this.setViewDistanceChunks(viewDistanceChunks);
+        Litematica.logger.error("ChunkRenderDispatcherSchematic(): init");
     }
 
     public void setViewDistanceChunks(int viewDistanceChunks)

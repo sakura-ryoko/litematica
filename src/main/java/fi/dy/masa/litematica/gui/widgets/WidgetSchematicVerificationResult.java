@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.class_9799;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -16,6 +15,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -565,7 +565,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         {
             //Tessellator tessellator = Tessellator.getInstance();
             //BufferBuilder buffer = tessellator.getBuffer();
-            VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new class_9799(RenderLayer.DEFAULT_BUFFER_SIZE));
+            VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE));
             VertexConsumer vertexConsumer = immediate.getBuffer(RenderLayer.getTranslucent());
             MatrixStack.Entry matrixEntry = matrixStack.peek();
 

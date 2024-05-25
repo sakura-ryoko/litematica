@@ -1,14 +1,14 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
-import net.minecraft.class_9799;
+import net.minecraft.client.util.BufferAllocator;
 
 // Thanks plusls for this hack fix :p
 @Deprecated(forRemoval = true)
-public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends class_9799
+public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends BufferAllocator
 {
     //@Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
-    @Nullable public class_9799.class_9800 lastRenderBuildBuffer;
+    @Nullable public BufferAllocator.CloseableBuffer lastRenderBuildBuffer;
     public boolean first = true;
     private double offsetY;
 

@@ -243,7 +243,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     {
         Litematica.logger.warn("getRegionRenderBufferCache()");
 
-        return this.resultCache != null ? this.resultCache : this.chunkRenderDispatcher.allocateRenderResults();
+        return this.resultCache != null ? this.resultCache : this.chunkRenderDispatcher.allocateRenderBuffers();
     }
 
     private void freeRenderBufferCache(ChunkRenderTaskSchematic generator)

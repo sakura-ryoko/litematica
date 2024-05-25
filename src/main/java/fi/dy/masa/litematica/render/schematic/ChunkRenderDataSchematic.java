@@ -3,7 +3,7 @@ package fi.dy.masa.litematica.render.schematic;
 import java.util.*;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.class_9801;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
@@ -42,10 +42,8 @@ public class ChunkRenderDataSchematic
 
     private final boolean[] overlayLayersUsed = new boolean[OverlayRenderType.values().length];
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
-    // MeshData.SortState? (was BufferBuilder.TransparentSortingData)
-    private final Map<RenderLayer, class_9801.class_9802> blockBufferStates = new HashMap<>();
-    //private final class_9801.class_9802[] overlayBufferStates = new class_9801.class_9802[OverlayRenderType.values().length];
-    private final MeshDataCache meshDataCache = new MeshDataCache();
+    private final Map<RenderLayer, BuiltBuffer.SortState> blockBufferStates = new HashMap<>();
+    private final BuiltBuffer.SortState[] overlayBufferStates = new BuiltBuffer.SortState[OverlayRenderType.values().length];
     private boolean overlayEmpty = true;
     private boolean empty = true;
     private long timeBuilt;
@@ -102,47 +100,41 @@ public class ChunkRenderDataSchematic
         return this.overlayLayersStarted[type.ordinal()];
     }
 
-    public class_9801.class_9802 getBlockSortState(RenderLayer layer)
+    public BuiltBuffer.SortState getBlockSortState(RenderLayer layer)
     {
-        Litematica.logger.warn("getBlockSortState: layer: [{}]", layer.getDrawMode().name());
+        Litematica.logger.warn("getBlockSortState: [RenderData] layer: [{}]", layer.getDrawMode().name());
 
         return this.blockBufferStates.get(layer);
     }
 
-    public void setBlockSortState(RenderLayer layer, class_9801.class_9802 state)
+    public void setBlockSortState(RenderLayer layer, BuiltBuffer.SortState state)
     {
-        Litematica.logger.warn("setBlockSortState: layer: [{}]", layer.getDrawMode().name());
+        Litematica.logger.warn("setBlockSortState: [RenderData] layer: [{}]", layer.getDrawMode().name());
 
-        this.blockBufferStates.put(layer, state);
+        if (this.blockBufferStates.containsKey(layer))
+        {
+            this.blockBufferStates.replace(layer, state);
+        }
+        else
+        {
+            this.blockBufferStates.put(layer, state);
+        }
     }
 
-    public void setBlockMeshDataByLayer(RenderLayer layer, class_9801 meshData)
+    public BuiltBuffer.SortState getOverlayBufferState(OverlayRenderType type)
     {
-        Litematica.logger.warn("setBlockMeshDataByLayer: layer: [{}]", layer.getDrawMode().name());
+        Litematica.logger.warn("getOverlayBufferState: [RenderData] layer: [{}]", type.getDrawMode().name());
 
-        this.meshDataCache.storeMeshByLayer(layer, meshData);
+        return this.overlayBufferStates[type.ordinal()];
     }
 
-    public class_9801 getBlockMeshDataByLayer(RenderLayer layer)
+    public void setOverlayBufferState(OverlayRenderType type, BuiltBuffer.SortState state)
     {
-        Litematica.logger.warn("getBlockMeshDataByLayer: layer: [{}]", layer.getDrawMode().name());
+        Litematica.logger.warn("setOverlayBufferState: [RenderData] type: [{}]", type.getDrawMode().name());
 
-        return this.meshDataCache.getMeshByLayer(layer);
+        this.overlayBufferStates[type.ordinal()] = state;
     }
 
-    public void setBlockMeshDataByType(OverlayRenderType type, class_9801 meshData)
-    {
-        Litematica.logger.warn("setBlockMeshDataByType: type: [{}]", type.getDrawMode().name());
-
-        this.meshDataCache.storeMeshByType(type, meshData);
-    }
-
-    public class_9801 getBlockMeshDataByType(OverlayRenderType type)
-    {
-        Litematica.logger.warn("getBlockMeshDataByType: type: [{}]", type.getDrawMode().name());
-
-        return this.meshDataCache.getMeshByType(type);
-    }
 
     public List<BlockEntity> getBlockEntities()
     {

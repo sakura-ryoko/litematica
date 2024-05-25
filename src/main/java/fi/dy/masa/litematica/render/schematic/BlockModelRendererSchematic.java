@@ -20,6 +20,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.BaseRandom;
 import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.world.BlockRenderView;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.malilib.util.PositionUtils;
@@ -39,6 +40,8 @@ public class BlockModelRendererSchematic
                                VertexConsumer vertexConsumer, long rand)
     {
         boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelIn.useAmbientOcclusion();
+
+        Litematica.logger.warn("renderModel()");
 
         Vec3d offset = stateIn.getModelOffset(worldIn, posIn);
         matrix4f.translate((float) offset.x, (float) offset.y, (float) offset.z);
@@ -71,6 +74,8 @@ public class BlockModelRendererSchematic
     public boolean renderModelSmooth(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn, BlockPos posIn, Matrix4f matrix4f,
                                      VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
+        Litematica.logger.warn("renderModelSmooth()");
+
         boolean renderedSomething = false;
         float[] quadBounds = new float[PositionUtils.ALL_DIRECTIONS.length * 2];
         BitSet bitset = new BitSet(3);
@@ -107,6 +112,8 @@ public class BlockModelRendererSchematic
                                    BlockPos posIn, Matrix4f matrix4f,
                                    VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
+        Litematica.logger.warn("renderModelFlat()");
+
         boolean renderedSomething = false;
         BitSet bitset = new BitSet(3);
 
@@ -150,6 +157,8 @@ public class BlockModelRendererSchematic
     {
         final int size = list.size();
 
+        Litematica.logger.warn("renderQuadsSmooth()");
+
         for (int i = 0; i < size; ++i)
         {
             BakedQuad bakedQuad = list.get(i);
@@ -174,6 +183,8 @@ public class BlockModelRendererSchematic
     {
         final int size = list.size();
 
+        Litematica.logger.warn("renderQuadsFlat()");
+
         for (int i = 0; i < size; ++i)
         {
             BakedQuad bakedQuad = list.get(i);
@@ -196,6 +207,8 @@ public class BlockModelRendererSchematic
         float r;
         float g;
         float b;
+
+        Litematica.logger.warn("renderQuad(): pos {} // state {}", pos.toShortString(), state.toString());
 
         if (quad.hasColor())
         {

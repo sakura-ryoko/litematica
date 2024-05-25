@@ -5,7 +5,6 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.class_9801;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
@@ -58,15 +57,15 @@ public class RenderUtils
 
         Tessellator tessellator = Tessellator.getInstance();
         //BufferBuilder buffer = tessellator.getBuffer();
-        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
         // FIXME MeshData
-        class_9801 meshData;
+        BuiltBuffer meshData;
 
         startDrawingLines();
         drawBlockBoundingBoxOutlinesBatchedLines(pos, color, expand, buffer, mc);
 
         //tessellator.draw();
-        meshData = buffer.method_60800();
+        meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
     }
@@ -137,9 +136,9 @@ public class RenderUtils
 
         Tessellator tessellator = Tessellator.getInstance();
         //BufferBuilder buffer = tessellator.getBuffer();
-        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
         // FIXME MeshData
-        class_9801 meshData;
+        BuiltBuffer meshData;
 
         startDrawingLines();
 
@@ -183,7 +182,7 @@ public class RenderUtils
         buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
         //tessellator.draw();
-        meshData = buffer.method_60800();
+        meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
     }
@@ -212,9 +211,9 @@ public class RenderUtils
     {
         Tessellator tessellator = Tessellator.getInstance();
         //BufferBuilder bufferbuilder = tessellator.getBuffer();
-        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
         // FIXME MeshData
-        class_9801 meshData;
+        BuiltBuffer meshData;
 
         startDrawingLines();
 
@@ -223,7 +222,7 @@ public class RenderUtils
         drawBoundingBoxLinesZ(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorZ);
 
         //tessellator.draw();
-        meshData = buffer.method_60800();
+        meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
     }
@@ -281,14 +280,14 @@ public class RenderUtils
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         Tessellator tessellator = Tessellator.getInstance();
         //BufferBuilder buffer = tessellator.getBuffer();
-        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         // FIXME MeshData
-        class_9801 meshData;
+        BuiltBuffer meshData;
 
         renderAreaSidesBatched(pos1, pos2, color, 0.002, buffer, mc);
 
         //tessellator.draw();
-        meshData = buffer.method_60800();
+        meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
 
@@ -352,9 +351,9 @@ public class RenderUtils
 
         Tessellator tessellator = Tessellator.getInstance();
         //BufferBuilder buffer = tessellator.getBuffer();
-        BufferBuilder buffer = tessellator.method_60827(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
         // FIXME MeshData
-        class_9801 meshData;
+        BuiltBuffer meshData;
 
         startDrawingLines();
 
@@ -470,7 +469,7 @@ public class RenderUtils
         }
 
         //tessellator.draw();
-        meshData = buffer.method_60800();
+        meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
     }
