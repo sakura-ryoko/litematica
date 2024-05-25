@@ -41,7 +41,7 @@ public class BlockModelRendererSchematic
     {
         boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelIn.useAmbientOcclusion();
 
-        Litematica.logger.warn("renderModel()");
+        Litematica.logger.warn("renderModel() [Block] posIn [{}]", posIn.toShortString());
 
         Vec3d offset = stateIn.getModelOffset(worldIn, posIn);
         matrix4f.translate((float) offset.x, (float) offset.y, (float) offset.z);
@@ -74,7 +74,7 @@ public class BlockModelRendererSchematic
     public boolean renderModelSmooth(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn, BlockPos posIn, Matrix4f matrix4f,
                                      VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
-        Litematica.logger.warn("renderModelSmooth()");
+        Litematica.logger.warn("renderModelSmooth() [Block] posIn [{}]", posIn.toShortString());
 
         boolean renderedSomething = false;
         float[] quadBounds = new float[PositionUtils.ALL_DIRECTIONS.length * 2];
@@ -112,7 +112,7 @@ public class BlockModelRendererSchematic
                                    BlockPos posIn, Matrix4f matrix4f,
                                    VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
-        Litematica.logger.warn("renderModelFlat()");
+        Litematica.logger.warn("renderModelFlat() [Block] posIn [{}]", posIn.toShortString());
 
         boolean renderedSomething = false;
         BitSet bitset = new BitSet(3);
@@ -157,7 +157,7 @@ public class BlockModelRendererSchematic
     {
         final int size = list.size();
 
-        Litematica.logger.warn("renderQuadsSmooth()");
+        Litematica.logger.warn("renderQuadsSmooth() [Block] pos [{}]", pos.toShortString());
 
         for (int i = 0; i < size; ++i)
         {
@@ -183,7 +183,7 @@ public class BlockModelRendererSchematic
     {
         final int size = list.size();
 
-        Litematica.logger.warn("renderQuadsFlat()");
+        Litematica.logger.warn("renderQuadsFlat() [Block] posIn [{}]", pos.toShortString());
 
         for (int i = 0; i < size; ++i)
         {
@@ -208,7 +208,7 @@ public class BlockModelRendererSchematic
         float g;
         float b;
 
-        Litematica.logger.warn("renderQuad(): pos {} // state {}", pos.toShortString(), state.toString());
+        Litematica.logger.warn("renderQuad(): [Block] pos [{}] // state {}", pos.toShortString(), state.toString());
 
         if (quad.hasColor())
         {
@@ -227,9 +227,12 @@ public class BlockModelRendererSchematic
         //  maybe Matrix4f directly in the future since matrixStack.peek() = matrix4f basically
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.multiplyPositionMatrix(matrix4f);
+        matrixStack.push();
 
         vertexConsumer.quad(matrixStack.peek(), quad, new float[]{ brightness0, brightness1, brightness2, brightness3 },
                             r, g, b, 1.0f, new int[]{ light0, light1, light2, light3 }, overlay, true);
+
+        matrixStack.pop();
     }
 
     protected void getQuadDimensions(BlockRenderView world, BlockState state, BlockPos pos, int[] vertexData, Direction face, @Nullable float[] box, BitSet flags)

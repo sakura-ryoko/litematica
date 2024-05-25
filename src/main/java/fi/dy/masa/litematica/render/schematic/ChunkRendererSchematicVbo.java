@@ -36,6 +36,10 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.RenderUtils;
+import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
+import fi.dy.masa.litematica.render.cache.BufferBuilderPatch;
+import fi.dy.masa.litematica.render.cache.MeshDataCache;
+import fi.dy.masa.litematica.render.cache.SectionBufferCache;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.PlacementPart;
 import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -111,11 +115,15 @@ public class ChunkRendererSchematicVbo
 
     public VertexBuffer getBlocksVertexBufferByLayer(RenderLayer layer)
     {
+        Litematica.logger.error("getBlocksVertexBufferByLayer: [VBO] layer [{}]", layer.getDrawMode().name());
+
         return this.vertexBufferBlocks.computeIfAbsent(layer, l -> new VertexBuffer(VertexBuffer.Usage.STATIC));
     }
 
     public VertexBuffer getOverlayVertexBuffer(OverlayRenderType type)
     {
+        Litematica.logger.error("getOverlayVertexBuffer: [VBO] type [{}]", type.getDrawMode().name());
+
         //if (GuiBase.isCtrlDown()) System.out.printf("getOverlayVertexBuffer: type: %s, buf: %s\n", type, this.vertexBufferOverlay[type.ordinal()]);
         return this.vertexBufferOverlay.computeIfAbsent(type, l -> new VertexBuffer(VertexBuffer.Usage.STATIC));
     }
@@ -212,7 +220,7 @@ public class ChunkRendererSchematicVbo
                 RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
 
                 //this.preRenderBlocks(buffer, layerTranslucent);
-                BufferBuilderPatch buffer = this.preRenderBlocks(new BufferAllocator(layerTranslucent.getExpectedBufferSize()), layerTranslucent);
+                BufferBuilderPatch buffer = this.preRenderBlocks(this.sectionBufferCache.getBufferByLayer(layerTranslucent), layerTranslucent);
                 //buffer.beginSortedIndexBuffer(bufferState);
 
                 this.postRenderBlocks(layerTranslucent, x, y, z, buffer.asBufferBuilder(), data);
@@ -232,7 +240,7 @@ public class ChunkRendererSchematicVbo
             {
                 //BufferBuilderPatch buffer = buffers.getBufferByOverlay(type);
 
-                BufferBuilderPatch buffer = this.preRenderOverlay(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE), type.getDrawMode());
+                BufferBuilderPatch buffer = this.preRenderOverlay(this.sectionBufferCache.getBufferByOverlay(type), type.getDrawMode());
                 //buffer.beginSortedIndexBuffer(bufferState);
 
                 this.postRenderOverlay(type, x, y, z, buffer.asBufferBuilder(), data);
@@ -330,6 +338,7 @@ public class ChunkRendererSchematicVbo
                     if (data.isBlockLayerStarted(layerTmp))
                     {
                         this.postRenderBlocks(layerTmp, x, y, z, resultCache.getBufferByLayer(layerTmp).asBufferBuilder(), data);
+                        data.setBlockLayerUsed(layerTmp);
                     }
                 }
 
@@ -340,8 +349,8 @@ public class ChunkRendererSchematicVbo
                     {
                         if (data.isOverlayTypeStarted(type))
                         {
-                            data.setOverlayTypeUsed(type);
                             this.postRenderOverlay(type, x, y, z, resultCache.getBufferByOverlay(type).asBufferBuilder(), data);
+                            data.setOverlayTypeUsed(type);
                         }
                     }
                 }
@@ -372,7 +381,7 @@ public class ChunkRendererSchematicVbo
     protected void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities,
                                           Set<RenderLayer> usedLayers, Matrix4f matrix4f, @Nonnull BufferBuilderCache buffers)
     {
-        Litematica.logger.warn("renderBlocksAndOverlay() [VBO]");
+        Litematica.logger.warn("renderBlocksAndOverlay() [VBO] start");
 
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);
         BlockState stateClient    = this.clientWorldView.getBlockState(pos);
@@ -405,16 +414,20 @@ public class ChunkRendererSchematicVbo
                 int offsetY = ((pos.getY() >> 4) << 4) - this.position.getY();
 
                 //OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder bufferSchematic = buffers.getBlockBufferByLayer(layer);
-                BufferBuilderPatch bufferSchematic = buffers.getBufferByLayer(layer);
-                bufferSchematic.setOffsetY(offsetY);
+                BufferBuilderPatch bufferSchematic;
 
                 // FIXME
                 if (data.isBlockLayerStarted(layer) == false)
                 {
-                    data.setBlockLayerStarted(layer);
-                    bufferSchematic = this.preRenderBlocks(new BufferAllocator(layer.getExpectedBufferSize()), layer);
+                    bufferSchematic = this.preRenderBlocks(this.sectionBufferCache.getBufferByLayer(layer), layer);
                     buffers.storeBufferByLayer(layer, bufferSchematic);
+                    data.setBlockLayerStarted(layer);
                 }
+                else
+                {
+                    bufferSchematic = buffers.getBufferByLayer(layer);
+                }
+                bufferSchematic.setOffsetY(offsetY);
                 // TODO
 
                 this.worldRenderer.renderFluid(this.schematicWorldView, fluidState, pos, bufferSchematic.asBufferBuilder());
@@ -430,9 +443,9 @@ public class ChunkRendererSchematicVbo
                 // FIXME
                 if (data.isBlockLayerStarted(layer) == false)
                 {
-                    data.setBlockLayerStarted(layer);
-                    buffer = this.preRenderBlocks(new BufferAllocator(layer.getExpectedBufferSize()), layer);
+                    buffer = this.preRenderBlocks(this.sectionBufferCache.getBufferByLayer(layer), layer);
                     buffers.storeBufferByLayer(layer, buffer);
+                    data.setBlockLayerStarted(layer);
                 }
                 else
                 {
@@ -478,9 +491,9 @@ public class ChunkRendererSchematicVbo
 
             if (data.isOverlayTypeStarted(OverlayRenderType.QUAD) == false)
             {
-                data.setOverlayTypeStarted(OverlayRenderType.QUAD);
-                bufferOverlayQuads = this.preRenderOverlay(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE), OverlayRenderType.QUAD);
+                bufferOverlayQuads = this.preRenderOverlay(this.sectionBufferCache.getBufferByOverlay(OverlayRenderType.QUAD), OverlayRenderType.QUAD);
                 buffers.storeBufferByOverlay(OverlayRenderType.QUAD, bufferOverlayQuads);
+                data.setOverlayTypeStarted(OverlayRenderType.QUAD);
             }
             else
             {
@@ -542,9 +555,9 @@ public class ChunkRendererSchematicVbo
 
             if (data.isOverlayTypeStarted(OverlayRenderType.OUTLINE) == false)
             {
-                data.setOverlayTypeStarted(OverlayRenderType.OUTLINE);
-                bufferOverlayOutlines = this.preRenderOverlay(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE), OverlayRenderType.OUTLINE);
+                bufferOverlayOutlines = this.preRenderOverlay(this.sectionBufferCache.getBufferByOverlay(OverlayRenderType.OUTLINE), OverlayRenderType.OUTLINE);
                 buffers.storeBufferByOverlay(OverlayRenderType.OUTLINE, bufferOverlayOutlines);
+                data.setOverlayTypeStarted(OverlayRenderType.OUTLINE);
             }
             else
             {
@@ -818,9 +831,9 @@ public class ChunkRendererSchematicVbo
         return VertexSorter.byDistance((float)(cam.x - (double)origin.getX()), (float)(cam.y - (double)origin.getY()), (float)(cam.z - (double)origin.getZ()));
     }
 
-    private void uploadSectionLayer(@Nonnull BuiltBuffer meshData, @Nonnull VertexBuffer vertexBuffer)
+    public void uploadSectionLayer(@Nonnull BuiltBuffer meshData, @Nonnull VertexBuffer vertexBuffer)
     {
-        Litematica.logger.warn("uploadSectionLayer() [VBO] start");
+        Litematica.logger.warn("uploadSectionLayer() [VBO] start (buffer size: {}) // MeshDraw [{}]", vertexBuffer.getVertexFormat().getVertexSizeByte(), meshData.getDrawParameters().mode().name());
 
         if (vertexBuffer.isClosed())
         {
@@ -836,9 +849,9 @@ public class ChunkRendererSchematicVbo
         Litematica.logger.warn("uploadSectionLayer() [VBO] END");
     }
 
-    private void uploadSectionIndex(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
+    public void uploadSectionIndex(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
     {
-        Litematica.logger.warn("uploadSectionIndex() [VBO] start");
+        Litematica.logger.warn("uploadSectionIndex() [VBO] start (buffer size: {})", vertexBuffer.getVertexFormat().getVertexSizeByte());
 
         if (vertexBuffer.isClosed())
         {
@@ -866,7 +879,7 @@ public class ChunkRendererSchematicVbo
             {
                 return;
             }
-            if (layer == RenderLayer.getTranslucent())
+            if (layer.isTranslucent())
             {
                 VertexSorter sorter = createVertexSorter(x, y, z);
                 BuiltBuffer.SortState newState = newMeshData.sortQuads(this.sectionBufferCache.getBufferByLayer(layer), sorter);
@@ -877,6 +890,7 @@ public class ChunkRendererSchematicVbo
 
             this.uploadSectionLayer(newMeshData, this.getBlocksVertexBufferByLayer(layer));
             this.meshDataCache.storeMeshByLayer(layer, newMeshData);
+            chunkRenderData.setBlockBuffer(layer, newMeshData);
 
             //buffer.setSorter(VertexSorter.byDistance(x, y, z));
             //chunkRenderData.setBlockBufferState(layer, buffer.getSortingData());
@@ -894,12 +908,13 @@ public class ChunkRendererSchematicVbo
 
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         //buffer.begin(type.getDrawMode(), VertexFormats.POSITION_COLOR);
-        return new BufferBuilderPatch(buffer, type.getDrawMode(), VertexFormats.POSITION_COLOR);
+        return new BufferBuilderPatch(buffer, type.getDrawMode(), type.getVertexFormat());
     }
 
     private BufferBuilderPatch preRenderOverlay(@Nonnull BufferAllocator buffer, VertexFormat.DrawMode drawMode)
     {
         Litematica.logger.warn("preRenderOverlay() [VBO] 2 type [{}]", drawMode.name());
+        Tessellator tess;
 
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         //buffer.begin(drawMode, VertexFormats.POSITION_COLOR);
@@ -921,13 +936,17 @@ public class ChunkRendererSchematicVbo
             }
 
             // TODO Mojang removed the Sorting State's from all non-translucent layers.
-            VertexSorter sorter = createVertexSorter(x, y, z);
-            BuiltBuffer.SortState newState = newMeshData.sortQuads(this.sectionBufferCache.getBufferByOverlay(type), sorter);
-            this.uploadSectionIndex(newState.sortAndStore(this.sectionBufferCache.getBufferByOverlay(type), sorter), this.getOverlayVertexBuffer(type));
-            chunkRenderData.setOverlayBufferState(type, newState);
+            if (type.isTranslucent())
+            {
+                VertexSorter sorter = createVertexSorter(x, y, z);
+                BuiltBuffer.SortState newState = newMeshData.sortQuads(this.sectionBufferCache.getBufferByOverlay(type), sorter);
+                this.uploadSectionIndex(newState.sortAndStore(this.sectionBufferCache.getBufferByOverlay(type), sorter), this.getOverlayVertexBuffer(type));
+                chunkRenderData.setOverlayBufferState(type, newState);
+            }
 
             this.uploadSectionLayer(newMeshData, this.getOverlayVertexBuffer(type));
             this.meshDataCache.storeMeshByType(type, newMeshData);
+            chunkRenderData.setOverlayBlockBuffer(type, newMeshData);
 
             //buffer.setSorter(VertexSorter.byDistance(x, y, z));
             //chunkRenderData.setOverlayBufferState(type, buffer.getSortingData());
@@ -1019,7 +1038,7 @@ public class ChunkRendererSchematicVbo
         Litematica.logger.warn("clear() [VBO] ");
 
         this.finishCompileTask();
-        this.sectionBufferCache.discardAll();
+        this.sectionBufferCache.clearAll();
         this.meshDataCache.clear();
         this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
         //this.needsUpdate = true;
@@ -1074,19 +1093,35 @@ public class ChunkRendererSchematicVbo
 
     public enum OverlayRenderType
     {
-        OUTLINE     (VertexFormat.DrawMode.DEBUG_LINES),
-        QUAD        (VertexFormat.DrawMode.QUADS);
+        OUTLINE     (VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.DEBUG_LINES, RenderLayer.DEFAULT_BUFFER_SIZE, false, false),
+        QUAD        (VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS, RenderLayer.DEFAULT_BUFFER_SIZE, false, true);
 
+        private final VertexFormat vertexFormat;
         private final VertexFormat.DrawMode drawMode;
+        private final int bufferSize;
+        private final boolean hasCrumbling;
+        private final boolean translucent;
 
-        OverlayRenderType(VertexFormat.DrawMode drawMode)
+        OverlayRenderType(VertexFormat format, VertexFormat.DrawMode drawMode, int bufferSize, boolean crumbling, boolean translucent)
         {
+            this.vertexFormat = format;
             this.drawMode = drawMode;
+            this.bufferSize = bufferSize;
+            this.hasCrumbling = crumbling;
+            this.translucent = translucent;
         }
+
+        public VertexFormat getVertexFormat() { return this.vertexFormat; }
 
         public VertexFormat.DrawMode getDrawMode()
         {
             return this.drawMode;
         }
+
+        public int getExpectedBufferSize() { return this.bufferSize; }
+
+        public boolean hasCrumbling() { return this.hasCrumbling; }
+
+        public boolean isTranslucent() { return this.translucent; }
     }
 }

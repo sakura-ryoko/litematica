@@ -485,21 +485,21 @@ public class WorldRendererSchematic
 
                 if (buffer == null)
                 {
-                    Litematica.logger.error("renderBlockLayer: [World] vertexBuffer = null");
+                    Litematica.logger.error("renderBlockLayer: [World] vertexBuffer = null for layer [{}]", renderLayer.getDrawMode().name());
                     continue;
                 }
                 if (buffer.isClosed())
                 {
-                    Litematica.logger.error("renderBlockLayer: [World] vertexBuffer is closed");
+                    Litematica.logger.error("renderBlockLayer: [World] vertexBuffer is closed for layer [{}]", renderLayer.getDrawMode().name());
                     continue;
                 }
                 if (buffer.getVertexFormat() == null)
                 {
-                    Litematica.logger.error("renderBlockLayer: [World] VertexFormat is null");
+                    Litematica.logger.error("renderBlockLayer: [World] VertexFormat is null for layer [{}]", renderLayer.getDrawMode().name());
                 }
                 else
                 {
-                    Litematica.logger.warn("renderBlockLayer: [World] VertexFormat Draw: {} // [{}]", buffer.getVertexFormat().getVertexSizeByte(), buffer.getVertexFormat().toString());
+                    Litematica.logger.warn("renderBlockLayer: [World] VertexFormat Draw (buffer size {}) for layer [{}]", buffer.getVertexFormat().getVertexSizeByte(), renderLayer.getDrawMode().name());
 
                     if (chunkOffsetUniform != null)
                     {
@@ -544,6 +544,8 @@ public class WorldRendererSchematic
 
     public void renderBlockOverlays(Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
+        Litematica.logger.warn("renderBlockOverlays() [World]");
+
         this.renderBlockOverlay(OverlayRenderType.OUTLINE, matrix4f, camera, projMatrix);
         this.renderBlockOverlay(OverlayRenderType.QUAD, matrix4f, camera, projMatrix);
     }
@@ -613,25 +615,25 @@ public class WorldRendererSchematic
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    Litematica.logger.warn("renderBlockOverlay: index [{}] origin [{}]", i, chunkOrigin.toShortString());
+                    Litematica.logger.warn("renderBlockOverlay: index [{}] origin [{}] type: [{}]", i, chunkOrigin.toShortString(), type.getDrawMode().name());
 
                     if (buffer == null)
                     {
-                        Litematica.logger.error("renderBlockOverlay: vertexBuffer for type {} is NULL", type.getDrawMode().name());
+                        Litematica.logger.error("renderBlockOverlay: vertexBuffer is NULL for type {}", type.getDrawMode().name());
                         continue;
                     }
                     if (buffer.isClosed())
                     {
-                        Litematica.logger.error("renderBlockOverlay: vertexBuffer for type {} is CLOSED", type.getDrawMode().name());
+                        Litematica.logger.error("renderBlockOverlay: vertexBuffer is CLOSED for type {}", type.getDrawMode().name());
                         continue;
                     }
                     if (buffer.getVertexFormat() == null)
                     {
-                        Litematica.logger.error("renderBlockOverlay: VertexFormat for type {} is NULL", type.getDrawMode().name());
+                        Litematica.logger.error("renderBlockOverlay: VertexFormat is NULL for type {}", type.getDrawMode().name());
                     }
                     else
                     {
-                        Litematica.logger.warn("renderBlockOverlay: VertexFormat {} // [{}]", buffer.getVertexFormat().getVertexSizeByte(), buffer.getVertexFormat().toString());
+                        Litematica.logger.warn("renderBlockOverlay: VertexFormat Draw (buffer size [{}]) for type {}", buffer.getVertexFormat().getVertexSizeByte(), type.getDrawMode().name());
 
                         matrix4fStack.pushMatrix();
                         matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
@@ -655,7 +657,7 @@ public class WorldRendererSchematic
 
     public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, Matrix4f matrix4f, @Nonnull BufferBuilder bufferBuilderIn)
     {
-        Litematica.logger.warn("renderBlock() at [{}] // {}", pos.toShortString(), state.toString());
+        Litematica.logger.warn("renderBlock() [World] at [{}] // [{}]", pos.toShortString(), state.toString());
 
         try
         {
@@ -682,6 +684,8 @@ public class WorldRendererSchematic
 
     public void renderFluid(BlockRenderView world, FluidState state, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
+        Litematica.logger.warn("renderFluid() [World]");
+
         this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, state.getBlockState(), state);
     }
 
@@ -697,7 +701,7 @@ public class WorldRendererSchematic
 
     public void renderEntities(Camera camera, Frustum frustum, Matrix4f matrix4f, float partialTicks)
     {
-        Litematica.logger.warn("renderEntities()");
+        Litematica.logger.warn("renderEntities() [World]");
 
         if (this.renderEntitiesStartupCounter > 0)
         {

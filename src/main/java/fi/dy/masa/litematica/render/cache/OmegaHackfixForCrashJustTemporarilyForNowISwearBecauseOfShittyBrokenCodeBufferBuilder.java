@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.cache;
 
 import javax.annotation.Nullable;
 import net.minecraft.client.util.BufferAllocator;
