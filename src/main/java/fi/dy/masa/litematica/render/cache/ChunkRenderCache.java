@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
@@ -22,8 +23,8 @@ public class ChunkRenderCache implements AutoCloseable
     public final List<RenderLayer> LAYERS = RenderLayer.getBlockLayers();
     public final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = Arrays.stream(ChunkRendererSchematicVbo.OverlayRenderType.values()).toList();
 
-    private final Map<RenderLayer, VertexBuffer> layerVertex = LAYERS.stream().collect(Collectors.toMap(layer -> layer, layer -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
-    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, VertexBuffer> overlayVertex = TYPES.stream().collect(Collectors.toMap(type -> type, type -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
+    //private final Map<RenderLayer, VertexBuffer> layerVertex = LAYERS.stream().collect(Collectors.toMap(layer -> layer, layer -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
+    //private final Map<ChunkRendererSchematicVbo.OverlayRenderType, VertexBuffer> overlayVertex = TYPES.stream().collect(Collectors.toMap(type -> type, type -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     private final Map<RenderLayer, BufferAllocator> layerAllocators = Util.make(new Reference2ObjectArrayMap<>(LAYERS.size()), refMap ->
     {
@@ -40,12 +41,13 @@ public class ChunkRenderCache implements AutoCloseable
         }
     });
 
-    private final Map<RenderLayer, BufferBuilderPatch> layerBuilders = LAYERS.stream().collect(Collectors.toMap(layer -> layer, layer -> new BufferBuilderPatch(this.getAllocatorByLayer(layer), layer.getDrawMode(), layer.getVertexFormat())));
-    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferBuilderPatch> overlayBuilders = TYPES.stream().collect(Collectors.toMap(type -> type, type -> new BufferBuilderPatch(this.getAllocatorByOverlay(type), type.getDrawMode(), type.getVertexFormat())));
+    private final Map<RenderLayer, BufferBuilder> layerBuilders = LAYERS.stream().collect(Collectors.toMap(layer -> layer, layer -> new BufferBuilder(this.getAllocatorByLayer(layer), layer.getDrawMode(), layer.getVertexFormat())));
+    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferBuilder> overlayBuilders = TYPES.stream().collect(Collectors.toMap(type -> type, type -> new BufferBuilder(this.getAllocatorByOverlay(type), type.getDrawMode(), type.getVertexFormat())));
 
     private final Map<RenderLayer, BuiltBuffer> layerMeshData = new HashMap<>();
     private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BuiltBuffer> overlayMeshData = new HashMap<>();
 
+    /*
     public VertexBuffer getVertexBufferByLayer(RenderLayer layer)
     {
         return this.layerVertex.get(layer);
@@ -61,6 +63,7 @@ public class ChunkRenderCache implements AutoCloseable
         this.layerVertex.values().forEach(VertexBuffer::close);
         this.overlayVertex.values().forEach(VertexBuffer::close);
     }
+     */
 
     public BufferAllocator getAllocatorByLayer(RenderLayer layer)
     {
@@ -90,12 +93,12 @@ public class ChunkRenderCache implements AutoCloseable
         this.overlayAllocators.values().forEach(BufferAllocator::close);
     }
 
-    public BufferBuilderPatch getBuilderByLayer(RenderLayer layer)
+    public BufferBuilder getBuilderByLayer(RenderLayer layer)
     {
         return this.layerBuilders.get(layer);
     }
 
-    public BufferBuilderPatch getBuilderByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    public BufferBuilder getBuilderByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         return this.overlayBuilders.get(type);
     }
@@ -139,53 +142,60 @@ public class ChunkRenderCache implements AutoCloseable
 
     /**
      * Get the new SortState Parameter for the Translucent layer only
+     *
      * @param layer (The Render layer used)
      * @param sorter (Vertex Sorter based on origin value)
-     * @return
+     * @return (SortState if successful, or null)
      */
     @Nullable
     public BuiltBuffer.SortState getSortStateByLayer(RenderLayer layer, @Nonnull VertexSorter sorter)
     {
         if (this.hasBuiltBufferByLayer(layer) && layer == RenderLayer.getTranslucent())
         {
-            try
+            BuiltBuffer meshData = this.getBuiltBufferByLayer(layer);
+
+            if (meshData != null)
             {
-                return this.getBuiltBufferByLayer(layer).sortQuads(this.getAllocatorByLayer(layer), sorter);
+                try
+                {
+                    return meshData.sortQuads(this.getAllocatorByLayer(layer), sorter);
+                }
+                catch (Exception ignored) {}
             }
-            catch (Exception ignored) { }
         }
 
         return null;
     }
 
+    /**
+     * Get the new SortState Parameter for the Translucent layer only
+     *
+     * @param type (The Overlay Type)
+     * @param sorter (VertexSorter based on the origin value)
+     * @return (SortState if successful, or null)
+     */
     @Nullable
     public BuiltBuffer.SortState getSortStateByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull VertexSorter sorter)
     {
         if (this.hasBuiltBufferByOverlay(type) && type == ChunkRendererSchematicVbo.OverlayRenderType.QUAD)
         {
-            try
+            BuiltBuffer meshData = this.getBuiltBufferByOverlay(type);
+
+            if (meshData != null)
             {
-                return this.getBuiltBufferByOverlay(type).sortQuads(this.getAllocatorByOverlay(type), sorter);
+                try
+                {
+                    return meshData.sortQuads(this.getAllocatorByOverlay(type), sorter);
+                }
+                catch (Exception ignored) {}
             }
-            catch (Exception ignored) { }
         }
 
         return null;
     }
 
-    public boolean uploadByLayer(RenderLayer layer, @Nullable BuiltBuffer.SortState sortState, @Nullable VertexSorter sorter)
+    public void uploadSectionMesh(@Nonnull BuiltBuffer meshData, @Nonnull VertexBuffer vertexBuffer)
     {
-        if (this.hasBuiltBufferByLayer(layer))
-        {
-        }
-
-        return false;
-    }
-
-    private void uploadSectionMesh(@Nonnull BuiltBuffer meshData, @Nonnull VertexBuffer vertexBuffer)
-    {
-        Litematica.logger.warn("uploadSectionMesh() start");
-
         if (vertexBuffer.isClosed())
         {
             Litematica.logger.error("uploadSectionMesh: error uploading MeshData (VertexBuffer is closed)");
@@ -197,13 +207,11 @@ public class ChunkRenderCache implements AutoCloseable
         vertexBuffer.upload(meshData);
         VertexBuffer.unbind();
 
-        Litematica.logger.warn("uploadSectionMesh() END");
+        Litematica.logger.warn("uploadSectionMesh() Done");
     }
 
-    private void uploadSectionSortedIndex(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
+    public void uploadSectionSortedIndex(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
     {
-        Litematica.logger.warn("uploadSectionSortedIndex() start");
-
         if (vertexBuffer.isClosed())
         {
             Litematica.logger.error("uploadSectionSortedIndex: error uploading MeshData SortState (VertexBuffer is closed)");
@@ -215,7 +223,7 @@ public class ChunkRenderCache implements AutoCloseable
         vertexBuffer.uploadIndexBuffer(result);
         VertexBuffer.unbind();
 
-        Litematica.logger.warn("uploadSectionSortedIndex() END");
+        Litematica.logger.warn("uploadSectionSortedIndex() Done");
     }
 
     public void closeBuiltBuffers()
@@ -224,12 +232,17 @@ public class ChunkRenderCache implements AutoCloseable
         this.overlayMeshData.values().forEach(BuiltBuffer::close);
     }
 
-    @Override
-    public void close() throws Exception
+    public void clearAll()
     {
-        this.closeVertexBuffers();
+        //this.closeVertexBuffers();
         this.closeAllocators();
         this.closeBuilders();
         this.closeBuiltBuffers();
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        this.clearAll();
     }
 }

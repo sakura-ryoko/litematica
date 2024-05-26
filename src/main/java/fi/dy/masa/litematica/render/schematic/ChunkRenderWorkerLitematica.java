@@ -15,7 +15,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.crash.CrashReport;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
+import fi.dy.masa.litematica.render.cache.ChunkRenderCache;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderWorkerLitematica implements Runnable
@@ -23,7 +23,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private static final Logger LOGGER = Litematica.logger;
 
     private final ChunkRenderDispatcherLitematica chunkRenderDispatcher;
-    private final BufferBuilderCache resultCache;
+    private final ChunkRenderCache renderCache;
     private boolean shouldRun;
 
     public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn)
@@ -31,16 +31,18 @@ public class ChunkRenderWorkerLitematica implements Runnable
         this(chunkRenderDispatcherIn, null);
     }
 
-    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, @Nullable BufferBuilderCache buffers)
+    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, @Nullable ChunkRenderCache buffers)
     {
         this.shouldRun = true;
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
-        this.resultCache = buffers;
+        this.renderCache = buffers;
     }
 
     @Override
     public void run()
     {
+        Litematica.logger.warn("run() [Worker]");
+
         while (this.shouldRun)
         {
             try
@@ -63,9 +65,9 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
     protected void processTask(final ChunkRenderTaskSchematic task) throws InterruptedException
     {
-        task.getLock().lock();
+        Litematica.logger.warn("processTask() [Worker]");
 
-        Litematica.logger.warn("processTask()");
+        task.getLock().lock();
 
         try
         {
@@ -144,7 +146,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         //System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks(%s)\n", layer.toString());
                         //BufferBuilder buffer = buffers.getResultByLayer(layer);
                         // TODO
-                        futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, chunkRenderData, task.getDistanceSq()));
+                        futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, this.renderCache, renderChunk, chunkRenderData, task.getDistanceSq()));
                     }
                 }
 
@@ -155,7 +157,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay()\n");
                         //BufferBuilder buffer = buffers.getOverlayBuffer(type);
                         // TODO
-                        futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, renderChunk, chunkRenderData, task.getDistanceSq()));
+                        futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, this.renderCache, renderChunk, chunkRenderData, task.getDistanceSq()));
                     }
                 }
             }
@@ -168,7 +170,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     //System.out.printf("RESORT_TRANSPARENCY pre uploadChunkBlocks(%s)\n", layer.toString());
                     //BufferBuilder buffer = buffers.getResultByLayer(layer);
                     // TODO
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(RenderLayer.getTranslucent(), renderChunk, chunkRenderData, task.getDistanceSq()));
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(RenderLayer.getTranslucent(), this.renderCache, renderChunk, chunkRenderData, task.getDistanceSq()));
                 }
 
                 if (chunkRenderData.isOverlayTypeEmpty(OverlayRenderType.QUAD) == false)
@@ -176,7 +178,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     //if (GuiBase.isCtrlDown()) System.out.printf("RESORT_TRANSPARENCY pre uploadChunkOverlay()\n");
                     //BufferBuilder buffer = buffers.getOverlayBuffer(OverlayRenderType.QUAD);
                     // TODO
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, renderChunk, chunkRenderData, task.getDistanceSq()));
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, this.renderCache, renderChunk, chunkRenderData, task.getDistanceSq()));
                 }
             }
 
@@ -240,23 +242,23 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
     }
 
-    private BufferBuilderCache getRegionRenderBufferCache() throws InterruptedException
+    private ChunkRenderCache getRegionRenderBufferCache() throws InterruptedException
     {
         Litematica.logger.warn("getRegionRenderBufferCache()");
 
-        return this.resultCache != null ? this.resultCache : this.chunkRenderDispatcher.allocateRenderBuffers();
+        return this.renderCache != null ? this.renderCache : this.chunkRenderDispatcher.allocateRenderCache();
     }
 
     private void freeRenderBufferCache(ChunkRenderTaskSchematic generator)
     {
         Litematica.logger.warn("freeRenderBuffer()");
 
-        BufferBuilderCache builderCache = generator.getBufferCache();
-        builderCache.clear();
+        ChunkRenderCache oldCache = generator.getRenderCache();
+        oldCache.clearAll();
 
-        if (this.resultCache == null)
+        if (this.renderCache == null)
         {
-            this.chunkRenderDispatcher.freeRenderResults(builderCache);
+            this.chunkRenderDispatcher.freeRenderCache(oldCache);
         }
     }
 

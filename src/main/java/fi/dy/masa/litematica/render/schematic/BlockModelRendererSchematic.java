@@ -229,8 +229,15 @@ public class BlockModelRendererSchematic
         matrixStack.multiplyPositionMatrix(matrix4f);
         matrixStack.push();
 
-        vertexConsumer.quad(matrixStack.peek(), quad, new float[]{ brightness0, brightness1, brightness2, brightness3 },
-                            r, g, b, 1.0f, new int[]{ light0, light1, light2, light3 }, overlay, true);
+        try
+        {
+            vertexConsumer.quad(matrixStack.peek(), quad, new float[]{brightness0, brightness1, brightness2, brightness3},
+                    r, g, b, 1.0f, new int[]{light0, light1, light2, light3}, overlay, true);
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.fatal("renderQuad(): [Block] quad failure");
+        }
 
         matrixStack.pop();
     }

@@ -6,7 +6,6 @@ import java.util.*;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -29,7 +28,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
-
+import fi.dy.masa.malilib.util.EntityUtils;
+import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -37,8 +37,6 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
-import fi.dy.masa.malilib.util.EntityUtils;
-import fi.dy.masa.malilib.util.LayerRange;
 
 public class WorldRendererSchematic
 {
@@ -671,6 +669,12 @@ public class WorldRendererSchematic
             {
                 return renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrix4f, bufferBuilderIn, state.getRenderingSeed(pos));
+
+                // TODO vanilla block render for debugging
+                /*
+                this.blockRenderManager.renderBlock(state, pos, world, new MatrixStack(), bufferBuilderIn, false, Random.create());
+                return renderType == BlockRenderType.MODEL;
+                 */
             }
         }
         catch (Throwable throwable)

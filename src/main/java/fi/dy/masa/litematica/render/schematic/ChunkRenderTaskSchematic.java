@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import net.minecraft.util.math.Vec3d;
-import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
+import fi.dy.masa.litematica.render.cache.ChunkRenderCache;
 
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
@@ -16,7 +16,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ReentrantLock lock = new ReentrantLock();
     private final Supplier<Vec3d> cameraPosSupplier;
     private final double distanceSq;
-    private BufferBuilderCache bufferBuilderCache;
+    private ChunkRenderCache renderCache;
     private ChunkRenderDataSchematic chunkRenderData;
     private ChunkRenderTaskSchematic.Status status = ChunkRenderTaskSchematic.Status.PENDING;
     private boolean finished;
@@ -54,14 +54,14 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.chunkRenderData = chunkRenderData;
     }
 
-    public BufferBuilderCache getBufferCache()
+    public ChunkRenderCache getRenderCache()
     {
-        return this.bufferBuilderCache;
+        return this.renderCache;
     }
 
-    public void setRegionRenderCacheBuilder(BufferBuilderCache cache)
+    public void setRegionRenderCacheBuilder(ChunkRenderCache cache)
     {
-        this.bufferBuilderCache = cache;
+        this.renderCache = cache;
     }
 
     public void setStatus(ChunkRenderTaskSchematic.Status statusIn)
