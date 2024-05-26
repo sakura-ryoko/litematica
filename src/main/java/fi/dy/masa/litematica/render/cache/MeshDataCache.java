@@ -6,7 +6,7 @@ import java.util.Map;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
+import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo;
 
 public class MeshDataCache implements AutoCloseable
 {

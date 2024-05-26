@@ -11,7 +11,7 @@ import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
-import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+import fi.dy.masa.litematica.render.schematic.org.WorldRendererSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class LitematicaRenderer

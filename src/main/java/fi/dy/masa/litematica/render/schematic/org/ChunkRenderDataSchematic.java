@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.schematic.org;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -8,7 +8,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDataSchematic
 {

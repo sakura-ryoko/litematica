@@ -8,7 +8,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.Util;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
+import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo;
 
 public class SectionBufferCache implements AutoCloseable
 {

@@ -10,7 +10,7 @@ import net.minecraft.client.gui.hud.DebugHud;
 
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
-import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+import fi.dy.masa.litematica.render.schematic.org.WorldRendererSchematic;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.gui.GuiBase;

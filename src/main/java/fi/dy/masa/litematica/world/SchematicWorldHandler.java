@@ -16,7 +16,7 @@ import net.minecraft.world.dimension.DimensionTypes;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
-import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+import fi.dy.masa.litematica.render.schematic.org.WorldRendererSchematic;
 
 public class SchematicWorldHandler
 {

@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.schematic.org;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.cache.ChunkRenderCache;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDispatcherLitematica
 {

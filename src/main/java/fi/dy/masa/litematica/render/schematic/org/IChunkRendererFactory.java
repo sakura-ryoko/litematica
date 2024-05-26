@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.schematic.org;
 
 import fi.dy.masa.litematica.world.WorldSchematic;
 

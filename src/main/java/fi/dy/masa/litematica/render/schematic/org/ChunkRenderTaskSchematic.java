@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.schematic.org;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;

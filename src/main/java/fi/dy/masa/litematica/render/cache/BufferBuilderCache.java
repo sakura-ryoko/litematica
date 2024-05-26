@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class BufferBuilderCache implements AutoCloseable
 {

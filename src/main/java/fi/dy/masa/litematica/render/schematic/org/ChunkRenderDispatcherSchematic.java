@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.schematic.org;
 
 import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;

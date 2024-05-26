@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
+package fi.dy.masa.litematica.render.schematic.org;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.crash.CrashReport;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.cache.ChunkRenderCache;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderWorkerLitematica implements Runnable
 {
