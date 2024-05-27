@@ -1,11 +1,10 @@
-package fi.dy.masa.litematica.render.schematic.org;
+package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.util.math.ChunkPos;
 
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRenderDispatcherSchematic
@@ -24,7 +23,6 @@ public class ChunkRenderDispatcherSchematic
         this.renderer = worldRenderer;
         this.world = world;
         this.setViewDistanceChunks(viewDistanceChunks);
-        Litematica.logger.warn("ChunkRenderDispatcherSchematic(): init");
     }
 
     public void setViewDistanceChunks(int viewDistanceChunks)
@@ -37,8 +35,6 @@ public class ChunkRenderDispatcherSchematic
 
     public void delete()
     {
-        Litematica.logger.warn("delete() [Schematic]");
-
         for (ChunkRendererSchematicVbo chunkRenderer : this.chunkRenderers.values())
         {
             chunkRenderer.deleteGlResources();
@@ -65,8 +61,6 @@ public class ChunkRenderDispatcherSchematic
 
     protected ChunkRendererSchematicVbo getOrCreateChunkRenderer(int chunkX, int chunkZ)
     {
-        Litematica.logger.warn("getOrCreateChunkRenderer() [Schematic]");
-
         long index = ChunkPos.toLong(chunkX, chunkZ);
         ChunkRendererSchematicVbo renderer = this.chunkRenderers.get(index);
 
@@ -83,8 +77,6 @@ public class ChunkRenderDispatcherSchematic
     @Nullable
     protected ChunkRendererSchematicVbo getChunkRenderer(int chunkX, int chunkZ)
     {
-        Litematica.logger.warn("getChunkRenderer() [Schematic]");
-
         long index = ChunkPos.toLong(chunkX, chunkZ);
         return this.chunkRenderers.get(index);
     }

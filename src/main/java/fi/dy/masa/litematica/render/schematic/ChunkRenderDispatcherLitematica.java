@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic.org;
+package fi.dy.masa.litematica.render.schematic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +14,12 @@ import com.google.common.util.concurrent.ListenableFutureTask;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BuiltBuffer;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.cache.ChunkRenderCache;
-import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDispatcherLitematica
 {
@@ -30,10 +29,10 @@ public class ChunkRenderDispatcherLitematica
     private final List<Thread> listWorkerThreads = new ArrayList<>();
     private final List<ChunkRenderWorkerLitematica> listThreadedWorkers = new ArrayList<>();
     private final PriorityBlockingQueue<ChunkRenderTaskSchematic> queueChunkUpdates = Queues.newPriorityBlockingQueue();
-    private final BlockingQueue<ChunkRenderCache> queueFreeRenderCache;
+    private final BlockingQueue<BufferBuilderCache> queueFreeRenderBuilders;
     private final Queue<ChunkRenderDispatcherLitematica.PendingUpload> queueChunkUploads = Queues.newPriorityQueue();
     private final ChunkRenderWorkerLitematica renderWorker;
-    private final int countRenderCache;
+    private final int countRenderBuilders;
     private Vec3d cameraPos;
 
     public ChunkRenderDispatcherLitematica()
@@ -42,7 +41,7 @@ public class ChunkRenderDispatcherLitematica
         //int threadLimitMemory = Math.max(1, (int)((double)Runtime.getRuntime().maxMemory() * 0.3D) / 10485760);
         //int threadLimitCPU = Math.max(1, MathHelper.clamp(Runtime.getRuntime().availableProcessors(), 1, threadLimitMemory / 5));
         //this.countRenderBuilders = MathHelper.clamp(threadLimitCPU * 10, 1, threadLimitMemory);
-        this.countRenderCache = 2;
+        this.countRenderBuilders = 2;
         this.cameraPos = Vec3d.ZERO;
 
         /*
@@ -61,18 +60,16 @@ public class ChunkRenderDispatcherLitematica
         }
         */
 
-        Litematica.logger.info("[Dispatch] Using {} total BufferBuilder caches", this.countRenderCache + 1);
+        Litematica.logger.info("Using {} total BufferBuilder caches", this.countRenderBuilders + 1);
 
-        this.queueFreeRenderCache = Queues.newArrayBlockingQueue(this.countRenderCache);
+        this.queueFreeRenderBuilders = Queues.newArrayBlockingQueue(this.countRenderBuilders);
 
-        for (int i = 0; i < this.countRenderCache; ++i)
+        for (int i = 0; i < this.countRenderBuilders; ++i)
         {
-            this.queueFreeRenderCache.add(new ChunkRenderCache());
+            this.queueFreeRenderBuilders.add(new BufferBuilderCache());
         }
 
-        this.renderWorker = new ChunkRenderWorkerLitematica(this, new ChunkRenderCache());
-
-        Litematica.logger.error("ChunkRenderDispatcherLitematica: [Dispatch] [DONE]");
+        this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferBuilderCache());
     }
 
     public void setCameraPosition(Vec3d cameraPos)
@@ -87,14 +84,12 @@ public class ChunkRenderDispatcherLitematica
 
     public String getDebugInfo()
     {
-        return this.listWorkerThreads.isEmpty() ? String.format("pC: %03d, single-threaded", this.queueChunkUpdates.size()) : String.format("pC: %03d, pU: %1d, aB: %1d", this.queueChunkUpdates.size(), this.queueChunkUploads.size(), this.queueFreeRenderCache.size());
+        return this.listWorkerThreads.isEmpty() ? String.format("pC: %03d, single-threaded", this.queueChunkUpdates.size()) : String.format("pC: %03d, pU: %1d, aB: %1d", this.queueChunkUpdates.size(), this.queueChunkUploads.size(), this.queueFreeRenderBuilders.size());
     }
 
     public boolean runChunkUploads(long finishTimeNano)
     {
         boolean ranTasks = false;
-
-        Litematica.logger.warn("runChunkUploads() [Dispatch]");
 
         while (true)
         {
@@ -140,8 +135,6 @@ public class ChunkRenderDispatcherLitematica
     public boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk)
     {
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkLater()\n");
-        Litematica.logger.warn("updateChunkLater() [Dispatch]");
-
         renderChunk.getLockCompileTask().lock();
         boolean flag1;
 
@@ -177,8 +170,6 @@ public class ChunkRenderDispatcherLitematica
     public boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer)
     {
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkNow()\n");
-        Litematica.logger.warn("updateChunkNow() [Dispatch]");
-
         chunkRenderer.getLockCompileTask().lock();
         boolean flag;
 
@@ -207,32 +198,32 @@ public class ChunkRenderDispatcherLitematica
     public void stopChunkUpdates()
     {
         this.clearChunkUpdates();
-        List<ChunkRenderCache> list = new ArrayList<>();
+        List<BufferBuilderCache> list = new ArrayList<>();
 
-        while (list.size() != this.countRenderCache)
+        while (list.size() != this.countRenderBuilders)
         {
             this.runChunkUploads(Long.MAX_VALUE);
 
             try
             {
-                list.add(this.allocateRenderCache());
+                list.add(this.allocateRenderBuilder());
             }
             catch (InterruptedException e)
             {
             }
         }
 
-        this.queueFreeRenderCache.addAll(list);
+        this.queueFreeRenderBuilders.addAll(list);
     }
 
-    public void freeRenderCache(ChunkRenderCache renderCache)
+    public void freeRenderBuilder(BufferBuilderCache builderCache)
     {
-        this.queueFreeRenderCache.add(renderCache);
+        this.queueFreeRenderBuilders.add(builderCache);
     }
 
-    public ChunkRenderCache allocateRenderCache() throws InterruptedException
+    public BufferBuilderCache allocateRenderBuilder() throws InterruptedException
     {
-        return this.queueFreeRenderCache.take();
+        return this.queueFreeRenderBuilders.take();
     }
 
     public ChunkRenderTaskSchematic getNextChunkUpdate() throws InterruptedException
@@ -242,11 +233,10 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean updateTransparencyLater(ChunkRendererSchematicVbo renderChunk)
     {
-        Litematica.logger.warn("updateTransparencyLater() [Dispatch]");
-
         //if (GuiBase.isCtrlDown()) System.out.printf("updateTransparencyLater()\n");
         renderChunk.getLockCompileTask().lock();
         boolean flag;
+
         try
         {
             final ChunkRenderTaskSchematic generator = renderChunk.makeCompileTaskTransparencySchematic(this::getCameraPos);
@@ -276,65 +266,13 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final ChunkRenderCache renderCache, final ChunkRendererSchematicVbo renderChunk,
-                                                      final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
+    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final BufferBuilder buffer,
+            final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
     {
-        Litematica.logger.warn("uploadChunkBlocks() [Dispatch] start for layer [{}]", layer.getDrawMode().name());
-
         if (MinecraftClient.getInstance().isOnThread())
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkBlocks()\n");
-            //this.uploadVertexBuffer(buffer, renderChunk.getBlocksVertexBufferByLayer(layer));
-
-            Litematica.logger.warn("uploadChunkBlocks() [Dispatch] getMeshData for layer [{}]", layer.getDrawMode().name());
-            //BuiltBuffer meshData = renderChunk.getMeshDataCache().getMeshByLayer(layer);
-            BuiltBuffer meshData = renderCache.getBuiltBufferByLayer(layer);
-
-            if (meshData == null)
-            {
-                Litematica.logger.warn("uploadChunkBlocks() [Dispatch] meshData = null for layer [{}]", layer.getDrawMode().name());
-                return Futures.<Object>immediateFuture(null);
-            }
-            // FIXME
-            if (layer == RenderLayer.getTranslucent())
-            {
-                Litematica.logger.warn("uploadChunkBlocks() [Dispatch] get Allocator results for layer [{}]", layer.getDrawMode().name());
-                BufferAllocator.CloseableBuffer result = renderCache.getAllocatorByLayer(layer).getAllocated();
-
-                if (result != null)
-                {
-                    try
-                    {
-                        Litematica.logger.warn("uploadChunkBlocks() [Dispatch] upload results for layer [{}]", layer.getDrawMode().name());
-                        //this.uploadSectionIndex(result, renderChunk.getBlocksVertexBufferByLayer(layer));
-                        //renderCache.uploadSectionSortedIndex(result, renderCache.getVertexBufferByLayer(layer));
-                        renderCache.uploadSectionSortedIndex(result, renderChunk.getBlocksVertexBufferByLayer(layer));
-                    }
-                    catch (Exception e)
-                    {
-                        Litematica.logger.fatal("uploadChunkBlocks: [Dispatch] failed to upload results for Translucent layer");
-                        //throw new ArithmeticException("see logs");
-                    }
-                }
-                else
-                {
-                    Litematica.logger.error("uploadChunkBlocks: [Dispatch] failed; result is NULL (layer: {})", layer.getDrawMode().name());
-                }
-            }
-
-            try
-            {
-                Litematica.logger.warn("uploadChunkBlocks() [Dispatch] upload meshData for layer [{}]", layer.getDrawMode().name());
-                //this.uploadSectionLayer(meshData, renderChunk.getBlocksVertexBufferByLayer(layer));
-                //renderCache.uploadSectionMesh(meshData, renderCache.getVertexBufferByLayer(layer));
-                renderCache.uploadSectionMesh(meshData, renderChunk.getBlocksVertexBufferByLayer(layer));
-            }
-            catch (Exception e)
-            {
-                Litematica.logger.fatal("uploadChunkBlocks: [Dispatch] failed to upload MeshData for layer [{}]", layer.getDrawMode().name());
-                //throw new ArithmeticException("see logs");
-            }
-
+            this.uploadVertexBuffer(buffer, renderChunk.getBlocksVertexBufferByLayer(layer));
             return Futures.<Object>immediateFuture(null);
         }
         else
@@ -344,7 +282,7 @@ public class ChunkRenderDispatcherLitematica
                 @Override
                 public void run()
                 {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, renderCache, renderChunk, chunkRenderData, distanceSq);
+                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, buffer, renderChunk, chunkRenderData, distanceSq);
                 }
             }, null);
 
@@ -356,63 +294,13 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRenderCache renderCache, final ChunkRendererSchematicVbo renderChunk,
-                                                       final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
+    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferBuilder buffer,
+            final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
     {
-        Litematica.logger.warn("uploadChunkOverlay() [Dispatch] for type [{}]", type.getDrawMode().name());
-
         if (MinecraftClient.getInstance().isOnThread())
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkOverlay()\n");
-            // FIXME
-            //this.uploadSectionIndex(result, renderChunk.getOverlayVertexBuffer(type));
-            Litematica.logger.warn("uploadChunkOverlay() [Dispatch] getMeshData for type [{}]", type.getDrawMode().name());
-            BuiltBuffer meshData = renderCache.getBuiltBufferByOverlay(type);
-
-            if (meshData == null)
-            {
-                Litematica.logger.warn("uploadChunkOverlay() [Dispatch] meshData = NULL for type [{}]", type.getDrawMode().name());
-                return Futures.<Object>immediateFuture(null);
-            }
-            if (type.isTranslucent())
-            {
-                Litematica.logger.warn("uploadChunkOverlay() [Dispatch] get Allocator results for type [{}]", type.getDrawMode().name());
-                BufferAllocator.CloseableBuffer result = renderCache.getAllocatorByOverlay(type).getAllocated();
-
-                if (result != null)
-                {
-                    try
-                    {
-                        Litematica.logger.warn("uploadChunkOverlay() [Dispatch] upload results for type [{}]", type.getDrawMode().name());
-                        //this.uploadSectionIndex(result, renderChunk.getOverlayVertexBuffer(type));
-                        //renderCache.uploadSectionSortedIndex(result, renderCache.getVertexBufferByOverlayType(type));
-                        renderCache.uploadSectionSortedIndex(result, renderChunk.getOverlayVertexBuffer(type));
-                    }
-                    catch (Exception e)
-                    {
-                        Litematica.logger.fatal("uploadChunkOverlay: [Dispatch] failed to upload results for Translucent type");
-                        //throw new ArithmeticException("see logs");
-                    }
-                }
-                else
-                {
-                    Litematica.logger.error("uploadChunkOverlay: [Dispatch] failed; result is NULL (type: {})", type.getDrawMode().name());
-                }
-            }
-
-            try
-            {
-                Litematica.logger.warn("uploadChunkOverlay() [Dispatch] upload meshData for type [{}]", type.getDrawMode().name());
-                //this.uploadSectionLayer(meshData, renderChunk.getOverlayVertexBuffer(type));
-                //renderCache.uploadSectionMesh(meshData, renderCache.getVertexBufferByOverlayType(type));
-                renderCache.uploadSectionMesh(meshData, renderChunk.getOverlayVertexBuffer(type));
-            }
-            catch (Exception e)
-            {
-                Litematica.logger.fatal("uploadChunkOverlay: [Dispatch] failed to upload MeshData for type [{}]", type.getDrawMode().name());
-                //throw new ArithmeticException("see logs");
-            }
-
+            this.uploadVertexBuffer(buffer, renderChunk.getOverlayVertexBuffer(type));
             return Futures.<Object>immediateFuture(null);
         }
         else
@@ -422,7 +310,7 @@ public class ChunkRenderDispatcherLitematica
                 @Override
                 public void run()
                 {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, renderCache, renderChunk, compiledChunk, distanceSq);
+                    ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, buffer, renderChunk, compiledChunk, distanceSq);
                 }
             }, null);
 
@@ -434,8 +322,6 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    // FIXME
-    /*
     private void uploadVertexBuffer(BufferBuilder buffer, VertexBuffer vertexBuffer)
     {
         BufferBuilder.BuiltBuffer renderBuffer;
@@ -460,43 +346,6 @@ public class ChunkRenderDispatcherLitematica
         vertexBuffer.upload(renderBuffer);
         VertexBuffer.unbind();
     }
-     */
-
-    // TODO
-    /*
-    private void uploadSectionLayer(@Nonnull BuiltBuffer meshData, @Nonnull VertexBuffer vertexBuffer)
-    {
-        Litematica.logger.error("uploadSectionLayer() [Dispatch] start (buffer size: {}) // MeshDraw [{}]", vertexBuffer.getVertexFormat().getVertexSizeByte(), meshData.getDrawParameters().mode().name());
-
-        if (vertexBuffer.isClosed())
-        {
-            Litematica.logger.error("uploadSectionLayer(): [Dispatch] error uploading MeshData (VertexBuffer is closed)");
-            meshData.close();
-            return;
-        }
-
-        vertexBuffer.bind();
-        vertexBuffer.upload(meshData);
-        VertexBuffer.unbind();
-        Litematica.logger.error("uploadSectionLayer() [Dispatch] END");
-    }
-
-    private void uploadSectionIndex(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
-    {
-        Litematica.logger.error("uploadSectionIndex() [Dispatch] start (buffer size: {})", vertexBuffer.getVertexFormat().getVertexSizeByte());
-
-        if (vertexBuffer.isClosed())
-        {
-            Litematica.logger.error("uploadSectionIndex(): [Dispatch] error uploading MeshData SortState (VertexBuffer is closed)");
-            result.close();
-        }
-
-        vertexBuffer.bind();
-        vertexBuffer.uploadIndexBuffer(result);
-        VertexBuffer.unbind();
-        Litematica.logger.error("uploadSectionIndex() [Dispatch] END");
-    }
-     */
 
     public void clearChunkUpdates()
     {
@@ -518,8 +367,6 @@ public class ChunkRenderDispatcherLitematica
 
     public void stopWorkerThreads()
     {
-        Litematica.logger.warn("stopWorkerThreads() [Dispatch]");
-
         this.clearChunkUpdates();
 
         for (ChunkRenderWorkerLitematica worker : this.listThreadedWorkers)
@@ -540,12 +387,12 @@ public class ChunkRenderDispatcherLitematica
             }
         }
 
-        this.queueFreeRenderCache.clear();
+        this.queueFreeRenderBuilders.clear();
     }
 
     public boolean hasNoFreeRenderBuilders()
     {
-        return this.queueFreeRenderCache.isEmpty();
+        return this.queueFreeRenderBuilders.isEmpty();
     }
 
     public static class PendingUpload implements Comparable<ChunkRenderDispatcherLitematica.PendingUpload>

@@ -1,14 +1,17 @@
-package fi.dy.masa.litematica.render.cache;
+package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
-import net.minecraft.client.util.BufferAllocator;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexFormat;
 
 // Thanks plusls for this hack fix :p
-@Deprecated(forRemoval = true)
-public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends BufferAllocator
+@Deprecated
+public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder
+//public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBrokenCodeBufferBuilder extends BufferBuilder
 {
-    //@Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
-    @Nullable public BufferAllocator.CloseableBuffer lastRenderBuildBuffer;
+    /*
+    @Nullable public BufferBuilder.BuiltBuffer lastRenderBuildBuffer;
     public boolean first = true;
     private double offsetY;
 
@@ -17,7 +20,6 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
         super(initialCapacity);
     }
 
-    /*
     public void setYOffset(double offsetY)
     {
         this.offsetY = offsetY;
@@ -52,9 +54,9 @@ public class OmegaHackfixForCrashJustTemporarilyForNowISwearBecauseOfShittyBroke
     }
 
     @Override
-    public class_9799.class_9800 close()
+    public BufferBuilder.BuiltBuffer end()
     {
-        this.lastRenderBuildBuffer.close();
+        this.lastRenderBuildBuffer = super.end();
         return this.lastRenderBuildBuffer;
     }
      */

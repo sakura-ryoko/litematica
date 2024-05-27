@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic.org;
+package fi.dy.masa.litematica.render.schematic;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import net.minecraft.util.math.Vec3d;
-import fi.dy.masa.litematica.render.cache.ChunkRenderCache;
 
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
@@ -16,7 +15,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ReentrantLock lock = new ReentrantLock();
     private final Supplier<Vec3d> cameraPosSupplier;
     private final double distanceSq;
-    private ChunkRenderCache renderCache;
+    private BufferBuilderCache bufferBuilderCache;
     private ChunkRenderDataSchematic chunkRenderData;
     private ChunkRenderTaskSchematic.Status status = ChunkRenderTaskSchematic.Status.PENDING;
     private boolean finished;
@@ -54,14 +53,14 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.chunkRenderData = chunkRenderData;
     }
 
-    public ChunkRenderCache getRenderCache()
+    public BufferBuilderCache getBufferCache()
     {
-        return this.renderCache;
+        return this.bufferBuilderCache;
     }
 
-    public void setRegionRenderCacheBuilder(ChunkRenderCache cache)
+    public void setRegionRenderCacheBuilder(BufferBuilderCache cache)
     {
-        this.renderCache = cache;
+        this.bufferBuilderCache = cache;
     }
 
     public void setStatus(ChunkRenderTaskSchematic.Status statusIn)
