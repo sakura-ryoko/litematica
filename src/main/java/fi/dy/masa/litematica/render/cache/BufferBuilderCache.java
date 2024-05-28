@@ -6,6 +6,7 @@ import java.util.Map;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.render.schematic.ChunkRenderLayers;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class BufferBuilderCache implements AutoCloseable
@@ -31,11 +32,11 @@ public class BufferBuilderCache implements AutoCloseable
         }
 
         /*
-        for (RenderLayer layer : RenderLayer.getBlockLayers())
+        for (RenderLayer layer : BufferAllocatorCache.LAYERS)
         {
             this.blockBufferBuilders.put(layer, new BufferBuilderPatch(new BufferAllocator(layer.getExpectedBufferSize()), layer.getDrawMode(), layer.getVertexFormat()));
         }
-        for (ChunkRendererSchematicVbo.OverlayRenderType type : ChunkRendererSchematicVbo.OverlayRenderType.values())
+        for (ChunkRendererSchematicVbo.OverlayRenderType type : BufferAllocatorCache.TYPES)
         {
             this.overlayBufferBuilders.put(type, new BufferBuilderPatch(new BufferAllocator(type.getExpectedBufferSize()), type.getDrawMode(), type.getVertexFormat()));
         }
@@ -54,28 +55,24 @@ public class BufferBuilderCache implements AutoCloseable
 
     public BufferBuilderPatch getBufferByLayer(RenderLayer layer)
     {
-        //Litematica.logger.error("getBufferByLayer: for layer [{}]", layer.getDrawMode().name());
-
         return this.blockBufferBuilders.get(layer);
     }
 
     public BufferBuilderPatch getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        //Litematica.logger.error("getBufferByLayer: for type [{}]", type.getDrawMode().name());
-
         return this.overlayBufferBuilders.get(type);
     }
 
     public void storeBufferByLayer(RenderLayer layer, @Nonnull BufferBuilderPatch buffer)
     {
-        Litematica.logger.error("storeBufferByLayer: for layer [{}]", layer.getDrawMode().name());
+        Litematica.logger.error("storeBufferByLayer: layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
 
         this.blockBufferBuilders.put(layer, buffer);
     }
 
     public void storeBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferBuilderPatch buffer)
     {
-        Litematica.logger.error("storeBufferByOverlay: for overlay type [{}]", type.getDrawMode().name());
+        Litematica.logger.error("storeBufferByOverlay: overlay type [{}]", type.getDrawMode().name());
 
         this.overlayBufferBuilders.put(type, buffer);
     }
@@ -106,6 +103,16 @@ public class BufferBuilderCache implements AutoCloseable
         this.storeBufferByOverlay(type, newBuf);
 
         return newBuf;
+    }
+
+    public void clearByLayer(RenderLayer layer)
+    {
+        this.blockBufferBuilders.remove(layer);
+    }
+
+    public void clearByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    {
+        this.overlayBufferBuilders.remove(type);
     }
 
     public void clear()

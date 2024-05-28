@@ -210,7 +210,7 @@ public class LitematicaRenderer
 
     public void renderSchematicOverlay(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("renderSchematicOverlay() [Litematica]");
+        //Litematica.logger.warn("renderSchematicOverlay() [Litematica]");
 
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
@@ -239,7 +239,7 @@ public class LitematicaRenderer
 
     public void piecewisePrepareAndUpdate(Frustum frustum)
     {
-        Litematica.logger.warn("piecewisePrepareAndUpdate() [Litematica]");
+        //Litematica.logger.warn("piecewisePrepareAndUpdate() [Litematica]");
 
         boolean render = Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() &&
                          Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
@@ -276,7 +276,7 @@ public class LitematicaRenderer
 
     public void piecewiseRenderSolid(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("piecewiseRenderSolid() [Litematica]");
+        //Litematica.logger.warn("piecewiseRenderSolid() [Litematica]");
 
         if (this.renderPiecewiseBlocks)
         {
@@ -302,7 +302,7 @@ public class LitematicaRenderer
 
     public void piecewiseRenderCutoutMipped(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("piecewiseRenderCutoutMipped() [Litematica]");
+        //Litematica.logger.warn("piecewiseRenderCutoutMipped() [Litematica]");
 
         if (this.renderPiecewiseBlocks)
         {
@@ -328,7 +328,7 @@ public class LitematicaRenderer
 
     public void piecewiseRenderCutout(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("piecewiseRenderCutout() [Litematica]");
+        //Litematica.logger.warn("piecewiseRenderCutout() [Litematica]");
 
         if (this.renderPiecewiseBlocks)
         {
@@ -354,7 +354,7 @@ public class LitematicaRenderer
 
     public void piecewiseRenderTranslucent(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("piecewiseRenderTranslucent() [Litematica]");
+        //Litematica.logger.warn("piecewiseRenderTranslucent() [Litematica]");
 
         if (this.renderPiecewiseBlocks)
         {
@@ -380,7 +380,7 @@ public class LitematicaRenderer
 
     public void piecewiseRenderOverlay(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("piecewiseRenderOverlay() [Litematica]");
+        //Litematica.logger.warn("piecewiseRenderOverlay() [Litematica]");
 
         if (this.renderPiecewiseSchematic)
         {
@@ -408,7 +408,7 @@ public class LitematicaRenderer
 
     public void piecewiseRenderEntities(Matrix4f matrix4f, float partialTicks)
     {
-        Litematica.logger.warn("piecewiseRenderEntities() [Litematica]");
+        //Litematica.logger.warn("piecewiseRenderEntities() [Litematica]");
 
         if (this.renderPiecewiseBlocks)
         {
@@ -427,7 +427,7 @@ public class LitematicaRenderer
 
     private void cleanup()
     {
-        Litematica.logger.warn("cleanup() [Litematica]");
+        //Litematica.logger.warn("cleanup() [Litematica]");
 
         this.renderPiecewiseSchematic = false;
         this.renderPiecewiseBlocks = false;

@@ -26,6 +26,7 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
 
@@ -198,7 +199,7 @@ public class WorldRendererSchematic
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator)
     {
-        Litematica.logger.warn("setupTerrain() [Renderer]");
+        //Litematica.logger.warn("setupTerrain() [Renderer]");
 
         this.world.getProfiler().push("setup_terrain");
 
@@ -403,6 +404,7 @@ public class WorldRendererSchematic
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
+        RenderSystem.assertOnRenderThread();
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
@@ -423,15 +425,19 @@ public class WorldRendererSchematic
 
             if (diffX * diffX + diffY * diffY + diffZ * diffZ > 1.0D)
             {
+                int i = ChunkSectionPos.getSectionCoord(x);
+                int j = ChunkSectionPos.getSectionCoord(y);
+                int k = ChunkSectionPos.getSectionCoord(z);
+                boolean block = i != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortX) || k != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortZ) || j != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortY);
                 this.lastTranslucentSortX = x;
                 this.lastTranslucentSortY = y;
                 this.lastTranslucentSortZ = z;
-                int i = 0;
+                int h = 0;
 
                 for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
                 {
-                    if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) ||
-                        (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && i++ < 15)
+                    if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) || !block  && !chunkRenderer.isAxisAlignedWith(i, j, k) ||
+                        (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                     {
                         this.renderDispatcher.updateTransparencyLater(chunkRenderer);
                     }
@@ -634,8 +640,8 @@ public class WorldRendererSchematic
 
     public void renderFluid(BlockRenderView world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
-        this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
-        //this.blockModelRenderer.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
+        //this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
+        this.blockModelRenderer.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
     }
 
     public BakedModel getModelForState(BlockState state)

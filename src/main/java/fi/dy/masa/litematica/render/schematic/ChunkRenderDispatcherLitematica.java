@@ -25,6 +25,7 @@ import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.cache.BufferAllocatorCache;
 import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
+import fi.dy.masa.litematica.render.cache.BufferBuilderPatch;
 import fi.dy.masa.litematica.render.cache.BuiltBufferCache;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
@@ -311,15 +312,23 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final BufferAllocator allocator, final BufferBuilder buffer, final BuiltBufferCache builtBuffers,
+    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final BufferAllocatorCache allocators, final BufferBuilderCache buffers, final BuiltBufferCache builtBuffers,
             final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
     {
-        Litematica.logger.warn("uploadChunkBlocks() [Dispatch] for layer [{}]", layer.getDrawMode().name());
+        Litematica.logger.warn("uploadChunkBlocks() [Dispatch] for layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
 
         if (MinecraftClient.getInstance().isOnThread())
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkBlocks()\n");
-            this.uploadVertexBufferByLayer(layer, allocator, buffer, builtBuffers, renderChunk.getBlocksVertexBufferByLayer(layer), chunkRenderData.hasBlockBufferState(layer) ? chunkRenderData.getBlockBufferState(layer) : null, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()));
+            try
+            {
+                this.uploadVertexBufferByLayer(layer, allocators, buffers, builtBuffers, renderChunk.getBlocksVertexBufferByLayer(layer), chunkRenderData.hasBlockBufferState(layer) ? chunkRenderData.getBlockBufferState(layer) : null, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()));
+            }
+            catch (Exception e)
+            {
+                // Try again later
+            }
+
             return Futures.<Object>immediateFuture(null);
         }
         else
@@ -329,7 +338,7 @@ public class ChunkRenderDispatcherLitematica
                 @Override
                 public void run()
                 {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, allocator, buffer, builtBuffers, renderChunk, chunkRenderData, distanceSq);
+                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, allocators, buffers, builtBuffers, renderChunk, chunkRenderData, distanceSq);
                 }
             }, null);
 
@@ -341,7 +350,7 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferAllocator allocator, final BufferBuilder buffer, final BuiltBufferCache builtBuffers,
+    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferAllocatorCache allocators, final BufferBuilderCache buffers, final BuiltBufferCache builtBuffers,
             final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
     {
         Litematica.logger.warn("uploadChunkOverlay() [Dispatch] for overlay type [{}]", type.getDrawMode().name());
@@ -350,7 +359,15 @@ public class ChunkRenderDispatcherLitematica
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkOverlay()\n");
 
-            this.uploadVertexBufferByType(type, allocator, buffer, builtBuffers, renderChunk.getOverlayVertexBuffer(type), compiledChunk.hasOverlayBufferState(type) ? compiledChunk.getOverlayBufferState(type) : null, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()));
+            try
+            {
+                this.uploadVertexBufferByType(type, allocators, buffers, builtBuffers, renderChunk.getOverlayVertexBuffer(type), compiledChunk.hasOverlayBufferState(type) ? compiledChunk.getOverlayBufferState(type) : null, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()));
+            }
+            catch (Exception e)
+            {
+                // Try again later
+            }
+
             return Futures.<Object>immediateFuture(null);
         }
         else
@@ -360,7 +377,7 @@ public class ChunkRenderDispatcherLitematica
                 @Override
                 public void run()
                 {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, allocator, buffer, builtBuffers, renderChunk, compiledChunk, distanceSq);
+                    ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, allocators, buffers, builtBuffers, renderChunk, compiledChunk, distanceSq);
                 }
             }, null);
 
@@ -372,11 +389,24 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    private void uploadVertexBufferByLayer(RenderLayer layer, BufferAllocator allocator, BufferBuilder buffer, BuiltBufferCache builtBuffers, VertexBuffer vertexBuffer, @Nullable BuiltBuffer.SortState sortState, VertexSorter sorter)
+    private void uploadVertexBufferByLayer(RenderLayer layer, BufferAllocatorCache allocators, BufferBuilderCache buffers, BuiltBufferCache builtBuffers, VertexBuffer vertexBuffer, @Nullable BuiltBuffer.SortState sortState, VertexSorter sorter)
+            throws InterruptedException
     {
-        Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - INIT", layer.getDrawMode().name());
+        Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - INIT", ChunkRenderLayers.getFriendlyName(layer));
 
+        BufferAllocator allocator = allocators.getBufferByLayer(layer);
+        BufferBuilderPatch buffer = buffers.getBufferByLayer(layer);
         BuiltBuffer renderBuffer = builtBuffers.getBuiltBufferByLayer(layer);
+
+        if (allocator == null || buffer == null)
+        {
+            Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for overlay type [{}] - RECYCLE BUFFERS", ChunkRenderLayers.getFriendlyName(layer));
+
+            allocator = allocators.recycleBufferByLayer(layer);
+            buffer = buffers.recycleBufferByLayer(layer, allocator);
+            builtBuffers.clearByLayer(layer);
+            renderBuffer = null;
+        }
 
         if (renderBuffer == null)
         {
@@ -384,16 +414,17 @@ public class ChunkRenderDispatcherLitematica
 
             if (renderBuffer == null)
             {
-                Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for layer [{}] - throw for NULL", layer.getDrawMode().name());
-
-                return;
+                Litematica.logger.error("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - FAILED TO BUILD", ChunkRenderLayers.getFriendlyName(layer));
+                builtBuffers.clearByLayer(layer);
+                throw new InterruptedException("Failed to build BuiltBuffer");
             }
-            builtBuffers.storeBuiltBufferByLayer(layer, renderBuffer);
+
+            //builtBuffers.storeBuiltBufferByLayer(layer, renderBuffer);
         }
 
         if (layer == RenderLayer.getTranslucent())
         {
-            Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - Translucent START", layer.getDrawMode().name());
+            Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Translucent START", ChunkRenderLayers.getFriendlyName(layer));
 
             BuiltBuffer.SortState sorting = sortState;
 
@@ -403,49 +434,67 @@ public class ChunkRenderDispatcherLitematica
             }
             if (sorting != null)
             {
-                Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - Sort State built", layer.getDrawMode().name());
+                Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Sort State built", ChunkRenderLayers.getFriendlyName(layer));
 
                 BufferAllocator.CloseableBuffer result = sorting.sortAndStore(allocator, sorter);
 
                 if (result != null)
                 {
-                    Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - Result Buffer built", layer.getDrawMode().name());
+                    Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Result Buffer built", ChunkRenderLayers.getFriendlyName(layer));
 
                     if (vertexBuffer.isClosed())
                     {
                         result.close();
+                        renderBuffer.close();
+                        builtBuffers.clearByLayer(layer);
                         return;
                     }
-                    Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - UPLOAD Sort State", layer.getDrawMode().name());
+                    Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - UPLOAD Sort State", ChunkRenderLayers.getFriendlyName(layer));
 
                     vertexBuffer.bind();
                     vertexBuffer.uploadIndexBuffer(result);
                     VertexBuffer.unbind();
 
-                    Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - Translucent Sort State UPLOADED", layer.getDrawMode().name());
+                    Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Translucent Sort State UPLOADED", ChunkRenderLayers.getFriendlyName(layer));
                 }
             }
         }
 
+        builtBuffers.storeBuiltBufferByLayer(layer, renderBuffer);
+
         if (vertexBuffer.isClosed())
         {
             renderBuffer.close();
+            builtBuffers.clearByLayer(layer);
             return;
         }
-        Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - UPLOAD", layer.getDrawMode().name());
+        Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for layer [{}] - UPLOAD", ChunkRenderLayers.getFriendlyName(layer));
 
         vertexBuffer.bind();
         vertexBuffer.upload(renderBuffer);
         VertexBuffer.unbind();
 
-        Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for layer [{}] - DONE", layer.getDrawMode().name());
+        Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for layer [{}] - DONE", ChunkRenderLayers.getFriendlyName(layer));
     }
 
-    private void uploadVertexBufferByType(OverlayRenderType type, BufferAllocator allocator, BufferBuilder buffer, BuiltBufferCache builtBuffers, VertexBuffer vertexBuffer, @Nullable BuiltBuffer.SortState sortState, VertexSorter sorter)
+    private void uploadVertexBufferByType(OverlayRenderType type, BufferAllocatorCache allocators, BufferBuilderCache buffers, BuiltBufferCache builtBuffers, VertexBuffer vertexBuffer, @Nullable BuiltBuffer.SortState sortState, VertexSorter sorter)
+            throws InterruptedException
     {
         Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - INIT", type.getDrawMode().name());
 
+        BufferAllocator allocator = allocators.getBufferByOverlay(type);
+        BufferBuilderPatch buffer = buffers.getBufferByOverlay(type);
         BuiltBuffer renderBuffer = builtBuffers.getBuiltBufferByType(type);
+
+        if (allocator == null || buffer == null)
+        {
+            Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - RECYCLE BUFFERS", type.getDrawMode().name());
+
+            allocator = allocators.recycleBufferByOverlay(type);
+            buffer = buffers.recycleBufferByOverlay(type, allocator);
+            builtBuffers.clearByType(type);
+            renderBuffer = null;
+        }
 
         if (renderBuffer == null)
         {
@@ -453,11 +502,12 @@ public class ChunkRenderDispatcherLitematica
 
             if (renderBuffer == null)
             {
-                Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - throw for NULL", type.getDrawMode().name());
-
-                return;
+                Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - FAILED TO BUILD", type.getDrawMode().name());
+                builtBuffers.clearByType(type);
+                throw new InterruptedException("Failed to build BuiltBuffer");
             }
-            builtBuffers.storeBuiltBufferByType(type, renderBuffer);
+
+            //builtBuffers.storeBuiltBufferByType(type, renderBuffer);
         }
 
         if (type.isTranslucent())
@@ -483,6 +533,8 @@ public class ChunkRenderDispatcherLitematica
                     if (vertexBuffer.isClosed())
                     {
                         result.close();
+                        renderBuffer.close();
+                        builtBuffers.clearByType(type);
                         return;
                     }
                     Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - UPLOAD Sort State", type.getDrawMode().name());
@@ -496,9 +548,12 @@ public class ChunkRenderDispatcherLitematica
             }
         }
 
+        builtBuffers.storeBuiltBufferByType(type, renderBuffer);
+
         if (vertexBuffer.isClosed())
         {
             renderBuffer.close();
+            builtBuffers.clearByType(type);
             return;
         }
         Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - UPLOAD", type.getDrawMode().name());

@@ -16,15 +16,14 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.Util;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.render.schematic.ChunkRenderLayers;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class ChunkRenderCache implements AutoCloseable
 {
-    public final List<RenderLayer> LAYERS = RenderLayer.getBlockLayers();
-    public final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = Arrays.stream(ChunkRendererSchematicVbo.OverlayRenderType.values()).toList();
-
-    //private final Map<RenderLayer, VertexBuffer> layerVertex = LAYERS.stream().collect(Collectors.toMap(layer -> layer, layer -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
-    //private final Map<ChunkRendererSchematicVbo.OverlayRenderType, VertexBuffer> overlayVertex = TYPES.stream().collect(Collectors.toMap(type -> type, type -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
+    public static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
+    public static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
+    public static final int TOTAL_ALLOCATION_SIZE = LAYERS.stream().mapToInt(RenderLayer::getExpectedBufferSize).sum() + TYPES.stream().mapToInt(ChunkRendererSchematicVbo.OverlayRenderType::getExpectedBufferSize).sum();
 
     private final Map<RenderLayer, BufferAllocator> layerAllocators = Util.make(new Reference2ObjectArrayMap<>(LAYERS.size()), refMap ->
     {
@@ -46,24 +45,6 @@ public class ChunkRenderCache implements AutoCloseable
 
     private final Map<RenderLayer, BuiltBuffer> layerMeshData = new HashMap<>();
     private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BuiltBuffer> overlayMeshData = new HashMap<>();
-
-    /*
-    public VertexBuffer getVertexBufferByLayer(RenderLayer layer)
-    {
-        return this.layerVertex.get(layer);
-    }
-
-    public VertexBuffer getVertexBufferByOverlayType(ChunkRendererSchematicVbo.OverlayRenderType type)
-    {
-        return this.overlayVertex.get(type);
-    }
-
-    public void closeVertexBuffers()
-    {
-        this.layerVertex.values().forEach(VertexBuffer::close);
-        this.overlayVertex.values().forEach(VertexBuffer::close);
-    }
-     */
 
     public BufferAllocator getAllocatorByLayer(RenderLayer layer)
     {

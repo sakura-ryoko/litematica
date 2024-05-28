@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.render.cache;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +8,14 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.Util;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.render.schematic.ChunkRenderLayers;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class BufferAllocatorCache implements AutoCloseable
 {
-    private static final List<RenderLayer> LAYERS = RenderLayer.getBlockLayers();
-    private static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = Arrays.stream(ChunkRendererSchematicVbo.OverlayRenderType.values()).toList();
+    protected static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
+    protected static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
+    protected static final int EXPECTED_TOTAL_SIZE = LAYERS.stream().mapToInt(RenderLayer::getExpectedBufferSize).sum() + TYPES.stream().mapToInt(ChunkRendererSchematicVbo.OverlayRenderType::getExpectedBufferSize).sum();
     private Map<RenderLayer, BufferAllocator> layerCache = new HashMap<>();
     private Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferAllocator> overlayCache = new HashMap<>();
 
@@ -85,6 +86,16 @@ public class BufferAllocatorCache implements AutoCloseable
         this.overlayCache.put(type, newBuf);
 
         return newBuf;
+    }
+
+    public void closeByLayer(RenderLayer layer)
+    {
+        this.layerCache.remove(layer);
+    }
+
+    public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    {
+        this.overlayCache.remove(type);
     }
 
     public void reset()

@@ -6,6 +6,7 @@ import java.util.Map;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.render.schematic.ChunkRenderLayers;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class BuiltBufferCache implements AutoCloseable
@@ -30,7 +31,7 @@ public class BuiltBufferCache implements AutoCloseable
 
     public void storeBuiltBufferByLayer(RenderLayer layer, @Nonnull BuiltBuffer newBuffer)
     {
-        Litematica.logger.error("storeBuiltBufferByLayer: for layer [{}]", layer.getDrawMode().name());
+        Litematica.logger.error("storeBuiltBufferByLayer: for layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
 
         this.layerBuffers.put(layer, newBuffer);
     }
@@ -44,34 +45,22 @@ public class BuiltBufferCache implements AutoCloseable
 
     public BuiltBuffer getBuiltBufferByLayer(RenderLayer layer)
     {
-        //Litematica.logger.error("getBuiltBufferByLayer: for layer [{}]", layer.getDrawMode().name());
-
         return this.layerBuffers.get(layer);
     }
 
     public BuiltBuffer getBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        //Litematica.logger.error("getBuiltBufferByType: for type [{}]", type.getDrawMode().name());
-
         return this.overlayBuffers.get(type);
     }
 
-    public void closeByLayer(RenderLayer layer)
+    public void clearByLayer(RenderLayer layer)
     {
-        if (this.layerBuffers.containsKey(layer))
-        {
-            this.layerBuffers.get(layer).close();
-            this.layerBuffers.remove(layer);
-        }
+        this.layerBuffers.remove(layer);
     }
 
-    public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    public void clearByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        if (this.overlayBuffers.containsKey(type))
-        {
-            this.overlayBuffers.get(type).close();
-            this.overlayBuffers.remove(type);
-        }
+        this.overlayBuffers.remove(type);
     }
 
     public void clear()

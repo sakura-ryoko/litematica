@@ -147,26 +147,26 @@ public class ChunkRenderWorkerLitematica implements Runnable
             if (taskType == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK)
             {
                 //if (GuiBase.isCtrlDown()) System.out.printf("pre uploadChunk()\n");
-                for (RenderLayer layer : RenderLayer.getBlockLayers())
+                for (RenderLayer layer : ChunkRenderLayers.LAYERS)
                 {
                     if (chunkRenderData.isBlockLayerEmpty(layer) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks()\n");
                         //System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks(%s)\n", layer.toString());
-                        BufferAllocator allocator = allocators.getBufferByLayer(layer);
-                        BufferBuilder buffer = buffers.getBufferByLayer(layer);
-                        futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, allocator, buffer, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
+                        //BufferAllocator allocator = allocators.getBufferByLayer(layer);
+                        //BufferBuilder buffer = buffers.getBufferByLayer(layer);
+                        futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, allocators, buffers, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
                     }
                 }
 
-                for (OverlayRenderType type : OverlayRenderType.values())
+                for (OverlayRenderType type : ChunkRenderLayers.TYPES)
                 {
                     if (chunkRenderData.isOverlayTypeEmpty(type) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay()\n");
-                        BufferAllocator allocator = allocators.getBufferByOverlay(type);
-                        BufferBuilder buffer = buffers.getBufferByOverlay(type);
-                        futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, allocator, buffer, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
+                        //BufferAllocator allocator = allocators.getBufferByOverlay(type);
+                        //BufferBuilder buffer = buffers.getBufferByOverlay(type);
+                        futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, allocators, buffers, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
                     }
                 }
             }
@@ -177,17 +177,17 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 if (chunkRenderData.isBlockLayerEmpty(layer) == false)
                 {
                     //System.out.printf("RESORT_TRANSPARENCY pre uploadChunkBlocks(%s)\n", layer.toString());
-                    BufferAllocator allocator = allocators.getBufferByLayer(layer);
-                    BufferBuilder buffer = buffers.getBufferByLayer(layer);
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(RenderLayer.getTranslucent(), allocator, buffer, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
+                    //BufferAllocator allocator = allocators.getBufferByLayer(layer);
+                    //BufferBuilder buffer = buffers.getBufferByLayer(layer);
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(RenderLayer.getTranslucent(), allocators, buffers, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
                 }
 
                 if (chunkRenderData.isOverlayTypeEmpty(OverlayRenderType.QUAD) == false)
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("RESORT_TRANSPARENCY pre uploadChunkOverlay()\n");
-                    BufferAllocator allocator = allocators.getBufferByOverlay(OverlayRenderType.QUAD);
-                    BufferBuilder buffer = buffers.getBufferByOverlay(OverlayRenderType.QUAD);
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, allocator, buffer, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
+                    //BufferAllocator allocator = allocators.getBufferByOverlay(OverlayRenderType.QUAD);
+                    //BufferBuilder buffer = buffers.getBufferByOverlay(OverlayRenderType.QUAD);
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, allocators, buffers, builtBuffers, renderChunk, chunkRenderData, task.getDistanceSq()));
                 }
             }
 

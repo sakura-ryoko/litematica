@@ -366,7 +366,7 @@ public class BlockModelRendererSchematic
         }
         catch (Exception e)
         {
-            Litematica.logger.error("renderFluid() [Block] error randing fluid");
+            Litematica.logger.error("renderFluid() [Block] error rendering fluid");
         }
     }
 
