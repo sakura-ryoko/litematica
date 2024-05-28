@@ -198,18 +198,21 @@ public class ChunkRendererSchematicVbo
         {
             RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
 
-            if (buffers.hasBufferByLayer(layerTranslucent) || builtBufferCache.hasBuiltBufferByLayer(layerTranslucent))
-            {
+            //if (buffers.hasBufferByLayer(layerTranslucent) || builtBufferCache.hasBuiltBufferByLayer(layerTranslucent))
+            //{
                 allocator = allocatorCache.recycleBufferByLayer(layerTranslucent);
                 buffer = this.preRenderBlocks(layerTranslucent, allocator);
 
                 buffers.storeBufferByLayer(layerTranslucent, buffer);
+                /*
             }
             else
             {
                 allocator = allocatorCache.getBufferByLayer(layerTranslucent);
                 buffer = buffers.getBufferByLayer(layerTranslucent);
             }
+
+                 */
             //buffer.beginSortedIndexBuffer(bufferState);
 
             this.resortRenderBlocks(layerTranslucent, x, y, z, allocator, buffer, builtBufferCache, data);
@@ -218,6 +221,7 @@ public class ChunkRendererSchematicVbo
         //if (GuiBase.isCtrlDown()) System.out.printf("resortTransparency\n");
         //if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue())
 
+        /*
         OverlayRenderType type = OverlayRenderType.QUAD;
 
         if (data.isOverlayTypeEmpty(type) == false)
@@ -238,6 +242,7 @@ public class ChunkRendererSchematicVbo
 
             this.resortRenderOverlay(type, x, y, z, allocator, buffer, builtBufferCache, data);
         }
+         */
     }
 
     public void rebuildChunk(ChunkRenderTaskSchematic task)
@@ -860,9 +865,7 @@ public class ChunkRendererSchematicVbo
                     }
                 }
 
-                //this.builtBuffers.storeBuiltBufferByLayer(layer, built);
                 builtBufferCache.storeBuiltBufferByLayer(layer, built);
-                //this.uploadBuiltBuffer(built, this.getBlocksVertexBufferByLayer(layer));
             }
             else
             {
@@ -903,9 +906,7 @@ public class ChunkRendererSchematicVbo
                     }
                 }
 
-                //this.builtBuffers.storeBuiltBufferByType(type, built);
                 builtBufferCache.storeBuiltBufferByType(type, built);
-                //this.uploadBuiltBuffer(built, this.getOverlayVertexBuffer(type));
             }
             else
             {
@@ -1007,13 +1008,12 @@ public class ChunkRendererSchematicVbo
                         {
                             this.uploadSortingState(result, this.getBlocksVertexBufferByLayer(layer));
                         }
+
+                        chunkRenderData.setBlockBufferState(layer, sortingData);
                     }
                 }
 
-                if (builtBufferCache.hasBuiltBufferByLayer(layer) == false)
-                {
-                    builtBufferCache.storeBuiltBufferByLayer(layer, built);
-                }
+                builtBufferCache.storeBuiltBufferByLayer(layer, built);
             }
             else
             {
@@ -1076,13 +1076,12 @@ public class ChunkRendererSchematicVbo
                         {
                             this.uploadSortingState(result, this.getOverlayVertexBuffer(type));
                         }
+
+                        chunkRenderData.setOverlayBufferState(type, sortingData);
                     }
                 }
 
-                if (builtBufferCache.hasBuiltBufferByType(type) == false)
-                {
-                    builtBufferCache.storeBuiltBufferByType(type, built);
-                }
+                builtBufferCache.storeBuiltBufferByType(type, built);
             }
             else
             {
