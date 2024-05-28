@@ -61,6 +61,7 @@ public class BuiltBufferCache implements AutoCloseable
         if (this.layerBuffers.containsKey(layer))
         {
             this.layerBuffers.get(layer).close();
+            this.layerBuffers.remove(layer);
         }
     }
 
@@ -69,6 +70,7 @@ public class BuiltBufferCache implements AutoCloseable
         if (this.overlayBuffers.containsKey(type))
         {
             this.overlayBuffers.get(type).close();
+            this.overlayBuffers.remove(type);
         }
     }
 
