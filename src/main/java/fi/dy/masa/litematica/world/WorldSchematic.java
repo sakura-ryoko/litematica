@@ -47,7 +47,7 @@ import net.minecraft.world.tick.QueryableTickScheduler;
 import net.minecraft.world.tick.TickManager;
 
 import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.render.schematic.org.WorldRendererSchematic;
+import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
 public class WorldSchematic extends World
 {

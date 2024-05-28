@@ -4,51 +4,68 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.util.BufferAllocator;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.org.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class BufferBuilderCache implements AutoCloseable
 {
     private final Map<RenderLayer, BufferBuilderPatch> blockBufferBuilders = new HashMap<>();
-    private final Map<OverlayRenderType, BufferBuilderPatch> overlayBlockBufferBuilders = new HashMap<>();
+    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferBuilderPatch> overlayBufferBuilders = new HashMap<>();
 
     public BufferBuilderCache()
     {
-        /*
+        Litematica.logger.error("BufferBuilderCache: <init>");
+        this.allocateBuffers();
+    }
+
+    public void allocateBuffers()
+    {
+        if (!this.blockBufferBuilders.isEmpty())
+        {
+            this.blockBufferBuilders.clear();
+        }
+        if (!this.overlayBufferBuilders.isEmpty())
+        {
+            this.overlayBufferBuilders.clear();
+        }
+
         for (RenderLayer layer : RenderLayer.getBlockLayers())
         {
             this.blockBufferBuilders.putIfAbsent(layer, new BufferBuilderPatch(new BufferAllocator(layer.getExpectedBufferSize()), layer.getDrawMode(), layer.getVertexFormat()));
         }
-        for (OverlayRenderType type : OverlayRenderType.values())
+        for (ChunkRendererSchematicVbo.OverlayRenderType type : ChunkRendererSchematicVbo.OverlayRenderType.values())
         {
-            this.overlayBlockBufferBuilders.putIfAbsent(type, new BufferBuilderPatch(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE), type.getDrawMode(), VertexFormats.POSITION_COLOR));
+            this.overlayBufferBuilders.putIfAbsent(type, new BufferBuilderPatch(new BufferAllocator(type.getExpectedBufferSize()), type.getDrawMode(), type.getVertexFormat()));
         }
-         */
-        Litematica.logger.error("BufferBuilderCache: <init>");
     }
 
     public BufferBuilderPatch getBufferByLayer(RenderLayer layer)
     {
-        Litematica.logger.error("getBufferByLayer: for layer [{}]", layer.getDrawMode().name());
+        //Litematica.logger.error("getBufferByLayer: for layer [{}]", layer.getDrawMode().name());
 
         return this.blockBufferBuilders.get(layer);
     }
 
-    public BufferBuilderPatch getBufferByOverlay(OverlayRenderType type)
+    public BufferBuilderPatch getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        Litematica.logger.error("getBufferByLayer: for type [{}]", type.getDrawMode().name());
+        //Litematica.logger.error("getBufferByLayer: for type [{}]", type.getDrawMode().name());
 
-        return this.overlayBlockBufferBuilders.get(type);
+        return this.overlayBufferBuilders.get(type);
     }
 
     public void storeBufferByLayer(RenderLayer layer, @Nonnull BufferBuilderPatch buffer)
     {
+        Litematica.logger.error("storeBufferByLayer: for layer [{}]", layer.getDrawMode().name());
+
         this.blockBufferBuilders.put(layer, buffer);
     }
 
-    public void storeBufferByOverlay(OverlayRenderType type, @Nonnull BufferBuilderPatch buffer)
+    public void storeBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferBuilderPatch buffer)
     {
-        this.overlayBlockBufferBuilders.put(type, buffer);
+        Litematica.logger.error("storeBufferByOverlay: for overlay type [{}]", type.getDrawMode().name());
+
+        this.overlayBufferBuilders.put(type, buffer);
     }
 
     public void clear()
@@ -56,7 +73,9 @@ public class BufferBuilderCache implements AutoCloseable
         Litematica.logger.error("BufferBuilderCache: clear()");
 
         this.blockBufferBuilders.clear();
-        this.overlayBlockBufferBuilders.clear();
+        this.overlayBufferBuilders.clear();
+
+        this.allocateBuffers();
     }
 
     @Override

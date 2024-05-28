@@ -29,6 +29,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -80,7 +81,7 @@ public class WorldRendererSchematic
         this.entityRenderDispatcher = mc.getEntityRenderDispatcher();
         this.bufferBuilders = mc.getBufferBuilders();
 
-        this.renderChunkFactory = ChunkRendererSchematicVbo::new;
+        this.renderChunkFactory = (world1, worldRenderer) -> new ChunkRendererSchematicVbo(world1, worldRenderer);
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
@@ -195,6 +196,8 @@ public class WorldRendererSchematic
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator)
     {
+        Litematica.logger.warn("setupTerrain() [Renderer]");
+
         this.world.getProfiler().push("setup_terrain");
 
         if (this.chunkRendererDispatcher == null ||
@@ -344,6 +347,8 @@ public class WorldRendererSchematic
 
     public void updateChunks(long finishTimeNano)
     {
+        Litematica.logger.warn("updateChunks() [Renderer]");
+
         this.mc.getProfiler().push("litematica_run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 

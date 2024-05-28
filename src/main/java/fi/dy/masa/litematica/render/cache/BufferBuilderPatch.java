@@ -1,17 +1,40 @@
 package fi.dy.masa.litematica.render.cache;
 
+import javax.annotation.Nullable;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.util.BufferAllocator;
 
 public class BufferBuilderPatch extends BufferBuilder
 {
+    @Nullable
+    public BuiltBuffer lastRenderBuildBuffer;
+    public boolean first = true;
     private float offsetY;
 
     public BufferBuilderPatch(BufferAllocator arg, VertexFormat.DrawMode drawMode, VertexFormat vertexFormat)
     {
         super(arg, drawMode, vertexFormat);
+
+/*
+        if (this.lastRenderBuildBuffer == null)
+        {
+            if (this.first == false)
+            {
+                this.lastRenderBuildBuffer = this.end();
+            }
+            else
+            {
+                this.first = false;
+            }
+        }
+        else
+        {
+            this.lastRenderBuildBuffer = null;
+        }
+ */
         this.offsetY = 0;
     }
 
@@ -26,5 +49,12 @@ public class BufferBuilderPatch extends BufferBuilder
         return super.vertex(x, (y + this.offsetY), z);
     }
 
-    public BufferBuilder asBufferBuilder() { return (BufferBuilder) this; }
+    /*
+    @Override
+    public BuiltBuffer end()
+    {
+        this.lastRenderBuildBuffer = super.end();
+        return this.lastRenderBuildBuffer;
+    }
+     */
 }

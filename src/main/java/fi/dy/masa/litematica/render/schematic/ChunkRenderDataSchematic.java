@@ -8,7 +8,9 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDataSchematic
@@ -45,8 +47,8 @@ public class ChunkRenderDataSchematic
 
     private final boolean[] overlayLayersUsed = new boolean[OverlayRenderType.values().length];
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
-    private final Map<RenderLayer, BufferBuilder.TransparentSortingData> blockBufferStates = new HashMap<>();
-    private final BufferBuilder.TransparentSortingData[] overlayBufferStates = new BufferBuilder.TransparentSortingData[OverlayRenderType.values().length];
+    private final Map<RenderLayer, BuiltBuffer.SortState> blockBufferStates = new HashMap<>();
+    private final BuiltBuffer.SortState[] overlayBufferStates = new BuiltBuffer.SortState[OverlayRenderType.values().length];
     private boolean overlayEmpty = true;
     private boolean empty = true;
     private long timeBuilt;
@@ -103,22 +105,22 @@ public class ChunkRenderDataSchematic
         return this.overlayLayersStarted[type.ordinal()];
     }
 
-    public BufferBuilder.TransparentSortingData getBlockBufferState(RenderLayer layer)
+    public BuiltBuffer.SortState getBlockBufferState(RenderLayer layer)
     {
         return this.blockBufferStates.get(layer);
     }
 
-    public void setBlockBufferState(RenderLayer layer, BufferBuilder.TransparentSortingData state)
+    public void setBlockBufferState(RenderLayer layer, BuiltBuffer.SortState state)
     {
         this.blockBufferStates.put(layer, state);
     }
 
-    public BufferBuilder.TransparentSortingData getOverlayBufferState(OverlayRenderType type)
+    public BuiltBuffer.SortState getOverlayBufferState(OverlayRenderType type)
     {
         return this.overlayBufferStates[type.ordinal()];
     }
 
-    public void setOverlayBufferState(OverlayRenderType type, BufferBuilder.TransparentSortingData state)
+    public void setOverlayBufferState(OverlayRenderType type, BuiltBuffer.SortState state)
     {
         this.overlayBufferStates[type.ordinal()] = state;
     }
@@ -140,6 +142,7 @@ public class ChunkRenderDataSchematic
 
     public void setTimeBuilt(long time)
     {
+        Litematica.logger.error("ChunkRenderData() time built");
         this.timeBuilt = time;
     }
 }

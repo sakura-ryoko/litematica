@@ -1,9 +1,4 @@
-package fi.dy.masa.litematica.render.schematic;
-
-import javax.annotation.Nullable;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexFormat;
+package fi.dy.masa.litematica.render.broken;
 
 // Thanks plusls for this hack fix :p
 @Deprecated

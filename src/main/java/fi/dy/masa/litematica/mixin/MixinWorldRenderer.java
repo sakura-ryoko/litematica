@@ -22,7 +22,7 @@ public abstract class MixinWorldRenderer
         // Also (re-)load our renderer when the vanilla renderer gets reloaded
         if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
         {
-            Litematica.logger.warn("onLoadRenderers()");
+            Litematica.logger.warn("onLoadRenderers() [Mixin]");
 
             LitematicaRenderer.getInstance().loadRenderers();
         }
@@ -32,7 +32,7 @@ public abstract class MixinWorldRenderer
     private void onPostSetupTerrain(
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
-        Litematica.logger.warn("onPostSetupTerrain()");
+        Litematica.logger.error("onPostSetupTerrain() [Mixin]");
 
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
     }
@@ -40,7 +40,7 @@ public abstract class MixinWorldRenderer
     @Inject(method = "renderLayer", at = @At("TAIL"))
     private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
-        //Litematica.logger.error("onRenderLayer(): layer: {}, [{}, {}, {}]", renderLayer.getDrawMode().name(), x, y, z);
+        Litematica.logger.error("onRenderLayer(): [Mixin] layer: {} // [{}], [{}, {}, {}]", renderLayer.toString(), renderLayer.getDrawMode().name(), x, y, z);
 
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -66,7 +66,7 @@ public abstract class MixinWorldRenderer
                      target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
     private void onPostRenderEntities(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
-        //Litematica.logger.error("onPostRenderEntities()");
+        Litematica.logger.warn("onPostRenderEntities() [Mixin]");
 
         LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
     }
