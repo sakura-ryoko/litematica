@@ -30,14 +30,26 @@ public class BufferBuilderCache implements AutoCloseable
             this.overlayBufferBuilders.clear();
         }
 
+        /*
         for (RenderLayer layer : RenderLayer.getBlockLayers())
         {
-            this.blockBufferBuilders.putIfAbsent(layer, new BufferBuilderPatch(new BufferAllocator(layer.getExpectedBufferSize()), layer.getDrawMode(), layer.getVertexFormat()));
+            this.blockBufferBuilders.put(layer, new BufferBuilderPatch(new BufferAllocator(layer.getExpectedBufferSize()), layer.getDrawMode(), layer.getVertexFormat()));
         }
         for (ChunkRendererSchematicVbo.OverlayRenderType type : ChunkRendererSchematicVbo.OverlayRenderType.values())
         {
-            this.overlayBufferBuilders.putIfAbsent(type, new BufferBuilderPatch(new BufferAllocator(type.getExpectedBufferSize()), type.getDrawMode(), type.getVertexFormat()));
+            this.overlayBufferBuilders.put(type, new BufferBuilderPatch(new BufferAllocator(type.getExpectedBufferSize()), type.getDrawMode(), type.getVertexFormat()));
         }
+         */
+    }
+
+    public boolean hasBufferByLayer(RenderLayer layer)
+    {
+        return this.blockBufferBuilders.containsKey(layer);
+    }
+
+    public boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    {
+        return this.overlayBufferBuilders.containsKey(type);
     }
 
     public BufferBuilderPatch getBufferByLayer(RenderLayer layer)
@@ -66,6 +78,34 @@ public class BufferBuilderCache implements AutoCloseable
         Litematica.logger.error("storeBufferByOverlay: for overlay type [{}]", type.getDrawMode().name());
 
         this.overlayBufferBuilders.put(type, buffer);
+    }
+
+    public BufferBuilderPatch recycleBufferByLayer(RenderLayer layer, @Nonnull BufferAllocator allocator)
+    {
+        BufferBuilderPatch newBuf = new BufferBuilderPatch(allocator, layer.getDrawMode(), layer.getVertexFormat());
+
+        if (this.hasBufferByLayer(layer))
+        {
+            this.blockBufferBuilders.remove(layer);
+        }
+
+        this.storeBufferByLayer(layer, newBuf);
+
+        return newBuf;
+    }
+
+    public BufferBuilderPatch recycleBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferAllocator allocator)
+    {
+        BufferBuilderPatch newBuf = new BufferBuilderPatch(allocator, type.getDrawMode(), type.getVertexFormat());
+
+        if (this.hasBufferByOverlay(type))
+        {
+            this.overlayBufferBuilders.remove(type);
+        }
+
+        this.storeBufferByOverlay(type, newBuf);
+
+        return newBuf;
     }
 
     public void clear()

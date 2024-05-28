@@ -67,6 +67,26 @@ public class BufferAllocatorCache implements AutoCloseable
         return this.overlayCache.get(type);
     }
 
+    public BufferAllocator recycleBufferByLayer(RenderLayer layer)
+    {
+        BufferAllocator newBuf = new BufferAllocator(layer.getExpectedBufferSize());
+
+        this.layerCache.get(layer).close();
+        this.layerCache.put(layer, newBuf);
+
+        return newBuf;
+    }
+
+    public BufferAllocator recycleBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    {
+        BufferAllocator newBuf = new BufferAllocator(type.getExpectedBufferSize());
+
+        this.overlayCache.get(type).close();
+        this.overlayCache.put(type, newBuf);
+
+        return newBuf;
+    }
+
     public void reset()
     {
         Litematica.logger.warn("BufferAllocatorCache: reset()");

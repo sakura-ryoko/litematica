@@ -1,16 +1,14 @@
 package fi.dy.masa.litematica.render.cache;
 
-import javax.annotation.Nullable;
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.util.BufferAllocator;
 
 public class BufferBuilderPatch extends BufferBuilder
 {
-    @Nullable
-    public BuiltBuffer lastRenderBuildBuffer;
+    //@Nullable
+    //public BuiltBuffer lastRenderBuildBuffer;
     public boolean first = true;
     private float offsetY;
 

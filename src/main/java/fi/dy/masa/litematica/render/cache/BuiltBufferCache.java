@@ -18,6 +18,16 @@ public class BuiltBufferCache implements AutoCloseable
         Litematica.logger.error("BuiltBufferCache: init()");
     }
 
+    public boolean hasBuiltBufferByLayer(RenderLayer layer)
+    {
+        return this.layerBuffers.containsKey(layer);
+    }
+
+    public boolean hasBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    {
+        return this.overlayBuffers.containsKey(type);
+    }
+
     public void storeBuiltBufferByLayer(RenderLayer layer, @Nonnull BuiltBuffer newBuffer)
     {
         Litematica.logger.error("storeBuiltBufferByLayer: for layer [{}]", layer.getDrawMode().name());

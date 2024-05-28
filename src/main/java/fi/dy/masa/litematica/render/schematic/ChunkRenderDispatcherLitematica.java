@@ -23,7 +23,6 @@ import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.cache.BufferAllocatorCache;
 import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
-import fi.dy.masa.litematica.render.cache.BufferBuilderPatch;
 import fi.dy.masa.litematica.render.cache.BuiltBufferCache;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
@@ -158,6 +157,8 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk)
     {
+        Litematica.logger.warn("updateChunkLater() [Dispatch]");
+
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkLater()\n");
         renderChunk.getLockCompileTask().lock();
         boolean flag1;
@@ -193,6 +194,8 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer)
     {
+        Litematica.logger.warn("updateChunkNow() [Dispatch]");
+
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkNow()\n");
         chunkRenderer.getLockCompileTask().lock();
         boolean flag;
@@ -348,6 +351,8 @@ public class ChunkRenderDispatcherLitematica
         if (MinecraftClient.getInstance().isOnThread())
         {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkOverlay()\n");
+
+            //Litematica.logger.error("uploadChunkOverlay() [Dispatch] skipping vertexUpload for overlay type [{}]", type.getDrawMode().name());
             this.uploadVertexBufferByType(type, allocator, buffer, builtBuffers, renderChunk.getOverlayVertexBuffer(type));
             return Futures.<Object>immediateFuture(null);
         }

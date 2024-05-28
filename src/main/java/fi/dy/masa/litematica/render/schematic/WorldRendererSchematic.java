@@ -161,6 +161,8 @@ public class WorldRendererSchematic
 
     public void loadRenderers()
     {
+        //Litematica.logger.warn("loadRenderers() [Renderer]");
+
         if (this.hasWorld())
         {
             if (this.renderDispatcher == null)
@@ -347,7 +349,7 @@ public class WorldRendererSchematic
 
     public void updateChunks(long finishTimeNano)
     {
-        Litematica.logger.warn("updateChunks() [Renderer]");
+        //Litematica.logger.warn("updateChunks() [Renderer]");
 
         this.mc.getProfiler().push("litematica_run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
@@ -357,11 +359,14 @@ public class WorldRendererSchematic
         if (this.chunksToUpdate.isEmpty() == false)
         {
             Iterator<ChunkRendererSchematicVbo> iterator = this.chunksToUpdate.iterator();
+            int index = 0;
 
             while (iterator.hasNext())
             {
                 ChunkRendererSchematicVbo renderChunk = iterator.next();
                 boolean flag;
+
+                Litematica.logger.warn("updateChunks() [Renderer] index {}", index);
 
                 if (renderChunk.needsImmediateUpdate())
                 {
@@ -389,6 +394,7 @@ public class WorldRendererSchematic
                 {
                     break;
                 }
+                index++;
             }
         }
 
@@ -601,6 +607,8 @@ public class WorldRendererSchematic
 
     public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack, BufferBuilder bufferBuilderIn)
     {
+        //Litematica.logger.warn("renderBlock(): [World] [{}] --> [{}]", pos.toShortString(), state.toString());
+
         try
         {
             BlockRenderType renderType = state.getRenderType();
@@ -624,9 +632,10 @@ public class WorldRendererSchematic
         }
     }
 
-    public void renderFluid(BlockRenderView world, FluidState state, BlockPos pos, BufferBuilder bufferBuilderIn)
+    public void renderFluid(BlockRenderView world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
-        this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, state.getBlockState(), state);
+        this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
+        //this.blockModelRenderer.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
     }
 
     public BakedModel getModelForState(BlockState state)

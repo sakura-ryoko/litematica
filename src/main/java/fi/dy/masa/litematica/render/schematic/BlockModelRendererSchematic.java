@@ -3,7 +3,6 @@ package fi.dy.masa.litematica.render.schematic;
 import javax.annotation.Nullable;
 import java.util.BitSet;
 import java.util.List;
-import org.joml.Matrix4f;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -11,27 +10,32 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.block.FluidRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.BaseRandom;
 import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.world.BlockRenderView;
+import fi.dy.masa.malilib.util.PositionUtils;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.malilib.util.PositionUtils;
 
 public class BlockModelRendererSchematic
 {
     private final LocalRandom random = new LocalRandom(0);
     private final BlockColors colorMap;
+    private final FluidRenderer fluidRenderer;
 
     public BlockModelRendererSchematic(BlockColors blockColorsIn)
     {
         this.colorMap = blockColorsIn;
+        this.fluidRenderer = new FluidRenderer();
     }
 
     public boolean renderModel(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn,
@@ -353,6 +357,18 @@ public class BlockModelRendererSchematic
         }
     }
     */
+
+    public void renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState)
+    {
+        try
+        {
+            this.fluidRenderer.render(world, pos, vertexConsumer, blockState, fluidState);
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("renderFluid() [Block] error randing fluid");
+        }
+    }
 
     class AmbientOcclusionCalculator
     {
