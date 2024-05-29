@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.client.render.RenderLayer;
-import fi.dy.masa.litematica.config.Configs;
 
 public record ChunkRenderLayers()
 {
@@ -18,14 +17,14 @@ public record ChunkRenderLayers()
         // Water Rendering
         list.add(RenderLayer.getWaterMask());
         // Like Piston heads, etc?
-        list.add(RenderLayer.getTranslucentMovingBlock());
-        list.add(RenderLayer.getLines());
-        list.add(RenderLayer.getLineStrip());
+        //list.add(RenderLayer.getTranslucentMovingBlock());
+        //list.add(RenderLayer.getLines());
+        //list.add(RenderLayer.getLineStrip());
         // Trying to add all the DEBUG Render Layers also.
-        list.add(RenderLayer.getDebugQuads());
-        list.add(RenderLayer.getDebugFilledBox());
-        list.add(RenderLayer.getDebugSectionQuads());
-        list.add(RenderLayer.getDebugLineStrip(Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue()));
+        //list.add(RenderLayer.getDebugQuads());
+        //list.add(RenderLayer.getDebugFilledBox());
+        //list.add(RenderLayer.getDebugSectionQuads());
+        //list.add(RenderLayer.getDebugLineStrip(Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue()));
 
         return list;
     }

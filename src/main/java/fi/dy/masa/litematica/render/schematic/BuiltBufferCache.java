@@ -46,11 +46,27 @@ public class BuiltBufferCache implements AutoCloseable
 
     public void clearByLayer(RenderLayer layer)
     {
+        try
+        {
+            if (this.layerBuffers.containsKey(layer))
+            {
+                this.layerBuffers.get(layer).close();
+            }
+        }
+        catch (Exception ignored) {}
         this.layerBuffers.remove(layer);
     }
 
     public void clearByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
+        try
+        {
+            if (this.overlayBuffers.containsKey(type))
+            {
+                this.overlayBuffers.get(type).close();
+            }
+        }
+        catch (Exception ignored) {}
         this.overlayBuffers.remove(type);
     }
 
@@ -58,8 +74,12 @@ public class BuiltBufferCache implements AutoCloseable
     {
         Litematica.debugLog("BuiltBufferCache: clear()");
 
-        this.layerBuffers.values().forEach(BuiltBuffer::close);
-        this.overlayBuffers.values().forEach(BuiltBuffer::close);
+        try
+        {
+            this.layerBuffers.values().forEach(BuiltBuffer::close);
+            this.overlayBuffers.values().forEach(BuiltBuffer::close);
+        }
+        catch (Exception ignored) {}
         this.layerBuffers.clear();
         this.overlayBuffers.clear();
     }

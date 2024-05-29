@@ -25,12 +25,10 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -164,6 +162,8 @@ public class WorldRendererSchematic
 
         if (this.hasWorld())
         {
+            this.world.getProfiler().push("litematica_load_renderers");
+
             if (this.renderDispatcher == null)
             {
                 this.renderDispatcher = new ChunkRenderDispatcherLitematica();
@@ -186,6 +186,8 @@ public class WorldRendererSchematic
 
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
             this.renderEntitiesStartupCounter = 2;
+
+            this.world.getProfiler().pop();
         }
     }
 
@@ -365,8 +367,6 @@ public class WorldRendererSchematic
                 ChunkRendererSchematicVbo renderChunk = iterator.next();
                 boolean flag;
 
-                Litematica.logger.warn("updateChunks() [Renderer] index {}", index);
-
                 if (renderChunk.needsImmediateUpdate())
                 {
                     this.mc.getProfiler().push("litematica_update_now");
@@ -402,9 +402,7 @@ public class WorldRendererSchematic
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("renderBlockLayer() [Renderer]");
-
-        RenderSystem.assertOnRenderThread();
+        //RenderSystem.assertOnRenderThread();
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
@@ -425,10 +423,10 @@ public class WorldRendererSchematic
 
             if (diffX * diffX + diffY * diffY + diffZ * diffZ > 1.0D)
             {
-                int i = ChunkSectionPos.getSectionCoord(x);
-                int j = ChunkSectionPos.getSectionCoord(y);
-                int k = ChunkSectionPos.getSectionCoord(z);
-                boolean block = i != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortX) || k != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortZ) || j != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortY);
+                //int i = ChunkSectionPos.getSectionCoord(x);
+                //int j = ChunkSectionPos.getSectionCoord(y);
+                //int k = ChunkSectionPos.getSectionCoord(z);
+                //boolean block = i != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortX) || k != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortZ) || j != ChunkSectionPos.getSectionCoord(this.lastTranslucentSortY);
                 this.lastTranslucentSortX = x;
                 this.lastTranslucentSortY = y;
                 this.lastTranslucentSortZ = z;
@@ -436,11 +434,10 @@ public class WorldRendererSchematic
 
                 for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
                 {
-                    if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) || !block  && !chunkRenderer.isAxisAlignedWith(i, j, k) ||
+                    //if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) || !block  && !chunkRenderer.isAxisAlignedWith(i, j, k) ||
+                    if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) ||
                         (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                     {
-                        Litematica.logger.warn("renderBlockLayer() [Renderer] --> updateTransparencyLater()");
-
                         this.renderDispatcher.updateTransparencyLater(chunkRenderer);
                     }
                 }
@@ -485,7 +482,7 @@ public class WorldRendererSchematic
                 BlockPos chunkOrigin = renderer.getOrigin();
                 VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
 
-                Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
+                //Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
 
                 if (chunkOffsetUniform != null)
                 {
@@ -549,8 +546,6 @@ public class WorldRendererSchematic
 
     protected void renderBlockOverlay(OverlayRenderType type, Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
-        Litematica.logger.warn("renderBlockOverlay() [Renderer]");
-
         RenderLayer renderLayer = RenderLayer.getTranslucent();
         renderLayer.startDrawing();
 
@@ -595,7 +590,7 @@ public class WorldRendererSchematic
 
                 if (compiledChunk.isOverlayTypeEmpty(type) == false)
                 {
-                    Litematica.logger.warn("renderBlockOverlay() [Renderer] --> bind / draw / unbind for layer [{}] --> with overlay type [{}]", ChunkRenderLayers.getFriendlyName(renderLayer), type.getDrawMode().name());
+                    //Litematica.logger.warn("renderBlockOverlay() [Renderer] --> bind / draw / unbind for layer [{}] --> with overlay type [{}]", ChunkRenderLayers.getFriendlyName(renderLayer), type.getDrawMode().name());
 
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
@@ -840,8 +835,6 @@ public class WorldRendererSchematic
 
     public void scheduleChunkRenders(int chunkX, int chunkZ)
     {
-        Litematica.logger.warn("scheduleChunkRenders() [Renderer] --> scheduleChunkRender()");
-
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())
         {

@@ -65,7 +65,15 @@ public class BufferAllocatorCache implements AutoCloseable
     {
         BufferAllocator newBuf = new BufferAllocator(layer.getExpectedBufferSize());
 
-        this.layerCache.get(layer).close();
+        try
+        {
+            if (this.layerCache.containsKey(layer))
+            {
+                this.layerCache.get(layer).reset();
+                this.layerCache.get(layer).close();
+            }
+        }
+        catch (Exception ignored) {}
         this.layerCache.put(layer, newBuf);
 
         return newBuf;
@@ -75,28 +83,62 @@ public class BufferAllocatorCache implements AutoCloseable
     {
         BufferAllocator newBuf = new BufferAllocator(type.getExpectedBufferSize());
 
-        this.overlayCache.get(type).close();
+        try
+        {
+            if (this.overlayCache.containsKey(type))
+            {
+                this.overlayCache.get(type).reset();
+                this.overlayCache.get(type).close();
+            }
+        }
+        catch (Exception ignored) {}
         this.overlayCache.put(type, newBuf);
 
         return newBuf;
     }
 
-    public void closeByLayer(RenderLayer layer)
+    public void clearByLayer(RenderLayer layer)
     {
-        this.layerCache.remove(layer);
+        try
+        {
+            if (this.layerCache.containsKey(layer))
+            {
+                this.layerCache.get(layer).reset();
+                this.layerCache.get(layer).close();
+            }
+        }
+        catch (Exception e)
+        {
+            this.layerCache.remove(layer);
+        }
     }
 
-    public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    public void clearByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        this.overlayCache.remove(type);
+        try
+        {
+            if (this.overlayCache.containsKey(type))
+            {
+                this.overlayCache.get(type).reset();
+                this.overlayCache.get(type).close();
+            }
+        }
+        catch (Exception e)
+        {
+            this.overlayCache.remove(type);
+        }
     }
 
     public void reset()
     {
         Litematica.debugLog("BufferAllocatorCache: reset()");
 
-        this.layerCache.values().forEach(BufferAllocator::reset);
-        this.overlayCache.values().forEach(BufferAllocator::reset);
+        try
+        {
+            this.layerCache.values().forEach(BufferAllocator::reset);
+            this.overlayCache.values().forEach(BufferAllocator::reset);
+        }
+        catch (Exception ignored) {}
         this.clear();
     }
 
@@ -104,8 +146,12 @@ public class BufferAllocatorCache implements AutoCloseable
     {
         Litematica.debugLog("BufferAllocatorCache: clear()");
 
-        this.layerCache.values().forEach(BufferAllocator::clear);
-        this.overlayCache.values().forEach(BufferAllocator::clear);
+        try
+        {
+            this.layerCache.values().forEach(BufferAllocator::clear);
+            this.overlayCache.values().forEach(BufferAllocator::clear);
+        }
+        catch (Exception ignored) {}
         this.layerCache.clear();
         this.overlayCache.clear();
 
@@ -114,8 +160,12 @@ public class BufferAllocatorCache implements AutoCloseable
 
     public void closeAll()
     {
-        this.layerCache.values().forEach(BufferAllocator::close);
-        this.overlayCache.values().forEach(BufferAllocator::close);
+        try
+        {
+            this.layerCache.values().forEach(BufferAllocator::close);
+            this.overlayCache.values().forEach(BufferAllocator::close);
+        }
+        catch (Exception ignored) {}
         this.layerCache.clear();
         this.overlayCache.clear();
 
