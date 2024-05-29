@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
@@ -49,6 +48,8 @@ public class ChunkRenderDispatcherLitematica
 
     public ChunkRenderDispatcherLitematica()
     {
+        Litematica.logger.warn("ChunkRenderDispatcherLitematica() [Dispatch] --> INIT");
+
         // TODO/FIXME 1.17
         //int threadLimitMemory = Math.max(1, (int)((double)Runtime.getRuntime().maxMemory() * 0.3D) / 10485760);
         //int threadLimitCPU = Math.max(1, MathHelper.clamp(Runtime.getRuntime().availableProcessors(), 1, threadLimitMemory / 5));
@@ -96,6 +97,8 @@ public class ChunkRenderDispatcherLitematica
         }
 
         this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferAllocatorCache(), new BufferBuilderCache(), new BuiltBufferCache());
+
+        Litematica.logger.warn("ChunkRenderDispatcherLitematica() [Dispatch] --> DONE");
     }
 
     public void setCameraPosition(Vec3d cameraPos)
@@ -115,6 +118,8 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean runChunkUploads(long finishTimeNano)
     {
+        Litematica.logger.warn("runChunkUploads() [Dispatch]");
+
         boolean ranTasks = false;
 
         while (true)
@@ -160,6 +165,8 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk)
     {
+        Litematica.logger.warn("updateChunkLater() [Dispatch]");
+
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkLater()\n");
         renderChunk.getLockCompileTask().lock();
         boolean flag1;
@@ -195,6 +202,8 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer)
     {
+        Litematica.logger.warn("updateChunkNow() [Dispatch]");
+
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkNow()\n");
         chunkRenderer.getLockCompileTask().lock();
         boolean flag;
@@ -223,6 +232,8 @@ public class ChunkRenderDispatcherLitematica
 
     public void stopChunkUpdates()
     {
+        Litematica.logger.warn("stopChunkUpdates() [Dispatch]");
+
         this.clearChunkUpdates();
         List<BufferBuilderCache> list = new ArrayList<>();
 
@@ -279,6 +290,8 @@ public class ChunkRenderDispatcherLitematica
 
     public boolean updateTransparencyLater(ChunkRendererSchematicVbo renderChunk)
     {
+        Litematica.logger.warn("updateTransparencyLater() [Dispatch]");
+
         //if (GuiBase.isCtrlDown()) System.out.printf("updateTransparencyLater()\n");
         renderChunk.getLockCompileTask().lock();
         boolean flag;
@@ -567,6 +580,8 @@ public class ChunkRenderDispatcherLitematica
 
     public void clearChunkUpdates()
     {
+        Litematica.logger.warn("clearChunkUpdates() [Dispatch]");
+
         while (this.queueChunkUpdates.isEmpty() == false)
         {
             ChunkRenderTaskSchematic generator = this.queueChunkUpdates.poll();
@@ -585,6 +600,8 @@ public class ChunkRenderDispatcherLitematica
 
     public void stopWorkerThreads()
     {
+        Litematica.logger.warn("stopWorkerThreads() [Dispatch]");
+
         this.clearChunkUpdates();
 
         for (ChunkRenderWorkerLitematica worker : this.listThreadedWorkers)
@@ -620,12 +637,16 @@ public class ChunkRenderDispatcherLitematica
 
         public PendingUpload(ListenableFutureTask<Object> uploadTaskIn, double distanceSqIn)
         {
+            Litematica.logger.warn("PendingUpload [Dispatch] --> (init)");
+
             this.uploadTask = uploadTaskIn;
             this.distanceSq = distanceSqIn;
         }
 
         public int compareTo(ChunkRenderDispatcherLitematica.PendingUpload other)
         {
+            Litematica.logger.warn("PendingUpload [Dispatch] --> (compareTo)");
+
             return Doubles.compare(this.distanceSq, other.distanceSq);
         }
     }

@@ -5,7 +5,6 @@ import java.util.*;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -29,7 +28,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockRenderView;
-
+import fi.dy.masa.malilib.util.EntityUtils;
+import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -37,8 +37,6 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
-import fi.dy.masa.malilib.util.EntityUtils;
-import fi.dy.masa.malilib.util.LayerRange;
 
 public class WorldRendererSchematic
 {
@@ -404,6 +402,8 @@ public class WorldRendererSchematic
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
+        Litematica.logger.warn("renderBlockLayer() [Renderer]");
+
         RenderSystem.assertOnRenderThread();
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
@@ -439,6 +439,8 @@ public class WorldRendererSchematic
                     if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) || !block  && !chunkRenderer.isAxisAlignedWith(i, j, k) ||
                         (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                     {
+                        Litematica.logger.warn("renderBlockLayer() [Renderer] --> updateTransparencyLater()");
+
                         this.renderDispatcher.updateTransparencyLater(chunkRenderer);
                     }
                 }
@@ -482,6 +484,8 @@ public class WorldRendererSchematic
             {
                 BlockPos chunkOrigin = renderer.getOrigin();
                 VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
+
+                Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
 
                 if (chunkOffsetUniform != null)
                 {
@@ -545,6 +549,8 @@ public class WorldRendererSchematic
 
     protected void renderBlockOverlay(OverlayRenderType type, Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
+        Litematica.logger.warn("renderBlockOverlay() [Renderer]");
+
         RenderLayer renderLayer = RenderLayer.getTranslucent();
         renderLayer.startDrawing();
 
@@ -589,6 +595,8 @@ public class WorldRendererSchematic
 
                 if (compiledChunk.isOverlayTypeEmpty(type) == false)
                 {
+                    Litematica.logger.warn("renderBlockOverlay() [Renderer] --> bind / draw / unbind for layer [{}] --> with overlay type [{}]", ChunkRenderLayers.getFriendlyName(renderLayer), type.getDrawMode().name());
+
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
@@ -627,6 +635,12 @@ public class WorldRendererSchematic
             {
                 return renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
+
+                /*
+                this.blockRenderManager.renderBlock(state, pos, world, matrixStack, bufferBuilderIn, false, Random.create(state.getRenderingSeed(pos)));
+
+                return renderType == BlockRenderType.MODEL;
+                 */
             }
         }
         catch (Throwable throwable)
@@ -640,8 +654,7 @@ public class WorldRendererSchematic
 
     public void renderFluid(BlockRenderView world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
-        //this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
-        this.blockModelRenderer.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
+        this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
     }
 
     public BakedModel getModelForState(BlockState state)
@@ -827,6 +840,8 @@ public class WorldRendererSchematic
 
     public void scheduleChunkRenders(int chunkX, int chunkZ)
     {
+        Litematica.logger.warn("scheduleChunkRenders() [Renderer] --> scheduleChunkRender()");
+
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())
         {

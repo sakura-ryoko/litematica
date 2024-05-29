@@ -185,7 +185,7 @@ public class ChunkRendererSchematicVbo
 
     public void resortTransparency(ChunkRenderTaskSchematic task)
     {
-        Litematica.logger.warn("resortTransparency() [VBO]");
+        Litematica.logger.warn("resortTransparency() [VBO] start");
 
         ChunkRenderDataSchematic data = task.getChunkRenderData();
         BufferAllocatorCache allocatorCache = task.getAllocatorCache();
@@ -229,6 +229,7 @@ public class ChunkRendererSchematicVbo
         //if (GuiBase.isCtrlDown()) System.out.printf("resortTransparency\n");
         //if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue())
 
+/*
         OverlayRenderType type = OverlayRenderType.QUAD;
 
         if (data.isOverlayTypeEmpty(type) == false)
@@ -252,6 +253,7 @@ public class ChunkRendererSchematicVbo
                 Litematica.logger.error("resortTransparency() [VBO] caught exception for overlay type [{}], trying again later (Are the Buffers built yet?)", type.getDrawMode().name());
             }
         }
+ */
     }
 
     public void rebuildChunk(ChunkRenderTaskSchematic task)
