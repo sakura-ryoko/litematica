@@ -22,10 +22,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.cache.BufferAllocatorCache;
-import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
-import fi.dy.masa.litematica.render.cache.BufferBuilderPatch;
-import fi.dy.masa.litematica.render.cache.BuiltBufferCache;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDispatcherLitematica

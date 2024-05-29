@@ -56,15 +56,12 @@ public class RenderUtils
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder buffer = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        // FIXME MeshData
         BuiltBuffer meshData;
 
         startDrawingLines();
         drawBlockBoundingBoxOutlinesBatchedLines(pos, color, expand, buffer, mc);
 
-        //tessellator.draw();
         meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
@@ -135,9 +132,7 @@ public class RenderUtils
         RenderSystem.lineWidth(lineWidth);
 
         Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder buffer = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        // FIXME MeshData
         BuiltBuffer meshData;
 
         startDrawingLines();
@@ -181,7 +176,6 @@ public class RenderUtils
         buffer.vertex(minX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a);
         buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        //tessellator.draw();
         meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
@@ -210,9 +204,7 @@ public class RenderUtils
     private static void drawBoundingBoxEdges(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f colorX, Color4f colorY, Color4f colorZ)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder bufferbuilder = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        // FIXME MeshData
         BuiltBuffer meshData;
 
         startDrawingLines();
@@ -221,7 +213,6 @@ public class RenderUtils
         drawBoundingBoxLinesY(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorY);
         drawBoundingBoxLinesZ(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorZ);
 
-        //tessellator.draw();
         meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
@@ -279,14 +270,11 @@ public class RenderUtils
 
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder buffer = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        // FIXME MeshData
         BuiltBuffer meshData;
 
         renderAreaSidesBatched(pos1, pos2, color, 0.002, buffer, mc);
 
-        //tessellator.draw();
         meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
@@ -350,9 +338,7 @@ public class RenderUtils
         RenderSystem.lineWidth(lineWidth);
 
         Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder buffer = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        // FIXME MeshData
         BuiltBuffer meshData;
 
         startDrawingLines();
@@ -468,7 +454,6 @@ public class RenderUtils
             buffer.vertex(maxX + 1, maxY + 1, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
         }
 
-        //tessellator.draw();
         meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();

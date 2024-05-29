@@ -367,7 +367,6 @@ public class OverlayRenderer
         Tessellator tessellator = Tessellator.getInstance();
         //BufferBuilder buffer = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        // FIXME MeshData
         BuiltBuffer meshData;
 
         RenderUtils.startDrawingLines();
@@ -403,7 +402,6 @@ public class OverlayRenderer
                 RenderUtils.drawConnectingLineBatchedLines(prevEntry.pos, lookedEntry.pos, false, lookedEntry.type.getColor(), buffer, this.mc);
             }
 
-            //tessellator.draw();
             meshData = buffer.end();
             BufferRenderer.drawWithGlobalProgram(meshData);
             meshData.close();
@@ -415,7 +413,6 @@ public class OverlayRenderer
             RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(lookPos, lookedEntry.type.getColor(), 0.002, buffer, this.mc);
         }
 
-        //tessellator.draw();
         meshData = buffer.end();
         BufferRenderer.drawWithGlobalProgram(meshData);
         meshData.close();
@@ -436,7 +433,6 @@ public class OverlayRenderer
                 RenderUtils.renderAreaSidesBatched(entry.pos, entry.pos, color, 0.002, buffer, this.mc);
             }
 
-            //tessellator.draw();
             meshData = buffer.end();
             BufferRenderer.drawWithGlobalProgram(meshData);
             meshData.close();

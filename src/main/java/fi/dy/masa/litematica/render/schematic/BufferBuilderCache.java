@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.cache;
+package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -6,8 +6,6 @@ import java.util.Map;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRenderLayers;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class BufferBuilderCache implements AutoCloseable
 {
@@ -16,7 +14,6 @@ public class BufferBuilderCache implements AutoCloseable
 
     public BufferBuilderCache()
     {
-        Litematica.logger.error("BufferBuilderCache: <init>");
         this.allocateBuffers();
     }
 
@@ -30,17 +27,6 @@ public class BufferBuilderCache implements AutoCloseable
         {
             this.overlayBufferBuilders.clear();
         }
-
-        /*
-        for (RenderLayer layer : BufferAllocatorCache.LAYERS)
-        {
-            this.blockBufferBuilders.put(layer, new BufferBuilderPatch(new BufferAllocator(layer.getExpectedBufferSize()), layer.getDrawMode(), layer.getVertexFormat()));
-        }
-        for (ChunkRendererSchematicVbo.OverlayRenderType type : BufferAllocatorCache.TYPES)
-        {
-            this.overlayBufferBuilders.put(type, new BufferBuilderPatch(new BufferAllocator(type.getExpectedBufferSize()), type.getDrawMode(), type.getVertexFormat()));
-        }
-         */
     }
 
     public boolean hasBufferByLayer(RenderLayer layer)
@@ -65,15 +51,11 @@ public class BufferBuilderCache implements AutoCloseable
 
     public void storeBufferByLayer(RenderLayer layer, @Nonnull BufferBuilderPatch buffer)
     {
-        Litematica.logger.error("storeBufferByLayer: layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
-
         this.blockBufferBuilders.put(layer, buffer);
     }
 
     public void storeBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferBuilderPatch buffer)
     {
-        Litematica.logger.error("storeBufferByOverlay: overlay type [{}]", type.getDrawMode().name());
-
         this.overlayBufferBuilders.put(type, buffer);
     }
 
@@ -117,7 +99,7 @@ public class BufferBuilderCache implements AutoCloseable
 
     public void clear()
     {
-        Litematica.logger.error("BufferBuilderCache: clear()");
+        Litematica.debugLog("BufferBuilderCache: clear()");
 
         this.blockBufferBuilders.clear();
         this.overlayBufferBuilders.clear();

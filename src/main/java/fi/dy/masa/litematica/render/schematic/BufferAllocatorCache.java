@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.cache;
+package fi.dy.masa.litematica.render.schematic;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +8,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.Util;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRenderLayers;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo;
 
 public class BufferAllocatorCache implements AutoCloseable
 {
@@ -21,7 +19,6 @@ public class BufferAllocatorCache implements AutoCloseable
 
     public BufferAllocatorCache()
     {
-        Litematica.logger.error("BufferAllocatorCache: init()");
         this.allocateBuffers();
     }
 
@@ -56,15 +53,11 @@ public class BufferAllocatorCache implements AutoCloseable
 
     public BufferAllocator getBufferByLayer(RenderLayer layer)
     {
-        //Litematica.logger.error("getBufferByLayer: layer {}", layer.getDrawMode().name());
-
         return this.layerCache.get(layer);
     }
 
     public BufferAllocator getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
-        //Litematica.logger.error("getBufferByOverlay: type {}", type.getDrawMode().name());
-
         return this.overlayCache.get(type);
     }
 
@@ -100,7 +93,7 @@ public class BufferAllocatorCache implements AutoCloseable
 
     public void reset()
     {
-        Litematica.logger.warn("BufferAllocatorCache: reset()");
+        Litematica.debugLog("BufferAllocatorCache: reset()");
 
         this.layerCache.values().forEach(BufferAllocator::reset);
         this.overlayCache.values().forEach(BufferAllocator::reset);
@@ -109,7 +102,7 @@ public class BufferAllocatorCache implements AutoCloseable
 
     public void clear()
     {
-        Litematica.logger.warn("BufferAllocatorCache: clear()");
+        Litematica.debugLog("BufferAllocatorCache: clear()");
 
         this.layerCache.values().forEach(BufferAllocator::clear);
         this.overlayCache.values().forEach(BufferAllocator::clear);
@@ -132,7 +125,8 @@ public class BufferAllocatorCache implements AutoCloseable
     @Override
     public void close()
     {
-        Litematica.logger.error("BufferAllocatorCache: close()");
+        Litematica.debugLog("BufferAllocatorCache: close()");
+
         this.closeAll();
     }
 }

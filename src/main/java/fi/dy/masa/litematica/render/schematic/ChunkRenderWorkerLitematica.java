@@ -11,15 +11,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.crash.CrashReport;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.cache.BufferAllocatorCache;
-import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
-import fi.dy.masa.litematica.render.cache.BuiltBufferCache;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderWorkerLitematica implements Runnable

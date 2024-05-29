@@ -43,7 +43,6 @@ public class ChunkRenderDataSchematic
     private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
     private final Map<RenderLayer, BuiltBuffer.SortState> blockBufferStates = new HashMap<>();
     private final Map<OverlayRenderType, BuiltBuffer.SortState> overlayBufferStates = new HashMap<>();
-    //private final BuiltBuffer.SortState[] overlayBufferStates = new BuiltBuffer.SortState[OverlayRenderType.values().length];
     private boolean overlayEmpty = true;
     private boolean empty = true;
     private long timeBuilt;

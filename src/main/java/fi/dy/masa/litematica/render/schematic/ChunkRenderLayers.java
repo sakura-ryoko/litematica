@@ -32,7 +32,7 @@ public record ChunkRenderLayers()
 
     private static List<ChunkRendererSchematicVbo.OverlayRenderType> getTypes()
     {
-        // In case we need to add additional Types (?)
+        // In case we need to add additional Types in the future
         return Arrays.stream(ChunkRendererSchematicVbo.OverlayRenderType.values()).toList();
     }
 

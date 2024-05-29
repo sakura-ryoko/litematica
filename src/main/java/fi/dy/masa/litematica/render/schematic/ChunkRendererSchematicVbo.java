@@ -32,10 +32,6 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.RenderUtils;
-import fi.dy.masa.litematica.render.cache.BufferAllocatorCache;
-import fi.dy.masa.litematica.render.cache.BufferBuilderCache;
-import fi.dy.masa.litematica.render.cache.BufferBuilderPatch;
-import fi.dy.masa.litematica.render.cache.BuiltBufferCache;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.PlacementPart;
 import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -185,8 +181,6 @@ public class ChunkRendererSchematicVbo
 
     public void resortTransparency(ChunkRenderTaskSchematic task)
     {
-        Litematica.logger.warn("resortTransparency() [VBO] start");
-
         ChunkRenderDataSchematic data = task.getChunkRenderData();
         BufferAllocatorCache allocatorCache = task.getAllocatorCache();
         BufferBuilderCache bufferCache = task.getBufferCache();
@@ -222,7 +216,7 @@ public class ChunkRendererSchematicVbo
             }
             catch (Exception e)
             {
-                Litematica.logger.error("resortTransparency() [VBO] caught exception for layer [{}], trying again later (Are the Buffers built yet?)", ChunkRenderLayers.getFriendlyName(layerTranslucent));
+                Litematica.debugLog("resortTransparency() [VBO] caught exception for layer [{}], trying again later (Are the Buffers built yet?)", ChunkRenderLayers.getFriendlyName(layerTranslucent));
             }
         }
 
@@ -258,8 +252,6 @@ public class ChunkRendererSchematicVbo
 
     public void rebuildChunk(ChunkRenderTaskSchematic task)
     {
-        Litematica.logger.warn("rebuildChunk() [VBO] - INIT");
-
         ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
         task.getLock().lock();
 
@@ -398,8 +390,6 @@ public class ChunkRendererSchematicVbo
         }
 
         data.setTimeBuilt(this.world.getTime());
-
-        Litematica.logger.warn("rebuildChunk() [VBO] -- DONE");
     }
 
     protected void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities,
@@ -656,8 +646,6 @@ public class ChunkRendererSchematicVbo
 
     protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, BufferBuilder bufferOverlayOutlines)
     {
-        //Litematica.logger.warn("renderOverlayReducedEdges(): [VBO] for pos [{}]", pos.toShortString());
-
         OverlayType[] neighborTypes = new OverlayType[4];
         Vec3i[] neighborPositions = new Vec3i[4];
         int lines = 0;
@@ -829,15 +817,11 @@ public class ChunkRendererSchematicVbo
 
     private BufferBuilderPatch preRenderBlocks(RenderLayer layer, @Nonnull BufferAllocator allocator)
     {
-        Litematica.logger.warn("preRenderBlocks(): [VBO] for layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
-
         return new BufferBuilderPatch(allocator, layer.getDrawMode(), layer.getVertexFormat());
     }
 
     private BufferBuilderPatch preRenderOverlay(OverlayRenderType type, @Nonnull BufferAllocator allocator)
     {
-        Litematica.logger.warn("preRenderOverlay(): [VBO] for overlay type [{}]", type.getDrawMode().name());
-
         this.existingOverlays.add(type);
         this.hasOverlay = true;
 
@@ -847,11 +831,8 @@ public class ChunkRendererSchematicVbo
 
     public void uploadBuiltBuffer(@Nonnull BuiltBuffer builtBuffer, @Nonnull VertexBuffer vertexBuffer)
     {
-        Litematica.logger.warn("uploadBuiltBuffer() [VBO] - INIT");
-
         if (vertexBuffer.isClosed())
         {
-            Litematica.logger.error("uploadBuiltBuffer() [VBO] - Error, vertexBuffer is closed/Null");
             builtBuffer.close();
             return;
         }
@@ -859,8 +840,6 @@ public class ChunkRendererSchematicVbo
         vertexBuffer.bind();
         vertexBuffer.upload(builtBuffer);
         VertexBuffer.unbind();
-
-        Litematica.logger.warn("uploadBuiltBuffer() [VBO] - END");
     }
 
     private void postRenderBlocks(RenderLayer layer, float x, float y, float z, BufferAllocator allocator, BufferBuilder buffer, BuiltBufferCache builtBufferCache, ChunkRenderDataSchematic chunkRenderData)
