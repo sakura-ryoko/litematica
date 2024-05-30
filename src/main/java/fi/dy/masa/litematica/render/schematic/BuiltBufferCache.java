@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
-import fi.dy.masa.litematica.Litematica;
 
 public class BuiltBufferCache implements AutoCloseable
 {
@@ -44,7 +43,7 @@ public class BuiltBufferCache implements AutoCloseable
         return this.overlayBuffers.get(type);
     }
 
-    public void clearByLayer(RenderLayer layer)
+    public void closeByLayer(RenderLayer layer)
     {
         try
         {
@@ -57,7 +56,7 @@ public class BuiltBufferCache implements AutoCloseable
         this.layerBuffers.remove(layer);
     }
 
-    public void clearByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         try
         {
@@ -70,10 +69,8 @@ public class BuiltBufferCache implements AutoCloseable
         this.overlayBuffers.remove(type);
     }
 
-    public void clear()
+    public void closeALl()
     {
-        Litematica.debugLog("BuiltBufferCache: clear()");
-
         try
         {
             this.layerBuffers.values().forEach(BuiltBuffer::close);
@@ -87,6 +84,6 @@ public class BuiltBufferCache implements AutoCloseable
     @Override
     public void close() throws Exception
     {
-        this.clear();
+        this.closeALl();
     }
 }

@@ -205,7 +205,7 @@ public class ChunkRendererSchematicVbo
                 allocator = allocatorCache.recycleBufferByLayer(layerTranslucent);
                 buffer = this.preRenderBlocks(layerTranslucent, allocator);
                 bufferCache.storeBufferByLayer(layerTranslucent, buffer);
-                builtBufferCache.clearByLayer(layerTranslucent);
+                builtBufferCache.closeByLayer(layerTranslucent);
             }
 
             //buffer.beginSortedIndexBuffer(bufferState);
@@ -981,9 +981,9 @@ public class ChunkRendererSchematicVbo
             {
                 Litematica.logger.warn("resortRenderBlocks(): [VBO] for layer [{}] - INVALID BUFFERS", ChunkRenderLayers.getFriendlyName(layer));
 
-                allocators.clearByLayer(layer);
+                allocators.closeByLayer(layer);
                 buffers.clearByLayer(layer);
-                builtBufferCache.clearByLayer(layer);
+                builtBufferCache.closeByLayer(layer);
                 throw new InterruptedException("Buffers are invalid");
             }
             if (built == null)
@@ -993,7 +993,7 @@ public class ChunkRendererSchematicVbo
                 if (built == null)
                 {
                     Litematica.logger.error("resortRenderBlocks() [VBO] for layer [{}] - FAILED TO BUILD", ChunkRenderLayers.getFriendlyName(layer));
-                    builtBufferCache.clearByLayer(layer);
+                    builtBufferCache.closeByLayer(layer);
                     throw new InterruptedException("Failed to build BuiltBuffer");
                 }
 
@@ -1060,9 +1060,9 @@ public class ChunkRendererSchematicVbo
             {
                 Litematica.logger.warn("resortRenderOverlay(): [VBO] for overlay type [{}] - INVALID BUFFERS", type.getDrawMode().name());
 
-                allocators.clearByType(type);
+                allocators.closeByType(type);
                 buffers.clearByType(type);
-                builtBufferCache.clearByType(type);
+                builtBufferCache.closeByType(type);
                 throw new InterruptedException("Buffers are invalid");
             }
             if (built == null)
@@ -1072,7 +1072,7 @@ public class ChunkRendererSchematicVbo
                 if (built == null)
                 {
                     Litematica.logger.error("resortRenderOverlay() [VBO] for overlay type [{}] - FAILED TO BUILD", type.getDrawMode().name());
-                    builtBufferCache.clearByType(type);
+                    builtBufferCache.closeByType(type);
                     throw new InterruptedException("Failed to build BuiltBuffer");
                 }
 

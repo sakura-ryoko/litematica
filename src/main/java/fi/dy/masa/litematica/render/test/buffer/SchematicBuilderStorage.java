@@ -1,48 +1,39 @@
 package fi.dy.masa.litematica.render.test.buffer;
 
-import java.util.SortedMap;
+import java.util.SequencedMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.Util;
 import fi.dy.masa.litematica.render.test.SchematicOverlayType;
+import fi.dy.masa.litematica.render.test.SchematicRenderLayers;
 
+@Environment(EnvType.CLIENT)
 public class SchematicBuilderStorage
 {
-    private final BlockBufferCache blockBufferBuilders = new BlockBufferCache();
-    private final BlockBufferPool blockBufferBuildersPool;
+    private final SchematicBlockAllocatorStorage blockBufferBuilders = new SchematicBlockAllocatorStorage();
+    private final SchematicBlockBuilderPool blockBufferBuildersPool;
     private final VertexConsumerProvider.Immediate entityVertexConsumers;
     private final VertexConsumerProvider.Immediate effectVertexConsumers;
     private final OutlineVertexConsumerProvider outlineVertexConsumers;
 
     public SchematicBuilderStorage(int maxBlockBuildersPoolSize)
     {
-        this.blockBufferBuildersPool = BlockBufferPool.createPool(maxBlockBuildersPoolSize);
-        SortedMap sortedMap = Util.make(new Object2ObjectLinkedOpenHashMap(), map ->
+        this.blockBufferBuildersPool = SchematicBlockBuilderPool.createPool(maxBlockBuildersPoolSize);
+        SequencedMap sortedMap = Util.make(new Object2ObjectLinkedOpenHashMap(), (map) ->
         {
-            map.put(TexturedRenderLayers.getEntitySolid(), this.blockBufferBuilders.getBufferByLayer(RenderLayer.getSolid()));
-            map.put(TexturedRenderLayers.getEntityCutout(), this.blockBufferBuilders.getBufferByLayer(RenderLayer.getCutout()));
-            map.put(TexturedRenderLayers.getBannerPatterns(), this.blockBufferBuilders.getBufferByLayer(RenderLayer.getCutoutMipped()));
-            map.put(TexturedRenderLayers.getEntityTranslucentCull(), this.blockBufferBuilders.getBufferByLayer(RenderLayer.getTranslucent()));
-            SchematicBuilderStorage.assignBufferByOverlay(map, SchematicOverlayType.OUTLINE);
-            SchematicBuilderStorage.assignBufferByOverlay(map, SchematicOverlayType.QUAD);
-            SchematicBuilderStorage.assignBufferByLayer(map, TexturedRenderLayers.getShieldPatterns());
-            SchematicBuilderStorage.assignBufferByLayer(map, TexturedRenderLayers.getBeds());
-            SchematicBuilderStorage.assignBufferByLayer(map, TexturedRenderLayers.getShulkerBoxes());
-            SchematicBuilderStorage.assignBufferByLayer(map, TexturedRenderLayers.getSign());
-            SchematicBuilderStorage.assignBufferByLayer(map, TexturedRenderLayers.getHangingSign());
-            map.put(TexturedRenderLayers.getChest(), new BufferAllocator(786432));
-            SchematicBuilderStorage.assignBufferByLayer(map, RenderLayer.getArmorEntityGlint());
-            SchematicBuilderStorage.assignBufferByLayer(map, RenderLayer.getGlint());
-            SchematicBuilderStorage.assignBufferByLayer(map, RenderLayer.getGlintTranslucent());
-            SchematicBuilderStorage.assignBufferByLayer(map, RenderLayer.getEntityGlint());
-            SchematicBuilderStorage.assignBufferByLayer(map, RenderLayer.getDirectEntityGlint());
-            SchematicBuilderStorage.assignBufferByLayer(map, RenderLayer.getWaterMask());
-            ModelLoader.BLOCK_DESTRUCTION_RENDER_LAYERS.forEach(renderLayer -> SchematicBuilderStorage.assignBufferByLayer(map, renderLayer));
+            for (RenderLayer layer : SchematicRenderLayers.LAYERS)
+            {
+                SchematicBuilderStorage.assignBufferByLayer(map, layer);
+            }
+            for (SchematicOverlayType type : SchematicOverlayType.values())
+            {
+                SchematicBuilderStorage.assignBufferByOverlay(map, type);
+            }
         });
         this.effectVertexConsumers = VertexConsumerProvider.immediate(new BufferAllocator(1536));
         this.entityVertexConsumers = VertexConsumerProvider.immediate(sortedMap, new BufferAllocator(786432));
@@ -59,11 +50,11 @@ public class SchematicBuilderStorage
         builderStorage.put(type, new BufferAllocator(type.getExpectedBufferSize()));
     }
 
-    public BlockBufferCache getBlockBufferBuilders() {
+    public SchematicBlockAllocatorStorage getBlockBufferBuilders() {
         return this.blockBufferBuilders;
     }
 
-    public BlockBufferPool getBlockBufferBuildersPool()
+    public SchematicBlockBuilderPool getBlockBufferBuildersPool()
     {
         return this.blockBufferBuildersPool;
     }

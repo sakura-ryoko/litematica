@@ -399,9 +399,9 @@ public class ChunkRenderDispatcherLitematica
         {
             Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for overlay type [{}] - INVALID BUFFERS", ChunkRenderLayers.getFriendlyName(layer));
 
-            allocators.clearByLayer(layer);
+            allocators.closeByLayer(layer);
             buffers.clearByLayer(layer);
-            builtBuffers.clearByLayer(layer);
+            builtBuffers.closeByLayer(layer);
             throw new InterruptedException("Buffers are invalid");
         }
 
@@ -412,7 +412,7 @@ public class ChunkRenderDispatcherLitematica
             if (renderBuffer == null)
             {
                 Litematica.logger.error("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - FAILED TO BUILD", ChunkRenderLayers.getFriendlyName(layer));
-                builtBuffers.clearByLayer(layer);
+                builtBuffers.closeByLayer(layer);
                 throw new InterruptedException("Failed to build BuiltBuffer");
             }
 
@@ -443,7 +443,7 @@ public class ChunkRenderDispatcherLitematica
                     {
                         result.close();
                         renderBuffer.close();
-                        builtBuffers.clearByLayer(layer);
+                        builtBuffers.closeByLayer(layer);
                         return;
                     }
                     Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - UPLOAD Sort State", ChunkRenderLayers.getFriendlyName(layer));
@@ -462,7 +462,7 @@ public class ChunkRenderDispatcherLitematica
         if (vertexBuffer.isClosed())
         {
             renderBuffer.close();
-            builtBuffers.clearByLayer(layer);
+            builtBuffers.closeByLayer(layer);
             return;
         }
         Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - UPLOAD", ChunkRenderLayers.getFriendlyName(layer));
@@ -487,9 +487,9 @@ public class ChunkRenderDispatcherLitematica
         {
             Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - INVALID BUFFERS", type.getDrawMode().name());
 
-            allocators.clearByType(type);
+            allocators.closeByType(type);
             buffers.clearByType(type);
-            builtBuffers.clearByType(type);
+            builtBuffers.closeByType(type);
             throw new InterruptedException("Buffers are invalid");
         }
 
@@ -500,7 +500,7 @@ public class ChunkRenderDispatcherLitematica
             if (renderBuffer == null)
             {
                 Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - FAILED TO BUILD", type.getDrawMode().name());
-                builtBuffers.clearByType(type);
+                builtBuffers.closeByType(type);
                 throw new InterruptedException("Failed to build BuiltBuffer");
             }
 
@@ -531,7 +531,7 @@ public class ChunkRenderDispatcherLitematica
                     {
                         result.close();
                         renderBuffer.close();
-                        builtBuffers.clearByType(type);
+                        builtBuffers.closeByType(type);
                         return;
                     }
                     Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - UPLOAD Sort State", type.getDrawMode().name());
@@ -550,7 +550,7 @@ public class ChunkRenderDispatcherLitematica
         if (vertexBuffer.isClosed())
         {
             renderBuffer.close();
-            builtBuffers.clearByType(type);
+            builtBuffers.closeByType(type);
             return;
         }
         Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - UPLOAD", type.getDrawMode().name());

@@ -268,7 +268,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private void freeRenderAllocators(ChunkRenderTaskSchematic generator)
     {
         BufferAllocatorCache bufferAllocatorCache = generator.getAllocatorCache();
-        bufferAllocatorCache.clear();
+        bufferAllocatorCache.clearAll();
 
         if (this.bufferCache == null)
         {
@@ -279,7 +279,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private void freeRenderBuilder(ChunkRenderTaskSchematic generator)
     {
         BufferBuilderCache builderCache = generator.getBufferCache();
-        builderCache.clear();
+        builderCache.clearAll();
 
         if (this.bufferCache == null)
         {
@@ -290,7 +290,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private void freeRenderBuiltCache(ChunkRenderTaskSchematic generator)
     {
         BuiltBufferCache builtBufferCache = generator.getBuiltBufferCache();
-        builtBufferCache.clear();
+        builtBufferCache.closeALl();
 
         if (this.builtBufferCache == null)
         {
