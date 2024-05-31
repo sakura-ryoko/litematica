@@ -194,6 +194,10 @@ public class WorldRendererSchematic
 
     protected void stopChunkUpdates()
     {
+        if (this.chunksToUpdate.isEmpty() == false)
+        {
+            this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
+        }
         this.chunksToUpdate.clear();
         this.renderDispatcher.stopChunkUpdates();
     }
@@ -249,7 +253,7 @@ public class WorldRendererSchematic
         BlockPos viewPos = BlockPos.ofFloored(cameraX, cameraY + (double) entity.getStandingEyeHeight(), cameraZ);
         final int centerChunkX = (viewPos.getX() >> 4);
         final int centerChunkZ = (viewPos.getZ() >> 4);
-        final int renderDistance = this.mc.options.getViewDistance().getValue();
+        final int renderDistance = this.mc.options.getViewDistance().getValue() + 1;
         ChunkPos viewChunk = new ChunkPos(viewPos);
 
         this.displayListEntitiesDirty = this.displayListEntitiesDirty || this.chunksToUpdate.isEmpty() == false ||
@@ -284,12 +288,14 @@ public class WorldRendererSchematic
 
             this.world.getProfiler().swap("iteration");
 
+            int i = 0;
             //while (queuePositions.isEmpty() == false)
             for (ChunkPos chunkPos : positions)
             {
                 //SubChunkPos subChunk = queuePositions.poll();
                 int cx = chunkPos.x;
                 int cz = chunkPos.z;
+                //Litematica.logger.warn("setupTerrain() [WorldRenderer] positions[{}] chunkPos: {} // isLoaded: {}", i, chunkPos.toString(), this.world.getChunkProvider().isChunkLoaded(cx, cz));
                 // Only render sub-chunks that are within the client's render distance, and that
                 // have been already properly loaded on the client
                 if (Math.abs(cx - centerChunkX) <= renderDistance &&
@@ -298,17 +304,21 @@ public class WorldRendererSchematic
                 {
                     ChunkRendererSchematicVbo chunkRenderer = this.chunkRendererDispatcher.getChunkRenderer(cx, cz);
 
-                    if (chunkRenderer != null && frustum.isVisible(chunkRenderer.getBoundingBox()))
+                    if (chunkRenderer != null)
                     {
-                        //if (GuiBase.isCtrlDown()) System.out.printf("add @ %s\n", subChunk);
-                        if (chunkRenderer.needsUpdate() && chunkPos.equals(viewChunk))
+                        if (frustum.isVisible(chunkRenderer.getBoundingBox()) || chunkRenderer.isWithinRange(camera.getBlockPos(), renderDistance))
                         {
-                            chunkRenderer.setNeedsUpdate(true);
-                        }
+                            //if (GuiBase.isCtrlDown()) System.out.printf("add @ %s\n", subChunk);
+                            if (chunkRenderer.needsUpdate() && chunkPos.equals(viewChunk))
+                            {
+                                chunkRenderer.setNeedsUpdate(true);
+                            }
 
-                        this.renderInfos.add(chunkRenderer);
+                            this.renderInfos.add(chunkRenderer);
+                        }
                     }
                 }
+                i++;
             }
 
             this.world.getProfiler().pop(); // fetch

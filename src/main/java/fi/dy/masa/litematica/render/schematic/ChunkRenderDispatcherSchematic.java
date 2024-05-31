@@ -29,7 +29,7 @@ public class ChunkRenderDispatcherSchematic
         this.viewDistanceChunks = viewDistanceChunks;
         this.viewDistanceBlocksSq = (viewDistanceChunks + 2) << 4; // Add like one extra chunk of margin just in case
         this.viewDistanceBlocksSq *= this.viewDistanceBlocksSq;
-        this.delete();
+        //this.delete();
     }
 
     public void delete()
@@ -38,7 +38,7 @@ public class ChunkRenderDispatcherSchematic
 
         for (ChunkRendererSchematicVbo chunkRenderer : this.chunkRenderers.values())
         {
-            Litematica.logger.error("delete() [Schematic Dispatch] for thread {}", i);
+            //Litematica.logger.error("delete() [Schematic Dispatch] for thread {}", i);
             chunkRenderer.deleteGlResources();
             i++;
         }
@@ -82,6 +82,7 @@ public class ChunkRenderDispatcherSchematic
         if (renderer == null)
         {
             renderer = this.chunkRendererFactory.create(this.world, this.renderer);
+            //Litematica.logger.warn("getOrCreateChunkRenderer(): new index[{}] --> chunkX, chunkZ [{}, {}]", index, chunkX, chunkZ);
             renderer.setPosition(chunkX << 4, this.world.getBottomY(), chunkZ << 4);
             this.chunkRenderers.put(index, renderer);
         }
@@ -92,7 +93,6 @@ public class ChunkRenderDispatcherSchematic
     @Nullable
     protected ChunkRendererSchematicVbo getChunkRenderer(int chunkX, int chunkZ)
     {
-        long index = ChunkPos.toLong(chunkX, chunkZ);
-        return this.chunkRenderers.get(index);
+        return this.getOrCreateChunkRenderer(chunkX, chunkZ);
     }
 }

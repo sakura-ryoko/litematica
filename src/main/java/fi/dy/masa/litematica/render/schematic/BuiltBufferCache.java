@@ -14,7 +14,7 @@ public class BuiltBufferCache implements AutoCloseable
 
     public BuiltBufferCache()
     {
-        Litematica.logger.error("BuiltBufferCache(): INIT");
+        //Litematica.logger.error("BuiltBufferCache(): INIT");
     }
 
     public boolean hasBuiltBufferByLayer(RenderLayer layer)
@@ -65,6 +65,7 @@ public class BuiltBufferCache implements AutoCloseable
             }
         }
         catch (Exception ignored) { }
+        this.layerBuffers.remove(layer);
     }
 
     public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
@@ -77,6 +78,7 @@ public class BuiltBufferCache implements AutoCloseable
             }
         }
         catch (Exception ignored) { }
+        this.overlayBuffers.remove(type);
     }
 
     public void closeAll()
