@@ -13,88 +13,43 @@ public class BufferAllocatorCache implements AutoCloseable
 {
     protected static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
     protected static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
-    protected static final int EXPECTED_TOTAL_SIZE = LAYERS.stream().mapToInt(RenderLayer::getExpectedBufferSize).sum() + TYPES.stream().mapToInt(ChunkRendererSchematicVbo.OverlayRenderType::getExpectedBufferSize).sum();
+    protected static final int EXPECTED_TOTAL_SIZE;
     private Map<RenderLayer, BufferAllocator> layerCache = new HashMap<>();
     private Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferAllocator> overlayCache = new HashMap<>();
 
     public BufferAllocatorCache()
     {
-        this.allocateBuffers();
+        Litematica.logger.error("BufferAllocatorCache(): INIT");
     }
 
-    public void allocateBuffers()
+    public boolean hasBufferByLayer(RenderLayer layer)
     {
-        if (!this.layerCache.isEmpty())
-        {
-            this.layerCache.values().forEach(BufferAllocator::close);
-            this.layerCache.clear();
-        }
-        if (!this.overlayCache.isEmpty())
-        {
-            this.overlayCache.values().forEach(BufferAllocator::close);
-            this.overlayCache.clear();
-        }
+        return this.layerCache.containsKey(layer);
+    }
 
-        this.layerCache = Util.make(new Reference2ObjectArrayMap<>(LAYERS.size()), refMap ->
-        {
-            for (RenderLayer layer : LAYERS)
-            {
-                refMap.put(layer, new BufferAllocator(layer.getExpectedBufferSize()));
-            }
-        });
-        this.overlayCache = Util.make(new Reference2ObjectArrayMap<>(TYPES.size()), refMap ->
-        {
-            for (ChunkRendererSchematicVbo.OverlayRenderType type : TYPES)
-            {
-                refMap.put(type, new BufferAllocator(type.getExpectedBufferSize()));
-            }
-        });
+    public boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    {
+        return this.overlayCache.containsKey(type);
     }
 
     public BufferAllocator getBufferByLayer(RenderLayer layer)
     {
+        if (this.layerCache.containsKey(layer) == false)
+        {
+            this.layerCache.put(layer, new BufferAllocator(layer.getExpectedBufferSize()));
+        }
+
         return this.layerCache.get(layer);
     }
 
     public BufferAllocator getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
+        if (this.overlayCache.containsKey(type) == false)
+        {
+            this.overlayCache.put(type, new BufferAllocator(type.getExpectedBufferSize()));
+        }
+
         return this.overlayCache.get(type);
-    }
-
-    public BufferAllocator recycleBufferByLayer(RenderLayer layer)
-    {
-        BufferAllocator newBuf = new BufferAllocator(layer.getExpectedBufferSize());
-
-        try
-        {
-            if (this.layerCache.containsKey(layer))
-            {
-                this.layerCache.get(layer).reset();
-                this.layerCache.get(layer).close();
-            }
-        }
-        catch (Exception ignored) {}
-        this.layerCache.put(layer, newBuf);
-
-        return newBuf;
-    }
-
-    public BufferAllocator recycleBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
-    {
-        BufferAllocator newBuf = new BufferAllocator(type.getExpectedBufferSize());
-
-        try
-        {
-            if (this.overlayCache.containsKey(type))
-            {
-                this.overlayCache.get(type).reset();
-                this.overlayCache.get(type).close();
-            }
-        }
-        catch (Exception ignored) {}
-        this.overlayCache.put(type, newBuf);
-
-        return newBuf;
     }
 
     public void resetByLayer(RenderLayer layer)
@@ -154,10 +109,7 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.layerCache.get(layer).close();
             }
         }
-        catch (Exception e)
-        {
-            this.layerCache.remove(layer);
-        }
+        catch (Exception ignored) { }
     }
 
     public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
@@ -169,43 +121,43 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.overlayCache.get(type).close();
             }
         }
-        catch (Exception e)
-        {
-            this.overlayCache.remove(type);
-        }
+        catch (Exception ignored) {}
     }
 
     public void resetAll()
     {
+        //Litematica.logger.error("BufferAllocatorCache: resetAll()");
+
         try
         {
             this.layerCache.values().forEach(BufferAllocator::reset);
             this.overlayCache.values().forEach(BufferAllocator::reset);
         }
         catch (Exception ignored) {}
-        this.clearAll();
     }
 
     public void clearAll()
     {
+        //Litematica.logger.error("BufferAllocatorCache: clearAll()");
+
         try
         {
             this.layerCache.values().forEach(BufferAllocator::clear);
             this.overlayCache.values().forEach(BufferAllocator::clear);
         }
         catch (Exception ignored) {}
-        this.layerCache.clear();
-        this.overlayCache.clear();
     }
 
     public void closeAll()
     {
+        //Litematica.logger.error("BufferAllocatorCache: closeAll()");
+
         try
         {
             this.layerCache.values().forEach(BufferAllocator::close);
             this.overlayCache.values().forEach(BufferAllocator::close);
         }
-        catch (Exception ignored) {}
+        catch (Exception ignored) { }
         this.layerCache.clear();
         this.overlayCache.clear();
     }
@@ -213,8 +165,13 @@ public class BufferAllocatorCache implements AutoCloseable
     @Override
     public void close()
     {
-        Litematica.debugLog("BufferAllocatorCache: close()");
+        //Litematica.logger.error("BufferAllocatorCache: close()");
 
         this.closeAll();
+    }
+
+    static
+    {
+        EXPECTED_TOTAL_SIZE = LAYERS.stream().mapToInt(RenderLayer::getExpectedBufferSize).sum() + TYPES.stream().mapToInt(ChunkRendererSchematicVbo.OverlayRenderType::getExpectedBufferSize).sum();
     }
 }

@@ -62,6 +62,7 @@ public class SchematicBlockAllocatorStorage implements AutoCloseable
         this.overlayAllocators.values().forEach(BufferAllocator::reset);
     }
 
+    @Override
     public void close()
     {
         Litematica.logger.error("SchematicBlockAllocatorStorage: close()");

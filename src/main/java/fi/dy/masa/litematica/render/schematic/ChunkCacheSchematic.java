@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -34,7 +35,7 @@ public class ChunkCacheSchematic implements BlockRenderView, ChunkProvider
     protected WorldChunk[][] chunkArray;
     protected boolean empty;
 
-    public ChunkCacheSchematic(World worldIn, ClientWorld clientWorld, BlockPos pos, int expand)
+    public ChunkCacheSchematic(@Nonnull World worldIn, @Nonnull ClientWorld clientWorld, @Nonnull BlockPos pos, int expand)
     {
         this.world = worldIn;
         this.lightingProvider = new FakeLightingProvider(this);

@@ -1,6 +1,9 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.BuiltBuffer;
@@ -35,14 +38,13 @@ public class ChunkRenderDataSchematic
         }
     };
 
+    private final List<BlockEntity> blockEntities = new ArrayList<>();
     private final Set<RenderLayer> blockLayersUsed = new ObjectArraySet<>();
     private final Set<RenderLayer> blockLayersStarted = new ObjectArraySet<>();
-    private final List<BlockEntity> blockEntities = new ArrayList<>();
-
-    private final boolean[] overlayLayersUsed = new boolean[OverlayRenderType.values().length];
-    private final boolean[] overlayLayersStarted = new boolean[OverlayRenderType.values().length];
-    private final Map<RenderLayer, BuiltBuffer.SortState> blockBufferStates = new HashMap<>();
-    private final Map<OverlayRenderType, BuiltBuffer.SortState> overlayBufferStates = new HashMap<>();
+    private final Set<OverlayRenderType> overlayLayersUsed = new ObjectArraySet<>();
+    private final Set<OverlayRenderType> overlayLayersStarted = new ObjectArraySet<>();
+    private final BuiltBufferCache builtBufferCache = new BuiltBufferCache();
+    private BuiltBuffer.SortState transparentSortingData = null;
     private boolean overlayEmpty = true;
     private boolean empty = true;
     private long timeBuilt;
@@ -54,13 +56,7 @@ public class ChunkRenderDataSchematic
 
     public boolean isBlockLayerEmpty(RenderLayer layer)
     {
-        return ! this.blockLayersUsed.contains(layer);
-    }
-
-    public void setBlockLayerUsed(RenderLayer layer)
-    {
-        this.blockLayersUsed.add(layer);
-        this.empty = false;
+        return !this.blockLayersUsed.contains(layer);
     }
 
     public boolean isBlockLayerStarted(RenderLayer layer)
@@ -73,60 +69,36 @@ public class ChunkRenderDataSchematic
         this.blockLayersStarted.add(layer);
     }
 
+    public void setBlockLayerUsed(RenderLayer layer)
+    {
+        this.empty = false;
+        this.blockLayersUsed.add(layer);
+    }
+
     public boolean isOverlayEmpty()
     {
         return this.overlayEmpty;
     }
 
-    protected void setOverlayTypeUsed(OverlayRenderType type)
-    {
-        this.overlayEmpty = false;
-        this.overlayLayersUsed[type.ordinal()] = true;
-    }
-
     public boolean isOverlayTypeEmpty(OverlayRenderType type)
     {
-        return ! this.overlayLayersUsed[type.ordinal()];
+        return !this.overlayLayersUsed.contains(type);
     }
 
     public void setOverlayTypeStarted(OverlayRenderType type)
     {
-        this.overlayLayersStarted[type.ordinal()] = true;
+        this.overlayLayersStarted.add(type);
     }
 
     public boolean isOverlayTypeStarted(OverlayRenderType type)
     {
-        return this.overlayLayersStarted[type.ordinal()];
+        return this.overlayLayersStarted.contains(type);
     }
 
-    public boolean hasBlockBufferState(RenderLayer layer)
+    protected void setOverlayTypeUsed(OverlayRenderType type)
     {
-        return this.blockBufferStates.containsKey(layer);
-    }
-
-    public boolean hasOverlayBufferState(OverlayRenderType type)
-    {
-        return this.overlayBufferStates.containsKey(type);
-    }
-
-    public BuiltBuffer.SortState getBlockBufferState(RenderLayer layer)
-    {
-        return this.blockBufferStates.get(layer);
-    }
-
-    public void setBlockBufferState(RenderLayer layer, BuiltBuffer.SortState state)
-    {
-        this.blockBufferStates.put(layer, state);
-    }
-
-    public BuiltBuffer.SortState getOverlayBufferState(OverlayRenderType type)
-    {
-        return this.overlayBufferStates.get(type);
-    }
-
-    public void setOverlayBufferState(OverlayRenderType type, BuiltBuffer.SortState state)
-    {
-        this.overlayBufferStates.put(type, state);
+        this.overlayEmpty = false;
+        this.overlayLayersUsed.add(type);
     }
 
     public List<BlockEntity> getBlockEntities()
@@ -137,6 +109,31 @@ public class ChunkRenderDataSchematic
     public void addBlockEntity(BlockEntity be)
     {
         this.blockEntities.add(be);
+    }
+
+    public BuiltBufferCache getBuiltBufferCache()
+    {
+        return this.builtBufferCache;
+    }
+
+    public void closeBuiltBufferCache()
+    {
+        this.builtBufferCache.closeAll();
+    }
+
+    public boolean hasTransparentSortingData()
+    {
+        return this.transparentSortingData != null;
+    }
+
+    public void setTransparentSortingData(@Nonnull BuiltBuffer.SortState transparentSortingData)
+    {
+        this.transparentSortingData = transparentSortingData;
+    }
+
+    public BuiltBuffer.SortState getTransparentSortingData()
+    {
+        return this.transparentSortingData;
     }
 
     public long getTimeBuilt()

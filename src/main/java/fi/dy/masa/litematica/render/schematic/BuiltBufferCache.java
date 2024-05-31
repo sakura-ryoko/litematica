@@ -5,13 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
+import fi.dy.masa.litematica.Litematica;
 
 public class BuiltBufferCache implements AutoCloseable
 {
     private final Map<RenderLayer, BuiltBuffer> layerBuffers = new HashMap<>();
     private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BuiltBuffer> overlayBuffers = new HashMap<>();
 
-    public BuiltBufferCache() { }
+    public BuiltBufferCache()
+    {
+        Litematica.logger.error("BuiltBufferCache(): INIT");
+    }
 
     public boolean hasBuiltBufferByLayer(RenderLayer layer)
     {
@@ -25,11 +29,19 @@ public class BuiltBufferCache implements AutoCloseable
 
     public void storeBuiltBufferByLayer(RenderLayer layer, @Nonnull BuiltBuffer newBuffer)
     {
+        if (this.hasBuiltBufferByLayer(layer))
+        {
+            this.layerBuffers.get(layer).close();
+        }
         this.layerBuffers.put(layer, newBuffer);
     }
 
     public void storeBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BuiltBuffer newBuffer)
     {
+        if (this.hasBuiltBufferByType(type))
+        {
+            this.overlayBuffers.get(type).close();
+        }
         this.overlayBuffers.put(type, newBuffer);
     }
 
@@ -52,8 +64,7 @@ public class BuiltBufferCache implements AutoCloseable
                 this.layerBuffers.get(layer).close();
             }
         }
-        catch (Exception ignored) {}
-        this.layerBuffers.remove(layer);
+        catch (Exception ignored) { }
     }
 
     public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
@@ -65,18 +76,19 @@ public class BuiltBufferCache implements AutoCloseable
                 this.overlayBuffers.get(type).close();
             }
         }
-        catch (Exception ignored) {}
-        this.overlayBuffers.remove(type);
+        catch (Exception ignored) { }
     }
 
-    public void closeALl()
+    public void closeAll()
     {
+        //Litematica.logger.error("BuiltBufferCache(): closeAll()");
+
         try
         {
             this.layerBuffers.values().forEach(BuiltBuffer::close);
             this.overlayBuffers.values().forEach(BuiltBuffer::close);
         }
-        catch (Exception ignored) {}
+        catch (Exception ignored) { }
         this.layerBuffers.clear();
         this.overlayBuffers.clear();
     }
@@ -84,6 +96,8 @@ public class BuiltBufferCache implements AutoCloseable
     @Override
     public void close() throws Exception
     {
-        this.closeALl();
+        //Litematica.logger.error("BuiltBufferCache(): close()");
+
+        this.closeAll();
     }
 }
