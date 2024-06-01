@@ -10,29 +10,29 @@ import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
-public class ChunkRenderDataSchematic
+public class ChunkRenderDataSchematic implements AutoCloseable
 {
     public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic() {
         @Override
-        public void setBlockLayerUsed(RenderLayer layer)
+        protected void setBlockLayerUsed(RenderLayer layer)
         {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void setBlockLayerStarted(RenderLayer layer)
+        protected void setBlockLayerStarted(RenderLayer layer)
         {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void setOverlayTypeUsed(OverlayRenderType layer)
+        protected void setOverlayTypeUsed(OverlayRenderType layer)
         {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void setOverlayTypeStarted(OverlayRenderType layer)
+        protected void setOverlayTypeStarted(OverlayRenderType layer)
         {
             throw new UnsupportedOperationException();
         }
@@ -64,12 +64,12 @@ public class ChunkRenderDataSchematic
         return this.blockLayersStarted.contains(layer);
     }
 
-    public void setBlockLayerStarted(RenderLayer layer)
+    protected void setBlockLayerStarted(RenderLayer layer)
     {
         this.blockLayersStarted.add(layer);
     }
 
-    public void setBlockLayerUsed(RenderLayer layer)
+    protected void setBlockLayerUsed(RenderLayer layer)
     {
         this.empty = false;
         this.blockLayersUsed.add(layer);
@@ -85,7 +85,7 @@ public class ChunkRenderDataSchematic
         return !this.overlayLayersUsed.contains(type);
     }
 
-    public void setOverlayTypeStarted(OverlayRenderType type)
+    protected void setOverlayTypeStarted(OverlayRenderType type)
     {
         this.overlayLayersStarted.add(type);
     }
@@ -106,17 +106,17 @@ public class ChunkRenderDataSchematic
         return this.blockEntities;
     }
 
-    public void addBlockEntity(BlockEntity be)
+    protected void addBlockEntity(BlockEntity be)
     {
         this.blockEntities.add(be);
     }
 
-    public BuiltBufferCache getBuiltBufferCache()
+    protected BuiltBufferCache getBuiltBufferCache()
     {
         return this.builtBufferCache;
     }
 
-    public void closeBuiltBufferCache()
+    protected void closeBuiltBufferCache()
     {
         this.builtBufferCache.closeAll();
     }
@@ -126,12 +126,12 @@ public class ChunkRenderDataSchematic
         return this.transparentSortingData != null;
     }
 
-    public void setTransparentSortingData(@Nonnull BuiltBuffer.SortState transparentSortingData)
+    protected void setTransparentSortingData(@Nonnull BuiltBuffer.SortState transparentSortingData)
     {
         this.transparentSortingData = transparentSortingData;
     }
 
-    public BuiltBuffer.SortState getTransparentSortingData()
+    protected BuiltBuffer.SortState getTransparentSortingData()
     {
         return this.transparentSortingData;
     }
@@ -141,8 +141,14 @@ public class ChunkRenderDataSchematic
         return this.timeBuilt;
     }
 
-    public void setTimeBuilt(long time)
+    protected void setTimeBuilt(long time)
     {
         this.timeBuilt = time;
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        this.closeBuiltBufferCache();
     }
 }

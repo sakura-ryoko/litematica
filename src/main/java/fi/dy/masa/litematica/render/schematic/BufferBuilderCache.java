@@ -5,29 +5,25 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
-import fi.dy.masa.litematica.Litematica;
 
-public class BufferBuilderCache
+public class BufferBuilderCache implements AutoCloseable
 {
     private final Map<RenderLayer, BufferBuilderPatch> blockBufferBuilders = new HashMap<>();
     private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferBuilderPatch> overlayBufferBuilders = new HashMap<>();
 
-    public BufferBuilderCache()
-    {
-        //Litematica.logger.error("BufferBuilderCache(): INIT");
-    }
+    protected BufferBuilderCache() { }
 
-    public boolean hasBufferByLayer(RenderLayer layer)
+    protected boolean hasBufferByLayer(RenderLayer layer)
     {
         return this.blockBufferBuilders.containsKey(layer);
     }
 
-    public boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         return this.overlayBufferBuilders.containsKey(type);
     }
 
-    public BufferBuilderPatch getBufferByLayer(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilderPatch getBufferByLayer(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
     {
         if (this.hasBufferByLayer(layer) == false)
         {
@@ -37,7 +33,7 @@ public class BufferBuilderCache
         return this.blockBufferBuilders.get(layer);
     }
 
-    public BufferBuilderPatch getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilderPatch getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
         if (this.hasBufferByOverlay(type) == false)
         {
@@ -61,13 +57,17 @@ public class BufferBuilderCache
         catch (Exception ignored) { }
     }
 
-    public void clearAll()
+    protected void clearAll()
     {
-        //Litematica.logger.error("BufferBuilderCache(): clearAll()");
-
         this.blockBufferBuilders.forEach((layer, buffer) -> this.clear(buffer));
         this.overlayBufferBuilders.forEach((type, buffer) -> this.clear(buffer));
         this.blockBufferBuilders.clear();
         this.overlayBufferBuilders.clear();
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        this.clearAll();
     }
 }

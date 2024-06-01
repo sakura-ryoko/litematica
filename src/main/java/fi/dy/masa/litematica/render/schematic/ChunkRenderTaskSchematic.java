@@ -38,17 +38,17 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         return this.status;
     }
 
-    public ChunkRendererSchematicVbo getRenderChunk()
+    protected ChunkRendererSchematicVbo getRenderChunk()
     {
         return this.chunkRenderer;
     }
 
-    public ChunkRenderDataSchematic getChunkRenderData()
+    protected ChunkRenderDataSchematic getChunkRenderData()
     {
         return this.chunkRenderData;
     }
 
-    public void setChunkRenderData(ChunkRenderDataSchematic chunkRenderData)
+    protected void setChunkRenderData(ChunkRenderDataSchematic chunkRenderData)
     {
         this.chunkRenderData = chunkRenderData;
     }
@@ -65,7 +65,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     }
      */
 
-    public void setStatus(ChunkRenderTaskSchematic.Status statusIn)
+    protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {
         this.lock.lock();
 
@@ -79,7 +79,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         }
     }
 
-    public void finish()
+    protected void finish()
     {
         this.lock.lock();
 
@@ -104,7 +104,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         }
     }
 
-    public void addFinishRunnable(Runnable runnable)
+    protected void addFinishRunnable(Runnable runnable)
     {
         this.lock.lock();
 
@@ -123,17 +123,17 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         }
     }
 
-    public ReentrantLock getLock()
+    protected ReentrantLock getLock()
     {
         return this.lock;
     }
 
-    public ChunkRenderTaskSchematic.Type getType()
+    protected ChunkRenderTaskSchematic.Type getType()
     {
         return this.type;
     }
 
-    public boolean isFinished()
+    protected boolean isFinished()
     {
         return this.finished;
     }

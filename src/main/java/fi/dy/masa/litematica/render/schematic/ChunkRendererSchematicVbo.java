@@ -37,9 +37,9 @@ import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
-public class ChunkRendererSchematicVbo
+public class ChunkRendererSchematicVbo implements AutoCloseable
 {
-    public static int schematicRenderChunksUpdated;
+    protected static int schematicRenderChunksUpdated;
 
     protected volatile WorldSchematic world;
     protected final WorldRendererSchematic worldRenderer;
@@ -62,8 +62,8 @@ public class ChunkRendererSchematicVbo
     protected ChunkCacheSchematic schematicWorldView;
     protected ChunkCacheSchematic clientWorldView;
 
-    protected BufferAllocatorCache allocatorCache;
-    protected BufferBuilderCache builderCache;
+    private final BufferAllocatorCache allocatorCache;
+    private final BufferBuilderCache builderCache;
 
     protected ChunkRenderTaskSchematic compileTask;
     protected ChunkRenderDataSchematic chunkRenderData;
@@ -71,7 +71,7 @@ public class ChunkRendererSchematicVbo
     private boolean needsUpdate;
     private boolean needsImmediateUpdate;
 
-    public ChunkRendererSchematicVbo(WorldSchematic world, WorldRendererSchematic worldRenderer)
+    protected ChunkRendererSchematicVbo(WorldSchematic world, WorldRendererSchematic worldRenderer)
     {
         this.world = world;
         this.worldRenderer = worldRenderer;
@@ -96,33 +96,33 @@ public class ChunkRendererSchematicVbo
         return this.existingOverlays;
     }
 
-    public VertexBuffer getBlocksVertexBufferByLayer(RenderLayer layer)
+    protected VertexBuffer getBlocksVertexBufferByLayer(RenderLayer layer)
     {
         return this.vertexBufferBlocks.computeIfAbsent(layer, l -> new VertexBuffer(VertexBuffer.Usage.STATIC));
     }
 
-    public VertexBuffer getOverlayVertexBuffer(OverlayRenderType type)
+    protected VertexBuffer getOverlayVertexBuffer(OverlayRenderType type)
     {
         //if (GuiBase.isCtrlDown()) System.out.printf("getOverlayVertexBuffer: type: %s, buf: %s\n", type, this.vertexBufferOverlay[type.ordinal()]);
         return this.vertexBufferOverlay.computeIfAbsent(type, l -> new VertexBuffer(VertexBuffer.Usage.STATIC));
     }
 
-    public ChunkRenderDataSchematic getChunkRenderData()
+    protected ChunkRenderDataSchematic getChunkRenderData()
     {
         return this.chunkRenderData;
     }
 
-    public BufferAllocatorCache getAllocatorCache()
+    protected BufferAllocatorCache getAllocatorCache()
     {
         return this.allocatorCache;
     }
 
-    public BufferBuilderCache getBuilderCache()
+    protected BufferBuilderCache getBuilderCache()
     {
         return this.builderCache;
     }
 
-    public void setChunkRenderData(ChunkRenderDataSchematic data)
+    protected void setChunkRenderData(ChunkRenderDataSchematic data)
     {
         this.chunkRenderDataLock.lock();
 
@@ -151,36 +151,10 @@ public class ChunkRendererSchematicVbo
             this.boundingBox = new net.minecraft.util.math.Box(x, y, z, x + 16, y + this.world.getHeight(), z + 16);
         }
 
-        //Litematica.logger.error("getBoundingBox() [VBO] origin [{}] // box [{}]", this.position.toShortString(), this.boundingBox.toString());
-
         return this.boundingBox;
     }
 
-    public boolean isWithinRange(BlockPos pos, int distance)
-    {
-        int x = this.position.getX() / 16;
-        //int y = this.position.getY() / 16;
-        int z = this.position.getZ() / 16;
-        int a = pos.getX() / 16;
-        //int b = pos.getY() / 16;
-        int c = pos.getZ() / 16;
-        int diffX = x - a;
-        //int diffY = y - b;
-        int diffZ = z - c;
-
-        return (diffX + diffZ) <= distance;
-    }
-
-    public boolean isAxisAlignedWith(int i, int j, int k)
-    {
-        BlockPos blockPos = this.getOrigin();
-
-        return i == ChunkSectionPos.getSectionCoord(blockPos.getX()) ||
-               k == ChunkSectionPos.getSectionCoord(blockPos.getZ()) ||
-               j == ChunkSectionPos.getSectionCoord(blockPos.getY());
-    }
-
-    public void setPosition(int x, int y, int z)
+    protected void setPosition(int x, int y, int z)
     {
         //Litematica.logger.error("setPosition() [VBO] pos [{}] --> [{} {} {}]", this.position.toShortString(), x, y, z);
 
@@ -204,7 +178,7 @@ public class ChunkRendererSchematicVbo
         return x * x + z * z;
     }
 
-    public void deleteGlResources()
+    protected void deleteGlResources()
     {
         this.clear();
         //this.world = null;
@@ -215,7 +189,7 @@ public class ChunkRendererSchematicVbo
         this.vertexBufferOverlay.clear();
     }
 
-    public void resortTransparency(ChunkRenderTaskSchematic task)
+    protected void resortTransparency(ChunkRenderTaskSchematic task)
     {
         ChunkRenderDataSchematic data = task.getChunkRenderData();
         Vec3d cameraPos = task.getCameraPosSupplier().get();
@@ -245,6 +219,7 @@ public class ChunkRendererSchematicVbo
         //if (GuiBase.isCtrlDown()) System.out.printf("resortTransparency\n");
         //if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue())
 
+        // FIXME --> Resorting the Overlay QUADs causes visual display issues
         /*
         OverlayRenderType type = OverlayRenderType.QUAD;
 
@@ -265,7 +240,7 @@ public class ChunkRendererSchematicVbo
          */
     }
 
-    public void rebuildChunk(ChunkRenderTaskSchematic task)
+    protected void rebuildChunk(ChunkRenderTaskSchematic task)
     {
         ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
         task.getLock().lock();
@@ -831,7 +806,7 @@ public class ChunkRendererSchematicVbo
         return this.builderCache.getBufferByOverlay(type, this.allocatorCache);
     }
 
-    public void uploadBuiltBuffer(@Nonnull BuiltBuffer builtBuffer, @Nonnull VertexBuffer vertexBuffer)
+    protected void uploadBuiltBuffer(@Nonnull BuiltBuffer builtBuffer, @Nonnull VertexBuffer vertexBuffer)
     {
         //Litematica.logger.warn("uploadBuiltBuffer(): [VBO] - INIT");
 
@@ -944,6 +919,7 @@ public class ChunkRendererSchematicVbo
                 throw new RuntimeException("Builder has not been initialized");
             }
 
+            // FIXME --> Sorting the Overlay QUAD causes visual display issues
             /*
             if (type.isTranslucent())
             {
@@ -966,29 +942,29 @@ public class ChunkRendererSchematicVbo
         //Litematica.logger.warn("postRenderOverlay(): [VBO] for overlay type [{}] - DONE", type.getDrawMode().name());
     }
 
-    public VertexSorter createVertexSorter(float x, float y, float z)
+    protected VertexSorter createVertexSorter(float x, float y, float z)
     {
         return VertexSorter.byDistance(x, y, z);
     }
 
-    public VertexSorter createVertexSorter(Vec3d pos)
+    protected VertexSorter createVertexSorter(Vec3d pos)
     {
         return VertexSorter.byDistance((float) pos.getX(), (float) pos.getY(), (float) pos.getZ());
     }
 
-    public VertexSorter createVertexSorter(Vec3d pos, BlockPos origin)
+    protected VertexSorter createVertexSorter(Vec3d pos, BlockPos origin)
     {
         return VertexSorter.byDistance((float)(pos.x - (double)origin.getX()), (float)(pos.y - (double) origin.getY()), (float)(pos.z - (double) origin.getZ()));
     }
 
-    public VertexSorter createVertexSorter(Camera camera)
+    protected VertexSorter createVertexSorter(Camera camera)
     {
         Vec3d vec3d = camera.getPos();
 
         return this.createVertexSorter(vec3d, this.getOrigin());
     }
 
-    public void uploadSortingState(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
+    protected void uploadSortingState(@Nonnull BufferAllocator.CloseableBuffer result, @Nonnull VertexBuffer vertexBuffer)
     {
         //Litematica.logger.warn("uploadSortingState() [VBO] - INIT");
 
@@ -1169,7 +1145,7 @@ public class ChunkRendererSchematicVbo
         //Litematica.logger.warn("resortRenderOverlay(): [VBO] for overlay type [{}] - DONE", type.getDrawMode().name());
     }
 
-    public ChunkRenderTaskSchematic makeCompileTaskChunkSchematic(Supplier<Vec3d> cameraPosSupplier)
+    protected ChunkRenderTaskSchematic makeCompileTaskChunkSchematic(Supplier<Vec3d> cameraPosSupplier)
     {
         this.chunkRenderLock.lock();
         ChunkRenderTaskSchematic generator = null;
@@ -1191,7 +1167,7 @@ public class ChunkRendererSchematicVbo
     }
 
     @Nullable
-    public ChunkRenderTaskSchematic makeCompileTaskTransparencySchematic(Supplier<Vec3d> cameraPosSupplier)
+    protected ChunkRenderTaskSchematic makeCompileTaskTransparencySchematic(Supplier<Vec3d> cameraPosSupplier)
     {
         this.chunkRenderLock.lock();
 
@@ -1236,12 +1212,12 @@ public class ChunkRendererSchematicVbo
         }
     }
 
-    public ReentrantLock getLockCompileTask()
+    protected ReentrantLock getLockCompileTask()
     {
         return this.chunkRenderLock;
     }
 
-    public void clear()
+    protected void clear()
     {
         this.finishCompileTask();
         if (this.chunkRenderData != null && !this.chunkRenderData.equals(ChunkRenderDataSchematic.EMPTY))
@@ -1254,7 +1230,7 @@ public class ChunkRendererSchematicVbo
         //this.needsUpdate = true;
     }
 
-    public void setNeedsUpdate(boolean immediate)
+    protected void setNeedsUpdate(boolean immediate)
     {
         if (this.needsUpdate)
         {
@@ -1265,18 +1241,18 @@ public class ChunkRendererSchematicVbo
         this.needsImmediateUpdate = immediate;
     }
 
-    public void clearNeedsUpdate()
+    protected void clearNeedsUpdate()
     {
         this.needsUpdate = false;
         this.needsImmediateUpdate = false;
     }
 
-    public boolean needsUpdate()
+    protected boolean needsUpdate()
     {
         return this.needsUpdate;
     }
 
-    public boolean needsImmediateUpdate()
+    protected boolean needsImmediateUpdate()
     {
         return this.needsUpdate && this.needsImmediateUpdate;
     }
@@ -1299,6 +1275,12 @@ public class ChunkRendererSchematicVbo
                 this.boxes.add(part.bb);
             }
         }
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        this.deleteGlResources();
     }
 
     public enum OverlayRenderType

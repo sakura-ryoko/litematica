@@ -287,7 +287,6 @@ public class WorldRendererSchematic
 
             this.world.getProfiler().swap("iteration");
 
-            int i = 0;
             //while (queuePositions.isEmpty() == false)
             for (ChunkPos chunkPos : positions)
             {
@@ -303,21 +302,17 @@ public class WorldRendererSchematic
                 {
                     ChunkRendererSchematicVbo chunkRenderer = this.chunkRendererDispatcher.getChunkRenderer(cx, cz);
 
-                    if (chunkRenderer != null)
+                    if (chunkRenderer != null && frustum.isVisible(chunkRenderer.getBoundingBox()))
                     {
-                        if (frustum.isVisible(chunkRenderer.getBoundingBox()) || chunkRenderer.isWithinRange(camera.getBlockPos(), renderDistance))
+                        //if (GuiBase.isCtrlDown()) System.out.printf("add @ %s\n", subChunk);
+                        if (chunkRenderer.needsUpdate() && chunkPos.equals(viewChunk))
                         {
-                            //if (GuiBase.isCtrlDown()) System.out.printf("add @ %s\n", subChunk);
-                            if (chunkRenderer.needsUpdate() && chunkPos.equals(viewChunk))
-                            {
-                                chunkRenderer.setNeedsUpdate(true);
-                            }
-
-                            this.renderInfos.add(chunkRenderer);
+                            chunkRenderer.setNeedsUpdate(true);
                         }
+
+                        this.renderInfos.add(chunkRenderer);
                     }
                 }
-                i++;
             }
 
             this.world.getProfiler().pop(); // fetch

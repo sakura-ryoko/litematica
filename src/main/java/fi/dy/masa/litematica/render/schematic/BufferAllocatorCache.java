@@ -3,36 +3,30 @@ package fi.dy.masa.litematica.render.schematic;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
-import net.minecraft.util.Util;
-import fi.dy.masa.litematica.Litematica;
 
 public class BufferAllocatorCache implements AutoCloseable
 {
     protected static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
     protected static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
     protected static final int EXPECTED_TOTAL_SIZE;
-    private Map<RenderLayer, BufferAllocator> layerCache = new HashMap<>();
-    private Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferAllocator> overlayCache = new HashMap<>();
+    private final Map<RenderLayer, BufferAllocator> layerCache = new HashMap<>();
+    private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BufferAllocator> overlayCache = new HashMap<>();
 
-    public BufferAllocatorCache()
-    {
-        //Litematica.logger.error("BufferAllocatorCache(): INIT");
-    }
+    protected BufferAllocatorCache() { }
 
-    public boolean hasBufferByLayer(RenderLayer layer)
+    protected boolean hasBufferByLayer(RenderLayer layer)
     {
         return this.layerCache.containsKey(layer);
     }
 
-    public boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         return this.overlayCache.containsKey(type);
     }
 
-    public BufferAllocator getBufferByLayer(RenderLayer layer)
+    protected BufferAllocator getBufferByLayer(RenderLayer layer)
     {
         if (this.layerCache.containsKey(layer) == false)
         {
@@ -42,7 +36,7 @@ public class BufferAllocatorCache implements AutoCloseable
         return this.layerCache.get(layer);
     }
 
-    public BufferAllocator getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected BufferAllocator getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         if (this.overlayCache.containsKey(type) == false)
         {
@@ -52,7 +46,7 @@ public class BufferAllocatorCache implements AutoCloseable
         return this.overlayCache.get(type);
     }
 
-    public void closeByLayer(RenderLayer layer)
+    protected void closeByLayer(RenderLayer layer)
     {
         try
         {
@@ -65,7 +59,7 @@ public class BufferAllocatorCache implements AutoCloseable
         this.layerCache.remove(layer);
     }
 
-    public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         try
         {
@@ -78,10 +72,8 @@ public class BufferAllocatorCache implements AutoCloseable
         this.overlayCache.remove(type);
     }
 
-    public void resetAll()
+    protected void resetAll()
     {
-        //Litematica.logger.error("BufferAllocatorCache: resetAll()");
-
         try
         {
             this.layerCache.values().forEach(BufferAllocator::reset);
@@ -90,10 +82,8 @@ public class BufferAllocatorCache implements AutoCloseable
         catch (Exception ignored) { }
     }
 
-    public void clearAll()
+    protected void clearAll()
     {
-        //Litematica.logger.error("BufferAllocatorCache: clearAll()");
-
         try
         {
             this.layerCache.values().forEach(BufferAllocator::clear);
@@ -102,10 +92,8 @@ public class BufferAllocatorCache implements AutoCloseable
         catch (Exception ignored) { }
     }
 
-    public void closeAll()
+    protected void closeAll()
     {
-        //Litematica.logger.error("BufferAllocatorCache: closeAll()");
-
         try
         {
             this.layerCache.values().forEach(BufferAllocator::close);
@@ -119,8 +107,6 @@ public class BufferAllocatorCache implements AutoCloseable
     @Override
     public void close()
     {
-        //Litematica.logger.error("BufferAllocatorCache: close()");
-
         this.closeAll();
     }
 

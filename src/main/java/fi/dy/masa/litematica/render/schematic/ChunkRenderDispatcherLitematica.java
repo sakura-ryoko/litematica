@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import com.google.common.collect.Queues;
@@ -78,7 +77,7 @@ public class ChunkRenderDispatcherLitematica
         this.renderWorker = new ChunkRenderWorkerLitematica(this);
     }
 
-    public void setCameraPosition(Vec3d cameraPos)
+    protected void setCameraPosition(Vec3d cameraPos)
     {
         this.cameraPos = cameraPos;
     }
@@ -88,12 +87,12 @@ public class ChunkRenderDispatcherLitematica
         return this.cameraPos;
     }
 
-    public String getDebugInfo()
+    protected String getDebugInfo()
     {
         return this.listWorkerThreads.isEmpty() ? String.format("pC: %03d, single-threaded", this.queueChunkUpdates.size()) : String.format("pC: %03d, pU: %1d", this.queueChunkUpdates.size(), this.queueChunkUploads.size());
     }
 
-    public boolean runChunkUploads(long finishTimeNano)
+    protected boolean runChunkUploads(long finishTimeNano)
     {
         boolean ranTasks = false;
 
@@ -138,7 +137,7 @@ public class ChunkRenderDispatcherLitematica
         return ranTasks;
     }
 
-    public boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk)
+    protected boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk)
     {
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkLater()\n");
         renderChunk.getLockCompileTask().lock();
@@ -173,7 +172,7 @@ public class ChunkRenderDispatcherLitematica
         return flag1;
     }
 
-    public boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer)
+    protected boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer)
     {
         //if (GuiBase.isCtrlDown()) System.out.printf("updateChunkNow()\n");
         chunkRenderer.getLockCompileTask().lock();
@@ -187,9 +186,7 @@ public class ChunkRenderDispatcherLitematica
             {
                 this.renderWorker.processTask(generator);
             }
-            catch (InterruptedException e)
-            {
-            }
+            catch (InterruptedException ignored) { }
 
             flag = true;
         }
@@ -201,7 +198,7 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-    public void stopChunkUpdates()
+    protected void stopChunkUpdates()
     {
         this.clearChunkUpdates();
         /*
@@ -234,12 +231,12 @@ public class ChunkRenderDispatcherLitematica
     }
      */
 
-    public ChunkRenderTaskSchematic getNextChunkUpdate() throws InterruptedException
+    protected ChunkRenderTaskSchematic getNextChunkUpdate() throws InterruptedException
     {
         return this.queueChunkUpdates.take();
     }
 
-    public boolean updateTransparencyLater(ChunkRendererSchematicVbo renderChunk)
+    protected boolean updateTransparencyLater(ChunkRendererSchematicVbo renderChunk)
     {
         //Litematica.logger.warn("updateTransparencyLater() [Dispatch]");
 
@@ -276,7 +273,7 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-    public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
+    protected ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
     {
         //Litematica.logger.warn("uploadChunkBlocks() [Dispatch] for layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
 
@@ -313,7 +310,7 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
+    protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq)
     {
         //Litematica.logger.warn("uploadChunkOverlay() [Dispatch] for overlay type [{}]", type.getDrawMode().name());
 
@@ -471,7 +468,7 @@ public class ChunkRenderDispatcherLitematica
         //Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - DONE", type.getDrawMode().name());
     }
 
-    public void clearChunkUpdates()
+    protected void clearChunkUpdates()
     {
         while (this.queueChunkUpdates.isEmpty() == false)
         {
@@ -489,7 +486,7 @@ public class ChunkRenderDispatcherLitematica
         return this.queueChunkUpdates.isEmpty() && this.queueChunkUploads.isEmpty();
     }
 
-    public void stopWorkerThreads()
+    protected void stopWorkerThreads()
     {
         this.clearChunkUpdates();
 
@@ -521,7 +518,7 @@ public class ChunkRenderDispatcherLitematica
     }
      */
 
-    public static class PendingUpload implements Comparable<ChunkRenderDispatcherLitematica.PendingUpload>
+    protected static class PendingUpload implements Comparable<ChunkRenderDispatcherLitematica.PendingUpload>
     {
         private final ListenableFutureTask<Object> uploadTask;
         private final double distanceSq;

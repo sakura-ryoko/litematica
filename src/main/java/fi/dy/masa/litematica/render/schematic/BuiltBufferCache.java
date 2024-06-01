@@ -5,29 +5,25 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
-import fi.dy.masa.litematica.Litematica;
 
 public class BuiltBufferCache implements AutoCloseable
 {
     private final Map<RenderLayer, BuiltBuffer> layerBuffers = new HashMap<>();
     private final Map<ChunkRendererSchematicVbo.OverlayRenderType, BuiltBuffer> overlayBuffers = new HashMap<>();
 
-    public BuiltBufferCache()
-    {
-        //Litematica.logger.error("BuiltBufferCache(): INIT");
-    }
+    protected BuiltBufferCache() { }
 
-    public boolean hasBuiltBufferByLayer(RenderLayer layer)
+    protected boolean hasBuiltBufferByLayer(RenderLayer layer)
     {
         return this.layerBuffers.containsKey(layer);
     }
 
-    public boolean hasBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected boolean hasBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         return this.overlayBuffers.containsKey(type);
     }
 
-    public void storeBuiltBufferByLayer(RenderLayer layer, @Nonnull BuiltBuffer newBuffer)
+    protected void storeBuiltBufferByLayer(RenderLayer layer, @Nonnull BuiltBuffer newBuffer)
     {
         if (this.hasBuiltBufferByLayer(layer))
         {
@@ -36,7 +32,7 @@ public class BuiltBufferCache implements AutoCloseable
         this.layerBuffers.put(layer, newBuffer);
     }
 
-    public void storeBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BuiltBuffer newBuffer)
+    protected void storeBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BuiltBuffer newBuffer)
     {
         if (this.hasBuiltBufferByType(type))
         {
@@ -50,12 +46,12 @@ public class BuiltBufferCache implements AutoCloseable
         return this.layerBuffers.get(layer);
     }
 
-    public BuiltBuffer getBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected BuiltBuffer getBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         return this.overlayBuffers.get(type);
     }
 
-    public void closeByLayer(RenderLayer layer)
+    protected void closeByLayer(RenderLayer layer)
     {
         try
         {
@@ -68,7 +64,7 @@ public class BuiltBufferCache implements AutoCloseable
         this.layerBuffers.remove(layer);
     }
 
-    public void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
     {
         try
         {
@@ -81,10 +77,8 @@ public class BuiltBufferCache implements AutoCloseable
         this.overlayBuffers.remove(type);
     }
 
-    public void closeAll()
+    protected void closeAll()
     {
-        //Litematica.logger.error("BuiltBufferCache(): closeAll()");
-
         try
         {
             this.layerBuffers.values().forEach(BuiltBuffer::close);
@@ -98,8 +92,6 @@ public class BuiltBufferCache implements AutoCloseable
     @Override
     public void close() throws Exception
     {
-        //Litematica.logger.error("BuiltBufferCache(): close()");
-
         this.closeAll();
     }
 }
