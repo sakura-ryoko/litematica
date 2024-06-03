@@ -1,17 +1,22 @@
 package fi.dy.masa.litematica.schematic.projects;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.io.FileUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.interfaces.ICompletionListener;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
 import fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic;
@@ -22,12 +27,9 @@ import fi.dy.masa.litematica.selection.AreaSelectionSimple;
 import fi.dy.masa.litematica.selection.SelectionManager;
 import fi.dy.masa.litematica.selection.SelectionMode;
 import fi.dy.masa.litematica.util.EntityUtils;
+import fi.dy.masa.litematica.util.FileType;
 import fi.dy.masa.litematica.util.ToolUtils;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.interfaces.ICompletionListener;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.litematica.util.WorldUtils;
 
 public class SchematicProject
 {
@@ -201,7 +203,33 @@ public class SchematicProject
             {
                 this.removeCurrentPlacement();
 
-                LitematicaSchematic schematic = LitematicaSchematic.createFromFile(this.directory, version.getFileName());
+                String fileName = version.getFileName();
+                FileType fileType = FileType.fromFile(new File(this.directory, fileName));
+
+                if (fileType == FileType.UNKNOWN)
+                {
+                    fileName += ".litematic";
+                    fileType = FileType.LITEMATICA_SCHEMATIC;
+                }
+
+                LitematicaSchematic schematic = null;
+
+                if (fileType == FileType.LITEMATICA_SCHEMATIC)
+                {
+                    schematic = LitematicaSchematic.createFromFile(this.directory, fileName);
+                }
+                else if (fileType == FileType.SCHEMATICA_SCHEMATIC)
+                {
+                    schematic = WorldUtils.convertSchematicaSchematicToLitematicaSchematic(this.directory, fileName, false, f -> {});
+                }
+                else if (fileType == FileType.VANILLA_STRUCTURE)
+                {
+                    schematic = WorldUtils.convertStructureToLitematicaSchematic(this.directory, fileName);
+                }
+                else if (fileType == FileType.SPONGE_SCHEMATIC)
+                {
+                    schematic = WorldUtils.convertSpongeSchematicToLitematicaSchematic(this.directory, fileName);
+                }
 
                 if (schematic != null)
                 {
