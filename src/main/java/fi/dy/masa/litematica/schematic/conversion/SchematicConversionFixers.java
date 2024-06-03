@@ -57,7 +57,7 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BANNER = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Base"))
+        if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
             DyeColor colorFromData = DyeColor.byId(15 - tag.getInt("Base"));
@@ -96,7 +96,7 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BANNER_WALL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Base"))
+        if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
             DyeColor colorFromData = DyeColor.byId(15 - tag.getInt("Base"));
@@ -429,7 +429,7 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_SKULL_WALL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("SkullType"))
+        if (tag != null && tag.contains("SkullType", Constants.NBT.TAG_BYTE))
         {
             int id = MathHelper.clamp(tag.getByte("SkullType"), 0, 5);
 
