@@ -34,7 +34,7 @@
 	],
 
 	"depends": {
-		"minecraft": ">=1.21-beta.2",
+		"minecraft": ">=1.21-beta.3",
 		"malilib": ">=0.18.999-snap"
 	}
 }
