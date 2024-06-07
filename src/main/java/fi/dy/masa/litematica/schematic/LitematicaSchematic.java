@@ -1578,6 +1578,9 @@ public class LitematicaSchematic
             return false;
         }
 
+        Litematica.logger.error("Sponge Schematic v3 not yet fully implemented / supported");
+
+        /*
         Vec3i offset = NbtUtils.readVec3iFromIntArray(tag, "Offset");
 
         if (offset == null)
@@ -1606,6 +1609,7 @@ public class LitematicaSchematic
         this.metadata.setTimeModified(this.metadata.getTimeCreated());
         this.metadata.setTotalBlocks(this.totalBlocksReadFromWorld);
 
+         */
         //return true;
         return false;
     }
