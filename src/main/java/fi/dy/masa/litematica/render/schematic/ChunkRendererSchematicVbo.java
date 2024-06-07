@@ -180,9 +180,15 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void deleteGlResources()
     {
-        this.clear();
-        //this.world = null;
+        //Litematica.debugLog("deleteGlResources(): [VBO] for origin [{}]", this.position.toShortString());
 
+        this.clear();
+        this.closeAllVertexBuffers();
+        //this.world = null;
+    }
+
+    private void closeAllVertexBuffers()
+    {
         this.vertexBufferBlocks.values().forEach(VertexBuffer::close);
         this.vertexBufferOverlay.values().forEach(VertexBuffer::close);
         this.vertexBufferBlocks.clear();
@@ -259,8 +265,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             task.getLock().unlock();
         }
 
+        //Litematica.debugLog("rebuildChunk() [VBO]: bootstrap/clearing all render buffers for origin [{}]", this.position.toShortString());
+
         this.allocatorCache.clearAll();
         this.builderCache.clearAll();
+        //data.closeBuiltBufferCache();
 
         Set<BlockEntity> tileEntities = new HashSet<>();
         BlockPos posChunk = this.position;
@@ -368,6 +377,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         try
         {
+            //Litematica.debugLog("rebuildChunk() [VBO]: purging buffers for origin [{}]", this.position.toShortString());
+
             Set<BlockEntity> set = Sets.newHashSet(tileEntities);
             Set<BlockEntity> set1 = Sets.newHashSet(this.setBlockEntities);
             set.removeAll(this.setBlockEntities);
@@ -377,6 +388,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             this.worldRenderer.updateBlockEntities(set1, set);
             this.allocatorCache.clearAll();
             this.builderCache.clearAll();
+            //this.chunkRenderData.closeBuiltBufferCache();
         }
         finally
         {
@@ -823,6 +835,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         vertexBuffer.upload(builtBuffer);
         VertexBuffer.unbind();
 
+        //builtBuffer.close();
         //Litematica.logger.warn("uploadBuiltBuffer(): [VBO] - DONE");
     }
 
@@ -875,6 +888,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
 
             this.uploadBuiltBuffer(built, this.getBlocksVertexBufferByLayer(layer));
+            //built.close();
             //Litematica.logger.warn("postRenderBlocks(): [VBO] for layer [{}] -- Built Buffer UPLOADED", ChunkRenderLayers.getFriendlyName(layer));
         }
 
@@ -935,6 +949,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
              */
 
             this.uploadBuiltBuffer(built, this.getOverlayVertexBuffer(type));
+            //built.close();
             //Litematica.logger.warn("postRenderOverlay(): [VBO] for overlay type [{}] -- Built Buffer UPLOADED", type.getDrawMode().name());
         }
 
@@ -981,6 +996,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         vertexBuffer.uploadIndexBuffer(result);
         VertexBuffer.unbind();
 
+        //result.close();
         //Litematica.logger.warn("uploadSortingState() [VBO] - END");
     }
 

@@ -396,12 +396,14 @@ public class ChunkRenderDispatcherLitematica
             {
                 //Litematica.logger.error("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Result Buffer built -> UPLOADING", ChunkRenderLayers.getFriendlyName(layer));
                 renderChunk.uploadSortingState(result, vertexBuffer);
+                result.close();
 
                 //Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Translucent Sort State UPLOADED", ChunkRenderLayers.getFriendlyName(layer));
             }
         }
 
         renderChunk.uploadBuiltBuffer(renderBuffer, vertexBuffer);
+        //renderBuffer.close();
         //Litematica.logger.warn("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - Built Buffer UPLOADED", ChunkRenderLayers.getFriendlyName(layer));
 
         //Litematica.logger.error("uploadVertexBufferByLayer() [Dispatch] for layer [{}] - DONE", ChunkRenderLayers.getFriendlyName(layer));
@@ -463,6 +465,7 @@ public class ChunkRenderDispatcherLitematica
          */
 
         renderChunk.uploadBuiltBuffer(renderBuffer, vertexBuffer);
+        //renderBuffer.close();
         //Litematica.logger.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - Built Buffer UPLOADED", type.getDrawMode().name());
 
         //Litematica.logger.error("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - DONE", type.getDrawMode().name());

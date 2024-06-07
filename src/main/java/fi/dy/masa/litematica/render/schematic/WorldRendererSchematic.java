@@ -489,6 +489,18 @@ public class WorldRendererSchematic
 
                 //Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
 
+                if (buffer == null || buffer.isClosed())
+                {
+                    //Litematica.logger.error("renderBlockLayer() [Renderer]: vertexBuffer for layer [{}] is null/closed, skipping draw", ChunkRenderLayers.getFriendlyName(renderLayer));
+                    continue;
+                }
+
+                if (renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByLayer(renderLayer) == false)
+                {
+                    //Litematica.logger.error("renderBlockLayer() [Renderer]: buffer for layer [{}] is not built, skipping draw", ChunkRenderLayers.getFriendlyName(renderLayer));
+                    continue;
+                }
+
                 if (chunkOffsetUniform != null)
                 {
                     chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
