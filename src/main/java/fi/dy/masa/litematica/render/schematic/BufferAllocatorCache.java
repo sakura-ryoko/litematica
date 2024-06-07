@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.BufferAllocator;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
+@Environment(EnvType.CLIENT)
 public class BufferAllocatorCache implements AutoCloseable
 {
     protected static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
@@ -56,7 +59,7 @@ public class BufferAllocatorCache implements AutoCloseable
             }
         }
         catch (Exception ignored) { }
-        this.layerCache.remove(layer);
+        this.layerCache.remove(layer).close();
     }
 
     protected void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
@@ -69,7 +72,7 @@ public class BufferAllocatorCache implements AutoCloseable
             }
         }
         catch (Exception ignored) { }
-        this.overlayCache.remove(type);
+        this.overlayCache.remove(type).close();
     }
 
     protected void resetAll()
