@@ -9,14 +9,15 @@ repositories {
 	// maven { url 'https://masa.dy.fi/maven' }
 	maven {
 		url 'https://masa.dy.fi/maven'
-		mavenLocal()
+		//mavenLocal()
 	}
 	maven {
 		url 'https://maven.terraformersmc.com/releases/'
-		mavenLocal()
+		//mavenLocal()
 	}
 	// maven { url 'https://maven.quiltmc.org/repository/release/' }
-	flatDir { dirs 'libs' }
+	//flatDir { dirs 'libs' }
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -25,7 +26,8 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
 
-	modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
+	//modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
+	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_id}"
 
 	//include(modApi(fabricApi.module("fabric-api-base", project.fabric_api_version)))
 	include(modApi(fabricApi.module("fabric-networking-api-v1", project.fabric_api_version)))
