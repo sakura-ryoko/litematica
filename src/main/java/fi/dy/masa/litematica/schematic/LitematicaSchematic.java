@@ -1405,7 +1405,6 @@ public class LitematicaSchematic
                 String msg = "Failed to read blocks from Sponge schematic";
                 InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
                 Litematica.logger.error(msg);
-
                 return false;
             }
         }
@@ -1423,7 +1422,6 @@ public class LitematicaSchematic
                 String msg = "Failed to read blocks from Sponge schematic";
                 InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
                 Litematica.logger.error(msg);
-
                 return false;
             }
         }
