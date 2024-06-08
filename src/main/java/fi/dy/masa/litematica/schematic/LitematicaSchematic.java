@@ -1393,8 +1393,8 @@ public class LitematicaSchematic
             blocksTag = tag.getCompound("Blocks");
 
             if (blocksTag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
-                    blocksTag.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) &&
-                    blocksTag.contains("BlockEntities", Constants.NBT.TAG_LIST))
+                blocksTag.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) &&
+                blocksTag.contains("BlockEntities", Constants.NBT.TAG_LIST))
             {
                 paletteTag = blocksTag.getCompound("Palette");
                 blockData = blocksTag.getByteArray("Data");
@@ -1402,13 +1402,17 @@ public class LitematicaSchematic
             }
             else
             {
+                String msg = "Failed to read blocks from Sponge schematic";
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
+                Litematica.logger.error(msg);
+
                 return false;
             }
         }
         else
         {
             if (tag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
-                    tag.contains("BlockData", Constants.NBT.TAG_BYTE_ARRAY))
+                tag.contains("BlockData", Constants.NBT.TAG_BYTE_ARRAY))
             {
                 paletteTag = tag.getCompound("Palette");
                 blockData = tag.getByteArray("BlockData");
@@ -1416,6 +1420,10 @@ public class LitematicaSchematic
             }
             else
             {
+                String msg = "Failed to read blocks from Sponge schematic";
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
+                Litematica.logger.error(msg);
+
                 return false;
             }
         }
