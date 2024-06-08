@@ -84,6 +84,7 @@ public class LitematicaSchematic
 {
     public static final String FILE_EXTENSION = ".litematic";
     public static final int SCHEMATIC_VERSION_1_13_2 = 5;
+    public static final int MINECRAFT_DATA_VERSION_1_12   = 1139; // MC 1.12
     public static final int MINECRAFT_DATA_VERSION_1_13_2 = 1631; // MC 1.13.2
 
     public static final int MINECRAFT_DATA_VERSION = SharedConstants.getGameVersion().getSaveVersion().getId();
@@ -1298,6 +1299,7 @@ public class LitematicaSchematic
 
     public static boolean isValidSpongeSchematic(NbtCompound tag)
     {
+        // v2 Sponge Schematic
         if (tag.contains("Width", Constants.NBT.TAG_ANY_NUMERIC) &&
             tag.contains("Height", Constants.NBT.TAG_ANY_NUMERIC) &&
             tag.contains("Length", Constants.NBT.TAG_ANY_NUMERIC) &&
@@ -1306,6 +1308,28 @@ public class LitematicaSchematic
             tag.contains("BlockData", Constants.NBT.TAG_BYTE_ARRAY))
         {
             return isSizeValid(readSizeFromTagSponge(tag));
+        }
+
+        return false;
+    }
+
+    public static boolean isValidSpongeSchematicv3(NbtCompound tag)
+    {
+        // v3 Sponge Schematic
+        if (tag.contains("Schematic", Constants.NBT.TAG_COMPOUND))
+        {
+            NbtCompound nbtV3 = tag.getCompound("Schematic");
+
+            if (nbtV3.contains("Width", Constants.NBT.TAG_ANY_NUMERIC) &&
+                nbtV3.contains("Height", Constants.NBT.TAG_ANY_NUMERIC) &&
+                nbtV3.contains("Length", Constants.NBT.TAG_ANY_NUMERIC) &&
+                nbtV3.contains("Version", Constants.NBT.TAG_INT) &&
+                nbtV3.getInt("Version") >= 3 &&
+                nbtV3.contains("Blocks") &&
+                nbtV3.contains("DataVersion"))
+            {
+                return isSizeValid(readSizeFromTagSponge(nbtV3));
+            }
         }
 
         return false;
@@ -1357,38 +1381,82 @@ public class LitematicaSchematic
         return palette.setMapping(list);
     }
 
-    protected boolean readSpongeBlocksFromTag(NbtCompound tag, String schematicName, Vec3i size)
+    protected boolean readSpongeBlocksFromTag(NbtCompound tag, String schematicName, Vec3i size, int minecraftDataVersion, int spongeVersion)
     {
-        if (tag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
-            tag.contains("BlockData", Constants.NBT.TAG_BYTE_ARRAY))
-        {
-            NbtCompound paletteTag = tag.getCompound("Palette");
-            byte[] blockData = tag.getByteArray("BlockData");
-            int paletteSize = paletteTag.getKeys().size();
-            LitematicaBlockStateContainer container = LitematicaBlockStateContainer.createContainer(paletteSize, blockData, size);
+        NbtCompound blocksTag = new NbtCompound();
+        NbtCompound paletteTag;
+        byte[] blockData;
+        int paletteSize;
 
-            if (container == null)
+        if (spongeVersion >= 3 && tag.contains("Blocks"))
+        {
+            blocksTag = tag.getCompound("Blocks");
+
+            if (blocksTag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
+                    blocksTag.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) &&
+                    blocksTag.contains("BlockEntities", Constants.NBT.TAG_LIST))
             {
-                String msg = "Failed to read blocks from Sponge schematic";
-                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
-                Litematica.logger.error(msg);
+                paletteTag = blocksTag.getCompound("Palette");
+                blockData = blocksTag.getByteArray("Data");
+                paletteSize = paletteTag.getKeys().size();
+            }
+            else
+            {
                 return false;
             }
-
-            this.blockContainers.put(schematicName, container);
-
-            return this.readSpongePaletteFromTag(paletteTag, container.getPalette());
+        }
+        else
+        {
+            if (tag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
+                    tag.contains("BlockData", Constants.NBT.TAG_BYTE_ARRAY))
+            {
+                paletteTag = tag.getCompound("Palette");
+                blockData = tag.getByteArray("BlockData");
+                paletteSize = paletteTag.getKeys().size();
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        return false;
+        LitematicaBlockStateContainer container = LitematicaBlockStateContainer.createContainer(paletteSize, blockData, size);
+
+        if (container == null)
+        {
+            String msg = "Failed to read blocks from Sponge schematic";
+            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
+            Litematica.logger.error(msg);
+            return false;
+        }
+
+        this.blockContainers.put(schematicName, container);
+
+        if (this.readSpongePaletteFromTag(paletteTag, container.getPalette()) == false)
+        {
+            return false;
+        }
+
+        if (spongeVersion >= 3)
+        {
+            if (blocksTag.isEmpty() == false)
+            {
+                // tileEntities list moved to "Blocks" tag for V3
+                this.tileEntities.put(schematicName, this.readSpongeBlockEntitiesFromTag(blocksTag, spongeVersion));
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    protected Map<BlockPos, NbtCompound> readSpongeBlockEntitiesFromTag(NbtCompound tag)
+    protected Map<BlockPos, NbtCompound> readSpongeBlockEntitiesFromTag(NbtCompound tag, int spongeVersion)
     {
         Map<BlockPos, NbtCompound> blockEntities = new HashMap<>();
-
-        int version = tag.getInt("Version");
-        String tagName = version == 1 ? "TileEntities" : "BlockEntities";
+        String tagName = spongeVersion == 1 ? "TileEntities" : "BlockEntities";
         NbtList tagList = tag.getList(tagName, Constants.NBT.TAG_COMPOUND);
 
         final int size = tagList.size();
@@ -1406,19 +1474,27 @@ public class LitematicaSchematic
                 beTag.remove("Id");
                 beTag.remove("Pos");
 
-                if (version == 1)
+                if (spongeVersion == 1)
                 {
                     beTag.remove("ContentVersion");
                 }
 
-                blockEntities.put(pos, beTag);
+                if (spongeVersion >= 3)
+                {
+                    NbtCompound beData = beTag.getCompound("Data");
+                    blockEntities.put(pos, beData);
+                }
+                else
+                {
+                    blockEntities.put(pos, beTag);
+                }
             }
         }
 
         return blockEntities;
     }
 
-    protected List<EntityInfo> readSpongeEntitiesFromTag(NbtCompound tag, Vec3i offset)
+    protected List<EntityInfo> readSpongeEntitiesFromTag(NbtCompound tag, Vec3i offset, int spongeVersion)
     {
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("Entities", Constants.NBT.TAG_COMPOUND);
@@ -1426,18 +1502,31 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound entityData = tagList.getCompound(i);
-            Vec3d pos = NbtUtils.readVec3dFromListTag(entityData);
+            NbtCompound entityEntry = tagList.getCompound(i);
+            Vec3d pos = NbtUtils.readVec3dFromListTag(entityEntry);
 
-            if (pos != null && entityData.isEmpty() == false)
+            if (pos != null && entityEntry.isEmpty() == false)
             {
-                pos = new Vec3d(pos.x - offset.getX(), pos.y - offset.getY(), pos.z - offset.getZ());
-                entityData.putString("id", entityData.getString("Id"));
+                entityEntry.putString("id", entityEntry.getString("Id"));
 
                 // Remove the Sponge tags from the data that is kept in memory
-                entityData.remove("Id");
+                entityEntry.remove("Id");
 
-                entities.add(new EntityInfo(pos, entityData));
+                if (spongeVersion >= 3)
+                {
+                    NbtCompound entityData = entityEntry.getCompound("Data");
+
+                    if (entityData.contains("id", Constants.NBT.TAG_STRING) == false)
+                    {
+                        entityData.putString("id", entityEntry.getString("id"));
+                    }
+                    entities.add(new EntityInfo(pos, entityData));
+                }
+                else
+                {
+                    pos = new Vec3d(pos.x - offset.getX(), pos.y - offset.getY(), pos.z - offset.getZ());
+                    entities.add(new EntityInfo(pos, entityEntry));
+                }
             }
         }
 
@@ -1446,14 +1535,23 @@ public class LitematicaSchematic
 
     public boolean readFromSpongeSchematic(String name, NbtCompound tag)
     {
-        if (isValidSpongeSchematic(tag) == false)
+        if (isValidSpongeSchematicv3(tag))
+        {
+            // Probably not the "best" solution, but it works
+            NbtCompound spongeTag = tag.getCompound("Schematic");
+            tag.remove("Schematic");
+            tag.copyFrom(spongeTag);
+        }
+        else if (isValidSpongeSchematic(tag) == false)
         {
             return false;
         }
 
+        final int spongeVersion = tag.contains("Version") ? tag.getInt("Version") : -1;
+        final int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion") : MINECRAFT_DATA_VERSION_1_12;
         Vec3i size = readSizeFromTagSponge(tag);
 
-        if (this.readSpongeBlocksFromTag(tag, name, size) == false)
+        if (this.readSpongeBlocksFromTag(tag, name, size, minecraftDataVersion, spongeVersion) == false)
         {
             return false;
         }
@@ -1461,23 +1559,40 @@ public class LitematicaSchematic
         Vec3i offset = NbtUtils.readVec3iFromIntArray(tag, "Offset");
 
         if (offset == null)
+        {
             offset = Vec3i.ZERO;
+        }
 
-        this.tileEntities.put(name, this.readSpongeBlockEntitiesFromTag(tag));
-        this.entities.put(name, this.readSpongeEntitiesFromTag(tag, offset));
+        if (spongeVersion < 3)
+        {
+            this.tileEntities.put(name, this.readSpongeBlockEntitiesFromTag(tag, spongeVersion));
+        }
+        this.entities.put(name, this.readSpongeEntitiesFromTag(tag, offset, spongeVersion));
 
+        if (tag.contains("Metadata", Constants.NBT.TAG_COMPOUND))
+        {
+            NbtCompound metadata = tag.getCompound("Metadata");
+
+            this.metadata.setName(metadata.contains("Name", Constants.NBT.TAG_STRING) ? metadata.getString("Name") : name);
+            this.metadata.setAuthor(metadata.contains("Author", Constants.NBT.TAG_STRING) ? metadata.getString("Author") : "unknown");
+            this.metadata.setTimeCreated(metadata.contains("Date", Constants.NBT.TAG_LONG) ? metadata.getLong("Date") : System.currentTimeMillis());
+        }
+        else
+        {
+            this.metadata.setAuthor("unknown");
+            this.metadata.setName(name);
+            this.metadata.setTimeCreated(System.currentTimeMillis());
+        }
         if (tag.contains("author", Constants.NBT.TAG_STRING))
         {
-            this.getMetadata().setAuthor(tag.getString("author"));
+            this.metadata.setAuthor(tag.getString("author"));
         }
 
         this.subRegionPositions.put(name, BlockPos.ORIGIN);
         this.subRegionSizes.put(name, new BlockPos(size));
-        this.metadata.setName(name);
         this.metadata.setRegionCount(1);
         this.metadata.setTotalVolume(size.getX() * size.getY() * size.getZ());
         this.metadata.setEnclosingSize(size);
-        this.metadata.setTimeCreated(System.currentTimeMillis());
         this.metadata.setTimeModified(this.metadata.getTimeCreated());
         this.metadata.setTotalBlocks(this.totalBlocksReadFromWorld);
 
