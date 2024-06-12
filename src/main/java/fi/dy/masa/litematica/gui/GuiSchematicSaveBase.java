@@ -1,10 +1,7 @@
 package fi.dy.masa.litematica.gui;
 
 import javax.annotation.Nullable;
-
 import net.minecraft.client.gui.DrawContext;
-
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -16,6 +13,7 @@ import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntryType;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 
 public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
 {
@@ -54,10 +52,8 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
 
         boolean focused = this.textField.isFocused();
         String text = this.textField.getText();
-        //int pos = this.textField.getCursorPosition();
         this.textField = new GuiTextFieldGeneric(10, 32, this.width - 260, 18, this.textRenderer);
         this.textField.setText(text);
-        //this.textField.setCursorPosition(pos);
         this.textField.setFocused(focused);
 
         DirectoryEntry entry = this.getListWidget().getLastSelectedEntry();
@@ -103,7 +99,6 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     {
         this.lastText = text;
         this.textField.setText(text);
-        //this.textField.setCursorPositionEnd();
     }
 
     protected String getTextFieldText()

@@ -12,11 +12,6 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.io.FileUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.interfaces.ICompletionListener;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
 import fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic;
@@ -29,6 +24,11 @@ import fi.dy.masa.litematica.selection.SelectionMode;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.FileType;
 import fi.dy.masa.litematica.util.ToolUtils;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.interfaces.ICompletionListener;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
 
 public class SchematicProject
