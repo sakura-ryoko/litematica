@@ -594,7 +594,7 @@ public class WorldRendererSchematic
         this.world.getProfiler().pop();
     }
 
-    public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, Matrix4f matrix4f, BufferBuilder bufferBuilderIn)
+    public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack, BufferBuilder bufferBuilderIn)
     {
         try
         {
@@ -607,7 +607,7 @@ public class WorldRendererSchematic
             else
             {
                 return renderType == BlockRenderType.MODEL &&
-                       this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrix4f, bufferBuilderIn, state.getRenderingSeed(pos));
+                       this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
             }
         }
         catch (Throwable throwable)

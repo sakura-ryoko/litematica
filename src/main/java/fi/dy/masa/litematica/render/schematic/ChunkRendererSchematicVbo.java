@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import com.google.common.collect.Sets;
-import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 
@@ -287,7 +286,7 @@ public class ChunkRendererSchematicVbo
                         matrixStack.push();
                         matrixStack.translate(posMutable.getX() & 0xF, posMutable.getY() - bottomY, posMutable.getZ() & 0xF);
 
-                        this.renderBlocksAndOverlay(posMutable, data, tileEntities, usedLayers, matrixStack.peek().getPositionMatrix(), buffers);
+                        this.renderBlocksAndOverlay(posMutable, data, tileEntities, usedLayers, matrixStack, buffers);
 
                         matrixStack.pop();
                     }
@@ -343,7 +342,7 @@ public class ChunkRendererSchematicVbo
     }
 
     protected void renderBlocksAndOverlay(BlockPos pos, ChunkRenderDataSchematic data, Set<BlockEntity> tileEntities,
-            Set<RenderLayer> usedLayers, Matrix4f matrix4f, BufferBuilderCache buffers)
+            Set<RenderLayer> usedLayers, MatrixStack matrixStack, BufferBuilderCache buffers)
     {
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);
         BlockState stateClient    = this.clientWorldView.getBlockState(pos);
@@ -399,7 +398,7 @@ public class ChunkRendererSchematicVbo
                     this.preRenderBlocks(bufferSchematic, layer);
                 }
 
-                if (this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, matrix4f, bufferSchematic))
+                if (this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, matrixStack, bufferSchematic))
                 {
                     usedLayers.add(layer);
                 }
