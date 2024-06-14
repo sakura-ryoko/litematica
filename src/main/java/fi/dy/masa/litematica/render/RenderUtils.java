@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.world.World;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.util.BlockInfoAlignment;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.malilib.gui.LeftRight;
@@ -62,9 +63,16 @@ public class RenderUtils
         startDrawingLines();
         drawBlockBoundingBoxOutlinesBatchedLines(pos, color, expand, buffer, mc);
 
-        meshData = buffer.end();
-        BufferRenderer.drawWithGlobalProgram(meshData);
-        meshData.close();
+        try
+        {
+            meshData = buffer.end();
+            BufferRenderer.drawWithGlobalProgram(meshData);
+            meshData.close();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("renderBlockOutline: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+        }
     }
 
     public static void drawBlockBoundingBoxOutlinesBatchedLines(BlockPos pos, Color4f color,
@@ -176,9 +184,16 @@ public class RenderUtils
         buffer.vertex(minX, maxY, minZ).color(color3.r, color3.g, color3.b, color3.a);
         buffer.vertex(minX, maxY, maxZ).color(color3.r, color3.g, color3.b, color3.a);
 
-        meshData = buffer.end();
-        BufferRenderer.drawWithGlobalProgram(meshData);
-        meshData.close();
+        try
+        {
+            meshData = buffer.end();
+            BufferRenderer.drawWithGlobalProgram(meshData);
+            meshData.close();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("renderBlockOutlineOverlapping: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+        }
     }
 
     public static void renderAreaOutline(BlockPos pos1, BlockPos pos2, float lineWidth,
@@ -213,9 +228,16 @@ public class RenderUtils
         drawBoundingBoxLinesY(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorY);
         drawBoundingBoxLinesZ(buffer, minX, minY, minZ, maxX, maxY, maxZ, colorZ);
 
-        meshData = buffer.end();
-        BufferRenderer.drawWithGlobalProgram(meshData);
-        meshData.close();
+        try
+        {
+            meshData = buffer.end();
+            BufferRenderer.drawWithGlobalProgram(meshData);
+            meshData.close();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("drawBoundingBoxEdges: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+        }
     }
 
     private static void drawBoundingBoxLinesX(BufferBuilder buffer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color)
@@ -275,9 +297,16 @@ public class RenderUtils
 
         renderAreaSidesBatched(pos1, pos2, color, 0.002, buffer, mc);
 
-        meshData = buffer.end();
-        BufferRenderer.drawWithGlobalProgram(meshData);
-        meshData.close();
+        try
+        {
+            meshData = buffer.end();
+            BufferRenderer.drawWithGlobalProgram(meshData);
+            meshData.close();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("renderAreaSides: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+        }
 
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
@@ -454,9 +483,16 @@ public class RenderUtils
             buffer.vertex(maxX + 1, maxY + 1, end   + dzMax).color(colorZ.r, colorZ.g, colorZ.b, colorZ.a);
         }
 
-        meshData = buffer.end();
-        BufferRenderer.drawWithGlobalProgram(meshData);
-        meshData.close();
+        try
+        {
+            meshData = buffer.end();
+            BufferRenderer.drawWithGlobalProgram(meshData);
+            meshData.close();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("renderAreaOutlineNoCorners: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+        }
     }
 
     /**

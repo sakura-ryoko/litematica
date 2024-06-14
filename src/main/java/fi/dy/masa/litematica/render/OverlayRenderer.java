@@ -21,6 +21,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -402,9 +403,16 @@ public class OverlayRenderer
                 RenderUtils.drawConnectingLineBatchedLines(prevEntry.pos, lookedEntry.pos, false, lookedEntry.type.getColor(), buffer, this.mc);
             }
 
-            meshData = buffer.end();
-            BufferRenderer.drawWithGlobalProgram(meshData);
-            meshData.close();
+            try
+            {
+                meshData = buffer.end();
+                BufferRenderer.drawWithGlobalProgram(meshData);
+                meshData.close();
+            }
+            catch (Exception e)
+            {
+                Litematica.logger.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 1) (Error: {})", e.getLocalizedMessage());
+            }
 
             buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
             RenderUtils.startDrawingLines();
@@ -413,9 +421,16 @@ public class OverlayRenderer
             RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(lookPos, lookedEntry.type.getColor(), 0.002, buffer, this.mc);
         }
 
-        meshData = buffer.end();
-        BufferRenderer.drawWithGlobalProgram(meshData);
-        meshData.close();
+        try
+        {
+            meshData = buffer.end();
+            BufferRenderer.drawWithGlobalProgram(meshData);
+            meshData.close();
+        }
+        catch (Exception e)
+        {
+            Litematica.logger.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 2) (Error: {})", e.getLocalizedMessage());
+        }
 
         if (Configs.Visuals.RENDER_ERROR_MARKER_SIDES.getBooleanValue())
         {
@@ -433,9 +448,16 @@ public class OverlayRenderer
                 RenderUtils.renderAreaSidesBatched(entry.pos, entry.pos, color, 0.002, buffer, this.mc);
             }
 
-            meshData = buffer.end();
-            BufferRenderer.drawWithGlobalProgram(meshData);
-            meshData.close();
+            try
+            {
+                meshData = buffer.end();
+                BufferRenderer.drawWithGlobalProgram(meshData);
+                meshData.close();
+            }
+            catch (Exception e)
+            {
+                Litematica.logger.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 3) (Error: {})", e.getLocalizedMessage());
+            }
 
             RenderSystem.disableBlend();
         }
