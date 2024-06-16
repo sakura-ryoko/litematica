@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -24,6 +25,7 @@ public class SchematicWorldHandler
 
     protected final Supplier<WorldRendererSchematic> rendererSupplier;
     @Nullable protected WorldSchematic world;
+    @Nullable protected DynamicRegistryManager.Immutable dynamicRegistryManager = DynamicRegistryManager.EMPTY;
 
     // The supplier can return null, but it can't be null itself!
     public SchematicWorldHandler(Supplier<WorldRendererSchematic> rendererSupplier)
@@ -46,6 +48,24 @@ public class SchematicWorldHandler
         }
 
         return this.world;
+    }
+
+    public void setDynamicRegistryManager(@Nullable DynamicRegistryManager.Immutable immutable)
+    {
+        if (immutable == null)
+        {
+            return;
+        }
+
+        this.dynamicRegistryManager = immutable;
+    }
+
+    /**
+     * Store/Get the Dynamic Registry if we can get it
+     */
+    public DynamicRegistryManager getRegistryManager()
+    {
+        return this.dynamicRegistryManager;
     }
 
     public static WorldSchematic createSchematicWorld(@Nullable WorldRendererSchematic worldRenderer)

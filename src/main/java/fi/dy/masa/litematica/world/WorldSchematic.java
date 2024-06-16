@@ -67,7 +67,7 @@ public class WorldSchematic extends World
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer)
     {
-        super(properties, REGISTRY_KEY, registryManager.equals(DynamicRegistryManager.EMPTY) == false ? registryManager : MinecraftClient.getInstance().world.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
+        super(properties, REGISTRY_KEY, registryManager.equals(DynamicRegistryManager.EMPTY) == false ? registryManager : SchematicWorldHandler.INSTANCE.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
         if (this.mc == null || this.mc.world == null)
@@ -501,6 +501,10 @@ public class WorldSchematic extends World
         if (this.mc != null && this.mc.world != null)
         {
             return this.mc.world.getRegistryManager();
+        }
+        else if (SchematicWorldHandler.INSTANCE.getRegistryManager().equals(DynamicRegistryManager.EMPTY) == false)
+        {
+            return SchematicWorldHandler.INSTANCE.getRegistryManager();
         }
         else
         {
