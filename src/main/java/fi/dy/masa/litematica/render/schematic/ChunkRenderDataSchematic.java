@@ -1,9 +1,8 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import javax.annotation.Nullable;
+import java.util.*;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.BuiltBuffer;
@@ -44,6 +43,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
     private final Set<OverlayRenderType> overlayLayersUsed = new ObjectArraySet<>();
     private final Set<OverlayRenderType> overlayLayersStarted = new ObjectArraySet<>();
     private final BuiltBufferCache builtBufferCache = new BuiltBufferCache();
+    private final Map<OverlayRenderType, BuiltBuffer.SortState> overlaySortingData = new HashMap<>();
     private BuiltBuffer.SortState transparentSortingData = null;
     private boolean overlayEmpty = true;
     private boolean empty = true;
@@ -126,14 +126,30 @@ public class ChunkRenderDataSchematic implements AutoCloseable
         return this.transparentSortingData != null;
     }
 
+    public boolean hasTransparentSortingDataForOverlay(OverlayRenderType type)
+    {
+        return this.overlaySortingData.get(type) != null;
+    }
+
     protected void setTransparentSortingData(@Nonnull BuiltBuffer.SortState transparentSortingData)
     {
         this.transparentSortingData = transparentSortingData;
     }
 
+    protected void setTransparentSortingDataForOverlay(OverlayRenderType type, @Nonnull BuiltBuffer.SortState transparentSortingData)
+    {
+        this.overlaySortingData.put(type, transparentSortingData);
+    }
+
     protected BuiltBuffer.SortState getTransparentSortingData()
     {
         return this.transparentSortingData;
+    }
+
+    @Nullable
+    protected BuiltBuffer.SortState getTransparentSortingDataForOverlay(OverlayRenderType type)
+    {
+        return this.overlaySortingData.get(type);
     }
 
     public long getTimeBuilt()

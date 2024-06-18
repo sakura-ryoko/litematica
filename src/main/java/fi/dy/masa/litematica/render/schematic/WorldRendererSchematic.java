@@ -487,8 +487,6 @@ public class WorldRendererSchematic
                 BlockPos chunkOrigin = renderer.getOrigin();
                 VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
 
-                //Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
-
                 if (buffer == null || buffer.isClosed())
                 {
                     //Litematica.logger.error("renderBlockLayer() [Renderer]: vertexBuffer for layer [{}] is null/closed, skipping draw", ChunkRenderLayers.getFriendlyName(renderLayer));
@@ -506,6 +504,8 @@ public class WorldRendererSchematic
                     chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
                     chunkOffsetUniform.upload();
                 }
+
+                //Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
 
                 buffer.bind();
                 buffer.draw();
@@ -609,10 +609,22 @@ public class WorldRendererSchematic
 
                 if (compiledChunk.isOverlayTypeEmpty(type) == false)
                 {
-                    //Litematica.logger.warn("renderBlockOverlay() [Renderer] --> bind / draw / unbind for layer [{}] --> with overlay type [{}]", ChunkRenderLayers.getFriendlyName(renderLayer), type.getDrawMode().name());
-
                     VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
+
+                    if (buffer == null || buffer.isClosed())
+                    {
+                        //Litematica.logger.error("renderBlockOverlay() [Renderer]: vertexBuffer for overlay type [{}] is null/closed, skipping draw", type.getDrawMode().name());
+                        continue;
+                    }
+
+                    if (renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByType(type) == false)
+                    {
+                        //Litematica.logger.error("renderBlockOverlay() [Renderer]: buffer for overlay type [{}] is not built, skipping draw", type.getDrawMode().name());
+                        continue;
+                    }
+
+                    //Litematica.logger.warn("renderBlockOverlay() [Renderer] --> bind / draw / unbind for layer [{}] --> with overlay type [{}]", ChunkRenderLayers.getFriendlyName(renderLayer), type.getDrawMode().name());
 
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
