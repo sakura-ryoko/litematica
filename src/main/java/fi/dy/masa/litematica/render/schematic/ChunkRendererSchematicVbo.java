@@ -254,23 +254,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected void rebuildChunk(ChunkRenderTaskSchematic task)
     {
         ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
-        task.getLock().lock();
-
-        try
-        {
-            if (task.getStatus() != ChunkRenderTaskSchematic.Status.COMPILING)
-            {
-                return;
-            }
-
-            task.setChunkRenderData(data);
-        }
-        finally
-        {
-            task.getLock().unlock();
-        }
-
-        //Litematica.debugLog("rebuildChunk() [VBO]: bootstrap/clearing all render buffers for chunk origin [{}]", this.position.toShortString());
+        task.setChunkRenderData(data);
 
         //this.allocatorCache.clearAll();
         this.builderCache.clearAll();
@@ -293,8 +277,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             int maxY = minY + this.world.getHeight();
             int maxZ = minZ + 15;
 
-            if (this.boxes.isEmpty() == false &&
-                (this.schematicWorldView.isEmpty() == false || this.clientWorldView.isEmpty() == false) &&
+            if (!this.boxes.isEmpty() &&
+                    (!this.schematicWorldView.isEmpty() || !this.clientWorldView.isEmpty()) &&
                  range.intersectsBox(minX, minY, minZ, maxX, maxY, maxZ))
             {
                 ++schematicRenderChunksUpdated;

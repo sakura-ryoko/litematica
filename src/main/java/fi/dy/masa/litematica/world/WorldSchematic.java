@@ -67,7 +67,7 @@ public class WorldSchematic extends World
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer)
     {
-        super(properties, REGISTRY_KEY, registryManager.equals(DynamicRegistryManager.EMPTY) == false ? registryManager : SchematicWorldHandler.INSTANCE.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
+        super(properties, REGISTRY_KEY, !registryManager.equals(DynamicRegistryManager.EMPTY) ? registryManager : SchematicWorldHandler.INSTANCE.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
         if (this.mc == null || this.mc.world == null)
@@ -76,7 +76,7 @@ public class WorldSchematic extends World
        }
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
-        if (registryManager.equals(DynamicRegistryManager.EMPTY) == false)
+        if (!registryManager.equals(DynamicRegistryManager.EMPTY))
         {
             this.biome = registryManager.get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
         }
@@ -177,18 +177,15 @@ public class WorldSchematic extends World
         int chunkX = MathHelper.floor(entity.getX() / 16.0D);
         int chunkZ = MathHelper.floor(entity.getZ() / 16.0D);
 
-        if (this.chunkManagerSchematic.isChunkLoaded(chunkX, chunkZ) == false)
-        {
+        if (!this.chunkManagerSchematic.isChunkLoaded(chunkX, chunkZ))
             return false;
-        }
-        else
-        {
-            entity.setId(this.nextEntityId++);
-            this.chunkManagerSchematic.getChunk(chunkX, chunkZ).addEntity(entity);
-            ++this.entityCount;
-
-            return true;
-        }
+        entity.setId(this.nextEntityId++);
+        ChunkSchematic chunk = this.chunkManagerSchematic.getChunk(chunkX, chunkZ);
+        if(chunk == null)
+            return false;
+        chunk.addEntity(entity);
+        ++this.entityCount;
+        return true;
     }
 
     public void unloadedEntities(int count)
