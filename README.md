@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/sakura-ryoko/litematica.svg)](https://jitpack.io/#sakura-ryoko/litematica)
+
 Litematica
 ==============
 Litematica is a client-side Minecraft mod using LiteLoader.
