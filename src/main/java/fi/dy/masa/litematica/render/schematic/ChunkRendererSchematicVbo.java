@@ -64,8 +64,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     //private final BufferAllocatorCache allocatorCache;
     private final BufferBuilderCache builderCache;
 
-    protected AtomicReference<ChunkRenderTaskSchematic> compileTask;
-    protected AtomicReference<ChunkRenderDataSchematic> chunkRenderData;
+    protected AtomicReference<ChunkRenderTaskSchematic> compileTask = new AtomicReference<>(null);
+    protected AtomicReference<ChunkRenderDataSchematic> chunkRenderData = new AtomicReference<>(ChunkRenderDataSchematic.EMPTY);
 
     private boolean needsUpdate;
     private boolean needsImmediateUpdate;
@@ -74,7 +74,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     {
         this.world = world;
         this.worldRenderer = worldRenderer;
-        this.chunkRenderData = new AtomicReference<>(ChunkRenderDataSchematic.EMPTY);
         this.vertexBufferBlocks = new IdentityHashMap<>();
         this.vertexBufferOverlay = new IdentityHashMap<>();
         this.position = new BlockPos.Mutable();
@@ -1166,7 +1165,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return newTask;
     }
 
-    protected void finishCompileTask(ChunkRenderTaskSchematic newTask)
+    protected void finishCompileTask(@Nullable ChunkRenderTaskSchematic newTask)
     {
         ChunkRenderTaskSchematic oldtask = compileTask.getAndSet(newTask);
         if(oldtask!=null)
