@@ -24,7 +24,6 @@ public class BlockInfo
     private final List<String> props;
     private final int totalWidth;
     private final int totalHeight;
-    private final int columnWidth;
 
     public BlockInfo(BlockState state, String titleKey)
     {
@@ -34,28 +33,26 @@ public class BlockInfo
         this.stack = ItemUtils.getItemForState(this.state);
 
         Identifier rl = Registries.BLOCK.getId(this.state.getBlock());
-        this.blockRegistryname = rl != null ? rl.toString() : "<null>";
+        this.blockRegistryname = rl.toString();
 
         this.stackName = this.stack.getName().getString();
 
         int w = StringUtils.getStringWidth(this.stackName) + 20;
         w = Math.max(w, StringUtils.getStringWidth(this.blockRegistryname));
         w = Math.max(w, StringUtils.getStringWidth(this.title));
-        this.columnWidth = w;
-
         this.props = BlockUtils.getFormattedBlockStateProperties(this.state, " = ");
-        this.totalWidth = this.columnWidth + 40;
+        this.totalWidth = w + 40;
         this.totalHeight = this.props.size() * (StringUtils.getFontHeight() + 2) + 60;
     }
 
     public int getTotalWidth()
     {
-        return this.totalWidth;
+        return totalWidth;
     }
 
     public int getTotalHeight()
     {
-        return this.totalHeight;
+        return totalHeight;
     }
 
     public void render(int x, int y, MinecraftClient mc, DrawContext drawContext)

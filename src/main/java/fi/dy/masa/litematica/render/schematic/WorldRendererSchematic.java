@@ -78,7 +78,7 @@ public class WorldRendererSchematic
         this.entityRenderDispatcher = mc.getEntityRenderDispatcher();
         this.bufferBuilders = mc.getBufferBuilders();
 
-        this.renderChunkFactory = (world1, worldRenderer) -> new ChunkRendererSchematicVbo(world1, worldRenderer);
+        this.renderChunkFactory = ChunkRendererSchematicVbo::new;
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
@@ -112,9 +112,9 @@ public class WorldRendererSchematic
 
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
+            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
 
-            if (data != ChunkRenderDataSchematic.EMPTY && data.isEmpty() == false)
+            if (data != ChunkRenderDataSchematic.EMPTY && !data.isEmpty())
             {
                 ++count;
             }

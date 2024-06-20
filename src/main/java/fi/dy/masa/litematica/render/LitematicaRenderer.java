@@ -68,7 +68,7 @@ public class LitematicaRenderer
         }
         else
         {
-            this.finishTimeNano = System.nanoTime() + Math.max(1000000000L / fpsTarget / 2L, 0L);
+            this.finishTimeNano = System.nanoTime() + 1000000000L / fpsTarget / 2L;
         }
     }
 

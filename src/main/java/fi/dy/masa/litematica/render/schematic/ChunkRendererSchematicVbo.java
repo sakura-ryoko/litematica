@@ -3,7 +3,7 @@ package fi.dy.masa.litematica.render.schematic;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -36,6 +36,7 @@ import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.Place
 import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
+import org.spongepowered.asm.mixin.injection.At;
 
 public class ChunkRendererSchematicVbo implements AutoCloseable
 {
@@ -43,9 +44,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected volatile WorldSchematic world;
     protected final WorldRendererSchematic worldRenderer;
-    protected final ReentrantLock chunkRenderLock;
-    protected final ReentrantLock chunkRenderDataLock;
-    protected final Set<BlockEntity> setBlockEntities = new HashSet<>();
+    protected final AtomicReference<Set<BlockEntity>> setBlockEntities = new AtomicReference<>(new HashSet<>());
     protected final BlockPos.Mutable position;
     protected final BlockPos.Mutable chunkRelativePos;
 
@@ -65,8 +64,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     //private final BufferAllocatorCache allocatorCache;
     private final BufferBuilderCache builderCache;
 
-    protected ChunkRenderTaskSchematic compileTask;
-    protected ChunkRenderDataSchematic chunkRenderData;
+    protected AtomicReference<ChunkRenderTaskSchematic> compileTask;
+    protected AtomicReference<ChunkRenderDataSchematic> chunkRenderData;
 
     private boolean needsUpdate;
     private boolean needsImmediateUpdate;
@@ -75,9 +74,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     {
         this.world = world;
         this.worldRenderer = worldRenderer;
-        this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
-        this.chunkRenderLock = new ReentrantLock();
-        this.chunkRenderDataLock = new ReentrantLock();
+        this.chunkRenderData = new AtomicReference<>(ChunkRenderDataSchematic.EMPTY);
         this.vertexBufferBlocks = new IdentityHashMap<>();
         this.vertexBufferOverlay = new IdentityHashMap<>();
         this.position = new BlockPos.Mutable();
@@ -109,7 +106,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected ChunkRenderDataSchematic getChunkRenderData()
     {
-        return this.chunkRenderData;
+        return chunkRenderData.get();
     }
 
     /*
@@ -126,16 +123,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void setChunkRenderData(ChunkRenderDataSchematic data)
     {
-        this.chunkRenderDataLock.lock();
-
-        try
-        {
-            this.chunkRenderData = data;
-        }
-        finally
-        {
-            this.chunkRenderDataLock.unlock();
-        }
+        chunkRenderData.set(data);
     }
 
     public BlockPos getOrigin()
@@ -363,28 +351,15 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
         }
 
-        this.chunkRenderLock.lock();
-
-        try
-        {
-            //Litematica.debugLog("rebuildChunk() [VBO]: purging buffers for origin [{}]", this.position.toShortString());
-
-            Set<BlockEntity> set = Sets.newHashSet(tileEntities);
-            Set<BlockEntity> set1 = Sets.newHashSet(this.setBlockEntities);
-            set.removeAll(this.setBlockEntities);
-            set1.removeAll(tileEntities);
-            this.setBlockEntities.clear();
-            this.setBlockEntities.addAll(tileEntities);
-            this.worldRenderer.updateBlockEntities(set1, set);
-            //this.allocatorCache.clearAll();
-            this.builderCache.clearAll();
-            //this.chunkRenderData.closeBuiltBufferCache();
+        Set<BlockEntity> removed = setBlockEntities.getAndSet(tileEntities);
+        Set<BlockEntity> added = Sets.newHashSet(tileEntities);
+        added.removeAll(removed);
+        removed.removeAll(tileEntities);
+        synchronized (builderCache) {
+            // probably not necessary to do block Entity update this with builderCache locked but doing so out of caution.
+            worldRenderer.updateBlockEntities(removed, added);
+            builderCache.clearAll();
         }
-        finally
-        {
-            this.chunkRenderLock.unlock();
-        }
-
         data.setTimeBuilt(this.world.getTime());
     }
 
@@ -1173,21 +1148,9 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected ChunkRenderTaskSchematic makeCompileTaskChunkSchematic(Supplier<Vec3d> cameraPosSupplier)
     {
-        this.chunkRenderLock.lock();
-        ChunkRenderTaskSchematic generator = null;
-
-        try
-        {
-            //if (GuiBase.isCtrlDown()) System.out.printf("makeCompileTaskChunk()\n");
-            this.finishCompileTask();
-            this.rebuildWorldView();
-            this.compileTask = new ChunkRenderTaskSchematic(this, ChunkRenderTaskSchematic.Type.REBUILD_CHUNK, cameraPosSupplier, this.getDistanceSq());
-            generator = this.compileTask;
-        }
-        finally
-        {
-            this.chunkRenderLock.unlock();
-        }
+        ChunkRenderTaskSchematic generator = new ChunkRenderTaskSchematic(this, ChunkRenderTaskSchematic.Type.REBUILD_CHUNK, cameraPosSupplier, this.getDistanceSq());
+        this.finishCompileTask(generator);
+        this.rebuildWorldView();
 
         return generator;
     }
@@ -1195,67 +1158,26 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     @Nullable
     protected ChunkRenderTaskSchematic makeCompileTaskTransparencySchematic(Supplier<Vec3d> cameraPosSupplier)
     {
-        this.chunkRenderLock.lock();
-
-        try
-        {
-            if (this.compileTask == null || this.compileTask.getStatus() != ChunkRenderTaskSchematic.Status.PENDING)
-            {
-                if (this.compileTask != null && this.compileTask.getStatus() != ChunkRenderTaskSchematic.Status.DONE)
-                {
-                    this.compileTask.finish();
-                }
-
-                this.compileTask = new ChunkRenderTaskSchematic(this, ChunkRenderTaskSchematic.Type.RESORT_TRANSPARENCY, cameraPosSupplier, this.getDistanceSq());
-                this.compileTask.setChunkRenderData(this.chunkRenderData);
-
-                return this.compileTask;
-            }
-        }
-        finally
-        {
-            this.chunkRenderLock.unlock();
-        }
-
-        return null;
+        if(compileTask.get().getStatus() == ChunkRenderTaskSchematic.Status.PENDING)
+            return null;
+        ChunkRenderTaskSchematic newTask = new ChunkRenderTaskSchematic(this, ChunkRenderTaskSchematic.Type.RESORT_TRANSPARENCY, cameraPosSupplier, this.getDistanceSq());
+        newTask.setChunkRenderData(this.chunkRenderData.get());
+        finishCompileTask(newTask);
+        return newTask;
     }
 
-    protected void finishCompileTask()
+    protected void finishCompileTask(ChunkRenderTaskSchematic newTask)
     {
-        this.chunkRenderLock.lock();
-
-        try
-        {
-            if (this.compileTask != null && this.compileTask.getStatus() != ChunkRenderTaskSchematic.Status.DONE)
-            {
-                this.compileTask.finish();
-                this.compileTask = null;
-            }
-        }
-        finally
-        {
-            this.chunkRenderLock.unlock();
-        }
-    }
-
-    protected ReentrantLock getLockCompileTask()
-    {
-        return this.chunkRenderLock;
+        ChunkRenderTaskSchematic oldtask = compileTask.getAndSet(newTask);
+        if(oldtask!=null)
+            oldtask.finish();
     }
 
     protected void clear()
     {
-        this.finishCompileTask();
-        /*
-        if (this.chunkRenderData != null && !this.chunkRenderData.equals(ChunkRenderDataSchematic.EMPTY))
-        {
-            this.chunkRenderData.closeBuiltBufferCache();
-        }
-         */
-        //this.allocatorCache.closeAll();
+        this.finishCompileTask(null);
         this.builderCache.clearAll();
-        this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
-        //this.needsUpdate = true;
+        this.chunkRenderData.set(ChunkRenderDataSchematic.EMPTY);
     }
 
     protected void setNeedsUpdate(boolean immediate)
@@ -1291,12 +1213,13 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         {
             this.ignoreClientWorldFluids = Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue();
             ClientWorld worldClient = MinecraftClient.getInstance().world;
+            assert worldClient != null;
             this.schematicWorldView = new ChunkCacheSchematic(this.world, worldClient, this.position, 2);
             this.clientWorldView    = new ChunkCacheSchematic(worldClient, worldClient, this.position, 2);
             this.boxes.clear();
 
-            int chunkX = this.position.getX() >> 4;
-            int chunkZ = this.position.getZ() >> 4;
+            int chunkX = this.position.getX() / 16;
+            int chunkZ = this.position.getZ() / 16;
 
             for (PlacementPart part : DataManager.getSchematicPlacementManager().getPlacementPartsInChunk(chunkX, chunkZ))
             {

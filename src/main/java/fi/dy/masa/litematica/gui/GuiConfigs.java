@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.gui;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -82,32 +84,14 @@ public class GuiConfigs extends GuiConfigsBase
     {
         List<? extends IConfigBase> configs;
         ConfigGuiTab tab = DataManager.getConfigGuiTab();
-
-        if (tab == ConfigGuiTab.GENERIC)
-        {
-            configs = Configs.Generic.OPTIONS;
-        }
-        else if (tab == ConfigGuiTab.INFO_OVERLAYS)
-        {
-            configs = Configs.InfoOverlays.OPTIONS;
-        }
-        else if (tab == ConfigGuiTab.VISUALS)
-        {
-            configs = Configs.Visuals.OPTIONS;
-        }
-        else if (tab == ConfigGuiTab.COLORS)
-        {
-            configs = Configs.Colors.OPTIONS;
-        }
-        else if (tab == ConfigGuiTab.HOTKEYS)
-        {
-            configs = Hotkeys.HOTKEY_LIST;
-        }
-        else
-        {
-            return Collections.emptyList();
-        }
-
+        configs = switch (tab) {
+            case GENERIC -> Configs.Generic.OPTIONS;
+            case INFO_OVERLAYS -> Configs.InfoOverlays.OPTIONS;
+            case VISUALS -> Configs.Visuals.OPTIONS;
+            case COLORS -> Configs.Colors.OPTIONS;
+            case HOTKEYS -> Hotkeys.HOTKEY_LIST;
+            case RENDER_LAYERS -> Collections.emptyList();
+        };
         return ConfigOptionWrapper.createFor(configs);
     }
 
@@ -119,34 +103,21 @@ public class GuiConfigs extends GuiConfigsBase
         SchematicWorldRefresher.INSTANCE.updateAll();
     }
 
-    private static class ButtonListener implements IButtonActionListener
-    {
-        private final GuiConfigs parent;
-        private final ConfigGuiTab tab;
-
-        public ButtonListener(ConfigGuiTab tab, GuiConfigs parent)
-        {
-            this.tab = tab;
-            this.parent = parent;
-        }
+    private record ButtonListener(ConfigGuiTab tab, GuiConfigs parent) implements IButtonActionListener {
 
         @Override
-        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
-        {
-            DataManager.setConfigGuiTab(this.tab);
+            public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
+                DataManager.setConfigGuiTab(this.tab);
 
-            if (this.tab != ConfigGuiTab.RENDER_LAYERS)
-            {
-                this.parent.reCreateListWidget(); // apply the new config width
-                this.parent.getListWidget().resetScrollbarPosition();
-                this.parent.initGui();
-            }
-            else
-            {
-                GuiBase.openGui(new GuiRenderLayer());
+                if (this.tab != ConfigGuiTab.RENDER_LAYERS) {
+                    this.parent.reCreateListWidget(); // apply the new config width
+                    Objects.requireNonNull(this.parent.getListWidget()).resetScrollbarPosition();
+                    this.parent.initGui();
+                } else {
+                    GuiBase.openGui(new GuiRenderLayer());
+                }
             }
         }
-    }
 
     public enum ConfigGuiTab
     {

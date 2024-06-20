@@ -51,13 +51,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     {
         this.chunkRenderData = chunkRenderData;
     }
-    protected void setChunkRenderData(ChunkRenderDataSchematic chunkRenderData, Status expectedStatus)
-    {
-        synchronized (this.chunkRenderData) {
-            if(this.status.get() == expectedStatus)
-                this.chunkRenderData = chunkRenderData;
-        }
-    }
 
     public BufferAllocatorCache getAllocatorCache()
     {
@@ -83,6 +76,8 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     protected void finish()
     {
         Status current = status.get();
+        if(current==Status.DONE)
+            return;
         if(status.compareAndSet(current,Status.DONE)) {
             Runnable runnable;
             while((runnable = finishRunnables.poll())!= null) {
@@ -111,11 +106,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         return this.type;
     }
 
-    protected boolean isFinished()
-    {
-        return status.get() == Status.DONE;
-    }
-
     public int compareTo(ChunkRenderTaskSchematic other)
     {
         return Doubles.compare(this.distanceSq, other.distanceSq);
@@ -131,12 +121,12 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         PENDING,
         COMPILING,
         UPLOADING,
-        DONE;
+        DONE
     }
 
     public enum Type
     {
         REBUILD_CHUNK,
-        RESORT_TRANSPARENCY;
+        RESORT_TRANSPARENCY
     }
 }
