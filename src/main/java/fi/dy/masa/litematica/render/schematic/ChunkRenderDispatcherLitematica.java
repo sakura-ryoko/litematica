@@ -203,11 +203,8 @@ public class ChunkRenderDispatcherLitematica
 
     protected ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final BufferAllocatorCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq, boolean resortOnly)
     {
-        //LOGGER.warn("uploadChunkBlocks() [Dispatch] for layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
-
         if (MinecraftClient.getInstance().isOnThread())
         {
-            //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkBlocks()\n");
             try
             {
                 this.uploadVertexBufferByLayer(layer, allocators, renderChunk, chunkRenderData, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly);
@@ -217,18 +214,13 @@ public class ChunkRenderDispatcherLitematica
                 LOGGER.warn("uploadChunkBlocks(): [Dispatch] Error uploading Vertex Buffer for layer [{}], Caught error: [{}]", ChunkRenderLayers.getFriendlyName(layer), e.toString());
             }
 
-            return Futures.<Object>immediateFuture(null);
+            return Futures.immediateFuture(null);
         }
         else
         {
-            ListenableFutureTask<Object> futureTask = ListenableFutureTask.<Object>create(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, allocators, renderChunk, chunkRenderData, distanceSq, resortOnly);
-                }
-            }, null);
+            ListenableFutureTask<Object> futureTask = ListenableFutureTask.create(
+                    () -> uploadChunkBlocks(layer, allocators, renderChunk, chunkRenderData, distanceSq, resortOnly),
+                    null);
 
             synchronized (this.queueChunkUploads)
             {
@@ -240,12 +232,8 @@ public class ChunkRenderDispatcherLitematica
 
     protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferAllocatorCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly)
     {
-        //LOGGER.warn("uploadChunkOverlay() [Dispatch] for overlay type [{}]", type.getDrawMode().name());
-
         if (MinecraftClient.getInstance().isOnThread())
         {
-            //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkOverlay()\n");
-
             try
             {
                 this.uploadVertexBufferByType(type, allocators, renderChunk, compiledChunk, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly);
@@ -256,8 +244,7 @@ public class ChunkRenderDispatcherLitematica
                 //  but it will cause a crash during draw() --> Ignored
                 LOGGER.warn("uploadChunkOverlay(): [Dispatch] Error uploading Vertex Buffer for overlay type [{}], Caught error: [{}]", type.getDrawMode().name(), e.toString());
             }
-
-            return Futures.<Object>immediateFuture(null);
+            return Futures.immediateFuture(null);
         }
         else
         {

@@ -36,7 +36,6 @@ import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.Place
 import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
-import org.spongepowered.asm.mixin.injection.At;
 
 public class ChunkRendererSchematicVbo implements AutoCloseable
 {
@@ -790,8 +789,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void uploadBuiltBuffer(@Nonnull BuiltBuffer builtBuffer, @Nonnull VertexBuffer vertexBuffer)
     {
-        //Litematica.logger.warn("uploadBuiltBuffer(): [VBO] - INIT");
-
         if (vertexBuffer.isClosed())
         {
             Litematica.logger.error("uploadBuiltBuffer() [VBO] - Error, vertexBuffer is closed/Null");
@@ -799,14 +796,9 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             return;
         }
 
-        //Litematica.logger.warn("uploadBuiltBuffer(): [VBO] - UPLOAD");
-
         vertexBuffer.bind();
         vertexBuffer.upload(builtBuffer);
         VertexBuffer.unbind();
-
-        //builtBuffer.close();
-        //Litematica.logger.warn("uploadBuiltBuffer(): [VBO] - DONE");
     }
 
     private void postRenderBlocks(RenderLayer layer, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
@@ -815,7 +807,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         //Litematica.logger.warn("postRenderBlocks(): [VBO] for layer [{}] - INIT", ChunkRenderLayers.getFriendlyName(layer));
 
         //if (layer == RenderLayer.getTranslucent() && chunkRenderData.isBlockLayerEmpty(layer) == false)
-        if (chunkRenderData.isBlockLayerEmpty(layer) == false)
+        if (!chunkRenderData.isBlockLayerEmpty(layer))
         {
             BuiltBuffer built;
 
