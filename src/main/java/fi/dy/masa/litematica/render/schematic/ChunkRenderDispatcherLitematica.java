@@ -396,6 +396,7 @@ public class ChunkRenderDispatcherLitematica
                 //LOGGER.warn("uploadVertexBufferByType() [Dispatch] for overlay type [{}] - Translucent Sort State UPLOADED", type.getDrawMode().name());
             }
         }
+      
         /**/
 
         if (resortOnly == false)

@@ -68,7 +68,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.allocatorCache = allocatorCache;
         return true;
     }
-
+    
     protected Status casStatus(Status expected, Status nStatus) {
         return status.compareAndExchange(expected, nStatus);
     }
@@ -99,7 +99,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
                 runnable.run();
         }
     }
-
 
     protected ChunkRenderTaskSchematic.Type getType()
     {

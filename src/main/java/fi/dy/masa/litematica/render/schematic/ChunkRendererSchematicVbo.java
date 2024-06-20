@@ -247,6 +247,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.builderCache.clearAll();
         //data.closeBuiltBufferCache();
 
+        //Litematica.debugLog("rebuildChunk() [VBO]: bootstrap/clearing all render buffers for chunk origin [{}]", this.position.toShortString());
+
+        //this.allocatorCache.clearAll();
+        this.builderCache.clearAll();
+        //data.closeBuiltBufferCache();
+
         Set<BlockEntity> tileEntities = new HashSet<>();
         BlockPos posChunk = this.position;
         LayerRange range = DataManager.getRenderLayerRange();
@@ -359,6 +365,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             worldRenderer.updateBlockEntities(removed, added);
             builderCache.clearAll();
         }
+
         data.setTimeBuilt(this.world.getTime());
     }
 
@@ -775,8 +782,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     private BufferBuilderPatch preRenderOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
-        this.existingOverlays.add(type);
-        this.hasOverlay = true;
+        //Litematica.logger.warn("postRenderBlocks(): [VBO] for layer [{}] - INIT", ChunkRenderLayers.getFriendlyName(layer));
 
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         return this.builderCache.getBufferByOverlay(type, allocators);
@@ -967,7 +973,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     }
 
     private void resortRenderBlocks(RenderLayer layer, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
-            throws InterruptedException
+            throws InterruptedException\
     {
         //Litematica.logger.warn("resortRenderBlocks(): [VBO] for layer [{}] - INIT", ChunkRenderLayers.getFriendlyName(layer));
 

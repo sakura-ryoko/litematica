@@ -78,7 +78,7 @@ public class WorldRendererSchematic
         this.entityRenderDispatcher = mc.getEntityRenderDispatcher();
         this.bufferBuilders = mc.getBufferBuilders();
 
-        this.renderChunkFactory = ChunkRendererSchematicVbo::new;
+        this.renderChunkFactory = (world1, worldRenderer) -> new ChunkRendererSchematicVbo(world1, worldRenderer);
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());

@@ -119,7 +119,6 @@ public class ChunkRenderWorkerLitematica implements Runnable
         final ListenableFuture<List<Object>> listenablefuture = Futures.allAsList(futuresList);
 
         task.addFinishRunnable(() -> listenablefuture.cancel(false));
-
         Futures.addCallback(listenablefuture, new FutureCallback<List<Object>>()
         {
             @Override
