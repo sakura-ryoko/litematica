@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+
 import com.google.common.collect.Queues;
 import com.google.common.primitives.Doubles;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.Logger;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.client.MinecraftClient;
@@ -25,7 +29,7 @@ import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayR
 public class ChunkRenderDispatcherLitematica
 {
     private static final Logger LOGGER = Litematica.logger;
-    //private static final ThreadFactory THREAD_FACTORY = (new ThreadFactoryBuilder()).setNameFormat("Litematica Chunk Batcher %d").setDaemon(true).build();
+    private static final ThreadFactory THREAD_FACTORY = (new ThreadFactoryBuilder()).setNameFormat("Litematica Chunk Batcher %d").setDaemon(true).build();
 
     private final List<Thread> listWorkerThreads = new ArrayList<>();
     private final List<ChunkRenderWorkerLitematica> listThreadedWorkers = new ArrayList<>();
@@ -39,14 +43,13 @@ public class ChunkRenderDispatcherLitematica
     public ChunkRenderDispatcherLitematica()
     {
         // TODO/FIXME 1.17
-        //int threadLimitMemory = Math.max(1, (int)((double)Runtime.getRuntime().maxMemory() * 0.3D) / 10485760);
-        //int threadLimitCPU = Math.max(1, MathHelper.clamp(Runtime.getRuntime().availableProcessors(), 1, threadLimitMemory / 5));
-        //this.countRenderBuilders = MathHelper.clamp(threadLimitCPU * 10, 1, threadLimitMemory);
+        int threadLimitMemory = Math.max(1, (int)((double)Runtime.getRuntime().maxMemory() * 0.3D) / 10485760);
+        int threadLimitCPU = Math.max(1, MathHelper.clamp(Runtime.getRuntime().availableProcessors(), 1, threadLimitMemory / 5));
 
         this.countRenderAllocators = 2;
         this.cameraPos = Vec3d.ZERO;
 
-        /*
+
         if (threadLimitCPU > 1)
         {
             LOGGER.info("Creating {} render threads", threadLimitCPU);
@@ -60,7 +63,7 @@ public class ChunkRenderDispatcherLitematica
                 this.listWorkerThreads.add(thread);
             }
         }
-        */
+
         LOGGER.info("Using {} total BufferAllocator caches", this.countRenderAllocators + 1);
 
         this.queueFreeRenderAllocators = Queues.newArrayBlockingQueue(this.countRenderAllocators);
