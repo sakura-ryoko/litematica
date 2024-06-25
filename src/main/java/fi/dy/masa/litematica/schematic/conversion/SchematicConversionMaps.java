@@ -383,7 +383,7 @@ public class SchematicConversionMaps
         {
             tags.putString("id", "minecraft:jukebox");
         }
-        else if (tags.contains("Book"))
+        else if (tags.contains("Book") || tags.contains("book"))
         {
             tags.putString("id", "minecraft:lectern");
         }
@@ -391,13 +391,62 @@ public class SchematicConversionMaps
         {
             tags.putString("id", "minecraft:sign");
         }
-        else if (tags.contains("OutputSignal"))
+        else if (tags.contains("BrewTime") || tags.contains("Fuel"))
         {
-            tags.putString("id", "minecraft:comparator");
+            tags.putString("id", "minecraft:brewing_stand");
+        }
+        else if ((tags.contains("LootTable") && tags.contains("LootTableSeed")) || (tags.contains("hit_direction") || tags.contains("item")))
+        {
+            tags.putString("id", "minecraft:suspicious_sand");
+        }
+        else if (tags.contains("SpawnData") || tags.contains("SpawnPotentials"))
+        {
+            tags.putString("id", "minecraft:spawner");
+        }
+        else if (tags.contains("normal_config"))
+        {
+            tags.putString("id", "minecraft:trial_spawner");
+        }
+        else if (tags.contains("shared_data"))
+        {
+            tags.putString("id", "minecraft:vault");
+        }
+        else if (tags.contains("pool") && tags.contains("final_state") && tags.contains("placement_priority"))
+        {
+            tags.putString("id", "minecraft:jigsaw");
+        }
+        else if (tags.contains("author") && tags.contains("metadata") && tags.contains("showboundingbox"))
+        {
+            tags.putString("id", "minecraft:structure_block");
+        }
+        else if (tags.contains("ExactTeleport") && tags.contains("Age"))
+        {
+            tags.putString("id", "minecraft:end_gateway");
         }
         else if (tags.contains("Items"))
         {
             tags.putString("id", "minecraft:chest");
+        }
+        else if (tags.contains("last_vibration_frequency") || tags.contains("listener"))
+        {
+            tags.putString("id", "minecraft:sculk_sensor");
+        }
+        else if (tags.contains("warning_level") || tags.contains("listener"))
+        {
+            tags.putString("id", "minecraft:sculk_shrieker");
+        }
+        else if (tags.contains("OutputSignal"))
+        {
+            tags.putString("id", "minecraft:comparator");
+        }
+        else if (tags.contains("facing") || tags.contains("extending"))
+        {
+            tags.putString("id", "minecraft:piston");
+        }
+        else if (tags.contains("x") && tags.contains("y") && tags.contains("z"))
+        {
+            // Might only have x y z pos
+            tags.putString("id", "minecraft:piston");
         }
 
         return tags;
