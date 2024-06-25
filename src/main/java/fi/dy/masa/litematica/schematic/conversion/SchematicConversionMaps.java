@@ -338,6 +338,71 @@ public class SchematicConversionMaps
         }
     }
 
+    public static NbtCompound checkForIdTag(NbtCompound tags)
+    {
+        if (tags.contains("id"))
+        {
+            return tags;
+        }
+        if (tags.contains("Id"))
+        {
+            tags.putString("id", tags.getString("Id"));
+            return tags;
+        }
+
+        // We don't have an "id" tag, let's try to fix it
+        if (tags.contains("Bees") || tags.contains("bees"))
+        {
+            tags.putString("id", "minecraft:beehive");
+        }
+        else if (tags.contains("TransferCooldown") && tags.contains("Items"))
+        {
+            tags.putString("id", "minecraft:hopper");
+        }
+        else if (tags.contains("SkullOwner"))
+        {
+            tags.putString("id", "minecraft:skull");
+        }
+        else if (tags.contains("Patterns") || tags.contains("patterns"))
+        {
+            tags.putString("id", "minecraft:banner");
+        }
+        else if (tags.contains("Sherds") || tags.contains("sherds"))
+        {
+            tags.putString("id", "minecraft:decorated_pot");
+        }
+        else if (tags.contains("last_interacted_slot") && tags.contains("Items"))
+        {
+            tags.putString("id", "minecraft:chiseled_bookshelf");
+        }
+        else if (tags.contains("CookTime") && tags.contains("Items"))
+        {
+            tags.putString("id", "minecraft:furnace");
+        }
+        else if (tags.contains("RecordItem"))
+        {
+            tags.putString("id", "minecraft:jukebox");
+        }
+        else if (tags.contains("Book"))
+        {
+            tags.putString("id", "minecraft:lectern");
+        }
+        else if (tags.contains("front_text"))
+        {
+            tags.putString("id", "minecraft:sign");
+        }
+        else if (tags.contains("OutputSignal"))
+        {
+            tags.putString("id", "minecraft:comparator");
+        }
+        else if (tags.contains("Items"))
+        {
+            tags.putString("id", "minecraft:chest");
+        }
+
+        return tags;
+    }
+
     private static class ConversionData
     {
         private final int idMeta;
