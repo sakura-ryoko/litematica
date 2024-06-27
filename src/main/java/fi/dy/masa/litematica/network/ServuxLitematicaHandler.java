@@ -19,19 +19,19 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 
 @Environment(EnvType.CLIENT)
-public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
+public abstract class ServuxLitematicaHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
 {
-    private final static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> INSTANCE = new ServuxEntitiesHandler<>()
+    private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> INSTANCE = new ServuxLitematicaHandler<>()
     {
         @Override
-        public void receive(ServuxEntitiesPacket.Payload payload, ClientPlayNetworking.Context context)
+        public void receive(ServuxLitematicaPacket.Payload payload, ClientPlayNetworking.Context context)
         {
-            ServuxEntitiesHandler.INSTANCE.receivePlayPayload(payload, context);
+            ServuxLitematicaHandler.INSTANCE.receivePlayPayload(payload, context);
         }
     };
-    public static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> getInstance() { return INSTANCE; }
+    public static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> getInstance() { return INSTANCE; }
 
-    public static final Identifier CHANNEL_ID = Identifier.of("servux", "entity_data");
+    public static final Identifier CHANNEL_ID = Identifier.of("servux", "litematics");
 
     private boolean servuxRegistered;
     private boolean payloadRegistered = false;
@@ -65,7 +65,7 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     @Override
     public <P extends IClientPayloadData> void decodeClientData(Identifier channel, P data)
     {
-        ServuxEntitiesPacket packet = (ServuxEntitiesPacket) data;
+        ServuxLitematicaPacket packet = (ServuxLitematicaPacket) data;
 
         if (!channel.equals(CHANNEL_ID))
         {
@@ -89,7 +89,7 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
                     this.readingSessionKey = Random.create(Util.getMeasuringTimeMs()).nextLong();
                 }
 
-                Litematica.debugLog("ServuxEntitiesHandler#decodeClientData(): received Entity Data Packet Slice of size {} (in bytes) // reading session key [{}]", packet.getTotalSize(), this.readingSessionKey);
+                Litematica.debugLog("ServuxLitematicaHandler#decodeClientData(): received Entity Data Packet Slice of size {} (in bytes) // reading session key [{}]", packet.getTotalSize(), this.readingSessionKey);
                 PacketByteBuf fullPacket = PacketSplitter.receive(this, this.readingSessionKey, packet.getBuffer());
 
                 if (fullPacket != null)
@@ -102,11 +102,11 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
                     }
                     catch (Exception e)
                     {
-                        Litematica.logger.error("ServuxEntitiesHandler#decodeClientData(): Entity Data: error reading fullBuffer [{}]", e.getLocalizedMessage());
+                        Litematica.logger.error("ServuxLitematicaHandler#decodeClientData(): Entity Data: error reading fullBuffer [{}]", e.getLocalizedMessage());
                     }
                 }
             }
-            default -> Litematica.logger.warn("ServuxEntitiesHandler#decodeClientData(): received unhandled packetType {} of size {} bytes.", packet.getPacketType(), packet.getTotalSize());
+            default -> Litematica.logger.warn("ServuxLitematicaHandler#decodeClientData(): received unhandled packetType {} of size {} bytes.", packet.getPacketType(), packet.getTotalSize());
         }
     }
 
@@ -134,7 +134,7 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {
-            ((ClientPlayHandler<?>) ClientPlayHandler.getInstance()).decodeClientData(CHANNEL_ID, ((ServuxEntitiesPacket.Payload) payload).data());
+            ((ClientPlayHandler<?>) ClientPlayHandler.getInstance()).decodeClientData(CHANNEL_ID, ((ServuxLitematicaPacket.Payload) payload).data());
             // This allows the data to be "shared" among multiple mods
         }
     }
@@ -143,28 +143,28 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     public void encodeWithSplitter(PacketByteBuf buffer, ClientPlayNetworkHandler handler)
     {
         // Send each PacketSplitter buffer slice
-        ServuxEntitiesHandler.INSTANCE.sendPlayPayload(new ServuxEntitiesPacket.Payload(ServuxEntitiesPacket.ResponseC2SData(buffer)));
+        ServuxLitematicaHandler.INSTANCE.sendPlayPayload(new ServuxLitematicaPacket.Payload(ServuxLitematicaPacket.ResponseC2SData(buffer)));
     }
 
     @Override
     public <P extends IClientPayloadData> void encodeClientData(P data)
     {
-        ServuxEntitiesPacket packet = (ServuxEntitiesPacket) data;
+        ServuxLitematicaPacket packet = (ServuxLitematicaPacket) data;
 
-        if (packet.getType().equals(ServuxEntitiesPacket.Type.PACKET_C2S_NBT_RESPONSE_START))
+        if (packet.getType().equals(ServuxLitematicaPacket.Type.PACKET_C2S_NBT_RESPONSE_START))
         {
             PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
             buffer.writeVarInt(packet.getTransactionId());
             buffer.writeNbt(packet.getCompound());
             PacketSplitter.send(this, buffer, MinecraftClient.getInstance().getNetworkHandler());
         }
-        else if (!ServuxEntitiesHandler.INSTANCE.sendPlayPayload(new ServuxEntitiesPacket.Payload(packet)))
+        else if (!ServuxLitematicaHandler.INSTANCE.sendPlayPayload(new ServuxLitematicaPacket.Payload(packet)))
         {
             if (this.failures > MAX_FAILURES)
             {
                 Litematica.logger.warn("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
-                ServuxEntitiesHandler.INSTANCE.unregisterPlayReceiver();
+                ServuxLitematicaHandler.INSTANCE.unregisterPlayReceiver();
                 EntitiesDataStorage.getInstance().onPacketFailure();
             }
             else

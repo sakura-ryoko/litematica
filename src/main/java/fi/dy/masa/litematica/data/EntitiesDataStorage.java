@@ -23,8 +23,8 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.mixin.IMixinDataQueryHandler;
-import fi.dy.masa.litematica.network.ServuxEntitiesHandler;
-import fi.dy.masa.litematica.network.ServuxEntitiesPacket;
+import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
+import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.util.EntityUtils;
 
 public class EntitiesDataStorage implements IClientTickHandler
@@ -36,7 +36,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         return INSTANCE;
     }
 
-    private final static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> HANDLER = ServuxEntitiesHandler.getInstance();
+    private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> HANDLER = ServuxLitematicaHandler.getInstance();
     private final static MinecraftClient mc = MinecraftClient.getInstance();
     private int uptimeTicks = 0;
     private boolean servuxServer = false;
@@ -106,7 +106,7 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     public Identifier getNetworkChannel()
     {
-        return ServuxEntitiesHandler.CHANNEL_ID;
+        return ServuxLitematicaHandler.CHANNEL_ID;
     }
 
     private static ClientPlayNetworkHandler getVanillaHandler()
@@ -119,7 +119,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         return null;
     }
 
-    public IPluginClientPlayHandler<ServuxEntitiesPacket.Payload> getNetworkHandler()
+    public IPluginClientPlayHandler<ServuxLitematicaPacket.Payload> getNetworkHandler()
     {
         return HANDLER;
     }
@@ -168,14 +168,14 @@ public class EntitiesDataStorage implements IClientTickHandler
     public void onGameInit()
     {
         ClientPlayHandler.getInstance().registerClientPlayHandler(HANDLER);
-        HANDLER.registerPlayPayload(ServuxEntitiesPacket.Payload.ID, ServuxEntitiesPacket.Payload.CODEC, IPluginClientPlayHandler.BOTH_CLIENT);
+        HANDLER.registerPlayPayload(ServuxLitematicaPacket.Payload.ID, ServuxLitematicaPacket.Payload.CODEC, IPluginClientPlayHandler.BOTH_CLIENT);
     }
 
     public void onWorldPre()
     {
         if (DataManager.getInstance().hasIntegratedServer() == false)
         {
-            HANDLER.registerPlayReceiver(ServuxEntitiesPacket.Payload.ID, HANDLER::receivePlayPayload);
+            HANDLER.registerPlayReceiver(ServuxLitematicaPacket.Payload.ID, HANDLER::receivePlayPayload);
         }
     }
 
@@ -191,7 +191,7 @@ public class EntitiesDataStorage implements IClientTickHandler
             NbtCompound nbt = new NbtCompound();
             nbt.putString("version", Reference.MOD_STRING);
 
-            HANDLER.encodeClientData(ServuxEntitiesPacket.MetadataRequest(nbt));
+            HANDLER.encodeClientData(ServuxLitematicaPacket.MetadataRequest(nbt));
         }
     }
 
@@ -201,7 +201,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             Litematica.debugLog("EntitiesDataStorage#receiveServuxMetadata(): received METADATA from Servux");
 
-            if (data.getInt("version") != ServuxEntitiesPacket.PROTOCOL_VERSION)
+            if (data.getInt("version") != ServuxLitematicaPacket.PROTOCOL_VERSION)
             {
                 Litematica.logger.warn("entityDataChannel: Mis-matched protocol version!");
             }
@@ -263,12 +263,12 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     private void requestServuxBlockEntityData(BlockPos pos)
     {
-        HANDLER.encodeClientData(ServuxEntitiesPacket.BlockEntityRequest(pos));
+        HANDLER.encodeClientData(ServuxLitematicaPacket.BlockEntityRequest(pos));
     }
 
     private void requestServuxEntityData(int entityId)
     {
-        HANDLER.encodeClientData(ServuxEntitiesPacket.EntityRequest(entityId));
+        HANDLER.encodeClientData(ServuxLitematicaPacket.EntityRequest(entityId));
     }
 
     // BlockEntity.createNbtWithIdentifyingData
