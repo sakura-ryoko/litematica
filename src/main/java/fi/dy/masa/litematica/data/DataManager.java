@@ -46,6 +46,7 @@ public class DataManager implements IDirectoryCache
     private static boolean canSave;
     private static boolean isCarpetServer;
     private static long clientTickStart;
+    private boolean hasIntegratedServer = false;
 
     public static Identifier CARPET_HELLO = Identifier.of("carpet", "hello");
     private final SelectionManager selectionManager = new SelectionManager();
@@ -64,6 +65,19 @@ public class DataManager implements IDirectoryCache
     public static DataManager getInstance()
     {
         return INSTANCE;
+    }
+
+    public void reset(boolean isLogout)
+    {
+        if (isLogout)
+        {
+            Litematica.debugLog("DataManager#reset() - log-out");
+            this.hasIntegratedServer = false;
+        }
+        else
+        {
+            Litematica.debugLog("DataManager#reset() - dimension change or log-in");
+        }
     }
 
     public static IDirectoryCache getDirectoryCache()
@@ -94,6 +108,13 @@ public class DataManager implements IDirectoryCache
     public static boolean isCarpetServer()
     {
         return isCarpetServer;
+    }
+
+    public boolean hasIntegratedServer() { return this.hasIntegratedServer; }
+
+    public void setHasIntegratedServer(boolean toggle)
+    {
+        this.hasIntegratedServer = toggle;
     }
 
     public static void addChatListener(ToBooleanFunction<Text> listener)
@@ -334,6 +355,8 @@ public class DataManager implements IDirectoryCache
         this.schematicProjectsManager.saveCurrentProject();
         JsonObject root = this.toJson();
 
+        root.add("block_entities", EntitiesDataStorage.getInstance().toJson());
+
         File file = getCurrentStorageFile(false);
         JsonUtils.writeJsonToFile(root, file);
     }
@@ -352,6 +375,11 @@ public class DataManager implements IDirectoryCache
         {
             JsonObject root = element.getAsJsonObject();
             this.fromJson(root);
+
+            if (JsonUtils.hasObject(root, "block_entities"))
+            {
+                EntitiesDataStorage.getInstance().fromJson(JsonUtils.getNestedObject(root, "block_entities", false));
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.DynamicRegistryManager;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.malilib.interfaces.IWorldLoadListener;
@@ -26,17 +27,24 @@ public class WorldLoadListener implements IWorldLoadListener
         {
             DataManager.save();
         }
+        if (worldAfter != null)
+        {
+            EntitiesDataStorage.getInstance().onWorldPre();
+        }
     }
 
     @Override
     public void onWorldLoadPost(@Nullable ClientWorld worldBefore, @Nullable ClientWorld worldAfter, MinecraftClient mc)
     {
         SchematicWorldHandler.INSTANCE.recreateSchematicWorld(worldAfter == null);
+        DataManager.getInstance().reset(worldAfter == null);
+        EntitiesDataStorage.getInstance().reset(worldAfter == null);
 
         if (worldAfter != null)
         {
             DataManager.load();
             SchematicConversionMaps.computeMaps();
+            EntitiesDataStorage.getInstance().onWorldJoin();
         }
         else
         {
