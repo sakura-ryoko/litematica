@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -813,7 +814,9 @@ public class SchematicPlacementManager
                     if (EntitiesDataStorage.getInstance().hasServuxServer())
                     {
                         Litematica.logger.warn("Found servux server, I am sending NBT to it.");
-                        ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(schematicPlacement.toNbt(true)));
+                        NbtCompound nbt = schematicPlacement.toNbt(true);
+                        nbt.putString("Task", "LitematicaPaste");
+                        ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(nbt));
                     }
                     else
                     {
