@@ -1066,13 +1066,13 @@ public class SchematicPlacement
         compound.putInt("Mirror", mirror.ordinal());
         NbtCompound subs = new NbtCompound();
         for (String name : relativeSubRegionPlacements.keySet()) {
-            NbtCompound compound1 = new NbtCompound();
+            NbtCompound sub = new NbtCompound();
             SubRegionPlacement subRegionPlacement = relativeSubRegionPlacements.get(name);
-            subs.put(name, compound1);
+            subs.put(name, sub);
 
-            compound.put("Pos", NbtHelper.fromBlockPos(subRegionPlacement.getPos()));
-            compound.putInt("Rotation", subRegionPlacement.getRotation().ordinal());
-            compound.putInt("Mirror", subRegionPlacement.getMirror().ordinal());
+            sub.put("Pos", NbtHelper.fromBlockPos(subRegionPlacement.getPos()));
+            sub.putInt("Rotation", subRegionPlacement.getRotation().ordinal());
+            sub.putInt("Mirror", subRegionPlacement.getMirror().ordinal());
         }
         compound.put("SubRegions", subs);
         return compound;
