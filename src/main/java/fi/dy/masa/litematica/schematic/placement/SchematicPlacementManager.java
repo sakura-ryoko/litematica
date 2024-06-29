@@ -813,7 +813,7 @@ public class SchematicPlacementManager
                 {
                     if (EntitiesDataStorage.getInstance().hasServuxServer())
                     {
-                        //Litematica.logger.warn("Found servux server, I am sending NBT to it.");
+                        Litematica.debugLog("Found servux server, I am sending NBT to it.");
                         InfoUtils.showGuiOrActionBarMessage(MessageType.INFO, "litematica.message.paste_with_servux");
                         NbtCompound nbt = schematicPlacement.toNbt(true);
                         nbt.putString("Task", "LitematicaPaste");

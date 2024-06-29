@@ -453,7 +453,7 @@
   "litematica.message.material_list_written_to_file": "材料列表写入文件 '%s'",
   "litematica.message.moved_area_origin": "移动区域原点 %s => %s",
   "litematica.message.moved_selection": "移动所选内容 %s => %s",
-  "litematica.message.paste_with_servux": "正在将展示位置上传至 Servux 进行粘贴",
+  "litematica.message.paste_with_servux": "§6正在将展示位置上传至 Servux 进行粘贴",
   "litematica.message.placement.cant_modify_is_locked": "§c展示位置已锁定且无法修改§r",
   "litematica.message.placement.moved_placement_origin": "已移动展示位置 原点%s => %s",
   "litematica.message.placement.moved_subregion_to": "移动子区域 to %s",

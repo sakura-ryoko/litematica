@@ -390,7 +390,7 @@
   "litematica.message.material_list_written_to_file": "Список матеріалів, записаний у файл \"%s\"",
   "litematica.message.moved_area_origin": "Початкову точку області перенесено з %s => %s",
   "litematica.message.moved_selection": "Переміщено поточний вибір із %s => %s",
-  "litematica.message.paste_with_servux": "Місце розміщення завантажується в Servux для вставки",
+  "litematica.message.paste_with_servux": "§6Місце розміщення завантажується в Servux для вставки",
   "litematica.message.placement.cant_modify_is_locked": "§cРозташування заблоковано і не може бути змінено§r",
   "litematica.message.placement.moved_placement_origin": "Перенесено джерело розташування з %s => %s",
   "litematica.message.placement.moved_subregion_to": "Субрегіон перенесено до %s",

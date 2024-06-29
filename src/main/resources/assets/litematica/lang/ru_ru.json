@@ -451,7 +451,7 @@
     "litematica.message.material_list_written_to_file": "Список материалов сохранён в файл \"%s\"",
     "litematica.message.moved_area_origin": "Точка привязки области изменена с %s → %s",
     "litematica.message.moved_selection": "Текущее выделение перемещено с %s → %s",
-    "litematica.message.paste_with_servux": "Место размещения загружается в Servux для вставки.",
+    "litematica.message.paste_with_servux": "§6Место размещения загружается в Servux для вставки.",
     "litematica.message.placement.cant_modify_is_locked": "§cРазмещение зафиксировано и не может быть перемещено§r",
     "litematica.message.placement.moved_placement_origin": "Точка привязки изменена с %s → %s",
     "litematica.message.placement.moved_subregion_to": "Подрегион перемещён на %s",
