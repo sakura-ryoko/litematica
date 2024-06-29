@@ -453,6 +453,7 @@
   "litematica.message.material_list_written_to_file": "Liste des matériaux écrite dans le fichier '%s'",
   "litematica.message.moved_area_origin": "Déplacé le point d'origine de la zone de %s => %s",
   "litematica.message.moved_selection": "Déplacé la sélection actuelle de %s => %s",
+  "litematica.message.paste_with_servux": "Le placement est en cours de téléchargement sur Servux pour être collé",
   "litematica.message.placement.cant_modify_is_locked": "§cLe placement est verrouillé et ne peut pas être modifié§r",
   "litematica.message.placement.moved_placement_origin": "Déplacé l'origine du placement de %s => %s",
   "litematica.message.placement.moved_subregion_to": "Déplacé la sous-région à %s",

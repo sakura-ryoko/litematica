@@ -809,11 +809,12 @@ public class SchematicPlacementManager
                     GuiConfirmAction screen = new GuiConfirmAction(320, "Confirm paste to command files", cl, null, "Are you sure you want to paste the current placement as setblock commands into command/mcfunction files?");
                     GuiBase.openGui(screen);
                 }
-                else if(mc.isIntegratedServerRunning() == false || Configs.Generic.PASTE_USING_COMMANDS_IN_SP.getBooleanValue())
+                else if (mc.isIntegratedServerRunning() == false || Configs.Generic.PASTE_USING_COMMANDS_IN_SP.getBooleanValue())
                 {
                     if (EntitiesDataStorage.getInstance().hasServuxServer())
                     {
-                        Litematica.logger.warn("Found servux server, I am sending NBT to it.");
+                        //Litematica.logger.warn("Found servux server, I am sending NBT to it.");
+                        InfoUtils.showGuiOrActionBarMessage(MessageType.INFO, "litematica.message.paste_with_servux");
                         NbtCompound nbt = schematicPlacement.toNbt(true);
                         nbt.putString("Task", "LitematicaPaste");
                         ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(nbt));

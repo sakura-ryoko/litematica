@@ -453,6 +453,7 @@
     "litematica.message.material_list_written_to_file": "Material list written to file '%s'",
     "litematica.message.moved_area_origin": "Moved the area origin point from %s => %s",
     "litematica.message.moved_selection": "Moved the current selection from %s => %s",
+    "litematica.message.paste_with_servux": "The placement is being uploaded to Servux for pasting",
     "litematica.message.placement.cant_modify_is_locked": "§cThe placement is locked and can't be modified§r",
     "litematica.message.placement.moved_placement_origin": "Moved placement origin from %s => %s",
     "litematica.message.placement.moved_subregion_to": "Moved sub-region to %s",
