@@ -12,6 +12,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.structure.StructurePlacementData;
@@ -1049,5 +1051,31 @@ public class SchematicPlacement
         }
 
         return color;
+    }
+
+    public NbtCompound toNbt(boolean withSchematic)
+    {
+        NbtCompound compound = new NbtCompound();
+        compound.putString("Name", name);
+        if (withSchematic)
+        {
+            compound.put("Schematics", schematic.writeToNBT());
+        }
+        compound.put("Origin", NbtHelper.fromBlockPos(origin));
+        compound.putInt("Rotation", rotation.ordinal());
+        compound.putInt("Mirror", mirror.ordinal());
+        NbtCompound subs = new NbtCompound();
+        for (String name : relativeSubRegionPlacements.keySet()) {
+            NbtCompound sub = new NbtCompound();
+            SubRegionPlacement subRegionPlacement = relativeSubRegionPlacements.get(name);
+            subs.put(name, sub);
+
+            sub.put("Pos", NbtHelper.fromBlockPos(subRegionPlacement.getPos()));
+            sub.putInt("Rotation", subRegionPlacement.getRotation().ordinal());
+            sub.putInt("Mirror", subRegionPlacement.getMirror().ordinal());
+            sub.putString("Name", subRegionPlacement.getName());
+        }
+        compound.put("SubRegions", subs);
+        return compound;
     }
 }
