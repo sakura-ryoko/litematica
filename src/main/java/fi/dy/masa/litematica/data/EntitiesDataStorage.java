@@ -288,6 +288,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             return;
         }
+
         HANDLER.encodeClientData(ServuxLitematicaPacket.BlockEntityRequest(pos));
     }
 
@@ -297,6 +298,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             return;
         }
+
         HANDLER.encodeClientData(ServuxLitematicaPacket.EntityRequest(entityId));
     }
 
