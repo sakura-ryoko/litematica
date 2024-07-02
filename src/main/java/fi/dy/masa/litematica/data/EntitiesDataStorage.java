@@ -68,6 +68,12 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             // In this block, we do something every server tick
 
+            if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() == false)
+            {
+                serverTickTime = System.currentTimeMillis();
+                return;
+            }
+
             // 5 queries / server tick
             for (int i = 0; i < Configs.Generic.SERVER_NBT_REQUEST_RATE.getIntegerValue(); i++)
             {
@@ -186,7 +192,8 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     public void requestMetadata()
     {
-        if (DataManager.getInstance().hasIntegratedServer() == false)
+        if (DataManager.getInstance().hasIntegratedServer() == false &&
+            Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
         {
             NbtCompound nbt = new NbtCompound();
             nbt.putString("version", Reference.MOD_STRING);
@@ -201,14 +208,18 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             Litematica.debugLog("EntitiesDataStorage#receiveServuxMetadata(): received METADATA from Servux");
 
-            if (data.getInt("version") != ServuxLitematicaPacket.PROTOCOL_VERSION)
+            if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
-                Litematica.logger.warn("entityDataChannel: Mis-matched protocol version!");
-            }
-            this.setServuxVersion(data.getString("servux"));
-            this.setIsServuxServer();
+                if (data.getInt("version") != ServuxLitematicaPacket.PROTOCOL_VERSION)
+                {
+                    Litematica.logger.warn("entityDataChannel: Mis-matched protocol version!");
+                }
 
-            return true;
+                this.setServuxVersion(data.getString("servux"));
+                this.setIsServuxServer();
+
+                return true;
+            }
         }
 
         return false;
@@ -235,6 +246,11 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     private void requestQueryBlockEntity(BlockPos pos)
     {
+        if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() == false)
+        {
+            return;
+        }
+
         ClientPlayNetworkHandler handler = this.getVanillaHandler();
 
         if (handler != null)
@@ -249,6 +265,11 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     private void requestQueryEntityData(int entityId)
     {
+        if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() == false)
+        {
+            return;
+        }
+
         ClientPlayNetworkHandler handler = this.getVanillaHandler();
 
         if (handler != null)
@@ -263,11 +284,19 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     private void requestServuxBlockEntityData(BlockPos pos)
     {
+        if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() == false)
+        {
+            return;
+        }
         HANDLER.encodeClientData(ServuxLitematicaPacket.BlockEntityRequest(pos));
     }
 
     private void requestServuxEntityData(int entityId)
     {
+        if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() == false)
+        {
+            return;
+        }
         HANDLER.encodeClientData(ServuxLitematicaPacket.EntityRequest(entityId));
     }
 

@@ -72,6 +72,9 @@ public abstract class MixinClientPlayNetworkHandler
     @Inject(method = "onNbtQueryResponse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/DataQueryHandler;handleQueryResponse(ILnet/minecraft/nbt/NbtCompound;)Z"))
     private void onQueryResponse(NbtQueryResponseS2CPacket packet, CallbackInfo ci)
     {
-        EntitiesDataStorage.getInstance().handleVanillaQueryNbt(packet.getTransactionId(), packet.getNbt());
+        if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
+        {
+            EntitiesDataStorage.getInstance().handleVanillaQueryNbt(packet.getTransactionId(), packet.getNbt());
+        }
     }
 }

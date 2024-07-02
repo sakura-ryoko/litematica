@@ -55,6 +55,8 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       EASY_PLACE_SP_HANDLING      = new ConfigBoolean("easyPlaceSinglePlayerHandling", true, "If enabled, then Litematica handles the so called\n\"Carpet mod Accurate Block Placement Protocol\" itself in single player.\nThis is recommended to be kept enabled if you\nare going to use Easy Place in single player.");
         public static final ConfigInteger       EASY_PLACE_SWAP_INTERVAL    = new ConfigInteger("easyPlaceSwapInterval", 0, 0, 10000, "The interval in milliseconds the Easy Place mode waits\nafter swapping inventory slots and placing a block.\nUseful to avoid placing wrong blocks when having high ping.");
         public static final ConfigBoolean       EASY_PLACE_VANILLA_REACH    = new ConfigBoolean("easyPlaceVanillaReach", false, "If enabled, reduces reach distance from 6 to 4.5\nso servers don't reject placement of far blocks.");
+        public static final ConfigBoolean       ENTITY_DATA_SYNC            = new ConfigBoolean("entityDataSync", true, "Use the Entity Data Sync protocol from Servux\nto obtain Entity Data from the server");
+        public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP     = new ConfigBoolean("entityDataSyncBackup", true, "Use the Vanilla NBT Query method when Servux\nis not available.  This method requires Operator Privileges.");
         public static final ConfigBoolean       EXECUTE_REQUIRE_TOOL        = new ConfigBoolean("executeRequireHoldingTool", true, "Require holding an enabled tool item\nfor the executeOperation hotkey to work");
         public static final ConfigBoolean       FIX_CHEST_MIRROR            = new ConfigBoolean("fixChestMirror", true, "Enable a fix to the broken chest mirror code in vanilla");
         public static final ConfigBoolean       FIX_RAIL_ROTATION           = new ConfigBoolean("fixRailRotation", true, "If true, then a fix is applied for the vanilla bug in rails,\nwhere the 180 degree rotations of straight north-south and\neast-west rails rotate 90 degrees counterclockwise instead >_>");
@@ -73,6 +75,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PASTE_TO_MCFUNCTION         = new ConfigBoolean("pasteToMcFunctionFiles", false, "If enabled, then instead of actually pasting schematics to the world,\nthey are written as setblock commands into text files.");
         public static final ConfigBoolean       PASTE_USE_FILL_COMMAND      = new ConfigBoolean("pasteUseFillCommand", true, "If enabled, then instead of only using individual /setblock commands,\nthe command-based Paste operation (which is used on servers)\nwill also try to use /fill commands for any continuous areas of the same block.\nThis has no effect in single player, since the mod sets the blocks directly\nin the integrated server's world in and doesn't use commands at all.");
         public static final ConfigBoolean       PASTE_USING_COMMANDS_IN_SP  = new ConfigBoolean("pasteUsingCommandsInSp", false, "This is a temporary hack workaround to use the command-based pasting\nalso in single player, which allows using the render layer limited\npasting in single player, which currently doesn't work with\nthe direct world access pasting that single player normally uses.\n\nNote that this will have all the same NBT data restoration\nlimitations that multiplayer pasting has normally.");
+        public static final ConfigBoolean       PASTE_USING_SERVUX          = new ConfigBoolean("pasteUsingServux", true, "Use Servux to paste a schematic directly to the server.\nThis method is much faster than the traditional\ncommand-based method, and it supports restoring\nEntity NBT Data.");
         public static final ConfigBoolean       PICK_BLOCK_AVOID_DAMAGEABLE = new ConfigBoolean("pickBlockAvoidDamageable", true, "Avoids replacing any damageable items in the hotbar");
         public static final ConfigBoolean       PICK_BLOCK_AVOID_TOOLS      = new ConfigBoolean("pickBlockAvoidTools", false, "Avoids replacing any tool items in the hotbar.\n\nThis means any items that extend the vanilla ToolItem class.");
         public static final ConfigBoolean       PICK_BLOCK_ENABLED          = new ConfigBoolean("pickBlockEnabled", true, "Enables the schematic world pick block hotkeys.\nThere is also a hotkey for toggling this option to toggle those hotkeys... o.o", "Pick Block Hotkeys");
@@ -104,6 +107,8 @@ public class Configs implements IConfigHandler
                 EASY_PLACE_SP_HANDLING,
                 EASY_PLACE_PROTOCOL,
                 EASY_PLACE_VANILLA_REACH,
+                ENTITY_DATA_SYNC,
+                ENTITY_DATA_SYNC_BACKUP,
                 EXECUTE_REQUIRE_TOOL,
                 FIX_CHEST_MIRROR,
                 FIX_RAIL_ROTATION,
@@ -123,6 +128,7 @@ public class Configs implements IConfigHandler
                 PASTE_TO_MCFUNCTION,
                 PASTE_USE_FILL_COMMAND,
                 PASTE_USING_COMMANDS_IN_SP,
+                PASTE_USING_SERVUX,
                 PICK_BLOCK_AVOID_DAMAGEABLE,
                 PICK_BLOCK_AVOID_TOOLS,
                 PICK_BLOCK_ENABLED,

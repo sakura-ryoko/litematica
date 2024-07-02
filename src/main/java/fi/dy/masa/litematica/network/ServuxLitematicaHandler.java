@@ -1,9 +1,6 @@
 package fi.dy.masa.litematica.network;
 
 import io.netty.buffer.Unpooled;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
@@ -11,7 +8,9 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.random.Random;
-import fi.dy.masa.malilib.network.ClientPlayHandler;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.PacketSplitter;
@@ -134,8 +133,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {
-            ((ClientPlayHandler<?>) ClientPlayHandler.getInstance()).decodeClientData(CHANNEL_ID, ((ServuxLitematicaPacket.Payload) payload).data());
-            // This allows the data to be "shared" among multiple mods
+            ServuxLitematicaHandler.INSTANCE.decodeClientData(CHANNEL_ID, ((ServuxLitematicaPacket.Payload) payload).data());
         }
     }
 
