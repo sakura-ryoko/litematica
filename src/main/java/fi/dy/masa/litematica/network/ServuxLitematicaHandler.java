@@ -79,7 +79,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     this.servuxRegistered = true;
                 }
             }
-            case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound());
+            case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound(), null);
             case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
             case PACKET_S2C_NBT_RESPONSE_DATA ->
             {
@@ -88,7 +88,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     this.readingSessionKey = Random.create(Util.getMeasuringTimeMs()).nextLong();
                 }
 
-                Litematica.debugLog("ServuxLitematicaHandler#decodeClientData(): received Entity Data Packet Slice of size {} (in bytes) // reading session key [{}]", packet.getTotalSize(), this.readingSessionKey);
+                //Litematica.debugLog("ServuxLitematicaHandler#decodeClientData(): received Entity Data Packet Slice of size {} (in bytes) // reading session key [{}]", packet.getTotalSize(), this.readingSessionKey);
                 PacketByteBuf fullPacket = PacketSplitter.receive(this, this.readingSessionKey, packet.getBuffer());
 
                 if (fullPacket != null)
@@ -96,8 +96,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     try
                     {
                         this.readingSessionKey = -1;
-                        EntitiesDataStorage.getInstance().handleEntityData(fullPacket.readVarInt(), fullPacket.readNbt());
-                        // FIXME --> handleBulkData
+                        EntitiesDataStorage.getInstance().handleBulkEntityData(fullPacket.readVarInt(), fullPacket.readNbt());
                     }
                     catch (Exception e)
                     {

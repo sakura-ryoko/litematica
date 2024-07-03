@@ -1,14 +1,13 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -59,7 +58,35 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         {
             return this.schematicWorld != null && this.schematicWorld.getChunkManager().isChunkLoaded(pos.x, pos.z);
         }
-        
+
+        // Request entity data from Servux, if the ClientWorld matches, and treat it as not yet loaded
+        if (EntitiesDataStorage.getInstance().hasServuxServer() &&
+            Objects.equals(EntitiesDataStorage.getInstance().getWorld(), this.clientWorld))
+        {
+            if (EntitiesDataStorage.getInstance().hasCompletedChunk(pos))
+            {
+                return this.areSurroundingChunksLoaded(pos, this.clientWorld, 0);
+            }
+            else if (EntitiesDataStorage.getInstance().hasPendingChunk(pos) == false)
+            {
+                ImmutableMap<String, IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x, pos.z, this.subRegions);
+                int minY = 319;         // Invert Values
+                int maxY = -60;
+
+                for (Map.Entry<String, IntBoundingBox> volumeEntry : volumes.entrySet())
+                {
+                    IntBoundingBox bb = volumeEntry.getValue();
+
+                    minY = Math.min(bb.minY, minY);
+                    maxY = Math.max(bb.maxY, maxY);
+                }
+
+                EntitiesDataStorage.getInstance().requestServuxBulkEntityData(pos, minY, maxY);
+            }
+
+            return false;
+        }
+
         return this.areSurroundingChunksLoaded(pos, this.clientWorld, 0);
     }
 
@@ -73,6 +100,14 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         if (this.info.ignoreEntities == false)
         {
             this.schematic.takeEntitiesFromWorldWithinChunk(world, pos.x, pos.z, volumes, this.subRegions, this.existingEntities, this.origin);
+        }
+
+        if (EntitiesDataStorage.getInstance().hasServuxServer() &&
+            EntitiesDataStorage.getInstance().hasCompletedChunk(pos) &&
+            Objects.equals(EntitiesDataStorage.getInstance().getWorld(), this.clientWorld))
+        {
+            EntitiesDataStorage.getInstance().markCompletedChunkDirty(pos);
+            // Mark Dirty for refresh
         }
 
         return true;

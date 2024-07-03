@@ -8,6 +8,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.litematica.Litematica;
 
@@ -18,6 +19,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
     private int entityId;
     private BlockPos pos;
     private NbtCompound nbt;
+    private ChunkPos chunkPos;
     private PacketByteBuf buffer;
     public static final int PROTOCOL_VERSION = 1;
 
@@ -27,6 +29,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
         this.transactionId = -1;
         this.entityId = -1;
         this.pos = BlockPos.ORIGIN;
+        this.chunkPos = ChunkPos.ORIGIN;
         this.nbt = new NbtCompound();
         this.clearPacket();
     }
@@ -85,6 +88,17 @@ public class ServuxLitematicaPacket implements IClientPayloadData
     {
         var packet = new ServuxLitematicaPacket(Type.PACKET_C2S_ENTITY_REQUEST);
         packet.entityId = entityId;
+        return packet;
+    }
+
+    public static ServuxLitematicaPacket BulkNbtRequest(ChunkPos chunkPos, @Nullable NbtCompound nbt)
+    {
+        var packet = new ServuxLitematicaPacket(Type.PACKET_C2S_BULK_ENTITY_NBT_REQUEST);
+        packet.chunkPos = chunkPos;
+        if (nbt != null)
+        {
+            packet.nbt.copyFrom(nbt);
+        }
         return packet;
     }
 
@@ -173,6 +187,8 @@ public class ServuxLitematicaPacket implements IClientPayloadData
         return this.nbt;
     }
 
+    public ChunkPos getChunkPos() { return this.chunkPos; }
+
     public PacketByteBuf getBuffer()
     {
         return this.buffer;
@@ -243,6 +259,18 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 catch (Exception e)
                 {
                     Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Entity Response to packet: [{}]", e.getLocalizedMessage());
+                }
+            }
+            case PACKET_C2S_BULK_ENTITY_NBT_REQUEST ->
+            {
+                try
+                {
+                    output.writeChunkPos(this.chunkPos);
+                    output.writeNbt(this.nbt);
+                }
+                catch (Exception e)
+                {
+                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Bulk Entity Request to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_NBT_RESPONSE_DATA, PACKET_C2S_NBT_RESPONSE_DATA ->
@@ -335,6 +363,17 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                     Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Entity Response from packet: [{}]", e.getLocalizedMessage());
                 }
             }
+            case PACKET_C2S_BULK_ENTITY_NBT_REQUEST ->
+            {
+                try
+                {
+                    return ServuxLitematicaPacket.BulkNbtRequest(input.readChunkPos(), input.readNbt());
+                }
+                catch (Exception e)
+                {
+                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Bulk Entity Request from packet: [{}]", e.getLocalizedMessage());
+                }
+            }
             case PACKET_S2C_NBT_RESPONSE_DATA ->
             {
                 // Read Packet Buffer Slice
@@ -425,6 +464,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
         PACKET_C2S_ENTITY_REQUEST(4),
         PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE(5),
         PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE(6),
+        PACKET_C2S_BULK_ENTITY_NBT_REQUEST(7),
         // For Packet Splitter (Oversize Packets, S2C)
         PACKET_S2C_NBT_RESPONSE_START(10),
         PACKET_S2C_NBT_RESPONSE_DATA(11),
