@@ -48,6 +48,7 @@ public class Configs implements IConfigHandler
         public static final ConfigInteger       COMMAND_TASK_INTERVAL       = new ConfigInteger("commandTaskInterval", 1, 1, 1000, "litematica.config.generic.comment.commandTaskInterval").translatedName("litematica.config.generic.name.commandTaskInterval");
         public static final ConfigBoolean       COMMAND_USE_WORLDEDIT       = new ConfigBoolean("commandUseWorldEdit", false, "litematica.config.generic.comment.commandUseWorldEdit").translatedName("litematica.config.generic.name.commandUseWorldEdit");
         public static final ConfigBoolean       DEBUG_LOGGING               = new ConfigBoolean("debugLogging", false, "litematica.config.generic.comment.debugLogging").translatedName("litematica.config.generic.name.debugLogging");
+        public static final ConfigOptionList    DATAFIXER_MODE              = new ConfigOptionList("datafixerMode", DataFixerMode.ALWAYS, "litematica.config.generic.comment.datafixerMode").translatedName("litematica.config.generic.name.datafixerMode");
         public static final ConfigInteger       DATAFIXER_DEFAULT_SCHEMA    = new ConfigInteger("datafixerDefaultSchema", 1139, 99, 2724, true, "litematica.config.generic.comment.datafixerDefaultSchema").translatedName("litematica.config.generic.name.datafixerDefaultSchema");
         public static final ConfigBoolean       EASY_PLACE_FIRST            = new ConfigBoolean("easyPlaceFirst", true, "litematica.config.generic.comment.easyPlaceFirst").translatedName("litematica.config.generic.name.easyPlaceFirst");
         public static final ConfigBoolean       EASY_PLACE_HOLD_ENABLED     = new ConfigBoolean("easyPlaceHoldEnabled", true, "litematica.config.generic.comment.easyPlaceHoldEnabled").translatedName("litematica.config.generic.name.easyPlaceHoldEnabled");
@@ -100,6 +101,7 @@ public class Configs implements IConfigHandler
                 COMMAND_USE_WORLDEDIT,
                 CUSTOM_SCHEMATIC_BASE_DIRECTORY_ENABLED,
                 DEBUG_LOGGING,
+                DATAFIXER_MODE,
                 DATAFIXER_DEFAULT_SCHEMA,
                 EASY_PLACE_FIRST,
                 EASY_PLACE_HOLD_ENABLED,

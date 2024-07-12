@@ -22,6 +22,7 @@
     "litematica.config.generic.name.commandTaskInterval": "commandTaskInterval",
     "litematica.config.generic.name.commandUseWorldEdit": "commandUseWorldEdit",
     "litematica.config.generic.name.debugLogging": "debugLogging",
+    "litematica.config.generic.name.datafixerMode": "datafixerMode",
     "litematica.config.generic.name.datafixerDefaultSchema": "datafixerDefaultSchema",
     "litematica.config.generic.name.easyPlaceFirst": "easyPlaceFirst",
     "litematica.config.generic.name.easyPlaceHoldEnabled": "easyPlaceHoldEnabled",
@@ -233,6 +234,7 @@
     "litematica.config.generic.comment.commandTaskInterval": "The interval in game ticks the Paste, Fill and Delete tasks\nare executed at. The commandLimitPerTick config sets the maximum\nnumber of commands to send per execution, and this config\nsets the interval in game ticks before the next execution.",
     "litematica.config.generic.comment.commandUseWorldEdit": "If enabled, instead of using the configured setblock and fill commands,\nthe World Edit //pos1, //pos2 and //set commands are used.\nNote that using World Edit commands is around 3x slower\nthan using vanilla commands due to the command limit per tick,\nand WE requiring multiple commands per block or area (//pos1 //pos2 //set).\n§6WARNING: The paste replace behavior option WILL NOT WORK if using\n§6the World Edit commands and fill volumes instead of individual setblock commands!\nThus it's recommended to use the vanilla commands, if you have the permission to run them.\nOne other thing that might make you prefer WE commands in some cases\nis that they can prevent block updates, if the server doesn't have\nthe Carpet mod and thus the '/carpet fillUpdates false' rule available.",
     "litematica.config.generic.comment.debugLogging": "Enables some debug log messages in the game console,\nfor debugging certain issues or crashes.",
+    "litematica.config.generic.comment.datafixerMode": "The configurable data fixer level to apply to loaded schematics.\nThis option can improve performance of loading\nschematics by bypassing the Vanilla Data Fixer,\nbut this can also cause severe data loss if it is disabled.",
     "litematica.config.generic.comment.datafixerDefaultSchema": "Default Schema Value for the Vanilla Data Fixer\n\nUsed to adjust the lowest possible value, and the value used\nwhen the loaded schematic does not contain this information.\n\n§6WARNING:  This setting is meant to be used at the direction\n§6from a Litematica developer such as masa themselves.\n§6When in doubt, keep the default for Minecraft 1.12.",
     "litematica.config.generic.comment.easyPlaceFirst": "This causes the Easy Place mode to place the first/closest block\nyou are looking at first, instead of the furthest/bottom-most block.\nSetting this to false allows you to place multiple layers \"at once\",\nsince the furthest blocks would be placed before the closer ones block the line of sight.",
     "litematica.config.generic.comment.easyPlaceHoldEnabled": "When enabled, then you can hold down the use key\nand look at different schematic blocks to place them,\nwithout having to click on every block individually.",
@@ -463,6 +465,7 @@
     "litematica.error.area_editor.rename_sub_region.exists": "Failed to rename the sub-region:\nA sub-region already exists by the name '%s'",
     "litematica.error.area_editor.switch_mode.no_selection": "Can't switch to Selection Mode: Normal, because there is currently no area selected.\nSelect an area or create a new selection in the Area Selection browser",
 
+    "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Failed to create the Litematica schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Failed to load the Schematic",
     "litematica.error.schematic_conversion.structure_to_litematica_failed": "Failed to convert the Structure to a Litematica Schematic",
@@ -674,6 +677,16 @@
     "litematica.gui.label.easy_place_protocol.slabs_only": "Slabs only",
     "litematica.gui.label.easy_place_protocol.v2": "Version 2",
     "litematica.gui.label.easy_place_protocol.v3": "Version 3",
+
+    "litematica.gui.label.data_fixer_mode.always": "Always",
+    "litematica.gui.label.data_fixer_mode.below_1205": "Below 1.20.5 Only",
+    "litematica.gui.label.data_fixer_mode.below_120X": "Below 1.20.x Only",
+    "litematica.gui.label.data_fixer_mode.below_119X": "Below 1.19.x Only",
+    "litematica.gui.label.data_fixer_mode.below_117X": "Below 1.17.x Only",
+    "litematica.gui.label.data_fixer_mode.below_116X": "Below 1.16.x Only",
+    "litematica.gui.label.data_fixer_mode.below_113X": "Below 1.13.x Only",
+    "litematica.gui.label.data_fixer_mode.below_112X": "Below 1.12.x Only",
+    "litematica.gui.label.data_fixer_mode.never": "Never",
 
     "litematica.gui.label.loaded_schematic.modified_on": "§6Modified on %s§r",
 
@@ -893,6 +906,7 @@
     "litematica.message.easy_place_fail": "§6Action prevented by the Easy Place mode",
     "litematica.message.grabbed_element_for_moving": "Grabbed an element to move",
     "litematica.message.in_memory_schematic_created": "Created an in-memory schematic as '%s'",
+    "litematica.message.litematic_saved_as": "Successfully Upgraded the Litematica Schematic's Data Version\\nSchematic saved as '%s'",
     "litematica.message.material_list.material_cache_cleared": "Material Cache cleared",
     "litematica.message.material_list_written_to_file": "Material list written to file '%s'",
     "litematica.message.moved_area_origin": "Moved the area origin point from %s => %s",
