@@ -234,10 +234,7 @@ public class RenderUtils
             BufferRenderer.drawWithGlobalProgram(meshData);
             meshData.close();
         }
-        catch (Exception e)
-        {
-            Litematica.logger.error("drawBoundingBoxEdges: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
-        }
+        catch (Exception ignored) { }
     }
 
     private static void drawBoundingBoxLinesX(BufferBuilder buffer, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color)
@@ -303,10 +300,7 @@ public class RenderUtils
             BufferRenderer.drawWithGlobalProgram(meshData);
             meshData.close();
         }
-        catch (Exception e)
-        {
-            Litematica.logger.error("renderAreaSides: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
-        }
+        catch (Exception ignored) { }
 
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
@@ -489,10 +483,7 @@ public class RenderUtils
             BufferRenderer.drawWithGlobalProgram(meshData);
             meshData.close();
         }
-        catch (Exception e)
-        {
-            Litematica.logger.error("renderAreaOutlineNoCorners: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
-        }
+        catch (Exception ignored) { }
     }
 
     /**
@@ -578,11 +569,11 @@ public class RenderUtils
 
     private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
     {
-        final int size = quads.size();
+        //final int size = quads.size();
 
-        for (int i = 0; i < size; i++)
+        for (BakedQuad quad : quads)
         {
-            renderModelQuadOverlayBatched(pos, buffer, color, quads.get(i).getVertexData());
+            renderModelQuadOverlayBatched(pos, buffer, color, quad.getVertexData());
         }
     }
 

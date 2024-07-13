@@ -9,7 +9,7 @@ import net.minecraft.client.render.RenderLayer;
 public class BufferBuilderCache implements AutoCloseable
 {
     private final ConcurrentHashMap<RenderLayer, BufferBuilderPatch> blockBufferBuilders = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<ChunkRendererSchematicVbo.OverlayRenderType, BufferBuilderPatch> overlayBufferBuilders = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<OverlayRenderType, BufferBuilderPatch> overlayBufferBuilders = new ConcurrentHashMap<>();
 
     protected BufferBuilderCache() { }
 
@@ -18,7 +18,7 @@ public class BufferBuilderCache implements AutoCloseable
         return blockBufferBuilders.containsKey(layer);
     }
 
-    protected boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected boolean hasBufferByOverlay(OverlayRenderType type)
     {
         return overlayBufferBuilders.containsKey(type);
     }
@@ -28,7 +28,7 @@ public class BufferBuilderCache implements AutoCloseable
         return blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilderPatch(allocators.getBufferByLayer(key), key.getDrawMode(), key.getVertexFormat()));
     }
 
-    protected BufferBuilderPatch getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilderPatch getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
         return overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilderPatch(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
     }

@@ -12,19 +12,41 @@ import net.minecraft.client.util.BufferAllocator;
 public class BufferAllocatorCache implements AutoCloseable
 {
     protected static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
-    protected static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
+    protected static final List<OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
     protected static final int EXPECTED_TOTAL_SIZE;
     private final ConcurrentHashMap<RenderLayer, BufferAllocator> layerCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<ChunkRendererSchematicVbo.OverlayRenderType, BufferAllocator> overlayCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<OverlayRenderType, BufferAllocator> overlayCache = new ConcurrentHashMap<>();
 
     protected BufferAllocatorCache() { }
+
+    protected void allocateCache()
+    {
+        for (RenderLayer layer : LAYERS)
+        {
+            if (this.layerCache.containsKey(layer))
+            {
+                this.layerCache.get(layer).close();
+            }
+
+            this.layerCache.put(layer, new BufferAllocator(layer.getExpectedBufferSize()));
+        }
+        for (OverlayRenderType type : TYPES)
+        {
+            if (this.overlayCache.containsKey(type))
+            {
+                this.overlayCache.get(type).close();
+            }
+
+            this.overlayCache.put(type, new BufferAllocator(type.getExpectedBufferSize()));
+        }
+    }
 
     protected boolean hasBufferByLayer(RenderLayer layer)
     {
         return this.layerCache.containsKey(layer);
     }
 
-    protected boolean hasBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected boolean hasBufferByOverlay(OverlayRenderType type)
     {
         return this.overlayCache.containsKey(type);
     }
@@ -34,7 +56,7 @@ public class BufferAllocatorCache implements AutoCloseable
         return this.layerCache.computeIfAbsent(layer, l -> new BufferAllocator(l.getExpectedBufferSize()));
     }
 
-    protected BufferAllocator getBufferByOverlay(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected BufferAllocator getBufferByOverlay(OverlayRenderType type)
     {
         return this.overlayCache.computeIfAbsent(type, t -> new BufferAllocator(t.getExpectedBufferSize()));
     }
@@ -48,7 +70,7 @@ public class BufferAllocatorCache implements AutoCloseable
         catch (Exception ignored) { }
     }
 
-    protected void closeByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected void closeByType(OverlayRenderType type)
     {
         try
         {
@@ -103,6 +125,6 @@ public class BufferAllocatorCache implements AutoCloseable
 
     static
     {
-        EXPECTED_TOTAL_SIZE = LAYERS.stream().mapToInt(RenderLayer::getExpectedBufferSize).sum() + TYPES.stream().mapToInt(ChunkRendererSchematicVbo.OverlayRenderType::getExpectedBufferSize).sum();
+        EXPECTED_TOTAL_SIZE = LAYERS.stream().mapToInt(RenderLayer::getExpectedBufferSize).sum() + TYPES.stream().mapToInt(OverlayRenderType::getExpectedBufferSize).sum();
     }
 }

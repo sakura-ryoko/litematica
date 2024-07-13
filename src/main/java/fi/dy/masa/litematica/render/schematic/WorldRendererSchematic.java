@@ -26,13 +26,15 @@ import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
+import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
+import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -42,6 +44,7 @@ public class WorldRendererSchematic
     private final EntityRenderDispatcher entityRenderDispatcher;
     private final BlockRenderManager blockRenderManager;
     private final BlockModelRendererSchematic blockModelRenderer;
+    private final OverlayModelRendererSchematic overlayRenderer;
     private final Set<BlockEntity> blockEntities = new HashSet<>();
     private final List<ChunkRendererSchematicVbo> renderInfos = new ArrayList<>(1024);
     private final BufferBuilderStorage bufferBuilders;
@@ -82,6 +85,7 @@ public class WorldRendererSchematic
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
+        this.overlayRenderer = new OverlayModelRendererSchematic();
     }
 
     public void markNeedsUpdate()
@@ -648,8 +652,14 @@ public class WorldRendererSchematic
             }
             else
             {
+                /*
                 return renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
+                 */
+
+                // --> Vanilla for debugging
+                this.blockRenderManager.renderBlock(state, pos, world, matrixStack, bufferBuilderIn, true, Random.create(state.getRenderingSeed(pos)));
+                return renderType == BlockRenderType.MODEL;
             }
         }
         catch (Throwable throwable)
@@ -664,6 +674,30 @@ public class WorldRendererSchematic
     public void renderFluid(BlockRenderView world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
         this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
+    }
+
+    public boolean renderOverlayModel(OverlayRenderType renderType, OverlayType type,
+                                      BlockRenderView schematicWorldIn, BlockRenderView clientWorldIn,
+                                      BlockState stateSchematic, BlockPos posIn, BlockPos relPos,
+                                      Color4f color, BufferBuilder bufferBuilderIn,
+                                      boolean missing, boolean ignoreFluids)
+    {
+        BakedModel model = this.getModelForState(stateSchematic);
+
+        switch (renderType)
+        {
+            case QUAD ->
+            {
+                return this.overlayRenderer.renderQuads(model, type, schematicWorldIn, clientWorldIn, stateSchematic,
+                        posIn, relPos, color, bufferBuilderIn, missing, ignoreFluids);
+            }
+            case OUTLINE ->
+            {
+                return this.overlayRenderer.renderOutlines(model, type, schematicWorldIn, clientWorldIn, stateSchematic,
+                        posIn, relPos, color, bufferBuilderIn, missing, ignoreFluids);
+            }
+            default -> { return false; }
+        }
     }
 
     public BakedModel getModelForState(BlockState state)

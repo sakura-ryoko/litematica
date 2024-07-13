@@ -12,7 +12,7 @@ public class BufferBuilderPatch extends BufferBuilder
     public BufferBuilderPatch(BufferAllocator arg, VertexFormat.DrawMode drawMode, VertexFormat vertexFormat)
     {
         super(arg, drawMode, vertexFormat);
-        this.offsetY = 0;
+        this.offsetY = (float) 0;
     }
 
     public void setOffsetY(float offset)

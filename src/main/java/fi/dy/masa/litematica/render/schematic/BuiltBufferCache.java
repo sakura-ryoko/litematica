@@ -10,7 +10,7 @@ import net.minecraft.client.render.RenderLayer;
 public class BuiltBufferCache implements AutoCloseable
 {
     private final ConcurrentHashMap<RenderLayer, BuiltBuffer> layerBuffers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<ChunkRendererSchematicVbo.OverlayRenderType, BuiltBuffer> overlayBuffers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<OverlayRenderType, BuiltBuffer> overlayBuffers = new ConcurrentHashMap<>();
 
     protected BuiltBufferCache() { }
 
@@ -19,7 +19,7 @@ public class BuiltBufferCache implements AutoCloseable
         return this.layerBuffers.containsKey(layer);
     }
 
-    protected boolean hasBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected boolean hasBuiltBufferByType(OverlayRenderType type)
     {
         return this.overlayBuffers.containsKey(type);
     }
@@ -33,7 +33,7 @@ public class BuiltBufferCache implements AutoCloseable
         this.layerBuffers.put(layer, newBuffer);
     }
 
-    protected void storeBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type, @Nonnull BuiltBuffer newBuffer)
+    protected void storeBuiltBufferByType(OverlayRenderType type, @Nonnull BuiltBuffer newBuffer)
     {
         if (this.hasBuiltBufferByType(type))
         {
@@ -49,7 +49,7 @@ public class BuiltBufferCache implements AutoCloseable
     }
 
     @Nullable
-    protected BuiltBuffer getBuiltBufferByType(ChunkRendererSchematicVbo.OverlayRenderType type)
+    protected BuiltBuffer getBuiltBufferByType(OverlayRenderType type)
     {
         return this.overlayBuffers.get(type);
     }

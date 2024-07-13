@@ -8,7 +8,7 @@ import net.minecraft.client.render.RenderLayer;
 public record ChunkRenderLayers()
 {
     public static final List<RenderLayer> LAYERS = getLayers();
-    public static final List<ChunkRendererSchematicVbo.OverlayRenderType> TYPES = getTypes();
+    public static final List<OverlayRenderType> TYPES = getTypes();
 
     private static List<RenderLayer> getLayers()
     {
@@ -20,10 +20,10 @@ public record ChunkRenderLayers()
         return list;
     }
 
-    private static List<ChunkRendererSchematicVbo.OverlayRenderType> getTypes()
+    private static List<OverlayRenderType> getTypes()
     {
         // In case we need to add additional Types in the future
-        return Arrays.stream(ChunkRendererSchematicVbo.OverlayRenderType.values()).toList();
+        return Arrays.stream(OverlayRenderType.values()).toList();
     }
 
     public static String getFriendlyName(RenderLayer layer)

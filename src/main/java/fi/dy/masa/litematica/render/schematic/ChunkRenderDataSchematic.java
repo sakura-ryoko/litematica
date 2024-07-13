@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDataSchematic implements AutoCloseable
 {
@@ -75,6 +74,12 @@ public class ChunkRenderDataSchematic implements AutoCloseable
         this.blockLayersUsed.add(layer);
     }
 
+    protected void setBlockLayerUnused(RenderLayer layer)
+    {
+        this.blockLayersStarted.remove(layer);
+        this.blockLayersUsed.remove(layer);
+    }
+
     public boolean isOverlayEmpty()
     {
         return this.overlayEmpty;
@@ -99,6 +104,12 @@ public class ChunkRenderDataSchematic implements AutoCloseable
     {
         this.overlayEmpty = false;
         this.overlayLayersUsed.add(type);
+    }
+
+    protected void setOverlayTypeUnused(OverlayRenderType type)
+    {
+        this.overlayLayersStarted.remove(type);
+        this.overlayLayersUsed.remove(type);
     }
 
     public List<BlockEntity> getBlockEntities()

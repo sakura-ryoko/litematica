@@ -25,7 +25,6 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDispatcherLitematica
 {
@@ -396,12 +395,14 @@ public class ChunkRenderDispatcherLitematica
         if (allocator == null)
         {
             allocators.closeByLayer(layer);
+            compiledChunk.setBlockLayerUnused(layer);
             throw new InterruptedException("BufferAllocators are invalid");
         }
 
         if (renderBuffer == null)
         {
-            throw new InterruptedException("BuiltBuffer was not built");
+            compiledChunk.setBlockLayerUnused(layer);
+            return;
         }
 
         VertexBuffer vertexBuffer = renderChunk.getBlocksVertexBufferByLayer(layer);
@@ -446,12 +447,14 @@ public class ChunkRenderDispatcherLitematica
         if (allocator == null)
         {
             allocators.closeByType(type);
+            compiledChunk.setOverlayTypeUnused(type);
             throw new InterruptedException("BufferAllocators are invalid");
         }
 
         if (renderBuffer == null)
         {
-            throw new InterruptedException("BuiltBuffer was not built");
+            compiledChunk.setOverlayTypeUnused(type);
+            return;
         }
 
         VertexBuffer vertexBuffer = renderChunk.getOverlayVertexBuffer(type);

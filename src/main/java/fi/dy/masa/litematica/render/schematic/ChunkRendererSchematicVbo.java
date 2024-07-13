@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
+import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -22,7 +23,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.chunk.WorldChunk;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
@@ -463,8 +467,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     bufferSchematic = this.preRenderBlocks(layer, allocators);
                 }
 
-                //Litematica.logger.error("renderBlocksAndOverlay() -> renderBlock() [VBO] layer: [{}] //  stateSchematic [{}]", ChunkRenderLayers.getFriendlyName(layer), stateSchematic.toString());
-
                 if (this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, matrixStack, bufferSchematic))
                 {
                     usedLayers.add(layer);
@@ -479,9 +481,9 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue())
         {
-            OverlayType type = this.getOverlayType(stateSchematic, stateClient);
+            OverlayType type = OverlayModelRendererSchematic.getOverlayType(stateSchematic, stateClient, this.ignoreClientWorldFluids);
 
-            this.overlayColor = this.getOverlayColor(type);
+            this.overlayColor = OverlayModelRendererSchematic.getOverlayColor(type);
 
             if (this.overlayColor != null)
             {
@@ -509,55 +511,9 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 bufferOverlayQuads = this.preRenderOverlay(overlayType, allocators);
             }
 
-            if (Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue())
+            if (this.worldRenderer.renderOverlayModel(overlayType, type, this.schematicWorldView, this.clientWorldView, stateSchematic, pos, relPos, this.overlayColor, bufferOverlayQuads, missing, this.ignoreClientWorldFluids))
             {
-                BlockPos.Mutable posMutable = new BlockPos.Mutable();
-
-                for (int i = 0; i < 6; ++i)
-                {
-                    Direction side = fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS[i];
-                    posMutable.set(pos.getX() + side.getOffsetX(), pos.getY() + side.getOffsetY(), pos.getZ() + side.getOffsetZ());
-                    BlockState adjStateSchematic = this.schematicWorldView.getBlockState(posMutable);
-                    BlockState adjStateClient    = this.clientWorldView.getBlockState(posMutable);
-
-                    OverlayType typeAdj = this.getOverlayType(adjStateSchematic, adjStateClient);
-
-                    // Only render the model-based outlines or sides for missing blocks
-                    if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue())
-                    {
-                        BakedModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
-
-                        if (type.getRenderPriority() > typeAdj.getRenderPriority() ||
-                            Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side) == false)
-                        {
-                            RenderUtils.drawBlockModelQuadOverlayBatched(bakedModel, stateSchematic, relPos, side, this.overlayColor, 0, bufferOverlayQuads);
-                        }
-                    }
-                    else
-                    {
-                        if (type.getRenderPriority() > typeAdj.getRenderPriority())
-                        {
-                            RenderUtils.drawBlockBoxSideBatchedQuads(relPos, side, this.overlayColor, 0, bufferOverlayQuads);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Only render the model-based outlines or sides for missing blocks
-                if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue())
-                {
-                    BakedModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
-                    RenderUtils.drawBlockModelQuadOverlayBatched(bakedModel, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayQuads);
-                }
-                else
-                {
-                    try
-                    {
-                        fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxSidesBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads);
-                    }
-                    catch (Exception ignored) { }
-                }
+                // Success
             }
         }
 
@@ -572,70 +528,9 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 bufferOverlayOutlines = this.preRenderOverlay(overlayType, allocators);
             }
 
-            this.overlayColor = new Color4f(this.overlayColor.r, this.overlayColor.g, this.overlayColor.b, 1f);
-
-            if (Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue())
+            if (this.worldRenderer.renderOverlayModel(overlayType, type, this.schematicWorldView, this.clientWorldView, stateSchematic, pos, relPos, this.overlayColor, bufferOverlayOutlines, missing, this.ignoreClientWorldFluids))
             {
-                OverlayType[][][] adjTypes = new OverlayType[3][3][3];
-                BlockPos.Mutable posMutable = new BlockPos.Mutable();
-
-                for (int y = 0; y <= 2; ++y)
-                {
-                    for (int z = 0; z <= 2; ++z)
-                    {
-                        for (int x = 0; x <= 2; ++x)
-                        {
-                            if (x != 1 || y != 1 || z != 1)
-                            {
-                                posMutable.set(pos.getX() + x - 1, pos.getY() + y - 1, pos.getZ() + z - 1);
-                                BlockState adjStateSchematic = this.schematicWorldView.getBlockState(posMutable);
-                                BlockState adjStateClient    = this.clientWorldView.getBlockState(posMutable);
-                                adjTypes[x][y][z] = this.getOverlayType(adjStateSchematic, adjStateClient);
-                            }
-                            else
-                            {
-                                adjTypes[x][y][z] = type;
-                            }
-                        }
-                    }
-                }
-
-                // Only render the model-based outlines or sides for missing blocks
-                if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.getBooleanValue())
-                {
-                    BakedModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
-
-                    // FIXME: how to implement this correctly here... >_>
-                    if (stateSchematic.isOpaque())
-                    {
-                        this.renderOverlayReducedEdges(pos, adjTypes, type, bufferOverlayOutlines);
-                    }
-                    else
-                    {
-                        RenderUtils.drawBlockModelOutlinesBatched(bakedModel, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayOutlines);
-                    }
-                }
-                else
-                {
-                    this.renderOverlayReducedEdges(pos, adjTypes, type, bufferOverlayOutlines);
-                }
-            }
-            else
-            {
-                // Only render the model-based outlines or sides for missing blocks
-                if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.getBooleanValue())
-                {
-                    BakedModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
-                    RenderUtils.drawBlockModelOutlinesBatched(bakedModel, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayOutlines);
-                }
-                else
-                {
-                    try
-                    {
-                        fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(relPos, this.overlayColor, 0, bufferOverlayOutlines);
-                    }
-                    catch (Exception ignored) { }
-                }
+                // Success
             }
         }
     }
@@ -643,169 +538,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected BlockPos.Mutable getChunkRelativePosition(BlockPos pos)
     {
         return this.chunkRelativePos.set(pos.getX() & 0xF, pos.getY() - this.position.getY(), pos.getZ() & 0xF);
-    }
-
-    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, BufferBuilder bufferOverlayOutlines)
-    {
-        OverlayType[] neighborTypes = new OverlayType[4];
-        Vec3i[] neighborPositions = new Vec3i[4];
-        int lines = 0;
-
-        for (Direction.Axis axis : PositionUtils.AXES_ALL)
-        {
-            for (int corner = 0; corner < 4; ++corner)
-            {
-                Vec3i[] offsets = PositionUtils.getEdgeNeighborOffsets(axis, corner);
-                int index = -1;
-                boolean hasCurrent = false;
-
-                // Find the position(s) around a given edge line that have the shared greatest rendering priority
-                for (int i = 0; i < 4; ++i)
-                {
-                    Vec3i offset = offsets[i];
-                    OverlayType type = adjTypes[offset.getX() + 1][offset.getY() + 1][offset.getZ() + 1];
-
-                    // type NONE
-                    if (type == OverlayType.NONE)
-                    {
-                        continue;
-                    }
-
-                    // First entry, or sharing at least the current highest found priority
-                    if (index == -1 || type.getRenderPriority() >= neighborTypes[index - 1].getRenderPriority())
-                    {
-                        // Actually a new highest priority, add it as the first entry and rewind the index
-                        if (index < 0 || type.getRenderPriority() > neighborTypes[index - 1].getRenderPriority())
-                        {
-                            index = 0;
-                        }
-                        // else: Same priority as a previous entry, append this position
-
-                        //System.out.printf("plop 0 axis: %s, corner: %d, i: %d, index: %d, type: %s\n", axis, corner, i, index, type);
-                        neighborPositions[index] = new Vec3i(pos.getX() + offset.getX(), pos.getY() + offset.getY(), pos.getZ() + offset.getZ());
-                        neighborTypes[index] = type;
-                        // The self position is the first (offset = [0, 0, 0]) in the arrays
-                        hasCurrent |= (i == 0);
-                        ++index;
-                    }
-                }
-
-                //System.out.printf("plop 1 index: %d, pos: %s\n", index, pos);
-                // Found something to render, and the current block is among the highest priority for this edge
-                if (index > 0 && hasCurrent)
-                {
-                    Vec3i posTmp = new Vec3i(pos.getX(), pos.getY(), pos.getZ());
-                    int ind = -1;
-
-                    for (int i = 0; i < index; ++i)
-                    {
-                        Vec3i tmp = neighborPositions[i];
-                        //System.out.printf("posTmp: %s, tmp: %s\n", posTmp, tmp);
-
-                        // Just prioritize the position to render a shared highest priority edge by the coordinates
-                        if (tmp.getX() <= posTmp.getX() && tmp.getY() <= posTmp.getY() && tmp.getZ() <= posTmp.getZ())
-                        {
-                            posTmp = tmp;
-                            ind = i;
-                        }
-                    }
-
-                    // The current position is the one that should render this edge
-                    if (posTmp.getX() == pos.getX() && posTmp.getY() == pos.getY() && posTmp.getZ() == pos.getZ())
-                    {
-                        //System.out.printf("plop 2 index: %d, ind: %d, pos: %s, off: %s\n", index, ind, pos, posTmp);
-                        try
-                        {
-                            RenderUtils.drawBlockBoxEdgeBatchedLines(this.getChunkRelativePosition(pos), axis, corner, this.overlayColor, bufferOverlayOutlines);
-                        }
-                        catch (IllegalStateException err)
-                        {
-                            // TODO: This is absolutely awful. Basically  some times the render buffer is closed
-                            //  while the this processing is happening but if this happens the work the thread was
-                            //  doing is going to be thrown away anyway so we just abort & no harm done. Really we
-                            //  should be using cancelable futures & coroutines to do this correctly but that is a
-                            //  task for not 1:30am when I have work tomorrow.
-                            return;
-                        }
-                        lines++;
-                    }
-                }
-            }
-        }
-        //System.out.printf("typeSelf: %s, pos: %s, lines: %d\n", typeSelf, pos, lines);
-    }
-
-    protected OverlayType getOverlayType(BlockState stateSchematic, BlockState stateClient)
-    {
-        if (stateSchematic == stateClient)
-        {
-            return OverlayType.NONE;
-        }
-        else
-        {
-            boolean clientHasAir = stateClient.isAir();
-            boolean schematicHasAir = stateSchematic.isAir();
-
-            // TODO --> Maybe someday Mojang will add something to replace isLiquid(), and isSolid(), someday?
-            if (schematicHasAir)
-            {
-                return (clientHasAir || (this.ignoreClientWorldFluids && stateClient.isLiquid())) ? OverlayType.NONE : OverlayType.EXTRA;
-            }
-            else
-            {
-                if (clientHasAir || (this.ignoreClientWorldFluids && stateClient.isLiquid()))
-                {
-                    return OverlayType.MISSING;
-                }
-                // Wrong block
-                else if (stateSchematic.getBlock() != stateClient.getBlock())
-                {
-                    return OverlayType.WRONG_BLOCK;
-                }
-                // Wrong state
-                else
-                {
-                    return OverlayType.WRONG_STATE;
-                }
-            }
-        }
-    }
-
-    @Nullable
-    protected Color4f getOverlayColor(OverlayType overlayType)
-    {
-        Color4f overlayColor = null;
-
-        switch (overlayType)
-        {
-            case MISSING:
-                if (Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_MISSING.getBooleanValue())
-                {
-                    overlayColor = Configs.Colors.SCHEMATIC_OVERLAY_COLOR_MISSING.getColor();
-                }
-                break;
-            case EXTRA:
-                if (Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_EXTRA.getBooleanValue())
-                {
-                    overlayColor = Configs.Colors.SCHEMATIC_OVERLAY_COLOR_EXTRA.getColor();
-                }
-                break;
-            case WRONG_BLOCK:
-                if (Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_WRONG_BLOCK.getBooleanValue())
-                {
-                    overlayColor = Configs.Colors.SCHEMATIC_OVERLAY_COLOR_WRONG_BLOCK.getColor();
-                }
-                break;
-            case WRONG_STATE:
-                if (Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_WRONG_STATE.getBooleanValue())
-                {
-                    overlayColor = Configs.Colors.SCHEMATIC_OVERLAY_COLOR_WRONG_STATE.getColor();
-                }
-                break;
-            default:
-        }
-
-        return overlayColor;
     }
 
     private void addBlockEntity(BlockPos pos, ChunkRenderDataSchematic chunkRenderData, Set<BlockEntity> blockEntities)
@@ -875,7 +607,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
                 if (built == null)
                 {
-                    throw new RuntimeException("failed to build BuiltBuffer");
+                    chunkRenderData.setBlockLayerUnused(layer);
+                    return;
                 }
                 else
                 {
@@ -921,7 +654,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
                 if (built == null)
                 {
-                    throw new RuntimeException("failed to build BuiltBuffer");
+                    chunkRenderData.setOverlayTypeUnused(type);
+                    return;
                 }
                 else
                 {
@@ -1196,39 +930,5 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     public void close() throws Exception
     {
         this.deleteGlResources();
-    }
-
-    public enum OverlayRenderType
-    {
-        OUTLINE     (VertexFormat.DrawMode.DEBUG_LINES, RenderLayer.DEFAULT_BUFFER_SIZE, VertexFormats.POSITION_COLOR, false, false),
-        QUAD        (VertexFormat.DrawMode.QUADS,       RenderLayer.DEFAULT_BUFFER_SIZE, VertexFormats.POSITION_COLOR, false, true);
-
-        private final VertexFormat.DrawMode drawMode;
-        private final VertexFormat vertexFormat;
-        private final int bufferSize;
-        private final boolean hasCrumbling;
-        private final boolean translucent;
-
-        OverlayRenderType(VertexFormat.DrawMode drawMode, int bufferSize, VertexFormat format, boolean crumbling, boolean translucent)
-        {
-            this.drawMode = drawMode;
-            this.bufferSize = bufferSize;
-            this.vertexFormat = format;
-            this.hasCrumbling = crumbling;
-            this.translucent = translucent;
-        }
-
-        public VertexFormat.DrawMode getDrawMode()
-        {
-            return this.drawMode;
-        }
-
-        public int getExpectedBufferSize() { return this.bufferSize; }
-
-        public VertexFormat getVertexFormat() { return this.vertexFormat; }
-
-        public boolean hasCrumbling() { return this.hasCrumbling; }
-
-        public boolean isTranslucent() { return this.translucent; }
     }
 }
