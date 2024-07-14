@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import fi.dy.masa.litematica.config.Configs;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -1074,8 +1075,11 @@ public class SchematicPlacement
             sub.putInt("Rotation", subRegionPlacement.getRotation().ordinal());
             sub.putInt("Mirror", subRegionPlacement.getMirror().ordinal());
             sub.putString("Name", subRegionPlacement.getName());
+            sub.putBoolean("Enabled", subRegionPlacement.isEnabled());
+            sub.putBoolean("IgnoreEntities", subRegionPlacement.ignoreEntities());
         }
         compound.put("SubRegions", subs);
+        compound.putString("ReplaceMode", Configs.Generic.PASTE_REPLACE_BEHAVIOR.getStringValue());
         return compound;
     }
 }
