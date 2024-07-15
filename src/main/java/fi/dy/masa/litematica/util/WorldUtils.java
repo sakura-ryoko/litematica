@@ -546,7 +546,15 @@ public class WorldUtils
                             sideOrig = sideVanilla;
                         }
                     }
+                    Litematica.logger.warn("doEasyPlaceAction(): posVanilla [{}], sideVanilla [{}]", posVanilla.toShortString(), sideVanilla.getName());
                 }
+                else
+                {
+                    Litematica.logger.warn("doEasyPlaceAction(): traceVanilla null or MISS");
+                }
+
+                Litematica.logger.warn("doEasyPlaceAction(): hitPos [{}] / sideOrig [{}]", hitPos.toString(), sideOrig.getName());
+                Litematica.logger.warn("doEasyPlaceAction(): HitType [{}] // stateSchematic [{}] / stateClient [{}]", traceVanilla != null ? traceVanilla.getType().name() : null, stateSchematic.toString(), sideOrig.getName(), stateClient.toString());
 
                 Direction side = applyPlacementFacing(stateSchematic, sideOrig, stateClient);
                 EasyPlaceProtocol protocol = PlacementHandler.getEffectiveProtocolVersion();
@@ -566,12 +574,15 @@ public class WorldUtils
                     hitPos = applyBlockSlabProtocol(pos, stateSchematic, hitPos);
                 }
 
+                Litematica.logger.warn("doEasyPlaceAction(): new hitPos [{}]", hitPos.toString());
+
                 // Mark that this position has been handled (use the non-offset position that is checked above)
                 cacheEasyPlacePosition(pos);
 
                 BlockHitResult hitResult = new BlockHitResult(hitPos, side, pos, false);
 
-                //System.out.printf("pos: %s side: %s, hit: %s\n", pos, side, hitPos);
+                Litematica.logger.warn("doEasyPlaceAction(): hit Result [{}]", hitResult.toString());
+                System.out.printf("interact -> pos: %s side: %s, hit: %s\n", pos, side, hitPos);
                 // pos, side, hitPos
                 ActionResult result = mc.interactionManager.interactBlock(mc.player, hand, hitResult);
 
@@ -734,6 +745,9 @@ public class WorldUtils
         int shiftAmount = 1;
         int propCount = 0;
 
+        System.out.printf("hit vec.x %s, pos.x: %s\n", hitVecIn.getX(), pos.getX());
+        System.out.printf("raw protocol value in: 0x%08X\n", protocolValue);
+
         @Nullable DirectionProperty property = BlockUtils.getFirstDirectionProperty(state);
 
         // DirectionProperty - allow all except: VERTICAL_DIRECTION (PointedDripstone)
@@ -741,6 +755,7 @@ public class WorldUtils
         {
             Direction direction = state.get(property);
             protocolValue |= direction.getId() << shiftAmount;
+            System.out.printf("applying: 0x%08X\n", protocolValue);
             shiftAmount += 3;
             ++propCount;
         }
@@ -763,9 +778,11 @@ public class WorldUtils
                     int requiredBits = MathHelper.floorLog2(MathHelper.smallestEncompassingPowerOfTwo(list.size()));
                     int valueIndex = list.indexOf(state.get(prop));
 
+                    System.out.printf("trying to apply valInd: %d, bits: %d, prot val: 0x%08X\n", valueIndex, requiredBits, protocolValue);
+
                     if (valueIndex != -1)
                     {
-                        //System.out.printf("requesting: %s = %s, index: %d\n", prop.getName(), state.get(prop), valueIndex);
+                        System.out.printf("requesting: %s = %s, index: %d\n", prop.getName(), state.get(prop), valueIndex);
                         protocolValue |= (valueIndex << shiftAmount);
                         shiftAmount += requiredBits;
                         ++propCount;
@@ -781,7 +798,7 @@ public class WorldUtils
         if (propCount > 0)
         {
             double x = pos.getX() + relX + 2 + protocolValue;
-            //System.out.printf("request prot value 0x%08X\n", protocolValue + 2);
+            System.out.printf("request prot value 0x%08X\n", protocolValue + 2);
             return new Vec3d(x, hitVecIn.y, hitVecIn.z);
         }
 
@@ -792,6 +809,8 @@ public class WorldUtils
     {
         Block blockSchematic = stateSchematic.getBlock();
         Block blockClient = stateClient.getBlock();
+
+        Litematica.logger.warn("applyPlacementFacing(): stateSchematic [{}], side [{}], stateClient [{}]", stateSchematic.toString(), side.getName(), stateClient.toString());
 
         if (blockSchematic instanceof SlabBlock)
         {
@@ -818,7 +837,16 @@ public class WorldUtils
         {
             side = stateSchematic.get(Properties.BLOCK_HALF) == BlockHalf.TOP ? Direction.DOWN : Direction.UP;
         }
+        else if (blockSchematic instanceof WallRedstoneTorchBlock)
+        {
+            if (side == Direction.UP)
+            {
+                side = stateSchematic.get(Properties.HORIZONTAL_FACING);
+                Litematica.logger.warn("WallRedstoneTorchBlock: fix side UP -> [{}]", side.getName());
+            }
+        }
 
+        Litematica.logger.warn("applyPlacementFacing(): result side [{}]", side.getName());
         return side;
     }
 
