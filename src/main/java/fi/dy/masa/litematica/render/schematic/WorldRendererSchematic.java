@@ -44,7 +44,6 @@ public class WorldRendererSchematic
     private final EntityRenderDispatcher entityRenderDispatcher;
     private final BlockRenderManager blockRenderManager;
     private final BlockModelRendererSchematic blockModelRenderer;
-    private final OverlayModelRendererSchematic overlayRenderer;
     private final Set<BlockEntity> blockEntities = new HashSet<>();
     private final List<ChunkRendererSchematicVbo> renderInfos = new ArrayList<>(1024);
     private final BufferBuilderStorage bufferBuilders;
@@ -85,7 +84,6 @@ public class WorldRendererSchematic
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
-        this.overlayRenderer = new OverlayModelRendererSchematic();
     }
 
     public void markNeedsUpdate()
@@ -116,7 +114,9 @@ public class WorldRendererSchematic
 
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
+            // Threaded Code
+            //ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
+            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
 
             if (data != ChunkRenderDataSchematic.EMPTY && !data.isEmpty())
             {
@@ -164,8 +164,6 @@ public class WorldRendererSchematic
 
     public void loadRenderers()
     {
-        //Litematica.logger.warn("loadRenderers() [Renderer]");
-
         if (this.hasWorld())
         {
             this.world.getProfiler().push("litematica_load_renderers");
@@ -209,8 +207,6 @@ public class WorldRendererSchematic
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator)
     {
-        //Litematica.logger.warn("setupTerrain() [Renderer]");
-
         this.world.getProfiler().push("setup_terrain");
 
         if (this.chunkRendererDispatcher == null ||
@@ -361,8 +357,6 @@ public class WorldRendererSchematic
 
     public void updateChunks(long finishTimeNano)
     {
-        //Litematica.logger.warn("updateChunks() [Renderer]");
-
         this.mc.getProfiler().push("litematica_run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 
@@ -413,7 +407,7 @@ public class WorldRendererSchematic
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
     {
-        //RenderSystem.assertOnRenderThread();
+        RenderSystem.assertOnRenderThread();
         this.world.getProfiler().push("render_block_layer_" + renderLayer.toString());
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
@@ -495,13 +489,11 @@ public class WorldRendererSchematic
 
                 if (buffer == null || buffer.isClosed())
                 {
-                    //Litematica.logger.error("renderBlockLayer() [Renderer]: vertexBuffer for layer [{}] is null/closed, skipping draw", ChunkRenderLayers.getFriendlyName(renderLayer));
                     continue;
                 }
 
                 if (renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByLayer(renderLayer) == false)
                 {
-                    //Litematica.logger.error("renderBlockLayer() [Renderer]: buffer for layer [{}] is not built, skipping draw", ChunkRenderLayers.getFriendlyName(renderLayer));
                     continue;
                 }
 
@@ -510,8 +502,6 @@ public class WorldRendererSchematic
                     chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
                     chunkOffsetUniform.upload();
                 }
-
-                //Litematica.logger.warn("renderBlockLayer() [Renderer] --> bind / draw / unbind for layer [{}]", ChunkRenderLayers.getFriendlyName(renderLayer));
 
                 buffer.bind();
                 buffer.draw();
@@ -599,8 +589,6 @@ public class WorldRendererSchematic
 
         ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
-
-        // I tried using the matrix4f value here, only to have things break
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
 
         for (int i = this.renderInfos.size() - 1; i >= 0; --i)
@@ -652,14 +640,8 @@ public class WorldRendererSchematic
             }
             else
             {
-                /*
                 return renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
-                 */
-
-                // --> Vanilla for debugging
-                this.blockRenderManager.renderBlock(state, pos, world, matrixStack, bufferBuilderIn, true, Random.create(state.getRenderingSeed(pos)));
-                return renderType == BlockRenderType.MODEL;
             }
         }
         catch (Throwable throwable)
@@ -673,31 +655,12 @@ public class WorldRendererSchematic
 
     public void renderFluid(BlockRenderView world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
-        this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
-    }
-
-    public boolean renderOverlayModel(OverlayRenderType renderType, OverlayType type,
-                                      BlockRenderView schematicWorldIn, BlockRenderView clientWorldIn,
-                                      BlockState stateSchematic, BlockPos posIn, BlockPos relPos,
-                                      Color4f color, BufferBuilder bufferBuilderIn,
-                                      boolean missing, boolean ignoreFluids)
-    {
-        BakedModel model = this.getModelForState(stateSchematic);
-
-        switch (renderType)
+        // Sometimes this collides with FAPI
+        try
         {
-            case QUAD ->
-            {
-                return this.overlayRenderer.renderQuads(model, type, schematicWorldIn, clientWorldIn, stateSchematic,
-                        posIn, relPos, color, bufferBuilderIn, missing, ignoreFluids);
-            }
-            case OUTLINE ->
-            {
-                return this.overlayRenderer.renderOutlines(model, type, schematicWorldIn, clientWorldIn, stateSchematic,
-                        posIn, relPos, color, bufferBuilderIn, missing, ignoreFluids);
-            }
-            default -> { return false; }
+            this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
         }
+        catch (Exception ignored) { }
     }
 
     public BakedModel getModelForState(BlockState state)

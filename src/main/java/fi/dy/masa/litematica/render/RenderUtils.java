@@ -1,9 +1,11 @@
 package fi.dy.masa.litematica.render;
 
 import java.util.List;
+import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -11,11 +13,15 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import fi.dy.masa.litematica.Litematica;
@@ -499,7 +505,7 @@ public class RenderUtils
         renderModelQuadOutlines(model, state, pos, null, color, expand, buffer);
     }
 
-    private static void renderModelQuadOutlines(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
+    public static void renderModelQuadOutlines(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
     {
         try
         {

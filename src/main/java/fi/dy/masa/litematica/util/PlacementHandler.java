@@ -56,8 +56,6 @@ public class PlacementHandler
             Properties.CHEST_TYPE,
             Properties.COMPARATOR_MODE,
             Properties.DOOR_HINGE,
-            Properties.HOPPER_FACING,
-            Properties.HORIZONTAL_FACING,
             Properties.ORIENTATION,
             Properties.RAIL_SHAPE,
             Properties.STRAIGHT_RAIL_SHAPE,
@@ -179,8 +177,8 @@ public class PlacementHandler
     {
         int protocolValue = (int) (context.getHitVec().x - (double) context.getPos().getX()) - 2;
         BlockState oldState = state;
-        System.out.printf("hit vec.x %s, pos.x: %s\n", context.getHitVec().getX(), context.getPos().getX());
-        System.out.printf("raw protocol value in: 0x%08X\n", protocolValue);
+        //System.out.printf("hit vec.x %s, pos.x: %s\n", context.getHitVec().getX(), context.getPos().getX());
+        //System.out.printf("raw protocol value in: 0x%08X\n", protocolValue);
 
         if (protocolValue < 0)
         {
@@ -192,7 +190,7 @@ public class PlacementHandler
         // DirectionProperty - allow all except: VERTICAL_DIRECTION (PointedDripstone)
         if (property != null && property != Properties.VERTICAL_DIRECTION)
         {
-            System.out.printf("applying: 0x%08X\n", protocolValue);
+            //System.out.printf("applying: 0x%08X\n", protocolValue);
             state = applyDirectionProperty(state, context, property, protocolValue);
 
             if (state == null)
@@ -202,12 +200,12 @@ public class PlacementHandler
 
             if (state.canPlaceAt(context.getWorld(), context.getPos()))
             {
-                System.out.printf("validator passed for \"%s\"\n", property.getName());
+                //System.out.printf("validator passed for \"%s\"\n", property.getName());
                 oldState = state;
             }
             else
             {
-                System.out.printf("validator failed for \"%s\"\n", property.getName());
+                //System.out.printf("validator failed for \"%s\"\n", property.getName());
                 state = oldState;
             }
             
@@ -236,7 +234,7 @@ public class PlacementHandler
                     int requiredBits = MathHelper.floorLog2(MathHelper.smallestEncompassingPowerOfTwo(list.size()));
                     int bitMask = ~(0xFFFFFFFF << requiredBits);
                     int valueIndex = protocolValue & bitMask;
-                    System.out.printf("trying to apply valInd: %d, bits: %d, prot val: 0x%08X\n", valueIndex, requiredBits, protocolValue);
+                    //System.out.printf("trying to apply valInd: %d, bits: %d, prot val: 0x%08X\n", valueIndex, requiredBits, protocolValue);
 
                     if (valueIndex >= 0 && valueIndex < list.size())
                     {
@@ -245,17 +243,17 @@ public class PlacementHandler
                         if (state.get(prop).equals(value) == false &&
                             value != SlabType.DOUBLE) // don't allow duping slabs by forcing a double slab via the protocol
                         {
-                            System.out.printf("applying \"%s\": %s\n", prop.getName(), value);
+                            //System.out.printf("applying \"%s\": %s\n", prop.getName(), value);
                             state = state.with(prop, value);
 
                             if (state.canPlaceAt(context.getWorld(), context.getPos()))
                             {
-                                System.out.printf("validator passed for \"%s\"\n", prop.getName());
+                                //System.out.printf("validator passed for \"%s\"\n", prop.getName());
                                 oldState = state;
                             }
                             else
                             {
-                                System.out.printf("validator failed for \"%s\"\n", prop.getName());
+                                //System.out.printf("validator failed for \"%s\"\n", prop.getName());
                                 state = oldState;
                             }
                         }
@@ -272,12 +270,12 @@ public class PlacementHandler
 
         if (state.canPlaceAt(context.getWorld(), context.getPos()))
         {
-            System.out.printf("validator passed for \"%s\"\n", state);
+            //System.out.printf("validator passed for \"%s\"\n", state);
             return state;
         }
         else
         {
-            System.out.printf("validator failed for \"%s\"\n", state);
+            //System.out.printf("validator failed for \"%s\"\n", state);
             return null;
         }
     }
@@ -303,7 +301,7 @@ public class PlacementHandler
             }
         }
 
-        System.out.printf("plop facing: %s -> %s (raw: %d, dec: %d)\n", facingOrig, facing, protocolValue, decodedFacingIndex);
+        //System.out.printf("plop facing: %s -> %s (raw: %d, dec: %d)\n", facingOrig, facing, protocolValue, decodedFacingIndex);
 
         if (facing != facingOrig && property.getValues().contains(facing))
         {
