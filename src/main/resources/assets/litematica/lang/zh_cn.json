@@ -112,7 +112,7 @@
     "litematica.gui.button.hover.material_list_shift_to_select_sub_regions": "按住shift选择用于材料列表的子区域",
     "litematica.gui.button.hover.plus_minus_tip": "左键单击可增大\\n右键单击可减小\\nShift and/or Alt 增加步长",
     "litematica.gui.button.hover.plus_minus_tip_ctrl_alt_shift": "左键单击可增大\\n右键单击可减小\\nShift/Alt/Ctrl 增加步长(乘法)",
-    "litematica.gui.button.hover.schematic_list.reload_schematic": "Reloads the schematic from file.\nThis can be useful if you make a mistake\nin the Schematic Edit mode.",
+    "litematica.gui.button.hover.schematic_list.reload_schematic": "从文件重新加载原理图。\n如果你在原理图编辑模式犯错了这会很有用",
     "litematica.gui.button.hover.schematic_projects.area_browser_disabled_currently_in_projects_mode": "当前打开了一个原理图项目\\n原理图项目将覆盖正常区域选择功能",
     "litematica.gui.button.hover.schematic_projects.delete_area": "§6删除最后放置或保存的区域§r",
     "litematica.gui.button.hover.schematic_projects.menu_warning": "(This was called Schematic Projects before.)\nIn general you §6should not§r be using this feature,\nunless you really know how it works and what it does.\nIt somewhat changes how the area selections, placements and pasting works,\nin particular that there is also an area delete operation when pasting.\n\nBasically this feature is intended for §6iterative, in-place§r design work,\nand it allows you to easier create multiple versions/snapshots\nof the same build, and also to switch between the versions by deleting what is\nin the world first, and then pasting the next version in its place.",
@@ -261,9 +261,9 @@
     "litematica.gui.label.origin.auto": "自动",
     "litematica.gui.label.origin.manual": "手动",
 
-    "litematica.gui.label.paste_nbt_behavior.none": "None",
-    "litematica.gui.label.paste_nbt_behavior.place_data_modify": "Place & Data Modify",
-    "litematica.gui.label.paste_nbt_behavior.place_clone": "放置&克隆",
+    "litematica.gui.label.paste_nbt_behavior.none": "无",
+    "litematica.gui.label.paste_nbt_behavior.place_data_modify": "放置 & /data modify",
+    "litematica.gui.label.paste_nbt_behavior.place_clone": "放置 & /clone",
 
     "litematica.gui.label.placement_sub.region_name": "区域名: %s",
     "litematica.gui.label.placement_sub.region_position": "区域位置",
@@ -291,7 +291,7 @@
     "litematica.gui.label.schematic_info.total_volume": "总体积: §f%d§r 个方块",
 
     "litematica.gui.label.schematic_load.checkbox.create_placement": "创建放置",
-    "litematica.gui.label.schematic_load.hoverinfo.create_placement": "立即创建新位置\\n并选择该位置",
+    "litematica.gui.label.schematic_load.hoverinfo.create_placement": "立即创建新位置并选择该位置",
 
     "litematica.gui.label.schematic_placement.enclosing_size": "框尺寸: %s",
     "litematica.gui.label.schematic_placement.hoverinfo.hold_shift_to_create_as_disabled": "按住shift以在创建时禁用放置",
@@ -403,8 +403,8 @@
     "litematica.hud.misc.render_layer_mode": "图层模式: %s - %s",
     "litematica.hud.misc.render_layer_mode_all": "图层模式: %s",
     "litematica.hud.misc.renderer_status": "渲染器: A: %s S: %s B: %s O: %s SEL: %s",
-    "litematica.hud.misc.schematic_paste.data_restore_mode": "Data Restore Mode: §b%s",
-    "litematica.hud.misc.schematic_paste.replace_mode": "替换方块: %s",
+    "litematica.hud.misc.schematic_paste.data_restore_mode": "数据粘贴模式: §b%s",
+    "litematica.hud.misc.schematic_paste.replace_mode": "替换模式: %s",
 
     "litematica.hud.schematic_placement.hover_info.lock_coordinate": "锁定此坐标\\n这允许改变其他坐标\\n不影响锁定的",
     "litematica.hud.schematic_placement.hover_info.placement_locked": "此位置已锁定，如果不先解锁，则无法修改",
@@ -448,8 +448,8 @@
     "litematica.message.error.schematic_save_failed": "无法将原理图保存到文件 '%s'",
     "litematica.message.error.schematic_save_interrupted": "原理图保存中断或停止",
     "litematica.message.error.schematic_save_no_area_selected": "§c原理图保存失败，未选择任何区域§r",
-    "litematica.message.warn.pickblock.no_suitable_slot_found": "No suitable hotbar slot found for pick block!\\nCheck the config Generic -> §epickBlockableSlots§r.\\nAlso depending on the §epickBlockAvoid*§6 configs, the pick block feature may refuse to replace any tools or other damageable items in those slots.",
-    "litematica.message.warn.pickblock.no_valid_slots_configured": "No hotbar slots set in the Generic -> §epickBlockableSlots§6 config!",
+    "litematica.message.warn.pickblock.no_suitable_slot_found": "没有可用的槽位来放置方块!\\n检查 Generic -> §epickBlockableSlots§r 配置项.\\n这也取决于 §epickBlockAvoid*§6 配置, 只要某个槽位中有具有耐久度的物品，投影将不会选取它用来放置方块",
+    "litematica.message.warn.pickblock.no_valid_slots_configured": "Generic -> §epickBlockableSlots§6 中的配置无效!",
 
     "litematica.message.added_selection_box": "添加了一个新的选择框在 %s",
     "litematica.message.area_clear_fail": "§c清除区域失败§r",
@@ -460,7 +460,7 @@
     "litematica.message.easy_place_fail": "由轻松放置模式阻止的操作",
     "litematica.message.grabbed_element_for_moving": "抓住要移动的元件",
     "litematica.message.in_memory_schematic_created": "已将内存中的原理图创建为 '%s'",
-    "litematica.message.litematic_saved_as": "成功升級Litematica Schematic資料版本\\n原理圖另存為 '%s'",
+    "litematica.message.litematic_saved_as": "已成功升级投影射数据版本版本\\n投影已保存为 '%s'",
     "litematica.message.material_list.material_cache_cleared": "已清除材料缓存",
     "litematica.message.material_list_written_to_file": "材料列表写入文件 '%s'",
     "litematica.message.moved_area_origin": "移动区域原点 %s => %s",
