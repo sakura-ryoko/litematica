@@ -25,7 +25,6 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderDispatcherLitematica
 {
@@ -161,20 +160,82 @@ public class ChunkRenderDispatcherLitematica
 
     protected boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk)
     {
+        /*
+        renderChunk.getLockCompileTask().lock();
+        boolean flag1;
+
+        try
+        {
+            final ChunkRenderTaskSchematic generator = renderChunk.makeCompileTaskChunkSchematic(this::getCameraPos);
+
+            generator.addFinishRunnable(new Runnable()
+            {
+                public void run()
+                {
+                    ChunkRenderDispatcherLitematica.this.queueChunkUpdates.remove(generator);
+                }
+            });
+
+            boolean flag = this.queueChunkUpdates.offer(generator);
+
+            if (!flag)
+            {
+                generator.finish();
+            }
+
+            flag1 = flag;
+        }
+        finally
+        {
+            renderChunk.getLockCompileTask().unlock();
+        }
+         */
         final ChunkRenderTaskSchematic generator = renderChunk.makeCompileTaskChunkSchematic(this::getCameraPos);
         generator.addFinishRunnable(() -> queueChunkUpdates.remove(generator));
         boolean flag = queueChunkUpdates.offer(generator);
-        if(!flag)
+
+        if (!flag)
+        {
             generator.finish();
+        }
+
         return flag;
     }
 
     protected boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer)
     {
-        try {
+        /*
+        chunkRenderer.getLockCompileTask().lock();
+        boolean flag;
+
+        try
+        {
+            ChunkRenderTaskSchematic generator = chunkRenderer.makeCompileTaskChunkSchematic(this::getCameraPos);
+
+            try
+            {
+                this.renderWorker.processTask(generator);
+            }
+            catch (InterruptedException e)
+            {
+            }
+
+            flag = true;
+        }
+        finally
+        {
+            chunkRenderer.getLockCompileTask().unlock();
+        }
+
+        return flag;
+         */
+        try
+        {
             renderWorker.processTask(chunkRenderer.makeCompileTaskChunkSchematic(this::getCameraPos));
             return true;
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             LOGGER.warn("updateChunkNow(): Process Interrupted; error message: [{}]", e.getLocalizedMessage());
             return false;
         }
@@ -219,9 +280,44 @@ public class ChunkRenderDispatcherLitematica
 
     protected boolean updateTransparencyLater(ChunkRendererSchematicVbo renderChunk)
     {
+        /*
+        renderChunk.getLockCompileTask().lock();
+        boolean flag;
+
+        try
+        {
+            final ChunkRenderTaskSchematic generator = renderChunk.makeCompileTaskTransparencySchematic(this::getCameraPos);
+
+            if (generator == null)
+            {
+                flag = true;
+                return flag;
+            }
+
+            generator.addFinishRunnable(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ChunkRenderDispatcherLitematica.this.queueChunkUpdates.remove(generator);
+                }
+            });
+
+            flag = this.queueChunkUpdates.offer(generator);
+        }
+        finally
+        {
+            renderChunk.getLockCompileTask().unlock();
+        }
+
+        return flag;
+         */
         final ChunkRenderTaskSchematic generator = renderChunk.makeCompileTaskTransparencySchematic(this::getCameraPos);
-        if(generator==null)
+
+        if (generator == null)
+        {
             return true;
+        }
         generator.addFinishRunnable(() -> ChunkRenderDispatcherLitematica.this.queueChunkUpdates.remove(generator));
         return queueChunkUpdates.offer(generator);
     }
@@ -299,12 +395,14 @@ public class ChunkRenderDispatcherLitematica
         if (allocator == null)
         {
             allocators.closeByLayer(layer);
+            compiledChunk.setBlockLayerUnused(layer);
             throw new InterruptedException("BufferAllocators are invalid");
         }
 
         if (renderBuffer == null)
         {
-            throw new InterruptedException("BuiltBuffer was not built");
+            compiledChunk.setBlockLayerUnused(layer);
+            return;
         }
 
         VertexBuffer vertexBuffer = renderChunk.getBlocksVertexBufferByLayer(layer);
@@ -349,12 +447,14 @@ public class ChunkRenderDispatcherLitematica
         if (allocator == null)
         {
             allocators.closeByType(type);
+            compiledChunk.setOverlayTypeUnused(type);
             throw new InterruptedException("BufferAllocators are invalid");
         }
 
         if (renderBuffer == null)
         {
-            throw new InterruptedException("BuiltBuffer was not built");
+            compiledChunk.setOverlayTypeUnused(type);
+            return;
         }
 
         VertexBuffer vertexBuffer = renderChunk.getOverlayVertexBuffer(type);

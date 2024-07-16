@@ -84,6 +84,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 x = this.createButton(x, y, ButtonListener.Type.SET_PREVIEW);
                 x = this.createButton(x, y, ButtonListener.Type.EXPORT_SCHEMATIC);
                 x = this.createButton(x, y, ButtonListener.Type.EXPORT_TYPE);
+                x = this.createButton(x, y, ButtonListener.Type.IMPORT_SCHEMATIC);
                 x = this.createButton(x, y, ButtonListener.Type.DELETE_SCHEMATIC);
             }
             else if (type == FileType.SCHEMATICA_SCHEMATIC || type == FileType.VANILLA_STRUCTURE)
@@ -236,7 +237,8 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
             }
             else if (this.type == Type.IMPORT_SCHEMATIC)
             {
-                if (fileType == FileType.SCHEMATICA_SCHEMATIC ||
+                if (fileType == FileType.LITEMATICA_SCHEMATIC ||
+                    fileType == FileType.SCHEMATICA_SCHEMATIC ||
                     fileType == FileType.VANILLA_STRUCTURE)
                 {
                     GuiSchematicSaveImported gui = new GuiSchematicSaveImported(entry.getType(), entry.getDirectory(), entry.getName());

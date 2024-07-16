@@ -12,6 +12,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.block.enums.ChestType;
 import net.minecraft.block.enums.ComparatorMode;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.client.MinecraftClient;
@@ -41,6 +42,7 @@ import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
 import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -76,11 +78,41 @@ public class WorldUtils
         ((IWorldUpdateSuppressor) world).litematica_setShouldPreventBlockUpdates(preventUpdates);
     }
 
+    public static boolean convertLitematicaSchematicToLitematicaSchematic(
+            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+    {
+        LitematicaSchematic litematicaSchematic = convertLitematicaSchematicToLitematicaSchematic(inputDir, inputFileName, outputFileName, feedback);
+        return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
+    }
+
     public static boolean convertSchematicaSchematicToLitematicaSchematic(
             File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         LitematicaSchematic litematicaSchematic = convertSchematicaSchematicToLitematicaSchematic(inputDir, inputFileName, ignoreEntities, feedback);
         return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
+    }
+
+    @Nullable
+    public static LitematicaSchematic convertLitematicaSchematicToLitematicaSchematic(File inputDir, String inputFileName,
+                                                                                      String outputFilename,
+                                                                                      IStringConsumer feedback)
+    {
+        DataFixerMode oldMode = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+        Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.ALWAYS);
+        LitematicaSchematic litematicaSchematic = LitematicaSchematic.createFromFile(inputDir, inputFileName, FileType.LITEMATICA_SCHEMATIC);
+
+        if (litematicaSchematic == null)
+        {
+            feedback.setString("litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic");
+            Configs.Generic.DATAFIXER_MODE.setOptionListValue(oldMode);
+            return null;
+        }
+
+        litematicaSchematic.getMetadata().setName(outputFilename);
+        litematicaSchematic.getMetadata().setTimeModifiedToNow();
+
+        Configs.Generic.DATAFIXER_MODE.setOptionListValue(oldMode);
+        return litematicaSchematic;
     }
 
     @Nullable
@@ -403,7 +435,7 @@ public class WorldUtils
 
                 if (type == MessageOutputType.MESSAGE)
                 {
-                    InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.easy_place_fail");
+                    InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.message.easy_place_fail");
                 }
                 else if (type == MessageOutputType.ACTIONBAR)
                 {
@@ -445,7 +477,7 @@ public class WorldUtils
             return ActionResult.PASS;
         }
 
-        if (traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK)
+        if (traceWrapper.getHitType() == HitType.SCHEMATIC_BLOCK)
         {
             BlockHitResult trace = traceWrapper.getBlockHitResult();
             HitResult traceVanilla = RayTraceUtils.getRayTraceFromEntity(mc.world, mc.player, false, traceMaxRange);
@@ -541,7 +573,13 @@ public class WorldUtils
 
                 //System.out.printf("pos: %s side: %s, hit: %s\n", pos, side, hitPos);
                 // pos, side, hitPos
-                mc.interactionManager.interactBlock(mc.player, hand, hitResult);
+                ActionResult result = mc.interactionManager.interactBlock(mc.player, hand, hitResult);
+
+                // swing hand fix, see MinecraftClient#doItemUse
+                if (result.shouldSwingHand())
+                {
+                    mc.player.swingHand(hand);
+                }
 
                 if (stateSchematic.getBlock() instanceof SlabBlock && stateSchematic.get(SlabBlock.TYPE) == SlabType.DOUBLE)
                 {
@@ -558,7 +596,7 @@ public class WorldUtils
 
             return ActionResult.SUCCESS;
         }
-        else if (traceWrapper.getHitType() == RayTraceWrapper.HitType.VANILLA_BLOCK)
+        else if (traceWrapper.getHitType() == HitType.VANILLA_BLOCK)
         {
             return placementRestrictionInEffect(mc) ? ActionResult.FAIL : ActionResult.PASS;
         }
@@ -606,7 +644,7 @@ public class WorldUtils
         double y = hitVecIn.y;
         double z = hitVecIn.z;
         Block block = state.getBlock();
-        Direction facing = fi.dy.masa.malilib.util.BlockUtils.getFirstPropertyFacingValue(state);
+        Direction facing = BlockUtils.getFirstPropertyFacingValue(state);
         final int propertyIncrement = 16;
         boolean hasData = false;
         int protocolValue = 0;
@@ -696,7 +734,7 @@ public class WorldUtils
         int shiftAmount = 1;
         int propCount = 0;
 
-        @Nullable DirectionProperty property = fi.dy.masa.malilib.util.BlockUtils.getFirstDirectionProperty(state);
+        @Nullable DirectionProperty property = BlockUtils.getFirstDirectionProperty(state);
 
         // DirectionProperty - allow all except: VERTICAL_DIRECTION (PointedDripstone)
         if (property != null && property != Properties.VERTICAL_DIRECTION)
@@ -802,7 +840,7 @@ public class WorldUtils
 
             if (type == MessageOutputType.MESSAGE)
             {
-                InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.placement_restriction_fail");
+                InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.message.placement_restriction_fail");
             }
             else if (type == MessageOutputType.ACTIONBAR)
             {

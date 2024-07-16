@@ -16,7 +16,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.crash.CrashReport;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 
 public class ChunkRenderWorkerLitematica implements Runnable
 {
@@ -63,12 +62,40 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
     protected void processTask(final ChunkRenderTaskSchematic task) throws InterruptedException
     {
+        /*
+        task.getLock().lock();
+
+        try
+        {
+            if (task.getStatus() != ChunkRenderTaskSchematic.Status.PENDING)
+            {
+                if (task.isFinished() == false)
+                {
+                    LOGGER.warn("Chunk render task was {} when I expected it to be pending; ignoring task", (Object) task.getStatus());
+                }
+
+                return;
+            }
+
+            task.setStatus(ChunkRenderTaskSchematic.Status.COMPILING);
+        }
+        finally
+        {
+            task.getLock().unlock();
+        }
+         */
         ChunkRenderTaskSchematic.Status oldStatus;
         oldStatus = task.casStatus(ChunkRenderTaskSchematic.Status.PENDING, ChunkRenderTaskSchematic.Status.COMPILING);
-        if(oldStatus != ChunkRenderTaskSchematic.Status.PENDING)
+
+        if (oldStatus != ChunkRenderTaskSchematic.Status.PENDING)
+        {
             return;
+        }
+
         Entity entity = MinecraftClient.getInstance().getCameraEntity();
-        if (entity == null) {
+
+        if (entity == null)
+        {
             task.finish();
             return;
         }
@@ -79,13 +106,38 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
 
         ChunkRenderTaskSchematic.Type taskType = task.getType();
-        switch (task.getType()) {
+        switch (task.getType())
+        {
             case REBUILD_CHUNK -> task.getRenderChunk().rebuildChunk(task);
             case RESORT_TRANSPARENCY -> task.getRenderChunk().resortTransparency(task);
         }
 
+        /*
+        task.getLock().lock();
+
+        try
+        {
+            if (task.getStatus() != ChunkRenderTaskSchematic.Status.COMPILING)
+            {
+                if (task.isFinished() == false)
+                {
+                    LOGGER.warn("Chunk render task was {} when I expected it to be compiling; aborting task", (Object) task.getStatus());
+                }
+
+                this.freeRenderBuilder(task);
+                return;
+            }
+
+            task.setStatus(ChunkRenderTaskSchematic.Status.UPLOADING);
+        }
+        finally
+        {
+            task.getLock().unlock();
+        }
+         */
+
         oldStatus = task.casStatus(ChunkRenderTaskSchematic.Status.COMPILING, ChunkRenderTaskSchematic.Status.UPLOADING);
-        if(oldStatus != ChunkRenderTaskSchematic.Status.COMPILING)
+        if (oldStatus != ChunkRenderTaskSchematic.Status.COMPILING)
         {
             resetRenderAllocators(task);
             return;
@@ -96,8 +148,10 @@ public class ChunkRenderWorkerLitematica implements Runnable
         ChunkRendererSchematicVbo renderChunk = task.getRenderChunk();
         BufferAllocatorCache allocators = task.getAllocatorCache();
 
-        switch (taskType) {
-            case REBUILD_CHUNK -> {
+        switch (taskType)
+        {
+            case REBUILD_CHUNK ->
+            {
                 for(RenderLayer layer: ChunkRenderLayers.LAYERS)
                     if (!chunkRenderData.isBlockLayerEmpty(layer))
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), false));
@@ -105,7 +159,8 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (!chunkRenderData.isOverlayTypeEmpty(type))
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), false));
             }
-            case RESORT_TRANSPARENCY -> {
+            case RESORT_TRANSPARENCY ->
+            {
                 RenderLayer layer = RenderLayer.getTranslucent();
                 if (!chunkRenderData.isBlockLayerEmpty(layer))
                     futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(RenderLayer.getTranslucent(), allocators, renderChunk, chunkRenderData, task.getDistanceSq(), true));

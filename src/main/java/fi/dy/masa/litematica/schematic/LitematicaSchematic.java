@@ -1605,14 +1605,19 @@ public class LitematicaSchematic
             List<BlockState> list = new ArrayList<>(paletteSize);
             RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
 
-            if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
                 Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            }
+            else if (effective == null)
+            {
+                Litematica.logger.warn("readFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
             }
             for (int id = 0; id < paletteSize; ++id)
             {
                 NbtCompound t = paletteTag.getCompound(id);
-                if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+                if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
                 {
                     t = SchematicConversionMaps.updateBlockStates(t, minecraftDataVersion);
                 }
@@ -1745,15 +1750,20 @@ public class LitematicaSchematic
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("entities", Constants.NBT.TAG_COMPOUND);
         final int size = tagList.size();
+        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
-        if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+        if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
         {
             Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        }
+        else if (effective == null)
+        {
+            Litematica.logger.warn("readEntitiesFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
         }
         for (int i = 0; i < size; ++i)
         {
             NbtCompound entityData = tagList.getCompound(i);
-            if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
+            if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
                 entityData = SchematicConversionMaps.updateEntity(entityData, minecraftDataVersion);
             }
@@ -1843,6 +1853,14 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
+            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+
+            if (effective == null)
+            {
+                Litematica.logger.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
+                return oldPalette;
+            }
+
             NbtList newPalette = new NbtList();
             final int count = oldPalette.size();
             Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
@@ -1866,6 +1884,14 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
+            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+
+            if (effective == null)
+            {
+                Litematica.logger.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Tile Entities DataVersion {}", minecraftDataVersion);
+                return oldTE;
+            }
+
             Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
             Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
@@ -1889,6 +1915,14 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
+            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+
+            if (effective == null)
+            {
+                Litematica.logger.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
+                return oldEntitiesList;
+            }
+
             NbtList newEntitiesList = new NbtList();
             final int size = oldEntitiesList.size();
 
@@ -1914,6 +1948,14 @@ public class LitematicaSchematic
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
+            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+
+            if (effective == null)
+            {
+                Litematica.logger.warn("SpongeSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
+                return oldEntitiesList;
+            }
+
             List<EntityInfo> newEntitiesList = new ArrayList<>();
 
             Litematica.logger.info("SpongeSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);

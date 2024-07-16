@@ -74,18 +74,60 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         return true;
     }
     
-    protected Status casStatus(Status expected, Status nStatus) {
+    protected Status casStatus(Status expected, Status nStatus)
+    {
+        /*
+            this.lock.lock();
+
+        try
+        {
+            this.status = statusIn;
+        }
+        finally
+        {
+            this.lock.unlock();
+        }
+         */
+
         return status.compareAndExchange(expected, nStatus);
     }
 
     protected void finish()
     {
+        /*
+          this.lock.lock();
+
+        try
+        {
+            if (this.type == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK && this.status != ChunkRenderTaskSchematic.Status.DONE)
+            {
+                this.chunkRenderer.setNeedsUpdate(false);
+            }
+
+            this.finished = true;
+            this.status = ChunkRenderTaskSchematic.Status.DONE;
+
+            for (Runnable runnable : this.listFinishRunnables)
+            {
+                runnable.run();
+            }
+        }
+        finally
+        {
+            this.lock.unlock();
+        }
+         */
         Status current = status.get();
-        if(current==Status.DONE)
+
+        if (current == Status.DONE)
+        {
             return;
-        if(status.compareAndSet(current,Status.DONE)) {
+        }
+        if (status.compareAndSet(current,Status.DONE))
+        {
             Runnable runnable;
-            while((runnable = finishRunnables.poll())!= null) {
+            while((runnable = finishRunnables.poll())!= null)
+            {
                 runnable.run();
             }
         }
@@ -93,17 +135,45 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void addFinishRunnable(Runnable runnable)
     {
-        if(status.get() == Status.DONE) {
+        /*
+        this.lock.lock();
+
+        try
+        {
+            this.listFinishRunnables.add(runnable);
+
+            if (this.finished)
+            {
+                runnable.run();
+            }
+        }
+        finally
+        {
+            this.lock.unlock();
+        }
+         */
+        if (status.get() == Status.DONE)
+        {
             runnable.run();
             return;
         }
         finishRunnables.add(runnable);
-        if(status.get() == Status.DONE) {
+        if (status.get() == Status.DONE)
+        {
             runnable = finishRunnables.poll();
-            if(runnable!=null)
+            if (runnable != null)
+            {
                 runnable.run();
+            }
         }
     }
+
+    /*
+    public ReentrantLock getLock()
+    {
+        return this.lock;
+    }
+     */
 
     protected ChunkRenderTaskSchematic.Type getType()
     {
