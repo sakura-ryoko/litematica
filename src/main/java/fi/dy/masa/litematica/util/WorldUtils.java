@@ -551,19 +551,33 @@ public class WorldUtils
                 Direction side = applyPlacementFacing(stateSchematic, sideOrig, stateClient);
                 EasyPlaceProtocol protocol = PlacementHandler.getEffectiveProtocolVersion();
 
-                if (protocol == EasyPlaceProtocol.V3)
+                // Support for special cases
+                PlacementProtocolData placementData = applyPlacementProtocolAll(pos, stateSchematic, hitPos);
+                if (placementData.mustFail)
+                    return ActionResult.FAIL; //disallowed cases (e.g. trying to place torch with no support block)
+
+                if (placementData.handled)
                 {
-                    hitPos = applyPlacementProtocolV3(pos, stateSchematic, hitPos);
+                    pos = placementData.pos;
+                    side = placementData.side;
+                    hitPos = placementData.hitVec;
                 }
-                else if (protocol == EasyPlaceProtocol.V2)
+                else
                 {
-                    // Carpet Accurate Block Placement protocol support, plus slab support
-                    hitPos = applyCarpetProtocolHitVec(pos, stateSchematic, hitPos);
-                }
-                else if (protocol == EasyPlaceProtocol.SLAB_ONLY)
-                {
-                    // Slab support only
-                    hitPos = applyBlockSlabProtocol(pos, stateSchematic, hitPos);
+                    if (protocol == EasyPlaceProtocol.V3)
+                    {
+                        hitPos = applyPlacementProtocolV3(pos, stateSchematic, hitPos);
+                    }
+                    else if (protocol == EasyPlaceProtocol.V2)
+                    {
+                        // Carpet Accurate Block Placement protocol support, plus slab support
+                        hitPos = applyCarpetProtocolHitVec(pos, stateSchematic, hitPos);
+                    }
+                    else if (protocol == EasyPlaceProtocol.SLAB_ONLY)
+                    {
+                        // Slab support only
+                        hitPos = applyBlockSlabProtocol(pos, stateSchematic, hitPos);
+                    }
                 }
 
                 // Mark that this position has been handled (use the non-offset position that is checked above)
@@ -633,6 +647,48 @@ public class WorldUtils
         }
 
         return false;
+    }
+
+    static class PlacementProtocolData
+    {
+        boolean handled;
+        boolean mustFail;
+        BlockPos pos;
+        Direction side;
+        Vec3d hitVec;
+    }
+
+    public static PlacementProtocolData applyPlacementProtocolAll(BlockPos pos, BlockState stateSchematic, Vec3d hitVecIn)
+    {
+        PlacementProtocolData placementData = new PlacementProtocolData();
+
+        Block stateBlock = stateSchematic.getBlock();
+
+        //For now, only handles torches outside V2 / V3
+        if (stateBlock instanceof AbstractTorchBlock)
+        {
+            placementData.handled = true;
+            placementData.hitVec = hitVecIn;
+
+            if (stateBlock instanceof WallTorchBlock || stateBlock instanceof WallRedstoneTorchBlock)
+            {
+                placementData.side = stateSchematic.get(Properties.HORIZONTAL_FACING);
+                placementData.pos = pos.offset(placementData.side.getOpposite());
+            }
+            else
+            {
+                placementData.side = Direction.UP;
+                placementData.pos = pos.down();
+            }
+
+            BlockState stateFacing = MinecraftClient.getInstance().world.getBlockState(placementData.pos);
+            if (stateFacing == null || stateFacing.isAir())
+            {
+                placementData.mustFail = true;
+            }
+        }
+
+        return placementData;
     }
 
     /**
