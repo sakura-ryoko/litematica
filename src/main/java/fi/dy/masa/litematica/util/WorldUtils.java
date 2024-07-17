@@ -524,32 +524,35 @@ public class WorldUtils
 
                 Vec3d hitPos = trace.getPos();
                 Direction sideOrig = trace.getSide();
+                EasyPlaceProtocol protocol = PlacementHandler.getEffectiveProtocolVersion();
 
-                // If there is a block in the world right behind the targeted schematic block, then use
-                // that block as the click position
-                if (traceVanilla != null && traceVanilla.getType() == HitResult.Type.BLOCK)
+                if (protocol == EasyPlaceProtocol.NONE || protocol == EasyPlaceProtocol.SLAB_ONLY)
                 {
-                    BlockHitResult hitResult = (BlockHitResult) traceVanilla;
-                    BlockPos posVanilla = hitResult.getBlockPos();
-                    Direction sideVanilla = hitResult.getSide();
-                    BlockState stateVanilla = mc.world.getBlockState(posVanilla);
-                    Vec3d hit = traceVanilla.getPos();
-                    ItemPlacementContext ctx = new ItemPlacementContext(new ItemUsageContext(mc.player, hand, hitResult));
-
-                    if (stateVanilla.canReplace(ctx) == false)
+                    // If there is a block in the world right behind the targeted schematic block, then use
+                    // that block as the click position
+                    if (traceVanilla != null && traceVanilla.getType() == HitResult.Type.BLOCK)
                     {
-                        posVanilla = posVanilla.offset(sideVanilla);
+                        BlockHitResult hitResult = (BlockHitResult) traceVanilla;
+                        BlockPos posVanilla = hitResult.getBlockPos();
+                        Direction sideVanilla = hitResult.getSide();
+                        BlockState stateVanilla = mc.world.getBlockState(posVanilla);
+                        Vec3d hit = traceVanilla.getPos();
+                        ItemPlacementContext ctx = new ItemPlacementContext(new ItemUsageContext(mc.player, hand, hitResult));
 
-                        if (pos.equals(posVanilla))
+                        if (stateVanilla.canReplace(ctx) == false)
                         {
-                            hitPos = hit;
-                            sideOrig = sideVanilla;
+                            posVanilla = posVanilla.offset(sideVanilla);
+
+                            if (pos.equals(posVanilla))
+                            {
+                                hitPos = hit;
+                                sideOrig = sideVanilla;
+                            }
                         }
                     }
                 }
 
                 Direction side = applyPlacementFacing(stateSchematic, sideOrig, stateClient);
-                EasyPlaceProtocol protocol = PlacementHandler.getEffectiveProtocolVersion();
 
                 // Support for special cases
                 PlacementProtocolData placementData = applyPlacementProtocolAll(pos, stateSchematic, hitPos);
