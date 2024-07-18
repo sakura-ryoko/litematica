@@ -50,8 +50,11 @@ public class RenderHandler implements IRenderer
 
             if (GuiUtils.getCurrentScreen() == null)
             {
-                ToolHud.getInstance().renderHud(drawContext);
-                OverlayRenderer.getInstance().renderHoverInfo(mc, drawContext);
+                if (mc.options.hudHidden == false)
+                {
+                    ToolHud.getInstance().renderHud(drawContext);
+                    OverlayRenderer.getInstance().renderHoverInfo(mc, drawContext);
+                }
 
                 if (GuiSchematicManager.hasPendingPreviewTask())
                 {

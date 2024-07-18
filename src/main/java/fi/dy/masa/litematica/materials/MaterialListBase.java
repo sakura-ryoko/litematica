@@ -23,7 +23,7 @@ public abstract class MaterialListBase implements IMaterialList
     @Nullable protected ICompletionListener completionListener;
     protected SortCriteria sortCriteria = SortCriteria.COUNT_TOTAL;
     protected BlockInfoListType materialListType = BlockInfoListType.ALL;
-    protected boolean reverse;
+    protected boolean reverse = false;
     protected boolean hideAvailable;
     protected int multiplier = 1;
     protected long countTotal;

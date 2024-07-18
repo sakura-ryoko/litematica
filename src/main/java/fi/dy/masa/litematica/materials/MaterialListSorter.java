@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.materials;
 
 import java.util.Comparator;
+import fi.dy.masa.litematica.materials.MaterialListBase.SortCriteria;
 
 public class MaterialListSorter implements Comparator<MaterialListEntry>
 {
@@ -14,14 +15,23 @@ public class MaterialListSorter implements Comparator<MaterialListEntry>
     @Override
     public int compare(MaterialListEntry entry1, MaterialListEntry entry2)
     {
-        int cmp = switch (this.materialList.getSortCriteria()) {
-            case COUNT_TOTAL -> entry1.getCountTotal() - entry2.getCountTotal();
-            case COUNT_MISSING -> entry1.getCountMissing() - entry2.getCountMissing();
-            case COUNT_AVAILABLE -> entry1.getCountAvailable() - entry2.getCountAvailable();
-            default -> 0;
-        };
-        if(cmp==0)
-            cmp = entry1.getStack().getName().getString().compareTo(entry2.getStack().getName().getString());
-        return this.materialList.getSortInReverse()? -cmp: cmp;
+        boolean reverse = this.materialList.getSortInReverse();
+        SortCriteria sortCriteria = this.materialList.getSortCriteria();
+        int nameCompare = entry1.getStack().getName().getString().compareTo(entry2.getStack().getName().getString());
+
+        if (sortCriteria == SortCriteria.COUNT_TOTAL)
+        {
+            return entry1.getCountTotal() == entry2.getCountTotal() ? nameCompare : ((entry1.getCountTotal() > entry2.getCountTotal()) != reverse ? -1 : 1);
+        }
+        else if (sortCriteria == SortCriteria.COUNT_MISSING)
+        {
+            return entry1.getCountMissing() == entry2.getCountMissing() ? nameCompare : ((entry1.getCountMissing() > entry2.getCountMissing()) != reverse ? -1 : 1);
+        }
+        else if (sortCriteria == SortCriteria.COUNT_AVAILABLE)
+        {
+            return entry1.getCountAvailable() == entry2.getCountAvailable() ? nameCompare : ((entry1.getCountAvailable() > entry2.getCountAvailable()) != reverse ? -1 : 1);
+        }
+
+        return reverse == false ? nameCompare * -1 : nameCompare;
     }
 }
