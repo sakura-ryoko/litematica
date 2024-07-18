@@ -7,7 +7,7 @@
     "litematica.error.area_selection.rename.already_exists": "错误：已经存在一个文件名为“%s”的区域",
     "litematica.error.area_selection.rename.invalid_safe_file_name": "生成的文件名为“%s”的安全文件无效",
     "litematica.error.duplicate_schematic_placement": "错误：尝试添加一个已经存在的投影放置",
-    "litematica.error.generic.creative_mode_only": "这个行为尽在创造模式中可用",
+    "litematica.error.generic.creative_mode_only": "这个行为仅在创造模式中可用",
     "litematica.error.generic.failed_to_delete_file": "无法删除文件“%s”",
     "litematica.error.generic.failed_to_sort_list_of_ignored_states": "无法对忽略状态列表进行排序",
     "litematica.error.generic.schematic_world_not_loaded": "原理图世界未被加载",
