@@ -665,14 +665,22 @@ public class WorldUtils
         PlacementProtocolData placementData = new PlacementProtocolData();
 
         Block stateBlock = stateSchematic.getBlock();
+        final World world = MinecraftClient.getInstance().world;
 
-        //For now, only handles torches outside V2 / V3
-        if (stateBlock instanceof AbstractTorchBlock)
+        //Wall-mountable blocks
+        if (stateBlock instanceof AbstractTorchBlock ||
+            stateBlock instanceof AbstractBannerBlock ||
+            stateBlock instanceof AbstractSignBlock ||
+            stateBlock instanceof AbstractSkullBlock)
         {
             placementData.handled = true;
             placementData.hitVec = hitVecIn;
 
-            if (stateBlock instanceof WallTorchBlock || stateBlock instanceof WallRedstoneTorchBlock)
+            if (stateBlock instanceof WallTorchBlock ||
+                stateBlock instanceof WallRedstoneTorchBlock ||
+                stateBlock instanceof WallBannerBlock ||
+                stateBlock instanceof WallSignBlock ||
+                stateBlock instanceof WallSkullBlock)
             {
                 placementData.side = stateSchematic.get(Properties.HORIZONTAL_FACING);
                 placementData.pos = pos.offset(placementData.side.getOpposite());
@@ -683,11 +691,31 @@ public class WorldUtils
                 placementData.pos = pos.down();
             }
 
-            BlockState stateFacing = MinecraftClient.getInstance().world.getBlockState(placementData.pos);
+            //If the supporting block doesn't exist, fail
+            BlockState stateFacing = world.getBlockState(placementData.pos);
             if (stateFacing == null || stateFacing.isAir())
             {
                 placementData.mustFail = true;
             }
+        }
+        else if (stateBlock instanceof WallMountedBlock)
+        {
+            //If the supporting block doesn't exist, fail
+            Direction direction;
+            switch (stateSchematic.get(Properties.BLOCK_FACE))
+            {
+                case CEILING:
+                    direction = Direction.UP;
+                    break;
+                case FLOOR:
+                    direction = Direction.DOWN;
+                    break;
+                default:
+                    direction = stateSchematic.get(Properties.HORIZONTAL_FACING).getOpposite();
+            }
+
+            if (!WallMountedBlock.canPlaceAt(world, pos, direction))
+                placementData.mustFail = true;
         }
         // FIXME (Didn't have time)
         /*
