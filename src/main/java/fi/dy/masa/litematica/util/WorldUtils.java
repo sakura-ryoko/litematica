@@ -986,9 +986,55 @@ public class WorldUtils
             {
                 return true;
             }
+
+            // Orientation is wrong
+            BlockState attemptState = stateSchematic.getBlock().getPlacementState(ctx);
+            return !isMatchingStatePlacementRestriction (attemptState, stateSchematic);
         }
 
         return false;
+    }
+
+    private static boolean isMatchingStatePlacementRestriction (BlockState state1, BlockState state2)
+    {
+        if (state1 == null || state2 == null)
+            return false;
+        if (state1 == state2)
+            return true;
+
+        Property<?>[] orientationProperties = new Property<?>[] {
+                Properties.FACING, //pistons
+                Properties.BLOCK_HALF, //stairs, trapdoors
+                Properties.HOPPER_FACING,
+                Properties.DOOR_HINGE,
+                Properties.HORIZONTAL_FACING, //small dripleaf
+                Properties.AXIS, //logs
+                Properties.SLAB_TYPE,
+                Properties.VERTICAL_DIRECTION,
+                Properties.ROTATION, //banners
+                Properties.HANGING, //lanterns
+                Properties.BLOCK_FACE, //lever
+                Properties.ATTACHMENT, //bell (double-check for single-wall / double-wall)
+                //Properties.HORIZONTAL_AXIS, //Nether portals, though they aren't directly placeable
+                //Properties.ORIENTATION, //jigsaw blocks
+        };
+
+        for (Property<?> property : orientationProperties)
+        {
+            boolean hasProperty1 = state1.contains(property);
+            boolean hasProperty2 = state2.contains(property);
+
+            if (hasProperty1 != hasProperty2)
+                return false;
+            if (!hasProperty1)
+                continue;
+
+            if (state1.get(property) != state2.get(property))
+                return false;
+        }
+
+        //Other properties are considered as matching
+        return true;
     }
 
     public static boolean isPositionWithinRangeOfSchematicRegions(BlockPos pos, int range)
