@@ -1011,8 +1011,20 @@ public class WorldUtils
                 return true;
             }
 
+            // Ignore if schematic block is wall-mountable and orientation is wrong
+            Block schematicBlock = stateSchematic.getBlock();
+            if (schematicBlock instanceof WallTorchBlock ||
+                schematicBlock instanceof WallRedstoneTorchBlock ||
+                schematicBlock instanceof WallBannerBlock ||
+                schematicBlock instanceof WallSignBlock ||
+                schematicBlock instanceof WallSkullBlock)
+            {
+                if (blockHitResult.getSide() != stateSchematic.get(Properties.HORIZONTAL_FACING))
+                    return true;
+            }
+
             // Orientation is wrong
-            BlockState attemptState = stateSchematic.getBlock().getPlacementState(ctx);
+            BlockState attemptState = schematicBlock.getPlacementState(ctx);
             return !isMatchingStatePlacementRestriction (attemptState, stateSchematic);
         }
 
