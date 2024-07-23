@@ -621,7 +621,7 @@ public class KeyCallbacks
                     return true;
                 }
             }
-            else if(key == Hotkeys.SCHEMATIC_PLACEMENT_ROTATION.getKeybind()) {
+            else if (key == Hotkeys.SCHEMATIC_PLACEMENT_ROTATION.getKeybind()) {
                 SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
                 if(placement != null) {
                     BlockRotation rotation = PositionUtils.cycleRotation(placement.getRotation(), false);
@@ -635,7 +635,7 @@ public class KeyCallbacks
                     return true;
                 }
             }
-            else if(key == Hotkeys.SCHEMATIC_PLACEMENT_MIRROR.getKeybind()) {
+            else if (key == Hotkeys.SCHEMATIC_PLACEMENT_MIRROR.getKeybind()) {
                 SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
                 if(placement != null) {
                     BlockMirror mirror = PositionUtils.cycleMirror(placement.getMirror(), false);
