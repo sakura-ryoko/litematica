@@ -405,6 +405,8 @@
     "litematica.message.placement.cant_modify_is_locked": "§c展示位置已锁定且无法修改§r",
     "litematica.message.placement.moved_placement_origin": "已移动展示位置 原点%s => %s",
     "litematica.message.placement.moved_subregion_to": "移动子区域 to %s",
+    "litematica.message.placement.rotation_set_to": "放置旋转为 %s 方向",
+    "litematica.message.placement.mirror_set_to": "放置镜像为 %s 方向",
     "litematica.message.placement_restriction_fail": "放置限制模式阻止的操作",
     "litematica.message.removed_area_origin": "删除了展示的/手动区域原点",
     "litematica.message.removed_selection_box": "已删除选择框 %s",

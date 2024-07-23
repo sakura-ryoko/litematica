@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.event;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.BlockMirror;
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -93,13 +95,14 @@ public class KeyCallbacks
         Hotkeys.TOOL_SELECT_MODIFIER_BLOCK_1.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.TOOL_SELECT_MODIFIER_BLOCK_2.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.UNLOAD_CURRENT_SCHEMATIC.getKeybind().setCallback(callbackHotkeys);
-
         Hotkeys.ADD_SELECTION_BOX.getKeybind().setCallback(callbackMessage);
         Hotkeys.DELETE_SELECTION_BOX.getKeybind().setCallback(callbackMessage);
         Hotkeys.EASY_PLACE_TOGGLE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.EASY_PLACE_MODE));
         Hotkeys.MOVE_ENTIRE_SELECTION.getKeybind().setCallback(callbackMessage);
         Hotkeys.SELECTION_MODE_CYCLE.getKeybind().setCallback(callbackMessage);
         Hotkeys.SET_AREA_ORIGIN.getKeybind().setCallback(callbackMessage);
+        Hotkeys.SCHEMATIC_PLACEMENT_ROTATION.getKeybind().setCallback(callbackMessage);
+        Hotkeys.SCHEMATIC_PLACEMENT_MIRROR.getKeybind().setCallback(callbackMessage);
         Hotkeys.SET_SELECTION_BOX_POSITION_1.getKeybind().setCallback(callbackMessage);
         Hotkeys.SET_SELECTION_BOX_POSITION_2.getKeybind().setCallback(callbackMessage);
         Hotkeys.TOGGLE_ALL_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.ENABLE_RENDERING));
@@ -615,6 +618,34 @@ public class KeyCallbacks
                 {
                     BlockPos pos = BlockPos.ofFloored(this.mc.player.getPos());
                     DataManager.getSchematicPlacementManager().setPositionOfCurrentSelectionTo(pos, this.mc);
+                    return true;
+                }
+            }
+            else if(key == Hotkeys.SCHEMATIC_PLACEMENT_ROTATION.getKeybind()) {
+                SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
+                if(placement != null) {
+                    BlockRotation rotation = PositionUtils.cycleRotation(placement.getRotation(), false);
+                    if(placement.isLocked()) {
+                        InfoUtils.showGuiOrActionBarMessage(MessageType.ERROR, "litematica.message.placement.cant_modify_is_locked");
+                    }
+                    else {
+                        placement.setRotation(rotation, null);
+                        InfoUtils.printActionbarMessage("litematica.message.placement.rotation_set_to", PositionUtils.getRotationNameShort(rotation));
+                    }
+                    return true;
+                }
+            }
+            else if(key == Hotkeys.SCHEMATIC_PLACEMENT_MIRROR.getKeybind()) {
+                SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
+                if(placement != null) {
+                    BlockMirror mirror = PositionUtils.cycleMirror(placement.getMirror(), false);
+                    if(placement.isLocked()) {
+                        InfoUtils.showGuiOrActionBarMessage(MessageType.ERROR, "litematica.message.placement.cant_modify_is_locked");
+                    }
+                    else {
+                        placement.setMirror(mirror, null);
+                        InfoUtils.printActionbarMessage("litematica.message.placement.mirror_set_to", PositionUtils.getMirrorName(mirror));
+                    }
                     return true;
                 }
             }
