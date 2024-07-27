@@ -3,6 +3,8 @@ package fi.dy.masa.litematica.render.infohud;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -296,6 +298,13 @@ public class ToolHud extends InfoHud
                     lines.add(StringUtils.translate("litematica.hud.misc.schematic_paste.replace_mode", str));
 
                     str = Configs.Generic.PASTE_NBT_BEHAVIOR.getOptionListValue().getDisplayName();
+
+                    if (EntitiesDataStorage.getInstance().hasServuxServer()
+                            && Configs.Generic.PASTE_USING_SERVUX.getBooleanValue()
+                            && !Configs.Generic.PASTE_USING_COMMANDS_IN_SP.getBooleanValue())
+                    {
+                        str = orange + "Servux" + rst;
+                    }
                     lines.add(StringUtils.translate("litematica.hud.misc.schematic_paste.data_restore_mode", str));
 
                     String strVal = Configs.Generic.PASTE_IGNORE_INVENTORY.getBooleanValue() ? strYes : strNo;
