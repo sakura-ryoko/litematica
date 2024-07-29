@@ -702,7 +702,8 @@ public class WorldUtils
                 placementData.mustFail = true;
             }
         }
-        else if (stateBlock instanceof WallMountedBlock)
+        else if ((stateBlock instanceof WallMountedBlock) &&
+                !(stateBlock instanceof GrindstoneBlock))
         {
             //If the supporting block doesn't exist, fail
             Direction direction;
@@ -1054,7 +1055,7 @@ public class WorldUtils
                 Properties.VERTICAL_DIRECTION,
                 Properties.ROTATION, //banners
                 Properties.HANGING, //lanterns
-                Properties.BLOCK_FACE, //lever
+                Properties.BLOCK_FACE, //lever, button, grindstone
                 Properties.ATTACHMENT, //bell (double-check for single-wall / double-wall)
                 //Properties.HORIZONTAL_AXIS, //Nether portals, though they aren't directly placeable
                 //Properties.ORIENTATION, //jigsaw blocks
