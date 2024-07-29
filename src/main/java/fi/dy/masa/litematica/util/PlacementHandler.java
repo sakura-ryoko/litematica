@@ -32,30 +32,40 @@ import fi.dy.masa.litematica.data.DataManager;
 public class PlacementHandler
 {
     public static final ImmutableSet<Property<?>> WHITELISTED_PROPERTIES = ImmutableSet.of(
-            // BooleanProperty:
+// BooleanProperty:
             // INVERTED - DaylightDetector
             // OPEN - Barrel, Door, FenceGate, Trapdoor
-            // PERSISTENT - Leaves
+            // PERSISTENT - Leaves (Disabled)
             Properties.INVERTED,
             Properties.OPEN,
-            Properties.PERSISTENT,
+            //Properties.PERSISTENT,
             // EnumProperty:
+            // ATTACHMENT - Bells
             // AXIS - Pillar
             // BLOCK_HALF - Stairs, Trapdoor
+            // BLOCK_FACE - Button, Grindstone, Lever
             // CHEST_TYPE - Chest
             // COMPARATOR_MODE - Comparator
             // DOOR_HINGE - Door
+            // ORIENTATION - Crafter
+            // RAIL_SHAPE / STRAIGHT_RAIL_SHAPE - Rails
             // SLAB_TYPE - Slab - PARTIAL ONLY: TOP and BOTTOM, not DOUBLE
             // STAIR_SHAPE - Stairs (needed to get the correct state, otherwise the player facing would be a factor)
             // BLOCK_FACE - Button, Grindstone, Lever
+            Properties.ATTACHMENT,
             Properties.AXIS,
             Properties.BLOCK_HALF,
+            Properties.BLOCK_FACE,
             Properties.CHEST_TYPE,
             Properties.COMPARATOR_MODE,
             Properties.DOOR_HINGE,
+            Properties.HORIZONTAL_FACING,
+            Properties.HOPPER_FACING,
+            Properties.ORIENTATION,
+            Properties.RAIL_SHAPE,
+            Properties.STRAIGHT_RAIL_SHAPE,
             Properties.SLAB_TYPE,
             Properties.STAIR_SHAPE,
-            Properties.BLOCK_FACE,
             // IntProperty:
             // BITES - Cake
             // DELAY - Repeater
@@ -171,11 +181,12 @@ public class PlacementHandler
     public static <T extends Comparable<T>> BlockState applyPlacementProtocolV3(BlockState state, UseContext context)
     {
         int protocolValue = (int) (context.getHitVec().x - (double) context.getPos().getX()) - 2;
+        BlockState oldState = state;
         //System.out.printf("raw protocol value in: 0x%08X\n", protocolValue);
 
         if (protocolValue < 0)
         {
-            return state;
+            return oldState;
         }
 
         @Nullable DirectionProperty property = fi.dy.masa.malilib.util.BlockUtils.getFirstDirectionProperty(state);
@@ -189,6 +200,17 @@ public class PlacementHandler
             if (state == null)
             {
                 return null;
+            }
+
+            if (state.canPlaceAt(context.getWorld(), context.getPos()))
+            {
+                //System.out.printf("validator passed for \"%s\"\n", property.getName());
+                oldState = state;
+            }
+            else
+            {
+                //System.out.printf("validator failed for \"%s\"\n", property.getName());
+                state = oldState;
             }
 
             // Consume the bits used for the facing
@@ -225,8 +247,19 @@ public class PlacementHandler
                         if (state.get(prop).equals(value) == false &&
                             value != SlabType.DOUBLE) // don't allow duping slabs by forcing a double slab via the protocol
                         {
-                            //System.out.printf("applying %s: %s\n", prop.getName(), value);
+                            //System.out.printf("applying \"%s\": %s\n", prop.getName(), value);
                             state = state.with(prop, value);
+
+                            if (state.canPlaceAt(context.getWorld(), context.getPos()))
+                            {
+                                //System.out.printf("validator passed for \"%s\"\n", prop.getName());
+                                oldState = state;
+                            }
+                            else
+                            {
+                                //System.out.printf("validator failed for \"%s\"\n", prop.getName());
+                                state = oldState;
+                            }
                         }
 
                         protocolValue >>>= requiredBits;
@@ -239,7 +272,16 @@ public class PlacementHandler
             Litematica.logger.warn("Exception trying to apply placement protocol value", e);
         }
 
-        return state;
+        if (state.canPlaceAt(context.getWorld(), context.getPos()))
+        {
+            //System.out.printf("validator passed for \"%s\"\n", state);
+            return state;
+        }
+        else
+        {
+            //System.out.printf("validator failed for \"%s\"\n", state);
+            return null;
+        }
     }
 
     private static BlockState applyDirectionProperty(BlockState state, UseContext context,
@@ -263,7 +305,7 @@ public class PlacementHandler
             }
         }
 
-        //System.out.printf("plop facing: %s -> %s (raw: %d, dec: %d)\n", facingOrig, facing, rawFacingIndex, decodedFacingIndex);
+        //System.out.printf("plop facing: %s -> %s (raw: %d, dec: %d)\n", facingOrig, facing, protocolValue, decodedFacingIndex);
 
         if (facing != facingOrig && property.getValues().contains(facing))
         {
@@ -294,7 +336,7 @@ public class PlacementHandler
         private final Hand hand;
         @Nullable private final ItemPlacementContext itemPlacementContext;
 
-        private UseContext(World world, BlockPos pos, Direction side, Vec3d hitVec,
+        public UseContext(World world, BlockPos pos, Direction side, Vec3d hitVec,
                            LivingEntity entity, Hand hand, @Nullable ItemPlacementContext itemPlacementContext)
         {
             this.world = world;

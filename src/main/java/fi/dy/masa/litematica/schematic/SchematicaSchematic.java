@@ -32,6 +32,7 @@ import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.IStateFixer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConverter;
+import fi.dy.masa.litematica.util.DataFixerMode;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.NbtUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -681,12 +682,28 @@ public class SchematicaSchematic
     {
         this.entities.clear();
         NbtList tagList = nbt.getList("Entities", Constants.NBT.TAG_COMPOUND);
+        int minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
-        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue(), LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        if (effective != null)
+        {
+            Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        }
+        else
+        {
+            Litematica.logger.warn("SchematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
+        }
 
         for (int i = 0; i < tagList.size(); ++i)
         {
-            this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompound(i), Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()));
+            if (effective != null)
+            {
+                this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompound(i), minecraftDataVersion));
+            }
+            else
+            {
+                this.entities.add(tagList.getCompound(i));
+            }
         }
     }
 
@@ -694,8 +711,17 @@ public class SchematicaSchematic
     {
         this.tiles.clear();
         NbtList tagList = nbt.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
+        int minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
-        Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue(), LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        if (effective != null)
+        {
+            Litematica.logger.info("SchematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+        }
+        else
+        {
+            Litematica.logger.warn("SchematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Tile Entities DataVersion {}", minecraftDataVersion);
+        }
 
         for (int i = 0; i < tagList.size(); ++i)
         {
@@ -707,7 +733,14 @@ public class SchematicaSchematic
                 pos.getY() >= 0 && pos.getY() < size.getY() &&
                 pos.getZ() >= 0 && pos.getZ() < size.getZ())
             {
-                this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(tag, Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()));
+                if (effective != null)
+                {
+                    this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(SchematicConversionMaps.checkForIdTag(tag), minecraftDataVersion));
+                }
+                else
+                {
+                    this.tiles.put(pos, SchematicConversionMaps.checkForIdTag(tag));
+                }
             }
         }
     }

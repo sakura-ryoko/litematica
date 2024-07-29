@@ -433,6 +433,7 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
                 case OPEN_MATERIAL_LIST_GUI:
                 {
                     MaterialListBase materialList = this.placement.getMaterialList();
+                    materialList.reCreateMaterialList();
                     GuiMaterialList gui = new GuiMaterialList(materialList);
                     DataManager.setMaterialList(materialList); // Remember the last opened material list for the hotkey to (re-) open it
                     gui.setParent(this.parent);

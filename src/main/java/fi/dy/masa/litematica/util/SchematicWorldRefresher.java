@@ -128,7 +128,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         {
             int chunkX = pos.getX() >> 4;
             int chunkZ = pos.getZ() >> 4;
-            Litematica.debugLog("SchematicWorldRefresher#markSchematicChunkForRenderUpdate({}, {})", chunkX, chunkZ);
+            //Litematica.debugLog("SchematicWorldRefresher#markSchematicChunkForRenderUpdate({}, {})", chunkX, chunkZ);
 
             if (world.getChunkProvider().isChunkLoaded(chunkX, chunkZ) &&
                 WorldUtils.isClientChunkLoaded(this.mc.world, chunkX, chunkZ))

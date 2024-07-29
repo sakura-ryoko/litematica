@@ -87,7 +87,17 @@ public class GuiSchematicSaveImported extends GuiSchematicSaveBase
                     boolean ignoreEntities = this.gui.checkboxIgnoreEntities.isChecked();
                     FileType fileType = FileType.fromFile(new File(inDir, inFile));
 
-                    if (fileType == FileType.SCHEMATICA_SCHEMATIC)
+                    if (fileType == FileType.LITEMATICA_SCHEMATIC)
+                    {
+                        if (WorldUtils.convertLitematicaSchematicToLitematicaSchematic(inDir, inFile, dir, fileName, ignoreEntities, override, this.gui))
+                        {
+                            this.gui.addMessage(MessageType.SUCCESS, "litematica.message.litematic_saved_as", fileName);
+                            this.gui.getListWidget().refreshEntries();
+                        }
+
+                        return;
+                    }
+                    else if (fileType == FileType.SCHEMATICA_SCHEMATIC)
                     {
                         if (WorldUtils.convertSchematicaSchematicToLitematicaSchematic(inDir, inFile, dir, fileName, ignoreEntities, override, this.gui))
                         {

@@ -18,6 +18,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.NBTUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
@@ -338,6 +339,7 @@ public class SchematicConversionMaps
         }
     }
 
+    // Fix missing "id" tags.  This seems to be an issue with 1.19.x litematics.
     public static NbtCompound checkForIdTag(NbtCompound tags)
     {
         if (tags.contains("id"))
@@ -449,7 +451,62 @@ public class SchematicConversionMaps
             tags.putString("id", "minecraft:piston");
         }
 
+        // Fix any erroneous Items tags with the null "tag" tag.
+        if (tags.contains("Items"))
+        {
+            NbtList items = fixItemsTag(tags.getList("Items", Constants.NBT.TAG_COMPOUND));
+            tags.put("Items", items);
+        }
+
         return tags;
+    }
+
+    // Fix null 'tag' entries.  This seems to be an issue with 1.19.x litematics.
+    private static NbtList fixItemsTag(NbtList items)
+    {
+        NbtList newList = new NbtList();
+
+        for (int i = 0; i < items.size(); i++)
+        {
+            NbtCompound itemEntry = items.getCompound(i);
+            if (itemEntry.contains("tag"))
+            {
+                NbtCompound tag = null;
+                try
+                {
+                    tag = itemEntry.getCompound("tag");
+                }
+                catch (Exception ignored) {}
+
+                // Remove 'tag' if it is set to null
+                if (tag == null)
+                {
+                    itemEntry.remove("tag");
+                }
+                else
+                {
+                    // Fix nested entries if they exist
+                    if (tag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
+                    {
+                        NbtCompound entityEntry = tag.getCompound("BlockEntityTag");
+
+                        if (entityEntry.contains("Items", Constants.NBT.TAG_LIST))
+                        {
+                            NbtList nestedItems = fixItemsTag(entityEntry.getList("Items", Constants.NBT.TAG_COMPOUND));
+                            entityEntry.put("Items", nestedItems);
+                        }
+
+                        tag.put("BlockEntityTag", entityEntry);
+                    }
+
+                    itemEntry.put("tag", tag);
+                }
+            }
+
+            newList.add(itemEntry);
+        }
+
+        return newList;
     }
 
     private static class ConversionData

@@ -8,7 +8,6 @@ import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.hotkeys.*;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -100,7 +99,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     @Override
     public boolean onMouseScroll(int mouseX, int mouseY, double dWheel)
     {
-        Litematica.debugLog("Mouse scroll: x: {}, y; {}, wheel: {}", mouseX, mouseY, dWheel);
+        //Litematica.debugLog("Mouse scroll: x: {}, y; {}, wheel: {}", mouseX, mouseY, dWheel);
         MinecraftClient mc = MinecraftClient.getInstance();
 
         // Not in a GUI

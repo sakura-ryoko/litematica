@@ -19,6 +19,7 @@
     "litematica.error.area_editor.rename_sub_region.exists": "Failed to rename the sub-region:\nA sub-region already exists by the name '%s'",
     "litematica.error.area_editor.switch_mode.no_selection": "Can't switch to Selection Mode: Normal, because there is currently no area selected.\nSelect an area or create a new selection in the Area Selection browser",
 
+    "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Failed to create the Litematica schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Failed to load the Schematic",
     "litematica.error.schematic_conversion.structure_to_litematica_failed": "Failed to convert the Structure to a Litematica Schematic",
@@ -230,6 +231,16 @@
     "litematica.gui.label.easy_place_protocol.slabs_only": "Slabs only",
     "litematica.gui.label.easy_place_protocol.v2": "Version 2",
     "litematica.gui.label.easy_place_protocol.v3": "Version 3",
+
+    "litematica.gui.label.data_fixer_mode.always": "Always",
+    "litematica.gui.label.data_fixer_mode.below_1205": "Below 1.20.5 Only",
+    "litematica.gui.label.data_fixer_mode.below_120X": "Below 1.20.x Only",
+    "litematica.gui.label.data_fixer_mode.below_119X": "Below 1.19.x Only",
+    "litematica.gui.label.data_fixer_mode.below_117X": "Below 1.17.x Only",
+    "litematica.gui.label.data_fixer_mode.below_116X": "Below 1.16.x Only",
+    "litematica.gui.label.data_fixer_mode.below_113X": "Below 1.13.x Only",
+    "litematica.gui.label.data_fixer_mode.below_112X": "Below 1.12.x Only",
+    "litematica.gui.label.data_fixer_mode.never": "Never",
 
     "litematica.gui.label.loaded_schematic.modified_on": "§6Modified on %s§r",
 
@@ -451,6 +462,7 @@
     "litematica.message.in_memory_schematic_created": "Created an in-memory schematic as '%s'",
     "litematica.message.material_list.material_cache_cleared": "Material Cache cleared",
     "litematica.message.material_list_written_to_file": "Material list written to file '%s'",
+    "litematica.message.litematic_saved_as": "Successfully Upgraded the Litematica Schematic's Data Version\\nSchematic saved as '%s'",
     "litematica.message.moved_area_origin": "Moved the area origin point from %s => %s",
     "litematica.message.moved_selection": "Moved the current selection from %s => %s",
     "litematica.message.placement.cant_modify_is_locked": "§cThe placement is locked and can't be modified§r",
