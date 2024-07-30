@@ -12,6 +12,7 @@
         "IMixinSignBlockEntity",
         "IMixinStairsBlock",
         "IMixinVineBlock",
+        "IMixinWallMountedBlock",
         "IMixinWorldTickScheduler",
         "MixinAbstractSignEditScreen",
         "MixinBlock",

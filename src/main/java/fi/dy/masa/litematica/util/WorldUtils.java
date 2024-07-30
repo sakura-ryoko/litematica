@@ -49,6 +49,7 @@ import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.materials.MaterialCache;
 import fi.dy.masa.litematica.mixin.IMixinSignBlockEntity;
+import fi.dy.masa.litematica.mixin.IMixinWallMountedBlock;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.SchematicaSchematic;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
@@ -705,20 +706,7 @@ public class WorldUtils
         else if (stateBlock instanceof WallMountedBlock)
         {
             //If the supporting block doesn't exist, fail
-            Direction direction;
-            switch (stateSchematic.get(Properties.BLOCK_FACE))
-            {
-                case CEILING:
-                    direction = Direction.UP;
-                    break;
-                case FLOOR:
-                    direction = Direction.DOWN;
-                    break;
-                default:
-                    direction = stateSchematic.get(Properties.HORIZONTAL_FACING).getOpposite();
-            }
-
-            if (!WallMountedBlock.canPlaceAt(world, pos, direction))
+            if (!((IMixinWallMountedBlock)stateBlock).invokeCanPlaceAt(stateSchematic, world, pos))
                 placementData.mustFail = true;
         }
 
@@ -1054,7 +1042,7 @@ public class WorldUtils
                 Properties.VERTICAL_DIRECTION,
                 Properties.ROTATION, //banners
                 Properties.HANGING, //lanterns
-                Properties.BLOCK_FACE, //lever
+                Properties.BLOCK_FACE, //lever, button, grindstone
                 Properties.ATTACHMENT, //bell (double-check for single-wall / double-wall)
                 //Properties.HORIZONTAL_AXIS, //Nether portals, though they aren't directly placeable
                 //Properties.ORIENTATION, //jigsaw blocks
