@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(WallMountedBlock.class)
-public interface IMixinWallMountedBlock {
+public interface IMixinWallMountedBlock
+{
 
     @Invoker("canPlaceAt")
     boolean invokeCanPlaceAt(BlockState state, WorldView world, BlockPos pos);
