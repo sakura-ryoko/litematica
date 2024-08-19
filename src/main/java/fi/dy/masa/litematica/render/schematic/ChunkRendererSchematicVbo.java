@@ -736,36 +736,36 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected OverlayType getOverlayType(BlockState stateSchematic, BlockState stateClient)
     {
-        Boolean interchangeBlocksEnabled = Configs.Generic.INTERCHANGE_BLOCKS.getBooleanValue();
-
-        List<String> interchangeBlocksConfig = Configs.Generic.INTERCHANGEABLE_BLOCKS.getStrings();
-        List<SubstituteBlockRegestry> substitutableBlocks = new ArrayList<>();
-
-        for (String blocks : interchangeBlocksConfig) {
-            List<Block> blockList = new ArrayList<>();
-            List<TagKey<Block>> tagList = new ArrayList<>();
-            for (String value : blocks.split(",")) {
-                String trimmed = value.trim();
-                if (trimmed.startsWith("#")) {
-                    Optional<TagKey<Block>> tag = getBlockTagFromFromString(trimmed);
-                    tag.ifPresent(tagList::add);
-                } else {
-                    Optional<Block> block = getBlockFromFromString(trimmed);
-                    block.ifPresent(blockList::add);
-                }
-            }
-            substitutableBlocks.add(new SubstituteBlockRegestry(blockList, tagList));
-        }
-
-
+        boolean interchangeBlocksEnabled = Configs.Generic.INTERCHANGE_BLOCKS.getBooleanValue();
         SubstituteBlockRegestry interchangeBlocks = new SubstituteBlockRegestry();
 
-        Block schematicBlock = stateSchematic.getBlock();
+        if (interchangeBlocksEnabled) {
+            List<String> interchangeBlocksConfig = Configs.Generic.INTERCHANGEABLE_BLOCKS.getStrings();
+            List<SubstituteBlockRegestry> substitutableBlocks = new ArrayList<>();
 
-        for (SubstituteBlockRegestry blocks : substitutableBlocks) {
-            if (blocks.hasBlock(schematicBlock)) {
-                interchangeBlocks = blocks;
-                break;
+            for (String blocks : interchangeBlocksConfig) {
+                List<Block> blockList = new ArrayList<>();
+                List<TagKey<Block>> tagList = new ArrayList<>();
+                for (String value : blocks.split(",")) {
+                    String trimmed = value.trim();
+                    if (trimmed.startsWith("#")) {
+                        Optional<TagKey<Block>> tag = getBlockTagFromFromString(trimmed);
+                        tag.ifPresent(tagList::add);
+                    } else {
+                        Optional<Block> block = getBlockFromFromString(trimmed);
+                        block.ifPresent(blockList::add);
+                    }
+                }
+                substitutableBlocks.add(new SubstituteBlockRegestry(blockList, tagList));
+            }
+
+            Block schematicBlock = stateSchematic.getBlock();
+
+            for (SubstituteBlockRegestry blocks : substitutableBlocks) {
+                if (blocks.hasBlock(schematicBlock)) {
+                    interchangeBlocks = blocks;
+                    break;
+                }
             }
         }
 

@@ -1,5 +1,9 @@
 package fi.dy.masa.litematica.schematic.verifier;
 
+import static fi.dy.masa.litematica.util.BlockUtils.compareBlockStates;
+import static fi.dy.masa.litematica.util.BlockUtils.getBlockFromFromString;
+import static fi.dy.masa.litematica.util.BlockUtils.getBlockTagFromFromString;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import com.google.common.collect.ArrayListMultimap;
@@ -17,10 +22,13 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
@@ -42,7 +50,9 @@ import fi.dy.masa.litematica.scheduler.tasks.TaskBase;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.util.BlockInfoListType;
 import fi.dy.masa.litematica.util.ItemUtils;
+import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
+import fi.dy.masa.litematica.util.SubstituteBlockRegestry;
 import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -692,6 +702,40 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
 
     private void checkBlockStates(int x, int y, int z, BlockState stateSchematic, BlockState stateClient)
     {
+
+        boolean interchangeBlocksEnabled = Configs.Generic.INTERCHANGE_BLOCKS.getBooleanValue();
+        SubstituteBlockRegestry interchangeBlocks = new SubstituteBlockRegestry();
+
+        if (interchangeBlocksEnabled) {
+            List<String> interchangeBlocksConfig = Configs.Generic.INTERCHANGEABLE_BLOCKS.getStrings();
+            List<SubstituteBlockRegestry> substitutableBlocks = new ArrayList<>();
+
+            for (String blocks : interchangeBlocksConfig) {
+                List<Block> blockList = new ArrayList<>();
+                List<TagKey<Block>> tagList = new ArrayList<>();
+                for (String value : blocks.split(",")) {
+                    String trimmed = value.trim();
+                    if (trimmed.startsWith("#")) {
+                        Optional<TagKey<Block>> tag = getBlockTagFromFromString(trimmed);
+                        tag.ifPresent(tagList::add);
+                    } else {
+                        Optional<Block> block = getBlockFromFromString(trimmed);
+                        block.ifPresent(blockList::add);
+                    }
+                }
+                substitutableBlocks.add(new SubstituteBlockRegestry(blockList, tagList));
+            }
+
+            Block schematicBlock = stateSchematic.getBlock();
+
+            for (SubstituteBlockRegestry blocks : substitutableBlocks) {
+                if (blocks.hasBlock(schematicBlock)) {
+                    interchangeBlocks = blocks;
+                    break;
+                }
+            }
+        }
+
         BlockPos pos = new BlockPos(x, y, z);
 
         if (stateClient != stateSchematic && (stateClient.isAir() == false || stateSchematic.isAir() == false))
@@ -710,9 +754,23 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
                         mismatch = new BlockMismatch(MismatchType.MISSING, stateSchematic, stateClient, 1);
                         this.missingBlocksPositions.put(Pair.of(stateSchematic, stateClient), pos);
                     }
-                    else
-                    {
-                        if (stateSchematic.getBlock() != stateClient.getBlock())
+                    else {
+                        if (!interchangeBlocks.isEmpty()) 
+                        {
+                            if (interchangeBlocks.hasBlock(stateClient.getBlock())) {
+                                if (!compareBlockStates(stateSchematic, stateClient)) 
+                                    {
+                                        mismatch = new BlockMismatch(MismatchType.WRONG_STATE, stateSchematic, stateClient, 1);
+                                        this.wrongStatesPositions.put(Pair.of(stateSchematic, stateClient), pos);
+                                    }
+                            } 
+                            else 
+                            {
+                                mismatch = new BlockMismatch(MismatchType.WRONG_BLOCK, stateSchematic, stateClient, 1);
+                                this.wrongBlocksPositions.put(Pair.of(stateSchematic, stateClient), pos);
+                            }
+                        }
+                        else if (stateSchematic.getBlock() != stateClient.getBlock())
                         {
                             mismatch = new BlockMismatch(MismatchType.WRONG_BLOCK, stateSchematic, stateClient, 1);
                             this.wrongBlocksPositions.put(Pair.of(stateSchematic, stateClient), pos);
