@@ -2,14 +2,15 @@ package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import static fi.dy.masa.litematica.util.BlockUtils.compareBlockStates;
+import static fi.dy.masa.litematica.util.BlockUtils.getBlockFromFromString;
+import static fi.dy.masa.litematica.util.BlockUtils.getBlockTagFromFromString;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -24,6 +25,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -40,6 +42,7 @@ import fi.dy.masa.litematica.render.RenderUtils;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.PlacementPart;
 import fi.dy.masa.litematica.util.OverlayType;
 import fi.dy.masa.litematica.util.PositionUtils;
+import fi.dy.masa.litematica.util.SubstituteBlockRegestry;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRendererSchematicVbo implements AutoCloseable
@@ -733,6 +736,39 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected OverlayType getOverlayType(BlockState stateSchematic, BlockState stateClient)
     {
+        Boolean interchangeBlocksEnabled = Configs.Generic.INTERCHANGE_BLOCKS.getBooleanValue();
+
+        List<String> interchangeBlocksConfig = Configs.Generic.INTERCHANGEABLE_BLOCKS.getStrings();
+        List<SubstituteBlockRegestry> substitutableBlocks = new ArrayList<>();
+
+        for (String blocks : interchangeBlocksConfig) {
+            List<Block> blockList = new ArrayList<>();
+            List<TagKey<Block>> tagList = new ArrayList<>();
+            for (String value : blocks.split(",")) {
+                String trimmed = value.trim();
+                if (trimmed.startsWith("#")) {
+                    Optional<TagKey<Block>> tag = getBlockTagFromFromString(trimmed);
+                    tag.ifPresent(tagList::add);
+                } else {
+                    Optional<Block> block = getBlockFromFromString(trimmed);
+                    block.ifPresent(blockList::add);
+                }
+            }
+            substitutableBlocks.add(new SubstituteBlockRegestry(blockList, tagList));
+        }
+
+
+        SubstituteBlockRegestry interchangeBlocks = new SubstituteBlockRegestry();
+
+        Block schematicBlock = stateSchematic.getBlock();
+
+        for (SubstituteBlockRegestry blocks : substitutableBlocks) {
+            if (blocks.hasBlock(schematicBlock)) {
+                interchangeBlocks = blocks;
+                break;
+            }
+        }
+
         if (stateSchematic == stateClient)
         {
             return OverlayType.NONE;
@@ -752,6 +788,20 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 if (clientHasAir || (this.ignoreClientWorldFluids && stateClient.isLiquid()))
                 {
                     return OverlayType.MISSING;
+                }
+                // substitutable Blocks
+                else if (!interchangeBlocks.isEmpty()) {
+                    if (interchangeBlocks.hasBlock(stateClient.getBlock())) {
+                        if (compareBlockStates(stateSchematic, stateClient)) {
+                            return OverlayType.NONE;
+                        }
+                        else
+                        {
+                            return OverlayType.WRONG_STATE;
+                        }
+                    } else {
+                        return OverlayType.WRONG_BLOCK;
+                    }
                 }
                 // Wrong block
                 else if (stateSchematic.getBlock() != stateClient.getBlock())
