@@ -97,7 +97,7 @@ public class SchematicWorldHandler
             entry = world.getDimensionEntry();
         }
 
-        ClientWorld.Properties levelInfo = new ClientWorld.Properties(Difficulty.PEACEFUL, false, true);
+        ClientWorld.Properties levelInfo = new ClientWorld.Properties(world.getEnabledFeatures(), Difficulty.PEACEFUL, false, true);
 
         return new WorldSchematic(levelInfo, world.getRegistryManager(), entry, MinecraftClient.getInstance()::getProfiler, worldRenderer);
     }

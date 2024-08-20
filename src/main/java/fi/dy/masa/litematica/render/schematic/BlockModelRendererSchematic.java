@@ -41,7 +41,7 @@ public class BlockModelRendererSchematic
     {
         boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelIn.useAmbientOcclusion();
 
-        Vec3d offset = stateIn.getModelOffset(worldIn, posIn);
+        Vec3d offset = stateIn.getModelOffset(posIn);
         matrixStack.translate((float) offset.x, (float) offset.y, (float) offset.z);
         int overlay = OverlayTexture.DEFAULT_UV;
 
@@ -149,7 +149,8 @@ public class BlockModelRendererSchematic
         return DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(posIn, side) ||
                (Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue() && Configs.Visuals.RENDER_TRANSLUCENT_INNER_SIDES.getBooleanValue()) ||
                //Block.shouldDrawSide(stateIn, worldIn, posIn, side, posIn.offset(side));
-               Block.shouldDrawSide(stateIn, worldIn, posIn, side, mutable);
+               Block.shouldDrawSide(stateIn, worldIn.getBlockState(mutable), side);
+        // TODO --> check
     }
 
     private void renderQuadsSmooth(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack,

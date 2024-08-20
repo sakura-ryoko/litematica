@@ -7,10 +7,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Leashable;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.decoration.LeashKnotEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -164,7 +161,7 @@ public class EntityUtils
     {
         try
         {
-            Optional<Entity> optional = EntityType.getEntityFromNbt(nbt, world);
+            Optional<Entity> optional = EntityType.getEntityFromNbt(nbt, world, SpawnReason.LOAD);
 
             if (optional.isPresent())
             {

@@ -624,7 +624,8 @@ public class WorldUtils
                 ActionResult result = mc.interactionManager.interactBlock(mc.player, hand, hitResult);
 
                 // swing hand fix, see MinecraftClient#doItemUse
-                if (result.shouldSwingHand() && Configs.Generic.EASY_PLACE_SWING_HAND.getBooleanValue())
+                if (ActionResult.SUCCESS.swingSource().equals(ActionResult.SwingSource.CLIENT) &&
+                    Configs.Generic.EASY_PLACE_SWING_HAND.getBooleanValue())
                 {
                     mc.player.swingHand(hand);
                 }

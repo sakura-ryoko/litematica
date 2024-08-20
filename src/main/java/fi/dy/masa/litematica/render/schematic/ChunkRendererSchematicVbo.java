@@ -901,7 +901,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private void postRenderOverlay(OverlayRenderType type, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws RuntimeException
     {
-        RenderSystem.applyModelViewMatrix();
+        //RenderSystem.applyModelViewMatrix();
         if (chunkRenderData.isOverlayTypeEmpty(type) == false)
         {
             BuiltBuffer built;
@@ -1039,7 +1039,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private void resortRenderOverlay(OverlayRenderType type, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws InterruptedException
     {
-        RenderSystem.applyModelViewMatrix();
+        //RenderSystem.applyModelViewMatrix();
         if (chunkRenderData.isOverlayTypeEmpty(type) == false)
         {
             BufferAllocator allocator = allocators.getBufferByOverlay(type);

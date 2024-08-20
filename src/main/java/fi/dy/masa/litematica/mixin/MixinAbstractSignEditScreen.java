@@ -16,8 +16,7 @@ import fi.dy.masa.litematica.util.WorldUtils;
 @Mixin(value = AbstractSignEditScreen.class, priority = 990)
 public class MixinAbstractSignEditScreen
 {
-    @Shadow @Final private SignBlockEntity blockEntity;
-
+    @Shadow @Final protected SignBlockEntity blockEntity;
     @Shadow @Final private String[] messages;
     @Shadow @Final private boolean front;
 

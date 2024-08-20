@@ -17,6 +17,7 @@ import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -475,7 +476,7 @@ public class WorldRendererSchematic
         RenderSystem.setupShaderLights(shader);
         shader.bind();
 
-        GlUniform chunkOffsetUniform = shader.chunkOffset;
+        GlUniform chunkOffsetUniform = shader.modelOffset;
         boolean startedDrawing = false;
 
         for (int i = startIndex; i != stopIndex; i += increment)
@@ -549,12 +550,18 @@ public class WorldRendererSchematic
 
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrix4f);
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
-        if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
-        if (shader.fogStart != null) shader.fogStart.set(RenderSystem.getShaderFogStart());
-        if (shader.fogEnd != null) shader.fogEnd.set(RenderSystem.getShaderFogEnd());
-        if (shader.fogColor != null) shader.fogColor.set(RenderSystem.getShaderFogColor());
         if (shader.textureMat != null) shader.textureMat.set(RenderSystem.getTextureMatrix());
+        if (shader.colorModulator != null) shader.colorModulator.set(RenderSystem.getShaderColor());
+        if (shader.glintAlpha != null) shader.glintAlpha.set(RenderSystem.getShaderGlintAlpha());
+        Fog fog = RenderSystem.getShaderFog();
+        if (shader.fogStart != null) shader.fogStart.set(fog.start());
+        if (shader.fogEnd != null) shader.fogEnd.set(fog.end());
+        if (shader.fogColor != null) shader.fogColor.setAndFlip(fog.red(), fog.green(), fog.blue(), fog.alpha());
+        if (shader.fogShape != null) shader.fogShape.set(fog.shape().getId());
+        Window window = MinecraftClient.getInstance().getWindow();
+        if (shader.screenSize != null) shader.screenSize.set((float) window.getFramebufferWidth(), (float) window.getFramebufferHeight());
         if (shader.gameTime != null) shader.gameTime.set(RenderSystem.getShaderGameTime());
+        if (shader.lineWidth != null) shader.lineWidth.set(RenderSystem.getShaderLineWidth());
     }
 
     protected void renderBlockOverlay(OverlayRenderType type, Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
@@ -739,7 +746,7 @@ public class WorldRendererSchematic
 
                             // TODO --> this render() call does not seem to have a push() and pop(),
                             //  and does not accept Matrix4f/Matrix4fStack as a parameter
-                            this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrixStack, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
+                            this.entityRenderDispatcher.render(entityTmp, x, y, z, partialTicks, matrixStack, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
                             ++this.countEntitiesRendered;
 
                             matrixStack.pop();

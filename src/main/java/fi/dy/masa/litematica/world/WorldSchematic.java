@@ -13,8 +13,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.item.FuelRegistry;
 import net.minecraft.item.map.MapState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.recipe.BrewingRecipeRegistry;
@@ -42,6 +44,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import net.minecraft.world.tick.EmptyTickSchedulers;
 import net.minecraft.world.tick.QueryableTickScheduler;
 import net.minecraft.world.tick.TickManager;
@@ -156,6 +159,12 @@ public class WorldSchematic extends World
     public RegistryEntry<Biome> getGeneratorStoredBiome(int biomeX, int biomeY, int biomeZ)
     {
         return this.biome;
+    }
+
+    @Override
+    public int getSeaLevel()
+    {
+        return 0;
     }
 
     @Override
@@ -463,6 +472,12 @@ public class WorldSchematic extends World
     }
 
     @Override
+    public void createExplosion(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, ExplosionSourceType explosionSourceType, ParticleEffect smallParticle, ParticleEffect largeParticle, RegistryEntry<SoundEvent> soundEvent)
+    {
+        // NO-OP
+    }
+
+    @Override
     public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay)
     {
         // NO-OP
@@ -520,6 +535,12 @@ public class WorldSchematic extends World
         {
             return BrewingRecipeRegistry.EMPTY;
         }
+    }
+
+    @Override
+    public FuelRegistry getFuelRegistry()
+    {
+        return null;
     }
 
     @Override

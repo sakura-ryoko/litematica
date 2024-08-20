@@ -55,7 +55,7 @@ public class RenderUtils
     static void startDrawingLines()
     {
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-        RenderSystem.applyModelViewMatrix();
+        //RenderSystem.applyModelViewMatrix();
         //buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
     }
 

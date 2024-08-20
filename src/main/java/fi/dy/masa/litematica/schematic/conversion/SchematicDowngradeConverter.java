@@ -1,13 +1,9 @@
 package fi.dy.masa.litematica.schematic.conversion;
 
 import java.util.UUID;
-
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.RangedWeaponItem;
-import net.minecraft.item.ToolItem;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.MutableText;

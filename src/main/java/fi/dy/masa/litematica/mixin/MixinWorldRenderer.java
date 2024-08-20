@@ -1,19 +1,25 @@
 package fi.dy.masa.litematica.mixin;
 
 import org.joml.Matrix4f;
+
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.ObjectAllocator;
+import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.client.render.*;
+
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
-@Mixin(net.minecraft.client.render.WorldRenderer.class)
+@Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer
 {
-    @Shadow
-    private net.minecraft.client.world.ClientWorld world;
+    @Shadow private net.minecraft.client.world.ClientWorld world;
+    @Unique private Matrix4f posMatrix = null;
+    @Unique private RenderTickCounter ticks = null;
 
     @Inject(method = "reload()V", at = @At("RETURN"))
     private void onLoadRenderers(CallbackInfo ci)
@@ -54,12 +60,25 @@ public abstract class MixinWorldRenderer
         }
     }
 
-    @Inject(method = "render",
-            at = @At(value = "INVOKE_STRING", args = "ldc=blockentities",
-                     target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
-    private void onPostRenderEntities(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/FrameGraphBuilder;createStageNode(Ljava/lang/String;)Lnet/minecraft/class_9916;"))
+    private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
+                                 Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
+                                 Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci)
     {
-        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
+        this.posMatrix = positionMatrix;
+        this.ticks = tickCounter;
+    }
+
+    @Inject(method = "renderBlockEntities",
+            at = @At(value = "RETURN"))
+    private void onPostRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, VertexConsumerProvider.Immediate immediate2, Camera camera, float tickDelta, CallbackInfo ci)
+    {
+        if (this.posMatrix != null && this.ticks != null)
+        {
+            LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickDelta(false));
+            this.posMatrix = null;
+            this.ticks = null;
+        }
     }
 
     /*
