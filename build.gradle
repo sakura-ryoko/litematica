@@ -29,10 +29,8 @@ dependencies {
 	modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
 	//modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_id}"
 
-	// TEMPORARY
-	include(modApi(fabricApi.module("fabric-api-base", project.fabric_api_version)))
-	include(modApi(fabricApi.module("fabric-networking-api-v1", project.fabric_api_version)))
-	include(modApi(fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)))
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 }
