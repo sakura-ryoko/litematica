@@ -546,7 +546,8 @@ public class WorldRendererSchematic
 
     protected static void initShader(ShaderProgram shader, Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
+        // FIXME
+        //for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrix4f);
         if (shader.projectionMat != null) shader.projectionMat.set(projMatrix);
@@ -592,7 +593,8 @@ public class WorldRendererSchematic
         }
 
         ShaderProgram originalShader = RenderSystem.getShader();
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        // FIXME
+        //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
@@ -629,7 +631,8 @@ public class WorldRendererSchematic
 
         renderLayer.endDrawing();
 
-        RenderSystem.setShader(() -> originalShader);
+        // FIXME
+        //RenderSystem.setShader(() -> originalShader);
         RenderSystem.disableBlend();
 
         this.world.getProfiler().pop();

@@ -573,7 +573,8 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             int[] light = new int[] { l, l, l, l };
             float[] brightness = new float[] { 0.75f, 0.75f, 0.75f, 1.0f };
 
-            RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            // FIXME
+            //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
             DiffuseLighting.enableGuiDepthLighting();
 
             for (Direction face : PositionUtils.ALL_DIRECTIONS)

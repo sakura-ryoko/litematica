@@ -213,7 +213,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         if (data.isBlockLayerEmpty(layerTranslucent) == false)
         {
-            RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            // FIXME
+            //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
 
             if (data.getBuiltBufferCache().hasBuiltBufferByLayer(layerTranslucent))
             {
@@ -497,7 +498,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void renderOverlay(OverlayType type, BlockPos pos, BlockState stateSchematic, boolean missing, @Nonnull ChunkRenderDataSchematic data, @Nonnull BufferAllocatorCache allocators)
     {
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        // FIXME
+        //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         BlockPos.Mutable relPos = this.getChunkRelativePosition(pos);
         OverlayRenderType overlayType;
 
@@ -834,7 +836,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.existingOverlays.add(type);
         this.hasOverlay = true;
 
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        // FIXME
+        //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         return this.builderCache.getBufferByOverlay(type, allocators);
     }
 

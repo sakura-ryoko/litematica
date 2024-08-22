@@ -1,10 +1,12 @@
 package fi.dy.masa.litematica.mixin;
 
+import java.util.List;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -69,9 +71,9 @@ public abstract class MixinWorldRenderer
         this.ticks = tickCounter;
     }
 
-    @Inject(method = "renderBlockEntities",
+    @Inject(method = "renderEntities",
             at = @At(value = "RETURN"))
-    private void onPostRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, VertexConsumerProvider.Immediate immediate2, Camera camera, float tickDelta, CallbackInfo ci)
+    private void onPostRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, Camera camera, RenderTickCounter tickCounter, List<Entity> entities, CallbackInfo ci)
     {
         if (this.posMatrix != null && this.ticks != null)
         {
