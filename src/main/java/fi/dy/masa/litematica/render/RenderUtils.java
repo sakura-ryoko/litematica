@@ -32,6 +32,7 @@ import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
+import fi.dy.masa.malilib.render.shader.ShaderPrograms;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
@@ -54,7 +55,7 @@ public class RenderUtils
 
     static void startDrawingLines()
     {
-        // FIXME
+        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         //RenderSystem.applyModelViewMatrix();
         //buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
@@ -63,7 +64,7 @@ public class RenderUtils
     public static void renderBlockOutline(BlockPos pos, float expand, float lineWidth, Color4f color, MinecraftClient mc)
     {
         RenderSystem.lineWidth(lineWidth);
-        // FIXME
+        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         Tessellator tessellator = Tessellator.getInstance();
@@ -297,7 +298,7 @@ public class RenderUtils
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
 
-        // FIXME
+        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);

@@ -29,6 +29,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
+
+import fi.dy.masa.malilib.render.shader.ShaderPrograms;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
@@ -593,7 +595,7 @@ public class WorldRendererSchematic
         }
 
         ShaderProgram originalShader = RenderSystem.getShader();
-        // FIXME
+        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         ShaderProgram shader = RenderSystem.getShader();
@@ -632,6 +634,7 @@ public class WorldRendererSchematic
         renderLayer.endDrawing();
 
         // FIXME
+        RenderSystem.setShader(originalShader);
         //RenderSystem.setShader(() -> originalShader);
         RenderSystem.disableBlend();
 

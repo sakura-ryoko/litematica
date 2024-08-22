@@ -14,6 +14,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.class_10149;
+import net.minecraft.class_10156;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
@@ -24,11 +26,14 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.chunk.WorldChunk;
+
+import fi.dy.masa.malilib.render.shader.ShaderPrograms;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
@@ -213,7 +218,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         if (data.isBlockLayerEmpty(layerTranslucent) == false)
         {
-            // FIXME
+            RenderSystem.setShader(ShaderPrograms.RENDERTYPE_TRANSLUCENT);
             //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
 
             if (data.getBuiltBufferCache().hasBuiltBufferByLayer(layerTranslucent))
@@ -498,7 +503,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void renderOverlay(OverlayType type, BlockPos pos, BlockState stateSchematic, boolean missing, @Nonnull ChunkRenderDataSchematic data, @Nonnull BufferAllocatorCache allocators)
     {
-        // FIXME
+        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         BlockPos.Mutable relPos = this.getChunkRelativePosition(pos);
         OverlayRenderType overlayType;
@@ -836,7 +841,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.existingOverlays.add(type);
         this.hasOverlay = true;
 
-        // FIXME
+        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         return this.builderCache.getBufferByOverlay(type, allocators);
     }
