@@ -175,6 +175,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       ENABLE_PLACEMENT_BOXES_RENDERING    = new ConfigBoolean("enablePlacementBoxesRendering", true, "litematica.config.visuals.comment.enablePlacementBoxesRendering", "litematica.config.visuals.prettyName.enablePlacementBoxesRendering").translatedName("litematica.config.visuals.name.enablePlacementBoxesRendering");
         public static final ConfigBoolean       ENABLE_RENDERING                    = new ConfigBoolean("enableRendering", true, "litematica.config.visuals.comment.enableRendering", "litematica.config.visuals.prettyName.enableRendering").translatedName("litematica.config.visuals.name.enableRendering");
         public static final ConfigBoolean       ENABLE_SCHEMATIC_BLOCKS             = new ConfigBoolean("enableSchematicBlocksRendering",  true, "litematica.config.visuals.comment.enableSchematicBlocksRendering", "litematica.config.visuals.prettyName.enableSchematicBlocksRendering").translatedName("litematica.config.visuals.name.enableSchematicBlocksRendering");
+        public static final ConfigBoolean       ENABLE_SCHEMATIC_FLUIDS             = new ConfigBoolean("enableSchematicFluidRendering", true, "litematica.config.visuals.comment.enableSchematicFluidRendering", "litematica.config.visuals.prettyName.enableSchematicFluidRendering").translatedName("litematica.config.visuals.name.enableSchematicFluidRendering");
         public static final ConfigBoolean       ENABLE_SCHEMATIC_OVERLAY            = new ConfigBoolean("enableSchematicOverlay",  true, "litematica.config.visuals.comment.enableSchematicOverlay", "litematica.config.visuals.prettyName.enableSchematicOverlay").translatedName("litematica.config.visuals.name.enableSchematicOverlay");
         public static final ConfigBoolean       ENABLE_SCHEMATIC_RENDERING          = new ConfigBoolean("enableSchematicRendering", true, "litematica.config.visuals.comment.enableSchematicRendering", "litematica.config.visuals.prettyName.enableSchematicRendering").translatedName("litematica.config.visuals.name.enableSchematicRendering");
         //public static final ConfigInteger       RENDER_SCHEMATIC_MAX_THREADS        = new ConfigInteger("renderSchematicMaxThreads", 4, 1, 16, "litematica.config.visuals.comment.renderSchematicMaxThreads").translatedName("litematica.config.visuals.name.renderSchematicMaxThreads");
@@ -213,6 +214,7 @@ public class Configs implements IConfigHandler
                 ENABLE_AREA_SELECTION_RENDERING,
                 ENABLE_PLACEMENT_BOXES_RENDERING,
                 ENABLE_SCHEMATIC_BLOCKS,
+                ENABLE_SCHEMATIC_FLUIDS,
                 ENABLE_SCHEMATIC_OVERLAY,
                 IGNORE_EXISTING_FLUIDS,
                 OVERLAY_REDUCED_INNER_SIDES,

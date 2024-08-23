@@ -1,6 +1,6 @@
 package fi.dy.masa.litematica.mixin;
 
-import fi.dy.masa.litematica.render.schematic.BufferBuilderPatch;
+import fi.dy.masa.litematica.render.schematic.IBufferBuilderPatch;
 import net.minecraft.client.render.BufferBuilder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(BufferBuilder.class)
-public class MixinBufferBuilder implements BufferBuilderPatch {
+public class MixinBufferBuilder implements IBufferBuilderPatch {
     @Unique
     private float offsetY = 0.0f;
 

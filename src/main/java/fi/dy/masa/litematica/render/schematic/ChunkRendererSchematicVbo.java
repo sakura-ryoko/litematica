@@ -443,7 +443,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             // TODO change when the fluids become separate
             FluidState fluidState = stateSchematic.getFluidState();
 
-            if (fluidState.isEmpty() == false)
+            if (fluidState.isEmpty() == false &&
+                Configs.Visuals.ENABLE_SCHEMATIC_FLUIDS.getBooleanValue())
             {
                 RenderLayer layer = RenderLayers.getFluidLayer(fluidState);
                 int offsetY = ((pos.getY() >> 4) << 4) - this.position.getY();
@@ -454,11 +455,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     data.setBlockLayerStarted(layer);
                     bufferSchematic = this.preRenderBlocks(layer, allocators);
                 }
-                ((BufferBuilderPatch) bufferSchematic).setOffsetY(offsetY);
+                ((IBufferBuilderPatch) bufferSchematic).setOffsetY(offsetY);
 
                 this.worldRenderer.renderFluid(this.schematicWorldView, stateSchematic, fluidState, pos, bufferSchematic);
                 usedLayers.add(layer);
-                ((BufferBuilderPatch) bufferSchematic).setOffsetY(0.0F);
+                ((IBufferBuilderPatch) bufferSchematic).setOffsetY(0.0F);
             }
 
             if (stateSchematic.getRenderType() != BlockRenderType.INVISIBLE)
@@ -492,6 +493,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
             if (this.overlayColor != null)
             {
+                if (stateSchematic.getFluidState().isEmpty() == false &&
+                    Configs.Visuals.ENABLE_SCHEMATIC_FLUIDS.getBooleanValue() == false)
+                {
+                    return;
+                }
+
                 this.renderOverlay(type, pos, stateSchematic, missing, data, allocators);
             }
         }
@@ -533,7 +540,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         BakedModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
 
                         if (type.getRenderPriority() > typeAdj.getRenderPriority() ||
-                                !Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side))
+                            !Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side))
                         {
                             RenderUtils.drawBlockModelQuadOverlayBatched(bakedModel, stateSchematic, relPos, side, this.overlayColor, 0, bufferOverlayQuads);
                         }
