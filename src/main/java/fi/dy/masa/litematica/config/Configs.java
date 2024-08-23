@@ -95,6 +95,8 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       TOOL_ITEM_ENABLED           = new ConfigBoolean("toolItemEnabled", true, "litematica.config.generic.comment.toolItemEnabled", "litematica.config.generic.prettyName.toolItemEnabled").translatedName("litematica.config.generic.name.toolItemEnabled");
         public static final ConfigString        TOOL_ITEM_COMPONENTS        = new ConfigString( "toolItemComponents", "empty", "litematica.config.generic.comment.toolItemComponents").translatedName("litematica.config.generic.name.toolItemComponents");
         public static final ConfigBoolean       UNHIDE_SCHEMATIC_PROJECTS   = new ConfigBoolean("unhideSchematicVCS", false, "litematica.config.generic.comment.unhideSchematicVCS").translatedName("litematica.config.generic.name.unhideSchematicVCS");
+        public static final ConfigBoolean       INTERCHANGE_BLOCKS          = new ConfigBoolean("interchangeBlocks", false, "litematica.config.generic.comment.interchangeBlocks").translatedName("litematica.config.generic.name.interchangeBlocks");
+        public static final ConfigStringList    INTERCHANGEABLE_BLOCKS      = new ConfigStringList("interchangeableBlocks", ImmutableList.of(), "litematica.config.generic.comment.interchangeableBlocks").translatedName("litematica.config.generic.name.interchangeableBlocks");
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 AREAS_PER_WORLD,
@@ -165,7 +167,10 @@ public class Configs implements IConfigHandler
                 EASY_PLACE_SWAP_INTERVAL,
                 PICK_BLOCKABLE_SLOTS,
                 TOOL_ITEM,
-                TOOL_ITEM_COMPONENTS
+                TOOL_ITEM_COMPONENTS,
+
+                INTERCHANGE_BLOCKS,
+                INTERCHANGEABLE_BLOCKS
         );
     }
 

@@ -66,6 +66,8 @@
     "litematica.config.generic.name.toolItemEnabled": "toolItemEnabled",
     "litematica.config.generic.name.toolItemComponents": "toolItemComponents",
     "litematica.config.generic.name.unhideSchematicVCS": "unhideSchematicVCS",
+    "litematica.config.generic.name.interchangeBlocks": "interchangeBlocks",
+    "litematica.config.generic.name.interchangeableBlocks": "interchangeableBlocks",
 
     "litematica.config.visuals.name.enableAreaSelectionBoxesRendering": "enableAreaSelectionBoxesRendering",
     "litematica.config.visuals.name.enablePlacementBoxesRendering": "enablePlacementBoxesRendering",
@@ -282,6 +284,9 @@
     "litematica.config.generic.comment.toolItemEnabled": "If true, then the \"tool\" item can be used to control selections etc.",
     "litematica.config.generic.comment.toolItemComponents": "A Data Components-aware version of toolItem.\nSet to \"empty\" to disable.\nThe syntax accepted is the same as the \"/give\" command.",
     "litematica.config.generic.comment.unhideSchematicVCS": "Un-hides the Schematic VCS (Version Control System) menu button,\nand enables the hotkey and the VCS functionality in general.\n(This was called Schematic Projects before.)\n\nIn general you §6should not§r be using this feature,\nunless you really know how it works and what it does.\nIt somewhat changes how the area selections, placements and pasting works,\nin particular that there is also an area delete operation when pasting.\n\nBasically this feature is intended for §6iterative, in-place§r design work,\nand it allows you to easier create multiple versions/snapshots\nof the same build, and also to switch between the versions by deleting what is\nin the world first, and then pasting the next version in its place.",
+    
+    "litematica.config.generic.comment.interchangeBlocks": "Makes it so all blocks in each of the lists defined\nin interchangeableBlocks is interchangable when\nbuilding a schematic.",
+    "litematica.config.generic.comment.interchangeableBlocks": "Lists of comma-seperated block-IDs and block-tag-IDs\nwhich are considered interchangable when building\na schematic (e.g. \"minecraft:stone_slab,\nminecraft:smooth_stone_slab, #minecraft:wooden_slabs\").\nInvalid IDs are ignored.",
 
     "litematica.config.visuals.comment.enableAreaSelectionBoxesRendering": "Enable Area Selection boxes rendering",
     "litematica.config.visuals.comment.enablePlacementBoxesRendering": "Enable Schematic Placement boxes rendering",
