@@ -1,12 +1,8 @@
 package fi.dy.masa.litematica.mixin;
 
+import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import java.util.List;
 import org.joml.Matrix4f;
-
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.ObjectAllocator;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,6 +26,8 @@ public abstract class MixinWorldRenderer
         if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
         {
             LitematicaRenderer.getInstance().loadRenderers();
+
+            SchematicWorldRefresher.INSTANCE.updateAll();
         }
     }
 

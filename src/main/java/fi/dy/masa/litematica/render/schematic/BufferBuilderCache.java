@@ -3,13 +3,15 @@ package fi.dy.masa.litematica.render.schematic;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.RenderLayer;
 
 public class BufferBuilderCache implements AutoCloseable
 {
-    private final ConcurrentHashMap<RenderLayer, BufferBuilderPatch> blockBufferBuilders = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<OverlayRenderType, BufferBuilderPatch> overlayBufferBuilders = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<RenderLayer, BufferBuilder> blockBufferBuilders = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<OverlayRenderType, BufferBuilder> overlayBufferBuilders = new ConcurrentHashMap<>();
 
     protected BufferBuilderCache() { }
 
@@ -23,19 +25,19 @@ public class BufferBuilderCache implements AutoCloseable
         return overlayBufferBuilders.containsKey(type);
     }
 
-    protected BufferBuilderPatch getBufferByLayer(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBufferByLayer(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
     {
-        return blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilderPatch(allocators.getBufferByLayer(key), key.getDrawMode(), key.getVertexFormat()));
+        return blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.getDrawMode(), key.getVertexFormat()));
     }
 
-    protected BufferBuilderPatch getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
-        return overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilderPatch(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
+        return overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
     }
 
     protected void clearAll()
     {
-        ArrayList<BufferBuilderPatch> buffers;
+        ArrayList<BufferBuilder> buffers;
 
         synchronized (this.blockBufferBuilders)
         {
@@ -47,7 +49,7 @@ public class BufferBuilderCache implements AutoCloseable
             buffers.addAll(this.overlayBufferBuilders.values());
             this.overlayBufferBuilders.clear();
         }
-        for (BufferBuilderPatch buffer : buffers)
+        for (BufferBuilder buffer : buffers)
         {
             try
             {

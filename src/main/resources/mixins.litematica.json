@@ -20,6 +20,7 @@
         "MixinBlock",
         "MixinBlockItem",
         "MixinBlockStateFlattening",
+        "MixinBufferBuilder",
         "MixinChestBlock",
         "MixinClientCommonNetworkHandler",
         "MixinClientPlayNetworkHandler",

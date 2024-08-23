@@ -447,24 +447,24 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             {
                 RenderLayer layer = RenderLayers.getFluidLayer(fluidState);
                 int offsetY = ((pos.getY() >> 4) << 4) - this.position.getY();
-                BufferBuilderPatch bufferSchematic = this.builderCache.getBufferByLayer(layer, allocators);
+                BufferBuilder bufferSchematic = this.builderCache.getBufferByLayer(layer, allocators);
 
                 if (data.isBlockLayerStarted(layer) == false || bufferSchematic == null)
                 {
                     data.setBlockLayerStarted(layer);
                     bufferSchematic = this.preRenderBlocks(layer, allocators);
                 }
-                bufferSchematic.setOffsetY(offsetY);
+                ((BufferBuilderPatch) bufferSchematic).setOffsetY(offsetY);
 
                 this.worldRenderer.renderFluid(this.schematicWorldView, stateSchematic, fluidState, pos, bufferSchematic);
                 usedLayers.add(layer);
-                bufferSchematic.setOffsetY(0.0F);
+                ((BufferBuilderPatch) bufferSchematic).setOffsetY(0.0F);
             }
 
             if (stateSchematic.getRenderType() != BlockRenderType.INVISIBLE)
             {
                 RenderLayer layer = translucent ? RenderLayer.getTranslucent() : RenderLayers.getBlockLayer(stateSchematic);
-                BufferBuilderPatch bufferSchematic = this.builderCache.getBufferByLayer(layer, allocators);
+                BufferBuilder bufferSchematic = this.builderCache.getBufferByLayer(layer, allocators);
 
                 if (data.isBlockLayerStarted(layer) == false || bufferSchematic == null)
                 {
@@ -507,7 +507,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         if (Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_SIDES.getBooleanValue())
         {
             overlayType = OverlayRenderType.QUAD;
-            BufferBuilderPatch bufferOverlayQuads = this.builderCache.getBufferByOverlay(overlayType, allocators);
+            BufferBuilder bufferOverlayQuads = this.builderCache.getBufferByOverlay(overlayType, allocators);
 
             if (data.isOverlayTypeStarted(overlayType) == false || bufferOverlayQuads == null)
             {
@@ -569,7 +569,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         if (Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_OUTLINES.getBooleanValue())
         {
             overlayType = OverlayRenderType.OUTLINE;
-            BufferBuilderPatch bufferOverlayOutlines = this.builderCache.getBufferByOverlay(overlayType, allocators);
+            BufferBuilder bufferOverlayOutlines = this.builderCache.getBufferByOverlay(overlayType, allocators);
 
             if (data.isOverlayTypeStarted(overlayType) == false || bufferOverlayOutlines == null)
             {
@@ -827,12 +827,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
-    private BufferBuilderPatch preRenderBlocks(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
+    private BufferBuilder preRenderBlocks(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
     {
         return this.builderCache.getBufferByLayer(layer, allocators);
     }
 
-    private BufferBuilderPatch preRenderOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
+    private BufferBuilder preRenderOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
         this.existingOverlays.add(type);
         this.hasOverlay = true;
@@ -869,7 +869,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
             if (this.builderCache.hasBufferByLayer(layer))
             {
-                BufferBuilderPatch builder = this.builderCache.getBufferByLayer(layer, allocators);
+                BufferBuilder builder = this.builderCache.getBufferByLayer(layer, allocators);
                 built = builder.endNullable();
 
                 if (built == null)
@@ -916,7 +916,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
             if (this.builderCache.hasBufferByOverlay(type))
             {
-                BufferBuilderPatch builder = this.builderCache.getBufferByOverlay(type, allocators);
+                BufferBuilder builder = this.builderCache.getBufferByOverlay(type, allocators);
                 built = builder.endNullable();
 
                 if (built == null)

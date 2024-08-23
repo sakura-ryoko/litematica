@@ -1,6 +1,9 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
+
+import fi.dy.masa.litematica.compat.iris.IrisCompat;
+import net.minecraft.client.render.GameRenderer;
 import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -237,7 +240,9 @@ public class LitematicaRenderer
             fi.dy.masa.malilib.render.RenderUtils.color(1f, 1f, 1f, 1f);
             //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
 
-            this.getWorldRenderer().renderBlockOverlays(matrix4f, this.getCamera(), projMatrix);
+            if (!IrisCompat.isShadowPassActive()) {
+                this.getWorldRenderer().renderBlockOverlays(matrix4f, this.getCamera(), projMatrix);
+            }
 
             RenderSystem.enableDepthTest();
             RenderSystem.polygonOffset(0f, 0f);
@@ -294,6 +299,7 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
+            RenderSystem.setShader(GameRenderer::getRenderTypeSolidProgram);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
@@ -318,6 +324,7 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
+            RenderSystem.setShader(GameRenderer::getRenderTypeCutoutMippedProgram);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
@@ -342,6 +349,7 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
+            RenderSystem.setShader(GameRenderer::getRenderTypeCutoutProgram);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
@@ -366,6 +374,7 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
+            RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
