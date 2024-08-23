@@ -117,11 +117,11 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
             icon = Icons.SCHEMATIC_TYPE_MEMORY;
         }
 
-        icon.renderAt(this.typeIconX, this.typeIconY, this.zLevel, false, false);
+        icon.renderAt(this.typeIconX, this.typeIconY, this.zLevel, false, false, drawContext);
 
         if (modified)
         {
-            Icons.NOTICE_EXCLAMATION_11.renderAt(this.buttonsStartX - 13, this.y + 6, this.zLevel, false, false);
+            Icons.NOTICE_EXCLAMATION_11.renderAt(this.buttonsStartX - 13, this.y + 6, this.zLevel, false, false, drawContext);
         }
 
         this.drawSubWidgets(mouseX, mouseY, drawContext);

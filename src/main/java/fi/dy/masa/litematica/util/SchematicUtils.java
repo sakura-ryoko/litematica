@@ -639,7 +639,7 @@ public class SchematicUtils
             int maxX = range.getClampedValue( 30000000, Direction.Axis.X);
             int maxZ = range.getClampedValue( 30000000, Direction.Axis.Z);
             int minY = range.getClampedValue(world.getBottomY(), Direction.Axis.Y);
-            int maxY = range.getClampedValue(world.getTopY() - 1, Direction.Axis.Y);
+            int maxY = range.getClampedValue(world.getTopYInclusive(), Direction.Axis.Y);
 
             BlockPos posStart = new BlockPos(minX, minY, minZ);
             BlockPos posEnd = new BlockPos(maxX, maxY, maxZ);
@@ -761,7 +761,7 @@ public class SchematicUtils
             int maxX = range.getClampedValue( 30000000, Direction.Axis.X);
             int maxZ = range.getClampedValue( 30000000, Direction.Axis.Z);
             int minY = range.getClampedValue(world.getBottomY(), Direction.Axis.Y);
-            int maxY = range.getClampedValue(world.getTopY() - 1, Direction.Axis.Y);
+            int maxY = range.getClampedValue(world.getTopYInclusive(), Direction.Axis.Y);
 
             BlockPos posStart = new BlockPos(minX, minY, minZ);
             BlockPos posEnd = new BlockPos(maxX, maxY, maxZ);

@@ -3,6 +3,8 @@ package fi.dy.masa.litematica.gui;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
 import fi.dy.masa.malilib.render.RenderUtils;
+
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 
 public enum ButtonIcons implements IGuiIcon
@@ -24,7 +26,7 @@ public enum ButtonIcons implements IGuiIcon
     private final int w;
     private final int h;
 
-    private ButtonIcons(int u, int v, int w, int h)
+    ButtonIcons(int u, int v, int w, int h)
     {
         this.u = u;
         this.v = v;
@@ -57,7 +59,7 @@ public enum ButtonIcons implements IGuiIcon
     }
 
     @Override
-    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected)
+    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected, DrawContext drawContext)
     {
         int u = this.u;
 
@@ -71,7 +73,9 @@ public enum ButtonIcons implements IGuiIcon
             u += this.w;
         }
 
-        RenderUtils.drawTexturedRect(x, y, u, this.v, this.w, this.h, zLevel);
+        //RenderUtils.drawTexturedRect(x, y, u, this.v, this.w, this.h, zLevel);
+        RenderUtils.drawTexturedRect(this.getTexture(), x, y, u, this.v, this.w, this.h, zLevel, drawContext);
+        RenderUtils.forceDraw(drawContext, true);
     }
 
     @Override

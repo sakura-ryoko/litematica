@@ -1,15 +1,14 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.joml.Quaternionf;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.class_10149;
-import net.minecraft.class_10156;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -25,6 +24,7 @@ import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.LocalRandom;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -278,7 +278,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             this.drawString(x2, y, color, this.header2, drawContext);
             this.drawString(x3, y, color, this.header3, drawContext);
 
-            this.renderColumnHeader(mouseX, mouseY, Icons.ARROW_DOWN, Icons.ARROW_UP);
+            this.renderColumnHeader(mouseX, mouseY, Icons.ARROW_DOWN, Icons.ARROW_UP, drawContext);
         }
         else if (this.header1 != null)
         {

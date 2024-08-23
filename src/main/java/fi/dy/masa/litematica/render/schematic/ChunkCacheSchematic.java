@@ -58,7 +58,7 @@ public class ChunkCacheSchematic implements BlockRenderView, ChunkProvider
                 this.chunkArray[cx - this.chunkStartX][cz - this.chunkStartZ] = chunk;
 
                 if (cx == chunkX && cz == chunkZ &&
-                    chunk.areSectionsEmptyBetween(worldIn.getBottomY(), worldIn.getTopY() - 1) == false)
+                    chunk.areSectionsEmptyBetween(worldIn.getBottomY(), worldIn.getTopYInclusive() - 1) == false)
                 {
                     this.empty = false;
                 }

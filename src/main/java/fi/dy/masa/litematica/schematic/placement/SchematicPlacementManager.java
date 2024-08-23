@@ -257,7 +257,7 @@ public class SchematicPlacementManager
             if (worldSchematic != null)
             {
                 int minY = worldSchematic.getBottomY();
-                int maxY = worldSchematic.getTopY() - 1;
+                int maxY = worldSchematic.getTopYInclusive() - 1;
 
                 for (long posLong : worldSchematic.getChunkManager().getLoadedChunks().keySet())
                 {

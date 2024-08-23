@@ -213,7 +213,7 @@ public class WidgetMaterialListEntry extends WidgetListEntrySortable<MaterialLis
                 this.drawString(x3, y, color, this.header3, drawContext);
                 this.drawString(x4, y, color, this.header4, drawContext);
 
-                this.renderColumnHeader(mouseX, mouseY, Icons.ARROW_DOWN, Icons.ARROW_UP);
+                this.renderColumnHeader(mouseX, mouseY, Icons.ARROW_DOWN, Icons.ARROW_UP, drawContext);
             }
         }
         else if (this.entry != null)

@@ -32,7 +32,7 @@ public class ChunkSchematic extends WorldChunk
 
         this.timeCreated = worldIn.getTime();
         this.bottomY = worldIn.getBottomY();
-        this.topY = worldIn.getTopY();
+        this.topY = worldIn.getTopYInclusive();
     }
 
     @Override

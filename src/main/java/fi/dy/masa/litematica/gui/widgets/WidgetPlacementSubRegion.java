@@ -125,12 +125,12 @@ public class WidgetPlacementSubRegion extends WidgetListEntryBase<SubRegionPlace
         RenderUtils.color(1f, 1f, 1f, 1f);
 
         this.parent.bindTexture(Icons.TEXTURE);
-        icon.renderAt(this.x + 2, this.y + 5, this.zLevel, false, false);
+        icon.renderAt(this.x + 2, this.y + 5, this.zLevel, false, false, drawContext);
 
         if (this.placement.isRegionPlacementModifiedFromDefault())
         {
             icon = Icons.NOTICE_EXCLAMATION_11;
-            icon.renderAt(this.buttonsStartX - icon.getWidth() - 2, this.y + 6, this.zLevel, false, false);
+            icon.renderAt(this.buttonsStartX - icon.getWidth() - 2, this.y + 6, this.zLevel, false, false, drawContext);
         }
 
         super.render(mouseX, mouseY, placementSelected, drawContext);

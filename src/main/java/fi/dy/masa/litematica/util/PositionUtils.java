@@ -110,8 +110,8 @@ public class PositionUtils
 
     public static boolean arePositionsWithinWorld(World world, BlockPos pos1, BlockPos pos2)
     {
-        if (pos1.getY() >= world.getBottomY() && pos1.getY() < world.getTopY() &&
-            pos2.getY() >= world.getBottomY() && pos2.getY() < world.getTopY())
+        if (pos1.getY() >= world.getBottomY() && pos1.getY() < world.getTopYInclusive() &&
+            pos2.getY() >= world.getBottomY() && pos2.getY() < world.getTopYInclusive())
         {
             WorldBorder border = world.getWorldBorder();
             return border.contains(pos1) && border.contains(pos2);
@@ -280,7 +280,7 @@ public class PositionUtils
     public static IntBoundingBox clampBoxToWorldHeightRange(IntBoundingBox box, World world)
     {
         int minY = world.getBottomY();
-        int maxY = world.getTopY() - 1;
+        int maxY = world.getTopYInclusive();
 
         if (box.minY > maxY || box.maxY < minY)
         {

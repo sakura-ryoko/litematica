@@ -170,7 +170,7 @@ public class WorldSchematic extends World
     @Override
     public boolean setBlockState(BlockPos pos, BlockState newState, int flags)
     {
-        if (pos.getY() < this.getBottomY() || pos.getY() >= this.getTopY())
+        if (pos.getY() < this.getBottomY() || pos.getY() >= this.getTopYInclusive())
         {
             return false;
         }
@@ -334,7 +334,7 @@ public class WorldSchematic extends World
     // The following HeightLimitView overrides are to work around an incompatibility with Lithium 0.7.4+
 
     @Override
-    public int getTopY()
+    public int getTopYInclusive()
     {
         return this.getBottomY() + this.getHeight();
     }
@@ -348,7 +348,7 @@ public class WorldSchematic extends World
     @Override
     public int getTopSectionCoord()
     {
-        return this.getTopY() >> 4;
+        return this.getTopYInclusive() >> 4;
     }
 
     @Override
@@ -366,7 +366,7 @@ public class WorldSchematic extends World
     @Override
     public boolean isOutOfHeightLimit(int y)
     {
-        return (y < this.getBottomY()) || (y >= this.getTopY());
+        return (y < this.getBottomY()) || (y >= this.getTopYInclusive());
     }
 
     @Override

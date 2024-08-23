@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.gui;
 
 import java.io.File;
 import javax.annotation.Nullable;
+
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.util.FileType;
@@ -44,7 +46,7 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
     private final int w;
     private final int h;
 
-    private Icons(int u, int v, int w, int h)
+    Icons(int u, int v, int w, int h)
     {
         this.u = u;
         this.v = v;
@@ -77,9 +79,11 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
     }
 
     @Override
-    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected)
+    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected, DrawContext drawContext)
     {
-        RenderUtils.drawTexturedRect(x, y, this.u, this.v, this.w, this.h, zLevel);
+        //RenderUtils.drawTexturedRect(x, y, this.u, this.v, this.w, this.h, zLevel);
+        RenderUtils.drawTexturedRect(this.getTexture(), x, y, this.u, this.v, this.w, this.h, zLevel, drawContext);
+        RenderUtils.forceDraw(drawContext, true);
     }
 
     @Override

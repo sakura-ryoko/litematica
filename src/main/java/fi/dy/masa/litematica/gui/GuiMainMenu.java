@@ -31,6 +31,7 @@ public class GuiMainMenu extends GuiBase
         int y = 30;
         int width = this.getButtonWidth();
 
+        this.bindTexture(ButtonIcons.TEXTURE);
         this.createChangeMenuButton(x, y, width, ButtonListenerChangeMenu.ButtonType.SCHEMATIC_PLACEMENTS);
         y += 22;
         this.createChangeMenuButton(x, y, width, ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS);
@@ -192,7 +193,7 @@ public class GuiMainMenu extends GuiBase
             private final String labelKey;
             private final ButtonIcons icon;
 
-            private ButtonType(String labelKey, ButtonIcons icon)
+            ButtonType(String labelKey, ButtonIcons icon)
             {
                 this.labelKey = labelKey;
                 this.icon = icon;

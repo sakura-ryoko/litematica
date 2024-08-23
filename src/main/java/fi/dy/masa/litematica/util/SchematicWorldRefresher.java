@@ -25,7 +25,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
             final int minY = world.getBottomY();
-            final int maxY = world.getTopY() - 1;
+            final int maxY = world.getTopYInclusive() - 1;
             this.updateBetweenY(minY, maxY);
         }
     }
