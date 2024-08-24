@@ -66,11 +66,12 @@
   "litematica.config.generic.name.toolItemEnabled": "oggettoStrumentoAbilitato",
   "litematica.config.generic.name.toolItemComponents": "componentiOggettoStrumento",
   "litematica.config.generic.name.unhideSchematicVCS": "riattivaSchematicVCS",
-  
+
   "litematica.config.visuals.name.enableAreaSelectionBoxesRendering": "abilitaRenderingScelteArea",
   "litematica.config.visuals.name.enablePlacementBoxesRendering": "abilitaRenderingSceltePosizionamento",
   "litematica.config.visuals.name.enableRendering": "abilitaRendering",
   "litematica.config.visuals.name.enableSchematicBlocksRendering": "abilitaRenderingBlocchiSchematici",
+  "litematica.config.visuals.name.enableSchematicFluidRendering": "enableSchematicFluidRendering",
   "litematica.config.visuals.name.enableSchematicOverlay": "abilitaOverlaySchematici",
   "litematica.config.visuals.name.enableSchematicRendering": "abilitaRenderingSchematici",
   "litematica.config.visuals.name.renderSchematicMaxThreads": "renderSchematicMaxThreads",
@@ -282,11 +283,12 @@
   "litematica.config.generic.comment.toolItemEnabled": "Se vero, allora l'oggetto \"strumento\" può essere usato per controllare le selezioni ecc.",
   "litematica.config.generic.comment.toolItemComponents": "Una versione consapevole dei componenti dei dati di toolItem.\nImposta su \"vuoto\" per disabilitare.\nLa sintassi accettata è la stessa del comando \"/give\".",
   "litematica.config.generic.comment.unhideSchematicVCS": "Rende visibile il pulsante del menu del Sistema di Controllo Versioni degli Schemi (VCS),\ne abilita la scorciatoia e la funzionalità VCS in generale.\n(Questo si chiamava Progetti Schemi prima.)\n\nIn generale, §6non dovresti§r usare questa funzione,\nse non sai veramente come funziona e cosa fa.\nEssa modifica in qualche modo il modo in cui funzionano le selezioni di area, le posizioni e l'incollaggio,\nin particolare aggiungendo anche un'operazione di eliminazione dell'area durante l'incollaggio.\n\nFondamentalmente, questa funzione è destinata a lavori di design §6iterativi, in loco§r,\ne consente di creare più facilmente versioni/snapshot dello stesso progetto,\ne di passare tra le versioni eliminando prima ciò che c'è nel mondo,\ne poi incollando la versione successiva al suo posto.",
-  
+
   "litematica.config.visuals.comment.enableAreaSelectionBoxesRendering": "Abilita il rendering delle scatole di selezione dell'area",
   "litematica.config.visuals.comment.enablePlacementBoxesRendering": "Abilita il rendering delle scatole di posizionamento dello schema",
   "litematica.config.visuals.comment.enableRendering": "Opzione principale per il rendering. Abilita/disabilita TUTTO il rendering del mod.",
   "litematica.config.visuals.comment.enableSchematicBlocksRendering": "Abilita il rendering dei blocchi dello schema.\nDisabilitare questa opzione ti permetterà di vedere solo la sovrapposizione di colore",
+  "litematica.config.visuals.comment.enableSchematicFluidRendering": "Enables schematic fluid rendering.\nDisabling this allows you to see the blocks and overlays easier.\nThis also culls the overlay where the Fluid was.",
   "litematica.config.visuals.comment.enableSchematicOverlay": "Opzione principale per il rendering della sovrapposizione dei blocchi dello schema",
   "litematica.config.visuals.comment.enableSchematicRendering": "Abilita il rendering dello schema e della sovrapposizione",
   "litematica.config.visuals.comment.renderSchematicMaxThreads": "Numero massimo di thread per il rendering del mondo dello schema\nQuesto influirà direttamente sulle prestazioni multi-thread\n\n§6USARE CON CAUTELA!! Questo avrà effetto solo\n§6dopo che avrai lasciato il gioco e poi rientrato.",
@@ -436,11 +438,12 @@
   "litematica.config.generic.prettyName.placementRestriction": "Restrizione di Posizionamento",
   "litematica.config.generic.prettyName.signTextPaste": "Incolla Testo sui Cartelli",
   "litematica.config.generic.prettyName.toolItemEnabled": "Funzionalità Oggetto Strumento Abilitata",
-  
+
   "litematica.config.visuals.prettyName.enableAreaSelectionBoxesRendering": "Rendering delle Scelte dell'Area",
   "litematica.config.visuals.prettyName.enablePlacementBoxesRendering": "Rendering delle Scelte di Posizionamento",
   "litematica.config.visuals.prettyName.enableRendering": "Tutto il Rendering",
   "litematica.config.visuals.prettyName.enableSchematicBlocksRendering": "Rendering dei Blocchi dello Schema",
+  "litematica.config.visuals.prettyName.enableSchematicFluidRendering": "Schematic Fluid Rendering",
   "litematica.config.visuals.prettyName.enableSchematicOverlay": "Rendering dell'Overlay dello Schema",
   "litematica.config.visuals.prettyName.enableSchematicRendering": "Rendering dello Schema",
   "litematica.config.visuals.prettyName.renderBlocksAsTranslucent": "Rendering dei Blocchi dello Schema come Traslucidi",

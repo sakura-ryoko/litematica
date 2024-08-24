@@ -1,41 +1,34 @@
 package fi.dy.masa.litematica.render;
 
 import java.util.List;
-import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import org.joml.Matrix4f;
-import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.block.Block;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import fi.dy.masa.malilib.gui.LeftRight;
+import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
+import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
+import fi.dy.masa.malilib.util.Color4f;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.util.BlockInfoAlignment;
 import fi.dy.masa.litematica.util.InventoryUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
-import fi.dy.masa.litematica.util.RayTraceUtils;
-import fi.dy.masa.malilib.gui.LeftRight;
-import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
-import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
-import fi.dy.masa.malilib.render.shader.ShaderPrograms;
-import fi.dy.masa.malilib.util.Color4f;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 
 public class RenderUtils
 {
@@ -55,7 +48,7 @@ public class RenderUtils
 
     static void startDrawingLines()
     {
-        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         //RenderSystem.applyModelViewMatrix();
         //buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
@@ -64,7 +57,7 @@ public class RenderUtils
     public static void renderBlockOutline(BlockPos pos, float expand, float lineWidth, Color4f color, MinecraftClient mc)
     {
         RenderSystem.lineWidth(lineWidth);
-        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         Tessellator tessellator = Tessellator.getInstance();
@@ -298,7 +291,7 @@ public class RenderUtils
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
 
-        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);

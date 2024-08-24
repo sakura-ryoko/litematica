@@ -1,16 +1,17 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
-
-import fi.dy.masa.litematica.compat.iris.IrisCompat;
-import net.minecraft.client.render.GameRenderer;
 import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
+
+import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
@@ -299,7 +300,8 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
-            RenderSystem.setShader(GameRenderer::getRenderTypeSolidProgram);
+            //RenderSystem.setShader(GameRenderer::getRenderTypeSolidProgram);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_SOLID);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
@@ -324,7 +326,8 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
-            RenderSystem.setShader(GameRenderer::getRenderTypeCutoutMippedProgram);
+            //RenderSystem.setShader(GameRenderer::getRenderTypeCutoutMippedProgram);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT_MIPPED);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
@@ -349,7 +352,8 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
-            RenderSystem.setShader(GameRenderer::getRenderTypeCutoutProgram);
+            //RenderSystem.setShader(GameRenderer::getRenderTypeCutoutProgram);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)
@@ -374,7 +378,8 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
-            RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), matrix4f, this.getCamera(), projMatrix);
 
             if (this.renderCollidingSchematicBlocks)

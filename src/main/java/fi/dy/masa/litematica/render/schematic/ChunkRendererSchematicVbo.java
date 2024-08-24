@@ -14,6 +14,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -29,7 +30,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.chunk.WorldChunk;
 
-import fi.dy.masa.malilib.render.shader.ShaderPrograms;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
@@ -214,7 +214,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         if (data.isBlockLayerEmpty(layerTranslucent) == false)
         {
-            RenderSystem.setShader(ShaderPrograms.RENDERTYPE_TRANSLUCENT);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
             //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
 
             if (data.getBuiltBufferCache().hasBuiltBufferByLayer(layerTranslucent))
@@ -506,7 +506,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void renderOverlay(OverlayType type, BlockPos pos, BlockState stateSchematic, boolean missing, @Nonnull ChunkRenderDataSchematic data, @Nonnull BufferAllocatorCache allocators)
     {
-        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         BlockPos.Mutable relPos = this.getChunkRelativePosition(pos);
         OverlayRenderType overlayType;
@@ -844,7 +844,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.existingOverlays.add(type);
         this.hasOverlay = true;
 
-        RenderSystem.setShader(ShaderPrograms.POSITION_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         return this.builderCache.getBufferByOverlay(type, allocators);
     }

@@ -11,6 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -31,7 +32,6 @@ import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntrySortable;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.render.shader.ShaderPrograms;
 import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.PositionUtils;
@@ -576,7 +576,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             int[] light = new int[] { l, l, l, l };
             float[] brightness = new float[] { 0.75f, 0.75f, 0.75f, 1.0f };
 
-            RenderSystem.setShader(ShaderPrograms.RENDERTYPE_TRANSLUCENT);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
             //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
             DiffuseLighting.enableGuiDepthLighting();
 
