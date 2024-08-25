@@ -83,7 +83,7 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
     {
         //RenderUtils.drawTexturedRect(x, y, this.u, this.v, this.w, this.h, zLevel);
         RenderUtils.drawTexturedRect(this.getTexture(), x, y, this.u, this.v, this.w, this.h, zLevel, drawContext);
-        RenderUtils.forceDraw(drawContext, true);
+        RenderUtils.forceDraw(drawContext);
     }
 
     @Override

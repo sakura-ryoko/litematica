@@ -75,7 +75,7 @@ public enum ButtonIcons implements IGuiIcon
 
         //RenderUtils.drawTexturedRect(x, y, u, this.v, this.w, this.h, zLevel);
         RenderUtils.drawTexturedRect(this.getTexture(), x, y, u, this.v, this.w, this.h, zLevel, drawContext);
-        RenderUtils.forceDraw(drawContext, true);
+        RenderUtils.forceDraw(drawContext);
     }
 
     @Override
