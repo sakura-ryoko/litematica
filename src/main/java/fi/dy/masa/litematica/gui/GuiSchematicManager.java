@@ -32,7 +32,7 @@ import fi.dy.masa.malilib.util.StringUtils;
 public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
 {
     private static PreviewGenerator previewGenerator;
-    private ExportType exportType = ExportType.SCHEMATIC;
+    private ExportType exportType = ExportType.V6_LITEMATIC;
 
     public GuiSchematicManager()
     {
@@ -167,7 +167,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
         @Override
         public IConfigOptionListEntry getDefaultOptionListValue()
         {
-            return ExportType.SCHEMATIC;
+            return ExportType.V6_LITEMATIC;
         }
 
         @Override
@@ -536,7 +536,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 }
             }
 
-            return ExportType.SCHEMATIC;
+            return ExportType.V6_LITEMATIC;
         }
     }
 }
