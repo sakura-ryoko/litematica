@@ -6,3 +6,6 @@ eclipse/
 .classpath
 .project
 build.number
+/.idea/
+/libs/
+/run/
