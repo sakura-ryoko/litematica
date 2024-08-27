@@ -2,16 +2,16 @@ package fi.dy.masa.litematica;
 
 import net.minecraft.client.MinecraftClient;
 
+import fi.dy.masa.malilib.config.ConfigManager;
+import fi.dy.masa.malilib.event.*;
+import fi.dy.masa.malilib.interfaces.IInitializationHandler;
+import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.event.*;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
 import fi.dy.masa.litematica.scheduler.ClientTickHandler;
-import fi.dy.masa.malilib.config.ConfigManager;
-import fi.dy.masa.malilib.event.*;
-import fi.dy.masa.malilib.interfaces.IInitializationHandler;
-import fi.dy.masa.malilib.interfaces.IRenderer;
 
 public class InitHandler implements IInitializationHandler
 {

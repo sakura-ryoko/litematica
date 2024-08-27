@@ -335,6 +335,23 @@ public class Configs implements IConfigHandler
         );
     }
 
+    public static class Test
+    {
+        public static final ConfigBooleanHotkeyed EASY_PLACE_MODE           = new ConfigBooleanHotkeyed("easyPlaceMode",          false, "", "Easy Place Mode");
+        public static final ConfigBooleanHotkeyed PLACEMENT_RESTRICTION     = new ConfigBooleanHotkeyed("placementRestriction",   false, "", "Placement Restriction");
+        public static final ConfigBoolean         EASY_PLACE_CLICK_ADJACENT = new ConfigBoolean(        "easyPlaceClickAdjacent", false, "Easy Place Click Adjacent");
+        public static final ConfigBoolean         EASY_PLACE_HOLD_ENABLED   = new ConfigBoolean(        "easyPlaceHold",          false, "Easy Place Hold Enabled");
+        public static final ConfigBoolean         PICK_BLOCK_IGNORE_NBT     = new ConfigBoolean(        "pickBlockIgnoreNBT",     true, "Pick Block Ignore NBT");
+
+        public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
+                EASY_PLACE_MODE,
+                PLACEMENT_RESTRICTION,
+                EASY_PLACE_CLICK_ADJACENT,
+                EASY_PLACE_HOLD_ENABLED,
+                PICK_BLOCK_IGNORE_NBT
+        );
+    }
+
     public static void loadFromFile()
     {
         File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
@@ -352,6 +369,7 @@ public class Configs implements IConfigHandler
                 ConfigUtils.readConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
                 ConfigUtils.readConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Visuals", Visuals.OPTIONS);
+                ConfigUtils.readConfigBase(root, "Test", Test.OPTIONS);
             }
         }
 
@@ -376,6 +394,7 @@ public class Configs implements IConfigHandler
             ConfigUtils.writeConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
             ConfigUtils.writeConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Visuals", Visuals.OPTIONS);
+            ConfigUtils.writeConfigBase(root, "Test", Test.OPTIONS);
 
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }

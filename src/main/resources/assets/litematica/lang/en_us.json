@@ -562,6 +562,7 @@
     "litematica.gui.button.config_gui.info_overlays": "Info Overlays",
     "litematica.gui.button.config_gui.render_layers": "Render Layers",
     "litematica.gui.button.config_gui.visuals": "Visuals",
+    "litematica.gui.button.config_gui.test": "Test",
 
     "litematica.gui.button.hover.area_editor.shift_for_in_memory": "Hold Shift to create an in-memory-only schematic",
     "litematica.gui.button.hover.area_selections.unselect": "Unselects the current Area Selection",

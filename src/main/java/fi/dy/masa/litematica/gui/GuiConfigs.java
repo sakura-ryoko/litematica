@@ -45,6 +45,7 @@ public class GuiConfigs extends GuiConfigsBase
         x += this.createButton(x, y, -1, ConfigGuiTab.COLORS);
         x += this.createButton(x, y, -1, ConfigGuiTab.HOTKEYS);
         x += this.createButton(x, y, -1, ConfigGuiTab.RENDER_LAYERS);
+        x += this.createButton(x, y, -1, ConfigGuiTab.TEST);
     }
 
     private int createButton(int x, int y, int width, ConfigGuiTab tab)
@@ -91,6 +92,7 @@ public class GuiConfigs extends GuiConfigsBase
             case COLORS -> Configs.Colors.OPTIONS;
             case HOTKEYS -> Hotkeys.HOTKEY_LIST;
             case RENDER_LAYERS -> Collections.emptyList();
+            case TEST -> Configs.Test.OPTIONS;
         };
         return ConfigOptionWrapper.createFor(configs);
     }
@@ -126,7 +128,8 @@ public class GuiConfigs extends GuiConfigsBase
         VISUALS         ("litematica.gui.button.config_gui.visuals"),
         COLORS          ("litematica.gui.button.config_gui.colors"),
         HOTKEYS         ("litematica.gui.button.config_gui.hotkeys"),
-        RENDER_LAYERS   ("litematica.gui.button.config_gui.render_layers");
+        RENDER_LAYERS   ("litematica.gui.button.config_gui.render_layers"),
+        TEST            ("litematica.gui.button.config_gui.test");
 
         private final String translationKey;
 
