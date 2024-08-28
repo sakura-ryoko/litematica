@@ -44,7 +44,8 @@ public abstract class MixinWorldRenderer
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
-    private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
+    private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z,
+                               Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -65,7 +66,11 @@ public abstract class MixinWorldRenderer
         }
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/FrameGraphBuilder;createStageNode(Ljava/lang/String;)Lnet/minecraft/class_9916;"))
+    @Inject(method = "render",
+            at = @At(value = "INVOKE",
+            //target = "Lnet/minecraft/client/render/FrameGraphBuilder;createPass(Ljava/lang/String;)Lnet/minecraft/client/render/RenderPass;"))
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
+            shift = At.Shift.BEFORE))
     private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
                                  Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
                                  Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci)
