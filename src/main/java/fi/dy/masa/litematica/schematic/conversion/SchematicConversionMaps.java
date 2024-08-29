@@ -16,6 +16,7 @@ import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import fi.dy.masa.malilib.util.Constants;
@@ -23,6 +24,7 @@ import fi.dy.masa.malilib.util.NBTUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class SchematicConversionMaps
 {
@@ -176,7 +178,8 @@ public class SchematicConversionMaps
                 newStateTag.putString("Name", newName);
             }
 
-            RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
+            //RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
+            RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
             // Store the id + meta => state maps before renaming the block for the state <=> state maps
             BlockState state = NbtHelper.toBlockState(lookup, newStateTag);
             //System.out.printf("id: %5d, state: %s, tag: %s\n", idMeta, state, newStateTag);

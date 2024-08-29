@@ -24,6 +24,8 @@ import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.BlockMirror;
@@ -56,6 +58,7 @@ import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class LitematicaSchematic
 {
@@ -1338,7 +1341,8 @@ public class LitematicaSchematic
     {
         final int size = tagList.size();
         List<BlockState> list = new ArrayList<>(size);
-        RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
+        //RegistryEntryLookup<Block> lookup = Registries.createEntryLookup(Registries.BLOCK);
+        RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
 
         for (int id = 0; id < size; ++id)
         {
@@ -1678,7 +1682,7 @@ public class LitematicaSchematic
             BlockState air = Blocks.AIR.getDefaultState();
             int paletteSize = paletteTag.size();
             List<BlockState> list = new ArrayList<>(paletteSize);
-            RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
+            RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
 
             DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
@@ -1883,7 +1887,7 @@ public class LitematicaSchematic
     public static List<BlockState> getStatesFromPaletteTag(NbtList palette)
     {
         List<BlockState> states = new ArrayList<>();
-        RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
+        RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
         final int size = palette.size();
 
         for (int i = 0; i < size; ++i)
@@ -2130,9 +2134,25 @@ public class LitematicaSchematic
                 // Don't crash on invalid ResourceLocation in 1.13+
                 try
                 {
-                    target = registry.get(Identifier.tryParse(tag.getString(tagName)));
+                    Optional<RegistryEntry.Reference<T>> opt = registry.get(Identifier.tryParse(tag.getString(tagName)));
 
-                    if (target == null || target == emptyValue)
+                    //target = registry.get(Identifier.tryParse(tag.getString(tagName)));
+                    //if (target == null || target == emptyValue)
+                    //{
+                        //continue;
+                    //}
+                    if (opt.isPresent())
+                    {
+                        if (opt.get().hasKeyAndValue())
+                        {
+                            target = opt.get().value();
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
                     {
                         continue;
                     }

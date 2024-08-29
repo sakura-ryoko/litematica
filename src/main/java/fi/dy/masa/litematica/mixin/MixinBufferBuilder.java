@@ -18,7 +18,7 @@ public class MixinBufferBuilder implements IBufferBuilderPatch {
     }
 
     @Override
-    public void setOffsetY(float offset) {
+    public void litematica$setOffsetY(float offset) {
         this.offsetY = offset;
     }
 }

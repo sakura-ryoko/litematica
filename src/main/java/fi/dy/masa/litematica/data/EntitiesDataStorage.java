@@ -1,11 +1,9 @@
 package fi.dy.masa.litematica.data;
 
+import java.util.*;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 import com.google.gson.JsonObject;
+
 import com.mojang.datafixers.util.Either;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.entity.BlockEntity;
@@ -16,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
@@ -369,15 +369,24 @@ public class EntitiesDataStorage implements IClientTickHandler
             return blockEntity;
         }
 
-        BlockEntityType<?> beType = Registries.BLOCK_ENTITY_TYPE.get(type);
-        if (beType != null && beType.supports(this.getWorld().getBlockState(pos)))
+        //BlockEntityType<?> beType = Registries.BLOCK_ENTITY_TYPE.get(type);
+        Optional<RegistryEntry.Reference<BlockEntityType<?>>> opt = Registries.BLOCK_ENTITY_TYPE.get(type);
+
+        if (opt.isPresent())
         {
-            BlockEntity blockEntity2 = beType.instantiate(pos, this.getWorld().getBlockState(pos));
-            if (blockEntity2 != null)
+            BlockEntityType<?> beType = opt.get().value();
+
+            if (beType.supports(this.getWorld().getBlockState(pos)))
             {
-                blockEntity2.read(nbt, this.getWorld().getRegistryManager());
-                this.getWorld().addBlockEntity(blockEntity2);
-                return blockEntity2;
+                BlockEntity blockEntity2 = beType.instantiate(pos, this.getWorld().getBlockState(pos));
+
+                if (blockEntity2 != null)
+                {
+                    blockEntity2.read(nbt, this.getWorld().getRegistryManager());
+                    this.getWorld().addBlockEntity(blockEntity2);
+
+                    return blockEntity2;
+                }
             }
         }
 

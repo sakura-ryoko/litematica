@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.world;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
@@ -77,19 +76,9 @@ public class SchematicWorldHandler
             return null;
         }
 
-        RegistryEntryLookup.RegistryLookup lookup = world.getRegistryManager().createRegistryLookup();
-        Optional<RegistryEntryLookup<DimensionType>> entryLookup = lookup.getOptional(RegistryKeys.DIMENSION_TYPE);
-        RegistryEntry<DimensionType> entry = null;
-
-        if (entryLookup.isPresent())
-        {
-            Optional<? extends RegistryEntry<DimensionType>> dimOptional = entryLookup.get().getOptional(DimensionTypes.OVERWORLD);
-
-            if (dimOptional.isPresent())
-            {
-                entry = dimOptional.get();
-            }
-        }
+        //RegistryEntryLookup.RegistryLookup lookup = world.getRegistryManager().createRegistryLookup();
+        RegistryEntryLookup<DimensionType> entryLookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.DIMENSION_TYPE);
+        RegistryEntry<DimensionType> entry = entryLookup.getOrThrow(DimensionTypes.OVERWORLD);
 
         // Use the DimensionType of the current client world as a fallback
         if (entry == null)

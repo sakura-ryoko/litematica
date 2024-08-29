@@ -1,10 +1,10 @@
 package fi.dy.masa.litematica.world;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +22,7 @@ import net.minecraft.particle.ParticleEffect;
 import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -81,11 +82,12 @@ public class WorldSchematic extends World
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
         if (!registryManager.equals(DynamicRegistryManager.EMPTY))
         {
-            this.biome = registryManager.get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
+            //this.biome = registryManager.get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
+            this.biome = this.getPlains(registryManager);
         }
         else
         {
-            this.biome = this.mc.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
+            this.biome = this.getPlains(this.mc.world.getRegistryManager());
         }
         this.tickManager = new TickManager();
     }
@@ -514,7 +516,7 @@ public class WorldSchematic extends World
         {
             return this.mc.world.getRegistryManager();
         }
-        else if (SchematicWorldHandler.INSTANCE.getRegistryManager().equals(DynamicRegistryManager.EMPTY) == false)
+        else if (!SchematicWorldHandler.INSTANCE.getRegistryManager().equals(DynamicRegistryManager.EMPTY))
         {
             return SchematicWorldHandler.INSTANCE.getRegistryManager();
         }
@@ -554,6 +556,12 @@ public class WorldSchematic extends World
         {
             return FeatureSet.empty();
         }
+    }
+
+    private RegistryEntry<Biome> getPlains(DynamicRegistryManager registryManager)
+    {
+        RegistryEntryLookup<Biome> biomeLookup = registryManager.getOrThrow(RegistryKeys.BIOME);
+        return biomeLookup.getOrThrow(BiomeKeys.PLAINS);
     }
 
     @Override
