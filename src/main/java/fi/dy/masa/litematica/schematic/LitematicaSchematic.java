@@ -2134,7 +2134,7 @@ public class LitematicaSchematic
                 // Don't crash on invalid ResourceLocation in 1.13+
                 try
                 {
-                    Optional<RegistryEntry.Reference<T>> opt = registry.get(Identifier.tryParse(tag.getString(tagName)));
+                    Optional<RegistryEntry.Reference<T>> opt = registry.getEntry(Identifier.tryParse(tag.getString(tagName)));
 
                     //target = registry.get(Identifier.tryParse(tag.getString(tagName)));
                     //if (target == null || target == emptyValue)

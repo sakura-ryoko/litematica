@@ -425,9 +425,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         public static String getDisplayName(BlockState state, ItemStack stack)
         {
             Block block = state.getBlock();
-            // FIXME
-            //String key = block.getTranslationKey() + ".name";
-            String key = block.method_63499() + ".name";
+            String key = block.getTranslationKey() + ".name";
             String name = StringUtils.translate(key);
             name = key.equals(name) == false ? name : stack.getName().getString();
 

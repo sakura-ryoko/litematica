@@ -370,7 +370,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         }
 
         //BlockEntityType<?> beType = Registries.BLOCK_ENTITY_TYPE.get(type);
-        Optional<RegistryEntry.Reference<BlockEntityType<?>>> opt = Registries.BLOCK_ENTITY_TYPE.get(type);
+        Optional<RegistryEntry.Reference<BlockEntityType<?>>> opt = Registries.BLOCK_ENTITY_TYPE.getEntry(type);
 
         if (opt.isPresent())
         {

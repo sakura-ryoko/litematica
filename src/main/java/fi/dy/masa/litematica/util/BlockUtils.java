@@ -64,7 +64,7 @@ public class BlockUtils
 
             if (Registries.BLOCK.containsId(id))
             {
-                Optional<RegistryEntry.Reference<Block>> opt = Registries.BLOCK.get(id);
+                Optional<RegistryEntry.Reference<Block>> opt = Registries.BLOCK.getEntry(id);
                 Block block;
 
                 if (opt.isPresent())
