@@ -15,7 +15,7 @@ import net.minecraft.item.ItemStack;
 public abstract class MixinModelOverrideList
 {
     @SuppressWarnings("deprecation")
-    @Redirect(method = "apply", at = @At(value = "INVOKE",
+    @Redirect(method = "getModel", at = @At(value = "INVOKE",
               target = "Lnet/minecraft/client/item/ModelPredicateProvider;call(" +
                        "Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;" +
                        "Lnet/minecraft/entity/LivingEntity;I)F"))
