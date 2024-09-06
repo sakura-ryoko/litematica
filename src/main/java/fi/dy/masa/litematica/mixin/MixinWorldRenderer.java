@@ -3,10 +3,13 @@ package fi.dy.masa.litematica.mixin;
 import java.util.List;
 import org.joml.Matrix4f;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.profiler.Profiler;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,6 +24,7 @@ import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 public abstract class MixinWorldRenderer
 {
     @Shadow private net.minecraft.client.world.ClientWorld world;
+    @Shadow @Final private MinecraftClient client;
     @Unique private Matrix4f posMatrix = null;
     @Unique private RenderTickCounter ticks = null;
 
@@ -40,6 +44,25 @@ public abstract class MixinWorldRenderer
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
+    }
+
+    @Inject(method = "render",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
+                    shift = At.Shift.BEFORE))
+    private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
+                                 Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
+                                 Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci)
+    {
+        this.posMatrix = positionMatrix;
+        this.ticks = tickCounter;
+    }
+
+    @Inject(method = "renderMain", at = @At(value = "FIELD",
+            target = "Lnet/minecraft/client/render/DefaultFramebufferSet;entityOutlineFramebuffer:Lnet/minecraft/client/util/Handle;"))
+    private void onRenderMainPrePhase(FrameGraphBuilder frameGraphBuilder, Frustum frustum, Camera camera, Matrix4f positionMatrix, Matrix4f projectionMatrix, Fog fog, boolean renderBlockOutline, boolean hasEntitiesToRender, RenderTickCounter renderTickCounter, Profiler profiler, CallbackInfo ci)
+    {
+        this.client.gameRenderer.getLightmapTextureManager().enable();
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
@@ -65,16 +88,10 @@ public abstract class MixinWorldRenderer
         }
     }
 
-    @Inject(method = "render",
-            at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
-            shift = At.Shift.BEFORE))
-    private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
-                                 Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
-                                 Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci)
+    @Inject(method = "renderMain", at = @At("TAIL"))
+    private void onRenderMainPostPhase(FrameGraphBuilder frameGraphBuilder, Frustum frustum, Camera camera, Matrix4f positionMatrix, Matrix4f projectionMatrix, Fog fog, boolean renderBlockOutline, boolean hasEntitiesToRender, RenderTickCounter renderTickCounter, Profiler profiler, CallbackInfo ci)
     {
-        this.posMatrix = positionMatrix;
-        this.ticks = tickCounter;
+        this.client.gameRenderer.getLightmapTextureManager().disable();
     }
 
     @Inject(method = "renderEntities",
