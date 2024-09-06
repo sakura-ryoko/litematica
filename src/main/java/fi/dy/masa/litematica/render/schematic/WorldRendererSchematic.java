@@ -15,6 +15,7 @@ import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -29,6 +30,7 @@ import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
 import fi.dy.masa.malilib.util.EntityUtils;
@@ -472,7 +474,10 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         }
 
-        initShader(shader, matrices, projMatrix);
+        // As per IMS
+        //initShader(shader, matrices, projMatrix);
+        //shader.initializeUniforms(VertexFormat.DrawMode.QUADS, matrices, projMatrix, MinecraftClient.getInstance().getWindow());
+        shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         RenderSystem.setupShaderLights(shader);
         shader.bind();
 
@@ -544,9 +549,11 @@ public class WorldRendererSchematic
         this.renderBlockOverlay(OverlayRenderType.QUAD, matrix4f, camera, projMatrix);
     }
 
+    /*
+    Disable, as per IMS
+
     protected static void initShader(ShaderProgram shader, Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        // FIXME
         //for (int i = 0; i < 12; ++i) shader.addSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
 
         if (shader.modelViewMat != null) shader.modelViewMat.set(matrix4f);
@@ -564,6 +571,7 @@ public class WorldRendererSchematic
         if (shader.gameTime != null) shader.gameTime.set(RenderSystem.getShaderGameTime());
         if (shader.lineWidth != null) shader.lineWidth.set(RenderSystem.getShaderLineWidth());
     }
+     */
 
     protected void renderBlockOverlay(OverlayRenderType type, Matrix4f matrix4f, Camera camera, Matrix4f projMatrix)
     {
@@ -652,7 +660,6 @@ public class WorldRendererSchematic
             else
             {
                 boolean result;
-
                 BlockModelRendererSchematic.enableCache();
                 result = renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));

@@ -8,7 +8,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,9 +42,7 @@ public abstract class MixinWorldRenderer
     private void onPostSetupTerrain(
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
-        this.client.gameRenderer.getLightmapTextureManager().enable();
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
-        this.client.gameRenderer.getLightmapTextureManager().disable();
     }
 
     @Inject(method = "render",
@@ -58,13 +55,6 @@ public abstract class MixinWorldRenderer
     {
         this.posMatrix = positionMatrix;
         this.ticks = tickCounter;
-    }
-
-    @Inject(method = "renderMain", at = @At(value = "FIELD",
-            target = "Lnet/minecraft/client/render/DefaultFramebufferSet;entityOutlineFramebuffer:Lnet/minecraft/client/util/Handle;"))
-    private void onRenderMainPrePhase(FrameGraphBuilder frameGraphBuilder, Frustum frustum, Camera camera, Matrix4f positionMatrix, Matrix4f projectionMatrix, Fog fog, boolean renderBlockOutline, boolean hasEntitiesToRender, RenderTickCounter renderTickCounter, Profiler profiler, CallbackInfo ci)
-    {
-        this.client.gameRenderer.getLightmapTextureManager().enable();
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
@@ -88,12 +78,6 @@ public abstract class MixinWorldRenderer
             LitematicaRenderer.getInstance().piecewiseRenderTranslucent(matrix4f, positionMatrix);
             LitematicaRenderer.getInstance().piecewiseRenderOverlay(matrix4f, positionMatrix);
         }
-    }
-
-    @Inject(method = "renderMain", at = @At("TAIL"))
-    private void onRenderMainPostPhase(FrameGraphBuilder frameGraphBuilder, Frustum frustum, Camera camera, Matrix4f positionMatrix, Matrix4f projectionMatrix, Fog fog, boolean renderBlockOutline, boolean hasEntitiesToRender, RenderTickCounter renderTickCounter, Profiler profiler, CallbackInfo ci)
-    {
-        this.client.gameRenderer.getLightmapTextureManager().disable();
     }
 
     @Inject(method = "renderEntities",
