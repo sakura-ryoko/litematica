@@ -43,7 +43,9 @@ public abstract class MixinWorldRenderer
     private void onPostSetupTerrain(
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
+        this.client.gameRenderer.getLightmapTextureManager().enable();
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
+        this.client.gameRenderer.getLightmapTextureManager().disable();
     }
 
     @Inject(method = "render",
