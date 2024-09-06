@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -21,10 +22,7 @@ import net.minecraft.item.map.MapState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.recipe.BrewingRecipeRegistry;
 import net.minecraft.recipe.RecipeManager;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.scoreboard.Scoreboard;
@@ -43,6 +41,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.dimension.DimensionTypes;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.explosion.ExplosionBehavior;
@@ -59,11 +58,13 @@ public class WorldSchematic extends World
 
     protected final MinecraftClient mc;
     protected final ChunkManagerSchematic chunkManagerSchematic;
-    protected final RegistryEntry<Biome> biome;
+    protected RegistryEntry<Biome> biome;
     @Nullable protected final WorldRendererSchematic worldRenderer;
     protected int nextEntityId;
     protected int entityCount;
     private final TickManager tickManager;
+    private final RegistryEntry<DimensionType> dimensionType;
+    private DimensionEffects dimensionEffects = new DimensionEffects.Overworld();
 
     public WorldSchematic(MutableWorldProperties properties,
                           @Nonnull DynamicRegistryManager registryManager,
@@ -80,21 +81,43 @@ public class WorldSchematic extends World
        }
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
+        this.dimensionType = dimension;
         if (!registryManager.equals(DynamicRegistryManager.EMPTY))
         {
-            //this.biome = registryManager.get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
-            this.biome = this.getPlains(registryManager);
+            this.setDimension(registryManager);
         }
         else
         {
-            this.biome = this.getPlains(this.mc.world.getRegistryManager());
+            this.setDimension(this.mc.world.getRegistryManager());
         }
         this.tickManager = new TickManager();
     }
 
+    private void setDimension(DynamicRegistryManager registryManager)
+    {
+        RegistryEntryLookup<DimensionType> entryLookup = registryManager.getOrThrow(RegistryKeys.DIMENSION_TYPE);
+        RegistryEntry<DimensionType> nether = entryLookup.getOrThrow(DimensionTypes.THE_NETHER);
+        RegistryEntry<DimensionType> end = entryLookup.getOrThrow(DimensionTypes.THE_END);
+
+        if (this.dimensionType.equals(nether))
+        {
+            this.biome = this.getWastes(registryManager);
+        }
+        else if (this.dimensionType.equals(end))
+        {
+            this.biome = this.getTheEnd(registryManager);
+        }
+        else
+        {
+            this.biome = this.getPlains(registryManager);
+        }
+
+        this.dimensionEffects = DimensionEffects.byDimensionType(this.dimensionType.value());
+    }
+
     public ChunkManagerSchematic getChunkProvider()
     {
-        return this.chunkManagerSchematic;
+        return this.getChunkManager();
     }
 
     @Override
@@ -389,10 +412,36 @@ public class WorldSchematic extends World
         return index + (this.getBottomY() >> 4);
     }
 
+    // For AO compatibility
+    public RegistryEntry<DimensionType> getDimensionType()
+    {
+        return this.dimensionType;
+    }
+
+    public DimensionEffects getDimensionEffects()
+    {
+        return this.dimensionEffects;
+    }
+
     @Override
     public float getBrightness(Direction direction, boolean shaded)
     {
-        return 0;
+        boolean darkened = this.getDimensionEffects().isDarkened();
+
+        if (!shaded)
+        {
+            return darkened ? 0.9F : 1.0F;
+        }
+        else
+        {
+            return switch (direction)
+            {
+                case DOWN -> darkened ? 0.9F : 0.5F;
+                case UP -> darkened ? 0.9F : 1.0F;
+                case NORTH, SOUTH -> 0.8F;
+                case WEST, EAST -> 0.6F;
+            };
+        }
     }
 
     @Override
@@ -562,6 +611,18 @@ public class WorldSchematic extends World
     {
         RegistryEntryLookup<Biome> biomeLookup = registryManager.getOrThrow(RegistryKeys.BIOME);
         return biomeLookup.getOrThrow(BiomeKeys.PLAINS);
+    }
+
+    private RegistryEntry<Biome> getWastes(DynamicRegistryManager registryManager)
+    {
+        RegistryEntryLookup<Biome> biomeLookup = registryManager.getOrThrow(RegistryKeys.BIOME);
+        return biomeLookup.getOrThrow(BiomeKeys.NETHER_WASTES);
+    }
+
+    private RegistryEntry<Biome> getTheEnd(DynamicRegistryManager registryManager)
+    {
+        RegistryEntryLookup<Biome> biomeLookup = registryManager.getOrThrow(RegistryKeys.BIOME);
+        return biomeLookup.getOrThrow(BiomeKeys.THE_END);
     }
 
     @Override

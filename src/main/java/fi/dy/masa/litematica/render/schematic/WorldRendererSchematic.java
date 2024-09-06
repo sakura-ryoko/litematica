@@ -651,8 +651,22 @@ public class WorldRendererSchematic
             }
             else
             {
-                return renderType == BlockRenderType.MODEL &&
+                boolean result;
+
+                BlockModelRendererSchematic.enableCache();
+                result = renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
+                BlockModelRendererSchematic.disableCache();
+
+                // TODO --> For testing the Vanilla Block Model Renderer
+                /*
+                BlockModelRenderer.enableBrightnessCache();
+                this.blockRenderManager.renderBlock(state, pos, world, matrixStack, bufferBuilderIn, true, Random.create(state.getRenderingSeed(pos)));
+                result = true;
+                BlockModelRenderer.disableBrightnessCache();
+                 */
+
+                return result;
             }
         }
         catch (Throwable throwable)

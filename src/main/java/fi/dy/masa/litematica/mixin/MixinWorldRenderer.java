@@ -31,7 +31,6 @@ public abstract class MixinWorldRenderer
         if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
         {
             LitematicaRenderer.getInstance().loadRenderers();
-
             SchematicWorldRefresher.INSTANCE.updateAll();
         }
     }
@@ -68,7 +67,6 @@ public abstract class MixinWorldRenderer
 
     @Inject(method = "render",
             at = @At(value = "INVOKE",
-            //target = "Lnet/minecraft/client/render/FrameGraphBuilder;createPass(Ljava/lang/String;)Lnet/minecraft/client/render/RenderPass;"))
             target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
             shift = At.Shift.BEFORE))
     private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
@@ -83,7 +81,8 @@ public abstract class MixinWorldRenderer
             at = @At(value = "RETURN"))
     private void onPostRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, Camera camera, RenderTickCounter tickCounter, List<Entity> entities, CallbackInfo ci)
     {
-        if (this.posMatrix != null && this.ticks != null)
+        if (this.posMatrix != null &&
+            this.ticks != null)
         {
             LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickDelta(false));
             this.posMatrix = null;

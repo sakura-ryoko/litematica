@@ -9,11 +9,13 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkProvider;
 import net.minecraft.world.chunk.light.ChunkLightingView;
+import net.minecraft.world.chunk.light.LightStorage;
 import net.minecraft.world.chunk.light.LightingProvider;
 
 public class FakeLightingProvider extends LightingProvider
 {
     private final FakeLightingView lightingView;
+    private static final ChunkNibbleArray chunkNibbleArray = new ChunkNibbleArray(15);
 
     public FakeLightingProvider(ChunkProvider chunkProvider)
     {
@@ -34,13 +36,33 @@ public class FakeLightingProvider extends LightingProvider
         return 15;
     }
 
+    public static ChunkNibbleArray getChunkNibbleArray() { return chunkNibbleArray; }
+
+    @Override
+    public boolean isLightingEnabled(long sectionPos)
+    {
+        return true;
+    }
+
+    @Override
+    public LightStorage.Status getStatus(LightType lightType, ChunkSectionPos pos)
+    {
+        return LightStorage.Status.LIGHT_ONLY;
+    }
+
+    @Override
+    public String displaySectionLevel(LightType lightType, ChunkSectionPos pos)
+    {
+        return Integer.toString(1);
+    }
+
     public static class FakeLightingView implements ChunkLightingView
     {
         @Nullable
         @Override
         public ChunkNibbleArray getLightSection(ChunkSectionPos pos)
         {
-            return null;
+            return FakeLightingProvider.chunkNibbleArray;
         }
 
         @Override
@@ -52,11 +74,13 @@ public class FakeLightingProvider extends LightingProvider
         @Override
         public void checkBlock(BlockPos pos)
         {
+            // Checked
         }
 
         @Override
         public void propagateLight(ChunkPos chunkPos)
         {
+            // Done
         }
 
         @Override
@@ -80,6 +104,7 @@ public class FakeLightingProvider extends LightingProvider
         @Override
         public void setColumnEnabled(ChunkPos chunkPos, boolean bl)
         {
+            // NO-OP
         }
     }
 }
