@@ -54,8 +54,8 @@ public class BlockModelRendererSchematic
         matrixStack.translate((float) offset.x, (float) offset.y, (float) offset.z);
         int overlay = OverlayTexture.DEFAULT_UV;
 
-        try
-        {
+        //try
+        //{
             if (ao)
             {
                 return this.renderModelSmooth(worldIn, modelIn, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
@@ -64,10 +64,10 @@ public class BlockModelRendererSchematic
             {
                 return this.renderModelFlat(worldIn, modelIn, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
             }
-        }
-        catch (Throwable throwable)
-        {
-            Litematica.logger.error("renderModel: Crash caught: [{}]", !throwable.getMessage().isEmpty() ? throwable.getMessage() : "<EMPTY>");
+        //}
+        //catch (Throwable throwable)
+        //{
+            //Litematica.logger.error("renderModel: Crash caught: [{}]", !throwable.getMessage().isEmpty() ? throwable.getMessage() : "<EMPTY>");
             /*
             CrashReport crashreport = CrashReport.create(throwable, "Tesselating block model");
             CrashReportSection crashreportcategory = crashreport.addElement("Block model being tesselated");
@@ -75,8 +75,8 @@ public class BlockModelRendererSchematic
             crashreportcategory.add("Using AO", ao);
             throw new CrashException(crashreport);
             */
-            return false;
-        }
+            //return false;
+        //}
     }
 
     private boolean renderModelSmooth(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn, BlockPos posIn, MatrixStack matrixStack,
