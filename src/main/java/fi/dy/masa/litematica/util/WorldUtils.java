@@ -743,7 +743,7 @@ public class WorldUtils
         else if (stateBlock instanceof WallMountedBlock)
         {
             //If the supporting block doesn't exist, fail
-            if (!((IMixinWallMountedBlock)stateBlock).invokeCanPlaceAt(stateSchematic, world, pos))
+            if (!((IMixinWallMountedBlock)stateBlock).litematica_invokeCanPlaceAt(stateSchematic, world, pos))
                 placementData.mustFail = true;
         }
 

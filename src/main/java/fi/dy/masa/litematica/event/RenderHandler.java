@@ -4,6 +4,11 @@ import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.LayeredDrawer;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Fog;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.util.profiler.Profiler;
 
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -18,33 +23,37 @@ import fi.dy.masa.malilib.util.GuiUtils;
 public class RenderHandler implements IRenderer
 {
     @Override
-    public void onRenderWorldLast(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void onRenderWorldPreWeather(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, Profiler profiler)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
-            OverlayRenderer.getInstance().renderBoxes(matrix4f);
+            profiler.push(this.getProfilerSectionSupplier()+"_overlay_boxes");
+            OverlayRenderer.getInstance().renderBoxes(posMatrix);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
-                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(matrix4f);
+                profiler.swap(this.getProfilerSectionSupplier()+"_overlay_mismatches");
+                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix);
             }
 
             if (DataManager.getToolMode() == ToolMode.REBUILD)
             {
-                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(matrix4f);
+                profiler.swap(this.getProfilerSectionSupplier()+"_overlay_targeting");
+                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix);
             }
+
+            profiler.pop();
         }
     }
 
     @Override
-    public void onRenderGameOverlayPost(DrawContext drawContext)
+    public void onRenderGameOverlayPostAdvanced(DrawContext drawContext, float partialTicks, LayeredDrawer layeredDrawer, Profiler profiler, MinecraftClient mc)
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
-
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
+            profiler.push(this.getProfilerSectionSupplier()+"_overlay_hud");
             // The Info HUD renderers can decide if they want to be rendered in GUIs
             InfoHud.getInstance().renderHud(drawContext);
 
@@ -53,14 +62,18 @@ public class RenderHandler implements IRenderer
                 if (mc.options.hudHidden == false)
                 {
                     ToolHud.getInstance().renderHud(drawContext);
+                    profiler.swap(this.getProfilerSectionSupplier()+"_overlay_hoverinfo");
                     OverlayRenderer.getInstance().renderHoverInfo(mc, drawContext);
                 }
 
                 if (GuiSchematicManager.hasPendingPreviewTask())
                 {
+                    profiler.swap(this.getProfilerSectionSupplier()+"_overlay_previewframe");
                     OverlayRenderer.getInstance().renderPreviewFrame(mc);
                 }
             }
+
+            profiler.pop();
         }
     }
 }

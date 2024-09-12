@@ -1,13 +1,16 @@
 package fi.dy.masa.litematica.mixin;
 
 import java.util.List;
+import com.llamalad7.mixinextras.sugar.Local;
 import org.joml.Matrix4f;
 
+import net.minecraft.class_10209;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,23 +29,30 @@ public abstract class MixinWorldRenderer
     @Shadow @Final private MinecraftClient client;
     @Unique private Matrix4f posMatrix = null;
     @Unique private RenderTickCounter ticks = null;
+    @Unique private Profiler profiler;
 
     @Inject(method = "reload()V", at = @At("RETURN"))
     private void onLoadRenderers(CallbackInfo ci)
     {
         // Also (re-)load our renderer when the vanilla renderer gets reloaded
-        if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
+        if (this.world != null && this.world == this.client.world)
         {
-            LitematicaRenderer.getInstance().loadRenderers();
+            if (this.profiler == null)
+            {
+                this.profiler = class_10209.method_64146();
+            }
+
+            LitematicaRenderer.getInstance().loadRenderers(this.profiler);
             SchematicWorldRefresher.INSTANCE.updateAll();
         }
     }
 
     @Inject(method = "setupTerrain", at = @At("TAIL"))
     private void onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
+            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci,
+            @Local Profiler profiler)
     {
-        LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
+        LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, profiler);
     }
 
     @Inject(method = "render",
@@ -51,32 +61,38 @@ public abstract class MixinWorldRenderer
                     shift = At.Shift.BEFORE))
     private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
                                  Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
-                                 Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci)
+                                 Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci,
+                                 @Local Profiler profiler)
     {
         this.posMatrix = positionMatrix;
         this.ticks = tickCounter;
+        this.profiler = profiler;
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
     private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z,
-                               Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
+                               Matrix4f viewMatrix, Matrix4f posMatrix, CallbackInfo ci)
     {
+        if (this.profiler == null)
+        {
+            this.profiler = class_10209.method_64146();
+        }
         if (renderLayer == RenderLayer.getSolid())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderSolid(matrix4f, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderSolid(viewMatrix, posMatrix, this.profiler);
         }
         else if (renderLayer == RenderLayer.getCutoutMipped())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderCutoutMipped(matrix4f, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderCutoutMipped(viewMatrix, posMatrix, this.profiler);
         }
         else if (renderLayer == RenderLayer.getCutout())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderCutout(matrix4f, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderCutout(viewMatrix, posMatrix, this.profiler);
         }
         else if (renderLayer == RenderLayer.getTranslucent())
         {
-            LitematicaRenderer.getInstance().piecewiseRenderTranslucent(matrix4f, positionMatrix);
-            LitematicaRenderer.getInstance().piecewiseRenderOverlay(matrix4f, positionMatrix);
+            LitematicaRenderer.getInstance().piecewiseRenderTranslucent(viewMatrix, posMatrix, this.profiler);
+            LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
         }
     }
 
@@ -87,9 +103,10 @@ public abstract class MixinWorldRenderer
         if (this.posMatrix != null &&
             this.ticks != null)
         {
-            LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickDelta(false));
+            LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickDelta(false), this.profiler);
             this.posMatrix = null;
             this.ticks = null;
+            this.profiler = null;
         }
     }
 

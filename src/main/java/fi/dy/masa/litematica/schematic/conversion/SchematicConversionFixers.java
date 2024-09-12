@@ -32,14 +32,12 @@ import net.minecraft.block.enums.WireConnection;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.mixin.IMixinFenceGateBlock;
 import fi.dy.masa.litematica.mixin.IMixinRedstoneWireBlock;
 import fi.dy.masa.litematica.mixin.IMixinStairsBlock;
@@ -247,13 +245,13 @@ public class SchematicConversionFixers
 
         if (facing.getAxis() == Direction.Axis.X)
         {
-            inWall = (((IMixinFenceGateBlock) gate).invokeIsWall(reader.getBlockState(pos.offset(Direction.NORTH)))
-                   || ((IMixinFenceGateBlock) gate).invokeIsWall(reader.getBlockState(pos.offset(Direction.SOUTH))));
+            inWall = (((IMixinFenceGateBlock) gate).litematica_invokeIsWall(reader.getBlockState(pos.offset(Direction.NORTH)))
+                   || ((IMixinFenceGateBlock) gate).litematica_invokeIsWall(reader.getBlockState(pos.offset(Direction.SOUTH))));
         }
         else
         {
-            inWall = (((IMixinFenceGateBlock) gate).invokeIsWall(reader.getBlockState(pos.offset(Direction.WEST)))
-                   || ((IMixinFenceGateBlock) gate).invokeIsWall(reader.getBlockState(pos.offset(Direction.EAST))));
+            inWall = (((IMixinFenceGateBlock) gate).litematica_invokeIsWall(reader.getBlockState(pos.offset(Direction.WEST)))
+                   || ((IMixinFenceGateBlock) gate).litematica_invokeIsWall(reader.getBlockState(pos.offset(Direction.EAST))));
         }
 
         return state.with(FenceGateBlock.IN_WALL, inWall);
@@ -347,7 +345,7 @@ public class SchematicConversionFixers
 
     public static final IStateFixer FIXER_REDSTONE_WIRE = (reader, state, pos) -> {
         RedstoneWireBlock wire = (RedstoneWireBlock) state.getBlock();
-        BlockState stateAdj = ((IMixinRedstoneWireBlock) wire).litematicaGetPlacementState(reader, state, pos);
+        BlockState stateAdj = ((IMixinRedstoneWireBlock) wire).litematica_GetPlacementState(reader, state, pos);
 
         if (stateAdj.equals(state) == false)
         {
@@ -489,7 +487,7 @@ public class SchematicConversionFixers
     };
 
     public static final IStateFixer FIXER_STAIRS = (reader, state, pos) -> {
-        return state.with(StairsBlock.SHAPE, IMixinStairsBlock.invokeGetStairShape(state, reader, pos));
+        return state.with(StairsBlock.SHAPE, IMixinStairsBlock.litematica_invokeGetStairShape(state, reader, pos));
     };
 
     public static final IStateFixer FIXER_STEM = (reader, state, pos) -> {
@@ -525,7 +523,7 @@ public class SchematicConversionFixers
 
     public static final IStateFixer FIXER_VINE = (reader, state, pos) -> {
         VineBlock vine = (VineBlock) state.getBlock();
-        return state.with(VineBlock.UP, ((IMixinVineBlock) vine).invokeShouldConnectUp(reader, pos.up(), Direction.UP));
+        return state.with(VineBlock.UP, ((IMixinVineBlock) vine).litematica_invokeShouldConnectUp(reader, pos.up(), Direction.UP));
     };
 
     private static boolean getIsRepeaterPoweredOnSide(BlockView reader, BlockPos pos, BlockState stateRepeater)

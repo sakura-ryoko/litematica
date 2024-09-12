@@ -10,5 +10,5 @@ import net.minecraft.world.entity.EntityLookup;
 public interface IMixinWorld
 {
     @Invoker("getEntityLookup")
-    EntityLookup<Entity> getEntityLookup();
+    EntityLookup<Entity> litematica_getEntityLookup();
 }

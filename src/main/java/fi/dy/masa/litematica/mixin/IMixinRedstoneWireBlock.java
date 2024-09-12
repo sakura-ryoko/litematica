@@ -11,5 +11,5 @@ import net.minecraft.world.BlockView;
 public interface IMixinRedstoneWireBlock
 {
     @Invoker("getPlacementState")
-    BlockState litematicaGetPlacementState(BlockView world, BlockState state, BlockPos pos);
+    BlockState litematica_GetPlacementState(BlockView world, BlockState state, BlockPos pos);
 }

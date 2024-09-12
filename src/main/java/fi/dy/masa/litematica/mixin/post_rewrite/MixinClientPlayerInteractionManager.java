@@ -62,7 +62,7 @@ public class MixinClientPlayerInteractionManager
     private void onInteractBlockInternal(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir)
     {
         if (Configs.Test.EASY_PLACE_MODE.getBooleanValue() &&
-                Configs.Generic.EASY_PLACE_MODE.getBooleanValue() == false)
+            Configs.Generic.EASY_PLACE_MODE.getBooleanValue() == false)
         {
             // Prevent recursion, since the Easy Place mode can call this code again
             if (EasyPlaceUtils.isHandling() == false)
