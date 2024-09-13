@@ -748,6 +748,8 @@
     "litematica.gui.label.schematic_info.total_blocks": "Total blocks: §f%d§r",
     "litematica.gui.label.schematic_info.total_blocks_and_volume": "Blocks/Volume: §f%d§r/§f%d§r",
     "litematica.gui.label.schematic_info.total_volume": "Total volume: §f%d§r blocks",
+    "litematica.gui.label.schematic_info.version": "Litematic Version: %d",
+    "litematica.gui.label.schematic_info.schema": "Minecraft: %s [Schema %d]",
 
     "litematica.gui.label.schematic_load.checkbox.create_placement": "Create a placement",
     "litematica.gui.label.schematic_load.hoverinfo.create_placement": "Immediately create a new placement\nand select that placement",

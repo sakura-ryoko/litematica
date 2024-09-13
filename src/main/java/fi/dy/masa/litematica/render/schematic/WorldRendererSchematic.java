@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.util.*;
 import javax.annotation.Nullable;
+
+import net.minecraft.util.profiler.Profilers;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 
@@ -9,19 +11,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.class_10209;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -31,7 +30,6 @@ import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.BlockRenderView;
 
@@ -173,7 +171,7 @@ public class WorldRendererSchematic
         {
             if (profiler == null)
             {
-                profiler = class_10209.method_64146();
+                profiler = Profilers.get();
             }
             profiler.push("litematica_load_renderers");
 

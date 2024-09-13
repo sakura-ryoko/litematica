@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+
+import fi.dy.masa.litematica.schematic.SchematicVersion;
+import fi.dy.masa.litematica.util.DataFixerMode;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -33,6 +36,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
     protected static final FileFilter SCHEMATIC_FILTER = new FileFilterSchematics();
 
     protected final Map<File, SchematicMetadata> cachedMetadata = new HashMap<>();
+    protected final Map<File, SchematicVersion> cachedVersion = new HashMap<>();
     protected final Map<File, Pair<Identifier, NativeImageBackedTexture>> cachedPreviewImages = new HashMap<>();
     protected final GuiSchematicBrowserBase parent;
     protected final int infoWidth;
@@ -94,7 +98,19 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             return;
         }
 
-        SchematicMetadata meta = this.getSchematicMetadata(entry);
+        Pair<SchematicVersion, SchematicMetadata> metaPair = this.getSchematicVersionAndMetadata(entry);
+        SchematicMetadata meta;
+        SchematicVersion version;
+
+        if (metaPair != null)
+        {
+            meta = metaPair.getRight();
+            version = metaPair.getLeft();
+        }
+        else
+        {
+            return;
+        }
 
         if (meta != null)
         {
@@ -165,6 +181,19 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                 y += 12;
             }
 
+            if (version != null)
+            {
+                str = StringUtils.translate("litematica.gui.label.schematic_info.version", version.litematicVersion());
+                this.drawString(drawContext, str, x, y, textColor);
+                y += 12;
+
+                DataFixerMode.Schema schema = DataFixerMode.getSchemaByVersion(version.minecraftDataVersion());
+
+                str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), schema.getDataVersion());
+                this.drawString(drawContext, str, x, y, textColor);
+                y += 12;
+            }
+
             /*
             str = StringUtils.translate("litematica.gui.label.schematic_info.description");
             this.drawString(x, y, textColor, str);
@@ -199,6 +228,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         this.clearPreviewImages();
         this.cachedMetadata.clear();
         this.cachedPreviewImages.clear();
+        this.cachedVersion.clear();
     }
 
     @Nullable
@@ -223,6 +253,35 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         }
 
         return meta;
+    }
+
+    @Nullable
+    protected Pair<SchematicVersion, SchematicMetadata> getSchematicVersionAndMetadata(DirectoryEntry entry)
+    {
+        File file = new File(entry.getDirectory(), entry.getName());
+        SchematicMetadata meta = this.cachedMetadata.get(file);
+        SchematicVersion version = this.cachedVersion.get(file);
+
+        if (meta == null && this.cachedMetadata.containsKey(file) == false)
+        {
+            if (entry.getName().endsWith(LitematicaSchematic.FILE_EXTENSION))
+            {
+                Pair<SchematicVersion, SchematicMetadata> pair = LitematicaSchematic.readMetadataAndVersionFromFile(entry.getDirectory(), entry.getName());
+
+                if (pair != null)
+                {
+                    meta = pair.getRight();
+                    version = pair.getLeft();
+
+                    this.createPreviewImage(file, meta);
+                }
+            }
+
+            this.cachedMetadata.put(file, meta);
+            this.cachedVersion.put(file, version);
+        }
+
+        return Pair.of(version, meta);
     }
 
     private void clearPreviewImages()

@@ -59,6 +59,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class LitematicaSchematic
 {
@@ -2360,6 +2361,52 @@ public class LitematicaSchematic
         }
 
         return null;
+    }
+
+    @Nullable
+    public static Pair<SchematicVersion, SchematicMetadata> readMetadataAndVersionFromFile(File dir, String fileName)
+    {
+        NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
+
+        if (nbt != null)
+        {
+            SchematicMetadata metadata = new SchematicMetadata();
+
+            if (nbt.contains("Version", Constants.NBT.TAG_INT))
+            {
+                final int version = nbt.getInt("Version");
+                final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : -1;
+
+                if (version >= 1 && version <= SCHEMATIC_VERSION)
+                {
+                    metadata.readFromNBT(nbt.getCompound("Metadata"));
+
+                    return Pair.of(new SchematicVersion(version, dataVersion), metadata);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static int readDataVersionFromFile(File dir, String fileName)
+    {
+        NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
+
+        if (nbt != null)
+        {
+            if (nbt.contains("Version", Constants.NBT.TAG_INT))
+            {
+                final int version = nbt.getInt("Version");
+
+                if (version >= 1 && version <= SCHEMATIC_VERSION)
+                {
+                    return nbt.getInt("MinecraftDataVersion");
+                }
+            }
+        }
+
+        return -1;
     }
 
     @Nullable

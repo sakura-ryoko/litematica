@@ -2,9 +2,9 @@ package fi.dy.masa.litematica.mixin;
 
 import java.util.List;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.util.profiler.Profilers;
 import org.joml.Matrix4f;
 
-import net.minecraft.class_10209;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.ObjectAllocator;
@@ -39,7 +39,7 @@ public abstract class MixinWorldRenderer
         {
             if (this.profiler == null)
             {
-                this.profiler = class_10209.method_64146();
+                this.profiler = Profilers.get();
             }
 
             LitematicaRenderer.getInstance().loadRenderers(this.profiler);
@@ -75,7 +75,7 @@ public abstract class MixinWorldRenderer
     {
         if (this.profiler == null)
         {
-            this.profiler = class_10209.method_64146();
+            this.profiler = Profilers.get();
         }
         if (renderLayer == RenderLayer.getSolid())
         {

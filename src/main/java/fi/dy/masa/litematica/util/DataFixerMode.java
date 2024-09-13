@@ -164,7 +164,7 @@ public enum DataFixerMode implements IConfigOptionListEntry
     {
         for (Schema schema : Schema.values())
         {
-            if (schema.getDataVersion() < dataVersion)
+            if (schema.getDataVersion() <= dataVersion)
             {
                 return schema;
             }
@@ -177,46 +177,62 @@ public enum DataFixerMode implements IConfigOptionListEntry
     public enum Schema
     {
         // Minecraft Data Versions
-        SCHEMA_1_21_00 (3953),
-        SCHEMA_1_20_05 (3837),
-        SCHEMA_1_20_04 (3700),
-        SCHEMA_1_20_02 (3578),
-        SCHEMA_1_20_01 (3465),
-        SCHEMA_1_20_00 (3463),
-        SCHEMA_1_19_04 (3337),
-        SCHEMA_1_19_00 (3105),
-        SCHEMA_1_18_02 (2975),
-        SCHEMA_1_18_00 (2860),
-        SCHEMA_1_17_01 (2730),
-        SCHEMA_1_17_00 (2724),
-        SCHEMA_1_16_05 (2586),
-        SCHEMA_1_16_00 (2566),
-        SCHEMA_1_15_02 (2230),
-        SCHEMA_1_15_00 (2225),
-        SCHEMA_1_14_04 (1976),
-        SCHEMA_1_14_00 (1952),
-        SCHEMA_1_13_02 (1631),
-        SCHEMA_1_13_00 (1519),
-        SCHEMA_1_12_02 (1343),
-        SCHEMA_1_12_00 (1139),
-        SCHEMA_1_11_02 (922),
-        SCHEMA_1_11_00 (819),
-        SCHEMA_1_10_02 (512),
-        SCHEMA_1_10_00 (510),
-        SCHEMA_1_09_04 (184),
-        SCHEMA_1_09_00 (169),
-        SCHEMA_15W32A  (100);
+        SCHEMA_1_21_02 (4100, "1.21.2"),
+        SCHEMA_24W37A  (4065, "24w37a"),
+        SCHEMA_1_21_01 (3955, "1.21.1"),
+        SCHEMA_1_21_00 (3953, "1.21"),
+        SCHEMA_1_20_05 (3837, "1.20.5"),
+        SCHEMA_1_20_04 (3700, "1.20.4"),
+        SCHEMA_1_20_02 (3578, "1.20.2"),
+        SCHEMA_1_20_01 (3465, "1.20.1"),
+        SCHEMA_1_20_00 (3463, "1.20"),
+        SCHEMA_1_19_04 (3337, "1.19.4"),
+        SCHEMA_1_19_00 (3105, "1.19"),
+        SCHEMA_1_18_02 (2975, "1.18.2"),
+        SCHEMA_1_18_00 (2860, "1.18"),
+        SCHEMA_1_17_01 (2730, "1.17.1"),
+        SCHEMA_1_17_00 (2724, "1.17"),
+        SCHEMA_1_16_05 (2586, "1.16.5"),
+        SCHEMA_1_16_00 (2566, "1.16"),
+        SCHEMA_1_15_02 (2230, "1.15.2"),
+        SCHEMA_1_15_00 (2225, "1.15"),
+        SCHEMA_1_14_04 (1976, "1.14.4"),
+        SCHEMA_1_14_00 (1952, "1.14"),
+        SCHEMA_1_13_02 (1631, "1.13.2"),
+        SCHEMA_1_13_00 (1519, "1.13"),
+        SCHEMA_1_12_02 (1343, "1.12.2"),
+        SCHEMA_1_12_00 (1139, "1.12"),
+        SCHEMA_1_11_02 (922,  "1.11.2"),
+        SCHEMA_1_11_00 (819,  "1.11"),
+        SCHEMA_1_10_02 (512,  "1.10.2"),
+        SCHEMA_1_10_00 (510,  "1.10"),
+        SCHEMA_1_09_04 (184,  "1.9.4"),
+        SCHEMA_1_09_00 (169,  "1.9"),
+        SCHEMA_15W32A  (100,  "15w32a");
 
         private final int schemaId;
+        private final String str;
 
-        Schema(int id)
+        Schema(int id, String ver)
         {
             this.schemaId = id;
+            this.str = ver;
         }
 
         public int getDataVersion()
         {
             return this.schemaId;
+        }
+
+        public String getString()
+        {
+            return this.str;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "MC: "+this.getString()+" [Schema: "+this.getDataVersion()+"]";
         }
     }
 }
