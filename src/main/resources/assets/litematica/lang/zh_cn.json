@@ -747,6 +747,8 @@
     "litematica.gui.label.schematic_info.total_blocks": "方块总数: §f%d§r",
     "litematica.gui.label.schematic_info.total_blocks_and_volume": "方块/体积: §f%d§r/§f%d§r",
     "litematica.gui.label.schematic_info.total_volume": "总体积: §f%d§r 个方块",
+    "litematica.gui.label.schematic_info.version": "精简版: §f%d§r",
+    "litematica.gui.label.schematic_info.schema": "我的世界: §f%s§r [架构 §f%d§r]",
 
     "litematica.gui.label.schematic_load.checkbox.create_placement": "创建放置",
     "litematica.gui.label.schematic_load.hoverinfo.create_placement": "立即创建新位置并选择该位置",

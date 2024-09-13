@@ -2364,7 +2364,7 @@ public class LitematicaSchematic
     }
 
     @Nullable
-    public static Pair<SchematicVersion, SchematicMetadata> readMetadataAndVersionFromFile(File dir, String fileName)
+    public static Pair<SchematicSchema, SchematicMetadata> readMetadataAndVersionFromFile(File dir, String fileName)
     {
         NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
 
@@ -2381,7 +2381,7 @@ public class LitematicaSchematic
                 {
                     metadata.readFromNBT(nbt.getCompound("Metadata"));
 
-                    return Pair.of(new SchematicVersion(version, dataVersion), metadata);
+                    return Pair.of(new SchematicSchema(version, dataVersion), metadata);
                 }
             }
         }
@@ -2389,7 +2389,8 @@ public class LitematicaSchematic
         return null;
     }
 
-    public static int readDataVersionFromFile(File dir, String fileName)
+    @Nullable
+    public static SchematicSchema readDataVersionFromFile(File dir, String fileName)
     {
         NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
 
@@ -2398,15 +2399,16 @@ public class LitematicaSchematic
             if (nbt.contains("Version", Constants.NBT.TAG_INT))
             {
                 final int version = nbt.getInt("Version");
+                final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
 
-                if (version >= 1 && version <= SCHEMATIC_VERSION)
+                if (version >= 1)
                 {
-                    return nbt.getInt("MinecraftDataVersion");
+                    return new SchematicSchema(version, dataVersion);
                 }
             }
         }
 
-        return -1;
+        return null;
     }
 
     @Nullable

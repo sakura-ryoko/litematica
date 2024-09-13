@@ -747,6 +747,8 @@
   "litematica.gui.label.schematic_info.total_blocks": "Totale blocchi: §f%d§r",
   "litematica.gui.label.schematic_info.total_blocks_and_volume": "Blocchi/Volume: §f%d§r/§f%d§r",
   "litematica.gui.label.schematic_info.total_volume": "Volume totale: §f%d§r blocchi",
+  "litematica.gui.label.schematic_info.version": "Versione Litematic: §f%d§r",
+  "litematica.gui.label.schematic_info.schema": "Minecraft: §f%s§r [Schema §f%d§r]",
   
   "litematica.gui.label.schematic_load.checkbox.create_placement": "Crea una posizione",
   "litematica.gui.label.schematic_load.hoverinfo.create_placement": "Crea immediatamente una nuova posizione\ned è selezionata quella posizione",

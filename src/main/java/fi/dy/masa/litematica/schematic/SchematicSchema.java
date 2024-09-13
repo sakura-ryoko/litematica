@@ -1,6 +1,6 @@
 package fi.dy.masa.litematica.schematic;
 
-public record SchematicVersion(int litematicVersion, int minecraftDataVersion)
+public record SchematicSchema(int litematicVersion, int minecraftDataVersion)
 {
     @Override
     public String toString()

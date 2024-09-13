@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import fi.dy.masa.litematica.schematic.SchematicVersion;
+import fi.dy.masa.litematica.schematic.SchematicSchema;
 import fi.dy.masa.litematica.util.DataFixerMode;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,7 +36,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
     protected static final FileFilter SCHEMATIC_FILTER = new FileFilterSchematics();
 
     protected final Map<File, SchematicMetadata> cachedMetadata = new HashMap<>();
-    protected final Map<File, SchematicVersion> cachedVersion = new HashMap<>();
+    protected final Map<File, SchematicSchema> cachedVersion = new HashMap<>();
     protected final Map<File, Pair<Identifier, NativeImageBackedTexture>> cachedPreviewImages = new HashMap<>();
     protected final GuiSchematicBrowserBase parent;
     protected final int infoWidth;
@@ -98,9 +98,9 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             return;
         }
 
-        Pair<SchematicVersion, SchematicMetadata> metaPair = this.getSchematicVersionAndMetadata(entry);
+        Pair<SchematicSchema, SchematicMetadata> metaPair = this.getSchematicVersionAndMetadata(entry);
         SchematicMetadata meta;
-        SchematicVersion version;
+        SchematicSchema version;
 
         if (metaPair != null)
         {
@@ -189,7 +189,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 
                 DataFixerMode.Schema schema = DataFixerMode.getSchemaByVersion(version.minecraftDataVersion());
 
-                str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), schema.getDataVersion());
+                str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), version.minecraftDataVersion());
                 this.drawString(drawContext, str, x, y, textColor);
                 y += 12;
             }
@@ -256,17 +256,17 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
     }
 
     @Nullable
-    protected Pair<SchematicVersion, SchematicMetadata> getSchematicVersionAndMetadata(DirectoryEntry entry)
+    protected Pair<SchematicSchema, SchematicMetadata> getSchematicVersionAndMetadata(DirectoryEntry entry)
     {
         File file = new File(entry.getDirectory(), entry.getName());
         SchematicMetadata meta = this.cachedMetadata.get(file);
-        SchematicVersion version = this.cachedVersion.get(file);
+        SchematicSchema version = this.cachedVersion.get(file);
 
         if (meta == null && this.cachedMetadata.containsKey(file) == false)
         {
             if (entry.getName().endsWith(LitematicaSchematic.FILE_EXTENSION))
             {
-                Pair<SchematicVersion, SchematicMetadata> pair = LitematicaSchematic.readMetadataAndVersionFromFile(entry.getDirectory(), entry.getName());
+                Pair<SchematicSchema, SchematicMetadata> pair = LitematicaSchematic.readMetadataAndVersionFromFile(entry.getDirectory(), entry.getName());
 
                 if (pair != null)
                 {

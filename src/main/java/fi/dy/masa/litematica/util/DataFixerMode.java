@@ -182,6 +182,9 @@ public enum DataFixerMode implements IConfigOptionListEntry
         SCHEMA_1_21_01 (3955, "1.21.1"),
         SCHEMA_1_21_00 (3953, "1.21"),
         SCHEMA_1_20_05 (3837, "1.20.5"),
+        SCHEMA_24W10A  (3821, "24w10a"),
+        SCHEMA_24W09A  (3819, "24w09a"), // Data Components ( https://minecraft.wiki/w/Data_component_format )
+        SCHEMA_24W07A  (3817, "24w07a"),
         SCHEMA_1_20_04 (3700, "1.20.4"),
         SCHEMA_1_20_02 (3578, "1.20.2"),
         SCHEMA_1_20_01 (3465, "1.20.1"),
@@ -200,6 +203,8 @@ public enum DataFixerMode implements IConfigOptionListEntry
         SCHEMA_1_14_00 (1952, "1.14"),
         SCHEMA_1_13_02 (1631, "1.13.2"),
         SCHEMA_1_13_00 (1519, "1.13"),
+        SCHEMA_17W47A  (1451, "17w47a"), // The Flattening ( https://minecraft.wiki/w/Java_Edition_1.13/Flattening )
+        SCHEMA_17W46A  (1449, "17w46a"),
         SCHEMA_1_12_02 (1343, "1.12.2"),
         SCHEMA_1_12_00 (1139, "1.12"),
         SCHEMA_1_11_02 (922,  "1.11.2"),
