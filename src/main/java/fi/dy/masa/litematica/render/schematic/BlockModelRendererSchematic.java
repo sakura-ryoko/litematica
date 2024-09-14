@@ -17,6 +17,9 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -27,7 +30,6 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
 import fi.dy.masa.malilib.util.PositionUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 
@@ -54,8 +56,8 @@ public class BlockModelRendererSchematic
         matrixStack.translate((float) offset.x, (float) offset.y, (float) offset.z);
         int overlay = OverlayTexture.DEFAULT_UV;
 
-        //try
-        //{
+        try
+        {
             if (ao)
             {
                 return this.renderModelSmooth(worldIn, modelIn, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
@@ -64,19 +66,17 @@ public class BlockModelRendererSchematic
             {
                 return this.renderModelFlat(worldIn, modelIn, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
             }
-        //}
-        //catch (Throwable throwable)
-        //{
+        }
+        catch (Throwable throwable)
+        {
             //Litematica.logger.error("renderModel: Crash caught: [{}]", !throwable.getMessage().isEmpty() ? throwable.getMessage() : "<EMPTY>");
-            /*
             CrashReport crashreport = CrashReport.create(throwable, "Tesselating block model");
             CrashReportSection crashreportcategory = crashreport.addElement("Block model being tesselated");
             CrashReportSection.addBlockInfo(crashreportcategory, worldIn, posIn, stateIn);
             crashreportcategory.add("Using AO", ao);
             throw new CrashException(crashreport);
-            */
             //return false;
-        //}
+        }
     }
 
     private boolean renderModelSmooth(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn, BlockPos posIn, MatrixStack matrixStack,
