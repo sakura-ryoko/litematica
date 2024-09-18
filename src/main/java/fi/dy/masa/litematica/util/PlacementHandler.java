@@ -12,7 +12,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Hand;
@@ -124,7 +124,7 @@ public class PlacementHandler
             return state;
         }
 
-        @Nullable DirectionProperty property = fi.dy.masa.malilib.util.BlockUtils.getFirstDirectionProperty(state);
+        @Nullable EnumProperty<Direction> property = fi.dy.masa.malilib.util.BlockUtils.getFirstDirectionProperty(state);
 
         if (property != null)
         {
@@ -187,7 +187,7 @@ public class PlacementHandler
             return oldState;
         }
 
-        @Nullable DirectionProperty property = fi.dy.masa.malilib.util.BlockUtils.getFirstDirectionProperty(state);
+        @Nullable EnumProperty<Direction> property = fi.dy.masa.malilib.util.BlockUtils.getFirstDirectionProperty(state);
 
         // DirectionProperty - allow all except: VERTICAL_DIRECTION (PointedDripstone)
         if (property != null && property != Properties.VERTICAL_DIRECTION)
@@ -225,7 +225,7 @@ public class PlacementHandler
         {
             for (Property<?> p : propList)
             {
-                if ((p instanceof DirectionProperty) == false &&
+                if (((p instanceof EnumProperty<?> ep) && ep.getType().equals(Direction.class) == false) &&
                     WHITELISTED_PROPERTIES.contains(p))
                 {
                     @SuppressWarnings("unchecked")
@@ -283,7 +283,7 @@ public class PlacementHandler
     }
 
     private static BlockState applyDirectionProperty(BlockState state, UseContext context,
-                                                     DirectionProperty property, int protocolValue)
+                                                     EnumProperty<Direction> property, int protocolValue)
     {
         Direction facingOrig = state.get(property);
         Direction facing = facingOrig;
