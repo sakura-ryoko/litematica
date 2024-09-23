@@ -14,8 +14,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.GlUsage;
 import net.minecraft.client.gl.ShaderProgramKeys;
-import net.minecraft.client.gl.Usage;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -110,13 +110,13 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected VertexBuffer getBlocksVertexBufferByLayer(RenderLayer layer)
     {
-        return this.vertexBufferBlocks.computeIfAbsent(layer, l -> new VertexBuffer(Usage.STATIC_WRITE));
+        return this.vertexBufferBlocks.computeIfAbsent(layer, l -> new VertexBuffer(GlUsage.STATIC_WRITE));
     }
 
     protected VertexBuffer getOverlayVertexBuffer(OverlayRenderType type)
     {
         //if (GuiBase.isCtrlDown()) System.out.printf("getOverlayVertexBuffer: type: %s, buf: %s\n", type, this.vertexBufferOverlay[type.ordinal()]);
-        return this.vertexBufferOverlay.computeIfAbsent(type, l -> new VertexBuffer(Usage.STATIC_WRITE));
+        return this.vertexBufferOverlay.computeIfAbsent(type, l -> new VertexBuffer(GlUsage.STATIC_WRITE));
     }
 
     protected ChunkRenderDataSchematic getChunkRenderData()
