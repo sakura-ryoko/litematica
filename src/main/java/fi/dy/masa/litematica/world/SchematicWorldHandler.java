@@ -83,7 +83,7 @@ public class SchematicWorldHandler
          */
         // Use the DimensionType of the current client world
 
-        ClientWorld.Properties levelInfo = new ClientWorld.Properties(world.getEnabledFeatures(), Difficulty.PEACEFUL, false, true);
+        ClientWorld.Properties levelInfo = new ClientWorld.Properties(Difficulty.PEACEFUL, false, true);
 
         return new WorldSchematic(levelInfo, world.getRegistryManager(), world.getDimensionEntry(), worldRenderer);
     }
