@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.recipe.StonecutterRecipes;
+import net.minecraft.recipe.RecipeManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -254,19 +254,10 @@ public class WorldSchematic extends World
     }
 
     @Override
-    public StonecutterRecipes getRecipeManager()
-    {
-        return this.mc.world != null ? this.mc.world.getRecipeManager() : null;
-    }
-
-    // FIXME ?
-    /*
-    @Override
     public RecipeManager getRecipeManager()
     {
         return this.mc.world != null ? this.mc.world.getRecipeManager() : null;
     }
-     */
 
     @Override
     protected EntityLookup<Entity> getEntityLookup()
