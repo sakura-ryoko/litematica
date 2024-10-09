@@ -535,9 +535,9 @@
     "litematica.gui.button.area_editor.change_selection_mode": "选择模式：%s",
     "litematica.gui.button.area_editor.create_schematic": "保存原理图",
     "litematica.gui.button.area_editor.create_sub_region": "新建子区域",
-    "litematica.gui.button.area_editor.origin_enabled": "手动来源：%s",
-    "litematica.gui.button.area_editor.set_box_name": "set",
-    "litematica.gui.button.area_editor.set_selection_name": "set",
+    "litematica.gui.button.area_editor.origin_enabled": "手动设置原点：%s",
+    "litematica.gui.button.area_editor.set_box_name": "确定",
+    "litematica.gui.button.area_editor.set_selection_name": "确定",
 
     "litematica.gui.button.area_selection_mode": "区域选择模式：%s",
     "litematica.gui.button.area_selections.create_directory": "创建目录",
@@ -756,7 +756,7 @@
     "litematica.gui.label.schematic_placement.enclosing_size": "框尺寸: %s",
     "litematica.gui.label.schematic_placement.hoverinfo.hold_shift_to_create_as_disabled": "按住shift以在创建时禁用放置",
     "litematica.gui.label.schematic_placement.in_memory": "仅限内存",
-    "litematica.gui.label.schematic_placement.origin": "来源: %s",
+    "litematica.gui.label.schematic_placement.origin": "原点: %s",
     "litematica.gui.label.schematic_placement.rename_placement": "重命名放置:",
     "litematica.gui.label.schematic_placement.schematic_file": "文件: %s",
     "litematica.gui.label.schematic_placement.schematic_name": "原理图: %s",
@@ -764,7 +764,7 @@
     "litematica.gui.label.schematic_placement.sub_regions": "子区域 (%s):",
 
     "litematica.gui.label.schematic_projects.currently_open_project": "当前打开的项目: %s",
-    "litematica.gui.label.schematic_projects.origin": "来源:",
+    "litematica.gui.label.schematic_projects.origin": "原点:",
     "litematica.gui.label.schematic_projects.project": "项目:",
     "litematica.gui.label.schematic_projects.version": "版本: %s (of %s)",
     "litematica.gui.label.schematic_projects.version_entry": "请参见. %d - %s",
@@ -800,7 +800,7 @@
     "litematica.gui.message.schematic_projects.confirm_delete_area": "是否删除“上次受影响”的区域？\n这将删除这个工程管理器上次放置在世界上的，或者上次保存为一个版本文件的区域中任何方块实体\n（基本上是“最后一次看到受影响的区域”，这样如果你要循环版本，它就不会留下以前版本的方块）",
     "litematica.gui.message.schematic_projects.confirm_place_to_world": "你想把这个版本放到世界吗?\n这将删除项目管理器最后放置到世界的区域内的任何方块和实体,或最后保存为版本. (基本上 \\\"最后见过受影响的区域\\\", 这样,如果你要循环版本,它不会留下以前版本的方块.)",
 
-    "litematica.gui.title.area_editor_normal": "区域编辑器（普通/多框模式）",
+    "litematica.gui.title.area_editor_normal": "区域编辑器（简单/多框模式）",
     "litematica.gui.title.area_editor_normal_schematic_projects": "区域编辑器 (§6§l图形项目区域§r)",
     "litematica.gui.title.area_editor_simple": "区域编辑器 (简单模式)",
     "litematica.gui.title.area_editor_sub_region": "区域编辑器 (子区域)",
@@ -883,7 +883,7 @@
     "litematica.hud.schematic_projects.current_version": "版本: %s/%s - 名字: %s",
     "litematica.hud.schematic_projects.no_project_open": "<没有项目打开>",
     "litematica.hud.schematic_projects.no_versions": "<没有该版本>",
-    "litematica.hud.schematic_projects.origin": "项目来源: %s",
+    "litematica.hud.schematic_projects.origin": "项目原点: %s",
     "litematica.hud.schematic_projects.project_name": "项目: %s",
     "litematica.hud.schematic_projects_mode": "§6原理图项目模式§r",
 
