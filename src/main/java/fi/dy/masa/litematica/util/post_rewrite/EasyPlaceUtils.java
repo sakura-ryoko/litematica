@@ -68,10 +68,12 @@ public class EasyPlaceUtils
             isFirstClickEasyPlace = true;
         }
 
+        /*
         if (Configs.Test.PLACEMENT_RESTRICTION.getBooleanValue())
         {
             isFirstClickPlacementRestriction = true;
         }
+         */
     }
 
     private static boolean hasUseAction(Block block)
@@ -102,9 +104,13 @@ public class EasyPlaceUtils
 
     public static boolean shouldDoEasyPlaceActions()
     {
+        /*
         return Configs.Test.EASY_PLACE_MODE.getBooleanValue() &&
                DataManager.getToolMode() != ToolMode.REBUILD &&
                Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isKeybindHeld();
+         */
+
+        return false;
     }
 
     public static void easyPlaceOnUseTick()
@@ -271,7 +277,8 @@ public class EasyPlaceUtils
         }
 
         BlockPos targetBlockPos = targetPosition.getBlockPos();
-        boolean requireAdjacent = Configs.Test.EASY_PLACE_CLICK_ADJACENT.getBooleanValue();
+        //boolean requireAdjacent = Configs.Test.EASY_PLACE_CLICK_ADJACENT.getBooleanValue();
+        boolean requireAdjacent = true;
 
         return requireAdjacent ? getAdjacentClickPosition(targetBlockPos) : targetPosition;
     }
@@ -317,7 +324,8 @@ public class EasyPlaceUtils
     private static BlockHitResult getClickPositionForSlabHalf(BlockHitResult targetPosition, BlockState stateSchematic, boolean isTop, World worldClient)
     {
         BlockPos targetBlockPos = targetPosition.getBlockPos();
-        boolean requireAdjacent = Configs.Test.EASY_PLACE_CLICK_ADJACENT.getBooleanValue();
+        //boolean requireAdjacent = Configs.Test.EASY_PLACE_CLICK_ADJACENT.getBooleanValue();
+        boolean requireAdjacent = true;
 
         // Can click on air blocks, check if the slab can be placed by clicking on the target position itself,
         // or if it's a fluid block, then the block above or below, depending on the half

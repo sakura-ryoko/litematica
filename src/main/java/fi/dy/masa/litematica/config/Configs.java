@@ -340,6 +340,7 @@ public class Configs implements IConfigHandler
         );
     }
 
+    /*
     public static class Test
     {
         public static final ConfigBooleanHotkeyed EASY_PLACE_MODE           = new ConfigBooleanHotkeyed("easyPlaceMode",          false, "", "Easy Place Mode");
@@ -356,6 +357,7 @@ public class Configs implements IConfigHandler
                 PICK_BLOCK_IGNORE_NBT
         );
     }
+     */
 
     public static void loadFromFile()
     {
@@ -374,7 +376,7 @@ public class Configs implements IConfigHandler
                 ConfigUtils.readConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
                 ConfigUtils.readConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Visuals", Visuals.OPTIONS);
-                ConfigUtils.readConfigBase(root, "Test", Test.OPTIONS);
+                //ConfigUtils.readConfigBase(root, "Test", Test.OPTIONS);
             }
         }
 
@@ -399,7 +401,7 @@ public class Configs implements IConfigHandler
             ConfigUtils.writeConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
             ConfigUtils.writeConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Visuals", Visuals.OPTIONS);
-            ConfigUtils.writeConfigBase(root, "Test", Test.OPTIONS);
+            //ConfigUtils.writeConfigBase(root, "Test", Test.OPTIONS);
 
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }

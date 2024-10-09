@@ -20,7 +20,8 @@ public class PickBlockUtils
         {
             return null;
         }
-        boolean ignoreNbt = Configs.Test.PICK_BLOCK_IGNORE_NBT.getBooleanValue();
+        //boolean ignoreNbt = Configs.Test.PICK_BLOCK_IGNORE_NBT.getBooleanValue();
+        boolean ignoreNbt = true;
         Hand hand = EntityUtils2.getUsedHandForItem(player, stack, ignoreNbt);
 
         if (stack.isEmpty() == false && hand == null)

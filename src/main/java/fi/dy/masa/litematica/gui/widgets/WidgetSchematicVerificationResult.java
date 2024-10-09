@@ -320,7 +320,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             else
             {
                 drawContext.drawItem(this.mismatchInfo.stackExpected, x1, y);
-                drawContext.drawItemInSlot(this.textRenderer, this.mismatchInfo.stackExpected, x1, y);
+                drawContext.drawStackOverlay(this.textRenderer, this.mismatchInfo.stackExpected, x1, y);
             }
 
             if (this.mismatchEntry.mismatchType != MismatchType.CORRECT_STATE)
@@ -335,7 +335,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
                 else
                 {
                     drawContext.drawItem(this.mismatchInfo.stackFound, x2, y);
-                    drawContext.drawItemInSlot(this.textRenderer, this.mismatchInfo.stackFound, x2, y);
+                    drawContext.drawStackOverlay(this.textRenderer, this.mismatchInfo.stackFound, x2, y);
                 }
             }
 
@@ -508,7 +508,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
                 else
                 {
                     drawContext.drawItem(this.stackExpected, x1, iconY);
-                    drawContext.drawItemInSlot(textRenderer, this.stackExpected, x1, iconY);
+                    drawContext.drawStackOverlay(textRenderer, this.stackExpected, x1, iconY);
                 }
 
                 if (useBlockModelFound)
@@ -519,7 +519,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
                 else
                 {
                     drawContext.drawItem(this.stackFound, x2, iconY);
-                    drawContext.drawItemInSlot(textRenderer, this.stackFound, x2, iconY);
+                    drawContext.drawStackOverlay(textRenderer, this.stackFound, x2, iconY);
                 }
 
                 //mc.getRenderItem().zLevel -= 100;

@@ -74,7 +74,7 @@ public class BlockInfo
             //mc.getRenderItem().zLevel += 100;
             RenderUtils.drawRect(x1, y, 16, 16, 0x20FFFFFF); // light background for the item
             drawContext.drawItem(this.stack, x1, y);
-            drawContext.drawItemInSlot(textRenderer, this.stack, x1, y);
+            drawContext.drawStackOverlay(textRenderer, this.stack, x1, y);
             //mc.getRenderItem().zLevel -= 100;
 
             //RenderSystem.disableBlend();

@@ -16,6 +16,7 @@ import fi.dy.masa.litematica.util.post_rewrite.EasyPlaceUtils;
 @Mixin(value = ClientPlayerInteractionManager.class)
 public class MixinClientPlayerInteractionManager
 {
+    /*
     @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
     private void onInteractBlock(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir)
     {
@@ -34,14 +35,6 @@ public class MixinClientPlayerInteractionManager
                 }
                 else
                 {
-                    /*
-                    if (Configs.Generic.PICK_BLOCK_AUTO.getBooleanValue() &&
-                            PickBlockUtils.shouldPickBlock())
-                    {
-                        PickBlockUtils.pickBlockLast();
-                    }
-                     */
-
                     if (Configs.Test.PLACEMENT_RESTRICTION.getBooleanValue() &&
                         Configs.Generic.PLACEMENT_RESTRICTION.getBooleanValue() == false)
                     {
@@ -75,4 +68,5 @@ public class MixinClientPlayerInteractionManager
             }
         }
     }
+    */
 }

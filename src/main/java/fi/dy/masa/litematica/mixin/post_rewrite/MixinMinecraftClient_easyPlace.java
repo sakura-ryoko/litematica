@@ -12,6 +12,7 @@ import fi.dy.masa.litematica.util.post_rewrite.EasyPlaceUtils;
 @Mixin(value = MinecraftClient.class)
 public abstract class MixinMinecraftClient_easyPlace
 {
+    /*
     @Inject(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;doItemUse()V"))
     private void onUseKeyPre(CallbackInfo ci)
     {
@@ -34,4 +35,5 @@ public abstract class MixinMinecraftClient_easyPlace
             }
         }
     }
+     */
 }
