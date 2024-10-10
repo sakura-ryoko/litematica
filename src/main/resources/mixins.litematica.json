@@ -34,10 +34,7 @@
     "MixinServerPlayNetworkHandler",
     "MixinWorld",
     "MixinWorldChunk",
-    "MixinWorldRenderer",
-    "post_rewrite.IMixinKeyBinding",
-    "post_rewrite.MixinClientPlayerInteractionManager",
-    "post_rewrite.MixinMinecraftClient_easyPlace"
+    "MixinWorldRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

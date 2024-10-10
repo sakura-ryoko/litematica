@@ -25,10 +25,6 @@ public class Configs implements IConfigHandler
     private static final String CONFIG_FILE_NAME = Reference.MOD_ID + ".json";
 
     private static final String GENERIC_KEY = Reference.MOD_ID+".config.generic";
-    private static final String VISUALS_KEY = Reference.MOD_ID+".config.visuals";
-    private static final String INFO_OVERLAYS_KEY = Reference.MOD_ID+".config.info_overlays";
-    private static final String COLORS_KEY = Reference.MOD_ID+".config.colors";
-
     public static class Generic
     {
         public static final ConfigOptionList    EASY_PLACE_PROTOCOL         = new ConfigOptionList("easyPlaceProtocolVersion", EasyPlaceProtocol.AUTO).apply(GENERIC_KEY);
@@ -174,6 +170,7 @@ public class Configs implements IConfigHandler
         );
     }
 
+    private static final String VISUALS_KEY = Reference.MOD_ID+".config.visuals";
     public static class Visuals
     {
         public static final ConfigBoolean       ENABLE_AREA_SELECTION_RENDERING     = new ConfigBoolean("enableAreaSelectionBoxesRendering", true).apply(VISUALS_KEY);
@@ -251,6 +248,7 @@ public class Configs implements IConfigHandler
         );
     }
 
+    private static final String INFO_OVERLAYS_KEY = Reference.MOD_ID+".config.info_overlays";
     public static class InfoOverlays
     {
         public static final ConfigOptionList    BLOCK_INFO_LINES_ALIGNMENT          = new ConfigOptionList("blockInfoLinesAlignment", HudAlignment.TOP_RIGHT).apply(INFO_OVERLAYS_KEY);
@@ -313,6 +311,7 @@ public class Configs implements IConfigHandler
         );
     }
 
+    private static final String COLORS_KEY = Reference.MOD_ID+".config.colors";
     public static class Colors
     {
         public static final ConfigColor AREA_SELECTION_BOX_SIDE_COLOR       = new ConfigColor("areaSelectionBoxSideColor",          "#30FFFFFF").apply(COLORS_KEY);
@@ -340,25 +339,6 @@ public class Configs implements IConfigHandler
         );
     }
 
-    /*
-    public static class Test
-    {
-        public static final ConfigBooleanHotkeyed EASY_PLACE_MODE           = new ConfigBooleanHotkeyed("easyPlaceMode",          false, "", "Easy Place Mode");
-        public static final ConfigBooleanHotkeyed PLACEMENT_RESTRICTION     = new ConfigBooleanHotkeyed("placementRestriction",   false, "", "Placement Restriction");
-        public static final ConfigBoolean         EASY_PLACE_CLICK_ADJACENT = new ConfigBoolean(        "easyPlaceClickAdjacent", false, "Easy Place Click Adjacent");
-        public static final ConfigBoolean         EASY_PLACE_HOLD_ENABLED   = new ConfigBoolean(        "easyPlaceHold",          false, "Easy Place Hold Enabled");
-        public static final ConfigBoolean         PICK_BLOCK_IGNORE_NBT     = new ConfigBoolean(        "pickBlockIgnoreNBT",     true, "Pick Block Ignore NBT");
-
-        public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                EASY_PLACE_MODE,
-                PLACEMENT_RESTRICTION,
-                EASY_PLACE_CLICK_ADJACENT,
-                EASY_PLACE_HOLD_ENABLED,
-                PICK_BLOCK_IGNORE_NBT
-        );
-    }
-     */
-
     public static void loadFromFile()
     {
         File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
@@ -376,7 +356,6 @@ public class Configs implements IConfigHandler
                 ConfigUtils.readConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
                 ConfigUtils.readConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Visuals", Visuals.OPTIONS);
-                //ConfigUtils.readConfigBase(root, "Test", Test.OPTIONS);
             }
         }
 
@@ -401,7 +380,6 @@ public class Configs implements IConfigHandler
             ConfigUtils.writeConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
             ConfigUtils.writeConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Visuals", Visuals.OPTIONS);
-            //ConfigUtils.writeConfigBase(root, "Test", Test.OPTIONS);
 
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }
