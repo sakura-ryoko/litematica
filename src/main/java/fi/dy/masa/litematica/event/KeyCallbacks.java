@@ -27,15 +27,8 @@ import fi.dy.masa.litematica.selection.CornerSelectionMode;
 import fi.dy.masa.litematica.selection.SelectionManager;
 import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.tool.ToolModeData;
-import fi.dy.masa.litematica.util.EntityUtils;
-import fi.dy.masa.litematica.util.InventoryUtils;
-import fi.dy.masa.litematica.util.PositionUtils;
+import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.PositionUtils.Corner;
-import fi.dy.masa.litematica.util.RayTraceUtils;
-import fi.dy.masa.litematica.util.SchematicUtils;
-import fi.dy.masa.litematica.util.SchematicWorldRefresher;
-import fi.dy.masa.litematica.util.ToolUtils;
-import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.malilib.config.IConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -268,7 +261,16 @@ public class KeyCallbacks
 
             if (key == Hotkeys.EASY_PLACE_ACTIVATION.getKeybind())
             {
-                return WorldUtils.handleEasyPlace(this.mc);
+                /*
+                if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+                {
+                    return EasyPlaceUtils.handleEasyPlaceWithMessage();
+                }
+                else
+                {
+                 */
+                    return WorldUtils.handleEasyPlace(this.mc);
+                //}
             }
             else if (key == Hotkeys.OPEN_GUI_MAIN_MENU.getKeybind())
             {

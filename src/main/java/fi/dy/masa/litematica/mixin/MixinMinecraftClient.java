@@ -25,6 +25,14 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     {
         if (Configs.Generic.PLACEMENT_RESTRICTION.getBooleanValue())
         {
+            /*
+            if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue()
+                && EasyPlaceUtils.handlePlacementRestriction())
+            {
+                ci.cancel();
+            }
+            else
+             */
             if (WorldUtils.handlePlacementRestriction((MinecraftClient)(Object) this))
             {
                 ci.cancel();

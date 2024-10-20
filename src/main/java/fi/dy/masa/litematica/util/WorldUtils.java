@@ -455,7 +455,7 @@ public class WorldUtils
             Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
             Configs.Generic.EASY_PLACE_HOLD_ENABLED.getBooleanValue() &&
             Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isKeybindHeld())
-                //&& Configs.Test.EASY_PLACE_MODE.getBooleanValue() == false)
+            //&& Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue() == false)
         {
             WorldUtils.doEasyPlaceAction(mc);
         }
@@ -464,7 +464,7 @@ public class WorldUtils
     public static boolean handleEasyPlace(MinecraftClient mc)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
-            //Configs.Test.EASY_PLACE_MODE.getBooleanValue() == false &&
+            //Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue() == false &&
             DataManager.getToolMode() != ToolMode.REBUILD)
         {
             ActionResult result = doEasyPlaceAction(mc);

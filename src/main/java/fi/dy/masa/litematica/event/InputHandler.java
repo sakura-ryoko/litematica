@@ -17,11 +17,8 @@ import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.selection.SelectionManager;
 import fi.dy.masa.litematica.tool.ToolMode;
-import fi.dy.masa.litematica.util.EntityUtils;
-import fi.dy.masa.litematica.util.PositionUtils;
+import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.PositionUtils.Corner;
-import fi.dy.masa.litematica.util.SchematicUtils;
-import fi.dy.masa.litematica.util.WorldUtils;
 
 public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler
 {
@@ -83,11 +80,11 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
         // Tool enabled, and not in a GUI
         if (GuiUtils.getCurrentScreen() == null && mc.world != null && mc.player != null && eventButtonState)
         {
-            if (eventButtonState && mc.options.useKey.matchesMouse(eventButton))
+            if (mc.options.useKey.matchesMouse(eventButton))
             {
                 return this.handleUseKey(mc);
             }
-            else if (eventButtonState && mc.options.attackKey.matchesMouse(eventButton))
+            else if (mc.options.attackKey.matchesMouse(eventButton))
             {
                 return this.handleAttackKey(mc);
             }
@@ -297,7 +294,16 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
             if (Configs.Generic.PLACEMENT_RESTRICTION.getBooleanValue())
             {
-                return WorldUtils.handlePlacementRestriction(mc);
+                /*
+                if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+                {
+                    return EasyPlaceUtils.handlePlacementRestriction();
+                }
+                else
+                {
+                 */
+                    return WorldUtils.handlePlacementRestriction(mc);
+                //}
             }
         }
 

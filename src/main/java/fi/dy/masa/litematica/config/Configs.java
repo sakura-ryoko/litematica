@@ -54,9 +54,11 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       DEBUG_LOGGING               = new ConfigBoolean("debugLogging", false).apply(GENERIC_KEY);
         public static final ConfigOptionList    DATAFIXER_MODE              = new ConfigOptionList("datafixerMode", DataFixerMode.ALWAYS).apply(GENERIC_KEY);
         public static final ConfigInteger       DATAFIXER_DEFAULT_SCHEMA    = new ConfigInteger("datafixerDefaultSchema", 1139, 99, 2724, true).apply(GENERIC_KEY);
+        //public static final ConfigBoolean       EASY_PLACE_CLICK_ADJACENT   = new ConfigBoolean("easyPlaceClickAdjacent", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       EASY_PLACE_FIRST            = new ConfigBoolean("easyPlaceFirst", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       EASY_PLACE_HOLD_ENABLED     = new ConfigBoolean("easyPlaceHoldEnabled", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       EASY_PLACE_MODE             = new ConfigBoolean("easyPlaceMode", false).apply(GENERIC_KEY);
+        //public static final ConfigBoolean       EASY_PLACE_POST_REWRITE     = new ConfigBoolean("easyPlacePostRewrite", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       EASY_PLACE_SP_HANDLING      = new ConfigBoolean("easyPlaceSinglePlayerHandling", true).apply(GENERIC_KEY);
         public static final ConfigInteger       EASY_PLACE_SWAP_INTERVAL    = new ConfigInteger("easyPlaceSwapInterval", 0, 0, 10000).apply(GENERIC_KEY);
         public static final ConfigBoolean       EASY_PLACE_SWING_HAND       = new ConfigBoolean("easyPlaceSwingHand", true).apply(GENERIC_KEY);
@@ -85,6 +87,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PICK_BLOCK_AVOID_DAMAGEABLE = new ConfigBoolean("pickBlockAvoidDamageable", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       PICK_BLOCK_AVOID_TOOLS      = new ConfigBoolean("pickBlockAvoidTools", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       PICK_BLOCK_ENABLED          = new ConfigBoolean("pickBlockEnabled", true).apply(GENERIC_KEY);
+        //public static final ConfigBoolean       PICK_BLOCK_IGNORE_NBT       = new ConfigBoolean("pickBlockIgnoreNbt", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       PICK_BLOCK_SHULKERS         = new ConfigBoolean("pickBlockShulkers", false).apply(GENERIC_KEY);
         public static final ConfigString        PICK_BLOCKABLE_SLOTS        = new ConfigString( "pickBlockableSlots", "1,2,3,4,5").apply(GENERIC_KEY);
         public static final ConfigBoolean       PLACEMENT_RESTRICTION       = new ConfigBoolean("placementRestriction", false).apply(GENERIC_KEY);
@@ -109,9 +112,11 @@ public class Configs implements IConfigHandler
                 DEBUG_LOGGING,
                 DATAFIXER_MODE,
                 DATAFIXER_DEFAULT_SCHEMA,
+                //EASY_PLACE_CLICK_ADJACENT,
                 EASY_PLACE_FIRST,
                 EASY_PLACE_HOLD_ENABLED,
                 EASY_PLACE_MODE,
+                //EASY_PLACE_POST_REWRITE,
                 EASY_PLACE_SP_HANDLING,
                 EASY_PLACE_PROTOCOL,
                 EASY_PLACE_SWING_HAND,
@@ -141,6 +146,7 @@ public class Configs implements IConfigHandler
                 PICK_BLOCK_AVOID_DAMAGEABLE,
                 PICK_BLOCK_AVOID_TOOLS,
                 PICK_BLOCK_ENABLED,
+                //PICK_BLOCK_IGNORE_NBT,
                 PICK_BLOCK_SHULKERS,
                 PLACEMENT_REPLACE_BEHAVIOR,
                 PLACEMENT_RESTRICTION,

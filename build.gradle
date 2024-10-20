@@ -1,23 +1,14 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.8-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
 repositories {
-	//maven { url 'https://masa.dy.fi/maven' }
-	maven {
-		url 'https://masa.dy.fi/maven'
-		mavenLocal()
-	}
-	maven {
-		url 'https://maven.terraformersmc.com/releases/'
-		mavenLocal()
-	}
-	//maven {	url 'https://maven.terraformersmc.com/releases/' }
+	maven { url 'https://masa.dy.fi/maven' }
+	maven {	url 'https://maven.terraformersmc.com/releases/' }
 	maven { url 'https://jitpack.io' }
-	flatDir { dirs 'libs' }
 }
 
 dependencies {
