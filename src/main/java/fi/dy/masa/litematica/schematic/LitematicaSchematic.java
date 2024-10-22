@@ -42,6 +42,7 @@ import fi.dy.masa.malilib.interfaces.IStringConsumer;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.mixin.IMixinWorldTickScheduler;
 import fi.dy.masa.litematica.schematic.container.ILitematicaBlockStatePalette;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
@@ -662,7 +663,20 @@ public class LitematicaSchematic
                 {
                     NbtCompound tag = new NbtCompound();
 
-                    if (entity.saveNbt(tag))
+                    if (EntitiesDataStorage.getInstance().hasServuxServer())
+                    {
+                        NbtCompound serverTags = EntitiesDataStorage.getInstance().getFromEntityCacheNbt(entity.getId());
+
+                        if (serverTags != null && !serverTags.isEmpty())
+                        {
+                            tag.copyFrom(serverTags);
+                        }
+                    }
+                    else
+                    {
+                        entity.saveNbt(tag);
+                    }
+                    if (!tag.isEmpty())
                     {
                         Vec3d posVec = new Vec3d(entity.getX() - regionPosAbs.getX(), entity.getY() - regionPosAbs.getY(), entity.getZ() - regionPosAbs.getZ());
 
@@ -984,11 +998,21 @@ public class LitematicaSchematic
 
                             if (te != null)
                             {
-                                // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
                                 NbtCompound tag = te.createNbtWithId(world.getRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
+                            }
+                            else if (EntitiesDataStorage.getInstance().hasServuxServer())
+                            {
+                                NbtCompound tag = EntitiesDataStorage.getInstance().getFromBlockEntityCacheNbt(posMutable);
+
+                                if (tag != null && tag.isEmpty() == false)
+                                {
+                                    BlockPos pos = new BlockPos(x, y, z);
+                                    NBTUtils.writeBlockPosToTag(pos, tag);
+                                    tileEntityMap.put(pos, tag);
+                                }
                             }
                         }
                     }

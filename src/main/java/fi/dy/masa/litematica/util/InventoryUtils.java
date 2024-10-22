@@ -26,6 +26,7 @@ import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.render.OverlayRenderer;
 
 public class InventoryUtils
@@ -305,6 +306,7 @@ public class InventoryUtils
         if ((inv == null || inv.isEmpty()) && DataManager.getInstance().hasIntegratedServer() == false)
         {
             OverlayRenderer.getInstance().requestBlockEntityAt(world, pos);
+            inv = EntitiesDataStorage.getInstance().getBlockInventory(world, pos, false);
         }
 
         return inv;
