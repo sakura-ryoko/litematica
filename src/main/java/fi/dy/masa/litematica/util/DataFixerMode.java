@@ -177,7 +177,7 @@ public enum DataFixerMode implements IConfigOptionListEntry
     public enum Schema
     {
         // Minecraft Data Versions
-        SCHEMA_1_21_02 (4100, "1.21.2"),
+        SCHEMA_1_21_02 (4080, "1.21.2"),
         SCHEMA_24W37A  (4065, "24w37a"),
         SCHEMA_1_21_01 (3955, "1.21.1"),
         SCHEMA_1_21_00 (3953, "1.21"),

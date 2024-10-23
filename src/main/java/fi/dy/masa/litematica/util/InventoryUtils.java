@@ -28,6 +28,7 @@ import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.render.OverlayRenderer;
+import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class InventoryUtils
 {
@@ -303,7 +304,9 @@ public class InventoryUtils
     {
         Inventory inv = fi.dy.masa.malilib.util.InventoryUtils.getInventory(world, pos);
 
-        if ((inv == null || inv.isEmpty()) && DataManager.getInstance().hasIntegratedServer() == false)
+        if ((inv == null || inv.isEmpty()) &&
+            DataManager.getInstance().hasIntegratedServer() == false &&
+            !(world instanceof WorldSchematic))
         {
             OverlayRenderer.getInstance().requestBlockEntityAt(world, pos);
             inv = EntitiesDataStorage.getInstance().getBlockInventory(world, pos, false);

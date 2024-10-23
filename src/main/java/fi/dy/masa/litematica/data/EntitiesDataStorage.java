@@ -448,6 +448,18 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     public @Nullable Pair<BlockEntity, NbtCompound> requestBlockEntity(World world, BlockPos pos)
     {
+        // Don't cache/request a BE for the Schematic World
+        if (world instanceof WorldSchematic)
+        {
+            BlockEntity be = world.getWorldChunk(pos).getBlockEntity(pos);
+
+            if (be != null)
+            {
+                NbtCompound nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
+
+                return Pair.of(be, nbt);
+            }
+        }
         if (this.blockEntityCache.containsKey(pos))
         {
             return this.blockEntityCache.get(pos).getRight();
@@ -490,15 +502,19 @@ public class EntitiesDataStorage implements IClientTickHandler
         return null;
     }
 
-    public @Nullable Pair<Entity, NbtCompound> requestEntity(int entityId)
+    public @Nullable Pair<Entity, NbtCompound> requestEntity(World world, int entityId)
     {
+        if (world instanceof WorldSchematic)
+        {
+            return null;
+        }
         if (this.entityCache.containsKey(entityId))
         {
             return this.entityCache.get(entityId).getRight();
         }
-        else if (this.getWorld() instanceof ServerWorld)
+        else if (world instanceof ServerWorld)
         {
-            Entity entity = this.getWorld().getEntityById(entityId);
+            Entity entity = world.getEntityById(entityId);
             NbtCompound nbt = new NbtCompound();
 
             if (entity != null && entity.saveSelfNbt(nbt))
@@ -519,6 +535,10 @@ public class EntitiesDataStorage implements IClientTickHandler
     @Nullable
     public Inventory getBlockInventory(World world, BlockPos pos, boolean useNbt)
     {
+        if (world instanceof WorldSchematic)
+        {
+            return InventoryUtils.getInventory(world, pos);
+        }
         if (this.blockEntityCache.containsKey(pos))
         {
             Inventory inv = null;
@@ -597,6 +617,11 @@ public class EntitiesDataStorage implements IClientTickHandler
     @Nullable
     public Inventory getEntityInventory(int entityId, boolean useNbt)
     {
+        if (world instanceof WorldSchematic)
+        {
+            return null;
+        }
+
         if (this.entityCache.containsKey(entityId) && this.getWorld() != null)
         {
             Inventory inv = null;

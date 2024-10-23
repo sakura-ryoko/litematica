@@ -142,7 +142,7 @@ public class SchematicDowngradeConverter
             NbtCompound attrEntry = oldAttr.getCompound(i);
             NbtCompound newEntry = new NbtCompound();
 
-            newEntry.putString("Name", attrEntry.getString("id"));
+            newEntry.putString("Name", attributeRename(attrEntry.getString("id")));
             newEntry.putDouble("Base", attrEntry.getDouble("base"));
 
             NbtList listEntry = attrEntry.getList("modifiers", Constants.NBT.TAG_COMPOUND);
@@ -167,6 +167,143 @@ public class SchematicDowngradeConverter
         }
 
         return newAttr;
+    }
+
+    private static String attributeRename(String idIn)
+    {
+        switch (idIn)
+        {
+            case "minecraft:armor" ->
+            {
+                return "minecraft:generic.armor";
+            }
+            case "minecraft:armor_toughness" ->
+            {
+                return "minecraft:generic.armor_toughness";
+            }
+            case "minecraft:attack_damage" ->
+            {
+                return "minecraft:generic.attack_damage";
+            }
+            case "minecraft:attack_knockback" ->
+            {
+                return "minecraft:generic.attack_knockback";
+            }
+            case "minecraft:attack_speed" ->
+            {
+                return "minecraft:generic.attack_speed";
+            }
+            case "minecraft:flying_speed" ->
+            {
+                return "minecraft:generic.flying_speed";
+            }
+            case "minecraft:follow_range" ->
+            {
+                return "minecraft:generic.follow_range";
+            }
+            case "minecraft:jump_strength" ->
+            {
+                return "minecraft:horse.jump_strength";
+                // return "minecraft:generic.jump_strength"; --> (1.20.6 / 1.21 only)
+            }
+            case "minecraft:knockback_resistance" ->
+            {
+                return "minecraft:generic.knockback_resistance";
+            }
+            case "minecraft:luck" ->
+            {
+                return "minecraft:generic.luck";
+            }
+            case "minecraft:max_absorption" ->
+            {
+                return "minecraft:generic.max_absorption";
+            }
+            case "minecraft:max_health" ->
+            {
+                return "minecraft:generic.max_health";
+            }
+            case "minecraft:movement_speed" ->
+            {
+                return "minecraft:generic.movement_speed";
+            }
+            case "minecraft:spawn_reinforcements" ->
+            {
+                return "minecraft:zombie.spawn_reinforcements";
+            }
+
+            // tempt_range --> No match
+            // These don't exist in 1.20.4 (1.20.6 / 1.21 only)
+            case "minecraft:block_break_speed" ->
+            {
+                return "minecraft:player.block_break_speed";
+            }
+            case "minecraft:block_interaction_range" ->
+            {
+                return "minecraft:player.block_interaction_range";
+            }
+            case "minecraft:burning_time" ->
+            {
+                return "minecraft:generic.burning_time";
+            }
+            case "minecraft:explosion_knockback_resistance" ->
+            {
+                return "minecraft:generic.explosion_knockback_resistance";
+            }
+            case "minecraft:entity_interaction_range" ->
+            {
+                return "minecraft:player.entity_interaction_range";
+            }
+            case "minecraft:fall_damage_multiplier" ->
+            {
+                return "minecraft:generic.fall_damage_multiplier";
+            }
+            case "minecraft:gravity" ->
+            {
+                return "minecraft:generic.gravity";
+            }
+            case "minecraft:mining_efficiency" ->
+            {
+                return "minecraft:player.mining_efficiency";
+            }
+            case "minecraft:movement_efficiency" ->
+            {
+                return "minecraft:generic.movement_efficiency";
+            }
+            case "minecraft:oxygen_bonus" ->
+            {
+                return "minecraft:generic.oxygen_bonus";
+            }
+            case "minecraft:safe_fall_distance" ->
+            {
+                return "minecraft:generic.safe_fall_distance";
+            }
+            case "minecraft:scale" ->
+            {
+                return "minecraft:generic.scale";
+            }
+            case "minecraft:sneaking_speed" ->
+            {
+                return "minecraft:player.sneaking_speed";
+            }
+            case "minecraft:step_height" ->
+            {
+                return "minecraft:generic.step_height";
+            }
+            case "minecraft:submerged_mining_speed" ->
+            {
+                return "minecraft:player.submerged_mining_speed";
+            }
+            case "minecraft:sweeping_damage_ratio" ->
+            {
+                return "minecraft:player.sweeping_damage_ratio";
+            }
+            case "minecraft:water_movement_efficiency" ->
+            {
+                return "minecraft:generic.water_movement_efficiency";
+            }
+        }
+
+        return idIn;
     }
 
     private static String modiferIdToName(String idIn)
@@ -200,11 +337,9 @@ public class SchematicDowngradeConverter
             {
                 return 2;
             }
-            default ->
-            {
-                return 0;
-            }
         }
+
+        return 0;
     }
 
     public static NbtCompound downgradeBlockEntity_to_1_20_4(NbtCompound oldTE, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
@@ -236,14 +371,8 @@ public class SchematicDowngradeConverter
                     newTE.putLong("TickCount", oldTE.getLong(key));
                     newTE.putByte("IsPlaying", (byte) 0);
                 }
-                case "RecordItem" ->
-                {
-                    newTE.put("RecordItem", processRecordItem(oldTE.get(key), minecraftDataVersion, registryManager));
-                }
-                case "Book" ->
-                {
-                    newTE.put("Book", processBookTag(oldTE.get(key), minecraftDataVersion, registryManager));
-                }
+                case "RecordItem" -> newTE.put("RecordItem", processRecordItem(oldTE.get(key), minecraftDataVersion, registryManager));
+                case "Book" -> newTE.put("Book", processBookTag(oldTE.get(key), minecraftDataVersion, registryManager));
                 default -> newTE.put(key, oldTE.get(key));
             }
         }
@@ -377,12 +506,7 @@ public class SchematicDowngradeConverter
     {
         ItemStack stack = InventoryUtils.getItemStackFromString(id);
 
-        if (stack.isEmpty() == false && stack.isDamageable())
-        {
-            return true;
-        }
-
-        return false;
+        return stack != null && stack.isEmpty() == false && stack.isDamageable();
     }
 
     private static NbtCompound processComponentsTag(NbtCompound nbt, String itemId, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
@@ -396,10 +520,7 @@ public class SchematicDowngradeConverter
         {
             switch (key)
             {
-                case "minecraft:attribute_modifiers" ->
-                {
-                    outNbt.put("AttributeModifiers", processAttributes(nbt.get(key), minecraftDataVersion));
-                }
+                case "minecraft:attribute_modifiers" -> outNbt.put("AttributeModifiers", processAttributes(nbt.get(key), minecraftDataVersion));
                 case "minecraft:banner_patterns" ->
                 {
                     beNbt.put("Patterns", processBannerPatterns(nbt.get(key)));
@@ -410,30 +531,12 @@ public class SchematicDowngradeConverter
                     beNbt.put("Bees", processBeesTag(nbt.get(key), minecraftDataVersion, registryManager));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:block_state" ->
-                {
-                    outNbt.put("BlockStateTag", processBlockState(nbt.get(key)));
-                }
-                case "minecraft:block_entity_data" ->
-                {
-                    processBlockEntityData(nbt.get(key), beNbt);
-                }
-                case "minecraft:bucket_entity_data" ->
-                {
-                    processBucketEntityData(nbt.get(key), beNbt);
-                }
-                case "minecraft:bundle_contents" ->
-                {
-                    outNbt.put("Items", processItemsTag(nbt.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager));
-                }
-                case "minecraft:can_break" ->
-                {
-                    outNbt.put("CanDestroy", nbt.get(key));
-                }
-                case "minecraft:can_place_on" ->
-                {
-                    outNbt.put("CanPlaceOn", nbt.get(key));
-                }
+                case "minecraft:block_state" -> outNbt.put("BlockStateTag", processBlockState(nbt.get(key)));
+                case "minecraft:block_entity_data" -> processBlockEntityData(nbt.get(key), beNbt);
+                case "minecraft:bucket_entity_data" -> processBucketEntityData(nbt.get(key), beNbt);
+                case "minecraft:bundle_contents" -> outNbt.put("Items", processItemsTag(nbt.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager));
+                case "minecraft:can_break" -> outNbt.put("CanDestroy", nbt.get(key));
+                case "minecraft:can_place_on" -> outNbt.put("CanPlaceOn", nbt.get(key));
                 case "minecraft:container" ->
                 {
                     if (itemId.contains("decorated_pot"))
@@ -463,117 +566,42 @@ public class SchematicDowngradeConverter
                     beNbt.put("LootTable", processLootTable(nbt.get(key)));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:custom_data" ->
-                {
-                    processCustomData(nbt.get(key), outNbt);
-                }
-                case "minecraft:custom_model_data" ->
-                {
-                    outNbt.putInt("CustomModelData", nbt.getInt(key));
-                }
-                case "minecraft:custom_name" ->
-                {
-                    dispNbt.putString("Name", processCustomNameTag(nbt, key, registryManager));
-                }
-                case "minecraft:damage" ->
-                {
-                    outNbt.putInt("Damage", nbt.getInt(key));
-                }
-                case "minecraft:debug_stick_state" ->
-                {
-                    outNbt.put("DebugProperty", nbt.get(key));
-                }
-                case "minecraft:dyed_color" ->
-                {
-                    dispNbt.putInt("color", processDyedColor(nbt.get(key)));
-                }
-                case "minecraft:enchantments" ->
-                {
-                    outNbt.put("Enchantments", processEnchantments(nbt.get(key), true, true));
-                }
-                case "minecraft:entity_data" ->
-                {
-                    outNbt.put("EntityTag", downgradeEntity_to_1_20_4((NbtCompound) nbt.get(key), minecraftDataVersion, registryManager));
-                }
-                case "minecraft:stored_enchantments" ->
-                {
-                    outNbt.put("StoredEnchantments", processEnchantments(nbt.get(key), true, true));
-                }
-                case "minecraft:fireworks" ->
-                {
-                    outNbt.put("Fireworks", processFireworks(nbt.get(key)));
-                }
-                case "minecraft:firework_explosion" ->
-                {
-                    outNbt.put("Explosion", processFireworkExplosion(nbt.get(key)));
-                }
+                case "minecraft:custom_data" -> processCustomData(nbt.get(key), outNbt);
+                case "minecraft:custom_model_data" -> outNbt.putInt("CustomModelData", nbt.getInt(key));
+                case "minecraft:custom_name" -> dispNbt.putString("Name", processCustomNameTag(nbt, key, registryManager));
+                case "minecraft:damage" -> outNbt.putInt("Damage", nbt.getInt(key));
+                case "minecraft:debug_stick_state" -> outNbt.put("DebugProperty", nbt.get(key));
+                case "minecraft:dyed_color" -> dispNbt.putInt("color", processDyedColor(nbt.get(key)));
+                case "minecraft:enchantments" -> outNbt.put("Enchantments", processEnchantments(nbt.get(key), true, true));
+                case "minecraft:entity_data" -> outNbt.put("EntityTag", downgradeEntity_to_1_20_4((NbtCompound) nbt.get(key), minecraftDataVersion, registryManager));
+                case "minecraft:stored_enchantments" -> outNbt.put("StoredEnchantments", processEnchantments(nbt.get(key), true, true));
+                case "minecraft:fireworks" -> outNbt.put("Fireworks", processFireworks(nbt.get(key)));
+                case "minecraft:firework_explosion" -> outNbt.put("Explosion", processFireworkExplosion(nbt.get(key)));
                 // "minecraft:hide_additional_tooltip" --> ignore
-                case "minecraft:instrument" ->
-                {
-                    outNbt.put("instrument", processInstrument(nbt.get(key)));
-                }
-                case "minecraft:item_name" ->
-                {
-                    dispNbt.putString("Name", processItemName(nbt.get(key), registryManager));
-                }
+                case "minecraft:instrument" -> outNbt.put("instrument", processInstrument(nbt.get(key)));
+                case "minecraft:item_name" -> dispNbt.putString("Name", processItemName(nbt.get(key), registryManager));
                 case "minecraft:lock" ->
                 {
                     beNbt.put("Lock", nbt.get(key));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:lodestone_tracker" ->
-                {
-                    processLodestoneTracker(nbt.get(key), outNbt);
-                }
-                case "minecraft:lore" ->
-                {
-                    dispNbt.put("Lore", nbt.get(key));
-                }
-                case "minecraft:map_id" ->
-                {
-                    outNbt.put("map", processMapId(nbt.get(key)));
-                }
-                case "minecraft:map_color" ->
-                {
-                    dispNbt.put("MapColor", nbt.get(key));
-                }
-                case "minecraft:map_decorations" ->
-                {
-                    outNbt.put("Decorations", processMapDecorations(nbt.get(key)));
-                }
-                case "minecraft:note_block_sound" ->
-                {
-                    beNbt.put("note_block_sound", nbt.get(key));
-                }
+                case "minecraft:lodestone_tracker" -> processLodestoneTracker(nbt.get(key), outNbt);
+                case "minecraft:lore" -> dispNbt.put("Lore", nbt.get(key));
+                case "minecraft:map_id" -> outNbt.put("map", processMapId(nbt.get(key)));
+                case "minecraft:map_color" -> dispNbt.put("MapColor", nbt.get(key));
+                case "minecraft:map_decorations" -> outNbt.put("Decorations", processMapDecorations(nbt.get(key)));
+                case "minecraft:note_block_sound" -> beNbt.put("note_block_sound", nbt.get(key));
                 case "minecraft:pot_decorations" ->
                 {
                     beNbt.put("sherds", processSherds(nbt.get(key)));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:potion_contents" ->
-                {
-                    processPotions(nbt.get(key), outNbt);
-                }
-                case "minecraft:profile" ->
-                {
-                    outNbt.put("SkullOwner", processSkullProfile(nbt.get(key)));
-                }
-                case "minecraft:repair_cost" ->
-                {
-                    outNbt.putInt("RepairCost", nbt.getInt(key));
-                }
-                case "minecraft:recipes" ->
-                {
-                    outNbt.put("Recipes", processRecipes(nbt.get(key)));
-                }
-                case "minecraft:suspicious_stew_effects" ->
-                {
-                    outNbt.put("effects", processSuspiciousStewEffects(nbt.get(key)));
-                }
-                case "minecraft:trim" ->
-                {
-                    outNbt.put("Trim", processTrim(nbt.get(key)));
-                }
+                case "minecraft:potion_contents" -> processPotions(nbt.get(key), outNbt);
+                case "minecraft:profile" -> outNbt.put("SkullOwner", processSkullProfile(nbt.get(key)));
+                case "minecraft:repair_cost" -> outNbt.putInt("RepairCost", nbt.getInt(key));
+                case "minecraft:recipes" -> outNbt.put("Recipes", processRecipes(nbt.get(key)));
+                case "minecraft:suspicious_stew_effects" -> outNbt.put("effects", processSuspiciousStewEffects(nbt.get(key)));
+                case "minecraft:trim" -> outNbt.put("Trim", processTrim(nbt.get(key)));
                 case "minecraft:writable_book_content" ->
                 {
                     NbtCompound bookNbt = nbt.getCompound(key);
@@ -592,10 +620,7 @@ public class SchematicDowngradeConverter
                         outNbt.put(bookKey, bookNbt.get(bookKey));
                     }
                 }
-                case "minecraft:unbreakable" ->
-                {
-                    outNbt.putBoolean("Unbreakable", processUnbreakable(nbt.get(key)));
-                }
+                case "minecraft:unbreakable" -> outNbt.putBoolean("Unbreakable", processUnbreakable(nbt.get(key)));
             }
         }
         if (beNbt.isEmpty() == false)
@@ -762,8 +787,12 @@ public class SchematicDowngradeConverter
 
     private static String processItemName(NbtElement oldName, DynamicRegistryManager registryManager)
     {
-        String oldNameString = oldName.asString();
-        return oldNameString;
+        if (oldName != null)
+        {
+            return oldName.toString();
+        }
+
+        return "minecraft:air";
     }
 
     private static int processDyedColor(NbtElement oldDye)
@@ -863,18 +892,9 @@ public class SchematicDowngradeConverter
         {
             switch (key)
             {
-                case "id" ->
-                {
-                    newNbt.putString("id", oldNbt.getString("id"));
-                }
-                case "count" ->
-                {
-                    newNbt.putByte("Count", (byte) oldNbt.getInt("count"));
-                }
-                case "components" ->
-                {
-                    newNbt.put("tag", processComponentsTag(oldNbt.getCompound("components"), oldNbt.getString("id"), minecraftDataVersion, registryManager));
-                }
+                case "id" -> newNbt.putString("id", oldNbt.getString("id"));
+                case "count" -> newNbt.putByte("Count", (byte) oldNbt.getInt("count"));
+                case "components" -> newNbt.put("tag", processComponentsTag(oldNbt.getCompound("components"), oldNbt.getString("id"), minecraftDataVersion, registryManager));
             }
         }
 
@@ -925,11 +945,10 @@ public class SchematicDowngradeConverter
         // Sometimes this is missing the 'text' designation ?
         String oldNameString = nameTag.getString(key);
         MutableText oldCustomName = Text.Serialization.fromJson(oldNameString, registryManager);
-        String newCustomName = Text.Serialization.toJsonString(oldCustomName, registryManager);
 
         //System.out.printf("processCustomNameTag(): oldName [%s], text: [%s], newString [%s]\n", oldNameString, oldCustomName.getString(), newCustomName);
 
-        return newCustomName;
+        return Text.Serialization.toJsonString(oldCustomName, registryManager);
     }
 
     private static NbtElement processBlockState(NbtElement bsTag)
@@ -1247,16 +1266,13 @@ public class SchematicDowngradeConverter
             String propName = property.getString("name");
             String propValue = property.getString("value");
 
-            switch (propName)
+            if (propName.equals("textures"))
             {
-                case "textures" ->
-                {
-                    NbtList textures = new NbtList();
-                    NbtCompound value = new NbtCompound();
-                    value.putString("Value", propValue);
-                    textures.add(value);
-                    newProperties.put("textures", textures);
-                }
+                NbtList textures = new NbtList();
+                NbtCompound value = new NbtCompound();
+                value.putString("Value", propValue);
+                textures.add(value);
+                newProperties.put("textures", textures);
             }
         }
 
