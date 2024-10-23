@@ -1,6 +1,9 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
+
+import fi.dy.masa.litematica.compat.iris.IrisCompat;
+import net.minecraft.client.render.GameRenderer;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;

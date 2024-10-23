@@ -8,17 +8,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(BufferBuilder.class)
-public class MixinBufferBuilder implements IBufferBuilderPatch {
+public class MixinBufferBuilder implements IBufferBuilderPatch
+{
     @Unique
     private float offsetY = 0.0f;
 
     @ModifyArg(method = "vertex(FFF)Lnet/minecraft/client/render/VertexConsumer;", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/MemoryUtil;memPutFloat(JF)V", ordinal = 1), index = 1)
-    private float modifyOffsetY(float value) {
+    private float modifyOffsetY(float value)
+    {
         return value + offsetY;
     }
 
     @Override
-    public void litematica$setOffsetY(float offset) {
+    public void litematica$setOffsetY(float offset)
+    {
         this.offsetY = offset;
     }
 }
