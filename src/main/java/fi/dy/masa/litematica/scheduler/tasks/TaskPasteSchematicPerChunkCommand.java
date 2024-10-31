@@ -36,6 +36,7 @@ import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.mixin.IMixinAbstractBlock;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.util.EntityUtils;
@@ -983,7 +984,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                                                 World world, MinecraftClient mc,
                                                 @Nonnull DynamicRegistryManager registryManager)
     {
-        ItemStack stack = state.getBlock().getPickStack(world, pos, state);
+        ItemStack stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state);
 
         if (stack.isEmpty() == false)
         {

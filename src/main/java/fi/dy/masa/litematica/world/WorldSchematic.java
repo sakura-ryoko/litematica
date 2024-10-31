@@ -1,10 +1,13 @@
 package fi.dy.masa.litematica.world;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
+
+import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.recipe.RecipeManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -233,6 +236,12 @@ public class WorldSchematic extends World
     {
         // This shouldn't be used for anything in the mod, so just return null here
         return null;
+    }
+
+    @Override
+    public Collection<EnderDragonPart> method_65097()
+    {
+        return List.of();
     }
 
     @Override
@@ -500,12 +509,6 @@ public class WorldSchematic extends World
 
     @Override
     public void addParticle(ParticleEffect particleParameters_1, double double_1, double double_2, double double_3, double double_4, double double_5, double double_6)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void addParticle(ParticleEffect particleParameters_1, boolean boolean_1, double double_1, double double_2, double double_3, double double_4, double double_5, double double_6)
     {
         // NO-OP
     }

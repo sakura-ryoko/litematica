@@ -12,6 +12,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import fi.dy.masa.litematica.mixin.IMixinAbstractBlock;
+
 public class ItemUtils
 {
     private static final IdentityHashMap<BlockState, ItemStack> ITEMS_FOR_STATES = new IdentityHashMap<>();
@@ -68,7 +70,7 @@ public class ItemUtils
 
         if (stack.isEmpty())
         {
-            stack = state.getBlock().getPickStack(world, pos, state);
+            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state);
         }
 
         if (stack.isEmpty())

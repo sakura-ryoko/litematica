@@ -17,6 +17,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -540,8 +541,8 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             return;
         }
 
-        RenderUtils.bindTexture(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
-        mc.getTextureManager().getTexture(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
+        RenderUtils.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+        mc.getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
 
         RenderUtils.setupBlend();
         RenderUtils.color(1f, 1f, 1f, 1f);

@@ -25,6 +25,8 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+
+import fi.dy.masa.litematica.mixin.IMixinAbstractBlock;
 import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -93,7 +95,7 @@ public class MaterialCache
         if (stack == null)
         {
             world.setBlockState(pos, state, 0x14);
-            stack = state.getBlock().getPickStack(world, pos, state);
+            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state);
         }
 
         if (stack == null || stack.isEmpty())
@@ -134,7 +136,7 @@ public class MaterialCache
 
         if (block instanceof FlowerPotBlock && block != Blocks.FLOWER_POT)
         {
-            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), block.getPickStack(world, pos, state));
+            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state));
         }
 
         return ImmutableList.of(this.getRequiredBuildItemForState(state, world, pos));

@@ -63,9 +63,8 @@ public abstract class MixinWorldRenderer
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
                     shift = At.Shift.BEFORE))
-    private void onPreRenderMain(ObjectAllocator objectAllocator, RenderTickCounter tickCounter, boolean bl,
-                                 Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
-                                 Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci,
+    private void onPreRenderMain(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline,
+                                 Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f matrix4f2, CallbackInfo ci,
                                  @Local Profiler profiler)
     {
         this.posMatrix = positionMatrix;
