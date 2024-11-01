@@ -466,23 +466,22 @@ public class EntitiesDataStorage implements IClientTickHandler
         }
         else if (world.getBlockState(pos).getBlock() instanceof BlockEntityProvider)
         {
-            if (world instanceof ServerWorld)
-            {
-                BlockEntity be = world.getWorldChunk(pos).getBlockEntity(pos);
-
-                if (be != null)
-                {
-                    NbtCompound nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
-                    Pair<BlockEntity, NbtCompound> pair = Pair.of(be, nbt);
-
-                    this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), pair));
-
-                    return pair;
-                }
-            }
-            else if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
+            if (DataManager.getInstance().hasIntegratedServer() == false &&
+                Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
                 this.pendingBlockEntitiesQueue.add(pos);
+            }
+
+            BlockEntity be = world.getWorldChunk(pos).getBlockEntity(pos);
+
+            if (be != null)
+            {
+                NbtCompound nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
+                Pair<BlockEntity, NbtCompound> pair = Pair.of(be, nbt);
+
+                this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), pair));
+
+                return pair;
             }
         }
 
@@ -499,7 +498,13 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             return this.entityCache.get(entityId).getRight();
         }
-        else if (world instanceof ServerWorld)
+        if (DataManager.getInstance().hasIntegratedServer() == false &&
+            Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
+        {
+            this.pendingEntitiesQueue.add(entityId);
+        }
+
+        if (world != null)
         {
             Entity entity = world.getEntityById(entityId);
             NbtCompound nbt = new NbtCompound();
@@ -510,10 +515,6 @@ public class EntitiesDataStorage implements IClientTickHandler
                 this.entityCache.put(entityId, Pair.of(System.currentTimeMillis(), pair));
                 return pair;
             }
-        }
-        else if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
-        {
-            this.pendingEntitiesQueue.add(entityId);
         }
 
         return null;
