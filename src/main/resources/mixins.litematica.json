@@ -32,7 +32,6 @@
     "MixinIntegratedServer",
     "MixinMinecraftClient",
     "MixinMinecraftClient_easyPlace",
-    "MixinModelOverrideList",
     "MixinRailBlocks",
     "MixinServerPlayNetworkHandler",
     "MixinWorld",

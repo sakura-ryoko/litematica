@@ -95,7 +95,7 @@ public class MaterialCache
         if (stack == null)
         {
             world.setBlockState(pos, state, 0x14);
-            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state);
+            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
         }
 
         if (stack == null || stack.isEmpty())
@@ -136,7 +136,7 @@ public class MaterialCache
 
         if (block instanceof FlowerPotBlock && block != Blocks.FLOWER_POT)
         {
-            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state));
+            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state, false));
         }
 
         return ImmutableList.of(this.getRequiredBuildItemForState(state, world, pos));

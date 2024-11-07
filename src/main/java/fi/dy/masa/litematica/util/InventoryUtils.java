@@ -121,6 +121,10 @@ public class InventoryUtils
     public static void schematicWorldPickBlock(ItemStack stack, BlockPos pos,
                                                World schematicWorld, MinecraftClient mc)
     {
+        if (mc.player == null || mc.interactionManager == null || mc.world == null)
+        {
+            return;
+        }
         if (stack.isEmpty() == false)
         {
             PlayerInventory inv = mc.player.getInventory();
@@ -135,7 +139,8 @@ public class InventoryUtils
                 // Otherwise it would try to write whatever that TE is into the picked ItemStack.
                 if (GuiBase.isCtrlDown() && te != null && mc.world.isAir(pos))
                 {
-                    te.setStackNbt(stack, schematicWorld.getRegistryManager());
+                    //te.setStackNbt(stack, schematicWorld.getRegistryManager());
+                    fi.dy.masa.malilib.util.BlockUtils.setStackNbt(stack, te, schematicWorld.getRegistryManager());
                     //stack.set(DataComponentTypes.LORE, new LoreComponent(ImmutableList.of(Text.of("(+NBT)"))));
                 }
 

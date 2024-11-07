@@ -70,7 +70,7 @@ public class ItemUtils
 
         if (stack.isEmpty())
         {
-            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state);
+            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
         }
 
         if (stack.isEmpty())

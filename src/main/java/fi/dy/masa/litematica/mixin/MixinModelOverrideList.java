@@ -1,20 +1,9 @@
 package fi.dy.masa.litematica.mixin;
 
-import javax.annotation.Nullable;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.item.ModelPredicateProvider;
-import net.minecraft.client.render.model.json.ModelOverrideList;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-
-@Mixin(ModelOverrideList.class)
+//@Mixin(ModelOverrideList.class)
 public abstract class MixinModelOverrideList
 {
-    @SuppressWarnings("deprecation")
+    /*
     @Redirect(method = "getModel", at = @At(value = "INVOKE",
               target = "Lnet/minecraft/client/item/ModelPredicateProvider;call(" +
                        "Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;" +
@@ -32,4 +21,5 @@ public abstract class MixinModelOverrideList
 
         return provider.call(stack, world, entity, i);
     }
+     */
 }

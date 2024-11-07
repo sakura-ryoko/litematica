@@ -22,7 +22,6 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.LocalRandom;
@@ -565,8 +564,11 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
 
     private static void renderModel(BakedModel model, BlockState state, MatrixStack matrixStack)
     {
+        // TODO -> Watch for side effects
+        /*
         if (model.isBuiltin() == false)
         {
+         */
             //Tessellator tessellator = Tessellator.getInstance();
             //BufferBuilder buffer = tessellator.getBuffer();
             VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE));
@@ -592,7 +594,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
 
             //tessellator.draw();
             immediate.draw();
-        }
+        //}
     }
 
     private static void renderQuads(List<BakedQuad> quads, float[] brightness, int[] light,

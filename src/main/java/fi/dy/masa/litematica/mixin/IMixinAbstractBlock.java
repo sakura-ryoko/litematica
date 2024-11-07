@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMixinAbstractBlock
 {
     @Invoker("getPickStack")
-    ItemStack litematica_getPickStack(WorldView worldView, BlockPos blockPos, BlockState blockState);
+    ItemStack litematica_getPickStack(WorldView worldView, BlockPos blockPos, BlockState blockState, boolean bl);
 }
