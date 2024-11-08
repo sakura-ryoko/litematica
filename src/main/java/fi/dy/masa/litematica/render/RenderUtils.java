@@ -1,40 +1,38 @@
 package fi.dy.masa.litematica.render;
 
+import java.util.HashSet;
 import java.util.List;
-import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
+import java.util.Set;
 import org.joml.Matrix4f;
-import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.block.Block;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import fi.dy.masa.malilib.gui.LeftRight;
+import fi.dy.masa.malilib.render.InventoryOverlay;
+import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
+import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
+import fi.dy.masa.malilib.util.BlockUtils;
+import fi.dy.masa.malilib.util.Color4f;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.util.BlockInfoAlignment;
 import fi.dy.masa.litematica.util.InventoryUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
-import fi.dy.masa.litematica.util.RayTraceUtils;
-import fi.dy.masa.malilib.gui.LeftRight;
-import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
-import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
-import fi.dy.masa.malilib.util.Color4f;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 
 public class RenderUtils
 {
@@ -686,23 +684,52 @@ public class RenderUtils
     }
 
     public static int renderInventoryOverlay(BlockInfoAlignment align, LeftRight side, int offY,
-            World world, BlockPos pos, MinecraftClient mc, DrawContext drawContext)
+                                             World world, BlockPos pos, MinecraftClient mc, DrawContext drawContext)
     {
-        Inventory inv = InventoryUtils.getInventory(world, pos);
+        InventoryOverlay.Context ctx = InventoryUtils.getTargetInventory(world, pos);
 
-        if (inv != null)
+        if (ctx != null && ctx.inv() != null)
         {
-            final InventoryRenderType type = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryType(inv);
-            final InventoryProperties props = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryPropsTemp(type, inv.size());
+            //final InventoryRenderType type = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryType(inv);
+            final InventoryProperties props = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryPropsTemp(ctx.type(), ctx.inv().size());
 
-            return renderInventoryOverlay(align, side, offY, inv, type, props, mc, drawContext);
+            //Litematica.logger.error("render(): type [{}], inv [{}], be [{}], nbt [{}]", ctx.type().name(), ctx.inv().size(), ctx.be() != null, ctx.nbt() != null ? ctx.nbt().getString("id") : new NbtCompound());
+
+            // Try to draw Locked Slots on Crafter Grid
+            if (ctx.type() == InventoryRenderType.CRAFTER)
+            {
+                Set<Integer> disabledSlots = new HashSet<>();
+
+                if (ctx.nbt() != null && !ctx.nbt().isEmpty())
+                {
+                    disabledSlots = BlockUtils.getDisabledSlotsFromNbt(ctx.nbt());
+                }
+                else if (ctx.be() instanceof CrafterBlockEntity cbe)
+                {
+                    disabledSlots = BlockUtils.getDisabledSlots(cbe);
+                }
+
+                return renderInventoryOverlay(align, side, offY, ctx.inv(), ctx.type(), props, disabledSlots, mc, drawContext);
+            }
+            else
+            {
+                return renderInventoryOverlay(align, side, offY, ctx.inv(), ctx.type(), props, mc, drawContext);
+            }
         }
 
         return 0;
     }
 
     public static int renderInventoryOverlay(BlockInfoAlignment align, LeftRight side, int offY,
-             Inventory inv, InventoryRenderType type, InventoryProperties props, MinecraftClient mc, DrawContext drawContext)
+                                             Inventory inv, InventoryRenderType type, InventoryProperties props,
+                                             MinecraftClient mc, DrawContext drawContext)
+    {
+        return renderInventoryOverlay(align, side, offY, inv, type, props, Set.of(), mc, drawContext);
+    }
+
+    public static int renderInventoryOverlay(BlockInfoAlignment align, LeftRight side, int offY,
+                                             Inventory inv, InventoryRenderType type, InventoryProperties props, Set<Integer> disabledSlots,
+                                             MinecraftClient mc, DrawContext drawContext)
     {
         int xInv = 0;
         int yInv = 0;
@@ -725,7 +752,7 @@ public class RenderUtils
         fi.dy.masa.malilib.render.RenderUtils.color(1f, 1f, 1f, 1f);
 
         fi.dy.masa.malilib.render.InventoryOverlay.renderInventoryBackground(type, xInv, yInv, props.slotsPerRow, props.totalSlots, mc);
-        fi.dy.masa.malilib.render.InventoryOverlay.renderInventoryStacks(type, inv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, props.slotsPerRow, 0, -1, mc, drawContext);
+        fi.dy.masa.malilib.render.InventoryOverlay.renderInventoryStacks(type, inv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, props.slotsPerRow, 0, inv.size(), disabledSlots, mc, drawContext);
 
         return props.height;
     }

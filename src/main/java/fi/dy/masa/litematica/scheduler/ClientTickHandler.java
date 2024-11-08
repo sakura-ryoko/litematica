@@ -22,7 +22,19 @@ public class ClientTickHandler implements IClientTickHandler
                 sm.moveGrabbedElement(mc.player);
             }
 
-            WorldUtils.easyPlaceOnUseTick(mc);
+            if (mc.currentScreen == null)
+            {
+                /*
+                if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+                {
+                    EasyPlaceUtils.easyPlaceOnUseTick();
+                }
+                else
+                {
+                 */
+                WorldUtils.easyPlaceOnUseTick(mc);
+                //}
+            }
 
             if (Configs.Generic.LAYER_MODE_DYNAMIC.getBooleanValue())
             {

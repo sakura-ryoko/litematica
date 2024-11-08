@@ -62,6 +62,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       EASY_PLACE_VANILLA_REACH    = new ConfigBoolean("easyPlaceVanillaReach", false, "litematica.config.generic.comment.easyPlaceVanillaReach").translatedName("litematica.config.generic.name.easyPlaceVanillaReach");
         public static final ConfigBoolean       ENTITY_DATA_SYNC            = new ConfigBoolean("entityDataSync", true, "litematica.config.generic.comment.entityDataSync").translatedName("litematica.config.generic.name.entityDataSync");
         public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP     = new ConfigBoolean("entityDataSyncBackup", true, "litematica.config.generic.comment.entityDataSyncBackup").translatedName("litematica.config.generic.name.entityDataSyncBackup");
+        public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT        = new ConfigBoolean("entityDataSyncLoadNbt", true, "litematica.config.generic.comment.entityDataSyncLoadNbt").translatedName("litematica.config.generic.name.entityDataSyncLoadNbt");
         public static final ConfigBoolean       EXECUTE_REQUIRE_TOOL        = new ConfigBoolean("executeRequireHoldingTool", true, "litematica.config.generic.comment.executeRequireHoldingTool").translatedName("litematica.config.generic.name.executeRequireHoldingTool");
         public static final ConfigBoolean       FIX_CHEST_MIRROR            = new ConfigBoolean("fixChestMirror", true, "litematica.config.generic.comment.fixChestMirror").translatedName("litematica.config.generic.name.fixChestMirror");
         public static final ConfigBoolean       FIX_RAIL_ROTATION           = new ConfigBoolean("fixRailRotation", true, "litematica.config.generic.comment.fixRailRotation").translatedName("litematica.config.generic.name.fixRailRotation");
@@ -117,6 +118,7 @@ public class Configs implements IConfigHandler
                 EASY_PLACE_VANILLA_REACH,
                 ENTITY_DATA_SYNC,
                 ENTITY_DATA_SYNC_BACKUP,
+                ENTITY_DATA_LOAD_NBT,
                 EXECUTE_REQUIRE_TOOL,
                 FIX_CHEST_MIRROR,
                 FIX_RAIL_ROTATION,

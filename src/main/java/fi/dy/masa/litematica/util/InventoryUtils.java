@@ -3,7 +3,11 @@ package fi.dy.masa.litematica.util;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import com.llamalad7.mixinextras.lib.apache.commons.tuple.Pair;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,6 +19,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -22,10 +27,11 @@ import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.render.OverlayRenderer;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class InventoryUtils
 {
@@ -294,19 +300,89 @@ public class InventoryUtils
      *
      * @param world (Input ClientWorld)
      * @param pos (Pos of the Tile Entity)
-     * @return (The result Inventory | NULL if not obtainable)
+     * @return (The result InventoryOverlay.Context | NULL if not obtainable)
      */
-    @Nullable
-    public static Inventory getInventory(World world, BlockPos pos)
+    public static @Nullable InventoryOverlay.Context getTargetInventory(World world, BlockPos pos)
     {
-        Inventory inv = fi.dy.masa.malilib.util.InventoryUtils.getInventory(world, pos);
+        BlockState state = world.getBlockState(pos);
+        Block blockTmp = state.getBlock();
+        NbtCompound nbt = new NbtCompound();
+        BlockEntity be = null;
 
-        if ((inv == null || inv.isEmpty()) && DataManager.getInstance().hasIntegratedServer() == false)
+        if (blockTmp instanceof BlockEntityProvider)
         {
-            OverlayRenderer.getInstance().requestBlockEntityAt(world, pos);
+            if (world instanceof ServerWorld || world instanceof WorldSchematic)
+            {
+                be = world.getWorldChunk(pos).getBlockEntity(pos);
+
+                if (be != null)
+                {
+                    nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
+                }
+            }
+            else
+            {
+                Pair<BlockEntity, NbtCompound> pair = EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+
+                if (pair != null)
+                {
+                    nbt = pair.getRight();
+                }
+            }
+
+            //Litematica.logger.warn("getTarget():2: pos [{}], be [{}], nbt [{}]", pos.toShortString(), be != null, nbt != null);
+
+            return getTargetInventoryFromBlock(world, pos, be, nbt);
         }
 
-        return inv;
+        return null;
+    }
+
+    private static @Nullable InventoryOverlay.Context getTargetInventoryFromBlock(World world, BlockPos pos, @Nullable BlockEntity be, NbtCompound nbt)
+    {
+        Inventory inv;
+
+        if (be != null)
+        {
+            if (nbt.isEmpty())
+            {
+                nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
+            }
+            inv = fi.dy.masa.malilib.util.InventoryUtils.getInventory(world, pos);
+        }
+        else
+        {
+            if (nbt.isEmpty())
+            {
+                Pair<BlockEntity, NbtCompound> pair = EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+
+                if (pair != null)
+                {
+                    nbt = pair.getRight();
+                }
+            }
+
+            inv = EntitiesDataStorage.getInstance().getBlockInventory(world, pos, false);
+        }
+
+        if (nbt != null && !nbt.isEmpty())
+        {
+            Inventory inv2 = fi.dy.masa.malilib.util.InventoryUtils.getNbtInventory(nbt, inv != null ? inv.size() : -1, world.getRegistryManager());
+
+            if (inv == null)
+            {
+                inv = inv2;
+            }
+        }
+
+        //Litematica.logger.warn("getTarget():3: pos [{}], inv [{}], be [{}], nbt [{}]", pos.toShortString(), inv != null, be != null, nbt != null ? nbt.getString("id") : new NbtCompound());
+
+        if (inv == null || nbt == null)
+        {
+            return null;
+        }
+
+        return new InventoryOverlay.Context(InventoryOverlay.getBestInventoryType(inv, nbt), inv, be != null ? be : world.getBlockEntity(pos), null, nbt);
     }
 
     /**

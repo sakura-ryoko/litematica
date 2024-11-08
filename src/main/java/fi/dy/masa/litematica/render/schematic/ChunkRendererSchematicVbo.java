@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import fi.dy.masa.litematica.config.Hotkeys;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -452,11 +451,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     data.setBlockLayerStarted(layer);
                     bufferSchematic = this.preRenderBlocks(layer, allocators);
                 }
-                ((IBufferBuilderPatch) bufferSchematic).setOffsetY(offsetY);
+                ((IBufferBuilderPatch) bufferSchematic).litematica$setOffsetY(offsetY);
 
                 this.worldRenderer.renderFluid(this.schematicWorldView, stateSchematic, fluidState, pos, bufferSchematic);
                 usedLayers.add(layer);
-                ((IBufferBuilderPatch) bufferSchematic).setOffsetY(0.0F);
+                ((IBufferBuilderPatch) bufferSchematic).litematica$setOffsetY(0.0F);
             }
 
             if (stateSchematic.getRenderType() != BlockRenderType.INVISIBLE)

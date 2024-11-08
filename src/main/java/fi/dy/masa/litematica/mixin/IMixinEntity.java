@@ -15,5 +15,5 @@ public interface IMixinEntity
     void litematica_setWorld(World world);
 
     @Invoker("readCustomDataFromNbt")
-    void readCustomDataFromNbt(NbtCompound nbt);
+    void litematica_readCustomDataFromNbt(NbtCompound nbt);
 }

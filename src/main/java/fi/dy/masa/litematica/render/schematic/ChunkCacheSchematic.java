@@ -75,7 +75,8 @@ public class ChunkCacheSchematic implements BlockRenderView, ChunkProvider
     @Override
     public LightSourceView getChunk(int chunkX, int chunkZ)
     {
-        return null; // TODO 1.17 this shouldn't be needed since the lighting provider does nothing
+        //return null; // TODO 1.17 this shouldn't be needed since the lighting provider does nothing
+        return this.worldClient.getChunk(chunkX, chunkZ);
     }
 
     public boolean isEmpty()

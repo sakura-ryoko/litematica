@@ -315,22 +315,23 @@ public class EntityUtils
         }
         else
         {
-            ((IMixinEntity) entity).readCustomDataFromNbt(nbt);
+            ((IMixinEntity) entity).litematica_readCustomDataFromNbt(nbt);
         }
     }
 
     private static void readLeashableEntityCustomData(Entity entity, NbtCompound nbt)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.world == null) return;
         assert entity instanceof Leashable;
         Leashable leashable = (Leashable) entity;
-        ((IMixinEntity) entity).readCustomDataFromNbt(nbt);
+        ((IMixinEntity) entity).litematica_readCustomDataFromNbt(nbt);
         if (leashable.getLeashData() != null && leashable.getLeashData().unresolvedLeashData != null)
         {
             leashable.getLeashData().unresolvedLeashData
                     .ifLeft(uuid ->
                             // We MUST use client-side world here.
-                            leashable.attachLeash(((IMixinWorld) mc.world).getEntityLookup().get(uuid), false))
+                            leashable.attachLeash(((IMixinWorld) mc.world).litematica_getEntityLookup().get(uuid), false))
                     .ifRight(pos ->
                             leashable.attachLeash(LeashKnotEntity.getOrCreate(mc.world, pos), false));
         }

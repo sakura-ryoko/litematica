@@ -268,7 +268,16 @@ public class KeyCallbacks
 
             if (key == Hotkeys.EASY_PLACE_ACTIVATION.getKeybind())
             {
+                /*
+                if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+                {
+                    return EasyPlaceUtils.handleEasyPlaceWithMessage();
+                }
+                else
+                {
+                 */
                 return WorldUtils.handleEasyPlace(this.mc);
+                //}
             }
             else if (key == Hotkeys.OPEN_GUI_MAIN_MENU.getKeybind())
             {

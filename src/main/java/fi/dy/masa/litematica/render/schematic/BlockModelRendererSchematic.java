@@ -13,6 +13,9 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -58,14 +61,13 @@ public class BlockModelRendererSchematic
         }
         catch (Throwable throwable)
         {
-            /*
+            //Litematica.logger.error("renderModel: Crash caught: [{}]", !throwable.getMessage().isEmpty() ? throwable.getMessage() : "<EMPTY>");
             CrashReport crashreport = CrashReport.create(throwable, "Tesselating block model");
             CrashReportSection crashreportcategory = crashreport.addElement("Block model being tesselated");
             CrashReportSection.addBlockInfo(crashreportcategory, worldIn, posIn, stateIn);
             crashreportcategory.add("Using AO", ao);
             throw new CrashException(crashreport);
-            */
-            return false;
+            //return false;
         }
     }
 
@@ -430,101 +432,6 @@ public class BlockModelRendererSchematic
 
         public void apply(BlockRenderView world, BlockState state, BlockPos pos, Direction direction, float[] box, BitSet shapeState, boolean hasShade)
         {
-            /*
-            BlockPos blockpos = shapeState.get(0) ? centerPos.offset(direction) : centerPos;
-            BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain();
-            BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos1 = BlockPos.PooledMutableBlockPos.retain(blockpos).move(neighborInfo.corners[0]);
-            BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos2 = BlockPos.PooledMutableBlockPos.retain(blockpos).move(neighborInfo.corners[1]);
-            BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos3 = BlockPos.PooledMutableBlockPos.retain(blockpos).move(neighborInfo.corners[2]);
-            BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos4 = BlockPos.PooledMutableBlockPos.retain(blockpos).move(neighborInfo.corners[3]);
-            int i = state.getPackedLightmapCoords(worldIn, blockpos$pooledmutableblockpos1);
-            int j = state.getPackedLightmapCoords(worldIn, blockpos$pooledmutableblockpos2);
-            int k = state.getPackedLightmapCoords(worldIn, blockpos$pooledmutableblockpos3);
-            int l = state.getPackedLightmapCoords(worldIn, blockpos$pooledmutableblockpos4);
-            float f = worldIn.getBlockState(blockpos$pooledmutableblockpos1).getAmbientOcclusionLightValue();
-            float f1 = worldIn.getBlockState(blockpos$pooledmutableblockpos2).getAmbientOcclusionLightValue();
-            float f2 = worldIn.getBlockState(blockpos$pooledmutableblockpos3).getAmbientOcclusionLightValue();
-            float f3 = worldIn.getBlockState(blockpos$pooledmutableblockpos4).getAmbientOcclusionLightValue();
-            boolean flag = worldIn.getBlockState(blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos1).move(direction)).isTranslucent();
-            boolean flag1 = worldIn.getBlockState(blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos2).move(direction)).isTranslucent();
-            boolean flag2 = worldIn.getBlockState(blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos3).move(direction)).isTranslucent();
-            boolean flag3 = worldIn.getBlockState(blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos4).move(direction)).isTranslucent();
-            float f4;
-            int i1;
-
-            if (!flag2 && !flag)
-            {
-                f4 = f;
-                i1 = i;
-            }
-            else
-            {
-                BlockPos blockpos1 = blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos1).move(neighborInfo.corners[2]);
-                f4 = worldIn.getBlockState(blockpos1).getAmbientOcclusionLightValue();
-                i1 = state.getPackedLightmapCoords(worldIn, blockpos1);
-            }
-
-            float f5;
-            int j1;
-
-            if (!flag3 && !flag)
-            {
-                f5 = f;
-                j1 = i;
-            }
-            else
-            {
-                BlockPos blockpos2 = blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos1).move(neighborInfo.corners[3]);
-                f5 = worldIn.getBlockState(blockpos2).getAmbientOcclusionLightValue();
-                j1 = state.getPackedLightmapCoords(worldIn, blockpos2);
-            }
-
-            float f6;
-            int k1;
-
-            if (!flag2 && !flag1)
-            {
-                f6 = f1;
-                k1 = j;
-            }
-            else
-            {
-                BlockPos blockpos3 = blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos2).move(neighborInfo.corners[2]);
-                f6 = worldIn.getBlockState(blockpos3).getAmbientOcclusionLightValue();
-                k1 = state.getPackedLightmapCoords(worldIn, blockpos3);
-            }
-
-            float f7;
-            int l1;
-
-            if (!flag3 && !flag1)
-            {
-                f7 = f1;
-                l1 = j;
-            }
-            else
-            {
-                BlockPos blockpos4 = blockpos$pooledmutableblockpos.setPos(blockpos$pooledmutableblockpos2).move(neighborInfo.corners[3]);
-                f7 = worldIn.getBlockState(blockpos4).getAmbientOcclusionLightValue();
-                l1 = state.getPackedLightmapCoords(worldIn, blockpos4);
-            }
-
-            int i3 = state.getPackedLightmapCoords(worldIn, centerPos);
-
-            if (shapeState.get(0) || !worldIn.getBlockState(centerPos.offset(direction)).isOpaqueCube())
-            {
-                i3 = state.getPackedLightmapCoords(worldIn, centerPos.offset(direction));
-            }
-
-            float f8 = shapeState.get(0) ? worldIn.getBlockState(blockpos).getAmbientOcclusionLightValue() : worldIn.getBlockState(centerPos).getAmbientOcclusionLightValue();
-            VertexTranslations vertexTranslations = VertexTranslations.getVertexTranslations(direction);
-            blockpos$pooledmutableblockpos.release();
-            blockpos$pooledmutableblockpos1.release();
-            blockpos$pooledmutableblockpos2.release();
-            blockpos$pooledmutableblockpos3.release();
-            blockpos$pooledmutableblockpos4.release();
-            */
-
             EnumNeighborInfo neighborInfo = EnumNeighborInfo.getNeighbourInfo(direction);
             VertexTranslations vertexTranslations = VertexTranslations.getVertexTranslations(direction);
             int i, j, k, l, i1, i3, j1, k1, l1;

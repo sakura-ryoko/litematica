@@ -12,5 +12,5 @@ import net.minecraft.world.BlockView;
 public interface IMixinStairsBlock
 {
     @Invoker("getStairShape")
-    static StairShape invokeGetStairShape(BlockState state, BlockView worldIn, BlockPos pos) { return null; }
+    static StairShape litematica_invokeGetStairShape(BlockState state, BlockView worldIn, BlockPos pos) { return null; }
 }

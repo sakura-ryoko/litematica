@@ -1,19 +1,13 @@
 package fi.dy.masa.litematica.world;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.dimension.DimensionTypes;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
@@ -24,8 +18,10 @@ public class SchematicWorldHandler
     public static final SchematicWorldHandler INSTANCE = new SchematicWorldHandler(LitematicaRenderer.getInstance()::getWorldRenderer);
 
     protected final Supplier<WorldRendererSchematic> rendererSupplier;
-    @Nullable protected WorldSchematic world;
-    @Nullable protected DynamicRegistryManager.Immutable dynamicRegistryManager = DynamicRegistryManager.EMPTY;
+    @Nullable
+    protected WorldSchematic world;
+    @Nullable
+    protected DynamicRegistryManager.Immutable dynamicRegistryManager = DynamicRegistryManager.EMPTY;
 
     // The supplier can return null, but it can't be null itself!
     public SchematicWorldHandler(Supplier<WorldRendererSchematic> rendererSupplier)
@@ -77,6 +73,7 @@ public class SchematicWorldHandler
             return null;
         }
 
+        /*
         RegistryEntryLookup.RegistryLookup lookup = world.getRegistryManager().createRegistryLookup();
         Optional<RegistryEntryLookup<DimensionType>> entryLookup = lookup.getOptional(RegistryKeys.DIMENSION_TYPE);
         RegistryEntry<DimensionType> entry = null;
@@ -96,10 +93,12 @@ public class SchematicWorldHandler
         {
             entry = world.getDimensionEntry();
         }
+         */
+        // Use the DimensionType of the current client world
 
         ClientWorld.Properties levelInfo = new ClientWorld.Properties(Difficulty.PEACEFUL, false, true);
 
-        return new WorldSchematic(levelInfo, world.getRegistryManager(), entry, MinecraftClient.getInstance()::getProfiler, worldRenderer);
+        return new WorldSchematic(levelInfo, world.getRegistryManager(), world.getDimensionEntry(), MinecraftClient.getInstance()::getProfiler, worldRenderer);
     }
 
     public void recreateSchematicWorld(boolean remove)
