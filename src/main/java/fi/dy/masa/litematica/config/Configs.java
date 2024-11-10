@@ -44,7 +44,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       COMMAND_DISABLE_FEEDBACK    = new ConfigBoolean("commandDisableFeedback", true).apply(GENERIC_KEY);
         public static final ConfigInteger       COMMAND_FILL_MAX_VOLUME     = new ConfigInteger("commandFillMaxVolume", 32768, 256, 10000000).apply(GENERIC_KEY);
         public static final ConfigBoolean       COMMAND_FILL_NO_CHUNK_CLAMP = new ConfigBoolean("commandFillNoChunkClamp", false).apply(GENERIC_KEY);
-        public static final ConfigInteger       COMMAND_LIMIT               = new ConfigInteger("commandLimitPerTick", 24, 1, 256).apply(GENERIC_KEY);
+        public static final ConfigInteger       COMMAND_LIMIT               = new ConfigInteger("commandLimitPerTick", 8, 1, 256).apply(GENERIC_KEY);
         public static final ConfigString        COMMAND_NAME_CLONE          = new ConfigString( "commandNameClone", "clone").apply(GENERIC_KEY);
         public static final ConfigString        COMMAND_NAME_FILL           = new ConfigString( "commandNameFill", "fill").apply(GENERIC_KEY);
         public static final ConfigString        COMMAND_NAME_SETBLOCK       = new ConfigString( "commandNameSetblock", "setblock").apply(GENERIC_KEY);
