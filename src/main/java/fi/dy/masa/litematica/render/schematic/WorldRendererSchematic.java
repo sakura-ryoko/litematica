@@ -700,10 +700,13 @@ public class WorldRendererSchematic
 
     public BakedModel getModelForState(BlockState state)
     {
+        // FIXME (ENTITYBLOCK_ANIMATED - removed)
+        /*
         if (state.getRenderType() == BlockRenderType.ENTITYBLOCK_ANIMATED)
         {
-            return this.blockRenderManager.getModels().getModelManager().getMissingModel();
+            return this.blockRenderManager.getModels().getModelManager().getMissingBlockModel();
         }
+         */
 
         return this.blockRenderManager.getModel(state);
     }

@@ -107,7 +107,7 @@ public class EntityUtils
 
     public static Direction getHorizontalLookingDirection(Entity entity)
     {
-        return Direction.fromRotation(entity.getYaw());
+        return Direction.fromHorizontalDegrees(entity.getYaw());
     }
 
     public static Direction getVerticalLookingDirection(Entity entity)
