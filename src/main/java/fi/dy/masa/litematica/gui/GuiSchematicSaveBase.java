@@ -36,7 +36,8 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         this.textField.setMaxLength(256);
         this.textField.setFocused(true);
 
-        this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, "Save from schematic world", "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.");
+//        this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, "Save from schematic world", "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.");
+        this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.save_from_schematic_world"), StringUtils.translate("litematica.gui.label.schematic_save.hover_info.save_from_schematic_world"));
     }
 
     @Override
@@ -86,10 +87,11 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         this.checkboxSaveFromSchematicWorld.setPosition(x, y + 12);
         this.addWidget(this.checkboxSaveFromSchematicWorld);
 
-        this.checkboxVisibleOnly = new WidgetCheckBox(x, y + 24, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, "Visible blocks only [experimental quick hax]");
+//        this.checkboxVisibleOnly = new WidgetCheckBox(x, y + 24, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, "Visible blocks only [experimental quick hax]");
+        this.checkboxVisibleOnly = new WidgetCheckBox(x, y + 24, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.visible_blocks_only"));
         this.addWidget(this.checkboxVisibleOnly);
 
-        this.checkboxIncludeSupportBlocks = new WidgetCheckBox(x, y + 36, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, "Support blocks", "Include any necessary support blocks in \"Visible blocks only\" mode,\nfor things like Repeaters, Comparators, Carpets or gravity blocks that would be visible");
+        this.checkboxIncludeSupportBlocks = new WidgetCheckBox(x, y + 36, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.support_blocks"), StringUtils.translate("litematica.gui.label.schematic_save.hover_info.support_blocks"));
         this.addWidget(this.checkboxIncludeSupportBlocks);
 
         this.createButton(10, 54, ButtonType.SAVE);
@@ -117,7 +119,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
 
         if (type == ButtonType.SAVE)
         {
-            button = new ButtonGeneric(x, y, width, 20, label, "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite");
+            button = new ButtonGeneric(x, y, width, 20, label, "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite");
         }
         else
         {
