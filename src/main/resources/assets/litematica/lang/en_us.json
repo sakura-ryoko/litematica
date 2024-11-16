@@ -780,7 +780,13 @@
     "litematica.gui.label.schematic_projects.version_name": "Version name:",
 
     "litematica.gui.label.schematic_save.checkbox.ignore_entities": "Ignore entities",
-    "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
+    "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
+    "litematica.gui.label.schematic_save.checkbox.save_from_schematic_world": "Save from schematic world",
+    "litematica.gui.label.schematic_save.hover_info.save_from_schematic_world": "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.",
+    "litematica.gui.label.schematic_save.checkbox.visible_blocks_only": "Visible blocks only [experimental quick hax]",
+    "litematica.gui.label.schematic_save.checkbox.support_blocks": "Support blocks",
+    "litematica.gui.label.schematic_save.hover_info.support_blocks": "Include any necessary support blocks in \"Visible blocks only\" mode,\nfor things like Repeaters, Comparators, Carpets or gravity blocks that would be visible",
+
 
     "litematica.gui.label.schematic_verifier.count": "Count",
     "litematica.gui.label.schematic_verifier.expected": "Expected",
@@ -874,6 +880,7 @@
     "litematica.hud.misc.renderer_status": "Renderers: A: %s S: %s B: %s O: %s SEL: %s",
     "litematica.hud.misc.schematic_paste.data_restore_mode": "Data Restore Mode: §b%s",
     "litematica.hud.misc.schematic_paste.replace_mode": "Replace blocks: %s",
+    "litematica.hud.misc.schematic_paste.ignore_inventory_contents": "Ignore inventory contents: %s",
 
     "litematica.hud.schematic_placement.hover_info.lock_coordinate": "Lock this coordinate\nThis allows changing the other coordinates\nwithout affecting the locked ones",
     "litematica.hud.schematic_placement.hover_info.placement_locked": "This placement has been locked and can't\nbe modified without unlocking it first",
