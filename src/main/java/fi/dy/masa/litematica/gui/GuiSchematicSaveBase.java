@@ -36,7 +36,6 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         this.textField.setMaxLength(256);
         this.textField.setFocused(true);
 
-//        this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, "Save from schematic world", "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.");
         this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.save_from_schematic_world"), StringUtils.translate("litematica.gui.label.schematic_save.hover_info.save_from_schematic_world"));
     }
 
