@@ -717,7 +717,7 @@
   "litematica.gui.label.schematic_projects.version_entry": "Версия %d - %s",
   "litematica.gui.label.schematic_projects.version_name": "Название версии:",
   "litematica.gui.label.schematic_save.checkbox.ignore_entities": "Исключить сущности",
-  "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
+  "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Удерживайте Shift, чтобы перезаписать существующий файл",
   "litematica.gui.label.schematic_save.checkbox.save_from_schematic_world": "Save from schematic world",
   "litematica.gui.label.schematic_save.hover_info.save_from_schematic_world": "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.",
   "litematica.gui.label.schematic_save.checkbox.visible_blocks_only": "Visible blocks only [experimental quick hax]",
@@ -914,6 +914,5 @@
   "litematica.tool_mode.name.paste_schematic": "Вставка схемы в мир",
   "litematica.tool_mode.name.rebuild": "Редактирование схемы",
   "litematica.tool_mode.name.replace_block": "Замена блока",
-  "litematica.tool_mode.name.schematic_placement": "Размещение схемы",
-  "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "Удерживайте Shift, чтобы перезаписать существующий файл"
+  "litematica.tool_mode.name.schematic_placement": "Размещение схемы"
 }
