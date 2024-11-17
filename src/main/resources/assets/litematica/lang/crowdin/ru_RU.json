@@ -402,7 +402,7 @@
     "litematica.config.hotkeys.comment.schematicVersionCycleModifier": "Модификатор клавиши для удержания, чтобы иметь возможность использовать колесо мыши\nдля переключения через чертежные версии в режиме управления версиями",
     "litematica.config.hotkeys.comment.schematicVersionCycleNext": "Горячая клавиша для цикла к следующей схематической версии в режиме управления версиями",
     "litematica.config.hotkeys.comment.schematicVersionCyclePrevious": "Горячая клавиша для цикла к следующей схематической версии в режиме управления версиями",
-    "litematica.config.hotkeys.comment.selectionGrabModifier": "Клавиша модификатора, чтобы удерживать \"хватить\" выделение\n(блок или угол) для перемещения курсора.",
+    "litematica.config.hotkeys.comment.selectionGrabModifier": "Клавиша-модификатор, которую следует удерживать, чтобы «захватить» выделенную область\nили угол для перемещения курсора.",
     "litematica.config.hotkeys.comment.selectionGrow": "Горячая клавиша для автоматического увеличения окна выделения вокруг\nвсех соседних блоков по диагонали",
     "litematica.config.hotkeys.comment.selectionGrowModifier": "Клавиша модификатора, удерживаемая для роста или уменьшения\nво время прокрутки",
     "litematica.config.hotkeys.comment.selectionNudgeModifier": "Клавиша модификатора, удерживаемая при прокрутке\nдля обнуления выделенной области или угла",
