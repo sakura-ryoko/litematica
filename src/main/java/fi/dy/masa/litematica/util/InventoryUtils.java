@@ -39,6 +39,7 @@ public class InventoryUtils
 {
     private static final List<Integer> PICK_BLOCKABLE_SLOTS = new ArrayList<>();
     private static int nextPickSlotIndex;
+    private static Pair<BlockPos, InventoryOverlay.Context> lastBlockEntityContext = null;
 
     public static void setPickBlockableSlots(String configStr)
     {
@@ -339,7 +340,23 @@ public class InventoryUtils
 
             //Litematica.logger.warn("getTarget():2: pos [{}], be [{}], nbt [{}]", pos.toShortString(), be != null, nbt != null);
 
-            return getTargetInventoryFromBlock(world, pos, be, nbt);
+            InventoryOverlay.Context ctx = getTargetInventoryFromBlock(world, pos, be, nbt);
+
+            if (lastBlockEntityContext != null && !lastBlockEntityContext.getLeft().equals(pos))
+            {
+                lastBlockEntityContext = null;
+            }
+
+            if (ctx != null &&
+                (ctx.inv() != null && !ctx.inv().isEmpty()))
+            {
+                lastBlockEntityContext = Pair.of(pos, ctx);
+                return ctx;
+            }
+            else if (lastBlockEntityContext != null && lastBlockEntityContext.getLeft().equals(pos))
+            {
+                return lastBlockEntityContext.getRight();
+            }
         }
 
         return null;

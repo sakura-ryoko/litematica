@@ -694,7 +694,6 @@ public class RenderUtils
 
         if (ctx != null && ctx.inv() != null)
         {
-            //final InventoryRenderType type = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryType(inv);
             final InventoryProperties props = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryPropsTemp(ctx.type(), ctx.inv().size());
 
             //Litematica.logger.error("render(): type [{}], inv [{}], be [{}], nbt [{}]", ctx.type().name(), ctx.inv().size(), ctx.be() != null, ctx.nbt() != null ? ctx.nbt().getString("id") : new NbtCompound());

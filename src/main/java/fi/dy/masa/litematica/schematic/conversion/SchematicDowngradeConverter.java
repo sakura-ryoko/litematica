@@ -532,8 +532,8 @@ public class SchematicDowngradeConverter
                     beNbt.putString("id", itemId);
                 }
                 case "minecraft:block_state" -> outNbt.put("BlockStateTag", processBlockState(nbt.get(key)));
-                case "minecraft:block_entity_data" -> processBlockEntityData(nbt.get(key), beNbt);
-                case "minecraft:bucket_entity_data" -> processBucketEntityData(nbt.get(key), beNbt);
+                case "minecraft:block_entity_data" -> processBlockEntityData(nbt.get(key), beNbt, minecraftDataVersion, registryManager);       // TODO --> check that this works or not
+                case "minecraft:bucket_entity_data" -> processBucketEntityData(nbt.get(key), beNbt, minecraftDataVersion, registryManager);
                 case "minecraft:bundle_contents" -> outNbt.put("Items", processItemsTag(nbt.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager));
                 case "minecraft:can_break" -> outNbt.put("CanDestroy", nbt.get(key));
                 case "minecraft:can_place_on" -> outNbt.put("CanPlaceOn", nbt.get(key));
@@ -670,9 +670,12 @@ public class SchematicDowngradeConverter
         }
     }
 
-    private static void processBucketEntityData(NbtElement oldTags, NbtCompound beNbt)
+    private static void processBucketEntityData(NbtElement oldTags, NbtCompound beNbt, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
         NbtCompound oldNbt = (NbtCompound) oldTags;
+
+//        NbtCompound newNbt = downgradeEntity_to_1_20_4(oldNbt, minecraftDataVersion, registryManager);
+//        beNbt.copyFrom(newNbt);
 
         for (String key : oldNbt.getKeys())
         {
@@ -873,13 +876,13 @@ public class SchematicDowngradeConverter
         return false;
     }
 
-    private static void processBlockEntityData(NbtElement oldBeData, NbtCompound beNbt)
+    private static void processBlockEntityData(NbtElement oldBeData, NbtCompound beNbt, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
-        NbtCompound oldData = (NbtCompound) oldBeData;
+        NbtCompound newData = downgradeBlockEntity_to_1_20_4((NbtCompound) oldBeData, minecraftDataVersion, registryManager);
 
-        for (String key : oldData.getKeys())
+        for (String key : newData.getKeys())
         {
-            beNbt.put(key, oldData.get(key));
+            beNbt.put(key, newData.get(key));
         }
     }
 

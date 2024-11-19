@@ -914,5 +914,7 @@
   "litematica.tool_mode.name.paste_schematic": "Вставте схему в світ",
   "litematica.tool_mode.name.rebuild": "Редагувати схему",
   "litematica.tool_mode.name.replace_block": "Замінити блок",
-  "litematica.tool_mode.name.schematic_placement": "Схематичне розміщення"
+  "litematica.tool_mode.name.schematic_placement": "Схематичне розміщення",
+  "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+  "litematica.config.generic.name.entityDataSyncCacheTimeout": "entityDataSyncCacheTimeout"
 }
