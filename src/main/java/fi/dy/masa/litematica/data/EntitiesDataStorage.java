@@ -203,7 +203,7 @@ public class EntitiesDataStorage implements IClientTickHandler
         else
         {
             Litematica.debugLog("EntitiesDataStorage#reset() - dimension change or log-in");
-            this.serverTickTime = System.currentTimeMillis() - (this.cacheTimeout + 5) * 1000L;
+            this.serverTickTime = System.currentTimeMillis() - (this.getCacheTimeout() + 5000L);
             this.tickCache();
             this.serverTickTime = System.currentTimeMillis();
             this.clientWorld = mc.world;
@@ -215,19 +215,31 @@ public class EntitiesDataStorage implements IClientTickHandler
         this.pendingEntitiesQueue.clear();
     }
 
+    private long getCacheTimeout()
+    {
+        return (long) (MathHelper.clamp(Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue(), 0.25f, 30.0f) * 1000L);
+    }
+
+    private long getCacheTimeoutLong()
+    {
+        return (long) (MathHelper.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * this.longCacheTimeout), 120.0f, 300.0f) * 1000L);
+    }
+
     private void tickCache()
     {
         long nowTime = System.currentTimeMillis();
-        long blockTimeout = (this.cacheTimeout) * 1000L;
-        long entityTimeout = (this.cacheTimeout / 2) * 1000L;
+        long blockTimeout = this.getCacheTimeout();
+        long entityTimeout = this.getCacheTimeout() * 2;
         int count;
         boolean beEmpty = false;
         boolean entEmpty = false;
 
+        // Use LongTimeouts when saving a Litematic Selection,
+        // which is pretty much the standard value x 30 (min 120, max 300 seconds)
         if (this.shouldUseLongTimeout)
         {
-            blockTimeout = this.longCacheTimeout * 1000L;
-            entityTimeout = (this.longCacheTimeout / 2) * 1000L;
+            blockTimeout = this.getCacheTimeoutLong();
+            entityTimeout = this.getCacheTimeoutLong();
         }
 
         synchronized (this.blockEntityCache)
@@ -240,7 +252,7 @@ public class EntitiesDataStorage implements IClientTickHandler
 
                 if (nowTime - pair.getLeft() > blockTimeout || pair.getLeft() - nowTime > 0)
                 {
-                    Litematica.debugLog("entityCache: be at pos [{}] has timed out", pos.toShortString());
+                    Litematica.debugLog("entityCache: be at pos [{}] has timed out by [{}] ms", pos.toShortString(), blockTimeout);
                     this.blockEntityCache.remove(pos);
                 }
                 else
@@ -265,7 +277,7 @@ public class EntitiesDataStorage implements IClientTickHandler
 
                 if (nowTime - pair.getLeft() > entityTimeout || pair.getLeft() - nowTime > 0)
                 {
-                    Litematica.debugLog("entityCache: entity Id [{}] has timed out", entityId);
+                    Litematica.debugLog("entityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
                     this.entityCache.remove(entityId);
                 }
                 else
