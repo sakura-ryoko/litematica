@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Jeśli włączone, zmniejsza dystans zasięgu z +1,0 do wartości\nVanilla, aby serwery nie odrzucały umieszczania odległych bloków o długości\n.",
     "litematica.config.generic.comment.entityDataSync": "Użyj protokołu synchronizacji danych encji z Servux\naby uzyskać dane encji z serwera",
     "litematica.config.generic.comment.entityDataSyncBackup": "Użyj metody Vanilla NBT Query, gdy Servux\nnie jest dostępny. Ta metoda wymaga uprawnień operatora.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Wartość limitu czasu pamięci podręcznej w sekundach, przez którą pamięć podręczna encji przechowuje rekordy,\n.\nNiższa wartość oznacza częstsze aktualizacje, ale\nmożesz rozważyć wyższą wartość, jeśli\nTwoja litematyka nie zapisze wszystkich danych NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Załaduj zsynchronizowane dane NBT do Client World.\n§6OSTRZEŻENIE! Ta funkcja spowoduje niezgodność\n§6z innymi modami, które polegają na tych danych.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Wymagaj trzymania aktywnego elementu narzędzia\naby skrót klawiszowy do wykonania operacji",
     "litematica.config.generic.comment.fixChestMirror": "Włącz naprawę uszkodzonego lustrzanego kodu klatki piersiowej w wanilii",
