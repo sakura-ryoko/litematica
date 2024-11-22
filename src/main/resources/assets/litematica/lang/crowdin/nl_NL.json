@@ -35,7 +35,7 @@
     "litematica.config.generic.name.easyPlaceVanillaReach": "easyPlaceVanillaReach",
     "litematica.config.generic.name.entityDataSync": "entityDataSync",
     "litematica.config.generic.name.entityDataSyncBackup": "entityDataSyncBackup",
-    "litematica.config.generic.name.entityDataSyncCacheTimeout": "entityDataSyncCacheTimeout",
+    "litematica.config.generic.name.entityDataSyncCacheTimeout": "entiteitDataSyncCacheTimeout",
     "litematica.config.generic.name.entityDataSyncLoadNbt": "entityDataSyncLoadNbt",
     "litematica.config.generic.name.executeRequireHoldingTool": "executeRequireHoldingTool",
     "litematica.config.generic.name.fixChestMirror": "fixChestMirror",
