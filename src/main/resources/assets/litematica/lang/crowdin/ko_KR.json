@@ -35,7 +35,7 @@
     "litematica.config.generic.name.easyPlaceVanillaReach": "easyPlace바닐라리치",
     "litematica.config.generic.name.entityDataSync": "엔티티데이터동기화",
     "litematica.config.generic.name.entityDataSyncBackup": "엔티티데이터동기화백업",
-    "litematica.config.generic.name.entityDataSyncCacheTimeout": "entityDataSyncCacheTimeout",
+    "litematica.config.generic.name.entityDataSyncCacheTimeout": "엔티티데이터동기화캐시타임아웃",
     "litematica.config.generic.name.entityDataSyncLoadNbt": "엔티티데이터동기화로드Nbt",
     "litematica.config.generic.name.executeRequireHoldingTool": "실행필수홀딩도구",
     "litematica.config.generic.name.fixChestMirror": "fixChestMirror",
