@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Dacă este activată, reduce distanța de la +1.0 la valoarea\nVanilla astfel încât serverele să nu respingă plasamentul de blocuri de la\n.",
     "litematica.config.generic.comment.entityDataSync": "Utilizați protocolul de sincronizare a datelor de entitate de la Servux\npentru a obține date de entitate de la server",
     "litematica.config.generic.comment.entityDataSyncBackup": "Utilizaţi metoda de interogare NBT Vanilla atunci când Servux\nnu este disponibil. Această metodă necesită privilegii de operator.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Valoarea de expirare a memoriei cache în secunde pentru care\ncache-ul entității păstrează înregistrări.\nO valoare mai mică înseamnă actualizări mai frecvente, dar\npoate doriți să luați în considerare o valoare mai mare dacă\nnu reușesc să salveze cu toate datele NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Incarca datele NBT sincronizate in Lumea Clientului.\n§6ATENTIE! Aceasta caracteristica va cauza incompatibilitate\n§6cu alte moduri care se bazeaza pe aceste date.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Necesită deținerea unui element\npentru ca executeOperation hotkey să funcționeze",
     "litematica.config.generic.comment.fixChestMirror": "Activează o reparație la codul stricat de oglindă în piept din vanilie",
