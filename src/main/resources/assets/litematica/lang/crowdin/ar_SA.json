@@ -35,7 +35,7 @@
     "litematica.config.generic.name.easyPlaceVanillaReach": "ايزي بليس فانيلا ريتش",
     "litematica.config.generic.name.entityDataSync": "كيان DataSync",
     "litematica.config.generic.name.entityDataSyncBackup": "كيان DataSyncBackup",
-    "litematica.config.generic.name.entityDataSyncCacheTimeout": "entityDataSyncCacheTimeout",
+    "litematica.config.generic.name.entityDataSyncCacheTimeout": "مهلة تخزين بيانات مزامنة الكيان",
     "litematica.config.generic.name.entityDataSyncLoadNbt": "كيان DataSyncLoadNbt",
     "litematica.config.generic.name.executeRequireHoldingTool": "أداة التنفيذ",
     "litematica.config.generic.name.fixChestMirror": "إصلاح مرآة الصدر",
