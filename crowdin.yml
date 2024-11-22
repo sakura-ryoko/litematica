@@ -1,3 +1,3 @@
 files:
-  - source: /src/main/resources/assets/litematica/lang/*.json
+  - source: /src/main/resources/assets/litematica/lang/en_us.json
     translation: /src/main/resources/assets/litematica/lang/crowdin/%locale_with_underscore%.json
