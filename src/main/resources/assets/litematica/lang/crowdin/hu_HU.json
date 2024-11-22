@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Ha engedélyezve van, az elérési távolságot +1,0-ról\nVanilla értékre csökkenti, így a szerverek nem utasítják el\ntávoli blokkok elhelyezését.",
     "litematica.config.generic.comment.entityDataSync": "Használja a Servux\nEntity Data Sync protokollját az entitásadatok beszerzéséhez a szerverről",
     "litematica.config.generic.comment.entityDataSyncBackup": "Használja a Vanilla NBT Query módszert, ha a Servux\nnem érhető el. Ez a módszer operátori jogosultságokat igényel.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "A gyorsítótár időtúllépési értéke másodpercben, amelyre\naz entitásgyorsítótár rögzíti.\nAz alacsonyabb érték gyakoribb frissítéseket jelent, de\nérdemes megfontolni egy magasabb értéket, ha\na litematika nem menti az összes NBT adatot.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Töltse be a szinkronizált NBT-adatokat az ügyfélvilágba.\n6. § FIGYELEM! Ez a funkció inkompatibilitást okoz\n§6 más olyan modokkal, amelyek ezekre az adatokra támaszkodnak.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Az executeOperation gyorsbillentyű működéséhez meg kell tartania egy engedélyezett eszközelemet\n",
     "litematica.config.generic.comment.fixChestMirror": "Engedélyezze a törött mellkasi tükör kódjának javítását",
