@@ -35,7 +35,7 @@
     "litematica.config.generic.name.easyPlaceVanillaReach": "easyPlaceVanillaReach",
     "litematica.config.generic.name.entityDataSync": "實體資料同步",
     "litematica.config.generic.name.entityDataSyncBackup": "實體資料同步備份",
-    "litematica.config.generic.name.entityDataSyncCacheTimeout": "entityDataSyncCacheTimeout",
+    "litematica.config.generic.name.entityDataSyncCacheTimeout": "實體資料同步快取逾時",
     "litematica.config.generic.name.entityDataSyncLoadNbt": "實體資料同步載入Nbt",
     "litematica.config.generic.name.executeRequireHoldingTool": "執行需要持有工具",
     "litematica.config.generic.name.fixChestMirror": "固定胸鏡",
