@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Wenn aktiviert, wird die Reichweitendistanz von +1,0 auf den Vanilla-Wert\nreduziert, sodass Server die Platzierung von\nweit entfernten Blöcken nicht ablehnen.",
     "litematica.config.generic.comment.entityDataSync": "Verwenden Sie das Entity Data Sync-Protokoll von Servux\n, um Entity-Daten vom Server abzurufen",
     "litematica.config.generic.comment.entityDataSyncBackup": "Verwenden Sie die Vanilla NBT-Abfragemethode, wenn Servux\nnicht verfügbar ist. Diese Methode erfordert Operatorberechtigungen.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Der Cache-Timeout-Wert in Sekunden, für den\nder Entity Cache Aufzeichnungen speichert.\nEin niedrigerer Wert bedeutet häufigere Aktualisierungen, aber\nSie sollten möglicherweise einen höheren Wert in Betracht ziehen, wenn\nIhre Litematics nicht mit allen NBT-Daten gespeichert werden können.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Laden Sie die synchronisierten NBT-Daten in die Client-Welt.\n§6WARNUNG! Diese Funktion führt zu Inkompatibilität\n§6mit anderen Mods, die auf diese Daten angewiesen sind.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Erfordert das Halten eines aktivierten Werkzeugelements\nfür die Ausführung des Hotkeys",
     "litematica.config.generic.comment.fixChestMirror": "Aktivieren Sie eine Korrektur für den defekten Truhenspiegelcode in Vanilla",
