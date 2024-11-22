@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Se habilitado, reduz a distância de alcance de +1.0 para o valor de\nVanilla para que os servidores não rejeitem o posicionamento de\nblocos distantes.",
     "litematica.config.generic.comment.entityDataSync": "Use o protocolo de sincronização de dados de entidade do Servux\npara obter dados de entidade a partir do servidor",
     "litematica.config.generic.comment.entityDataSyncBackup": "Use o método de consulta NBT Vanilla quando o Servux\nnão estiver disponível. Este método requer privilégios de operador.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "O valor do tempo limite do cache em segundos que\no cache de entidade mantém registros.\nUm valor menor significa atualizações mais frequentes, mas\nvocê pode considerar um valor maior se\nseu litematics não conseguir salvar todos os dados NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Carregar os dados do NBT sincronizados no Mundo do Cliente.\n§6AVISO! Este recurso causará incompatibilidade\n§6com outros mods que dependem destes dados.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Requer segurar um item de ferramenta\npara a tecla de operações de execução funcionar",
     "litematica.config.generic.comment.fixChestMirror": "Ativar uma correção para o código do espelho do baú quebrado na vanilla",
