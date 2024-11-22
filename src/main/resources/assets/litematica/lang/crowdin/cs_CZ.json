@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Pokud je povoleno, snižuje dosah vzdálenosti od +1.0 do\nVanilla tak, aby servery neodmítly umístění\nvzdálených bloků.",
     "litematica.config.generic.comment.entityDataSync": "Použijte protokol pro synchronizaci dat subjektu od Servux\nk získání dat entity ze serveru",
     "litematica.config.generic.comment.entityDataSyncBackup": "Použijte Vanilla NBT metodu dotazu, pokud Servux\nnení k dispozici. Tato metoda vyžaduje práva operátora.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Hodnota časového limitu mezipaměti v sekundách, po kterou\nmezipaměť entity uchovává záznamy.\nNižší hodnota znamená častější aktualizace, ale\nmožná budete chtít zvážit vyšší hodnotu, pokud\nvaši literaturu neuloží se všemi daty NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Nahrajte synchronizovaná NBT data do Klientského světa.\n§6VAROVÁNÍ! Tato funkce způsobí nekompatibilitu\n§6s ostatními mody, které spoléhají na tato data.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Vyžaduje držení povolené položky\nnástroje pro instalaci hotkey",
     "litematica.config.generic.comment.fixChestMirror": "Povolit opravu kódu zlomeného zrcadla truhly ve vanille",
