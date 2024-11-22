@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Jos käytössä, vähennä etäisyyttä etäisyydestä +1.0\nVanilla-arvoon, joten palvelimet eivät hylkää\n-lohkojen sijoittamista.",
     "litematica.config.generic.comment.entityDataSync": "Käytä Entity Data Sync -protokollaa Servux\nhankkiaksesi Entity Dataa palvelimelta",
     "litematica.config.generic.comment.entityDataSyncBackup": "Käytä Vanilla NBT Query -menetelmää, kun Servux\nei ole käytettävissä. Tämä menetelmä vaatii Privileges.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Välimuistin aikakatkaisun arvo sekunteina, joista\nentiteettivälimuisti säilyttää tiedot.\nPienempi arvo tarkoittaa useammin päivityksiä, mutta\nkannattaa harkita suurempaa arvoa, jos\nlitematiikkasi ei tallenna kaikkien NBT-tietojen kanssa.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Lataa synkronoidut NBT-tiedot Client Worldiin.\n§6VAROITUS! Tämä ominaisuus aiheuttaa yhteensopimattomuuden\n§6muiden modien kanssa, jotka luottavat näihin tietoihin.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Vaatii, että sinulla on käytössä työkalukohde\n, jolla executeOperation pikanäppäin toimii",
     "litematica.config.generic.comment.fixChestMirror": "Ota käyttöön rikkinäisen rintapeilin korjaus vaniljassa",
