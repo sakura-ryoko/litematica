@@ -983,6 +983,10 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                                                 World world, MinecraftClient mc,
                                                 @Nonnull DynamicRegistryManager registryManager)
     {
+        if (mc.player == null || mc.interactionManager == null)
+        {
+            return false;
+        }
         ItemStack stack = state.getBlock().getPickStack(world, pos, state);
 
         if (stack.isEmpty() == false)

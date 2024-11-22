@@ -24,7 +24,7 @@ public enum ButtonIcons implements IGuiIcon
     private final int w;
     private final int h;
 
-    private ButtonIcons(int u, int v, int w, int h)
+    ButtonIcons(int u, int v, int w, int h)
     {
         this.u = u;
         this.v = v;

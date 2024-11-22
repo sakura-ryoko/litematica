@@ -217,12 +217,12 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     private long getCacheTimeout()
     {
-        return (long) (MathHelper.clamp(Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getDoubleValue(), 0.25f, 30.0f) * 1000L);
+        return (long) (MathHelper.clamp(Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue(), 0.25f, 30.0f) * 1000L);
     }
 
     private long getCacheTimeoutLong()
     {
-        return (long) (MathHelper.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getDoubleValue() * this.longCacheTimeout), 120.0f, 300.0f) * 1000L);
+        return (long) (MathHelper.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * this.longCacheTimeout), 120.0f, 300.0f) * 1000L);
     }
 
     private void tickCache()

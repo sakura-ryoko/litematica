@@ -583,6 +583,10 @@ public class OverlayRenderer
         World worldClient = WorldUtils.getBestWorld(mc);
         BlockPos pos = traceWrapper.getBlockHitResult().getBlockPos();
 
+        if (mc.world == null || worldClient == null || worldSchematic == null)
+        {
+            return;
+        }
         BlockState stateClient = mc.world.getBlockState(pos);
         BlockState stateSchematic = worldSchematic.getBlockState(pos);
         boolean hasInvClient = InventoryUtils.getTargetInventory(worldClient, pos) != null;
