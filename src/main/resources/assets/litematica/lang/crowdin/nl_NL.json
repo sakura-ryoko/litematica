@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Indien ingeschakeld, vermindert de bereik afstand van +1.0 tot de\nVanilla waarde zodat servers de plaatsing van\nverreweg blokken niet afwijzen.",
     "litematica.config.generic.comment.entityDataSync": "Gebruik het Entity Data Sync protocol van Servux\nom Entiteit gegevens te verkrijgen van de server",
     "litematica.config.generic.comment.entityDataSyncBackup": "Gebruik de Vanilla NBT Query methode wanneer Servux\nniet beschikbaar is. Deze methode vereist Operator Privileges.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "De cache time-out waarde in seconden waar\nde Entity Cache records voor bijhoudt.\nEen lagere waarde betekent meer frequente updates, maar\nwilt u misschien een hogere waarde in overweging nemen als\nje litematics niet opslaan met alle NBT-gegevens.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Laad de gesynchroniseerde NBT-data in de client wereld.\n§6WAARSCHUWING! Deze functie zal leiden tot incompatibiliteit\n§6met andere mods die afhankelijk zijn van deze gegevens.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Vereis het vasthouden van een ingeschakeld tool item\nvoor de executeOperatie sneltoets om te werken",
     "litematica.config.generic.comment.fixChestMirror": "Schakel een correctie in voor de gebroken borstspiegel code in vanilla",
