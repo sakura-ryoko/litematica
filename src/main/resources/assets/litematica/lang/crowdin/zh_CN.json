@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "如果启用，将距离从+1.0 降低到\n原版数值，因此服务器不会拒绝放置\n远区块。",
     "litematica.config.generic.comment.entityDataSync": "使用 Servux\n的实体数据同步协议从服务器获取实体数据",
     "litematica.config.generic.comment.entityDataSyncBackup": "当Servux\n不可用时使用Vanilla NBT 查询方法。此方法需要操作员权限。",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "实体缓存保留记录的缓存超时值（以秒为单位）。\n\n较低的值意味着更新更频繁，但\n\n如果您的 litematics 无法保存所有 NBT 数据，您可能需要考虑更高的值。",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "将同步的 NBT 数据加载到客户端世界。\n§6警告！此功能将导致与依赖此数据的其它模组不兼容\n§6。",
     "litematica.config.generic.comment.executeRequireHoldingTool": "需要持有启用的工具项\n才能正常运行",
     "litematica.config.generic.comment.fixChestMirror": "在原版中启用破损的宝箱镜像代码的修复",

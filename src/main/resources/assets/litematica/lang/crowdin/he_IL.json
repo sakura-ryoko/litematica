@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "אם מופעל, מקטין את מרחק טווח הגעה מ-+1.0 לערך הוניל\nכך שהשרתים לא ידחו מיקום של\nבלוקים רחוקים.",
     "litematica.config.generic.comment.entityDataSync": "השתמש בפרוטוקול Entity Data Sync מ-Serux\nכדי לקבל נתוני ישות מהשרת",
     "litematica.config.generic.comment.entityDataSyncBackup": "השתמש בשיטת Vanilla NBT Query כאשר Servux\nאינו זמין. שיטה זו דורשת הרשאות מפעיל.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "ערך פסק זמן המטמון בשניות זה\nמטמון הישות שומר תיעוד עבור.\nערך נמוך יותר פירושו עדכונים תכופים יותר, אבל\nאולי תרצה לשקול ערך גבוה יותר אם\nהלייטמטיקה שלך לא מצליחה לשמור עם כל נתוני ה-NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "טען את נתוני ה-NBT המסונכרנים לעולם הלקוחות.\n§6אזהרה! תכונה זו תגרום לחוסר תאימות\n§6 עם אופנים אחרים המסתמכים על נתונים אלה.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "דרוש החזקת פריט כלי מאופשר\nכדי שמקש הקיצור executeOperation יפעל",
     "litematica.config.generic.comment.fixChestMirror": "אפשר תיקון לקוד מראה החזה השבור בוניל",

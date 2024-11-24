@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "إذا تم تمكينه، فإنه يقلل مسافة الوصول من +1.0 إلى قيمة Vanilla\nحتى لا ترفض الخوادم وضع الكتل البعيدة\n.",
     "litematica.config.generic.comment.entityDataSync": "استخدم بروتوكول Entity Data Sync من Servux\nللحصول على بيانات الكيان من الخادم",
     "litematica.config.generic.comment.entityDataSyncBackup": "استخدم طريقة Vanilla NBT Query عندما لا يكون Servux\nمتاحًا. تتطلب هذه الطريقة امتيازات المشغل.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "قيمة مهلة التخزين المؤقت بالثواني التي يحتفظ بها ذاكرة التخزين المؤقت للكيان بالسجلات.\nالقيمة المنخفضة تعني تحديثات أكثر تكرارًا، ولكن\nقد ترغب في التفكير في قيمة أعلى إذا\nفشلت أدواتك في حفظ كل بيانات NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "قم بتحميل بيانات NBT المتزامنة إلى عالم العميل.\n§6تحذير! ستتسبب هذه الميزة في عدم التوافق\n§6مع التعديلات الأخرى التي تعتمد على هذه البيانات.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "يتطلب الاحتفاظ بعنصر أداة مفعل\nمن أجل تنفيذ عملية المفتاح الساخن للعمل",
     "litematica.config.generic.comment.fixChestMirror": "تمكين إصلاح رمز مرآة الصندوق المكسورة في الإصدار الأصلي",

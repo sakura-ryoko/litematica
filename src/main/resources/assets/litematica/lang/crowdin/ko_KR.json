@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "이 기능을 활성화하면 도달 거리가 +1.0에서\n바닐라 값으로 줄어들어 서버가\n먼 블록의 배치를 거부하지 않습니다.",
     "litematica.config.generic.comment.entityDataSync": "Servux\n의 엔티티 데이터 동기화 프로토콜을 사용하여 서버에서 엔티티 데이터를 가져옵니다.",
     "litematica.config.generic.comment.entityDataSyncBackup": "Servux\n를 사용할 수 없는 경우 Vanilla NBT Query 방법을 사용합니다. 이 방법에는 Operator 권한이 필요합니다.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Entity Cache가 레코드를 보관하는 초 단위의 캐시 시간 초과 값입니다.\n값이 낮을수록 업데이트 빈도가 높아지지만\nLitematics가 모든 NBT 데이터를 저장하지 못하는 경우 더 높은 값을 고려할 수 있습니다.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "동기화된 NBT 데이터를 클라이언트 월드에 로드합니다.\n§6경고! 이 기능은 이 데이터에 의존하는 다른 모드와 호환되지 않습니다.\n§6",
     "litematica.config.generic.comment.executeRequireHoldingTool": "executeOperation 단축키를 작동하려면 활성화된 도구 항목\n을 누르고 있어야 합니다.",
     "litematica.config.generic.comment.fixChestMirror": "바닐라에서 깨진 상자 거울 코드를 수정하는 기능을 활성화합니다.",
