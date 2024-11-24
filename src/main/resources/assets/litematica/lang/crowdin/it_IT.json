@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "Se abilitata, riduce la distanza di portata da +1.0 al valore\nVanilla, quindi i server non rifiutano il posizionamento di blocchi\n.",
     "litematica.config.generic.comment.entityDataSync": "Utilizzare il protocollo Entity Data Sync da Servux\nper ottenere Dati Entità dal server",
     "litematica.config.generic.comment.entityDataSyncBackup": "Usa il metodo Vanilla NBT Query quando Servux\nnon è disponibile. Questo metodo richiede privilegi operatori.",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "Il valore di timeout della cache in secondi per cui\nla Cache dell'Entità conserva i record.\nUn valore inferiore significa aggiornamenti più frequenti, ma\npotresti voler considerare un valore più alto se\nle tue litematiche non riescono a salvare con tutti i dati NBT.",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "Carica i dati NBT sincronizzati nel Client World.\n§6ATTENZIONE! Questa funzione causerà incompatibilità\n§6con altre mod che si basano su questi dati.",
     "litematica.config.generic.comment.executeRequireHoldingTool": "Richiede di tenere premuto un elemento\ndello strumento abilitato affinché il tasto di scelta rapida EseguiOperazione funzioni",
     "litematica.config.generic.comment.fixChestMirror": "Abilita una correzione al codice del mirror toracico rotto in vaniglia",

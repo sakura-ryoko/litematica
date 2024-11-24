@@ -252,7 +252,7 @@
     "litematica.config.generic.comment.easyPlaceVanillaReach": "如果啟用，則將到達距離從 +1.0 減少到\n普通值，這樣伺服器就不會拒絕放置\n遠塊。",
     "litematica.config.generic.comment.entityDataSync": "使用 Servux\n的實體資料同步協定從伺服器取得實體數據",
     "litematica.config.generic.comment.entityDataSyncBackup": "當 Servux\n不可用時，使用 Vanilla NBT 查詢方法。此方法需要操作員權限。",
-    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "The Cache timeout value in seconds that\nthe Entity Cache keeps records for.\nA lower value means more frequent updates, but\nyou may want to consider a higher value if\nyour litematics fail to save with all of the NBT data.",
+    "litematica.config.generic.comment.entityDataSyncCacheTimeout": "快取逾時值（以秒為單位）\n實體快取保存記錄。\n值越低意味著更新越頻繁，但是\n如果您可能需要考慮更高的值\n您的語言無法保存所有 NBT 資料。",
     "litematica.config.generic.comment.entityDataSyncLoadNbt": "將同步的NBT資料載入到客戶端世界。\n§6警告！此功能將導致\n§6 與依賴此資料的其他 mod 不相容。",
     "litematica.config.generic.comment.executeRequireHoldingTool": "需要持有啟用的工具項\n使executeOperation熱鍵起作用",
     "litematica.config.generic.comment.fixChestMirror": "修復原版中損壞的胸部鏡子程式碼",
