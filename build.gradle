@@ -2,8 +2,8 @@ plugins {
 	id 'fabric-loom' version '1.8-SNAPSHOT'
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+//sourceCompatibility = JavaVersion.VERSION_21
+//targetCompatibility = JavaVersion.VERSION_21
 
 repositories {
 	maven { url 'https://masa.dy.fi/maven' }
@@ -18,7 +18,7 @@ dependencies {
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
 
 	//modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
-	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_id}"
+	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	//modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"

@@ -211,9 +211,9 @@ public class BlockModelRendererSchematic
         float g;
         float b;
 
-        if (quad.hasColor())
+        if (quad.hasTint())
         {
-            int color = this.colorMap.getColor(state, world, pos, quad.getColorIndex());
+            int color = this.colorMap.getColor(state, world, pos, quad.getTintIndex());
             r = (float) (color >> 16 & 0xFF) / 255.0F;
             g = (float) (color >> 8 & 0xFF) / 255.0F;
             b = (float) (color & 0xFF) / 255.0F;
@@ -391,7 +391,7 @@ public class BlockModelRendererSchematic
             float g;
             float f;
 
-            if (quad.hasColor())
+            if (quad.hasTint())
             {
                 f = MathHelper.clamp(red, 0.0f, 1.0f);
                 g = MathHelper.clamp(green, 0.0f, 1.0f);
