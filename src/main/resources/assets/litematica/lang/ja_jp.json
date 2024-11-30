@@ -719,7 +719,7 @@
   "litematica.gui.label.schematic_projects.version_entry": "バージョン %d - %s",
   "litematica.gui.label.schematic_projects.version_name": "バージョン名:",
   "litematica.gui.label.schematic_save.checkbox.ignore_entities": "エンティティを無視",
-  "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Shiftを押して既存のファイルを上書き",
+  "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
   "litematica.gui.label.schematic_save.checkbox.save_from_schematic_world": "Save from schematic world",
   "litematica.gui.label.schematic_save.hover_info.save_from_schematic_world": "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.",
   "litematica.gui.label.schematic_save.checkbox.visible_blocks_only": "Visible blocks only [experimental quick hax]",
@@ -916,5 +916,6 @@
   "litematica.tool_mode.name.paste_schematic": "スキーマティックをワールドにペースト",
   "litematica.tool_mode.name.rebuild": "スキーマティックの編集",
   "litematica.tool_mode.name.replace_block": "ブロックを置換",
-  "litematica.tool_mode.name.schematic_placement": "スキーマティックの配置"
+  "litematica.tool_mode.name.schematic_placement": "スキーマティックの配置",
+  "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "Shiftを押して既存のファイルを上書き"
 }

@@ -788,7 +788,7 @@
     "litematica.gui.label.schematic_save.checkbox.visible_blocks_only": "Visible blocks only [experimental quick hax]",
     "litematica.gui.label.schematic_save.checkbox.support_blocks": "Support blocks",
     "litematica.gui.label.schematic_save.hover_info.support_blocks": "Include any necessary support blocks in \"Visible blocks only\" mode,\nfor things like Repeaters, Comparators, Carpets or gravity blocks that would be visible",
-
+    "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
 
     "litematica.gui.label.schematic_verifier.count": "Count",
     "litematica.gui.label.schematic_verifier.expected": "Expected",

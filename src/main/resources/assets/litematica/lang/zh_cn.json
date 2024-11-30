@@ -719,7 +719,7 @@
   "litematica.gui.label.schematic_projects.version_entry": "请参见. %d - %s",
   "litematica.gui.label.schematic_projects.version_name": "版本名:",
   "litematica.gui.label.schematic_save.checkbox.ignore_entities": "忽略实体",
-  "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "按住shift覆盖现有文件",
+  "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
   "litematica.gui.label.schematic_save.checkbox.save_from_schematic_world": "Save from schematic world",
   "litematica.gui.label.schematic_save.hover_info.save_from_schematic_world": "If enabled, then the schematic is created by saving the\ncontents of the selection from the schematic world\ninstead of the normal vanilla world.\nThis allows you to combine or trim schematics without having\nto paste them to a temporary creative world.",
   "litematica.gui.label.schematic_save.checkbox.visible_blocks_only": "Visible blocks only [experimental quick hax]",
@@ -916,5 +916,6 @@
   "litematica.tool_mode.name.paste_schematic": "在世界上粘贴原理图",
   "litematica.tool_mode.name.rebuild": "重建原理",
   "litematica.tool_mode.name.replace_block": "替换方块",
-  "litematica.tool_mode.name.schematic_placement": "原理图放置"
+  "litematica.tool_mode.name.schematic_placement": "原理图放置",
+  "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "按住shift覆盖现有文件"
 }
