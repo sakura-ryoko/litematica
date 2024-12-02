@@ -46,4 +46,18 @@ public enum FileType
             return INVALID;
         }
     }
+
+    public static String getString(FileType type)
+    {
+        return switch (type)
+        {
+            case LITEMATICA_SCHEMATIC   -> "litematic";
+            case SCHEMATICA_SCHEMATIC   -> "schematic";
+            case SPONGE_SCHEMATIC       -> "sponge";
+            case VANILLA_STRUCTURE      -> "vanilla_nbt";
+            case JSON                   -> "JSON";
+            case INVALID                -> "invalid";
+            case UNKNOWN                -> "unknown";
+        };
+    }
 }

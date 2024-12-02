@@ -759,6 +759,8 @@
     "litematica.gui.label.schematic_info.total_blocks_and_volume": "Blocks/Volume: §f%d§r/§f%d§r",
     "litematica.gui.label.schematic_info.total_volume": "Total volume: §f%d§r blocks",
     "litematica.gui.label.schematic_info.version": "Litematic Version: §f%d§r",
+    "litematica.gui.label.schematic_info.sponge_version": "Sponge Version: §f%d§r",
+    "litematica.gui.label.schematic_info.vanilla_version": "Vanilla Structure",
     "litematica.gui.label.schematic_info.schema": "Minecraft: §f%s§r [Schema §f%d§r]",
 
     "litematica.gui.label.schematic_load.checkbox.create_placement": "Create a placement",
