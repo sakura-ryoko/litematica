@@ -25,6 +25,7 @@ import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.NBTUtils;
+import fi.dy.masa.malilib.util.Schema;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
@@ -683,7 +684,7 @@ public class SchematicaSchematic
         this.entities.clear();
         NbtList tagList = nbt.getList("Entities", Constants.NBT.TAG_COMPOUND);
         int minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
-        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+        Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
         if (effective != null)
         {
@@ -712,7 +713,7 @@ public class SchematicaSchematic
         this.tiles.clear();
         NbtList tagList = nbt.getList("TileEntities", Constants.NBT.TAG_COMPOUND);
         int minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
-        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+        Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
         if (effective != null)
         {

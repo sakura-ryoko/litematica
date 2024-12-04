@@ -1720,7 +1720,7 @@ public class LitematicaSchematic
             List<BlockState> list = new ArrayList<>(paletteSize);
             RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
 
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
                 Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
@@ -1868,7 +1868,7 @@ public class LitematicaSchematic
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("entities", Constants.NBT.TAG_COMPOUND);
         final int size = tagList.size();
-        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+        Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
         {
@@ -1971,7 +1971,7 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -2002,7 +2002,7 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -2033,7 +2033,7 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -2066,7 +2066,7 @@ public class LitematicaSchematic
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
