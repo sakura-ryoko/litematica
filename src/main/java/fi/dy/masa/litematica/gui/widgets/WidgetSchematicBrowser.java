@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-
-import fi.dy.masa.litematica.schematic.SchematicSchema;
-import fi.dy.masa.litematica.util.DataFixerMode;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -19,6 +16,11 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3i;
 
+import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
+import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
+import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.Schema;
+import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
@@ -26,10 +28,7 @@ import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
 import fi.dy.masa.litematica.gui.Icons;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.SchematicMetadata;
-import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
-import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.schematic.SchematicSchema;
 
 public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 {
@@ -217,11 +216,14 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                     }
                 }
 
-                DataFixerMode.Schema schema = DataFixerMode.getSchemaByVersion(version.minecraftDataVersion());
+                Schema schema = Schema.getSchemaByDataVersion(version.minecraftDataVersion());
 
-                str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), version.minecraftDataVersion());
-                this.drawString(drawContext, str, x, y, textColor);
-                y += 12;
+                if (schema != null)
+                {
+                    str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), version.minecraftDataVersion());
+                    this.drawString(drawContext, str, x, y, textColor);
+                    y += 12;
+                }
             }
 
             /*

@@ -1,12 +1,14 @@
 package fi.dy.masa.litematica.schematic;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.NBTUtils;
-import fi.dy.masa.litematica.util.DataFixerMode;
+import fi.dy.masa.malilib.util.Schema;
 import fi.dy.masa.litematica.util.FileType;
 
 public class SchematicMetadata
@@ -19,7 +21,7 @@ public class SchematicMetadata
     private long timeModified;
     protected int minecraftDataVersion;
     protected int schematicVersion;
-    protected DataFixerMode.Schema schema;
+    protected Schema schema;
     protected FileType type;
     private int regionCount;
     protected int entityCount;
@@ -105,7 +107,7 @@ public class SchematicMetadata
         return new SchematicSchema(this.schematicVersion, this.minecraftDataVersion);
     }
 
-    public DataFixerMode.Schema getSchema()
+    public Schema getSchema()
     {
         return this.schema;
     }
@@ -225,12 +227,12 @@ public class SchematicMetadata
     public void setMinecraftDataVersion(int minecraftDataVersion)
     {
         this.minecraftDataVersion = minecraftDataVersion;
-        this.schema = DataFixerMode.getSchemaByVersion(this.minecraftDataVersion);
+        this.schema = Schema.getSchemaByDataVersion(this.minecraftDataVersion);
     }
 
     public void setSchema()
     {
-        this.schema = DataFixerMode.getSchemaByVersion(this.minecraftDataVersion);
+        this.schema = Schema.getSchemaByDataVersion(this.minecraftDataVersion);
     }
 
     public void setFileType(FileType type)
@@ -253,7 +255,7 @@ public class SchematicMetadata
 
         this.schematicVersion = other.schematicVersion;
         this.minecraftDataVersion = other.minecraftDataVersion;
-        this.schema = DataFixerMode.getSchemaByVersion(other.minecraftDataVersion);
+        this.schema = Schema.getSchemaByDataVersion(other.minecraftDataVersion);
         this.type = other.getFileType();
 
         if (other.thumbnailPixelData != null)
