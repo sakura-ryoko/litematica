@@ -987,6 +987,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         {
             return false;
         }
+        
         ItemStack stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
 
         if (stack.isEmpty() == false)
