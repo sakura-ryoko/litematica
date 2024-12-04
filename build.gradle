@@ -1,5 +1,6 @@
 plugins {
-	id 'fabric-loom' version '1.8-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
+	id 'maven-publish'
 }
 
 //sourceCompatibility = JavaVersion.VERSION_21
@@ -27,7 +28,7 @@ dependencies {
 }
 
 group = project.group + "." + project.mod_id
-archivesBaseName = project.mod_file_name + '-' + project.minecraft_version_out
+base.archivesName = project.mod_file_name + '-' + project.minecraft_version_out
 version = project.mod_version
 
 if (version.endsWith('-dev')) {
@@ -63,4 +64,30 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(AbstractArchiveTask).configureEach {
 	preserveFileTimestamps = true
 	//reproducibleFileOrder = true
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${base.archivesName}"}
+	}
+}
+
+tasks.publish.dependsOn build
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			// How to introduce archivesName here without it breaking?
+			artifactId base.archivesName.get()
+
+			// add all the jars that should be included when publishing to maven
+			//artifact(jar)             { builtBy remapJar }
+			from components.java
+		}
+	}
+
+	repositories {
+		maven {
+			url "$projectDir/../../CommonMaven"
+		}
+	}
 }
