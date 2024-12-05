@@ -341,6 +341,11 @@ public class InventoryUtils
 
             InventoryOverlay.Context ctx = getTargetInventoryFromBlock(world, pos, be, nbt);
 
+            if (world instanceof WorldSchematic)
+            {
+                return ctx;
+            }
+
             if (lastBlockEntityContext != null && !lastBlockEntityContext.getLeft().equals(pos))
             {
                 lastBlockEntityContext = null;

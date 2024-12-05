@@ -17,22 +17,28 @@ public class BufferBuilderCache implements AutoCloseable
 
     protected boolean hasBufferByLayer(RenderLayer layer)
     {
-        return blockBufferBuilders.containsKey(layer);
+        return this.blockBufferBuilders.containsKey(layer);
     }
 
     protected boolean hasBufferByOverlay(OverlayRenderType type)
     {
-        return overlayBufferBuilders.containsKey(type);
+        return this.overlayBufferBuilders.containsKey(type);
     }
 
     protected BufferBuilder getBufferByLayer(RenderLayer layer, @Nonnull BufferAllocatorCache allocators)
     {
-        return blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.getDrawMode(), key.getVertexFormat()));
+        synchronized (this.blockBufferBuilders)
+        {
+            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.getDrawMode(), key.getVertexFormat()));
+        }
     }
 
     protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
-        return overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
+        synchronized (this.overlayBufferBuilders)
+        {
+            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
+        }
     }
 
     protected void clearAll()

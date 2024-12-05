@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import javax.annotation.Nullable;
 import java.util.BitSet;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -194,7 +193,7 @@ public class BlockModelRendererSchematic
     }
 
     private void renderQuadsSmooth(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack,
-                                     VertexConsumer vertexConsumer, List<BakedQuad> list, float[] box, BitSet flags, AmbientOcclusionCalculator ambientOcclusionCalculator, int overlay)
+                                     VertexConsumer vertexConsumer, List<BakedQuad> list, float[] box, BitSet flags, AOProcessor ambientOcclusionCalculator, int overlay)
     {
         final int size = list.size();
 

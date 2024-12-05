@@ -84,6 +84,7 @@ public class WorldRendererSchematic
 
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
+        this.blockModelRenderer.setBakedManager(mc.getBakedModelManager());
     }
 
     public void markNeedsUpdate()
@@ -640,8 +641,14 @@ public class WorldRendererSchematic
             }
             else
             {
-                return renderType == BlockRenderType.MODEL &&
+                boolean result;
+
+                BlockModelRendererSchematic.enableCache();
+                result = renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
+                BlockModelRendererSchematic.disableCache();
+
+                return result;
             }
         }
         catch (Throwable throwable)

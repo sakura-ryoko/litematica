@@ -28,7 +28,10 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.layerCache.get(layer).close();
             }
 
-            this.layerCache.put(layer, new BufferAllocator(layer.getExpectedBufferSize()));
+            synchronized (this.layerCache)
+            {
+                this.layerCache.put(layer, new BufferAllocator(layer.getExpectedBufferSize()));
+            }
         }
         for (OverlayRenderType type : TYPES)
         {
@@ -37,7 +40,10 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.overlayCache.get(type).close();
             }
 
-            this.overlayCache.put(type, new BufferAllocator(type.getExpectedBufferSize()));
+            synchronized (this.overlayCache)
+            {
+                this.overlayCache.put(type, new BufferAllocator(type.getExpectedBufferSize()));
+            }
         }
     }
 
@@ -53,19 +59,28 @@ public class BufferAllocatorCache implements AutoCloseable
 
     protected BufferAllocator getBufferByLayer(RenderLayer layer)
     {
-        return this.layerCache.computeIfAbsent(layer, l -> new BufferAllocator(l.getExpectedBufferSize()));
+        synchronized (this.layerCache)
+        {
+            return this.layerCache.computeIfAbsent(layer, l -> new BufferAllocator(l.getExpectedBufferSize()));
+        }
     }
 
     protected BufferAllocator getBufferByOverlay(OverlayRenderType type)
     {
-        return this.overlayCache.computeIfAbsent(type, t -> new BufferAllocator(t.getExpectedBufferSize()));
+        synchronized (this.overlayCache)
+        {
+            return this.overlayCache.computeIfAbsent(type, t -> new BufferAllocator(t.getExpectedBufferSize()));
+        }
     }
 
     protected void closeByLayer(RenderLayer layer)
     {
         try
         {
-            this.layerCache.remove(layer).close();
+            synchronized (this.layerCache)
+            {
+                this.layerCache.remove(layer).close();
+            }
         }
         catch (Exception ignored) { }
     }
@@ -74,7 +89,10 @@ public class BufferAllocatorCache implements AutoCloseable
     {
         try
         {
-            this.overlayCache.remove(type).close();
+            synchronized (this.overlayCache)
+            {
+                this.overlayCache.remove(type).close();
+            }
         }
         catch (Exception ignored) { }
     }

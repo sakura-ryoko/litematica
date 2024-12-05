@@ -1,10 +1,10 @@
 package fi.dy.masa.litematica.world;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.map.MapState;
@@ -73,7 +72,7 @@ public class WorldSchematic extends World
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer)
     {
-        super(properties, REGISTRY_KEY, !registryManager.equals(DynamicRegistryManager.EMPTY) ? registryManager : SchematicWorldHandler.INSTANCE.getRegistryManager(), dimension, supplier, false, false, 0L, 0);
+        super(properties, REGISTRY_KEY, !registryManager.equals(DynamicRegistryManager.EMPTY) ? registryManager : SchematicWorldHandler.INSTANCE.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
         this.mc = MinecraftClient.getInstance();
         if (this.mc == null || this.mc.world == null)
