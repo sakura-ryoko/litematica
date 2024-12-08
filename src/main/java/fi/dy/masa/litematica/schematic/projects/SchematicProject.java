@@ -212,7 +212,7 @@ public class SchematicProject
                 this.removeCurrentPlacement();
 
                 String fileName = version.getFileName();
-                FileType fileType = FileType.fromFile(new File(this.directory, fileName));
+                FileType fileType = FileType.fromName(fileName);
 
                 if (fileType == FileType.UNKNOWN)
                 {
@@ -428,8 +428,8 @@ public class SchematicProject
 
         while (failsafe-- > 0)
         {
-            String name = nameBase + String.format("%05d", version);
-            File file = new File(this.directory, name + LitematicaSchematic.FILE_EXTENSION);
+            String name = nameBase + String.format("%05d", version) + LitematicaSchematic.FILE_EXTENSION;
+            File file = new File(this.directory, name);
 
             if (file.exists() == false)
             {
