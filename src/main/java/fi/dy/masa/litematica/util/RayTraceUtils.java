@@ -1103,7 +1103,7 @@ public class RayTraceUtils
         }
 
         EntityHitResult entityTrace = (EntityHitResult) traceVanilla;
-        final double closestVanilla = MathUtils.squareDistanceTo(entityTrace.getPos(), eyesPos);
+        final double closestVanilla = squareDistanceTo(entityTrace.getPos(), eyesPos);
 
         BlockPos closestVanillaPos = entityTrace.getEntity().getBlockPos();
         World worldSchematic = SchematicWorldHandler.getSchematicWorld();
@@ -1119,7 +1119,7 @@ public class RayTraceUtils
             for (BlockHitResult trace : list)
             {
                 //double dist = trace.pos.squareDistanceTo(eyesPos);
-                double dist = MathUtils.squareDistanceTo(trace.getPos(), eyesPos);
+                double dist = squareDistanceTo(trace.getPos(), eyesPos);
                 BlockPos pos = trace.getBlockPos();
 
                 // Comparing with >= instead of > fixes the case where the player's head is inside the first schematic block,
@@ -1209,5 +1209,16 @@ public class RayTraceUtils
         }
 
         return hits;
+    }
+
+    // Copied from MathUtils
+    public static double squareDistanceTo(Vec3d i, Vec3d v)
+    {
+        return squareDistanceTo(i, v.x, v.y, v.z);
+    }
+
+    public static double squareDistanceTo(Vec3d v, double x, double y, double z)
+    {
+        return v.x * x + v.y * y + v.z * z;
     }
 }
