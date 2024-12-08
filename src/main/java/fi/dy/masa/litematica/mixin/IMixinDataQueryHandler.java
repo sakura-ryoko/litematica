@@ -8,5 +8,5 @@ import net.minecraft.client.network.DataQueryHandler;
 public interface IMixinDataQueryHandler
 {
     @Accessor("expectedTransactionId")
-    int currentTransactionId();
+    int litematica_currentTransactionId();
 }

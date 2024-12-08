@@ -583,10 +583,14 @@ public class OverlayRenderer
         World worldClient = WorldUtils.getBestWorld(mc);
         BlockPos pos = traceWrapper.getBlockHitResult().getBlockPos();
 
+        if (mc.world == null || worldClient == null || worldSchematic == null)
+        {
+            return;
+        }
         BlockState stateClient = mc.world.getBlockState(pos);
         BlockState stateSchematic = worldSchematic.getBlockState(pos);
-        boolean hasInvClient = InventoryUtils.getInventory(worldClient, pos) != null;
-        boolean hasInvSchematic = InventoryUtils.getInventory(worldSchematic, pos) != null;
+        boolean hasInvClient = InventoryUtils.getTargetInventory(worldClient, pos) != null;
+        boolean hasInvSchematic = InventoryUtils.getTargetInventory(worldSchematic, pos) != null;
         int invHeight = 0;
         int offY = Configs.InfoOverlays.BLOCK_INFO_OVERLAY_OFFSET_Y.getIntegerValue();
         BlockInfoAlignment align = (BlockInfoAlignment) Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ALIGNMENT.getOptionListValue();
@@ -782,6 +786,6 @@ public class OverlayRenderer
         AREA_SELECTED,
         AREA_UNSELECTED,
         PLACEMENT_SELECTED,
-        PLACEMENT_UNSELECTED;
+        PLACEMENT_UNSELECTED
     }
 }

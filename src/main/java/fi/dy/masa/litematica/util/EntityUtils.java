@@ -315,24 +315,71 @@ public class EntityUtils
         }
         else
         {
-            ((IMixinEntity) entity).readCustomDataFromNbt(nbt);
+            ((IMixinEntity) entity).litematica_readCustomDataFromNbt(nbt);
         }
     }
 
     private static void readLeashableEntityCustomData(Entity entity, NbtCompound nbt)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.world == null) return;
         assert entity instanceof Leashable;
         Leashable leashable = (Leashable) entity;
-        ((IMixinEntity) entity).readCustomDataFromNbt(nbt);
+        ((IMixinEntity) entity).litematica_readCustomDataFromNbt(nbt);
         if (leashable.getLeashData() != null && leashable.getLeashData().unresolvedLeashData != null)
         {
             leashable.getLeashData().unresolvedLeashData
                     .ifLeft(uuid ->
                             // We MUST use client-side world here.
-                            leashable.attachLeash(((IMixinWorld) mc.world).getEntityLookup().get(uuid), false))
+                            leashable.attachLeash(((IMixinWorld) mc.world).litematica_getEntityLookup().get(uuid), false))
                     .ifRight(pos ->
                             leashable.attachLeash(LeashKnotEntity.getOrCreate(mc.world, pos), false));
         }
+    }
+
+    /**
+     * Post Re-Write Code
+     */
+    public static boolean PRW_setFakedSneakingState(boolean sneaking)
+    {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        PlayerEntity player = mc.player;
+
+        if (player != null && player.isSneaking() != sneaking)
+        {
+            //CPacketEntityAction.Action action = sneaking ? CPacketEntityAction.Action.START_SNEAKING : CPacketEntityAction.Action.STOP_SNEAKING;
+            //player.connection.sendPacket(new CPacketEntityAction(player, action));
+            //player.movementInput.sneak = sneaking;
+
+            player.setSneaking(sneaking);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the requested item is currently in the entity's hand such that it would be used for using/placing.
+     * This means, that it must either be in the main hand, or the main hand must be empty and the item is in the offhand.
+     * @param lenient if true, then NBT tags and also damage of damageable items are ignored
+     */
+    @Nullable
+    public static Hand PRW_getUsedHandForItem(LivingEntity entity, ItemStack stack, boolean lenient)
+    {
+        Hand hand = null;
+        //Hand tmpHand = ItemWrap.isEmpty(getMainHandItem(entity)) ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
+        //ItemStack handStack = getHeldItem(entity, tmpHand);
+        Hand tmpHand = entity.getMainHandStack().isEmpty() ? Hand.OFF_HAND : Hand.MAIN_HAND;
+        ItemStack handStack = entity.getStackInHand(tmpHand);
+
+
+        if ((lenient && fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreDurability(handStack, stack)) ||
+            (lenient == false && fi.dy.masa.malilib.util.InventoryUtils.areStacksEqual(handStack, stack)))
+        {
+            hand = tmpHand;
+        }
+
+        return hand;
     }
 }

@@ -3,7 +3,11 @@ package fi.dy.masa.litematica.util;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import com.llamalad7.mixinextras.lib.apache.commons.tuple.Pair;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,6 +19,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -22,15 +28,18 @@ import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.render.OverlayRenderer;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.world.WorldSchematic;
+import org.apache.http.annotation.Experimental;
 
 public class InventoryUtils
 {
     private static final List<Integer> PICK_BLOCKABLE_SLOTS = new ArrayList<>();
     private static int nextPickSlotIndex;
+    private static Pair<BlockPos, InventoryOverlay.Context> lastBlockEntityContext = null;
 
     public static void setPickBlockableSlots(String configStr)
     {
@@ -113,6 +122,10 @@ public class InventoryUtils
     public static void schematicWorldPickBlock(ItemStack stack, BlockPos pos,
                                                World schematicWorld, MinecraftClient mc)
     {
+        if (mc.player == null || mc.interactionManager == null || mc.world == null)
+        {
+            return;
+        }
         if (stack.isEmpty() == false)
         {
             PlayerInventory inv = mc.player.getInventory();
@@ -294,19 +307,109 @@ public class InventoryUtils
      *
      * @param world (Input ClientWorld)
      * @param pos (Pos of the Tile Entity)
-     * @return (The result Inventory | NULL if not obtainable)
+     * @return (The result InventoryOverlay.Context | NULL if not obtainable)
      */
-    @Nullable
-    public static Inventory getInventory(World world, BlockPos pos)
+    public static @Nullable InventoryOverlay.Context getTargetInventory(World world, BlockPos pos)
     {
-        Inventory inv = fi.dy.masa.malilib.util.InventoryUtils.getInventory(world, pos);
+        BlockState state = world.getBlockState(pos);
+        Block blockTmp = state.getBlock();
+        NbtCompound nbt = new NbtCompound();
+        BlockEntity be = null;
 
-        if ((inv == null || inv.isEmpty()) && DataManager.getInstance().hasIntegratedServer() == false)
+        if (blockTmp instanceof BlockEntityProvider)
         {
-            OverlayRenderer.getInstance().requestBlockEntityAt(world, pos);
+            if (world instanceof ServerWorld || world instanceof WorldSchematic)
+            {
+                be = world.getWorldChunk(pos).getBlockEntity(pos);
+
+                if (be != null)
+                {
+                    nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
+                }
+            }
+            else
+            {
+                Pair<BlockEntity, NbtCompound> pair = EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+
+                if (pair != null)
+                {
+                    nbt = pair.getRight();
+                }
+            }
+
+            //Litematica.logger.warn("getTarget():2: pos [{}], be [{}], nbt [{}]", pos.toShortString(), be != null, nbt != null);
+
+            InventoryOverlay.Context ctx = getTargetInventoryFromBlock(world, pos, be, nbt);
+
+            if (world instanceof WorldSchematic)
+            {
+                return ctx;
+            }
+
+            if (lastBlockEntityContext != null && !lastBlockEntityContext.getLeft().equals(pos))
+            {
+                lastBlockEntityContext = null;
+            }
+
+            if (ctx != null && ctx.inv() != null)
+            {
+                lastBlockEntityContext = Pair.of(pos, ctx);
+                return ctx;
+            }
+            else if (lastBlockEntityContext != null && lastBlockEntityContext.getLeft().equals(pos))
+            {
+                return lastBlockEntityContext.getRight();
+            }
         }
 
-        return inv;
+        return null;
+    }
+
+    private static @Nullable InventoryOverlay.Context getTargetInventoryFromBlock(World world, BlockPos pos, @Nullable BlockEntity be, NbtCompound nbt)
+    {
+        Inventory inv;
+
+        if (be != null)
+        {
+            if (nbt.isEmpty())
+            {
+                nbt = be.createNbtWithIdentifyingData(world.getRegistryManager());
+            }
+            inv = fi.dy.masa.malilib.util.InventoryUtils.getInventory(world, pos);
+        }
+        else
+        {
+            if (nbt.isEmpty())
+            {
+                Pair<BlockEntity, NbtCompound> pair = EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+
+                if (pair != null)
+                {
+                    nbt = pair.getRight();
+                }
+            }
+
+            inv = EntitiesDataStorage.getInstance().getBlockInventory(world, pos, false);
+        }
+
+        if (nbt != null && !nbt.isEmpty())
+        {
+            Inventory inv2 = fi.dy.masa.malilib.util.InventoryUtils.getNbtInventory(nbt, inv != null ? inv.size() : -1, world.getRegistryManager());
+
+            if (inv == null)
+            {
+                inv = inv2;
+            }
+        }
+
+        //Litematica.logger.warn("getTarget():3: pos [{}], inv [{}], be [{}], nbt [{}]", pos.toShortString(), inv != null, be != null, nbt != null ? nbt.getString("id") : new NbtCompound());
+
+        if (inv == null || nbt == null)
+        {
+            return null;
+        }
+
+        return new InventoryOverlay.Context(InventoryOverlay.getBestInventoryType(inv, nbt), inv, be != null ? be : world.getBlockEntity(pos), null, nbt);
     }
 
     /**
@@ -368,5 +471,86 @@ public class InventoryUtils
         }
 
         return result.toString();
+    }
+
+    /**
+     * Post Re-Write Code
+     * -
+     * Re-stocks more items to the stack in the player's current hotbar slot.
+     * @param threshold the number of items at or below which the re-stocking will happen
+     * @param allowHotbar whether to allow taking items from other hotbar slots
+     */
+    @Experimental
+    public static void PRW_preRestockHand(PlayerEntity player,
+                                          Hand hand,
+                                          int threshold,
+                                          boolean allowHotbar)
+    {
+        PlayerInventory container = player.getInventory();
+        final ItemStack handStack = player.getStackInHand(hand);
+        final int count = handStack.getCount();
+        final int max = handStack.getMaxCount();
+
+        if (handStack.isEmpty() == false &&
+            PRW_getCursorStack().isEmpty() &&
+            (count <= threshold && count < max))
+        {
+            int endSlot = allowHotbar ? 44 : 35;
+            int currentMainHandSlot = PRW_getSelectedHotbarSlot() + 36;
+            int currentSlot = hand == Hand.MAIN_HAND ? currentMainHandSlot : 45;
+
+            for (int slotNum = 9; slotNum <= endSlot; ++slotNum)
+            {
+                if (slotNum == currentMainHandSlot)
+                {
+                    continue;
+                }
+
+                MinecraftClient mc = MinecraftClient.getInstance();
+                ScreenHandler handler = player.playerScreenHandler;
+
+                Slot slot = handler.slots.get(slotNum);
+                ItemStack stackSlot = container.getStack(slotNum);
+
+                if (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreDurability(stackSlot, handStack))
+                {
+                    // If all the items from the found slot can fit into the current
+                    // stack in hand, then left click, otherwise right click to split the stack
+                    int button = stackSlot.getCount() + count <= max ? 0 : 1;
+
+                    //clickSlot(container, slot, button, ClickType.PICKUP);
+                    //clickSlot(container, currentSlot, 0, ClickType.PICKUP);
+
+                    mc.interactionManager.clickSlot(handler.syncId, slot.id, button, SlotActionType.PICKUP, player);
+                    mc.interactionManager.clickSlot(handler.syncId, currentSlot, 0, SlotActionType.PICKUP, player);
+
+                    break;
+                }
+            }
+        }
+    }
+
+    @Experimental
+    public static ItemStack PRW_getCursorStack()
+    {
+        PlayerEntity player = MinecraftClient.getInstance().player;
+        if (player == null)
+        {
+            return ItemStack.EMPTY;
+        }
+        PlayerInventory inv = player.getInventory();
+        return inv != null ? inv.getMainHandStack() : ItemStack.EMPTY;
+    }
+
+    @Experimental
+    public static int PRW_getSelectedHotbarSlot()
+    {
+        PlayerEntity player = MinecraftClient.getInstance().player;
+        if (player == null)
+        {
+            return 0;
+        }
+        PlayerInventory inv = player.getInventory();
+        return inv != null ? inv.selectedSlot : 0;
     }
 }

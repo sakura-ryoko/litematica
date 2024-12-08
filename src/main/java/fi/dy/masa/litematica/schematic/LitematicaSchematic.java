@@ -40,6 +40,7 @@ import fi.dy.masa.malilib.interfaces.IStringConsumer;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.mixin.IMixinWorldTickScheduler;
 import fi.dy.masa.litematica.schematic.container.ILitematicaBlockStatePalette;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
@@ -209,6 +210,9 @@ public class LitematicaSchematic
         schematic.metadata.setTotalVolume(PositionUtils.getTotalVolume(boxes));
         schematic.metadata.setEnclosingSize(PositionUtils.getEnclosingAreaSize(boxes));
         schematic.metadata.setTotalBlocks(schematic.totalBlocksReadFromWorld);
+        schematic.metadata.setSchematicVersion(SCHEMATIC_VERSION);
+        schematic.metadata.setMinecraftDataVersion(MINECRAFT_DATA_VERSION);
+        schematic.metadata.setFileType(FileType.LITEMATICA_SCHEMATIC);
 
         return schematic;
     }
@@ -238,6 +242,9 @@ public class LitematicaSchematic
         schematic.metadata.setRegionCount(boxes.size());
         schematic.metadata.setTotalVolume(PositionUtils.getTotalVolume(boxes));
         schematic.metadata.setEnclosingSize(PositionUtils.getEnclosingAreaSize(boxes));
+        schematic.metadata.setSchematicVersion(SCHEMATIC_VERSION);
+        schematic.metadata.setMinecraftDataVersion(MINECRAFT_DATA_VERSION);
+        schematic.metadata.setFileType(FileType.LITEMATICA_SCHEMATIC);
 
         for (Box box : boxes)
         {
@@ -284,6 +291,9 @@ public class LitematicaSchematic
         newSchematic.metadata.setTotalVolume(existing.getMetadata().getTotalVolume());
         newSchematic.metadata.setTotalBlocks(existing.getMetadata().getTotalBlocks());
         newSchematic.metadata.setEnclosingSize(existing.getMetadata().getEnclosingSize());
+        newSchematic.metadata.setSchematicVersion(existing.getMetadata().getSchematicVersion());
+        newSchematic.metadata.setMinecraftDataVersion(existing.getMetadata().getMinecraftDataVersion());
+        newSchematic.metadata.setFileType(existing.getMetadata().getFileType());
 
         return newSchematic;
     }
@@ -659,7 +669,20 @@ public class LitematicaSchematic
                 {
                     NbtCompound tag = new NbtCompound();
 
-                    if (entity.saveNbt(tag))
+                    if (EntitiesDataStorage.getInstance().hasServuxServer())
+                    {
+                        NbtCompound serverTags = EntitiesDataStorage.getInstance().getFromEntityCacheNbt(entity.getId());
+
+                        if (serverTags != null && !serverTags.isEmpty())
+                        {
+                            tag.copyFrom(serverTags);
+                        }
+                    }
+                    else
+                    {
+                        entity.saveNbt(tag);
+                    }
+                    if (!tag.isEmpty())
                     {
                         Vec3d posVec = new Vec3d(entity.getX() - regionPosAbs.getX(), entity.getY() - regionPosAbs.getY(), entity.getZ() - regionPosAbs.getZ());
 
@@ -981,11 +1004,21 @@ public class LitematicaSchematic
 
                             if (te != null)
                             {
-                                // TODO Add a TileEntity NBT cache from the Chunk packets, to get the original synced data (too)
                                 BlockPos pos = new BlockPos(x, y, z);
                                 NbtCompound tag = te.createNbtWithId(world.getRegistryManager());
                                 NBTUtils.writeBlockPosToTag(pos, tag);
                                 tileEntityMap.put(pos, tag);
+                            }
+                            else if (EntitiesDataStorage.getInstance().hasServuxServer())
+                            {
+                                NbtCompound tag = EntitiesDataStorage.getInstance().getFromBlockEntityCacheNbt(posMutable);
+
+                                if (tag != null && tag.isEmpty() == false)
+                                {
+                                    BlockPos pos = new BlockPos(x, y, z);
+                                    NBTUtils.writeBlockPosToTag(pos, tag);
+                                    tileEntityMap.put(pos, tag);
+                                }
                             }
                         }
                     }
@@ -1206,6 +1239,9 @@ public class LitematicaSchematic
             if (version >= 1 && version <= SCHEMATIC_VERSION)
             {
                 this.metadata.readFromNBT(nbt.getCompound("Metadata"));
+                this.metadata.setSchematicVersion(version);
+                this.metadata.setMinecraftDataVersion(minecraftDataVersion);
+                this.metadata.setFileType(FileType.LITEMATICA_SCHEMATIC);
                 this.readSubRegionsFromNBT(nbt.getCompound("Regions"), version, minecraftDataVersion);
 
                 return true;
@@ -1658,6 +1694,9 @@ public class LitematicaSchematic
         this.metadata.setEnclosingSize(size);
         this.metadata.setTimeModified(this.metadata.getTimeCreated());
         this.metadata.setTotalBlocks(this.totalBlocksReadFromWorld);
+        this.metadata.setSchematicVersion(spongeVersion);
+        this.metadata.setMinecraftDataVersion(minecraftDataVersion);
+        this.metadata.setFileType(FileType.SPONGE_SCHEMATIC);
 
         return true;
     }
@@ -1681,7 +1720,7 @@ public class LitematicaSchematic
             List<BlockState> list = new ArrayList<>(paletteSize);
             RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
 
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
                 Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
@@ -1750,6 +1789,9 @@ public class LitematicaSchematic
             this.metadata.setEnclosingSize(size);
             this.metadata.setTimeCreated(System.currentTimeMillis());
             this.metadata.setTimeModified(this.metadata.getTimeCreated());
+            this.metadata.setSchematicVersion(0);
+            this.metadata.setMinecraftDataVersion(minecraftDataVersion);
+            this.metadata.setFileType(FileType.VANILLA_STRUCTURE);
 
             NbtList blockList = tag.getList("blocks", Constants.NBT.TAG_COMPOUND);
             final int count = blockList.size();
@@ -1826,7 +1868,7 @@ public class LitematicaSchematic
         List<EntityInfo> entities = new ArrayList<>();
         NbtList tagList = tag.getList("entities", Constants.NBT.TAG_COMPOUND);
         final int size = tagList.size();
-        DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+        Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
         {
@@ -1929,7 +1971,7 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -1960,7 +2002,7 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -1991,7 +2033,7 @@ public class LitematicaSchematic
         }
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -2024,7 +2066,7 @@ public class LitematicaSchematic
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION)
         {
-            DataFixerMode.Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+            Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
 
             if (effective == null)
             {
@@ -2322,20 +2364,59 @@ public class LitematicaSchematic
     @Nullable
     public static SchematicMetadata readMetadataFromFile(File dir, String fileName)
     {
-        NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
+        File file = new File(dir, fileName);
+        FileType type = FileType.fromFile(file);
+
+        if (type == FileType.INVALID)
+        {
+            file = fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC);
+            type = FileType.fromFile(file);
+        }
+
+        if (type == FileType.INVALID)
+        {
+            return null;
+        }
+
+        NbtCompound nbt = readNbtFromFile(file);
 
         if (nbt != null)
         {
-            SchematicMetadata metadata = new SchematicMetadata();
-
-            if (nbt.contains("Version", Constants.NBT.TAG_INT))
+            switch (type)
             {
-                final int version = nbt.getInt("Version");
-
-                if (version >= 1 && version <= SCHEMATIC_VERSION)
+                case LITEMATICA_SCHEMATIC ->
                 {
-                    metadata.readFromNBT(nbt.getCompound("Metadata"));
-                    return metadata;
+                    SchematicMetadata metadata = new SchematicMetadata();
+
+                    if (nbt.contains("Version", Constants.NBT.TAG_INT))
+                    {
+                        final int version = nbt.getInt("Version");
+
+                        if (version >= 1 && version <= SCHEMATIC_VERSION)
+                        {
+                            metadata.readFromNBT(nbt.getCompound("Metadata"));
+                            metadata.setFileType(type);
+                            return metadata;
+                        }
+                    }
+                }
+                case SPONGE_SCHEMATIC ->
+                {
+                    LitematicaSchematic schem = new LitematicaSchematic(file, type);
+
+                    if (schem.readFromSpongeSchematic(fileName, nbt))
+                    {
+                        return schem.getMetadata();
+                    }
+                }
+                case VANILLA_STRUCTURE ->
+                {
+                    LitematicaSchematic schem = new LitematicaSchematic(file, type);
+
+                    if (schem.readFromVanillaStructure(fileName, nbt))
+                    {
+                        return schem.getMetadata();
+                    }
                 }
             }
         }
@@ -2346,22 +2427,62 @@ public class LitematicaSchematic
     @Nullable
     public static Pair<SchematicSchema, SchematicMetadata> readMetadataAndVersionFromFile(File dir, String fileName)
     {
-        NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
+        File file = new File(dir, fileName);
+        FileType type = FileType.fromFile(file);
+
+        if (type == FileType.INVALID)
+        {
+            file = fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC);
+            type = FileType.fromFile(file);
+        }
+
+        if (type == FileType.INVALID)
+        {
+            return null;
+        }
+
+        NbtCompound nbt = readNbtFromFile(file);
+
+        //System.out.printf("readMetadataAndVersionFromFile(): file [%s] // name [%s] // type [%s] // nbt? [%s]\n", file.getPath(), fileName, FileType.getString(type), nbt == null ? "null" : "has_tags");
 
         if (nbt != null)
         {
-            SchematicMetadata metadata = new SchematicMetadata();
-
-            if (nbt.contains("Version", Constants.NBT.TAG_INT))
+            switch (type)
             {
-                final int version = nbt.getInt("Version");
-                final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
-
-                if (version >= 1)
+                case LITEMATICA_SCHEMATIC ->
                 {
-                    metadata.readFromNBT(nbt.getCompound("Metadata"));
+                    SchematicMetadata metadata = new SchematicMetadata();
 
-                    return Pair.of(new SchematicSchema(version, dataVersion), metadata);
+                    if (nbt.contains("Version", Constants.NBT.TAG_INT))
+                    {
+                        final int version = nbt.getInt("Version");
+                        final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : -1;
+
+                        if (version >= 1 && version <= SCHEMATIC_VERSION)
+                        {
+                            metadata.readFromNBT(nbt.getCompound("Metadata"));
+                            metadata.setFileType(type);
+                            return Pair.of(new SchematicSchema(version, dataVersion), metadata);
+                        }
+                    }
+                }
+                case SPONGE_SCHEMATIC ->
+                {
+                    LitematicaSchematic schem = new LitematicaSchematic(file, type);
+
+                    if (schem.readFromSpongeSchematic(fileName, nbt))
+                    {
+                        return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+                    }
+                }
+                case VANILLA_STRUCTURE ->
+                {
+                    LitematicaSchematic schem = new LitematicaSchematic(file, type);
+
+                    if (schem.readFromVanillaStructure(fileName, nbt))
+                    {
+                        return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+                    }
                 }
             }
         }
@@ -2372,18 +2493,62 @@ public class LitematicaSchematic
     @Nullable
     public static SchematicSchema readDataVersionFromFile(File dir, String fileName)
     {
-        NbtCompound nbt = readNbtFromFile(fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC));
+        File file = new File(dir, fileName);
+        FileType type = FileType.fromFile(file);
+
+        if (type == FileType.INVALID)
+        {
+            file = fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC);
+            type = FileType.fromFile(file);
+        }
+
+        if (type == FileType.INVALID)
+        {
+            return null;
+        }
+
+        NbtCompound nbt = readNbtFromFile(file);
 
         if (nbt != null)
         {
-            if (nbt.contains("Version", Constants.NBT.TAG_INT))
+            switch (type)
             {
-                final int version = nbt.getInt("Version");
-                final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
-
-                if (version >= 1)
+                case LITEMATICA_SCHEMATIC ->
                 {
-                    return new SchematicSchema(version, dataVersion);
+                    if (nbt.contains("Version", Constants.NBT.TAG_INT))
+                    {
+                        final int version = nbt.getInt("Version");
+                        final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+
+                        if (version >= 1)
+                        {
+                            return new SchematicSchema(version, dataVersion);
+                        }
+                    }
+                }
+                case SPONGE_SCHEMATIC ->
+                {
+                    NbtCompound spongeTag = new NbtCompound();
+
+                    if (isValidSpongeSchematicv3(nbt))
+                    {
+                        spongeTag.copyFrom(nbt.getCompound("Schematic"));
+                    }
+                    else if (isValidSpongeSchematic(nbt))
+                    {
+                        spongeTag.copyFrom(nbt);
+                    }
+
+                    final int spongeVersion = spongeTag.contains("Version") ? spongeTag.getInt("Version") : -1;
+                    final int minecraftDataVersion = spongeTag.contains("DataVersion") ? spongeTag.getInt("DataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+
+                    return new SchematicSchema(spongeVersion, minecraftDataVersion);
+                }
+                case VANILLA_STRUCTURE ->
+                {
+                    int minecraftDataVersion = nbt.contains("DataVersion") ? nbt.getInt("DataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+
+                    return new SchematicSchema(0, minecraftDataVersion);
                 }
             }
         }

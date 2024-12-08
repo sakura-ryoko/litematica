@@ -30,7 +30,10 @@ public class BuiltBufferCache implements AutoCloseable
         {
             this.layerBuffers.get(layer).close();
         }
-        this.layerBuffers.put(layer, newBuffer);
+        synchronized (this.layerBuffers)
+        {
+            this.layerBuffers.put(layer, newBuffer);
+        }
     }
 
     protected void storeBuiltBufferByType(OverlayRenderType type, @Nonnull BuiltBuffer newBuffer)
@@ -39,7 +42,10 @@ public class BuiltBufferCache implements AutoCloseable
         {
             this.overlayBuffers.get(type).close();
         }
-        this.overlayBuffers.put(type, newBuffer);
+        synchronized (this.overlayBuffers)
+        {
+            this.overlayBuffers.put(type, newBuffer);
+        }
     }
 
     @Nullable
