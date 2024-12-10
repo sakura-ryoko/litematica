@@ -1,8 +1,8 @@
 package fi.dy.masa.litematica.data;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import com.google.gson.JsonObject;
 import com.llamalad7.mixinextras.lib.apache.commons.tuple.Pair;
 
@@ -30,13 +30,14 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.NbtKeys;
-import fi.dy.masa.malilib.util.NBTUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -619,9 +620,11 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             return null;
         }
+
         if (this.entityCache.containsKey(entityId) && this.getWorld() != null)
         {
             Inventory inv = null;
+
             if (useNbt)
             {
                 inv = InventoryUtils.getNbtInventory(this.entityCache.get(entityId).getRight().getRight(), -1, this.getWorld().getRegistryManager());
@@ -629,6 +632,7 @@ public class EntitiesDataStorage implements IClientTickHandler
             else
             {
                 Entity entity = this.entityCache.get(entityId).getRight().getLeft();
+
                 if (entity instanceof Inventory)
                 {
                     inv = (Inventory) entity;
@@ -650,15 +654,18 @@ public class EntitiesDataStorage implements IClientTickHandler
                     inv = ((IMixinPiglinEntity) entity).malilib_getInventory();
                 }
             }
+
             if (inv != null)
             {
                 return inv;
             }
         }
+
         if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
         {
             this.requestEntity(entityId);
         }
+
         return null;
     }
      */
@@ -885,7 +892,7 @@ public class EntitiesDataStorage implements IClientTickHandler
             for (int i = 0; i < tileList.size(); ++i)
             {
                 NbtCompound te = tileList.getCompound(i);
-                BlockPos pos = NBTUtils.readBlockPos(te);
+                BlockPos pos = NbtUtils.readBlockPos(te);
                 Identifier type = Identifier.of(te.getString("id"));
 
                 this.handleBlockEntityData(pos, te, type);
@@ -894,7 +901,7 @@ public class EntitiesDataStorage implements IClientTickHandler
             for (int i = 0; i < entityList.size(); ++i)
             {
                 NbtCompound ent = entityList.getCompound(i);
-                Vec3d pos = NBTUtils.readEntityPositionFromTag(ent);
+                Vec3d pos = NbtUtils.readEntityPositionFromTag(ent).toVanilla();
                 int entityId = ent.getInt("entityId");
 
                 this.handleEntityData(entityId, ent);
