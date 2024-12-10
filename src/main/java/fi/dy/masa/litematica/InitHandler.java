@@ -6,10 +6,13 @@ import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.event.*;
 import fi.dy.masa.malilib.interfaces.IInitializationHandler;
 import fi.dy.masa.malilib.interfaces.IRenderer;
+import fi.dy.masa.malilib.registry.Registry;
+import fi.dy.masa.malilib.util.data.ModInfo;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.event.*;
+import fi.dy.masa.litematica.gui.GuiConfigs;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
 import fi.dy.masa.litematica.scheduler.ClientTickHandler;
 
@@ -19,6 +22,10 @@ public class InitHandler implements IInitializationHandler
     public void registerModHandlers()
     {
         ConfigManager.getInstance().registerConfigHandler(Reference.MOD_ID, new Configs());
+        Registry.CONFIG_SCREEN.registerConfigScreenFactory(
+                new ModInfo(Reference.MOD_ID, Reference.MOD_NAME, GuiConfigs::new)
+        );
+
         EntitiesDataStorage.getInstance().onGameInit();
 
         InputEventHandler.getKeybindManager().registerKeybindProvider(InputHandler.getInstance());

@@ -140,7 +140,8 @@ public class InventoryUtils
                 // Otherwise it would try to write whatever that TE is into the picked ItemStack.
                 if (GuiBase.isCtrlDown() && te != null && mc.world.isAir(pos))
                 {
-                    te.setStackNbt(stack, schematicWorld.getRegistryManager());
+                    //te.setStackNbt(stack, schematicWorld.getRegistryManager());
+                    fi.dy.masa.malilib.util.game.BlockUtils.setStackNbt(stack, te, schematicWorld.getRegistryManager());
                     //stack.set(DataComponentTypes.LORE, new LoreComponent(ImmutableList.of(Text.of("(+NBT)"))));
                 }
 

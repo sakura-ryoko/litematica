@@ -1,12 +1,13 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.collect.Queues;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
@@ -29,13 +30,13 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.PositionUtils;
+import fi.dy.masa.malilib.util.game.BlockUtils;
+import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.mixin.IMixinAbstractBlock;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.util.EntityUtils;
@@ -987,11 +988,15 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         {
             return false;
         }
-        ItemStack stack = state.getBlock().getPickStack(world, pos, state);
+        
+        ItemStack stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
 
         if (stack.isEmpty() == false)
         {
-            be.setStackNbt(stack, registryManager);
+            // FIXME
+            //be.setStackNbt(stack, registryManager);
+            //BlockItem.setBlockEntityData(stack, be.getType(), nbt);
+            BlockUtils.setStackNbt(stack, be, registryManager);
             mc.player.getInventory().offHand.set(0, stack);
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;
