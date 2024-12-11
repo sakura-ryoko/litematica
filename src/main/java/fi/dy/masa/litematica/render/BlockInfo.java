@@ -10,7 +10,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.BlockUtils;
+import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.util.ItemUtils;
 

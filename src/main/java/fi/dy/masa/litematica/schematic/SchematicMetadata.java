@@ -4,11 +4,12 @@ import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.Vec3d;
 
 import fi.dy.masa.malilib.util.Constants;
-import fi.dy.masa.malilib.util.NBTUtils;
 import fi.dy.masa.malilib.util.Schema;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.position.Vec3i;
 import fi.dy.masa.litematica.util.FileType;
 
 public class SchematicMetadata
@@ -80,6 +81,16 @@ public class SchematicMetadata
     public Vec3i getEnclosingSize()
     {
         return this.enclosingSize;
+    }
+
+    public net.minecraft.util.math.Vec3i getEnclosingSizeAsVanilla()
+    {
+        return this.enclosingSize.toVanilla();
+    }
+
+    public BlockPos getEnclosingSizeAsBlockPos()
+    {
+        return this.enclosingSize.toBlockPos();
     }
 
     public long getTimeCreated()
@@ -192,6 +203,11 @@ public class SchematicMetadata
         this.enclosingSize = enclosingSize;
     }
 
+    public void setEnclosingSize(BlockPos enclosingSize)
+    {
+        this.enclosingSize = Vec3i.of(enclosingSize);
+    }
+
     public void setTimeCreated(long timeCreated)
     {
         this.timeCreated = timeCreated;
@@ -302,7 +318,7 @@ public class SchematicMetadata
             nbt.putLong("TimeModified", this.timeModified);
         }
 
-        nbt.put("EnclosingSize", NBTUtils.createBlockPosTag(this.enclosingSize));
+        nbt.put("EnclosingSize", NbtUtils.createVec3iTag(this.enclosingSize));
 
         if (this.thumbnailPixelData != null)
         {
@@ -333,11 +349,11 @@ public class SchematicMetadata
 
         if (nbt.contains("EnclosingSize", Constants.NBT.TAG_COMPOUND))
         {
-            Vec3i size = NBTUtils.readBlockPos(nbt.getCompound("EnclosingSize"));
+            Vec3i size = NbtUtils.readVec3iFromTag(nbt.getCompound("EnclosingSize"));
 
             if (size != null)
             {
-                this.enclosingSize = size != null ? size : BlockPos.ORIGIN;
+                this.enclosingSize = size != null ? size : Vec3i.ZERO;
             }
         }
 

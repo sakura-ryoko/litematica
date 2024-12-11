@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.util;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -19,8 +21,9 @@ import fi.dy.masa.litematica.materials.MaterialCache;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 /**
- * Post Re-Write code
+ * Post Re-Write Code
  */
+@ApiStatus.Experimental
 public class PickBlockUtils
 {
     @Nullable
@@ -34,7 +37,7 @@ public class PickBlockUtils
         }
         //boolean ignoreNbt = Configs.Generic.PICK_BLOCK_IGNORE_NBT.getBooleanValue();
         boolean ignoreNbt = false;
-        Hand hand = EntityUtils.PRW_getUsedHandForItem(player, stack, ignoreNbt);
+        Hand hand = EntityUtils.getUsedHandForItem(player, stack, ignoreNbt);
 
         if (stack.isEmpty() == false && hand == null)
         {
@@ -70,7 +73,7 @@ public class PickBlockUtils
         {
             double reach = mc.player.getBlockInteractionRange();
             Entity entity = mc.getCameraEntity();
-            pos = RayTraceUtils.PRW_getPickBlockLastTrace(world, entity, reach, true);
+            pos = RayTraceUtils.getPickBlockLastTrace(world, entity, reach, true);
         }
 
         if (pos != null && PlacementUtils.isReplaceable(world, pos, true))
@@ -104,7 +107,7 @@ public class PickBlockUtils
 
         if (stack.isEmpty() == false)
         {
-            Hand hand = EntityUtils.PRW_getUsedHandForItem(player, stack, ignoreNbt);
+            Hand hand = EntityUtils.getUsedHandForItem(player, stack, ignoreNbt);
 
             if (hand == null)
             {

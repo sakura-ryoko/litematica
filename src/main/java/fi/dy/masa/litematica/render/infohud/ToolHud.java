@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.render.infohud;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import net.minecraft.block.BlockState;
@@ -27,7 +28,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.ReplaceBehavior;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.util.BlockUtils;
+import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class ToolHud extends InfoHud
@@ -342,12 +343,12 @@ public class ToolHud extends InfoHud
         String rst = GuiBase.TXT_RST;
 
         strBlock = green + state.getBlock().getName().getString() + rst;
-        Direction facing = BlockUtils.getFirstPropertyFacingValue(state);
+        Optional<Direction> facing = BlockUtils.getFirstPropertyFacingValue(state);
 
-        if (facing != null)
+        if (facing.isPresent())
         {
             String gold = GuiBase.TXT_GOLD;
-            String strFacing = gold + facing.getName().toLowerCase() + rst;
+            String strFacing = gold + facing.get().getName().toLowerCase() + rst;
             strBlock += " - " + StringUtils.translate("litematica.tool_hud.facing", strFacing);
         }
 
