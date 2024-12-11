@@ -2,10 +2,7 @@ package fi.dy.masa.litematica.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.*;
@@ -41,8 +38,8 @@ import net.minecraft.world.chunk.ChunkStatus;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
-import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -757,14 +754,14 @@ public class WorldUtils
         double y = hitVecIn.y;
         double z = hitVecIn.z;
         Block block = state.getBlock();
-        Direction facing = BlockUtils.getFirstPropertyFacingValue(state);
+        Optional<Direction> facing = BlockUtils.getFirstPropertyFacingValue(state);
         final int propertyIncrement = 16;
         boolean hasData = false;
         int protocolValue = 0;
 
-        if (facing != null)
+        if (facing.isPresent())
         {
-            protocolValue = facing.getId();
+            protocolValue = facing.get().getId();
             hasData = true; // without this down rotation would not be detected >_>
         }
         else if (state.contains(Properties.AXIS))
@@ -850,12 +847,12 @@ public class WorldUtils
         //System.out.printf("hit vec.x %s, pos.x: %s\n", hitVecIn.getX(), pos.getX());
         //System.out.printf("raw protocol value in: 0x%08X\n", protocolValue);
 
-        @Nullable DirectionProperty property = BlockUtils.getFirstDirectionProperty(state);
+        Optional<DirectionProperty> property = fi.dy.masa.malilib.util.game.BlockUtils.getFirstDirectionProperty(state);
 
         // DirectionProperty - allow all except: VERTICAL_DIRECTION (PointedDripstone)
-        if (property != null && property != Properties.VERTICAL_DIRECTION)
+        if (property.isPresent() && property.get() != Properties.VERTICAL_DIRECTION)
         {
-            Direction direction = state.get(property);
+            Direction direction = state.get(property.get());
             protocolValue |= direction.getId() << shiftAmount;
             //System.out.printf("applying: 0x%08X\n", protocolValue);
             shiftAmount += 3;
@@ -869,7 +866,8 @@ public class WorldUtils
         {
             for (Property<?> p : propList)
             {
-                if ((p instanceof DirectionProperty) == false &&
+                //if ((p instanceof DirectionProperty) == false &&
+                if (property.isPresent() && !property.get().equals(p) &&
                     PlacementHandler.WHITELISTED_PROPERTIES.contains(p))
                 {
                     @SuppressWarnings("unchecked")
