@@ -2379,8 +2379,7 @@ public class LitematicaSchematic
             return null;
         }
 
-        // TODO (Fix the MaLiLib one)
-        return fi.dy.masa.litematica.util.NbtUtils.readNbtFromFile(file);
+        return NbtUtils.readNbtFromFile(file);
     }
 
     public static NbtCompound readNbtFromPath(Path path)
