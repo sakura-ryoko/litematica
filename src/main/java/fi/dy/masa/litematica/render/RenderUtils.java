@@ -26,10 +26,11 @@ import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
-import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.game.BlockUtils;
+import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.util.BlockInfoAlignment;
 import fi.dy.masa.litematica.util.InventoryUtils;
@@ -705,7 +706,7 @@ public class RenderUtils
 
                 if (ctx.nbt() != null && !ctx.nbt().isEmpty())
                 {
-                    disabledSlots = BlockUtils.getDisabledSlotsFromNbt(ctx.nbt());
+                    disabledSlots = NbtBlockUtils.getDisabledSlotsFromNbt(ctx.nbt());
                 }
                 else if (ctx.be() instanceof CrafterBlockEntity cbe)
                 {

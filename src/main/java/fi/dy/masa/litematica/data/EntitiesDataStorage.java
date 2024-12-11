@@ -36,8 +36,8 @@ import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.NBTUtils;
-import fi.dy.masa.malilib.util.NbtKeys;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -892,7 +892,7 @@ public class EntitiesDataStorage implements IClientTickHandler
             for (int i = 0; i < tileList.size(); ++i)
             {
                 NbtCompound te = tileList.getCompound(i);
-                BlockPos pos = NBTUtils.readBlockPos(te);
+                BlockPos pos = NbtUtils.readBlockPos(te);
                 Identifier type = Identifier.of(te.getString("id"));
 
                 this.handleBlockEntityData(pos, te, type);
@@ -901,7 +901,7 @@ public class EntitiesDataStorage implements IClientTickHandler
             for (int i = 0; i < entityList.size(); ++i)
             {
                 NbtCompound ent = entityList.getCompound(i);
-                Vec3d pos = NBTUtils.readEntityPositionFromTag(ent);
+                Vec3d pos = NbtUtils.readEntityPositionFromTag(ent).toVanilla();
                 int entityId = ent.getInt("entityId");
 
                 this.handleEntityData(entityId, ent);

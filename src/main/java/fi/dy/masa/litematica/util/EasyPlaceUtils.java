@@ -3,7 +3,6 @@ package fi.dy.masa.litematica.util;
 import java.lang.reflect.Method;
 import java.util.*;
 import javax.annotation.Nullable;
-
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.block.*;
@@ -31,15 +30,14 @@ import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.game.PlacementUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.materials.MaterialCache;
 import fi.dy.masa.litematica.mixin.IMixinKeyBinding;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
-import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 /**
@@ -564,7 +562,7 @@ public class EasyPlaceUtils
         double y = hitVecIn.y;
         double z = hitVecIn.z;
         Block block = state.getBlock();
-        Optional<Direction> facingOptional = fi.dy.masa.malilib.util.BlockUtils.PRW_getFirstPropertyFacingValue(state);
+        Optional<Direction> facingOptional = BlockUtils.getFirstPropertyFacingValue(state);
 
         if (facingOptional.isPresent())
         {
@@ -593,7 +591,7 @@ public class EasyPlaceUtils
 
     private static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
     {
-        Optional<EnumProperty<Direction>> propOptional = fi.dy.masa.malilib.util.BlockUtils.PRW_getFirstDirectionProperty(stateSchematic);
+        Optional<EnumProperty<Direction>> propOptional = BlockUtils.getFirstDirectionProperty(stateSchematic);
 
         if (propOptional.isPresent())
         {
