@@ -36,7 +36,6 @@ import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.mixin.IMixinAbstractBlock;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.util.EntityUtils;
@@ -988,15 +987,12 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         {
             return false;
         }
-        
-        ItemStack stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
+
+        ItemStack stack = state.getBlock().getPickStack(world, pos, state);
 
         if (stack.isEmpty() == false)
         {
-            // FIXME
-            //be.setStackNbt(stack, registryManager);
-            //BlockItem.setBlockEntityData(stack, be.getType(), nbt);
-            BlockUtils.setStackNbt(stack, be, registryManager);
+            be.setStackNbt(stack, registryManager);
             mc.player.getInventory().offHand.set(0, stack);
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;
