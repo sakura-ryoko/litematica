@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import net.minecraft.block.*;
 import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.block.enums.ComparatorMode;
@@ -41,8 +43,9 @@ import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 /**
- * Post Re-Write code
+ * Post Re-Write Code
  */
+@ApiStatus.Experimental
 public class EasyPlaceUtils
 {
     private static final List<PositionCache> EASY_PLACE_POSITIONS = new ArrayList<>();
@@ -476,7 +479,7 @@ public class EasyPlaceUtils
         //System.out.printf("targetPos: %s, clickPos: %s side: %s, hit: %s\n", targetBlockPos, clickPos, side, hitPos);
         stateClient = world.getBlockState(clickPos);
         boolean needsSneak = hasUseAction(stateClient.getBlock());
-        boolean didFakeSneak = needsSneak && EntityUtils.PRW_setFakedSneakingState(true);
+        boolean didFakeSneak = needsSneak && EntityUtils.setFakedSneakingState(true);
         PlayerEntity player = mc.player;
 
         BlockHitResult hitResult = new BlockHitResult(hitPos, side, clickPos, false);
@@ -512,7 +515,7 @@ public class EasyPlaceUtils
 
         if (didFakeSneak)
         {
-            EntityUtils.PRW_setFakedSneakingState(false);
+            EntityUtils.setFakedSneakingState(false);
         }
 
         return ActionResult.SUCCESS;
@@ -676,7 +679,7 @@ public class EasyPlaceUtils
             ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic);
 
             // The player is holding the wrong item for the targeted position
-            return stack.isEmpty() || EntityUtils.PRW_getUsedHandForItem(mc.player, stack, true) == null;
+            return stack.isEmpty() || EntityUtils.getUsedHandForItem(mc.player, stack, true) == null;
         }
 
         return false;

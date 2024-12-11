@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -1083,8 +1084,9 @@ public class RayTraceUtils
     /**
      * Post Re-Write Code
      */
+    @ApiStatus.Experimental
     @Nullable
-    public static BlockPos PRW_getPickBlockLastTrace(World worldClient, Entity entity, double maxRange, boolean adjacentOnly)
+    public static BlockPos getPickBlockLastTrace(World worldClient, Entity entity, double maxRange, boolean adjacentOnly)
     {
         //Vec3d eyesPos = EntityWrap.getEntityEyePos(entity);
         //Vec3d look = EntityWrap.getScaledLookVector(entity, maxRange);
@@ -1106,7 +1108,7 @@ public class RayTraceUtils
         BlockPos closestVanillaPos = entityTrace.getEntity().getBlockPos();
         World worldSchematic = SchematicWorldHandler.getSchematicWorld();
         // FIXME
-        List<BlockHitResult> list = PRW_rayTraceSchematicWorldBlocksToList(worldSchematic, eyesPos, lookEndPos, 24);
+        List<BlockHitResult> list = rayTraceSchematicWorldBlocksToList(worldSchematic, eyesPos, lookEndPos, 24);
         //List<BlockHitResult> list = new ArrayList<>();
         BlockHitResult furthestTrace = null;
         double furthestDist = -1D;
@@ -1180,7 +1182,11 @@ public class RayTraceUtils
         return null;
     }
 
-    public static List<BlockHitResult> PRW_rayTraceSchematicWorldBlocksToList(World world, Vec3d start, Vec3d end, int maxSteps)
+    /**
+     * Post Re-Write Code
+     */
+    @ApiStatus.Experimental
+    public static List<BlockHitResult> rayTraceSchematicWorldBlocksToList(World world, Vec3d start, Vec3d end, int maxSteps)
     {
         if (Double.isNaN(start.x) || Double.isNaN(start.y) || Double.isNaN(start.z) ||
             Double.isNaN(end.x) || Double.isNaN(end.y) || Double.isNaN(end.z))

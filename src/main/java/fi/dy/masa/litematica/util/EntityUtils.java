@@ -6,6 +6,8 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.decoration.LeashKnotEntity;
@@ -271,6 +273,7 @@ public class EntityUtils
     }
 
     // entity.readNbt(nbt);
+    @Deprecated
     public static void loadNbtIntoEntity(Entity entity, NbtCompound nbt)
     {
         entity.fallDistance = nbt.getFloat("FallDistance");
@@ -336,7 +339,8 @@ public class EntityUtils
     /**
      * Post Re-Write Code
      */
-    public static boolean PRW_setFakedSneakingState(boolean sneaking)
+    @ApiStatus.Experimental
+    public static boolean setFakedSneakingState(boolean sneaking)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
         PlayerEntity player = mc.player;
@@ -360,8 +364,9 @@ public class EntityUtils
      * This means, that it must either be in the main hand, or the main hand must be empty and the item is in the offhand.
      * @param lenient if true, then NBT tags and also damage of damageable items are ignored
      */
+    @ApiStatus.Experimental
     @Nullable
-    public static Hand PRW_getUsedHandForItem(LivingEntity entity, ItemStack stack, boolean lenient)
+    public static Hand getUsedHandForItem(LivingEntity entity, ItemStack stack, boolean lenient)
     {
         Hand hand = null;
         //Hand tmpHand = ItemWrap.isEmpty(getMainHandItem(entity)) ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
