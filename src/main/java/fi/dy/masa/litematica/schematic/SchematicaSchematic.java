@@ -304,16 +304,20 @@ public class SchematicaSchematic
         for (NbtCompound tag : this.entities)
         {
             Vec3d relativePos = NbtUtils.readEntityPositionFromTag(tag);
-            Vec3d transformedRelativePos = Vec3d.of(PositionUtils.getTransformedPosition(relativePos.toVanilla(), mirror, rotation));
-            Vec3d realPos = transformedRelativePos.add(posStart.getX(), posStart.getY(), posStart.getZ());
-            Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
 
-            if (entity != null)
+            if (relativePos != null)
             {
-                float rotationYaw = entity.applyMirror(mirror);
-                rotationYaw = rotationYaw + (entity.getYaw() - entity.applyRotation(rotation));
-                entity.refreshPositionAndAngles(realPos.x, realPos.y, realPos.z, rotationYaw, entity.getPitch());
-                EntityUtils.spawnEntityAndPassengersInWorld(entity, world);
+                Vec3d transformedRelativePos = Vec3d.of(PositionUtils.getTransformedPosition(relativePos.toVanilla(), mirror, rotation));
+                Vec3d realPos = transformedRelativePos.add(posStart.getX(), posStart.getY(), posStart.getZ());
+                Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
+
+                if (entity != null)
+                {
+                    float rotationYaw = entity.applyMirror(mirror);
+                    rotationYaw = rotationYaw + (entity.getYaw() - entity.applyRotation(rotation));
+                    entity.refreshPositionAndAngles(realPos.x, realPos.y, realPos.z, rotationYaw, entity.getPitch());
+                    EntityUtils.spawnEntityAndPassengersInWorld(entity, world);
+                }
             }
         }
     }

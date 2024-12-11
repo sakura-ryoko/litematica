@@ -2517,19 +2517,33 @@ public class LitematicaSchematic
                 case SPONGE_SCHEMATIC ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
+                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
 
                     if (schem.readFromSpongeSchematic(fileName, nbt))
                     {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+                    }
+                    else
+                    {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                     }
                 }
                 case VANILLA_STRUCTURE ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
+                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
 
                     if (schem.readFromVanillaStructure(fileName, nbt))
                     {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+                    }
+                    else
+                    {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                     }
                 }
             }
