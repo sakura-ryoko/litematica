@@ -15,6 +15,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -591,7 +592,7 @@ public class EasyPlaceUtils
 
     private static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
     {
-        Optional<EnumProperty<Direction>> propOptional = BlockUtils.getFirstDirectionProperty(stateSchematic);
+        Optional<DirectionProperty> propOptional = BlockUtils.getFirstDirectionProperty(stateSchematic);
 
         if (propOptional.isPresent())
         {

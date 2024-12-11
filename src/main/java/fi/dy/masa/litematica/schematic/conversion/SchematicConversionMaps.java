@@ -15,6 +15,7 @@ import net.minecraft.block.PillarBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;

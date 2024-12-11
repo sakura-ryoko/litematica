@@ -435,7 +435,7 @@ public class LitematicaSchematic
         }
 
         int bottomY = world.getBottomY();
-        int topY = world.getTopYInclusive() + 1;
+        int topY = world.getTopY();
         int tmp = posMinRel.getY() - regionPos.getY() + regionPosTransformed.getY() + origin.getY();
         int startY = 0;
         int endY = sizeY;
@@ -903,7 +903,7 @@ public class LitematicaSchematic
 
             posUp = posUp.offset(Direction.UP);
 
-            if (posUp.getY() >= world.getTopYInclusive() + 1)
+            if (posUp.getY() >= world.getTopY())
             {
                 break;
             }
@@ -1389,8 +1389,7 @@ public class LitematicaSchematic
     {
         final int size = tagList.size();
         List<BlockState> list = new ArrayList<>(size);
-        //RegistryEntryLookup<Block> lookup = Registries.createEntryLookup(Registries.BLOCK);
-        RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
+        RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
 
         for (int id = 0; id < size; ++id)
         {
@@ -1733,7 +1732,7 @@ public class LitematicaSchematic
             BlockState air = Blocks.AIR.getDefaultState();
             int paletteSize = paletteTag.size();
             List<BlockState> list = new ArrayList<>(paletteSize);
-            RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
+            RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
 
             Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
@@ -1941,7 +1940,7 @@ public class LitematicaSchematic
     public static List<BlockState> getStatesFromPaletteTag(NbtList palette)
     {
         List<BlockState> states = new ArrayList<>();
-        RegistryEntryLookup<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.BLOCK);
+        RegistryEntryLookup<Block> lookup = Registries.BLOCK.getReadOnlyWrapper();
         final int size = palette.size();
 
         for (int i = 0; i < size; ++i)
