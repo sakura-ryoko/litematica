@@ -291,6 +291,8 @@ public class WidgetMaterialListEntry extends WidgetListEntrySortable<MaterialLis
             int x1 = x + 10;
             int x2 = x1 + w1 + 20;
 
+            // Draw a Background Mask to hide Button Widgets behind it (Hack-around)
+            fi.dy.masa.litematica.render.RenderUtils.renderBackgroundMask(x + 1, y + 1, totalWidth - 2, 58, drawContext);
             RenderUtils.drawOutlinedBox(x, y, totalWidth, 60, 0xFF000000, GuiBase.COLOR_HORIZONTAL_BAR);
             y += 6;
             int y1 = y;

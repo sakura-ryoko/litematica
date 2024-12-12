@@ -47,11 +47,8 @@ import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.MismatchRender
 import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.selection.SelectionManager;
-import fi.dy.masa.litematica.util.BlockInfoAlignment;
-import fi.dy.masa.litematica.util.InventoryUtils;
-import fi.dy.masa.litematica.util.ItemUtils;
+import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.PositionUtils.Corner;
-import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
@@ -618,18 +615,21 @@ public class OverlayRenderer
         {
             BlockMismatchInfo info = new BlockMismatchInfo(stateSchematic, stateClient);
             this.getOverlayPosition(align, info.getTotalWidth(), info.getTotalHeight(), offY, invHeight, mc);
+            info.toggleUseBackgroundMask(true);
             info.render(this.blockInfoX, this.blockInfoY, mc, drawContext);
         }
         else if (traceWrapper.getHitType() == RayTraceWrapper.HitType.VANILLA_BLOCK)
         {
             BlockInfo info = new BlockInfo(stateClient, "litematica.gui.label.block_info.state_client");
             this.getOverlayPosition(align, info.getTotalWidth(), info.getTotalHeight(), offY, invHeight, mc);
+            info.toggleUseBackgroundMask(true);
             info.render(this.blockInfoX, this.blockInfoY, mc, drawContext);
         }
         else if (traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK)
         {
             BlockInfo info = new BlockInfo(stateSchematic, "litematica.gui.label.block_info.state_schematic");
             this.getOverlayPosition(align, info.getTotalWidth(), info.getTotalHeight(), offY, invHeight, mc);
+            info.toggleUseBackgroundMask(true);
             info.render(this.blockInfoX, this.blockInfoY, mc, drawContext);
         }
     }
@@ -772,7 +772,7 @@ public class OverlayRenderer
         }
     }
 
-    public void renderPreviewFrame(MinecraftClient mc)
+    public void renderPreviewFrame(MinecraftClient mc, DrawContext drawContext)
     {
         int width = GuiUtils.getScaledWindowWidth();
         int height = GuiUtils.getScaledWindowHeight();
