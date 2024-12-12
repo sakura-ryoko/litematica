@@ -449,10 +449,13 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         {
             if (this.stateExpected != null && this.stateFound != null)
             {
+                // TODO 1.21.2+
+                /*
                 if (this.useBackgroundMask)
                 {
                     fi.dy.masa.litematica.render.RenderUtils.renderBackgroundMask(x + 1, y + 1, this.totalWidth - 1, this.totalHeight - 1, drawContext);
                 }
+                 */
 
                 MatrixStack matrixStack = drawContext.getMatrices();
                 matrixStack.push();

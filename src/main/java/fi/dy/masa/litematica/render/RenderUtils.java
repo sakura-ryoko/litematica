@@ -758,10 +758,13 @@ public class RenderUtils
         return props.height;
     }
 
+    // TODO 1.21.2+
+    /*
     public static void renderBackgroundMask(int startX, int startY, int width, int height, DrawContext drawContext)
     {
         fi.dy.masa.malilib.render.RenderUtils.drawTexturedRect(GuiBase.BG_TEXTURE, startX, startY, 0, 0, width, height, drawContext);
     }
+     */
 
     /*
     private static void renderModelBrightnessColor(IBlockState state, IBakedModel model, float brightness, float r, float g, float b)

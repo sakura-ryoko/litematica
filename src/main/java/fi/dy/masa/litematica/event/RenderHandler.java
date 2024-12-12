@@ -58,7 +58,7 @@ public class RenderHandler implements IRenderer
 
                 if (GuiSchematicManager.hasPendingPreviewTask())
                 {
-                    OverlayRenderer.getInstance().renderPreviewFrame(mc);
+                    OverlayRenderer.getInstance().renderPreviewFrame(mc, drawContext);
                 }
             }
         }

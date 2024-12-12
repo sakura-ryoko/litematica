@@ -615,21 +615,24 @@ public class OverlayRenderer
         {
             BlockMismatchInfo info = new BlockMismatchInfo(stateSchematic, stateClient);
             this.getOverlayPosition(align, info.getTotalWidth(), info.getTotalHeight(), offY, invHeight, mc);
-            info.toggleUseBackgroundMask(true);
+            // TODO 1.21.2+
+            //info.toggleUseBackgroundMask(true);
             info.render(this.blockInfoX, this.blockInfoY, mc, drawContext);
         }
         else if (traceWrapper.getHitType() == RayTraceWrapper.HitType.VANILLA_BLOCK)
         {
             BlockInfo info = new BlockInfo(stateClient, "litematica.gui.label.block_info.state_client");
             this.getOverlayPosition(align, info.getTotalWidth(), info.getTotalHeight(), offY, invHeight, mc);
-            info.toggleUseBackgroundMask(true);
+            // TODO 1.21.2+
+            //info.toggleUseBackgroundMask(true);
             info.render(this.blockInfoX, this.blockInfoY, mc, drawContext);
         }
         else if (traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK)
         {
             BlockInfo info = new BlockInfo(stateSchematic, "litematica.gui.label.block_info.state_schematic");
             this.getOverlayPosition(align, info.getTotalWidth(), info.getTotalHeight(), offY, invHeight, mc);
-            info.toggleUseBackgroundMask(true);
+            // TODO 1.21.2+
+            //info.toggleUseBackgroundMask(true);
             info.render(this.blockInfoX, this.blockInfoY, mc, drawContext);
         }
     }
