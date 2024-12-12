@@ -22,6 +22,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.world.World;
 
+import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
@@ -759,6 +760,11 @@ public class RenderUtils
         fi.dy.masa.malilib.render.InventoryOverlay.renderInventoryStacks(type, inv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, props.slotsPerRow, 0, inv.size(), disabledSlots, mc, drawContext);
 
         return props.height;
+    }
+
+    public static void renderBackgroundMask(int startX, int startY, int width, int height, DrawContext drawContext)
+    {
+        fi.dy.masa.malilib.render.RenderUtils.drawTexturedRect(GuiBase.BG_TEXTURE, startX, startY, 0, 0, width, height, drawContext);
     }
 
     /*

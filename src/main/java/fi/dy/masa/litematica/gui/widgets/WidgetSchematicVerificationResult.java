@@ -389,6 +389,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         private final int totalWidth;
         private final int totalHeight;
         private final int columnWidthExpected;
+        private boolean useBackgroundMask = false;
 
         public BlockMismatchInfo(BlockState stateExpected, BlockState stateFound)
         {
@@ -442,10 +443,20 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             return this.totalHeight;
         }
 
+        public void toggleUseBackgroundMask(boolean toggle)
+        {
+            this.useBackgroundMask = toggle;
+        }
+
         public void render(int x, int y, MinecraftClient mc, DrawContext drawContext)
         {
             if (this.stateExpected != null && this.stateFound != null)
             {
+                if (this.useBackgroundMask)
+                {
+                    fi.dy.masa.litematica.render.RenderUtils.renderBackgroundMask(x + 1, y + 1, this.totalWidth - 1, this.totalHeight - 1, drawContext);
+                }
+
                 MatrixStack matrixStack = drawContext.getMatrices();
                 matrixStack.push();
 

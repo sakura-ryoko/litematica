@@ -25,11 +25,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
@@ -45,6 +44,7 @@ import fi.dy.masa.litematica.mixin.IMixinDataQueryHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.util.EntityUtils;
+import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -83,6 +83,12 @@ public class EntitiesDataStorage implements IClientTickHandler
     // To save vanilla query packet transaction
     private final Map<Integer, Either<BlockPos, Integer>> transactionToBlockPosOrEntityId = new HashMap<>();
     private ClientWorld clientWorld;
+
+    // Backup Chunk Saving task
+    private boolean sentBackupPackets = false;
+    private boolean receivedBackupPackets = false;
+    private final HashMap<ChunkPos, Set<BlockPos>> pendingBackupChunk_BlockEntities = new HashMap<>();
+    private final HashMap<ChunkPos, Set<Integer>>  pendingBackupChunk_Entities      = new HashMap<>();
 
     @Nullable
     public World getWorld()
@@ -200,6 +206,8 @@ public class EntitiesDataStorage implements IClientTickHandler
             HANDLER.resetFailures(this.getNetworkChannel());
             this.servuxServer = false;
             this.hasInValidServux = false;
+            this.sentBackupPackets = false;
+            this.receivedBackupPackets = false;
         }
         else
         {
@@ -214,6 +222,12 @@ public class EntitiesDataStorage implements IClientTickHandler
         this.entityCache.clear();
         this.pendingBlockEntitiesQueue.clear();
         this.pendingEntitiesQueue.clear();
+        // Litematic Save values
+        this.completedChunks.clear();
+        this.pendingChunks.clear();
+        this.pendingChunkTimeout.clear();
+        this.pendingBackupChunk_BlockEntities.clear();
+        this.pendingBackupChunk_Entities.clear();
     }
 
     private long getCacheTimeout()
@@ -241,6 +255,13 @@ public class EntitiesDataStorage implements IClientTickHandler
         {
             blockTimeout = this.getCacheTimeoutLong();
             entityTimeout = this.getCacheTimeoutLong();
+
+            // Add extra time if using QueryNbt only
+            if (this.hasServuxServer() == false && this.getIfReceivedBackupPackets())
+            {
+                blockTimeout += 3000L;
+                entityTimeout += 3000L;
+            }
         }
 
         synchronized (this.blockEntityCache)
@@ -387,6 +408,16 @@ public class EntitiesDataStorage implements IClientTickHandler
     public int getEntityCacheCount()
     {
         return this.entityCache.size();
+    }
+
+    public boolean getIfReceivedBackupPackets()
+    {
+        if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
+        {
+            return this.sentBackupPackets & this.receivedBackupPackets;
+        }
+
+        return false;
     }
 
     public void onGameInit()
@@ -681,6 +712,7 @@ public class EntitiesDataStorage implements IClientTickHandler
 
         if (handler != null)
         {
+            this.sentBackupPackets = true;
             handler.getDataQueryHandler().queryBlockNbt(pos, nbtCompound ->
             {
                 handleBlockEntityData(pos, nbtCompound, null);
@@ -700,6 +732,7 @@ public class EntitiesDataStorage implements IClientTickHandler
 
         if (handler != null)
         {
+            this.sentBackupPackets = true;
             handler.getDataQueryHandler().queryEntityNbt(entityId, nbtCompound ->
             {
                 handleEntityData(entityId, nbtCompound);
@@ -749,6 +782,153 @@ public class EntitiesDataStorage implements IClientTickHandler
         HANDLER.encodeClientData(ServuxLitematicaPacket.BulkNbtRequest(chunkPos, req));
     }
 
+    public void requestBackupBulkEntityData(ChunkPos chunkPos, int minY, int maxY)
+    {
+        if (this.getIfReceivedBackupPackets() == false || this.hasServuxServer())
+        {
+            return;
+        }
+
+        this.completedChunks.remove(chunkPos);
+        minY = MathHelper.clamp(minY, -60, 319);
+        maxY = MathHelper.clamp(maxY, -60, 319);
+
+        ClientWorld world = this.getClientWorld();
+        Chunk chunk = world != null ? world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false) : null;
+
+        if (chunk == null)
+        {
+            return;
+        }
+
+        BlockPos pos1 = new BlockPos(chunkPos.getStartX(), minY, chunkPos.getStartZ());
+        BlockPos pos2 = new BlockPos(chunkPos.getEndX(),   maxY, chunkPos.getEndZ());
+        Box bb = PositionUtils.createEnclosingAABB(pos1, pos2);
+        Set<BlockPos> teSet = chunk.getBlockEntityPositions();
+        List<Entity> entList = world.getOtherEntities(null, bb, EntityUtils.NOT_PLAYER);
+
+        Litematica.debugLog("EntitiesDataStorage#requestBackupBulkEntityData(): for chunkPos {} (minY [{}], maxY [{}]) // Request --> TE: [{}], E: [{}]", chunkPos.toString(), minY, maxY, teSet.size(), entList.size());
+        //System.out.printf("0: ChunkPos [%s], Box [%s] // teSet [%d], entList [%d]\n", chunkPos.toString(), bb.toString(), teSet.size(), entList.size());
+
+        for (BlockPos tePos : teSet)
+        {
+            if ((tePos.getX() < chunkPos.getStartX() || tePos.getX() > chunkPos.getEndX()) ||
+                (tePos.getZ() < chunkPos.getStartZ() || tePos.getZ() > chunkPos.getEndZ()) ||
+                (tePos.getY() < minY || tePos.getY() > maxY))
+            {
+                continue;
+            }
+
+            this.requestBlockEntity(world, tePos);
+        }
+
+        if (teSet.size() > 0)
+        {
+            this.pendingBackupChunk_BlockEntities.put(chunkPos, teSet);
+        }
+
+        Set<Integer> entSet = new LinkedHashSet<>();
+
+        for (Entity entity : entList)
+        {
+            this.requestEntity(world, entity.getId());
+            entSet.add(entity.getId());
+        }
+
+        if (entSet.size() > 0)
+        {
+            this.pendingBackupChunk_Entities.put(chunkPos, entSet);
+        }
+
+        if (teSet.size() > 0 || entSet.size() > 0)
+        {
+            this.pendingChunks.add(chunkPos);
+            this.pendingChunkTimeout.put(chunkPos, Util.getMeasuringTimeMs());
+        }
+        else
+        {
+            this.completedChunks.add(chunkPos);
+        }
+    }
+
+    private boolean markBackupBlockEntityComplete(ChunkPos chunkPos, BlockPos pos)
+    {
+        if (this.getIfReceivedBackupPackets() == false || this.hasServuxServer())
+        {
+            return true;
+        }
+
+        //Litematica.debugLog("EntitiesDataStorage#markBackupBlockEntityComplete() - Marking ChunkPos {} - Block Entity at [{}] as complete.", chunkPos.toString(), pos.toShortString());
+
+        if (this.pendingChunks.contains(chunkPos))
+        {
+            if (this.pendingBackupChunk_BlockEntities.containsKey(chunkPos))
+            {
+                Set<BlockPos> teSet = this.pendingBackupChunk_BlockEntities.get(chunkPos);
+
+                if (teSet.contains(pos))
+                {
+                    teSet.remove(pos);
+
+                    if (teSet.isEmpty())
+                    {
+                        Litematica.debugLog("EntitiesDataStorage#markBackupBlockEntityComplete(): ChunkPos {} - Block Entity List Complete!", chunkPos.toString());
+                        this.pendingBackupChunk_BlockEntities.remove(chunkPos);
+                        this.pendingChunks.remove(chunkPos);
+                        this.pendingChunkTimeout.remove(chunkPos);
+                        this.completedChunks.add(chunkPos);
+                        return true;
+                    }
+                    else
+                    {
+                        this.pendingBackupChunk_BlockEntities.replace(chunkPos, teSet);
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean markBackupEntityComplete(ChunkPos chunkPos, int entityId)
+    {
+        if (this.getIfReceivedBackupPackets() == false || this.hasServuxServer())
+        {
+            return true;
+        }
+
+        //Litematica.debugLog("EntitiesDataStorage#markBackupEntityComplete() - Marking ChunkPos {} - EntityId [{}] as complete.", chunkPos.toString(), entityId);
+
+        if (this.pendingChunks.contains(chunkPos))
+        {
+            if (this.pendingBackupChunk_Entities.containsKey(chunkPos))
+            {
+                Set<Integer> entSet = this.pendingBackupChunk_Entities.get(chunkPos);
+
+                if (entSet.contains(entityId))
+                {
+                    entSet.remove(entityId);
+
+                    if (entSet.isEmpty())
+                    {
+                        Litematica.debugLog("EntitiesDataStorage#markBackupEntityComplete(): ChunkPos {} - EntitiyList Complete!", chunkPos.toString());
+                        this.pendingBackupChunk_Entities.remove(chunkPos);
+                        this.pendingChunks.remove(chunkPos);
+                        this.pendingChunkTimeout.remove(chunkPos);
+                        this.completedChunks.add(chunkPos);
+                        return true;
+                    }
+                    else
+                    {
+                        this.pendingBackupChunk_Entities.replace(chunkPos, entSet);
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     @Nullable
     public BlockEntity handleBlockEntityData(BlockPos pos, NbtCompound nbt, @Nullable Identifier type)
     {
@@ -782,6 +962,12 @@ public class EntitiesDataStorage implements IClientTickHandler
             }
 
             blockEntity.read(nbt, this.getClientWorld().getRegistryManager());
+            ChunkPos chunkPos = new ChunkPos(pos);
+
+            if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
+            {
+                this.markBackupBlockEntityComplete(chunkPos, pos);
+            }
 
             return blockEntity;
         }
@@ -823,6 +1009,13 @@ public class EntitiesDataStorage implements IClientTickHandler
                     {
                         blockEntity2.read(nbt, this.getClientWorld().getRegistryManager());
                         this.getClientWorld().addBlockEntity(blockEntity2);
+                    }
+
+                    ChunkPos chunkPos = new ChunkPos(pos);
+
+                    if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
+                    {
+                        this.markBackupBlockEntityComplete(chunkPos, pos);
                     }
 
                     return blockEntity2;
@@ -867,7 +1060,13 @@ public class EntitiesDataStorage implements IClientTickHandler
             {
                 EntityUtils.loadNbtIntoEntity(entity, nbt);
             }
+
+            if (this.hasPendingChunk(entity.getChunkPos()) && this.hasServuxServer() == false)
+            {
+                this.markBackupEntityComplete(entity.getChunkPos(), entityId);
+            }
         }
+
         return entity;
     }
 
@@ -918,16 +1117,18 @@ public class EntitiesDataStorage implements IClientTickHandler
     public void handleVanillaQueryNbt(int transactionId, NbtCompound nbt)
     {
         Either<BlockPos, Integer> either = this.transactionToBlockPosOrEntityId.remove(transactionId);
+
         if (either != null)
         {
-            either.ifLeft(pos -> handleBlockEntityData(pos, nbt, null))
-                    .ifRight(entityId -> handleEntityData(entityId, nbt));
+            this.receivedBackupPackets = true;
+            either.ifLeft(pos ->     handleBlockEntityData(pos, nbt, null))
+                  .ifRight(entityId -> handleEntityData(entityId, nbt));
         }
     }
 
     public boolean hasPendingChunk(ChunkPos pos)
     {
-        if (this.hasServuxServer())
+        if (this.hasServuxServer() || this.getIfReceivedBackupPackets())
         {
             return this.pendingChunks.contains(pos);
         }
@@ -937,7 +1138,8 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     private void checkForPendingChunkTimeout(ChunkPos pos)
     {
-        if (this.hasServuxServer() && this.hasPendingChunk(pos))
+        if ((this.hasServuxServer() && this.hasPendingChunk(pos)) ||
+            (this.getIfReceivedBackupPackets() && this.hasPendingChunk(pos)))
         {
             long now = Util.getMeasuringTimeMs();
 
@@ -950,9 +1152,9 @@ public class EntitiesDataStorage implements IClientTickHandler
 
             long duration = now - this.pendingChunkTimeout.get(pos);
 
-            if (duration > this.chunkTimeoutMs)
+            if (duration > (this.getChunkTimeoutMs()))
             {
-                //Litematica.debugLog("EntitiesDataStorage#checkForPendingChunkTimeout(): [ChunkPos {}] has timed out waiting for data, marking complete without Receiving Entity Data.", pos.toString());
+                Litematica.debugLog("EntitiesDataStorage#checkForPendingChunkTimeout(): [ChunkPos {}] has timed out waiting for data, marking complete without Receiving Entity Data.", pos.toString());
                 this.pendingChunkTimeout.remove(pos);
                 this.pendingChunks.remove(pos);
                 this.completedChunks.add(pos);
@@ -960,9 +1162,23 @@ public class EntitiesDataStorage implements IClientTickHandler
         }
     }
 
-    public boolean hasCompletedChunk(ChunkPos pos)
+    private long getChunkTimeoutMs()
     {
         if (this.hasServuxServer())
+        {
+            return this.chunkTimeoutMs;
+        }
+        else if (this.getIfReceivedBackupPackets())
+        {
+            return this.chunkTimeoutMs + 3000L;
+        }
+
+        return 1000L;
+    }
+
+    public boolean hasCompletedChunk(ChunkPos pos)
+    {
+        if (this.hasServuxServer() || this.getIfReceivedBackupPackets())
         {
             this.checkForPendingChunkTimeout(pos);
             return this.completedChunks.contains(pos);
@@ -973,7 +1189,7 @@ public class EntitiesDataStorage implements IClientTickHandler
 
     public void markCompletedChunkDirty(ChunkPos pos)
     {
-        if (this.hasServuxServer())
+        if (this.hasServuxServer() || this.getIfReceivedBackupPackets())
         {
             this.completedChunks.remove(pos);
         }

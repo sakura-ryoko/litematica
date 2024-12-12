@@ -24,6 +24,7 @@ public class BlockInfo
     private final List<String> props;
     private final int totalWidth;
     private final int totalHeight;
+    private boolean useBackgroundMask = false;
 
     public BlockInfo(BlockState state, String titleKey)
     {
@@ -55,10 +56,20 @@ public class BlockInfo
         return totalHeight;
     }
 
+    public void toggleUseBackgroundMask(boolean toggle)
+    {
+        this.useBackgroundMask = toggle;
+    }
+
     public void render(int x, int y, MinecraftClient mc, DrawContext drawContext)
     {
         if (this.state != null)
         {
+            if (this.useBackgroundMask)
+            {
+                fi.dy.masa.litematica.render.RenderUtils.renderBackgroundMask(x + 1, y + 1, this.totalWidth - 1, this.totalHeight - 1, drawContext);
+            }
+
             RenderUtils.drawOutlinedBox(x, y, this.totalWidth, this.totalHeight, 0xFF000000, GuiBase.COLOR_HORIZONTAL_BAR);
 
             TextRenderer textRenderer = mc.textRenderer;
