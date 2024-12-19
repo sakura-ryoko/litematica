@@ -8,7 +8,9 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.StairsBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.StairShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -19,6 +21,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
@@ -217,9 +220,54 @@ public class SchematicPlacingUtils
                         continue;
                     }
 
+                    // Fix Stair Rotation / Mirroring
+                    StairShape stairShape = null;
+                    Direction stairFacing = null;
+
+                    if (state.getBlock() instanceof StairsBlock && mirrorMain != BlockMirror.NONE)
+                    {
+                        stairShape = state.get(Properties.STAIR_SHAPE);
+                        stairFacing = state.get(Properties.HORIZONTAL_FACING);
+                        //System.out.printf("placeBlocksWithinChunk() - STAIRS: pre-Mirror:0: pos: [%s] // state [%s] // facing: [%s]\n",
+                                          //pos.toShortString(), state.toString(), stairFacing.getName());
+                    }
+
                     if (mirrorMain != BlockMirror.NONE) { state = state.mirror(mirrorMain); }
                     if (mirrorSub != BlockMirror.NONE)  { state = state.mirror(mirrorSub); }
                     if (rotationCombined != BlockRotation.NONE) { state = state.rotate(rotationCombined); }
+
+                    if (state.getBlock() instanceof StairsBlock && stairFacing != null)
+                    {
+                        //System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:1: pos: [%s] // state [%s] // facing: [%s] (ORG Facing: %s, ORG Shape: %s)\n",
+                                          //pos.toShortString(), state.toString(), state.get(Properties.HORIZONTAL_FACING).getName(),
+                                          //stairFacing.getName(), stairShape.name());
+
+                        if (mirrorMain == BlockMirror.LEFT_RIGHT &&
+                           (stairFacing == Direction.EAST || stairFacing == Direction.WEST) &&
+                           (state.get(Properties.STAIR_SHAPE) == StairShape.INNER_RIGHT || state.get(Properties.STAIR_SHAPE) == StairShape.INNER_LEFT))
+                        {
+                            state = state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
+                        }
+                        else if (mirrorMain == BlockMirror.FRONT_BACK)
+                        {
+                            if ((state.get(Properties.STAIR_SHAPE) == StairShape.INNER_RIGHT || state.get(Properties.STAIR_SHAPE) == StairShape.INNER_LEFT))
+                            {
+                                state = state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
+                            }
+                            else if (state.get(Properties.STAIR_SHAPE) == StairShape.OUTER_RIGHT)
+                            {
+                                state = state.with(Properties.STAIR_SHAPE, StairShape.OUTER_LEFT);
+                            }
+                            else if (state.get(Properties.STAIR_SHAPE) == StairShape.OUTER_LEFT)
+                            {
+                                state = state.with(Properties.STAIR_SHAPE, StairShape.OUTER_RIGHT);
+                            }
+                        }
+
+                        //System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:2: pos: [%s] // state [%s] // facing: [%s] (ORG Facing: %s, ORG Shape: %s)\n",
+                                          //pos.toShortString(), state.toString(), state.get(Properties.HORIZONTAL_FACING).getName(),
+                                          //stairFacing.getName(), stairShape.name());
+                    }
 
                     BlockEntity te = world.getBlockEntity(pos);
 
