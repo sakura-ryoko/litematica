@@ -39,6 +39,7 @@ import fi.dy.masa.malilib.util.position.Vec3d;
 import fi.dy.masa.malilib.util.position.Vec3i;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.mixin.IMixinStairsBlock;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
@@ -222,53 +223,69 @@ public class SchematicPlacingUtils
 
                     // Fix Stair Rotation / Mirroring
                     StairShape stairShape = null;
-                    Direction stairFacing = null;
 
                     if (state.getBlock() instanceof StairsBlock && mirrorMain != BlockMirror.NONE)
                     {
-                        //stairShape = state.get(Properties.STAIR_SHAPE);
-                        //stairFacing = state.get(Properties.HORIZONTAL_FACING);
-                        //System.out.printf("placeBlocksWithinChunk() - STAIRS: pre-Mirror:0: pos: [%s] // state [%s] // facing: [%s]\n",
-                                          //pos.toShortString(), state.toString(), stairFacing.getName());
+                        stairShape = state.get(Properties.STAIR_SHAPE);
+                        /*
+                        System.out.printf("placeBlocksWithinChunk() - STAIRS: pre-Mirror:0: pos: [%s] // state [%s]\n",
+                                          pos.toShortString(), state.toString());
+                         */
                     }
 
                     if (mirrorMain != BlockMirror.NONE) { state = state.mirror(mirrorMain); }
                     if (mirrorSub != BlockMirror.NONE)  { state = state.mirror(mirrorSub); }
                     if (rotationCombined != BlockRotation.NONE) { state = state.rotate(rotationCombined); }
 
-                    if (state.getBlock() instanceof StairsBlock && stairFacing != null)
+                    if (state.getBlock() instanceof StairsBlock && stairShape != null)
                     {
-                        //System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:1: pos: [%s] // state [%s] // facing: [%s] (ORG Facing: %s, ORG Shape: %s)\n",
-                                          //pos.toShortString(), state.toString(), state.get(Properties.HORIZONTAL_FACING).getName(),
-                                          //stairFacing.getName(), stairShape.name());
+                        /*
+                        System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:1: pos: [%s] // state [%s] (ORG Shape: %s)\n",
+                                          pos.toShortString(), state.toString(),
+                                          stairShape.name());
+                         */
 
-                    /*
-                        if (mirrorMain == BlockMirror.LEFT_RIGHT &&
-                           (stairFacing == Direction.EAST || stairFacing == Direction.WEST) &&
-                           (state.get(Properties.STAIR_SHAPE) == StairShape.INNER_RIGHT || state.get(Properties.STAIR_SHAPE) == StairShape.INNER_LEFT))
+                        if (mirrorMain != BlockMirror.NONE && stairShape != StairShape.STRAIGHT)
                         {
-                            state = state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
-                        }
-                        else if (mirrorMain == BlockMirror.FRONT_BACK)
-                        {
-                            if ((state.get(Properties.STAIR_SHAPE) == StairShape.INNER_RIGHT || state.get(Properties.STAIR_SHAPE) == StairShape.INNER_LEFT))
-                            {
-                                state = state.rotate(BlockRotation.COUNTERCLOCKWISE_90);
-                            }
-                            else if (state.get(Properties.STAIR_SHAPE) == StairShape.OUTER_RIGHT)
-                            {
-                                state = state.with(Properties.STAIR_SHAPE, StairShape.OUTER_LEFT);
-                            }
-                            else if (state.get(Properties.STAIR_SHAPE) == StairShape.OUTER_LEFT)
-                            {
-                                state = state.with(Properties.STAIR_SHAPE, StairShape.OUTER_RIGHT);
-                            }
-                        }
-                     */
+                            StairShape newShape = IMixinStairsBlock.litematica_invokeGetStairShape(state, world, pos);
 
-                        //System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:2: pos: [%s] // state [%s] // facing: [%s] (ORG Facing: %s, ORG Shape: %s)\n",
-                                          //pos.toShortString(), state.toString(), state.get(Properties.HORIZONTAL_FACING).getName(),
-                                          //stairFacing.getName(), stairShape.name());
+                            // Best case scenario, and don't cross Outer/Inner types
+                            if (newShape != StairShape.STRAIGHT &&
+                                !((stairShape == StairShape.INNER_LEFT || stairShape == StairShape.INNER_RIGHT) &&
+                                  newShape == StairShape.OUTER_LEFT || newShape == StairShape.OUTER_RIGHT) &&
+                                !((stairShape == StairShape.OUTER_LEFT || stairShape == StairShape.OUTER_RIGHT) &&
+                                  newShape == StairShape.INNER_LEFT || newShape == StairShape.INNER_RIGHT)
+                                )
+                            {
+                                state = state.with(StairsBlock.SHAPE, newShape);
+                            }
+                            else
+                            {
+                                // Flip Shape if Invoker fails (It works? :)
+                                if (stairShape == StairShape.INNER_LEFT)
+                                {
+                                    state = state.with(StairsBlock.SHAPE, StairShape.INNER_RIGHT);
+                                }
+                                else if (stairShape == StairShape.INNER_RIGHT)
+                                {
+                                    state = state.with(StairsBlock.SHAPE, StairShape.INNER_LEFT);
+                                }
+                                else if (stairShape == StairShape.OUTER_LEFT)
+                                {
+                                    state = state.with(StairsBlock.SHAPE, StairShape.OUTER_RIGHT);
+                                }
+                                else if (stairShape == StairShape.OUTER_RIGHT)
+                                {
+                                    state = state.with(StairsBlock.SHAPE, StairShape.OUTER_LEFT);
+                                }
+                            }
+                        }
+
+                        /*
+                        System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:2: pos: [%s] // state [%s] (ORG Shape: %s)\n",
+                                          pos.toShortString(), state.toString(),
+                                          stairShape.name());
+                         */
                     }
 
                     BlockEntity te = world.getBlockEntity(pos);
