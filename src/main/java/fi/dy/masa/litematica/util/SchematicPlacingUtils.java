@@ -226,8 +226,8 @@ public class SchematicPlacingUtils
 
                     if (state.getBlock() instanceof StairsBlock && mirrorMain != BlockMirror.NONE)
                     {
-                        stairShape = state.get(Properties.STAIR_SHAPE);
-                        stairFacing = state.get(Properties.HORIZONTAL_FACING);
+                        //stairShape = state.get(Properties.STAIR_SHAPE);
+                        //stairFacing = state.get(Properties.HORIZONTAL_FACING);
                         //System.out.printf("placeBlocksWithinChunk() - STAIRS: pre-Mirror:0: pos: [%s] // state [%s] // facing: [%s]\n",
                                           //pos.toShortString(), state.toString(), stairFacing.getName());
                     }
@@ -242,6 +242,7 @@ public class SchematicPlacingUtils
                                           //pos.toShortString(), state.toString(), state.get(Properties.HORIZONTAL_FACING).getName(),
                                           //stairFacing.getName(), stairShape.name());
 
+                    /*
                         if (mirrorMain == BlockMirror.LEFT_RIGHT &&
                            (stairFacing == Direction.EAST || stairFacing == Direction.WEST) &&
                            (state.get(Properties.STAIR_SHAPE) == StairShape.INNER_RIGHT || state.get(Properties.STAIR_SHAPE) == StairShape.INNER_LEFT))
@@ -263,6 +264,7 @@ public class SchematicPlacingUtils
                                 state = state.with(Properties.STAIR_SHAPE, StairShape.OUTER_RIGHT);
                             }
                         }
+                     */
 
                         //System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:2: pos: [%s] // state [%s] // facing: [%s] (ORG Facing: %s, ORG Shape: %s)\n",
                                           //pos.toShortString(), state.toString(), state.get(Properties.HORIZONTAL_FACING).getName(),
