@@ -70,6 +70,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       EXECUTE_REQUIRE_TOOL        = new ConfigBoolean("executeRequireHoldingTool", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_CHEST_MIRROR            = new ConfigBoolean("fixChestMirror", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_RAIL_ROTATION           = new ConfigBoolean("fixRailRotation", true).apply(GENERIC_KEY);
+        public static final ConfigBoolean       FIX_STAIRS_MIRROR           = new ConfigBoolean("fixStairsMirror", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       GENERATE_LOWERCASE_NAMES    = new ConfigBoolean("generateLowercaseNames", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       HIGHLIGHT_BLOCK_IN_INV      = new ConfigBoolean("highlightBlockInInventory", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       ITEM_USE_PACKET_CHECK_BYPASS= new ConfigBoolean("itemUsePacketCheckBypass", true).apply(GENERIC_KEY);
@@ -130,6 +131,7 @@ public class Configs implements IConfigHandler
                 EXECUTE_REQUIRE_TOOL,
                 FIX_CHEST_MIRROR,
                 FIX_RAIL_ROTATION,
+                FIX_STAIRS_MIRROR,
                 GENERATE_LOWERCASE_NAMES,
                 HIGHLIGHT_BLOCK_IN_INV,
                 ITEM_USE_PACKET_CHECK_BYPASS,

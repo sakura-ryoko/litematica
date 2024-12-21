@@ -221,72 +221,9 @@ public class SchematicPlacingUtils
                         continue;
                     }
 
-                    // Fix Stair Rotation / Mirroring
-                    StairShape stairShape = null;
-
-                    if (state.getBlock() instanceof StairsBlock && mirrorMain != BlockMirror.NONE)
-                    {
-                        stairShape = state.get(Properties.STAIR_SHAPE);
-                        /*
-                        System.out.printf("placeBlocksWithinChunk() - STAIRS: pre-Mirror:0: pos: [%s] // state [%s]\n",
-                                          pos.toShortString(), state.toString());
-                         */
-                    }
-
                     if (mirrorMain != BlockMirror.NONE) { state = state.mirror(mirrorMain); }
                     if (mirrorSub != BlockMirror.NONE)  { state = state.mirror(mirrorSub); }
                     if (rotationCombined != BlockRotation.NONE) { state = state.rotate(rotationCombined); }
-
-                    if (state.getBlock() instanceof StairsBlock && stairShape != null)
-                    {
-                        /*
-                        System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:1: pos: [%s] // state [%s] (ORG Shape: %s)\n",
-                                          pos.toShortString(), state.toString(),
-                                          stairShape.name());
-                         */
-
-                        if (mirrorMain != BlockMirror.NONE && stairShape != StairShape.STRAIGHT)
-                        {
-                            StairShape newShape = IMixinStairsBlock.litematica_invokeGetStairShape(state, world, pos);
-
-                            // Best case scenario, and don't cross Outer/Inner types
-                            if (newShape != StairShape.STRAIGHT &&
-                                !((stairShape == StairShape.INNER_LEFT || stairShape == StairShape.INNER_RIGHT) &&
-                                  newShape == StairShape.OUTER_LEFT || newShape == StairShape.OUTER_RIGHT) &&
-                                !((stairShape == StairShape.OUTER_LEFT || stairShape == StairShape.OUTER_RIGHT) &&
-                                  newShape == StairShape.INNER_LEFT || newShape == StairShape.INNER_RIGHT)
-                                )
-                            {
-                                state = state.with(StairsBlock.SHAPE, newShape);
-                            }
-                            else
-                            {
-                                // Flip Shape if Invoker fails (It works? :)
-                                if (stairShape == StairShape.INNER_LEFT)
-                                {
-                                    state = state.with(StairsBlock.SHAPE, StairShape.INNER_RIGHT);
-                                }
-                                else if (stairShape == StairShape.INNER_RIGHT)
-                                {
-                                    state = state.with(StairsBlock.SHAPE, StairShape.INNER_LEFT);
-                                }
-                                else if (stairShape == StairShape.OUTER_LEFT)
-                                {
-                                    state = state.with(StairsBlock.SHAPE, StairShape.OUTER_RIGHT);
-                                }
-                                else if (stairShape == StairShape.OUTER_RIGHT)
-                                {
-                                    state = state.with(StairsBlock.SHAPE, StairShape.OUTER_LEFT);
-                                }
-                            }
-                        }
-
-                        /*
-                        System.out.printf("placeBlocksWithinChunk() - STAIRS:post-Mirror:2: pos: [%s] // state [%s] (ORG Shape: %s)\n",
-                                          pos.toShortString(), state.toString(),
-                                          stairShape.name());
-                         */
-                    }
 
                     BlockEntity te = world.getBlockEntity(pos);
 
