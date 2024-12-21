@@ -40,6 +40,7 @@
   "litematica.config.generic.name.executeRequireHoldingTool": "executeRequireHoldingTool",
   "litematica.config.generic.name.fixChestMirror": "fixChestMirror",
   "litematica.config.generic.name.fixRailRotation": "fixRailRotation",
+  "litematica.config.generic.name.fixStairsMirror": "fixStairsMirror",
   "litematica.config.generic.name.generateLowercaseNames": "generateLowercaseNames",
   "litematica.config.generic.name.highlightBlockInInventory": "highlightBlockInInventory",
   "litematica.config.generic.name.itemUsePacketCheckBypass": "itemUsePacketCheckBypass",
@@ -258,6 +259,7 @@
   "litematica.config.generic.comment.executeRequireHoldingTool": "Require holding an enabled tool item\nfor the executeOperation hotkey to work",
   "litematica.config.generic.comment.fixChestMirror": "Enable a fix to the broken chest mirror code in vanilla",
   "litematica.config.generic.comment.fixRailRotation": "If true, then a fix is applied for the vanilla bug in rails,\nwhere the 180 degree rotations of straight north-south and\neast-west rails rotate 90 degrees counterclockwise instead >_>",
+  "litematica.config.generic.comment.fixStairsMirror": "If true, then a fix is applied for the vanilla bug in stairs,\nwhere the Stair Shapes are not handled correctly depending\non which Block Facing Axis they are oriented upon.",
   "litematica.config.generic.comment.generateLowercaseNames": "If enabled, then by default the suggested schematic names\nwill be lowercase and using underscores instead of spaces",
   "litematica.config.generic.comment.highlightBlockInInventory": "When enabled, highlights the item (including Shulker Boxes containing it)\nof the looked at block in the schematic",
   "litematica.config.generic.comment.itemUsePacketCheckBypass": "Bypass the new distance/coordinate check that was added in 1.18.2.\n\nThat check breaks the \"accurate placement protocol\" and causes\nany blocks placed with a rotation (or other property) request to just become ghost blocks.\n\nThere is basically no need to ever disable this.\nThe check didn't even exist ever before 1.18.2.",
@@ -922,5 +924,6 @@
   "litematica.tool_mode.name.paste_schematic": "スキーマティックをワールドにペースト",
   "litematica.tool_mode.name.rebuild": "スキーマティックの編集",
   "litematica.tool_mode.name.replace_block": "ブロックを置換",
-  "litematica.tool_mode.name.schematic_placement": "スキーマティックの配置"
+  "litematica.tool_mode.name.schematic_placement": "スキーマティックの配置",
+  "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
 }

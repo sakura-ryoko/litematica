@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
+    "IMixinAbstractBlock",
     "IMixinChunkDeltaUpdateS2CPacket",
     "IMixinDataQueryHandler",
     "IMixinEntity",
@@ -35,6 +36,7 @@
     "MixinModelOverrideList",
     "MixinRailBlocks",
     "MixinServerPlayNetworkHandler",
+    "MixinStairsBlock",
     "MixinWorld",
     "MixinWorldChunk",
     "MixinWorldRenderer"

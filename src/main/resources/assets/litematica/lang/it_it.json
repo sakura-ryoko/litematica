@@ -40,6 +40,7 @@
   "litematica.config.generic.name.executeRequireHoldingTool": "eseguireRichiedeStrumentoInMano",
   "litematica.config.generic.name.fixChestMirror": "correggiSpecchioCassa",
   "litematica.config.generic.name.fixRailRotation": "correggiRotazioneBinario",
+  "litematica.config.generic.name.fixStairsMirror": "fixStairsMirror",
   "litematica.config.generic.name.generateLowercaseNames": "generaNomiMinuscoli",
   "litematica.config.generic.name.highlightBlockInInventory": "evidenziaBloccoInInventario",
   "litematica.config.generic.name.itemUsePacketCheckBypass": "bypassControlloPacchettoUsoOggetto",
@@ -258,6 +259,7 @@
   "litematica.config.generic.comment.executeRequireHoldingTool": "Richiedi di tenere un oggetto strumento abilitato\nper far funzionare il tasto di scelta rapida executeOperation.",
   "litematica.config.generic.comment.fixChestMirror": "Abilita una correzione per il codice di specchiatura delle casse\nrotto nella versione Vanilla.",
   "litematica.config.generic.comment.fixRailRotation": "Se vero, viene applicata una correzione per il bug Vanilla nelle rotaie,\nnel quale le rotazioni a 180 gradi delle rotaie dritte nord-sud e\neast-west ruotano di 90 gradi in senso antiorario invece di ruotare di 180 gradi.",
+  "litematica.config.generic.comment.fixStairsMirror": "If true, then a fix is applied for the vanilla bug in stairs,\nwhere the Stair Shapes are not handled correctly depending\non which Block Facing Axis they are oriented upon.",
   "litematica.config.generic.comment.generateLowercaseNames": "Se abilitato, i nomi degli schemi suggeriti saranno\nper impostazione predefinita in minuscolo e con l'uso di underscore invece di spazi.",
   "litematica.config.generic.comment.highlightBlockInInventory": "Se abilitato, evidenzia l'oggetto (compresi i Shulker Boxes che lo contengono)\ndel blocco osservato nello schema.",
   "litematica.config.generic.comment.itemUsePacketCheckBypass": "Ignora il nuovo controllo distanza/coordinata aggiunto in 1.18.2.\n\nQuesto controllo rompe il \"protocollo di posizionamento accurato\" e causa\nche i blocchi posizionati con una richiesta di rotazione (o altra proprietà) diventino solo blocchi fantasma.\n\nNon c'è praticamente nessun motivo per disabilitare questa opzione.\nIl controllo non è mai esistito prima della versione 1.18.2.",
@@ -922,5 +924,6 @@
   "litematica.tool_mode.name.paste_schematic": "Incolla Schema nel mondo",
   "litematica.tool_mode.name.rebuild": "Modifica Schema",
   "litematica.tool_mode.name.replace_block": "Sostituisci blocco",
-  "litematica.tool_mode.name.schematic_placement": "Posizionamento Schema"
+  "litematica.tool_mode.name.schematic_placement": "Posizionamento Schema",
+  "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
 }
