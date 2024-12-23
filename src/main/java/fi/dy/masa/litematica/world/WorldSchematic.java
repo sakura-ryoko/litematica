@@ -84,15 +84,19 @@ public class WorldSchematic extends World
         this.dimensionType = dimension;
         if (!registryManager.equals(DynamicRegistryManager.EMPTY))
         {
-            //this.biome = registryManager.get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
             this.setDimension(registryManager);
         }
         else
         {
-            //this.biome = this.mc.world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS);
             this.setDimension(this.mc.world.getRegistryManager());
         }
         this.tickManager = new TickManager();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "SchematicWorld["+REGISTRY_KEY.getValue().toString()+"]";
     }
 
     private void setDimension(DynamicRegistryManager registryManager)
