@@ -331,7 +331,11 @@ public class WorldUtils
 
     public static boolean isClientChunkLoaded(ClientWorld world, int chunkX, int chunkZ)
     {
-        return ((ClientChunkManager) world.getChunkManager()).getChunk(chunkX, chunkZ, ChunkStatus.FULL, false) != null;
+        boolean test = ((ClientChunkManager) world.getChunkManager()).getChunk(chunkX, chunkZ, ChunkStatus.FULL, false) != null;
+
+        //System.out.printf("isClientChunkLoaded(): World: [%s] / ChunkPos[%d, %d] --> [%s]\n", world.toString(), chunkX, chunkZ, test);
+
+        return test;
     }
 
     public static void loadChunksSchematicWorld(WorldSchematic world, BlockPos origin, Vec3i areaSize)
