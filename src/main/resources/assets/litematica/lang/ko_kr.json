@@ -983,7 +983,7 @@
     "litematica.message.schematic_projects.version_saved": "새 버전 (#%s) 저장됨 '%s'",
 
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "참고: 현재 간단 영역 선택 모드입니다.",
-    "litematica.message.warn.layer_mode_currently_at": 참고: 현재 '%s' 렌더 레이어 모드 입니다.",
+    "litematica.message.warn.layer_mode_currently_at": "참고: 현재 '%s' 렌더 레이어 모드 입니다.",
     "litematica.message.warn.main_rendering_disabled": "경고: 메인 렌더링이 현재 비활성화되었습니다.\n표시 -> %s, 또는 단축키 -> %s ['%s']",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "경고: 스키메틱 블록 렌더링이 현재 비활성화되었습니다.\n표시 -> %s, 또는 단축키 -> %s ['%s']",
     "litematica.message.warn.schematic_load_non_litematica": "경고: 라이트메티카 형식이 아닌 스키메틱을 불러오면, 생성된 배치는 유지되지 않습니다.\n또한 스키메틱을 여러 번 불러와야 할 때, 스키메틱 타입 변환 랙 스파이크 (큰 스키메틱의 경우) 가 매 불러오기 마다 발생할 것입니다.\n\n따라서 스키메틱 관리자 메뉴를 통해 스키메틱을 가져와 라이트메티카 형식으로 저장하거나, 더 좋은 방법은 MCEdit 또는 라이트메티카의 붙여넣기 모드를 사용하여 원본 스키메틱을 임시로 월드에 붙여넣고, 이를 바탕으로 새로운 라이트메티카 스키메틱을 만드는 것입니다. 적용 가능한 경우 건축물을 긴밀하게 캡처하기 위해서는 여러 서브-지역을 사용하는 것이 좋습니다.",
