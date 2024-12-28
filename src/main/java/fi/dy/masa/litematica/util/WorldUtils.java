@@ -882,10 +882,23 @@ public class WorldUtils
         {
             for (Property<?> p : propList)
             {
-                //if (((p instanceof EnumProperty<?> ep) && ep.getType().equals(Direction.class) == false) &&
+                //System.out.printf("(WorldUtils):v3: check property [%s], whitelisted [%s], blacklisted [%s]\n", p.getName(), PlacementHandler.WHITELISTED_PROPERTIES.contains(p), PlacementHandler.BLACKLISTED_PROPERTIES.contains(p));
+
+                /*
                 if ((property.isPresent() && !property.get().equals(p)) ||
                     (property.isEmpty()) &&
                     PlacementHandler.WHITELISTED_PROPERTIES.contains(p))
+                    //PlacementHandler.WHITELISTED_PROPERTIES.contains(p) &&
+                    //!PlacementHandler.BLACKLISTED_PROPERTIES.contains(p))
+                 */
+
+                if (property.isPresent() && property.get().equals(p))
+                {
+                    //System.out.printf("(WorldUtils):v3: skipping prot val: 0x%08X [Property %s]\n", protocolValue, p.getName());
+                    continue;
+                }
+                if (PlacementHandler.WHITELISTED_PROPERTIES.contains(p) &&
+                    !PlacementHandler.BLACKLISTED_PROPERTIES.contains(p))
                 {
                     @SuppressWarnings("unchecked")
                     Property<T> prop = (Property<T>) p;
@@ -905,6 +918,12 @@ public class WorldUtils
                         ++propCount;
                     }
                 }
+                /*
+                else
+                {
+                    System.out.printf("(WorldUtils):v3: skipping prot val: 0x%08X [Property %s]\n", protocolValue, p.getName());
+                }
+                 */
             }
         }
         catch (Exception e)
