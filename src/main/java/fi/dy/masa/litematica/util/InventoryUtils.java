@@ -3,7 +3,6 @@ package fi.dy.masa.litematica.util;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import com.llamalad7.mixinextras.lib.apache.commons.tuple.Pair;
 import org.apache.http.annotation.Experimental;
 
 import net.minecraft.block.Block;
@@ -34,6 +33,9 @@ import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.world.WorldSchematic;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.annotation.Experimental;
 
 public class InventoryUtils
 {
@@ -410,7 +412,32 @@ public class InventoryUtils
             return null;
         }
 
-        return new InventoryOverlay.Context(InventoryOverlay.getBestInventoryType(inv, nbt), inv, be != null ? be : world.getBlockEntity(pos), null, nbt);
+        return new InventoryOverlay.Context(InventoryOverlay.getBestInventoryType(inv, nbt), inv, be != null ? be : world.getBlockEntity(pos), null, nbt, new Refresher());
+    }
+
+    // This really isn't used for this use case; but this is just here for Compat
+    public static class Refresher implements InventoryOverlay.Refresher
+    {
+
+        @Override
+        public InventoryOverlay.Context onContextRefresh(InventoryOverlay.Context data, World world)
+        {
+            // Refresh data
+            if (data.be() != null)
+            {
+                getTargetInventory(world, data.be().getPos());
+                data = getTargetInventoryFromBlock(data.be().getWorld(), data.be().getPos(), data.be(), data.nbt());
+            }
+            /*
+            else if (data.entity() != null)
+            {
+                EntitiesDataStorage.getInstance().requestEntity(world, data.entity().getId());
+                data = getTargetInventoryFromEntity(data.entity(), data.nbt());
+            }
+             */
+
+            return data;
+        }
     }
 
     /**
