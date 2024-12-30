@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.util;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.annotation.Experimental;
 
 import net.minecraft.block.Block;
@@ -33,9 +34,6 @@ import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.world.WorldSchematic;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.http.annotation.Experimental;
 
 public class InventoryUtils
 {
