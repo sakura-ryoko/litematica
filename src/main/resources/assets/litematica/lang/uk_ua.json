@@ -259,7 +259,7 @@
   "litematica.config.generic.comment.executeRequireHoldingTool": "Потрібно утримувати увімкнений інструмент для роботи гарячої клавіші executeOperation",
   "litematica.config.generic.comment.fixChestMirror": "Увімкнути виправлення зламаного коду дзеркала скрині у ваніллі",
   "litematica.config.generic.comment.fixRailRotation": "Якщо «true», то буде застосовано виправлення для ванілльної помилки в рейках, де обертання на 180 градусів прямих\nрейок з півночі на південь і зі сходу на схід обертається на 90 градусів проти годинникової стрілки. >_>",
-  "litematica.config.generic.comment.fixStairsMirror": "If true, then a fix is applied for the vanilla bug in stairs,\nwhere the Stair Shapes are not handled correctly depending\non which Block Facing Axis they are oriented upon.",
+  "litematica.config.generic.comment.fixStairsMirror": "Якщо «true», то буде застосовано виправлення для ванілльної помилки на сходах,\nде фігури сходів не обробляються належним чином залежно\nвід того, на якій осі блоку вони орієнтовані",
   "litematica.config.generic.comment.generateLowercaseNames": "Якщо увімкнено, то за замовчуванням запропоновані назви схематик будуть написані\nмалими літерами та використовуватимуть підкреслення замість пробілів",
   "litematica.config.generic.comment.highlightBlockInInventory": "Якщо увімкнено, підсвічується предмет (включаючи шалкерові коробки, які його містять) переглянутого блоку на схематиці",
   "litematica.config.generic.comment.itemUsePacketCheckBypass": "Обійти нову перевірку відстані/координат, додану в 1.18.2\n\nЦя перевірка порушує «протокол точного розміщення» та спричиняє будь-які блоки, розміщені з запит на обертання\n(або іншу властивість), щоб просто стати фантомними блоками\n\nЗагалом немає потреби вимикати це\nПеревірки навіть не існувало до 1.18.2",
@@ -342,7 +342,7 @@
   "litematica.config.info_overlays.comment.infoHudScale": "Коефіцієнт масштабування для загального інформаційного тексту HUD",
   "litematica.config.info_overlays.comment.infoOverlaysTargetFluids": "Якщо увімкнено, накладення інформації про блоки та рядки інформації про\nблоки можуть проводити трасування променів до рідин, а не проходити через них",
   "litematica.config.info_overlays.comment.materialListHudMaxLines": "Максимальна кількість предметів, які одночасно промальовуються на інформаційному панелі списку матеріалів",
-  "litematica.config.info_overlays.comment.materialListHudScale": "Коефіцієнт масштабу для інформаційний HUD списку матеріалів",
+  "litematica.config.info_overlays.comment.materialListHudScale": "Коефіцієнт масштабу для інформаційного HUD списку матеріалів",
   "litematica.config.info_overlays.comment.statusInfoHud": "Увімкнути засіб промальовування інформації про статус HUD, який відображає кілька бітів інформації про стан,\nнаприклад поточний режим шару та стан увімкнених засобів промальовування",
   "litematica.config.info_overlays.comment.statusInfoHudAuto": "Дозволити автоматичне миттєве увімкнення HUD інформації про статус «за потреби», наприклад,\nпід час створення розташування та промальовування вимкнено",
   "litematica.config.info_overlays.comment.toolHudOffsetX": "Зміщення X інформаційного HUD від краю екрана",
@@ -925,5 +925,5 @@
   "litematica.tool_mode.name.rebuild": "Редагувати схематику",
   "litematica.tool_mode.name.replace_block": "Замінити блок",
   "litematica.tool_mode.name.schematic_placement": "Розміщення схематики",
-  "modmenu.descriptionTranslation.litematica": "Сучасний мод схематик для LiteLoader, Rift, Fabric тощо"
+  "modmenu.descriptionTranslation.litematica": "Сучасний мод для схематик, що підтримує LiteLoader, Rift, Fabric і не тільки!"
 }
