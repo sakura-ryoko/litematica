@@ -4,13 +4,15 @@ import javax.annotation.Nullable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.util.PositionUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
-import fi.dy.masa.malilib.util.PositionUtils.CoordinateType;
+
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
+
+import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
+import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.util.PositionUtils;
 
 public class SubRegionPlacement
 {

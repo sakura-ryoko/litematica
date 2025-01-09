@@ -60,7 +60,7 @@ public class ChunkSchematic extends WorldChunk
     }
 
     @Override
-    public BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving)
+    public BlockState setBlockState(BlockPos pos, BlockState state, int isMoving)
     {
         BlockState stateOld = this.getBlockState(pos);
         int y = pos.getY();

@@ -1,31 +1,6 @@
 package fi.dy.masa.litematica.schematic.conversion;
 
-import net.minecraft.block.AbstractBannerBlock;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.AbstractRedstoneGateBlock;
-import net.minecraft.block.AbstractSkullBlock;
-import net.minecraft.block.BannerBlock;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ChorusPlantBlock;
-import net.minecraft.block.DoorBlock;
-import net.minecraft.block.FenceBlock;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.block.HorizontalConnectingBlock;
-import net.minecraft.block.NoteBlock;
-import net.minecraft.block.PaneBlock;
-import net.minecraft.block.RedstoneWireBlock;
-import net.minecraft.block.RepeaterBlock;
-import net.minecraft.block.SkullBlock;
-import net.minecraft.block.SnowyBlock;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.block.TripwireBlock;
-import net.minecraft.block.VineBlock;
-import net.minecraft.block.WallBannerBlock;
-import net.minecraft.block.WallSkullBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.block.enums.WireConnection;
@@ -38,11 +13,11 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.litematica.mixin.IMixinFenceGateBlock;
 import fi.dy.masa.litematica.mixin.IMixinRedstoneWireBlock;
 import fi.dy.masa.litematica.mixin.IMixinStairsBlock;
 import fi.dy.masa.litematica.mixin.IMixinVineBlock;
-import fi.dy.masa.malilib.util.Constants;
 
 public class SchematicConversionFixers
 {
@@ -181,7 +156,7 @@ public class SchematicConversionFixers
 
     public static final IStateFixer FIXER_DIRT_SNOWY = (reader, state, pos) -> {
         Block block = reader.getBlockState(pos.up()).getBlock();
-        return state.with(SnowyBlock.SNOWY, Boolean.valueOf(block == Blocks.SNOW_BLOCK || block == Blocks.SNOW));
+        return state.with(SnowyBlock.SNOWY, (block == Blocks.SNOW_BLOCK || block == Blocks.SNOW));
     };
 
     public static final IStateFixer FIXER_DOOR = (reader, state, pos) -> {
@@ -226,7 +201,7 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_FENCE = (reader, state, pos) -> {
         FenceBlock fence = (FenceBlock) state.getBlock();
 
-        for (Direction side : fi.dy.masa.malilib.util.PositionUtils.HORIZONTAL_DIRECTIONS)
+        for (Direction side : fi.dy.masa.malilib.util.position.PositionUtils.HORIZONTAL_DIRECTIONS)
         {
             BlockPos posAdj = pos.offset(side);
             BlockState stateAdj = reader.getBlockState(posAdj);
@@ -327,7 +302,7 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_PANE = (reader, state, pos) -> {
         PaneBlock pane = (PaneBlock) state.getBlock();
 
-        for (Direction side : fi.dy.masa.malilib.util.PositionUtils.HORIZONTAL_DIRECTIONS)
+        for (Direction side : fi.dy.masa.malilib.util.position.PositionUtils.HORIZONTAL_DIRECTIONS)
         {
             BlockPos posAdj = pos.offset(side);
             BlockState stateAdj = reader.getBlockState(posAdj);
@@ -515,10 +490,10 @@ public class SchematicConversionFixers
         TripwireBlock wire = (TripwireBlock) state.getBlock();
 
         return state
-                .with(TripwireBlock.NORTH, ((TripwireBlock) wire).shouldConnectTo(reader.getBlockState(pos.north()), Direction.NORTH))
-                .with(TripwireBlock.SOUTH, ((TripwireBlock) wire).shouldConnectTo(reader.getBlockState(pos.south()), Direction.SOUTH))
-                .with(TripwireBlock.WEST, ((TripwireBlock) wire).shouldConnectTo(reader.getBlockState(pos.west()), Direction.WEST))
-                .with(TripwireBlock.EAST, ((TripwireBlock) wire).shouldConnectTo(reader.getBlockState(pos.east()), Direction.EAST));
+                .with(TripwireBlock.NORTH, wire.shouldConnectTo(reader.getBlockState(pos.north()), Direction.NORTH))
+                .with(TripwireBlock.SOUTH, wire.shouldConnectTo(reader.getBlockState(pos.south()), Direction.SOUTH))
+                .with(TripwireBlock.WEST, wire.shouldConnectTo(reader.getBlockState(pos.west()), Direction.WEST))
+                .with(TripwireBlock.EAST, wire.shouldConnectTo(reader.getBlockState(pos.east()), Direction.EAST));
     };
 
     public static final IStateFixer FIXER_VINE = (reader, state, pos) -> {

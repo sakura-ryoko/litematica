@@ -138,7 +138,7 @@ public class SchematicUtils
         if (info != null && info.stateNew != null)
         {
             Direction playerFacingH = mc.player.getHorizontalFacing();
-            Direction direction = fi.dy.masa.malilib.util.PositionUtils.getTargetedDirection(info.side, playerFacingH, info.pos, info.hitVec);
+            Direction direction = fi.dy.masa.malilib.util.position.PositionUtils.getTargetedDirection(info.side, playerFacingH, info.pos, info.hitVec);
 
             // Center region
             if (direction == info.side)
@@ -203,7 +203,7 @@ public class SchematicUtils
             BlockHitResult trace = wrapper.getBlockHitResult();
             BlockPos pos = trace.getBlockPos();
             Direction playerFacingH = mc.player.getHorizontalFacing();
-            Direction direction = fi.dy.masa.malilib.util.PositionUtils.getTargetedDirection(trace.getSide(), playerFacingH, pos, trace.getPos());
+            Direction direction = fi.dy.masa.malilib.util.position.PositionUtils.getTargetedDirection(trace.getSide(), playerFacingH, pos, trace.getPos());
 
             // Center region
             if (direction == trace.getSide())
@@ -244,7 +244,7 @@ public class SchematicUtils
         if (info != null && info.stateNew != null && mc.player != null)
         {
             Direction playerFacingH = mc.player.getHorizontalFacing();
-            Direction direction = fi.dy.masa.malilib.util.PositionUtils.getTargetedDirection(info.side, playerFacingH, info.pos, info.hitVec);
+            Direction direction = fi.dy.masa.malilib.util.position.PositionUtils.getTargetedDirection(info.side, playerFacingH, info.pos, info.hitVec);
             BlockPos posStart = info.pos.offset(info.side); // offset to the adjacent air block
 
             if (SchematicWorldHandler.getSchematicWorld().getBlockState(posStart).isAir())
@@ -952,7 +952,7 @@ public class SchematicUtils
 
                 if (originTmp == null)
                 {
-                    originTmp = fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(entity);
+                    originTmp = fi.dy.masa.malilib.util.position.PositionUtils.getEntityBlockPos(entity);
                 }
             }
 

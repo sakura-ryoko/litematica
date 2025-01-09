@@ -27,9 +27,9 @@ import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
-import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
 import fi.dy.masa.litematica.Litematica;
@@ -503,7 +503,7 @@ public class RenderUtils
      */
     public static void drawBlockModelOutlinesBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
-        for (final Direction side : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
+        for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
             renderModelQuadOutlines(model, state, pos, side, color, expand, buffer);
         }
@@ -562,7 +562,7 @@ public class RenderUtils
 
     public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
-        for (final Direction side : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
+        for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
             drawBlockModelQuadOverlayBatched(model, state, pos, side, color, expand, buffer);
         }

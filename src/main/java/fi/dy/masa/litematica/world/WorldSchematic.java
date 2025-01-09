@@ -209,7 +209,7 @@ public class WorldSchematic extends World
         }
         else
         {
-            return this.getChunk(pos.getX() >> 4, pos.getZ() >> 4).setBlockState(pos, newState, false) != null;
+            return this.getChunk(pos.getX() >> 4, pos.getZ() >> 4).setBlockState(pos, newState, 3) != null;
         }
     }
 
@@ -348,6 +348,18 @@ public class WorldSchematic extends World
         {
             this.scheduleChunkRenders(pos.getX() >> 4, pos.getZ() >> 4);
         }
+    }
+
+    @Override
+    public void playSound(@Nullable Entity source, double x, double y, double z, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed)
+    {
+        // NO-OP
+    }
+
+    @Override
+    public void playSoundFromEntity(@Nullable Entity source, Entity entity, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed)
+    {
+        // NO-OP
     }
 
     public void scheduleChunkRenders(int chunkX, int chunkZ)
@@ -491,31 +503,19 @@ public class WorldSchematic extends World
     }
     
     @Override
-    public void syncWorldEvent(@Nullable PlayerEntity entity, int id, BlockPos pos, int data)
-    {
-        // NO-OP
-    }
-
-    @Override
     public void emitGameEvent(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter)
     {
         // NO-OP
     }
 
     @Override
-    public void playSound(@Nullable PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch, long seed)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void playSoundFromEntity(@javax.annotation.Nullable PlayerEntity except, Entity entity, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed)
-    {
-        // NO-OP
-    }
-
-    @Override
     public void addParticle(ParticleEffect particleParameters_1, double double_1, double double_2, double double_3, double double_4, double double_5, double double_6)
+    {
+        // NO-OP
+    }
+
+    @Override
+    public void syncWorldEvent(@Nullable Entity entity, int eventId, BlockPos pos, int data)
     {
         // NO-OP
     }
@@ -540,30 +540,6 @@ public class WorldSchematic extends World
 
     @Override
     public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void playSound(PlayerEntity player, BlockPos pos, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void playSound(@javax.annotation.Nullable PlayerEntity except, double x, double y, double z, RegistryEntry<SoundEvent> sound, SoundCategory category, float volume, float pitch, long seed)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void playSound(PlayerEntity player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void playSoundFromEntity(@Nullable PlayerEntity player, Entity entity, SoundEvent sound, SoundCategory category, float volume, float pitch)
     {
         // NO-OP
     }

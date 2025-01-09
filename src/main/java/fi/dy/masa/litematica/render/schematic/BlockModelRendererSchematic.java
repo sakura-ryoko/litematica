@@ -30,7 +30,7 @@ import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
-import fi.dy.masa.malilib.util.PositionUtils;
+import fi.dy.masa.malilib.util.position.PositionUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.schematic.ao.AOProcessor;

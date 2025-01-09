@@ -62,7 +62,7 @@ public class SchematicProjectsManager
 
         this.currentProject = new SchematicProject(dir, new File(dir, projectName + ".json"));
         this.currentProject.setName(projectName);
-        this.currentProject.setOrigin(fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(this.mc.player));
+        this.currentProject.setOrigin(fi.dy.masa.malilib.util.position.PositionUtils.getEntityBlockPos(this.mc.player));
         this.currentProject.saveToFile();
     }
 

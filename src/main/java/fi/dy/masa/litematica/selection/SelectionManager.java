@@ -325,7 +325,7 @@ public class SelectionManager
 
         AreaSelection selection = new AreaSelection();
         selection.setName(name);
-        BlockPos pos = fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(this.mc.player);
+        BlockPos pos = fi.dy.masa.malilib.util.position.PositionUtils.getEntityBlockPos(this.mc.player);
         selection.createNewSubRegionBox(pos, name);
 
         this.selections.put(selectionId, selection);
