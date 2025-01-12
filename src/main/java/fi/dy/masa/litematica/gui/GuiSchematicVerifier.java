@@ -57,13 +57,13 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 94;
+        return this.getScreenHeight() - 94;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
         x += this.createButton(x, y, -1, ButtonListener.Type.SET_RESULT_MODE_MISSING) + 4;
         x += this.createButton(x, y, -1, ButtonListener.Type.SET_RESULT_MODE_CORRECT) + 4;
 
-        y = this.height - 36;
+        y = this.getScreenHeight() - 36;
 
         if (this.verifier.isActive())
         {
@@ -117,7 +117,7 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         label = StringUtils.translate(type.getLabelKey());
         buttonWidth = this.getStringWidth(label) + 20;
-        x = this.width - buttonWidth - 10;
+        x = this.getScreenWidth() - buttonWidth - 10;
         button = new ButtonGeneric(x, y, buttonWidth, 20, label);
         this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
     }

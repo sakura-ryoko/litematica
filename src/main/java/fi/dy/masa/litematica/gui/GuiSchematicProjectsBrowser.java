@@ -36,13 +36,13 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 58;
+        return this.getScreenHeight() - 58;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
     private void createElements()
     {
         int x = 10;
-        int y = this.height - 24;
+        int y = this.getScreenHeight() - 24;
 
         SchematicProject project = DataManager.getSchematicProjectsManager().getCurrentProject();
 
@@ -82,7 +82,7 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         String label = StringUtils.translate(type.getLabelKey());
         int buttonWidth = this.getStringWidth(label) + 20;
-        this.addButton(new ButtonGeneric(this.width - buttonWidth - 10, y, buttonWidth, 20, label), new ButtonListenerChangeMenu(type, null));
+        this.addButton(new ButtonGeneric(this.getScreenWidth() - buttonWidth - 10, y, buttonWidth, 20, label), new ButtonListenerChangeMenu(type, null));
     }
 
     private int createButton(int x, int y, boolean rightAlign, ButtonListener.Type type)

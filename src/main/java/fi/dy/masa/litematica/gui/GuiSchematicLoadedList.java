@@ -20,13 +20,13 @@ public class GuiSchematicLoadedList extends GuiListBase<LitematicaSchematic, Wid
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 68;
+        return this.getScreenHeight() - 68;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class GuiSchematicLoadedList extends GuiListBase<LitematicaSchematic, Wid
         super.initGui();
 
         int x = 12;
-        int y = this.height - 26;
+        int y = this.getScreenHeight() - 26;
         int buttonWidth;
         String label;
         ButtonGeneric button;
@@ -56,7 +56,7 @@ public class GuiSchematicLoadedList extends GuiListBase<LitematicaSchematic, Wid
         type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         label = StringUtils.translate(type.getLabelKey());
         buttonWidth = this.getStringWidth(label) + 20;
-        x = this.width - buttonWidth - 10;
+        x = this.getScreenWidth() - buttonWidth - 10;
         button = new ButtonGeneric(x, y, buttonWidth, 20, label);
         this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
     }

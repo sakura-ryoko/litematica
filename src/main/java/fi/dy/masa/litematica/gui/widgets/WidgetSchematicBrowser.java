@@ -148,7 +148,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             this.drawString(drawContext, str, x, y, textColor);
             y += 12;
 
-            if (this.parent.height >= 340)
+            if (this.parent.getScreenHeight() >= 340)
             {
                 str = StringUtils.translate("litematica.gui.label.schematic_info.total_volume", meta.getTotalVolume());
                 this.drawString(drawContext, str, x, y, textColor);

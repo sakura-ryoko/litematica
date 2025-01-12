@@ -105,7 +105,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
 
         int width = 202;
         this.textFieldSelectionName = new GuiTextFieldGeneric(x, y + 2, width, 16, this.textRenderer);
-        this.textFieldSelectionName.setText(this.selection.getName());
+        this.textFieldSelectionName.setTextWrapper(this.selection.getName());
         this.addTextField(this.textFieldSelectionName, new TextFieldListenerDummy());
         x += width + 4;
         x += this.createButton(x, y, -1, ButtonListener.Type.SET_SELECTION_NAME) + 10;
@@ -140,7 +140,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
 
         this.addRenderingDisabledWarning(120, y + 2);
 
-        y = this.height - 26;
+        y = this.getScreenHeight() - 26;
 
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.AREA_SELECTION_BROWSER;
         String label = StringUtils.translate(type.getLabelKey());
@@ -159,7 +159,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
         type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         label = StringUtils.translate(type.getLabelKey());
         int buttonWidth = this.getStringWidth(label) + 10;
-        x = this.width - buttonWidth - 10;
+        x = this.getScreenWidth() - buttonWidth - 10;
         button = new ButtonGeneric(x, y, buttonWidth, 20, label);
         this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
 
@@ -176,7 +176,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
             String hotkeyVal = hotkey.getKeybind().getKeysDisplayString();
             String str = StringUtils.translate("litematica.warning.area_editor.area_rendering_disabled", configName, hotkeyName, hotkeyVal);
             List<String> lines = new ArrayList<>();
-            int maxLineLength = this.width - x - 20;
+            int maxLineLength = this.getScreenWidth() - x - 20;
             StringUtils.splitTextToLines(lines, str, maxLineLength);
             this.addLabel(x, y, maxLineLength, lines.size() * (StringUtils.getFontHeight() + 1), 0xFFFFAA00, lines);
         }
@@ -267,7 +267,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
 
         GuiTextFieldInteger textField = new GuiTextFieldInteger(x + offset, y, width, 16, this.textRenderer);
         TextFieldListener listener = new TextFieldListener(coordType, corner, this);
-        textField.setText(text);
+        textField.setTextWrapper(text);
         this.addTextField(textField, listener);
 
         this.createCoordinateButton(x + offset + width + 4, y, corner, coordType, type);
@@ -390,7 +390,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
 
     protected void renameSelection()
     {
-        String newName = this.textFieldSelectionName.getText();
+        String newName = this.textFieldSelectionName.getTextWrapper();
 
         if (DataManager.getSchematicProjectsManager().hasProjectOpen())
         {
@@ -596,7 +596,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
         @Override
         public boolean onTextChange(GuiTextFieldGeneric textField)
         {
-            this.parent.updatePosition(textField.getText(), this.corner, this.type);
+            this.parent.updatePosition(textField.getTextWrapper(), this.corner, this.type);
             return false;
         }
     }
@@ -674,13 +674,13 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 146;
+        return this.getScreenHeight() - 146;
     }
 
     @Override

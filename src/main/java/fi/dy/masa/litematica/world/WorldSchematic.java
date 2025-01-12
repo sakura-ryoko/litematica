@@ -509,37 +509,13 @@ public class WorldSchematic extends World
     }
 
     @Override
-    public void addParticle(ParticleEffect particleParameters_1, double double_1, double double_2, double double_3, double double_4, double double_5, double double_6)
-    {
-        // NO-OP
-    }
-
-    @Override
     public void syncWorldEvent(@Nullable Entity entity, int eventId, BlockPos pos, int data)
     {
         // NO-OP
     }
 
     @Override
-    public void addImportantParticle(ParticleEffect particleParameters_1, double double_1, double double_2, double double_3, double double_4,   double double_5, double double_6)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void addImportantParticle(ParticleEffect particleParameters_1, boolean boolean_1, double double_1, double double_2, double double_3,     double double_4, double double_5, double double_6)
-    {
-        // NO-OP
-    }
-
-    @Override
     public void createExplosion(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, ExplosionSourceType explosionSourceType, ParticleEffect smallParticle, ParticleEffect largeParticle, RegistryEntry<SoundEvent> soundEvent)
-    {
-        // NO-OP
-    }
-
-    @Override
-    public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch, boolean distanceDelay)
     {
         // NO-OP
     }

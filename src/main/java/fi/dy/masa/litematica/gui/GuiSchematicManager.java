@@ -56,7 +56,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 60;
+        return this.getScreenHeight() - 60;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
     private void createButtons()
     {
         int x = 10;
-        int y = this.height - 26;
+        int y = this.getScreenHeight() - 26;
 
         DirectoryEntry selected = this.getListWidget().getLastSelectedEntry();
 
@@ -97,7 +97,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         String label = StringUtils.translate(type.getLabelKey());
         int buttonWidth = this.getStringWidth(label) + 20;
-        this.addButton(new ButtonGeneric(this.width - buttonWidth - 10, y, buttonWidth, 20, label), new ButtonListenerChangeMenu(type, null));
+        this.addButton(new ButtonGeneric(this.getScreenWidth() - buttonWidth - 10, y, buttonWidth, 20, label), new ButtonListenerChangeMenu(type, null));
     }
 
     @Override

@@ -37,13 +37,13 @@ public class GuiSchematicProjectManager extends GuiListBase<SchematicVersion, Wi
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 74;
+        return this.getScreenHeight() - 74;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class GuiSchematicProjectManager extends GuiListBase<SchematicVersion, Wi
     private void createElements()
     {
         int x = 10;
-        int y = this.height - 46;
+        int y = this.getScreenHeight() - 46;
 
         x += this.createButton(x, y, false, ButtonListener.Type.SAVE_VERSION);
         x += this.createButton(x, y, false, ButtonListener.Type.OPEN_AREA_EDITOR);

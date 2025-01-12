@@ -33,8 +33,8 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         this.schematic = schematic;
 
         this.textField = new GuiTextFieldGeneric(10, 32, 160, 20, this.textRenderer);
-        this.textField.setMaxLength(256);
-        this.textField.setFocused(true);
+        this.textField.setMaxLengthWrapper(256);
+        this.textField.setFocusedWrapper(true);
 
         this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.save_from_schematic_world"), StringUtils.translate("litematica.gui.label.schematic_save.hover_info.save_from_schematic_world"));
     }
@@ -42,7 +42,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     @Override
     public int getBrowserHeight()
     {
-        return this.height - 80;
+        return this.getScreenHeight() - 80;
     }
 
     @Override
@@ -50,11 +50,11 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     {
         super.initGui();
 
-        boolean focused = this.textField.isFocused();
-        String text = this.textField.getText();
-        this.textField = new GuiTextFieldGeneric(10, 32, this.width - 260, 18, this.textRenderer);
-        this.textField.setText(text);
-        this.textField.setFocused(focused);
+        boolean focused = this.textField.isFocusedWrapper();
+        String text = this.textField.getTextWrapper();
+        this.textField = new GuiTextFieldGeneric(10, 32, this.getScreenWidth() - 260, 18, this.textRenderer);
+        this.textField.setTextWrapper(text);
+        this.textField.setFocusedWrapper(focused);
 
         DirectoryEntry entry = this.getListWidget().getLastSelectedEntry();
 
@@ -76,7 +76,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
             }
         }
 
-        int x = this.textField.getX() + this.textField.getWidth() + 4;
+        int x = this.textField.getXWrapper() + this.textField.getWidthWrapper() + 4;
         int y = 28;
 
         String str = StringUtils.translate("litematica.gui.label.schematic_save.checkbox.ignore_entities");
@@ -99,12 +99,12 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     protected void setTextFieldText(String text)
     {
         this.lastText = text;
-        this.textField.setText(text);
+        this.textField.setTextWrapper(text);
     }
 
     protected String getTextFieldText()
     {
-        return this.textField.getText();
+        return this.textField.getTextWrapper();
     }
 
     protected abstract IButtonActionListener createButtonListener(ButtonType type);
@@ -142,7 +142,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     {
         super.drawContents(drawContext, mouseX, mouseY, partialTicks);
 
-        this.textField.render(drawContext, mouseX, mouseY, partialTicks);
+        this.textField.renderWrapper(drawContext, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -163,7 +163,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     @Override
     public boolean onMouseClicked(int mouseX, int mouseY, int mouseButton)
     {
-        if (this.textField.mouseClicked(mouseX, mouseY, mouseButton))
+        if (this.textField.mouseClickedWrapper(mouseX, mouseY, mouseButton))
         {
             return true;
         }
@@ -174,14 +174,14 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     @Override
     public boolean onKeyTyped(int keyCode, int scanCode, int modifiers)
     {
-        if (this.textField.keyPressed(keyCode, scanCode, modifiers))
+        if (this.textField.keyPressedWrapper(keyCode, scanCode, modifiers))
         {
             this.getListWidget().clearSelection();
             return true;
         }
         else if (keyCode == KeyCodes.KEY_TAB)
         {
-            this.textField.setFocused(! this.textField.isFocused());
+            this.textField.setFocusedWrapper(! this.textField.isFocusedWrapper());
             return true;
         }
 
@@ -191,7 +191,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     @Override
     public boolean onCharTyped(char charIn, int modifiers)
     {
-        if (this.textField.charTyped(charIn, modifiers))
+        if (this.textField.charTypedWrapper(charIn, modifiers))
         {
             this.getListWidget().clearSelection();
             return true;

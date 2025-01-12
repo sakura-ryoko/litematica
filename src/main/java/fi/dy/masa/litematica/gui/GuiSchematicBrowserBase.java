@@ -24,8 +24,8 @@ public abstract class GuiSchematicBrowserBase extends GuiListBase<DirectoryEntry
 
     /**
      * This is the string the DataManager uses for saving/loading/storing the last used directory
-     * for each browser GUI type/contet.
-     * @return
+     * for each browser GUI type/context.
+     * @return ()
      */
     public abstract String getBrowserContext();
 
@@ -41,13 +41,13 @@ public abstract class GuiSchematicBrowserBase extends GuiListBase<DirectoryEntry
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 70;
+        return this.getScreenHeight() - 70;
     }
 
     public int getMaxInfoHeight()

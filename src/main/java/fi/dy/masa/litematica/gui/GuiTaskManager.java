@@ -20,13 +20,13 @@ public class GuiTaskManager extends GuiListBase<ITask, WidgetTaskEntry, WidgetLi
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 68;
+        return this.getScreenHeight() - 68;
     }
 
     @Override
@@ -34,10 +34,10 @@ public class GuiTaskManager extends GuiListBase<ITask, WidgetTaskEntry, WidgetLi
     {
         super.initGui();
 
-        int y = this.height - 26;
+        int y = this.getScreenHeight() - 26;
 
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
-        ButtonGeneric button = new ButtonGeneric(this.width - 10, y, -1, true, StringUtils.translate(type.getLabelKey()));
+        ButtonGeneric button = new ButtonGeneric(this.getScreenWidth() - 10, y, -1, true, StringUtils.translate(type.getLabelKey()));
         this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
     }
 

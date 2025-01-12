@@ -37,7 +37,7 @@ public class GuiAreaSelectionEditorSubRegion extends GuiAreaSelectionEditorSimpl
 
         int width = 202;
         this.textFieldBoxName = new GuiTextFieldGeneric(x, y + 2, width, 16, this.textRenderer);
-        this.textFieldBoxName.setText(this.getBox().getName());
+        this.textFieldBoxName.setTextWrapper(this.getBox().getName());
         this.addTextField(this.textFieldBoxName, new TextFieldListenerDummy());
         this.createButton(x + width + 4, y, -1, ButtonListener.Type.SET_BOX_NAME);
         y += 20;
@@ -64,7 +64,7 @@ public class GuiAreaSelectionEditorSubRegion extends GuiAreaSelectionEditorSimpl
     protected void renameSubRegion()
     {
         String oldName = this.box.getName();
-        String newName = this.textFieldBoxName.getText();
+        String newName = this.textFieldBoxName.getTextWrapper();
         this.selection.renameSubRegionBox(oldName, newName);
     }
 

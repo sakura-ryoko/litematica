@@ -40,13 +40,13 @@ public class GuiAreaSelectionManager extends GuiListBase<DirectoryEntry, WidgetD
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 68;
+        return this.getScreenHeight() - 68;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class GuiAreaSelectionManager extends GuiListBase<DirectoryEntry, WidgetD
         this.clearButtons();
         this.clearWidgets();
 
-        int x = this.width - 13;
+        int x = this.getScreenWidth() - 13;
         int y = 24;
 
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.AREA_EDITOR;
@@ -90,7 +90,7 @@ public class GuiAreaSelectionManager extends GuiListBase<DirectoryEntry, WidgetD
                 currentSelection = FileUtils.getNameWithoutExtension(currentSelection.substring(len + 1));
                 String str = StringUtils.translate("litematica.gui.label.area_selection_manager.current_selection", currentSelection);
                 int w = this.getStringWidth(str);
-                this.addLabel(10, this.height - 15, w, 14, 0xFFFFFFFF, str);
+                this.addLabel(10, this.getScreenHeight() - 15, w, 14, 0xFFFFFFFF, str);
             }
         }
     }

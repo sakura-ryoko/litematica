@@ -360,12 +360,12 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             int width = this.mismatchInfo.getTotalWidth();
             int height = this.mismatchInfo.getTotalHeight();
 
-            if (x + width > GuiUtils.getCurrentScreen().width)
+            if (x + width > GuiUtils.getCurrentScreenWidth())
             {
                 x = mouseX - width - 10;
             }
 
-            if (y + height > GuiUtils.getCurrentScreen().height)
+            if (y + height > GuiUtils.getCurrentScreenHeight())
             {
                 y = mouseY - height - 2;
             }

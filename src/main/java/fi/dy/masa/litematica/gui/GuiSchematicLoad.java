@@ -59,7 +59,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
         super.initGui();
 
         int x = 12;
-        int y = this.height - 40;
+        int y = this.getScreenHeight() - 40;
         int buttonWidth;
         String label;
         ButtonGeneric button;
@@ -71,7 +71,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
         checkbox.setChecked(DataManager.getCreatePlacementOnLoad(), false);
         this.addWidget(checkbox);
 
-        y = this.height - 26;
+        y = this.getScreenHeight() - 26;
         x += this.createButton(x, y, -1, ButtonListener.Type.LOAD_SCHEMATIC) + 4;
         x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
 
@@ -84,7 +84,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
         type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         label = StringUtils.translate(type.getLabelKey());
         buttonWidth = this.getStringWidth(label) + 20;
-        x = this.width - buttonWidth - 10;
+        x = this.getScreenWidth() - buttonWidth - 10;
         button = new ButtonGeneric(x, y, buttonWidth, 20, label);
         this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
     }

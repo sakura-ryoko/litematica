@@ -234,17 +234,17 @@ public class EntityUtils
     public static void setEntityRotations(Entity entity, float yaw, float pitch)
     {
         entity.setYaw(yaw);
-        entity.prevYaw = yaw;
+        entity.lastYaw = yaw;
 
         entity.setPitch(pitch);
-        entity.prevPitch = pitch;
+        entity.lastPitch = pitch;
 
         if (entity instanceof LivingEntity livingBase)
         {
             livingBase.headYaw = yaw;
             livingBase.bodyYaw = yaw;
-            livingBase.prevHeadYaw = yaw;
-            livingBase.prevBodyYaw = yaw;
+            livingBase.lastHeadYaw = yaw;
+            livingBase.lastBodyYaw = yaw;
             //livingBase.renderYawOffset = yaw;
             //livingBase.prevRenderYawOffset = yaw;
         }

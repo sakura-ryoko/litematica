@@ -60,13 +60,13 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - 80;
+        return this.getScreenHeight() - 80;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
     {
         super.initGui();
 
-        boolean isNarrow = this.width < this.getElementTotalWidth();
+        boolean isNarrow = this.getScreenWidth() < this.getElementTotalWidth();
 
         int x = 12;
         int y = 24;
@@ -84,14 +84,14 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
         String str = StringUtils.translate("litematica.gui.label.material_list.multiplier");
         int w = this.getStringWidth(str);
-        this.addLabel(this.width - w - 56, y + 5, w, 12, 0xFFFFFFFF, str);
+        this.addLabel(this.getScreenWidth() - w - 56, y + 5, w, 12, 0xFFFFFFFF, str);
 
-        GuiTextFieldInteger tf = new GuiTextFieldInteger(this.width - 52, y + 2, 40, 16, this.textRenderer);
-        tf.setText(String.valueOf(this.materialList.getMultiplier()));
+        GuiTextFieldInteger tf = new GuiTextFieldInteger(this.getScreenWidth() - 52, y + 2, 40, 16, this.textRenderer);
+        tf.setTextWrapper(String.valueOf(this.materialList.getMultiplier()));
         MultiplierListener listener = new MultiplierListener(this.materialList, this);
         this.addTextField(tf, listener);
 
-        this.addWidget(new WidgetInfoIcon(this.width - 23, 10, Icons.INFO_11, "litematica.info.material_list"));
+        this.addWidget(new WidgetInfoIcon(this.getScreenWidth() - 23, 10, Icons.INFO_11, "litematica.info.material_list"));
 
         int gap = 1;
         x += this.createButton(x, y, -1, ButtonListener.Type.REFRESH_LIST) + gap;
@@ -107,7 +107,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         if (isNarrow)
         {
             x = 12;
-            y = this.height - 22;
+            y = this.getScreenHeight() - 22;
         }
 
         x += this.createButton(x, y, -1, ButtonListener.Type.CLEAR_IGNORED) + gap;
@@ -115,11 +115,11 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         x += this.createButton(x, y, -1, ButtonListener.Type.WRITE_TO_FILE) + gap;
         y += 22;
 
-        y = this.height - 36;
+        y = this.getScreenHeight() - 36;
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
         label = StringUtils.translate(type.getLabelKey());
         buttonWidth = this.getStringWidth(label) + 20;
-        x = this.width - buttonWidth - 10;
+        x = this.getScreenWidth() - buttonWidth - 10;
         button = new ButtonGeneric(x, y, buttonWidth, 20, label);
         this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
 
@@ -150,7 +150,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
             str = strt + " / " + StringUtils.translate("litematica.gui.label.material_list.progress", strp);
             w = this.getStringWidth(str);
-            this.addLabel(12, this.height - 36, w, 12, 0xFFFFFFFF, str);
+            this.addLabel(12, this.getScreenHeight() - 36, w, 12, 0xFFFFFFFF, str);
         }
     }
 
@@ -380,7 +380,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         {
             try
             {
-                int multiplier = Integer.parseInt(textField.getText());
+                int multiplier = Integer.parseInt(textField.getTextWrapper());
 
                 if (multiplier != this.materialList.getMultiplier())
                 {

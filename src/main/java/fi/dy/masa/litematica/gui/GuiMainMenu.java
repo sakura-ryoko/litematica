@@ -52,7 +52,7 @@ public class GuiMainMenu extends GuiBase
         label = StringUtils.translate("litematica.gui.button.tool_mode", DataManager.getToolMode().getName());
         int width2 = this.getStringWidth(label) + 10;
 
-        y = this.height - 26;
+        y = this.getScreenHeight() - 26;
         button = new ButtonGeneric(x, y, width2, 20, label);
         this.addButton(button, new ButtonListenerCycleToolMode(this));
 

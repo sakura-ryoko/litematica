@@ -5,7 +5,7 @@ plugins {
 
 repositories {
 	maven { url = 'https://masa.dy.fi/maven' }
-	maven {	url = 'https://maven.terraformersmc.com/releases/' }
+	maven { url = 'https://maven.terraformersmc.com/releases/' }
 	maven { url = 'https://jitpack.io' }
 }
 
