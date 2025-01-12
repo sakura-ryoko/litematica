@@ -53,7 +53,7 @@ public class Hotkeys
     public static final ConfigHotkey SCHEMATIC_EDIT_REPLACE_DIRECTION   = new ConfigHotkey("schematicEditReplaceDirection",     "", KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_PLACEMENT_ROTATION       = new ConfigHotkey("schematicPlacementRotation",        "",     KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_PLACEMENT_MIRROR         = new ConfigHotkey("schematicPlacementMirror",          "",     KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
-    public static final ConfigHotkey SCHEMATIC_VCS_DELETE_BY_PLACEMENT  = new ConfigHotkey("schematicVCSDeleteBlockByPlacement","",     "A key to delete blocks from the world based on the currently\nselected version's placement.\nSe Generic -> 'schematicVcsDeleteMode' for the delete mode/behavior");
+    public static final ConfigHotkey SCHEMATIC_VCS_DELETE_BY_PLACEMENT  = new ConfigHotkey("schematicVCSDeleteBlockByPlacement","").apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_VERSION_CYCLE_MODIFIER   = new ConfigHotkey("schematicVersionCycleModifier",     "",     KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_VERSION_CYCLE_NEXT       = new ConfigHotkey("schematicVersionCycleNext",         "").apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_VERSION_CYCLE_PREVIOUS   = new ConfigHotkey("schematicVersionCyclePrevious",     "").apply(HOTKEYS_KEY);

@@ -5,11 +5,11 @@ import fi.dy.masa.malilib.util.StringUtils;
 
 public enum PlacementDeletionMode implements IConfigOptionListEntry
 {
-    MATCHING_BLOCK          ("matching_block",      "Matching Block"),
-    NON_MATCHING_BLOCK      ("non_matching_block",  "Non-Matching Block"),
-    ANY_SCHEMATIC_BLOCK     ("any_schematic_block", "Any Schematic Block"),
-    NO_SCHEMATIC_BLOCK      ("no_schematic_block",  "No Schematic Block"),
-    ENTIRE_VOLUME           ("entire_volume",       "Entire Volume");
+    MATCHING_BLOCK          ("matching_block",      "litematica.gui.label.placement_deletion_mode.matching_block"),
+    NON_MATCHING_BLOCK      ("non_matching_block",  "litematica.gui.label.placement_deletion_mode.non_matching_block"),
+    ANY_SCHEMATIC_BLOCK     ("any_schematic_block", "litematica.gui.label.placement_deletion_mode.any_schematic_block"),
+    NO_SCHEMATIC_BLOCK      ("no_schematic_block",  "litematica.gui.label.placement_deletion_mode.no_schematic_block"),
+    ENTIRE_VOLUME           ("entire_volume",       "litematica.gui.label.placement_deletion_mode.entire_volume");
 
     private final String configString;
     private final String translationKey;
