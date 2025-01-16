@@ -20,6 +20,7 @@ dependencies {
 
 	//include(modApi(fabricApi.module("fabric-api-base", project.fabric_api_version)))
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
 }
 
 base {
