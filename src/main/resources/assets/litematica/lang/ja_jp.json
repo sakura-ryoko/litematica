@@ -485,6 +485,7 @@
   "litematica.error.schematic_conversion.structure_to_litematica_failed": "構造を Litematica スキーマティックに変換できませんでした",
   "litematica.error.schematic.create.no_selections": "有効な選択範囲がありません！",
   "litematica.error.schematic_load.cant_read_file": "スキーマティックファイル '%s' を読み取れません（存在しないか、アクセス権の問題）",
+  "litematica.error.schematic_load.newer_minecraft_version": "WARNING! Schematic is from a future version of Minecraft: '%d' > '%d'\nAny NBT data may be at risk of corruption.",
   "litematica.error.schematic_load.no_schematic_selected": "スキーマティックファイルが選択されていません！",
   "litematica.error.schematic_load.no_schematic_version_information": "スキーマティックにはバージョン情報がなく、安全に読み込むことができません！",
   "litematica.error.schematic_load.unsupported_schematic_version": "サポートされていない、または将来のスキーマティックバージョン '%d'",

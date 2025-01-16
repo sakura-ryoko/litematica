@@ -485,6 +485,7 @@
   "litematica.error.schematic_conversion.structure_to_litematica_failed": "無法將結構轉換為 Litematica 原理圖",
   "litematica.error.schematic.create.no_selections": "沒有選擇任何有效的區域！",
   "litematica.error.schematic_load.cant_read_file": "無法讀取原理圖檔案「%s」（檔案不存在或權限問題）",
+  "litematica.error.schematic_load.newer_minecraft_version": "WARNING! Schematic is from a future version of Minecraft: '%d' > '%d'\nAny NBT data may be at risk of corruption.",
   "litematica.error.schematic_load.no_schematic_selected": "未選擇原理圖檔案！",
   "litematica.error.schematic_load.no_schematic_version_information": "該原理圖沒有版本資訊，無法被安全載入",
   "litematica.error.schematic_load.unsupported_schematic_version": "不支援的或將來版本的原理圖「%d」",
