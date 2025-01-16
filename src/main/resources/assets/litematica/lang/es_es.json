@@ -485,6 +485,7 @@
   "litematica.error.schematic_conversion.structure_to_litematica_failed": "Error al convertir la Estructura a un Esquema de Litematica",
   "litematica.error.schematic.create.no_selections": "¡No hay regiones de selección válidas!",
   "litematica.error.schematic_load.cant_read_file": "No se puede leer el archivo de esquema '%s' (no existe o problema de permisos)",
+  "litematica.error.schematic_load.newer_minecraft_version": "WARNING! Schematic is from a future version of Minecraft: '%d' > '%d'\nAny NBT data may be at risk of corruption.",
   "litematica.error.schematic_load.no_schematic_selected": "¡No se seleccionó ningún archivo de esquema!",
   "litematica.error.schematic_load.no_schematic_version_information": "El esquema no tiene información de versión, ¡y no se puede cargar de forma segura!",
   "litematica.error.schematic_load.unsupported_schematic_version": "Versión de esquema no compatible o futura '%d'",

@@ -485,6 +485,7 @@
   "litematica.error.schematic_conversion.structure_to_litematica_failed": "Не вдалося перетворити структуру на схематику Litematica",
   "litematica.error.schematic.create.no_selections": "Немає дійсних вибраних регіонів!",
   "litematica.error.schematic_load.cant_read_file": "Неможливо зчитати файл схематики «%s» (не існує або проблема з дозволом)",
+  "litematica.error.schematic_load.newer_minecraft_version": "WARNING! Schematic is from a future version of Minecraft: '%d' > '%d'\nAny NBT data may be at risk of corruption.",
   "litematica.error.schematic_load.no_schematic_selected": "Файл схематики не вибрано!",
   "litematica.error.schematic_load.no_schematic_version_information": "На схематиці немає інформації про версію, і її неможливо безпечно завантажити!",
   "litematica.error.schematic_load.unsupported_schematic_version": "Схематика «%d» непітримувана або для новіших версій",

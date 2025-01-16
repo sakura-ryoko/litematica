@@ -6,7 +6,6 @@
   "client": [
     "IMixinAbstractBlock",
     "IMixinChunkDeltaUpdateS2CPacket",
-    "IMixinDataQueryHandler",
     "IMixinEntity",
     "IMixinFenceGateBlock",
     "IMixinHandledScreen",
