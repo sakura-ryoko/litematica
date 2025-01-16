@@ -38,8 +38,9 @@ import net.minecraft.world.chunk.ChunkStatus;
 
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.interfaces.IDataSyncer;
-import fi.dy.masa.malilib.mixin.IMixinAbstractHorseEntity;
-import fi.dy.masa.malilib.mixin.IMixinPiglinEntity;
+import fi.dy.masa.malilib.mixin.entity.IMixinAbstractHorseEntity;
+import fi.dy.masa.malilib.mixin.entity.IMixinDataQueryHandler;
+import fi.dy.masa.malilib.mixin.entity.IMixinPiglinEntity;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.Constants;
@@ -49,7 +50,6 @@ import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.mixin.IMixinDataQueryHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.util.EntityUtils;
@@ -68,7 +68,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
     private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> HANDLER = ServuxLitematicaHandler.getInstance();
     private final static MinecraftClient mc = MinecraftClient.getInstance();
-    private int uptimeTicks = 0;
+    //private int uptimeTicks = 0;
     private boolean servuxServer = false;
     private boolean hasInValidServux = false;
     private String servuxVersion;
@@ -117,20 +117,20 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         return clientWorld;
     }
 
-    private EntitiesDataStorage()
-    {
-    }
+    private EntitiesDataStorage() { }
 
     @Override
     public void onClientTick(MinecraftClient mc)
     {
-        this.uptimeTicks++;
-        if (System.currentTimeMillis() - this.serverTickTime > 50)
+        long now = System.currentTimeMillis();
+        //this.uptimeTicks++;
+
+        if (now - this.serverTickTime > 50)
         {
             // In this block, we do something every server tick
             if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() == false)
             {
-                this.serverTickTime = System.currentTimeMillis();
+                this.serverTickTime = now;
 
                 if (DataManager.getInstance().hasIntegratedServer() == false && this.hasServuxServer())
                 {
@@ -150,7 +150,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             }
 
             // Expire cached NBT
-            this.tickCache();
+            this.tickCache(now);
 
             // 5 queries / server tick
             for (int i = 0; i < Configs.Generic.SERVER_NBT_REQUEST_RATE.getIntegerValue(); i++)
@@ -224,9 +224,10 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         else
         {
             Litematica.debugLog("EntitiesDataStorage#reset() - dimension change or log-in");
-            this.serverTickTime = System.currentTimeMillis() - (this.getCacheTimeout() + 5000L);
-            this.tickCache();
-            this.serverTickTime = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
+            this.serverTickTime = now - (this.getCacheTimeout() + 5000L);
+            this.tickCache(now);
+            this.serverTickTime = now;
             this.clientWorld = mc.world;
         }
         // Clear data
@@ -252,11 +253,10 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         return (long) (MathHelper.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * this.longCacheTimeout), 120.0f, 300.0f) * 1000L);
     }
 
-    private void tickCache()
+    private void tickCache(long nowTime)
     {
-        long nowTime = System.currentTimeMillis();
         long blockTimeout = this.getCacheTimeout();
-        long entityTimeout = this.getCacheTimeout() * 2;
+        long entityTimeout = this.getCacheTimeout();
         int count;
         boolean beEmpty = false;
         boolean entEmpty = false;
@@ -284,9 +284,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             {
                 Pair<Long, Pair<BlockEntity, NbtCompound>> pair = this.blockEntityCache.get(pos);
 
-                if (nowTime - pair.getLeft() > blockTimeout || pair.getLeft() - nowTime > 0)
+                if (nowTime - pair.getLeft() > blockTimeout || pair.getLeft() > nowTime)
                 {
-                    Litematica.debugLog("entityCache: be at pos [{}] has timed out by [{}] ms", pos.toShortString(), blockTimeout);
+                    Litematica.debugLog("litematicEntityCache: be at pos [{}] has timed out by [{}] ms", pos.toShortString(), blockTimeout);
                     this.blockEntityCache.remove(pos);
                 }
                 else
@@ -309,9 +309,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             {
                 Pair<Long, Pair<Entity, NbtCompound>> pair = this.entityCache.get(entityId);
 
-                if (nowTime - pair.getLeft() > entityTimeout || pair.getLeft() - nowTime > 0)
+                if (nowTime - pair.getLeft() > entityTimeout || pair.getLeft() > nowTime)
                 {
-                    Litematica.debugLog("entityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
+                    Litematica.debugLog("litematicEntityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
                     this.entityCache.remove(entityId);
                 }
                 else
@@ -738,7 +738,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             {
                 handleBlockEntityData(pos, nbtCompound, null);
             });
-            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDataQueryHandler()).litematica_currentTransactionId(), Either.left(pos));
+            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDataQueryHandler()).malilib_currentTransactionId(), Either.left(pos));
         }
     }
 
@@ -758,7 +758,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             {
                 handleEntityData(entityId, nbtCompound);
             });
-            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDataQueryHandler()).litematica_currentTransactionId(), Either.right(entityId));
+            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDataQueryHandler()).malilib_currentTransactionId(), Either.right(entityId));
         }
     }
 
