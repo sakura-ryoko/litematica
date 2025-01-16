@@ -18,16 +18,16 @@ import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.util.Constants;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.Schema;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
-import fi.dy.masa.malilib.util.position.Vec3d;
-import fi.dy.masa.malilib.util.position.Vec3i;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
@@ -307,7 +307,7 @@ public class SchematicaSchematic
 
             if (relativePos != null)
             {
-                Vec3d transformedRelativePos = Vec3d.of(PositionUtils.getTransformedPosition(relativePos.toVanilla(), mirror, rotation));
+                Vec3d transformedRelativePos = PositionUtils.getTransformedPosition(relativePos, mirror, rotation);
                 Vec3d realPos = transformedRelativePos.add(posStart.getX(), posStart.getY(), posStart.getZ());
                 Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
 
@@ -354,7 +354,7 @@ public class SchematicaSchematic
 
         this.blocks = new LitematicaBlockStateContainer(size.getX(), size.getY(), size.getZ());
         this.tiles.clear();
-        this.size = Vec3i.of(size);
+        this.size = size;
 
         for (int y = startY; y < endY; ++y)
         {
@@ -733,7 +733,7 @@ public class SchematicaSchematic
         {
             NbtCompound tag = tagList.getCompound(i);
             BlockPos pos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
-            Vec3i size = Vec3i.of(this.blocks.getSize());
+            Vec3i size = this.blocks.getSize();
 
             if (pos.getX() >= 0 && pos.getX() < size.getX() &&
                 pos.getY() >= 0 && pos.getY() < size.getY() &&

@@ -43,8 +43,7 @@ import net.minecraft.world.tick.TickPriority;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
 import fi.dy.masa.malilib.util.*;
-import fi.dy.masa.malilib.util.position.Vec3d;
-import fi.dy.masa.malilib.util.position.Vec3i;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
@@ -172,7 +171,7 @@ public class LitematicaSchematic
     @Nullable
     public Vec3i getAreaSizeAsVec3i(String regionName)
     {
-        return Vec3i.of(this.subRegionSizes.get(regionName));
+        return this.subRegionSizes.get(regionName);
     }
 
     public Map<String, Box> getAreas()
@@ -615,8 +614,8 @@ public class LitematicaSchematic
             if (entity != null)
             {
                 Vec3d pos = info.posVec;
-                pos = Vec3d.of(PositionUtils.getTransformedPosition(pos.toVanilla(), schematicPlacement.getMirror(), schematicPlacement.getRotation()));
-                pos = Vec3d.of(PositionUtils.getTransformedPosition(pos.toVanilla(), placement.getMirror(), placement.getRotation()));
+                pos = PositionUtils.getTransformedPosition(pos, schematicPlacement.getMirror(), schematicPlacement.getRotation());
+                pos = PositionUtils.getTransformedPosition(pos, placement.getMirror(), placement.getRotation());
                 double x = pos.x + offX;
                 double y = pos.y + offY;
                 double z = pos.z + offZ;
@@ -2654,9 +2653,9 @@ public class LitematicaSchematic
             this.nbt = nbt;
         }
 
-        public net.minecraft.util.math.Vec3d toVanilla()
+        public Vec3d toVanilla()
         {
-            return this.posVec.toVanilla();
+            return this.posVec;
         }
     }
 

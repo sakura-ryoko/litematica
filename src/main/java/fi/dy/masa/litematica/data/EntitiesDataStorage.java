@@ -43,8 +43,8 @@ import fi.dy.masa.malilib.mixin.entity.IMixinDataQueryHandler;
 import fi.dy.masa.malilib.mixin.entity.IMixinPiglinEntity;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
-import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
@@ -1103,7 +1103,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             for (int i = 0; i < entityList.size(); ++i)
             {
                 NbtCompound ent = entityList.getCompound(i);
-                Vec3d pos = NbtUtils.readEntityPositionFromTag(ent).toVanilla();
+                Vec3d pos = NbtUtils.readEntityPositionFromTag(ent);
                 int entityId = ent.getInt("entityId");
 
                 this.handleEntityData(entityId, ent);
