@@ -50,7 +50,7 @@ public class PickBlockUtils
 
         if (hand != null)
         {
-            InventoryUtils.PRW_preRestockHand(player, hand, 6, true);
+            InventoryUtils.preRestockHand(player, hand, 6, true);
         }
 
         return hand;

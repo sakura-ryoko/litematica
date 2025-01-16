@@ -322,6 +322,7 @@ public class EntityUtils
         }
     }
 
+    @Deprecated
     private static void readLeashableEntityCustomData(Entity entity, NbtCompound nbt)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
