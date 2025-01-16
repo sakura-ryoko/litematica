@@ -4,12 +4,11 @@ import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 
-import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.Schema;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
-import fi.dy.masa.malilib.util.position.Vec3i;
 import fi.dy.masa.litematica.util.FileType;
 
 public class SchematicMetadata
@@ -83,14 +82,14 @@ public class SchematicMetadata
         return this.enclosingSize;
     }
 
-    public net.minecraft.util.math.Vec3i getEnclosingSizeAsVanilla()
+    public Vec3i getEnclosingSizeAsVanilla()
     {
-        return this.enclosingSize.toVanilla();
+        return this.enclosingSize;
     }
 
     public BlockPos getEnclosingSizeAsBlockPos()
     {
-        return this.enclosingSize.toBlockPos();
+        return new BlockPos(this.enclosingSize);
     }
 
     public long getTimeCreated()
@@ -205,7 +204,7 @@ public class SchematicMetadata
 
     public void setEnclosingSize(BlockPos enclosingSize)
     {
-        this.enclosingSize = Vec3i.of(enclosingSize);
+        this.enclosingSize = enclosingSize;
     }
 
     public void setTimeCreated(long timeCreated)
@@ -318,7 +317,7 @@ public class SchematicMetadata
             nbt.putLong("TimeModified", this.timeModified);
         }
 
-        nbt.put("EnclosingSize", NbtUtils.createVec3iTag(this.enclosingSize));
+        nbt.put("EnclosingSize", NbtUtils.createBlockPosTag(this.enclosingSize));
 
         if (this.thumbnailPixelData != null)
         {
