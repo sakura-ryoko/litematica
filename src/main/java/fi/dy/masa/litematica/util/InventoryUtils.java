@@ -35,6 +35,8 @@ import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
+import org.jetbrains.annotations.ApiStatus;
+
 public class InventoryUtils
 {
     private static final List<Integer> PICK_BLOCKABLE_SLOTS = new ArrayList<>();
@@ -506,11 +508,11 @@ public class InventoryUtils
      * @param threshold the number of items at or below which the re-stocking will happen
      * @param allowHotbar whether to allow taking items from other hotbar slots
      */
-    @Experimental
-    public static void PRW_preRestockHand(PlayerEntity player,
-                                          Hand hand,
-                                          int threshold,
-                                          boolean allowHotbar)
+    @ApiStatus.Experimental
+    public static void preRestockHand(PlayerEntity player,
+                                      Hand hand,
+                                      int threshold,
+                                      boolean allowHotbar)
     {
         PlayerInventory container = player.getInventory();
         final ItemStack handStack = player.getStackInHand(hand);
@@ -518,11 +520,11 @@ public class InventoryUtils
         final int max = handStack.getMaxCount();
 
         if (handStack.isEmpty() == false &&
-            PRW_getCursorStack().isEmpty() &&
+            getCursorStack().isEmpty() &&
             (count <= threshold && count < max))
         {
             int endSlot = allowHotbar ? 44 : 35;
-            int currentMainHandSlot = PRW_getSelectedHotbarSlot() + 36;
+            int currentMainHandSlot = getSelectedHotbarSlot() + 36;
             int currentSlot = hand == Hand.MAIN_HAND ? currentMainHandSlot : 45;
 
             for (int slotNum = 9; slotNum <= endSlot; ++slotNum)
@@ -556,8 +558,8 @@ public class InventoryUtils
         }
     }
 
-    @Experimental
-    public static ItemStack PRW_getCursorStack()
+    @ApiStatus.Experimental
+    public static ItemStack getCursorStack()
     {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null)
@@ -568,8 +570,8 @@ public class InventoryUtils
         return inv != null ? inv.getMainHandStack() : ItemStack.EMPTY;
     }
 
-    @Experimental
-    public static int PRW_getSelectedHotbarSlot()
+    @ApiStatus.Experimental
+    public static int getSelectedHotbarSlot()
     {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null)

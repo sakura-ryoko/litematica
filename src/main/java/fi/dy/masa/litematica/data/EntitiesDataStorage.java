@@ -973,14 +973,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
             synchronized (this.blockEntityCache)
             {
-                if (this.blockEntityCache.containsKey(pos))
-                {
-                    this.blockEntityCache.replace(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity, nbt)));
-                }
-                else
-                {
-                    this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity, nbt)));
-                }
+                this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity, nbt)));
             }
 
             blockEntity.read(nbt, this.getClientWorld().getRegistryManager());
@@ -1017,14 +1010,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                     }
                     synchronized (this.blockEntityCache)
                     {
-                        if (this.blockEntityCache.containsKey(pos))
-                        {
-                            this.blockEntityCache.replace(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity2, nbt)));
-                        }
-                        else
-                        {
-                            this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity2, nbt)));
-                        }
+                        this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity2, nbt)));
                     }
 
                     if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())
@@ -1069,14 +1055,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             }
             synchronized (this.entityCache)
             {
-                if (this.entityCache.containsKey(entityId))
-                {
-                    this.entityCache.replace(entityId, Pair.of(System.currentTimeMillis(), Pair.of(entity, nbt)));
-                }
-                else
-                {
-                    this.entityCache.put(entityId, Pair.of(System.currentTimeMillis(), Pair.of(entity, nbt)));
-                }
+                this.entityCache.put(entityId, Pair.of(System.currentTimeMillis(), Pair.of(entity, nbt)));
             }
 
             if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())

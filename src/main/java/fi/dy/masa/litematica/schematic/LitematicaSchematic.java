@@ -1252,7 +1252,7 @@ public class LitematicaSchematic
 
             if (version >= 1 && version <= SCHEMATIC_VERSION)
             {
-                if (minecraftDataVersion > this.MINECRAFT_DATA_VERSION)
+                if (minecraftDataVersion - this.MINECRAFT_DATA_VERSION > 100)
                 {
                     InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.error.schematic_load.newer_minecraft_version", minecraftDataVersion, this.MINECRAFT_DATA_VERSION);
                 }

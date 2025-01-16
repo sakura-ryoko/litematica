@@ -220,7 +220,14 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 
                 if (schema != null)
                 {
-                    str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), version.minecraftDataVersion());
+                    if (version.minecraftDataVersion() - LitematicaSchematic.MINECRAFT_DATA_VERSION > 100)
+                    {
+                        str = StringUtils.translate("litematica.gui.label.schematic_info.schema.newer", schema.getString(), version.minecraftDataVersion());
+                    }
+                    else
+                    {
+                        str = StringUtils.translate("litematica.gui.label.schematic_info.schema", schema.getString(), version.minecraftDataVersion());
+                    }
                     this.drawString(drawContext, str, x, y, textColor);
                     y += 12;
                 }

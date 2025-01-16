@@ -10,6 +10,7 @@ import fi.dy.masa.litematica.config.Configs;
 public enum DataFixerMode implements IConfigOptionListEntry
 {
     ALWAYS                  ("always", "litematica.gui.label.data_fixer_mode.always"),
+    //BELOW_1215              ("below_1215", "litematica.gui.label.data_fixer_mode.below_1215"),
     BELOW_1205              ("below_1205", "litematica.gui.label.data_fixer_mode.below_1205"),
     BELOW_120X              ("below_120X", "litematica.gui.label.data_fixer_mode.below_120X"),
     BELOW_119X              ("below_119X", "litematica.gui.label.data_fixer_mode.below_119X"),
@@ -93,6 +94,18 @@ public enum DataFixerMode implements IConfigOptionListEntry
         switch (config)
         {
             case ALWAYS -> { return schema; }
+            // FIXME 1.21.5+
+            /*
+            case BELOW_1215 ->
+            {
+                if (dataVersion < Schema.SCHEMA_1_21_05.getDataVersion())
+                {
+                    return schema;
+                }
+
+                return null;
+            }
+             */
             case BELOW_1205 ->
             {
                 if (dataVersion < Schema.SCHEMA_1_20_05.getDataVersion())
