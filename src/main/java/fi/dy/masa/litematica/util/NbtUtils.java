@@ -10,10 +10,10 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-
-import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.malilib.util.Constants;
 import net.minecraft.util.math.Vec3i;
+
+import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.litematica.Litematica;
 
 /**
  * Please use malilib/nbt/NbtUtils from now on
