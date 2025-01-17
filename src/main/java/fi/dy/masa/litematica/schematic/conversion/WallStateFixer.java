@@ -74,15 +74,10 @@ public class WallStateFixer implements SchematicConversionFixers.IStateFixer
                                                      VoxelShape shapeAbove)
     {
         return blockState
-                        // TODO
-                        // NORTH
-                       .with(WallBlock.field_55816, this.getConnectionShape(canConnectNorth, shapeAbove, SHAPE_NORTH))
-                        // EAST
-                       .with(WallBlock.field_55815,  this.getConnectionShape(canConnectEast, shapeAbove, SHAPE_EAST))
-                        // SOUTH
-                       .with(WallBlock.field_55817, this.getConnectionShape(canConnectSouth, shapeAbove, SHAPE_SOUTH))
-                        // WEST
-                       .with(WallBlock.field_55818,  this.getConnectionShape(canConnectWest, shapeAbove, SHAPE_WEST));
+                       .with(WallBlock.NORTH_WALL_SHAPE, this.getConnectionShape(canConnectNorth, shapeAbove, SHAPE_NORTH))
+                       .with(WallBlock.EAST_WALL_SHAPE,  this.getConnectionShape(canConnectEast, shapeAbove, SHAPE_EAST))
+                       .with(WallBlock.SOUTH_WALL_SHAPE, this.getConnectionShape(canConnectSouth, shapeAbove, SHAPE_SOUTH))
+                       .with(WallBlock.WEST_WALL_SHAPE,  this.getConnectionShape(canConnectWest, shapeAbove, SHAPE_WEST));
     }
 
     private boolean shouldConnectTo(BlockState state, boolean faceFullSquare, Direction side)
@@ -105,15 +100,10 @@ public class WallStateFixer implements SchematicConversionFixers.IStateFixer
         }
         else
         {
-            // TODO
-            // NORTH
-            WallShape shapeNorth = blockState.get(WallBlock.field_55816);
-            // SOUTH
-            WallShape shapeSouth = blockState.get(WallBlock.field_55817);
-            // EAST
-            WallShape shapeEast  = blockState.get(WallBlock.field_55815);
-            // WEST
-            WallShape shapeWest  = blockState.get(WallBlock.field_55818);
+            WallShape shapeNorth = blockState.get(WallBlock.NORTH_WALL_SHAPE);
+            WallShape shapeSouth = blockState.get(WallBlock.SOUTH_WALL_SHAPE);
+            WallShape shapeEast  = blockState.get(WallBlock.EAST_WALL_SHAPE);
+            WallShape shapeWest  = blockState.get(WallBlock.WEST_WALL_SHAPE);
             boolean unconnectedNorth = shapeNorth == WallShape.NONE;
             boolean unconnectedSouth = shapeSouth == WallShape.NONE;
             boolean unconnectedEast  = shapeEast == WallShape.NONE;
