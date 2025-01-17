@@ -1,5 +1,6 @@
 plugins {
 	id 'fabric-loom' version '1.8-SNAPSHOT'
+	id 'maven-publish'
 }
 
 repositories {
@@ -100,7 +101,7 @@ publishing {
 
 	repositories {
 		maven {
-			url "$projectDir/../../CommonMaven"
+			url = "$projectDir/../../CommonMaven"
 		}
 	}
 }
