@@ -453,6 +453,7 @@
 
     "litematica.config.generic.prettyName.pickBlockEnabled": "Pick Block Hotkeys",
     "litematica.config.generic.prettyName.easyPlaceMode": "Easy Place Mode",
+    "litematica.config.generic.prettyName.entityDataSync": "Entity Data Sync",
     "litematica.config.generic.prettyName.placementRestriction": "Placement Restriction",
     "litematica.config.generic.prettyName.signTextPaste": "Sign Text Paste",
     "litematica.config.generic.prettyName.toolItemEnabled": "Tool Item Enabled",
@@ -544,6 +545,7 @@
     "litematica.error.structure_write_to_file_failed.exists": "Failed to write the structure to file '%s', file already exists",
 
     "litematica.hotkeys.category.generic_hotkeys": "Generic hotkeys",
+    "litematica.hotkeys.category.config_generic_hotkeys": "Generic hotkeys",
 
     "litematica.info.schematic_load.schematic_loaded": "Schematic '%s' successfully loaded to memory",
     "litematica.info.schematic_manager.preview.right_click_to_cancel": "- Right click the button to cancel a pending preview operation\n- Ctrl + Alt + Shift + click to set the thumbnail from an existing PNG image\n  called 'thumb.png' from the same directory where the schematic file is.",
