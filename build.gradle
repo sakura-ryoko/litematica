@@ -23,7 +23,7 @@ dependencies {
 	//modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
+//	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
 }
 
 base {
@@ -37,16 +37,16 @@ base {
 }
 
 loom {
-	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
-	// [FEATURE] MIXIN_AUDITOR
-	runs {
-		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
-		clientMixinAudit {
-			client()
-			vmArgs auditVmArgs
-			ideConfigGenerated false
-		}
-	}
+//	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
+//	// [FEATURE] MIXIN_AUDITOR
+//	runs {
+//		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
+//		clientMixinAudit {
+//			client()
+//			vmArgs auditVmArgs
+//			ideConfigGenerated false
+//		}
+//	}
 }
 
 processResources {
