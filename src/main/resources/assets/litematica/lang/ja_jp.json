@@ -73,7 +73,6 @@
   "litematica.config.generic.name.toolItemEnabled": "ツールアイテム有効化",
   "litematica.config.generic.name.toolItemComponents": "ツールアイテム (データコンポーネント)",
   "litematica.config.generic.name.unhideSchematicVCS": "図面VCSを表示",
-
   "litematica.config.visuals.name.enableAreaSelectionBoxesRendering": "領域選択ボックスの描画",
   "litematica.config.visuals.name.enablePlacementBoxesRendering": "図面配置ボックスの描画",
   "litematica.config.visuals.name.enableRendering": "すべての描画",
@@ -109,7 +108,6 @@
   "litematica.config.visuals.name.schematicOverlayTypeWrongBlock": "間違ったブロックのオーバーレイ",
   "litematica.config.visuals.name.schematicOverlayTypeWrongState": "間違った状態のオーバーレイ",
   "litematica.config.visuals.name.schematicVerifierUseBlockModels": "検証リストでのブロックモデル使用",
-
   "litematica.config.info_overlays.name.blockInfoLinesAlignment": "ブロック情報行の配置",
   "litematica.config.info_overlays.name.blockInfoOverlayAlignment": "ブロック情報オーバーレイの配置",
   "litematica.config.info_overlays.name.infoHudAlignment": "情報HUDの配置",
@@ -136,7 +134,6 @@
   "litematica.config.info_overlays.name.verifierErrorHilightMaxPositions": "検証ハイライトの最大数",
   "litematica.config.info_overlays.name.verifierOverlayEnabled": "検証ハイライトの描画",
   "litematica.config.info_overlays.name.warnDisabledRendering": "描画無効化時の警告",
-
   "litematica.config.colors.name.areaSelectionBoxSideColor": "領域選択ボックスの色",
   "litematica.config.colors.name.hightlightBlockInInventoryColor": "インベントリのハイライト色",
   "litematica.config.colors.name.materialListHudItemCountsColor": "建材リストHUDのアイテム数の文字色",
@@ -147,7 +144,6 @@
   "litematica.config.colors.name.schematicOverlayColorMissing": "不足しているブロックのオーバーレイ色",
   "litematica.config.colors.name.schematicOverlayColorWrongBlock": "間違ったブロックのオーバーレイ色",
   "litematica.config.colors.name.schematicOverlayColorWrongState": "間違った状態のオーバーレイ色",
-
   "litematica.config.hotkeys.name.addSelectionBox": "選択ボックスを追加",
   "litematica.config.hotkeys.name.cloneSelection": "選択中の領域を複製",
   "litematica.config.hotkeys.name.deleteSelectionBox": "選択ボックスを削除",
@@ -224,7 +220,6 @@
   "litematica.config.hotkeys.name.toolSelectModifierBlock1": "ツールでブロック1選択",
   "litematica.config.hotkeys.name.toolSelectModifierBlock2": "ツールでブロック2選択",
   "litematica.config.hotkeys.name.unloadCurrentSchematic": "現在の図面を破棄",
-
   "litematica.config.generic.comment.easyPlaceProtocolVersion": "使用する「精密設置プロトコル」の種類\n- 自動: シングルプレイでは「バージョン3」を使用し，\n   マルチプレイでは「ハーフブロックのみ」を使用する．\n   ただし，サーバがCarpetを導入しており，\n   「carpet:hello」パケットを送信する場合，\n   そのサーバでは「バージョン2」を使用する．\n- バージョン3: シングルプレイまたはServuxでのみサポートされる．\n- バージョン2: Carpet導入サーバと互換性がある．\n   サーバ側でCarpetの「accurateBlockPlacement」ルールを\n   有効化する必要がある．\n- ハーフブロックのみ: 上付きハーフブロックのみ修正する．\n   Paperサーバと互換性がある．\n- なし: 座標を修正しない．",
   "litematica.config.generic.comment.pasteNbtRestoreBehavior": "ブロックのNBTデータ復元を試行するかどうか．\nまた，どの方法を使用するか．\n- 設置してデータ変更:\n   プレイヤー付近に「NBT付きのブロック」を設置し，\n   その後 data modify コマンドを使用して\n   NBTデータを setblck で設置したブロックへ転送する．\n- 設置して複製:\n   プレイヤー付近に「NBT付きのブロック」を設置し，\n   その後 clone コマンドで最終位置に複製する．\n- テレポートして設置:\n   プレイヤーを目標位置付近にテレポートさせ，\n   その後「NBT付きアイテム」を直接正しい位置に設置する．\n注意: 現在，「テレポートして設置」は正常に動作しない，\nまたは完全に機能しない．\n推奨は§e設置してデータ変更§rだが，以下の設定が必要な場合がある:\n - 「ティックあたりのコマンド数」を1/tickに下げる\n - 「タスク実行間隔」を1~4ティックに増やす\nそのため，この機能はデータを必要とする\n重要なブロックの貼り付けのみに使用すべき．\n例えば，インベントリのみの図面を作成し，\n置換を「なし」にして貼り付けることで実現可能．",
   "litematica.config.generic.comment.pasteReplaceBehavior": "図面貼り付けモードにおける既存ブロックの置換動作",
@@ -299,7 +294,6 @@
   "litematica.config.generic.comment.toolItemEnabled": "「ツール」アイテムを使用して選択等の操作をできるようにする",
   "litematica.config.generic.comment.toolItemComponents": "「ツールアイテム」のデータコンポーネント対応版．\n「empty」とすると無効になる．\n受け付ける構文は give コマンドと同じ．",
   "litematica.config.generic.comment.unhideSchematicVCS": "メニューに図面VSC (バージョン管理システム) を表示し，\nショートカットとVCS機能全般を有効にする．\n(以前は「図面プロジェクト」と呼ばれていたもの)\n\n基本的に，動作や目的を十分に理解していない場合には\nこの機能を§6使用すべきでない§r．\nこの機能は，領域選択，配置，貼り付け操作の動作を一部変更する．\n特に，貼り付け時に領域の削除操作が追加される点が特徴的．\n\nこの機能は主に§6その場での反復的な§r設計作業を目的としており，\n同じ建築の複数バージョン/スナップショット作成を容易にする．\nまた，現在のバージョンを削除して次のバージョンを\nその場に貼り付けることでバージョンを切り替えやすくする．",
-
   "litematica.config.visuals.comment.enableAreaSelectionBoxesRendering": "領域選択ボックスの描画を有効化する",
   "litematica.config.visuals.comment.enablePlacementBoxesRendering": "図面配置ボックスの描画を有効化する",
   "litematica.config.visuals.comment.enableRendering": "メインの描画切り替え．\nMODのすべての描画を有効化/無効化する．",
@@ -335,7 +329,6 @@
   "litematica.config.visuals.comment.schematicOverlayTypeWrongBlock": "間違ったブロックの図面オーバーレイを有効化する",
   "litematica.config.visuals.comment.schematicOverlayTypeWrongState": "間違った状態の図面オーバーレイを有効化する",
   "litematica.config.visuals.comment.schematicVerifierUseBlockModels": "図面の検証リストですべてのブロックに対して\nブロックモデルの使用を強制する．\n通常は，アイテムが存在する場合にはアイテムモデルが使用され，\nアイテムがないブロックや，花瓶の中身を確認するためにのみ\nブロックモデルが使用される．",
-
   "litematica.config.info_overlays.comment.blockInfoLinesAlignment": "ブロック情報行の配置",
   "litematica.config.info_overlays.comment.blockInfoOverlayAlignment": "ブロック情報オーバーレイの配置",
   "litematica.config.info_overlays.comment.infoHudAlignment": "「情報HUD」の配置\n建材リストや図面検証の不一致箇所等の表示に使用される",
@@ -362,7 +355,6 @@
   "litematica.config.info_overlays.comment.verifierErrorHilightMaxPositions": "図面検証ハイライトで一度に描画する不一致箇所の最大数",
   "litematica.config.info_overlays.comment.verifierOverlayEnabled": "図面検証ハイライトを描画する",
   "litematica.config.info_overlays.comment.warnDisabledRendering": "新しい図面を読み込む際や新しい配置を作成する際に，\nレイヤ描画中であることや一部の描画が無効になっている旨の\n警告メッセージを表示する    ",
-
   "litematica.config.colors.comment.areaSelectionBoxSideColor": "未選択時の領域選択ボックス",
   "litematica.config.colors.comment.hightlightBlockInInventoryColor": "注視しているブロックアイテムのハイライト",
   "litematica.config.colors.comment.materialListHudItemCountsColor": "建材リストHUD内のアイテム数テキスト",
@@ -373,7 +365,6 @@
   "litematica.config.colors.comment.schematicOverlayColorMissing": "図面検証で不足しているブロックのオーバーレイ",
   "litematica.config.colors.comment.schematicOverlayColorWrongBlock": "図面検証で間違ったブロックのオーバーレイ",
   "litematica.config.colors.comment.schematicOverlayColorWrongState": "図面検証で間違った状態のオーバーレイ",
-
   "litematica.config.hotkeys.comment.addSelectionBox": "新しい選択ボックス (点1) を現在地に追加する",
   "litematica.config.hotkeys.comment.cloneSelection": "現在の領域選択を素早く複製する．\nメモリ内のみの図面を作成し，\nその図面の配置を作成して選択し，\nさらにツールモードを貼り付けに切り替える．",
   "litematica.config.hotkeys.comment.deleteSelectionBox": "現在の選択ボックスを削除する",
@@ -404,7 +395,7 @@
   "litematica.config.hotkeys.comment.pickBlockFirst": "最も手前の図面ブロックをブロック選択する",
   "litematica.config.hotkeys.comment.pickBlockLast": "最も奥の図面ブロックをブロック選択する．\n厳密には，クライアントワールドのブロックが\n初めてレイトレースされるまでの間で，\n最後にレイトレースされた図面ブロックを選択する．\n基本的には既設のブロックに向かって設置すべきブロックを取得する．",
   "litematica.config.hotkeys.comment.pickBlockToggle": "一般 -> ブロック選択 の設定を切り替えるキー．\nブロック選択キーが他の操作と干渉する場合に，\n機能を素早くオン/オフするために提供されている．",
-  "litematica.config.hotkeys.comment.renderInfoOverlay": "このキーを押している間，ブロック情報オーバーレイを表示する．\nキーを押さなくても表示するためには「NONE」にしておく．\nオーバーレイを完全に無効化するためには\n情報オーバーレイ設定内の同名のオプションを無効化する．",
+  "litematica.config.hotkeys.comment.renderInfoOverlay": "このキーを押している間，ブロック情報オーバーレイを表示する．\nキーを押さなくても表示するためには「NONE」にしておく,\nin addition to setting \"Allow Empty\" under the Advanced Keybind settings.\nオーバーレイを完全に無効化するためには\n情報オーバーレイ設定内の同名のオプションを無効化する．",
   "litematica.config.hotkeys.comment.renderOverlayThroughBlocks": "このキーを押している間，図面オーバーレイを貫通描画する．\n表示 -> オーバーレイの貫通描画 の\n一時的な有効化を容易にできる．",
   "litematica.config.hotkeys.comment.rerenderSchematic": "図面のみを再描画する．\nF3 + A でバニラの地形も\n再読み込みする必要がなくなる．",
   "litematica.config.hotkeys.comment.saveAreaAsInMemorySchematic": "現在の領域選択をメモリ内図面として保存する",
@@ -450,13 +441,12 @@
   "litematica.config.hotkeys.comment.toolSelectModifierBlock1": "「ツール」アイテム使用時，\n一つ目のブロックタイプ選択に使用する修飾キー．\nこのキーを押しながら「ツールでの選択」キーを\n使用してブロックタイプを選択する．\nこれは一部のツールモードで使用する．",
   "litematica.config.hotkeys.comment.toolSelectModifierBlock2": "「ツール」アイテム使用時，\n二つ目のブロックタイプ選択に使用する修飾キー．\nこのキーを押しながら「ツールでの選択」キーを\n使用してブロックタイプを選択する．\nこれは一部のツールモードで使用する．",
   "litematica.config.hotkeys.comment.unloadCurrentSchematic": "選択中の配置の図面を破棄し，\nそれに基づいて作成されたすべての配置も削除する",
-
   "litematica.config.generic.prettyName.pickBlockEnabled": "ブロック選択ショートカット",
   "litematica.config.generic.prettyName.easyPlaceMode": "簡易設置モード",
+  "litematica.config.generic.prettyName.entityDataSync": "Entity Data Sync",
   "litematica.config.generic.prettyName.placementRestriction": "設置制限",
   "litematica.config.generic.prettyName.signTextPaste": "看板のテキスト貼り付け",
   "litematica.config.generic.prettyName.toolItemEnabled": "ツールアイテム有効化",
-
   "litematica.config.visuals.prettyName.enableAreaSelectionBoxesRendering": "領域選択ボックスの描画",
   "litematica.config.visuals.prettyName.enablePlacementBoxesRendering": "図面配置ボックスの描画",
   "litematica.config.visuals.prettyName.enableRendering": "すべての描画",
@@ -469,12 +459,9 @@
   "litematica.config.visuals.prettyName.schematicOverlayEnableOutlines": "図面オーバーレイの輪郭を描画",
   "litematica.config.visuals.prettyName.schematicOverlayEnableResorting": "図面オーバーレイの半透明ソート",
   "litematica.config.visuals.prettyName.schematicOverlayEnableSides": "図面オーバーレイの面を描画",
-
   "litematica.config.info_overlays.prettyName.blockInfoOverlayEnabled": "ブロック情報オーバーレイの表示",
   "litematica.config.info_overlays.prettyName.verifierOverlayEnabled": "検証オーバーレイの描画",
-
   "litematica.config.hotkeys.prettyName.toggleAllRendering": "すべての描画",
-
   "litematica.error.area_selection.copy_failed": "選択をコピーできませんでした",
   "litematica.error.area_selection.create_failed": "ファイルが既に存在するため，'%s' という名前で選択を保存できませんでした",
   "litematica.error.area_selection.failed_to_load": "領域選択を読み込めませんでした",
@@ -482,49 +469,39 @@
   "litematica.error.area_selection.no_placement_selected": "図面配置が選択されていません！",
   "litematica.error.area_selection.rename.already_exists": "エラー: ファイル名 '%s' の領域は既に存在します",
   "litematica.error.area_selection.rename.invalid_safe_file_name": "生成されたファイル名 '%s' が無効です",
-
   "litematica.error.duplicate_schematic_placement": "エラー: 既存の配置を追加しようとしています",
   "litematica.error.generic.creative_mode_only": "このアクションはクリエイティブモード限定です",
   "litematica.error.generic.failed_to_delete_file": "ファイル '%s' を削除できませんでした",
   "litematica.error.generic.failed_to_sort_list_of_ignored_states": "無視する状態リストを並べ替えられませんでした",
   "litematica.error.generic.schematic_world_not_loaded": "図面が読み込まれていません",
-
   "litematica.error.area_editor.create_sub_region.exists": "'%s' という子領域は既に存在します",
   "litematica.error.area_editor.no_selection": "アクティブな領域選択がありません",
   "litematica.error.area_editor.open_gui.no_selection": "現在の選択モード: 通常 ですが，選択されている領域がありません",
   "litematica.error.area_editor.rename_sub_region.exists": "子領域の名前を変更できませんでした:\n'%s' という子領域は既に存在します",
   "litematica.error.area_editor.switch_mode.no_selection": "選択されている領域がないため，選択モード: 通常 に切り替えられませんでした．\n領域選択ブラウザで領域を選択するか，新しい選択を作成してください．",
-
   "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Litematica図面を読み込めませんでした",
   "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Litematica図面ををダウングレードできませんでした",
   "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Litematica図面を作成できませんでした",
   "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "図面を読み込めませんでした",
   "litematica.error.schematic_conversion.structure_to_litematica_failed": "構造をLitematica図面に変換できませんできた",
-
   "litematica.error.schematic.create.no_selections": "有効な選択領域がありません！",
-
   "litematica.error.schematic_load.cant_read_file": "図面ファイル '%s' を読み取れません (存在しないか権限の問題)",
   "litematica.error.schematic_load.newer_minecraft_version": "図面は将来のバージョンのMinecraftで作成されています: '%d' > '%d'\n一部のNBTデータが破損する恐れがあります．",
   "litematica.error.schematic_load.no_schematic_selected": "図面ファイルが選択されていません！",
   "litematica.error.schematic_load.no_schematic_version_information": "図面にバージョン情報が含まれておらず，安全に読み込めません！",
   "litematica.error.schematic_load.unsupported_schematic_version": "サポートされていない，または将来の図面バージョンです: '%d'",
   "litematica.error.schematic_load.unsupported_type": "'%s' のファイルタイプが不明、またはサポートされていません",
-
   "litematica.error.schematic_manager.schematic_export.unsupported_type": "他の形式で書き出せるのはLitematica図面のみです！",
   "litematica.error.schematic_manager.schematic_import.unsupported_type": "選択された図面タイプはインポートに対応していません！",
-
   "litematica.error.schematic_placements.remove_fail_locked": "配置はロックされています！\n- Shiftを押しながらクリックして強制的に削除",
-
   "litematica.error.schematic_save.directory_doesnt_exist": "そのようなディレクトリはありません: '%s'",
   "litematica.error.schematic_save.file_already_exists": "ファイル '%s' は既に存在します",
   "litematica.error.schematic_save.invalid_directory": "無効なディレクトリ: '%s'",
   "litematica.error.schematic_save.invalid_schematic_name": "無効な図面名: '%s'",
   "litematica.error.schematic_save.schematic_creation_failed": "図面を作成できませんでした！",
-
   "litematica.error.schematic_read_from_file_failed.cant_read": "ファイル '%s' から図面を読み取れませんでした",
   "litematica.error.schematic_read_from_file_failed.exception": "ファイル '%s' から図面を読み取ろうとした際に例外が発生しました",
   "litematica.error.schematic_read_from_file_failed.no_file": "ファイルから図面を読み取れませんでした: ファイルが存在しません (メモリ内図面の可能性？)",
-
   "litematica.error.schematic_projects.empty_selection": "空の領域選択 (子領域が0個)",
   "litematica.error.schematic_projects.failed_to_load_project": "プロジェクトを読み込めませんでした",
   "litematica.error.schematic_projects.failed_to_load_schematic": "現在のバージョン向けの図面を読み込めませんでした",
@@ -536,20 +513,17 @@
   "litematica.error.schematic_projects.null_player": "プレイヤーが null です",
   "litematica.error.schematic_projects.project_already_exists": "プロジェクト '%s' は既に存在します",
   "litematica.error.schematic_projects.save_already_in_progress": "既に保存が進行中です",
-
   "litematica.error.schematic_write_to_file_failed.directory_creation_failed": "図面ディレクトリ '%s' を作成できませんでした",
   "litematica.error.schematic_write_to_file_failed.exception": "図面をファイル '%s' に書き込めませんでした (例外発生)",
   "litematica.error.schematic_write_to_file_failed.exists": "ファイルが既に存在するため，図面をファイル '%s' に書き込めませんでした",
   "litematica.error.structure_write_to_file_failed.exception": "構造をファイル '%s' に書き込めませんでした (例外発生)",
   "litematica.error.structure_write_to_file_failed.exists": "ファイルが既に存在するため，構造をファイル '%s' に書き込めませんでした",
-
   "litematica.hotkeys.category.generic_hotkeys": "一般のショートカット",
-
+  "litematica.hotkeys.category.config_generic_hotkeys": "Generic hotkeys",
   "litematica.info.schematic_load.schematic_loaded": "図面 '%s' が正常にメモリに読み込まれました",
   "litematica.info.schematic_manager.preview.right_click_to_cancel": "- 右クリックで保留中のプレビュー操作をキャンセル\n- Ctrl + Alt + Shift + クリックで図面ファイルと\n   同じディレクトリにある 'thumb.png' をサムネイルに設定",
   "litematica.info.schematic_manager.preview.set_preview_by_taking_a_screenshot": "通常のスクリーンショットキーを使用してプレビューを設定．\nプレビュー設定をキャンセルする場合は，「プレビューを設定」を右クリック．",
   "litematica.info.schematic_manager.preview.success": "プレビュー画像が正常に設定されました",
-
   "litematica.gui.button.area_editor.analyze_area": "領域を解析",
   "litematica.gui.button.area_editor.change_corner_mode": "指定方式: %s",
   "litematica.gui.button.area_editor.change_selection_mode": "選択モード: %s",
@@ -558,13 +532,11 @@
   "litematica.gui.button.area_editor.origin_enabled": "原点の手動設定: %s",
   "litematica.gui.button.area_editor.set_box_name": "確定",
   "litematica.gui.button.area_editor.set_selection_name": "確定",
-
   "litematica.gui.button.area_selection_mode": "領域選択モード: %s",
   "litematica.gui.button.area_selections.create_directory": "ディレクトリを作成",
   "litematica.gui.button.area_selections.create_new_selection": "新しい領域選択",
   "litematica.gui.button.area_selections.create_selection_from_placement": "配置から",
   "litematica.gui.button.area_selections.unselect": "選択を解除",
-
   "litematica.gui.button.change_menu.area_editor": "領域エディタ",
   "litematica.gui.button.change_menu.configuration_menu": "設定メニュー",
   "litematica.gui.button.change_menu.load_schematics_to_memory": "図面の読み込み",
@@ -575,7 +547,6 @@
   "litematica.gui.button.change_menu.show_schematic_placements": "図面の配置",
   "litematica.gui.button.change_menu.task_manager": "タスクマネージャ",
   "litematica.gui.button.change_menu.to_main_menu": "Litematica メニュー",
-
   "litematica.gui.button.config_gui.colors": "色",
   "litematica.gui.button.config_gui.generic": "一般",
   "litematica.gui.button.config_gui.hotkeys": "ショートカット",
@@ -583,7 +554,6 @@
   "litematica.gui.button.config_gui.render_layers": "レイヤ描画",
   "litematica.gui.button.config_gui.visuals": "表示",
   "litematica.gui.button.config_gui.test": "テスト",
-
   "litematica.gui.button.hover.area_editor.shift_for_in_memory": "Shiftを押しながらクリックでメモリ内のみの図面を作成",
   "litematica.gui.button.hover.area_selections.unselect": "現在の領域を選択解除する",
   "litematica.gui.button.hover.material_list.clear_cache": "建材のキャッシュを消去する\n通常は必要ない操作だが，キャッシュに誤ったデータが含まれる場合に\n'material_cache.nbt' ファイルを削除する代わりに使用できる．\n(例えば，ピストンヘッド等の本来ブロックとされないもの)",
@@ -598,7 +568,6 @@
   "litematica.gui.button.hover.schematic_projects.move_origin_to_player": "プロジェクトの原点をプレイヤーの現在地に移動する\n領域選択および配置も移動する",
   "litematica.gui.button.hover.schematic_projects.place_to_world_warning": "§6警告: 以前にバージョンから設置された，\n§6またはバージョンとして保存された\n§6領域内にある現在のブロックが削除/上書きされる",
   "litematica.gui.button.hover.schematic_projects.save_new_version": "現在のプロジェクトに新しい図面/バージョンを保存",
-
   "litematica.gui.button.material_list": "建材リスト",
   "litematica.gui.button.material_list.clear_cache": "キャッシュ消去",
   "litematica.gui.button.material_list.clear_ignored": "無視リストをリセット",
@@ -608,25 +577,19 @@
   "litematica.gui.button.material_list.refresh_list": "更新",
   "litematica.gui.button.material_list.toggle_info_hud": "情報HUD: %s",
   "litematica.gui.button.material_list.write_to_file": "ファイルに書き出し",
-
   "litematica.gui.button.placement_sub.placement_configuration": "配置の設定",
   "litematica.gui.button.placement_sub.reset_sub_region_placement": "子領域をリセット",
   "litematica.gui.button.placement_sub.slice_type": "スライス: %s",
-
   "litematica.gui.button.schematic_manager.export_as": "右の形式で書き出し:",
-
   "litematica.gui.button.schematic_placement.abbr.rendering": "R",
-
   "litematica.gui.button.schematic_placement.ignore_entities": "エンティティを無視: %s",
   "litematica.gui.button.schematic_placement.region_enabled": "領域: %s",
   "litematica.gui.button.schematic_placement.reset_sub_region_placements": "すべての子領域をリセット",
   "litematica.gui.button.schematic_placement.toggle_all_off": "すべて§cオフ§r",
   "litematica.gui.button.schematic_placement.toggle_all_on": "すべて§aオン§r",
-
   "litematica.gui.button.schematic_placement.hover.enclosing_box": "境界描画: %s",
   "litematica.gui.button.schematic_placement.hover.lock": "ロックしておくと意図しない配置の移動や変更を防げる",
   "litematica.gui.button.schematic_placement.hover.rendering": "描画: %s\nこの機能は少し不安定で，エンティティの描画は無効化できない．\n通常は配置そのものを無効化したほうが良い．",
-
   "litematica.gui.button.schematic_placements.configure": "設定",
   "litematica.gui.button.schematic_placements.disable": "無効化",
   "litematica.gui.button.schematic_placements.locked": "ロック: %s",
@@ -634,7 +597,6 @@
   "litematica.gui.button.schematic_placements.remove": "削除",
   "litematica.gui.button.schematic_placements.rendering_enabled": "描画: %s",
   "litematica.gui.button.schematic_placements.select": "選択",
-
   "litematica.gui.button.schematic_projects.close_project": "現在のプロジェクトを閉じる",
   "litematica.gui.button.schematic_projects.create_project": "プロジェクトを作成",
   "litematica.gui.button.schematic_projects.delete_area": "領域を削除",
@@ -645,7 +607,6 @@
   "litematica.gui.button.schematic_projects.open_project_browser": "VCSプロジェクトブラウザ",
   "litematica.gui.button.schematic_projects.place_to_world": "ワールドに設置",
   "litematica.gui.button.schematic_projects.save_version": "バージョンを保存",
-
   "litematica.gui.button.schematic_verifier.ignore": "無視",
   "litematica.gui.button.schematic_verifier.range_type": "範囲: %s",
   "litematica.gui.button.schematic_verifier.reset_ignored": "無視リストをリセット",
@@ -654,7 +615,6 @@
   "litematica.gui.button.schematic_verifier.start": "検証を開始",
   "litematica.gui.button.schematic_verifier.stop": "検証を停止",
   "litematica.gui.button.schematic_verifier.toggle_info_hud": "情報HUD: %s",
-
   "litematica.gui.button.cancel": "キャンセル",
   "litematica.gui.button.configure": "設定",
   "litematica.gui.button.copy": "コピー",
@@ -681,7 +641,6 @@
   "litematica.gui.button.tool_mode": "ツールモード: %s",
   "litematica.gui.button.unload": "破棄",
   "litematica.gui.button.unlocked": "アンロック",
-
   "litematica.gui.label.area_editor.box_name": "子領域名",
   "litematica.gui.label.area_editor.selection_name": "領域選択名",
   "litematica.gui.label.area_editor.corner_1": "角1",
@@ -691,26 +650,20 @@
   "litematica.gui.label.area_editor.pos1": "角1",
   "litematica.gui.label.area_editor.pos2": "角2",
   "litematica.gui.label.area_editor.sub_regions": "子領域 (%s)",
-
   "litematica.gui.label.area_selection_manager.current_selection": "選択中の領域: %s",
-
   "litematica.gui.label.area_selection_box_count": "ボックス数: %d",
   "litematica.gui.label.area_selection_origin": "原点: %s",
   "litematica.gui.label.area_selection.mode.normal": "通常",
   "litematica.gui.label.area_selection.mode.simple": "シンプル",
-
   "litematica.gui.label.block_info.state_client": "クライアントのブロック状態",
   "litematica.gui.label.block_info.state_schematic": "図面のブロック状態",
-
   "litematica.gui.label.block_info_list_type.all": "すべて",
   "litematica.gui.label.block_info_list_type.render_layers": "レイヤ描画",
-
   "litematica.gui.label.easy_place_protocol.auto": "自動",
   "litematica.gui.label.easy_place_protocol.none": "なし",
   "litematica.gui.label.easy_place_protocol.slabs_only": "ハーフブロックのみ",
   "litematica.gui.label.easy_place_protocol.v2": "バージョン2",
   "litematica.gui.label.easy_place_protocol.v3": "バージョン3",
-
   "litematica.gui.label.data_fixer_mode.always": "常に",
   "litematica.gui.label.data_fixer_mode.below_1215": "1.21.5未満のみ",
   "litematica.gui.label.data_fixer_mode.below_1205": "1.20.5未満のみ",
@@ -721,15 +674,12 @@
   "litematica.gui.label.data_fixer_mode.below_113X": "1.13.x未満のみ",
   "litematica.gui.label.data_fixer_mode.below_112X": "1.12.x未満のみ",
   "litematica.gui.label.data_fixer_mode.never": "なし",
-
   "litematica.gui.label.loaded_schematic.modified_on": "§6変更日時: %s§r",
-
   "litematica.gui.label.material_list.abbr.shulker_box": "シュルカーボックス",
   "litematica.gui.label.material_list.title.available": "使用可能",
   "litematica.gui.label.material_list.title.item": "アイテム",
   "litematica.gui.label.material_list.title.missing": "不足",
   "litematica.gui.label.material_list.title.total": "合計",
-
   "litematica.gui.label.material_list.multiplier": "倍数:",
   "litematica.gui.label.material_list.name": "名前",
   "litematica.gui.label.material_list.progress": "進捗: %s",
@@ -737,33 +687,25 @@
   "litematica.gui.label.material_list.progress.mismatch": "不一致 %s",
   "litematica.gui.label.material_list.progress.missing": "不足 %s",
   "litematica.gui.label.material_list.total": "合計: %s アイテム",
-
   "litematica.gui.label.origin.auto": "自動",
   "litematica.gui.label.origin.manual": "手動",
-
   "litematica.gui.label.paste_nbt_behavior.none": "なし",
   "litematica.gui.label.paste_nbt_behavior.place_data_modify": "設置してデータ変更",
   "litematica.gui.label.paste_nbt_behavior.place_clone": "設置して複製",
-
   "litematica.gui.label.placement_deletion_mode.matching_block": "一致ブロック",
   "litematica.gui.label.placement_deletion_mode.non_matching_block": "不一致ブロック",
   "litematica.gui.label.placement_deletion_mode.any_schematic_block": "任意の図面ブロック",
   "litematica.gui.label.placement_deletion_mode.no_schematic_block": "図面ブロックなし",
   "litematica.gui.label.placement_deletion_mode.entire_volume": "総容積",
-
   "litematica.gui.label.placement_sub.region_name": "領域名: %s",
   "litematica.gui.label.placement_sub.region_position": "領域位置",
   "litematica.gui.label.placement_sub.region_size": "領域の寸法: %s",
-
   "litematica.gui.label.placement_settings.placement_origin": "配置の原点",
-
   "litematica.gui.label.render_layers.hotkey": "ショートカット",
   "litematica.gui.label.render_layers.hover.hotkey": "「次/前のレイヤ」ショートカットがこの境界に作用する．\nどちらも選択していない場合，\nショートカットはプレイヤーに近いほうの境界に作用する．",
-
   "litematica.gui.label.replace_behavior.all": "すべて",
   "litematica.gui.label.replace_behavior.none": "なし",
   "litematica.gui.label.replace_behavior.with_non_air": "空気以外で置換",
-
   "litematica.gui.label.schematic_info.schematic_author": "作成者: §f%s§r",
   "litematica.gui.label.schematic_info.description": "説明:",
   "litematica.gui.label.schematic_info.enclosing_size": "境界寸法:",
@@ -780,10 +722,8 @@
   "litematica.gui.label.schematic_info.vanilla_version": "バニラの構造物",
   "litematica.gui.label.schematic_info.schema": "Minecraft: §f%s§r [スキーマ §f%d§r]",
   "litematica.gui.label.schematic_info.schema.newer": "Minecraft: §c%s§r [スキーマ §c%d§r]",
-
   "litematica.gui.label.schematic_load.checkbox.create_placement": "配置を作成",
   "litematica.gui.label.schematic_load.hoverinfo.create_placement": "すぐに新しい配置を作成してそれを選択する",
-
   "litematica.gui.label.schematic_placement.enclosing_size": "境界寸法: %s",
   "litematica.gui.label.schematic_placement.hoverinfo.hold_shift_to_create_as_disabled": "Shiftを押しながらクリックで配置を作成時に無効化",
   "litematica.gui.label.schematic_placement.in_memory": "メモリ内のみ",
@@ -793,14 +733,12 @@
   "litematica.gui.label.schematic_placement.schematic_name": "図面: %s",
   "litematica.gui.label.schematic_placement.sub_region_count": "子領域数: %s",
   "litematica.gui.label.schematic_placement.sub_regions": "子領域 (%s):",
-
   "litematica.gui.label.schematic_projects.currently_open_project": "現在開いているプロジェクト: %s",
   "litematica.gui.label.schematic_projects.origin": "原点:",
   "litematica.gui.label.schematic_projects.project": "プロジェクト:",
   "litematica.gui.label.schematic_projects.version": "バージョン: %s (/ %s)",
   "litematica.gui.label.schematic_projects.version_entry": "Ver. %d - %s",
   "litematica.gui.label.schematic_projects.version_name": "バージョン名:",
-
   "litematica.gui.label.schematic_save.checkbox.ignore_entities": "エンティティを無視",
   "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Shiftを押しながらクリックで既存ファイルを上書き",
   "litematica.gui.label.schematic_save.checkbox.save_from_schematic_world": "図面配置から保存",
@@ -809,7 +747,6 @@
   "litematica.gui.label.schematic_save.checkbox.support_blocks": "支持ブロック",
   "litematica.gui.label.schematic_save.hover_info.support_blocks": "「表示されているブロックのみ」モードで\nリピーター，コンパレーター，カーペット，\n重力で落下するブロック等のための支持ブロックを含める",
   "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "Shiftを押しながらクリックで既存ファイルを上書き",
-
   "litematica.gui.label.schematic_verifier.count": "数",
   "litematica.gui.label.schematic_verifier.expected": "想定ブロック",
   "litematica.gui.label.schematic_verifier.found": "実際のブロック",
@@ -823,7 +760,6 @@
   "litematica.gui.label.schematic_verifier.status.done_correct_total": "§a一致: %s§r, 合計: %s",
   "litematica.gui.label.schematic_verifier.status.verifying": "未確認チャンク: %s / %s",
   "litematica.gui.label.schematic_verifier.verifier": "図面の検証",
-
   "litematica.gui.label.task.title.remaining_chunks": "%s，残りチャンク (%s)",
   "litematica.gui.label.task_name.area_analyzer": "領域解析",
   "litematica.gui.label.task_name.delete": "削除",
@@ -832,11 +768,9 @@
   "litematica.gui.label.task_name.paste": "図面貼り付け",
   "litematica.gui.label.task_name.save_schematic": "図面保存",
   "litematica.gui.label.task_name.verifier": "図面検証",
-
   "litematica.gui.message.confirm_file_deletion": "ファイル '%s' を削除しますか?",
   "litematica.gui.message.schematic_projects.confirm_delete_area": "「最後に影響を受けた」領域を削除しますか？\nプロジェクトマネージャが最後にワールドに設置した，\nまたはバージョンとして保存した領域内のブロックとエンティティを削除します．\n(基本的に「最後に確認された影響領域」は\nバージョン切り替え時に前バージョンのブロックが残らないようにするものです)",
   "litematica.gui.message.schematic_projects.confirm_place_to_world": "このバージョンをワールドに設置しますか？\nプロジェクトマネージャが最後にワールドに設置した，\nまたはバージョンとして保存した領域内のブロックが削除されます．\n(基本的に「最後に確認された影響領域」は\nバージョン切り替え時に前バージョンのブロックが残らないようにするものです)",
-
   "litematica.gui.title.area_editor_normal": "領域エディタ (通常/複数ボックスモード)",
   "litematica.gui.title.area_editor_normal_schematic_projects": "領域エディタ (§6§l図面VCS領域§r)",
   "litematica.gui.title.area_editor_simple": "領域エディタ (シンプルモード)",
@@ -879,7 +813,6 @@
   "litematica.gui.title.schematic_verifier": "'%s' の図面検証",
   "litematica.gui.title.schematic_verifier_errors": "図面検証でのエラー",
   "litematica.gui.title.task_manager": "タスクマネージャ",
-
   "litematica.hud.area_selection.box_count": "ボックス数: %s",
   "litematica.hud.area_selection.dimensions_position": "寸法: %s - p1: %s, p2: %s",
   "litematica.hud.area_selection.mode.corners": "対角方式",
@@ -889,11 +822,9 @@
   "litematica.hud.area_selection.selected_area_simple": "領域 [§6シンプルモード§r]: %s",
   "litematica.hud.area_selection.selected_sub_region": "子領域: %s",
   "litematica.hud.area_selection.selection_corners_mode": "指定方式: %s",
-
   "litematica.hud.delete.target_mode": "削除対象: %s",
   "litematica.hud.delete.target_mode.area": "現在の領域",
   "litematica.hud.delete.target_mode.placement": "現在の配置",
-
   "litematica.hud.misc.easy_place_mode_enabled": "簡易設置モード §aオン§r",
   "litematica.hud.misc.none_brackets": "<なし>",
   "litematica.hud.misc.placement_restriction_mode_enabled": "設置制限モード §aオン§r",
@@ -903,7 +834,6 @@
   "litematica.hud.misc.schematic_paste.data_restore_mode": "データ復元モード: §b%s",
   "litematica.hud.misc.schematic_paste.replace_mode": "置換モード: %s",
   "litematica.hud.misc.schematic_paste.ignore_inventory_contents": "インベントリを無視: %s",
-
   "litematica.hud.schematic_placement.hover_info.lock_coordinate": "この座標をロックする\nロックされた座標には影響を及ぼさずに\n他の座標を変更できる",
   "litematica.hud.schematic_placement.hover_info.placement_locked": "ロックされた配置\n解除しなければ変更できない",
   "litematica.hud.schematic_placement.hover_info.placement_modified": "変更済みの配置",
@@ -914,9 +844,7 @@
   "litematica.hud.schematic_placement.sub_region_modified": "変更済",
   "litematica.hud.schematic_placement.sub_region_origin": "領域の原点: %s",
   "litematica.hud.schematic_placement.sub_regions_modified": "変更済の領域",
-
   "litematica.hud.selected_mode": "モード",
-
   "litematica.hud.schematic_projects.current_version_date": "日時: %s",
   "litematica.hud.schematic_projects.current_version": "バージョン: %s/%s - 名前: %s",
   "litematica.hud.schematic_projects.no_project_open": "<開かれているプロジェクトなし>",
@@ -924,16 +852,12 @@
   "litematica.hud.schematic_projects.origin": "プロジェクトの原点: %s",
   "litematica.hud.schematic_projects.project_name": "プロジェクト: %s",
   "litematica.hud.schematic_projects_mode": "§6図面VCSモード§r",
-
   "litematica.info.material_list": "- 「建材リスト」ショートカットは\n    最後に表示した建材リストを開く\n- 別の建材リストに切り替えるには，\n    配置の設定GUIや図面の読み込みGUIから開く\n- 最後に表示したリストは配置の選択が変わると忘却される\n- まだ最後に表示した建材リストがない場合，\n    選択中の配置が使用される",
-
   "litematica.label.alignment.center": "中央",
   "litematica.label.alignment.top_center": "中央上",
-
   "litematica.label.none_lower": "なし",
   "litematica.label.no": "いいえ",
   "litematica.label.yes": "はい",
-
   "litematica.message.error.area_deletion_aborted": "領域削除が中断されました",
   "litematica.message.error.empty_area_selection": "領域選択が空です (ボックスなし)",
   "litematica.message.error.invalid_schematic_name": "無効な図面名: '%s'",
@@ -948,7 +872,6 @@
   "litematica.message.error.schematic_save_no_area_selected": "§c図面を保存できませんでした - 領域が選択されていません§r",
   "litematica.message.warn.pickblock.no_suitable_slot_found": "ブロック選択に適したホットバースロットがありません！\n§e一般 -> ブロック選択対象スロット§6 の設定を確認してください．\n§eブロック選択での除外§6 の設定により，耐久値のあるアイテムやツールの持ち替えが拒否されている場合もあります．",
   "litematica.message.warn.pickblock.no_valid_slots_configured": "§e一般 -> ブロック選択対象スロット§6 の設定にホットバースロットが登録されていません！",
-
   "litematica.message.added_selection_box": "新しい選択ボックスを %s に追加しました",
   "litematica.message.area_clear_fail": "§c領域をクリアできませんでした§r",
   "litematica.message.area_cleared": "領域をクリアしました",
@@ -990,11 +913,9 @@
   "litematica.message.toggled": "%s: %s",
   "litematica.message.value.on": "オン",
   "litematica.message.value.off": "オフ",
-
   "litematica.message.schematic_projects.project_created": "プロジェクト '%s' を作成しました",
   "litematica.message.schematic_projects.project_loaded": "プロジェクト '%s' を読み込みました",
   "litematica.message.schematic_projects.version_saved": "新しいバージョン (#%s) を '%s' として保存しました",
-
   "litematica.message.warn.area_selection.browser_open_in_simple_mode": "注意: 現在の領域選択モードはシンプルモードです",
   "litematica.message.warn.layer_mode_currently_at": "注意: 現在のレイヤ描画は '%s' です",
   "litematica.message.warn.main_rendering_disabled": "警告: メイン描画が無効になっています．\n表示 -> %s または ショートカット -> %s を確認してください．",
@@ -1003,16 +924,12 @@
   "litematica.message.warn.schematic_rebuild_placement_not_selected": "対象となる配置が選択されていません．\n「すべて置換」ショートカットは，クリックした配置内の選択中の子領域にのみ機能します．そのため，特定の子領域内のブロックを置換する場合には，その子領域を選択する必要があります．図面全体(すべての子領域)で置換を実施する場合には，子領域ではなく配置全体を選択する必要があります．\nまた，置換は現在のレイヤ描画設定で制限された領域内に対してのみ行われます．",
   "litematica.message.warn.schematic_rendering_disabled": "警告: 図面の描画が無効になっています．\n表示 -> %s または ショートカット -> %s ['%s'] を確認してください．",
   "litematica.message.warn.schematic_verifier.overlay_disabled": "警告: 検証オーバーレイが無効になっています！\n情報オーバーレイ -> %s (または ショートカット -> %s ['%s']) を確認してください．",
-
   "litematica.message.warning.invalid_number": "無効な数値入力: '%s'",
   "litematica.message.warning.schematic_projects_hidden": "警告: 図面バージョン管理システムは非表示になっています．この機能について十分に理解していない場合は使用しないでください．この機能は，建築物のバージョンをその場で切り替える (=以前のバージョンを削除して置換する) 必要がある，反復的な設計作業を目的としています．使用する場合は，一般 -> 図面VCSを表示 を有効にしてください．",
-
   "litematica.warning.area_editor.area_rendering_disabled": "注意: 領域選択の描画が無効になっています．\n表示 -> %s または ショートカット -> %s ['%s'] を確認してください．",
-
   "litematica.tool_hud.block_1": "使用ブロック: %s",
   "litematica.tool_hud.block_2": "置換対象ブロック: %s",
   "litematica.tool_hud.facing": "向き: %s",
-
   "litematica.tool_mode.name.area_selection": "領域選択",
   "litematica.tool_mode.name.delete": "削除",
   "litematica.tool_mode.name.fill": "フィル",
@@ -1022,6 +939,5 @@
   "litematica.tool_mode.name.rebuild": "図面編集",
   "litematica.tool_mode.name.replace_block": "置換",
   "litematica.tool_mode.name.schematic_placement": "図面配置",
-
   "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
 }
