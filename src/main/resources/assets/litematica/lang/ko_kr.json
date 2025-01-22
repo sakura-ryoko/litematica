@@ -787,7 +787,7 @@
   "litematica.gui.title.create_directory": "새 디렉토리 생성",
   "litematica.gui.title.create_in_memory_schematic": "인-메모리 스키메틱 생성",
   "litematica.gui.title.create_schematic_project": "새 스키메틱 프로젝트 생성",
-  "litematica.gui.title.litematica_main_menu": "라이트메키가 %s",
+  "litematica.gui.title.litematica_main_menu": "라이트메티가 %s",
   "litematica.gui.title.load_schematic": "스키메틱 불러오기",
   "litematica.gui.title.manage_loaded_schematics": "불러온 스키메틱 관리",
   "litematica.gui.title.manage_schematic_placements": "스키메틱 배치 관리",
