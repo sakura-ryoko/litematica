@@ -225,7 +225,7 @@
   "litematica.config.generic.comment.pasteReplaceBehavior": "Поведінка заміни існуючих блоків у режимі інструменту «Вставити схематику»",
   "litematica.config.generic.comment.placementReplaceBehavior": "Поведінка заміни блоків під час додавання блоків до схематики світу\n\nЦе дозволяє використовувати розміщення, що перекривається без\nподальшого обробленого розміщення, яке завжди перезаписує повітря\nЗ іншого боку, деякі блоки, такі як світло, вважатимуться повітрям,\nтож їм знадобиться поведінка заміни «Усі», щоб їх розмістити",
   "litematica.config.generic.comment.placementRestrictionWarn": "Вибирає, який тип попереджувального повідомлення відображати (за наявності),\nякщо режим легкого розміщення або обмеження розміщення не дозволяють розмістити блок",
-  "litematica.config.generic.comment.schematicVcsDeleteMode": "Режим видалення для видалення попередньої версії схеми під час вставлення наступної версії в режимі схеми СКВ",
+  "litematica.config.generic.comment.schematicVcsDeleteMode": "Режим видалення для видалення попередньої версії схематики під час вставлення наступної версії в режимі схематики СКВ",
   "litematica.config.generic.comment.selectionCornersMode": "Режим кутів виділення області для використання (кути або розширення)",
   "litematica.config.generic.comment.customSchematicBaseDirectoryEnabled": "Якщо увімкнено, то каталог, установлений у «customSchematicBaseDirectory» буде використано як кореневий/базовий\nкаталог схематики замість звичайного каталогу «.minecraft/schematics/»",
   "litematica.config.generic.comment.customSchematicBaseDirectory": "Кореневий/базовий каталог схематики для використання, якщо «customSchematicBaseDirectoryEnabled» увімкнено",
