@@ -274,7 +274,7 @@ public class SchematicConversionMaps
     {
         try
         {
-            return StringNbtReader.parse(str.replace('\'', '"'));
+            return StringNbtReader.readCompound(str.replace('\'', '"'));
         }
         catch (Exception e)
         {
