@@ -281,7 +281,8 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                                 int y = image.getHeight() >= image.getWidth() ? (image.getHeight() - image.getWidth()) / 2 : 0;
                                 int longerSide = Math.min(image.getWidth(), image.getHeight());
                                 //System.out.printf("w: %d, h: %d, x: %d, y: %d\n", screenshot.getWidth(), screenshot.getHeight(), x, y);
-                                int previewDimensions = 140;
+                                //int previewDimensions = 140;
+                                int previewDimensions = 120;
                                 NativeImage scaled = new NativeImage(previewDimensions, previewDimensions, false);
                                 image.resizeSubRectTo(x, y, longerSide, longerSide, scaled);
                                 @SuppressWarnings("deprecation")
@@ -447,7 +448,8 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                     int y = screenshot.getHeight() >= screenshot.getWidth() ? (screenshot.getHeight() - screenshot.getWidth()) / 2 : 0;
                     int longerSide = Math.min(screenshot.getWidth(), screenshot.getHeight());
                     //System.out.printf("w: %d, h: %d, x: %d, y: %d\n", screenshot.getWidth(), screenshot.getHeight(), x, y);
-                    int previewDimensions = 140;
+                    //int previewDimensions = 140;
+                    int previewDimensions = 120;
                     NativeImage scaled = new NativeImage(previewDimensions, previewDimensions, false);
                     screenshot.resizeSubRectTo(x, y, longerSide, longerSide, scaled);
                     @SuppressWarnings("deprecation")
