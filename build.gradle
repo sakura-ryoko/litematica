@@ -1,12 +1,12 @@
 plugins {
-	id 'fabric-loom' version '1.8-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
 	id 'maven-publish'
 }
 
 repositories {
 	maven { url = 'https://masa.dy.fi/maven' }
 	maven { url = 'https://maven.fallenbreath.me/releases' }
-	maven {	url = 'https://maven.terraformersmc.com/releases/' }
+	maven { url = 'https://maven.terraformersmc.com/releases/' }
 	maven { url = 'https://jitpack.io' }
 }
 
@@ -81,6 +81,8 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 
 java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
 	// If you remove this line, sources will not be generated.
