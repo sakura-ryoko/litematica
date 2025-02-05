@@ -11,7 +11,7 @@ import fi.dy.masa.litematica.Litematica;
 public class JadeCompat
 {
     private static final String JADE_ID = "jade";
-    private static final int jadeShift = 30;
+    private static final int jadeShift = 35;
     private static boolean hasJade;
 
     public static void checkForJade()
@@ -43,4 +43,6 @@ public class JadeCompat
 
         return 0;
     }
+
+    // todo:  Disable snowdee.jade.addon.universal.ItemStorageProvider via reflection while Info Overlay is open?
 }

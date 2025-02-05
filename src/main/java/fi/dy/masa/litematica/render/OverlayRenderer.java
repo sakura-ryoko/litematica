@@ -658,6 +658,17 @@ public class OverlayRenderer
         }
     }
 
+    public static int calculateCompatYShift()
+    {
+        // Shift Overlay Window down by getJadeShift() if Jade is active.
+        if (JadeCompat.hasJade())
+        {
+            return JadeCompat.getJadeShift();
+        }
+
+        return 0;
+    }
+
     protected void getOverlayPosition(BlockInfoAlignment align, int width, int height, int offY, int invHeight, MinecraftClient mc)
     {
         switch (align)
@@ -669,13 +680,7 @@ public class OverlayRenderer
             case TOP_CENTER:
                 this.blockInfoX = GuiUtils.getScaledWindowWidth() / 2 - width / 2;
                 this.blockInfoY = invHeight + offY + (invHeight > 0 ? offY : 0);
-
-                // Shift Overlay Window down by getJadeShift() if Jade is active.
-                if (JadeCompat.hasJade())
-                {
-                    this.blockInfoY += JadeCompat.getJadeShift();
-                }
-
+                this.blockInfoY += invHeight > 0 ? 0 : calculateCompatYShift();
                 break;
         }
     }

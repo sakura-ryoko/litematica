@@ -33,6 +33,7 @@ import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.compat.jade.JadeCompat;
 import fi.dy.masa.litematica.util.BlockInfoAlignment;
 import fi.dy.masa.litematica.util.InventoryUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -738,6 +739,7 @@ public class RenderUtils
     {
         int xInv = 0;
         int yInv = 0;
+        int compatShift = OverlayRenderer.calculateCompatYShift();
 
         switch (align)
         {
@@ -747,7 +749,7 @@ public class RenderUtils
                 break;
             case TOP_CENTER:
                 xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yInv = offY;
+                yInv = offY + compatShift;
                 break;
         }
 
@@ -759,7 +761,7 @@ public class RenderUtils
         fi.dy.masa.malilib.render.InventoryOverlay.renderInventoryBackground(type, xInv, yInv, props.slotsPerRow, props.totalSlots, mc);
         fi.dy.masa.malilib.render.InventoryOverlay.renderInventoryStacks(type, inv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, props.slotsPerRow, 0, inv.size(), disabledSlots, mc, drawContext);
 
-        return props.height;
+        return props.height + compatShift;
     }
 
     public static void renderBackgroundMask(int startX, int startY, int width, int height, DrawContext drawContext)
