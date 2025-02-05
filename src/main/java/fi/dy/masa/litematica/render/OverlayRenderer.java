@@ -32,6 +32,7 @@ import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.compat.jade.JadeCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -668,6 +669,13 @@ public class OverlayRenderer
             case TOP_CENTER:
                 this.blockInfoX = GuiUtils.getScaledWindowWidth() / 2 - width / 2;
                 this.blockInfoY = invHeight + offY + (invHeight > 0 ? offY : 0);
+
+                // Shift Overlay Window down by getJadeShift() if Jade is active.
+                if (JadeCompat.hasJade())
+                {
+                    this.blockInfoY += JadeCompat.getJadeShift();
+                }
+
                 break;
         }
     }
