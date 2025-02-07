@@ -65,7 +65,7 @@ public class RenderUtils
     public static void renderBlockOutline(BlockPos pos, float expand, float lineWidth, Color4f color, MinecraftClient mc)
     {
         RenderSystem.lineWidth(lineWidth);
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        //RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         Tessellator tessellator = Tessellator.getInstance();
@@ -88,7 +88,7 @@ public class RenderUtils
     }
 
     public static void drawBlockBoundingBoxOutlinesBatchedLines(BlockPos pos, Color4f color,
-            double expand, BufferBuilder buffer, MinecraftClient mc)
+                                                                double expand, BufferBuilder buffer, MinecraftClient mc)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         final double dx = cameraPos.x;
@@ -106,7 +106,7 @@ public class RenderUtils
     }
 
     public static void drawConnectingLineBatchedLines(BlockPos pos1, BlockPos pos2, boolean center,
-            Color4f color, BufferBuilder buffer, MinecraftClient mc)
+                                                      Color4f color, BufferBuilder buffer, MinecraftClient mc)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         final double dx = cameraPos.x;
@@ -135,7 +135,7 @@ public class RenderUtils
     }
 
     public static void renderBlockOutlineOverlapping(BlockPos pos, float expand, float lineWidth,
-            Color4f color1, Color4f color2, Color4f color3, Matrix4f matrix4f, MinecraftClient mc)
+                                                     Color4f color1, Color4f color2, Color4f color3, Matrix4f matrix4f, MinecraftClient mc)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         final double dx = cameraPos.x;
@@ -209,7 +209,7 @@ public class RenderUtils
     }
 
     public static void renderAreaOutline(BlockPos pos1, BlockPos pos2, float lineWidth,
-            Color4f colorX, Color4f colorY, Color4f colorZ, MinecraftClient mc)
+                                         Color4f colorX, Color4f colorY, Color4f colorZ, MinecraftClient mc)
     {
         RenderSystem.lineWidth(lineWidth);
 
@@ -323,7 +323,7 @@ public class RenderUtils
      * Assumes a BufferBuilder in GL_QUADS mode has been initialized
      */
     public static void renderAreaSidesBatched(BlockPos pos1, BlockPos pos2, Color4f color,
-            double expand, BufferBuilder buffer, MinecraftClient mc)
+                                              double expand, BufferBuilder buffer, MinecraftClient mc)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         final double dx = cameraPos.x;
@@ -340,7 +340,7 @@ public class RenderUtils
     }
 
     public static void renderAreaOutlineNoCorners(BlockPos pos1, BlockPos pos2,
-            float lineWidth, Color4f colorX, Color4f colorY, Color4f colorZ, MinecraftClient mc)
+                                                  float lineWidth, Color4f colorX, Color4f colorY, Color4f colorZ, MinecraftClient mc)
     {
         final int xMin = Math.min(pos1.getX(), pos2.getX());
         final int yMin = Math.min(pos1.getY(), pos2.getY());
