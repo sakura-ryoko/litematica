@@ -2400,7 +2400,7 @@ public class LitematicaSchematic
             return null;
         }
 
-        return NbtUtils.readNbtFromFile(path);
+        return NbtUtils.readNbtFromFileAsPath(path);
     }
 
     public static File fileFromDirAndName(File dir, String fileName, FileType schematicType)

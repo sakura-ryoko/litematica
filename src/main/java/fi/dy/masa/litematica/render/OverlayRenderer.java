@@ -14,6 +14,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.enums.ChestType;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.entity.Entity;
@@ -27,6 +28,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
+import fi.dy.masa.malilib.render.RenderContext;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
@@ -87,19 +89,19 @@ public class OverlayRenderer
 
     private final MinecraftClient mc;
     private final Map<SchematicPlacement, ImmutableMap<String, Box>> placements = new HashMap<>();
-    private Color4f colorPos1 = new Color4f(1f, 0.0625f, 0.0625f);
-    private Color4f colorPos2 = new Color4f(0.0625f, 0.0625f, 1f);
-    private Color4f colorOverlapping = new Color4f(1f, 0.0625f, 1f);
-    private Color4f colorX = new Color4f(   1f, 0.25f, 0.25f);
-    private Color4f colorY = new Color4f(0.25f,    1f, 0.25f);
-    private Color4f colorZ = new Color4f(0.25f, 0.25f,    1f);
-    private Color4f colorArea = new Color4f(1f, 1f, 1f);
-    private Color4f colorBoxPlacementSelected = new Color4f(0x16 / 255f, 1f, 1f);
-    private Color4f colorSelectedCorner = new Color4f(0f, 1f, 1f);
-    private Color4f colorAreaOrigin = new Color4f(1f, 0x90 / 255f, 0x10 / 255f);
+    private final Color4f colorPos1 = new Color4f(1f, 0.0625f, 0.0625f);
+    private final Color4f colorPos2 = new Color4f(0.0625f, 0.0625f, 1f);
+    private final Color4f colorOverlapping = new Color4f(1f, 0.0625f, 1f);
+    private final Color4f colorX = new Color4f(1f, 0.25f, 0.25f);
+    private final Color4f colorY = new Color4f(0.25f, 1f, 0.25f);
+    private final Color4f colorZ = new Color4f(0.25f, 0.25f, 1f);
+    private final Color4f colorArea = new Color4f(1f, 1f, 1f);
+    private final Color4f colorBoxPlacementSelected = new Color4f(0x16 / 255f, 1f, 1f);
+    private final Color4f colorSelectedCorner = new Color4f(0f, 1f, 1f);
+    private final Color4f colorAreaOrigin = new Color4f(1f, 0x90 / 255f, 0x10 / 255f);
 
     private long infoUpdateTime;
-    private List<String> blockInfoLines = new ArrayList<>();
+    private final List<String> blockInfoLines = new ArrayList<>();
     private int blockInfoX;
     private int blockInfoY;
 
@@ -374,12 +376,15 @@ public class OverlayRenderer
 
         RenderSystem.lineWidth(2f);
 
+        /*
         Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder buffer = tessellator.getBuffer();
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
         BuiltBuffer meshData;
-
         RenderUtils.startDrawingLines();
+         */
+        RenderContext ctx = new RenderContext(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        BufferBuilder buffer = ctx.getBuilder();
+
         MismatchRenderPos lookedEntry = null;
         MismatchRenderPos prevEntry = null;
         boolean connections = Configs.Visuals.RENDER_ERROR_MARKER_CONNECTIONS.getBooleanValue();
@@ -414,17 +419,25 @@ public class OverlayRenderer
 
             try
             {
+                /*
                 meshData = buffer.end();
                 BufferRenderer.drawWithGlobalProgram(meshData);
                 meshData.close();
+                 */
+
+                ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
+                ctx.reset();
             }
             catch (Exception e)
             {
                 Litematica.logger.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 1) (Error: {})", e.getLocalizedMessage());
             }
 
+            /*
             buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
             RenderUtils.startDrawingLines();
+             */
+            ctx.start(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
             RenderSystem.lineWidth(6f);
             RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(lookPos, lookedEntry.type.getColor(), 0.002, buffer, this.mc);
@@ -432,9 +445,14 @@ public class OverlayRenderer
 
         try
         {
+            /*
             meshData = buffer.end();
             BufferRenderer.drawWithGlobalProgram(meshData);
             meshData.close();
+             */
+
+            ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
+            ctx.reset();
         }
         catch (Exception e)
         {
@@ -446,8 +464,9 @@ public class OverlayRenderer
             RenderSystem.enableBlend();
             RenderSystem.disableCull();
 
-            //buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-            buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            //buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            ctx.start(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
             float alpha = (float) Configs.InfoOverlays.VERIFIER_ERROR_HILIGHT_ALPHA.getDoubleValue();
 
             for (MismatchRenderPos entry : posList)
@@ -459,9 +478,14 @@ public class OverlayRenderer
 
             try
             {
+                /*
                 meshData = buffer.end();
                 BufferRenderer.drawWithGlobalProgram(meshData);
                 meshData.close();
+                 */
+
+                ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
+                ctx.close();
             }
             catch (Exception e)
             {

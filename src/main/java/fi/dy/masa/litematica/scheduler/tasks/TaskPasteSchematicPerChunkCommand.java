@@ -18,6 +18,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -1000,8 +1001,9 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             // FIXME
             //be.setStackNbt(stack, registryManager);
             //BlockItem.setBlockEntityData(stack, be.getType(), nbt);
+
             BlockUtils.setStackNbt(stack, be, registryManager);
-            mc.player.getInventory().offHand.set(0, stack);
+            mc.player.getInventory().setStack(PlayerInventory.OFF_HAND_SLOT, stack);
             mc.interactionManager.clickCreativeStack(stack, 45);
             return true;
         }

@@ -77,7 +77,7 @@ public class InventoryUtils
 
         if (PlayerInventory.isValidHotbarIndex(sourceSlot))
         {
-            inventory.selectedSlot = sourceSlot;
+            inventory.setSelectedSlot(sourceSlot);
         }
         else
         {
@@ -101,11 +101,11 @@ public class InventoryUtils
 
             if (hotbarSlot != -1)
             {
-                inventory.selectedSlot = hotbarSlot;
+                inventory.setSelectedSlot(hotbarSlot);
 
                 if (EntityUtils.isCreativeMode(player))
                 {
-                    inventory.main.set(hotbarSlot, stack.copy());
+                    inventory.getMainStacks().set(hotbarSlot, stack.copy());
                 }
                 else
                 {
@@ -148,14 +148,14 @@ public class InventoryUtils
                 }
 
                 setPickedItemToHand(stack, mc);
-                mc.interactionManager.clickCreativeStack(mc.player.getStackInHand(Hand.MAIN_HAND), 36 + inv.selectedSlot);
+                mc.interactionManager.clickCreativeStack(mc.player.getStackInHand(Hand.MAIN_HAND), 36 + inv.getSelectedSlot());
 
                 //return true;
             }
             else
             {
                 int slot = inv.getSlotWithStack(stack);
-                boolean shouldPick = inv.selectedSlot != slot;
+                boolean shouldPick = inv.getSelectedSlot() != slot;
 
                 if (shouldPick && slot != -1)
                 {
@@ -205,7 +205,7 @@ public class InventoryUtils
             return -1;
         }
 
-        int slotNum = player.getInventory().selectedSlot;
+        int slotNum = player.getInventory().getSelectedSlot();
 
         if (canPickToSlot(player.getInventory(), slotNum))
         {
@@ -568,7 +568,7 @@ public class InventoryUtils
             return ItemStack.EMPTY;
         }
         PlayerInventory inv = player.getInventory();
-        return inv != null ? inv.getMainHandStack() : ItemStack.EMPTY;
+        return inv != null ? inv.getSelectedStack() : ItemStack.EMPTY;
     }
 
     @ApiStatus.Experimental
@@ -580,6 +580,6 @@ public class InventoryUtils
             return 0;
         }
         PlayerInventory inv = player.getInventory();
-        return inv != null ? inv.selectedSlot : 0;
+        return inv != null ? inv.getSelectedSlot() : 0;
     }
 }

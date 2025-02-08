@@ -2,11 +2,6 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.util.*;
 import javax.annotation.Nullable;
-
-import net.minecraft.client.render.block.BlockModelRenderer;
-import net.minecraft.client.render.model.BakedModelManager;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.profiler.Profilers;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 
@@ -15,7 +10,6 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
@@ -34,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
 
 import fi.dy.masa.malilib.util.EntityUtils;
@@ -469,8 +464,9 @@ public class WorldRendererSchematic
         int increment = reverse ? -1 : 1;
         int count = 0;
 
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         ShaderProgram shader = RenderSystem.getShader();
-        BufferRenderer.reset();
+        //BufferRenderer.reset();
 
         boolean renderAsTranslucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
 
@@ -487,7 +483,8 @@ public class WorldRendererSchematic
         RenderSystem.setupShaderLights(shader);
         shader.bind();
 
-        GlUniform chunkOffsetUniform = shader.modelOffset;
+        // FIXME
+        //GlUniform chunkOffsetUniform = shader.modelOffset;
         boolean startedDrawing = false;
 
         for (int i = startIndex; i != stopIndex; i += increment)
@@ -509,15 +506,21 @@ public class WorldRendererSchematic
                     continue;
                 }
 
+                // FIXME
+                /*
                 if (chunkOffsetUniform != null)
                 {
                     chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
                     chunkOffsetUniform.upload();
                 }
+                 */
 
+                matrix4fStack.pushMatrix();
+                matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                 buffer.bind();
-                buffer.draw();
+                buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
                 VertexBuffer.unbind();
+                matrix4fStack.popMatrix();
                 startedDrawing = true;
                 ++count;
             }
@@ -528,10 +531,13 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
+        // FIXME
+        /*
         if (chunkOffsetUniform != null)
         {
             chunkOffsetUniform.set(0.0F, 0.0F, 0.0F);
         }
+         */
 
         shader.unbind();
 
@@ -607,11 +613,10 @@ public class WorldRendererSchematic
         }
 
         ShaderProgram originalShader = RenderSystem.getShader();
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
-        ShaderProgram shader = RenderSystem.getShader();
-        BufferRenderer.reset();
+        //BufferRenderer.reset();
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
 
         for (int i = this.renderInfos.size() - 1; i >= 0; --i)
@@ -635,7 +640,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrix4fStack, projMatrix, shader);
+                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
 
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();

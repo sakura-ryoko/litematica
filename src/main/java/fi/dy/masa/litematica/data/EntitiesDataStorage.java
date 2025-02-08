@@ -692,7 +692,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 }
                 else if (entity instanceof PlayerEntity player)
                 {
-                    inv = new SimpleInventory(player.getInventory().main.toArray(new ItemStack[36]));
+                    inv = new SimpleInventory(player.getInventory().getMainStacks().toArray(new ItemStack[36]));
                 }
                 else if (entity instanceof VillagerEntity)
                 {
