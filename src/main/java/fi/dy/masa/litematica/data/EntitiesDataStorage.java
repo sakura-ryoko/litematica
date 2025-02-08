@@ -480,7 +480,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             {
                 if (data.getInt("version") != ServuxLitematicaPacket.PROTOCOL_VERSION)
                 {
-                    Litematica.logger.warn("LitematicDataChannel: Mis-matched protocol version!");
+                    Litematica.LOGGER.warn("LitematicDataChannel: Mis-matched protocol version!");
                 }
 
                 this.setServuxVersion(data.getString("servux"));

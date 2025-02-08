@@ -289,7 +289,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     break;
 
                 case WRITE_TO_FILE:
-                    File dir = new File(FileUtils.getConfigDirectory(), Reference.MOD_ID);
+                    File dir = new File(FileUtils.getConfigDirectoryAsPath().toFile(), Reference.MOD_ID);
                     boolean csv = GuiBase.isShiftDown();
                     String ext = csv ? ".csv" : ".txt";
                     File file = DataDump.dumpDataToFile(dir, "material_list", ext, this.getMaterialListDump(materialList, csv).getLines());

@@ -462,7 +462,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.warn("Exception while creating preview image", e);
+                    Litematica.LOGGER.warn("Exception while creating preview image", e);
                 }
             }
             else

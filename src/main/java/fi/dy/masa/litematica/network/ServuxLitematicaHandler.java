@@ -102,11 +102,11 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     }
                     catch (Exception e)
                     {
-                        Litematica.logger.error("ServuxLitematicaHandler#decodeClientData(): Entity Data: error reading fullBuffer [{}]", e.getLocalizedMessage());
+                        Litematica.LOGGER.error("ServuxLitematicaHandler#decodeClientData(): Entity Data: error reading fullBuffer [{}]", e.getLocalizedMessage());
                     }
                 }
             }
-            default -> Litematica.logger.warn("ServuxLitematicaHandler#decodeClientData(): received unhandled packetType {} of size {} bytes.", packet.getPacketType(), packet.getTotalSize());
+            default -> Litematica.LOGGER.warn("ServuxLitematicaHandler#decodeClientData(): received unhandled packetType {} of size {} bytes.", packet.getPacketType(), packet.getTotalSize());
         }
     }
 
@@ -161,7 +161,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
         {
             if (this.failures > MAX_FAILURES)
             {
-                Litematica.logger.warn("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
+                Litematica.LOGGER.warn("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
                 ServuxLitematicaHandler.INSTANCE.unregisterPlayReceiver();
                 EntitiesDataStorage.getInstance().onPacketFailure();

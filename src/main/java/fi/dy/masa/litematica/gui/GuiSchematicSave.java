@@ -16,6 +16,7 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
+import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
@@ -48,11 +49,11 @@ public class GuiSchematicSave extends GuiSchematicSaveBase implements ICompletio
 
         if (area != null)
         {
-            this.defaultText = FileUtils.generateSafeFileName(area.getName());
+            this.defaultText = FileNameUtils.generateSafeFileName(area.getName());
 
             if (Configs.Generic.GENERATE_LOWERCASE_NAMES.getBooleanValue())
             {
-                this.defaultText = FileUtils.generateSimpleSafeFileName(this.defaultText);
+                this.defaultText = FileNameUtils.generateSimpleSafeFileName(this.defaultText);
             }
         }
     }

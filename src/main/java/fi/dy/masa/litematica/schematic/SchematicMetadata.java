@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.schematic;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
@@ -134,12 +135,7 @@ public class SchematicMetadata
 
     public FileType getFileType()
     {
-        if (this.type != null)
-        {
-            return this.type;
-        }
-
-        return FileType.UNKNOWN;
+        return Objects.requireNonNullElse(this.type, FileType.UNKNOWN);
     }
 
     public boolean hasBeenModified()
