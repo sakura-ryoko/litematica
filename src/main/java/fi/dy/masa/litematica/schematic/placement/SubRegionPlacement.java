@@ -197,7 +197,7 @@ public class SubRegionPlacement
 
             if (posArr.size() != 3)
             {
-                Litematica.logger.warn("Placement.fromJson(): Failed to load a placement from JSON, invalid position data");
+                Litematica.LOGGER.warn("Placement.fromJson(): Failed to load a placement from JSON, invalid position data");
                 return null;
             }
 
@@ -218,7 +218,7 @@ public class SubRegionPlacement
             }
             catch (Exception e)
             {
-                Litematica.logger.warn("Placement.fromJson(): Invalid rotation or mirror value for a placement");
+                Litematica.LOGGER.warn("Placement.fromJson(): Invalid rotation or mirror value for a placement");
             }
 
             return placement;
@@ -231,6 +231,6 @@ public class SubRegionPlacement
     {
         ANY,
         PLACEMENT_ENABLED,
-        RENDERING_ENABLED;
+        RENDERING_ENABLED
     }
 }

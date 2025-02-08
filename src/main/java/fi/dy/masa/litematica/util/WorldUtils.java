@@ -193,7 +193,7 @@ public class WorldUtils
         {
             String msg = "Exception while trying to load the Sponge schematic: " + e.getMessage();
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
-            Litematica.logger.error(msg);
+            Litematica.LOGGER.error(msg);
         }
 
         return null;
@@ -216,7 +216,7 @@ public class WorldUtils
         catch (Exception e)
         {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "Exception while trying to load the vanilla structure: " + e.getMessage());
-            Litematica.logger.error("Exception while trying to load the vanilla structure: " + e.getMessage());
+            Litematica.LOGGER.error("Exception while trying to load the vanilla structure: " + e.getMessage());
         }
 
         return null;
@@ -928,7 +928,7 @@ public class WorldUtils
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("Exception trying to request placement protocol value", e);
+            Litematica.LOGGER.warn("Exception trying to request placement protocol value", e);
         }
 
         if (propCount > 0)

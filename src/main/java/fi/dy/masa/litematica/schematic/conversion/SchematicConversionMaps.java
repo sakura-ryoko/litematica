@@ -29,9 +29,9 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class SchematicConversionMaps
 {
-    private static final Object2IntOpenHashMap<String> OLD_BLOCK_NAME_TO_SHIFTED_BLOCK_ID = DataFixUtils.make(new Object2IntOpenHashMap<>(), (map) -> { map.defaultReturnValue(-1); });
+    private static final Object2IntOpenHashMap<String> OLD_BLOCK_NAME_TO_SHIFTED_BLOCK_ID = DataFixUtils.make(new Object2IntOpenHashMap<>(), (map) -> map.defaultReturnValue(-1));
     private static final Int2ObjectOpenHashMap<String> ID_META_TO_UPDATED_NAME = new Int2ObjectOpenHashMap<>();
-    private static final Object2IntOpenHashMap<BlockState> BLOCKSTATE_TO_ID_META = DataFixUtils.make(new Object2IntOpenHashMap<>(), (map) -> { map.defaultReturnValue(-1); });
+    private static final Object2IntOpenHashMap<BlockState> BLOCKSTATE_TO_ID_META = DataFixUtils.make(new Object2IntOpenHashMap<>(), (map) -> map.defaultReturnValue(-1));
     private static final Int2ObjectOpenHashMap<BlockState> ID_META_TO_BLOCKSTATE = new Int2ObjectOpenHashMap<>();
     private static final HashMap<String, String> OLD_NAME_TO_NEW_NAME = new HashMap<>();
     private static final HashMap<String, String> NEW_NAME_TO_OLD_NAME = new HashMap<>();
@@ -80,7 +80,7 @@ public class SchematicConversionMaps
             }
             catch (Exception e)
             {
-                Litematica.logger.warn("addEntry(): Exception while adding blockstate conversion map entry for ID '{}' (fixed state: '{}')", data.idMeta, data.newStateString, e);
+                Litematica.LOGGER.warn("addEntry(): Exception while adding blockstate conversion map entry for ID '{}' (fixed state: '{}')", data.idMeta, data.newStateString, e);
             }
         }
 
@@ -212,7 +212,7 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("addIdMetaToBlockState(): Exception while adding blockstate conversion map entry for ID '{}'", idMeta, e);
+            Litematica.LOGGER.warn("addIdMetaToBlockState(): Exception while adding blockstate conversion map entry for ID '{}'", idMeta, e);
         }
     }
 
@@ -266,7 +266,7 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("addOldStateToNewState(): Exception while adding new blockstate to old blockstate conversion map entry for '{}'", newStateTagIn, e);
+            Litematica.LOGGER.warn("addOldStateToNewState(): Exception while adding new blockstate to old blockstate conversion map entry for '{}'", newStateTagIn, e);
         }
     }
 
@@ -292,7 +292,7 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateBlockName: failed to update Block Name [{}], preserving original state (data may become lost)", oldName);
+            Litematica.LOGGER.warn("updateBlockName: failed to update Block Name [{}], preserving original state (data may become lost)", oldName);
             return oldName;
         }
     }
@@ -308,7 +308,7 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateBlockStates: failed to update Block State [{}], preserving original state (data may become lost)",
+            Litematica.LOGGER.warn("updateBlockStates: failed to update Block State [{}], preserving original state (data may become lost)",
                                    oldBlockState.contains("Name") ? oldBlockState.getString("Name") : "?");
             return oldBlockState;
         }
@@ -323,7 +323,7 @@ public class SchematicConversionMaps
         catch (Exception e)
         {
             BlockPos pos = NbtUtils.readBlockPos(oldBlockEntity);
-            Litematica.logger.warn("updateBlockEntity: failed to update Block Entity [{}] at [{}], preserving original state (data may become lost)",
+            Litematica.LOGGER.warn("updateBlockEntity: failed to update Block Entity [{}] at [{}], preserving original state (data may become lost)",
                                    oldBlockEntity.contains("id") ? oldBlockEntity.getString("id") : "?", pos != null ? pos.toShortString() : "?");
             return oldBlockEntity;
         }
@@ -337,7 +337,7 @@ public class SchematicConversionMaps
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("updateEntity: failed to update Entity [{}], preserving original state (data may become lost)",
+            Litematica.LOGGER.warn("updateEntity: failed to update Entity [{}], preserving original state (data may become lost)",
                                    oldEntity.contains("id") ? oldEntity.getString("id") : "?");
             return oldEntity;
         }

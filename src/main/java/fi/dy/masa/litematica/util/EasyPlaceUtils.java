@@ -92,7 +92,7 @@ public class EasyPlaceUtils
             }
             catch (Exception e)
             {
-                Litematica.logger.warn("EasyPlaceUtils: Failed to reflect method Block::onUse", e);
+                Litematica.LOGGER.warn("EasyPlaceUtils: Failed to reflect method Block::onUse", e);
                 val = false;
             }
 

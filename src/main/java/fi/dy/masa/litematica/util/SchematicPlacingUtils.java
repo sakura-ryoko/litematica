@@ -81,7 +81,7 @@ public class SchematicPlacingUtils
                                                scheduledFluidTicks, replace, notifyNeighbors) == false)
                     {
                         allSuccess = false;
-                        Litematica.logger.warn("Invalid/missing schematic data in schematic '{}' for sub-region '{}'", schematic.getMetadata().getName(), regionName);
+                        Litematica.LOGGER.warn("Invalid/missing schematic data in schematic '{}' for sub-region '{}'", schematic.getMetadata().getName(), regionName);
                     }
 
                     List<EntityInfo> entityList = schematic.getEntityListForRegion(regionName);
@@ -256,7 +256,7 @@ public class SchematicPlacingUtils
                             }
                             catch (Exception e)
                             {
-                                Litematica.logger.warn("Failed to load BlockEntity data for {} @ {}", state, pos);
+                                Litematica.LOGGER.warn("Failed to load BlockEntity data for {} @ {}", state, pos);
                             }
                         }
                     }

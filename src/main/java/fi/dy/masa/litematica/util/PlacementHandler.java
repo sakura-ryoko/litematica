@@ -309,7 +309,7 @@ public class PlacementHandler
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("Exception trying to apply placement protocol value", e);
+            Litematica.LOGGER.warn("Exception trying to apply placement protocol value", e);
         }
 
         // Strip Blacklisted properties, and use the Block's default state.

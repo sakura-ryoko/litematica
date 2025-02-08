@@ -82,7 +82,7 @@ public class RenderUtils
         }
         catch (Exception e)
         {
-            Litematica.logger.error("renderBlockOutline: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+            Litematica.LOGGER.error("renderBlockOutline: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
         }
     }
 
@@ -203,7 +203,7 @@ public class RenderUtils
         }
         catch (Exception e)
         {
-            Litematica.logger.error("renderBlockOutlineOverlapping: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
+            Litematica.LOGGER.error("renderBlockOutlineOverlapping: Failed to draw Area Selection box (Error: {})", e.getLocalizedMessage());
         }
     }
 

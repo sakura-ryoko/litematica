@@ -367,7 +367,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.warn("Failed to create a preview image", e);
+                    Litematica.LOGGER.warn("Failed to create a preview image", e);
                 }
             }
         }

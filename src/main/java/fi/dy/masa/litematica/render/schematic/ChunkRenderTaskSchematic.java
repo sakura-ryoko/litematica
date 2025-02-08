@@ -14,7 +14,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ChunkRenderTaskSchematic.Type type;
     // Threaded
     //private final ConcurrentLinkedQueue<Runnable> finishRunnables = new ConcurrentLinkedQueue<>();
-    private final List<Runnable> listFinishRunnables = Lists.<Runnable>newArrayList();
+    private final List<Runnable> listFinishRunnables = Lists.newArrayList();
     private final ReentrantLock lock = new ReentrantLock();
     //
     private final Supplier<Vec3d> cameraPosSupplier;
@@ -76,7 +76,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     {
         if (allocatorCache == null)
         {
-            Litematica.logger.error("setRegionRenderCacheBuilder() [Task] allocatorCache is null");
+            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] allocatorCache is null");
             return false;
         }
         if (this.allocatorCache != null)

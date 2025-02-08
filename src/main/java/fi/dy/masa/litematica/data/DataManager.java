@@ -310,7 +310,7 @@ public class DataManager implements IDirectoryCache
                 {
                     configGuiTab = ConfigGuiTab.valueOf(root.get("config_gui_tab").getAsString());
                 }
-                catch (Exception e) {}
+                catch (Exception ignored) {}
 
                 if (configGuiTab == null)
                 {
@@ -433,7 +433,7 @@ public class DataManager implements IDirectoryCache
             {
                 this.operationMode = ToolMode.valueOf(obj.get("operation_mode").getAsString());
             }
-            catch (Exception e) {}
+            catch (Exception ignored) {}
 
             if (this.operationMode == null)
             {
@@ -484,12 +484,12 @@ public class DataManager implements IDirectoryCache
 
     public static File getDefaultBaseSchematicDirectory()
     {
-        return FileUtils.getCanonicalFileIfPossible(new File(FileUtils.getMinecraftDirectory(), "schematics"));
+        return FileUtils.getCanonicalFileIfPossible(new File(FileUtils.getMinecraftDirectoryAsPath().toFile(), "schematics"));
     }
 
     public static File getCurrentConfigDirectory()
     {
-        return new File(FileUtils.getConfigDirectory(), Reference.MOD_ID);
+        return new File(FileUtils.getConfigDirectoryAsPath().toFile(), Reference.MOD_ID);
     }
 
     public static File getSchematicsBaseDirectory()
@@ -507,7 +507,7 @@ public class DataManager implements IDirectoryCache
 
         if (dir.exists() == false && dir.mkdirs() == false)
         {
-            Litematica.logger.warn("Failed to create the schematic directory '{}'", dir.getAbsolutePath());
+            Litematica.LOGGER.warn("Failed to create the schematic directory '{}'", dir.getAbsolutePath());
         }
 
         return dir;
@@ -531,7 +531,7 @@ public class DataManager implements IDirectoryCache
 
         if (dir.exists() == false && dir.mkdirs() == false)
         {
-            Litematica.logger.warn("Failed to create the area selections base directory '{}'", dir.getAbsolutePath());
+            Litematica.LOGGER.warn("Failed to create the area selections base directory '{}'", dir.getAbsolutePath());
         }
 
         return dir;
@@ -543,7 +543,7 @@ public class DataManager implements IDirectoryCache
 
         if (dir.exists() == false && dir.mkdirs() == false)
         {
-            Litematica.logger.warn("Failed to create the config directory '{}'", dir.getAbsolutePath());
+            Litematica.LOGGER.warn("Failed to create the config directory '{}'", dir.getAbsolutePath());
         }
 
         return new File(dir, StringUtils.getStorageFileName(globalData, Reference.MOD_ID + "_", ".json", "default"));

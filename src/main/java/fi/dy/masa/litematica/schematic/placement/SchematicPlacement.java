@@ -451,7 +451,7 @@ public class SchematicPlacement
 
             if (areaSize == null)
             {
-                Litematica.logger.warn("SchematicPlacement.getSubRegionBoxes(): Size for sub-region '{}' not found in the schematic '{}'", name, this.schematic.getMetadata().getName());
+                Litematica.LOGGER.warn("SchematicPlacement.getSubRegionBoxes(): Size for sub-region '{}' not found in the schematic '{}'", name, this.schematic.getMetadata().getName());
                 continue;
             }
 
@@ -497,7 +497,7 @@ public class SchematicPlacement
                 }
                 else
                 {
-                    Litematica.logger.warn("SchematicPlacement.getSubRegionBoxFor(): Size for sub-region '{}' not found in the schematic '{}'", regionName, this.schematic.getMetadata().getName());
+                    Litematica.LOGGER.warn("SchematicPlacement.getSubRegionBoxFor(): Size for sub-region '{}' not found in the schematic '{}'", regionName, this.schematic.getMetadata().getName());
                 }
             }
         }
@@ -949,7 +949,7 @@ public class SchematicPlacement
 
             if (schematic == null)
             {
-                Litematica.logger.warn("Failed to load schematic '{}'", file.getAbsolutePath());
+                Litematica.LOGGER.warn("Failed to load schematic '{}'", file.getAbsolutePath());
                 return null;
             }
 
@@ -957,7 +957,7 @@ public class SchematicPlacement
 
             if (posArr.size() != 3)
             {
-                Litematica.logger.warn("Failed to load schematic placement for '{}', invalid origin position", file.getAbsolutePath());
+                Litematica.LOGGER.warn("Failed to load schematic placement for '{}', invalid origin position", file.getAbsolutePath());
                 return null;
             }
 

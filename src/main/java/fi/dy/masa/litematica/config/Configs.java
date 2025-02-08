@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.config;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -17,6 +18,7 @@ import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.MessageOutputType;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.selection.CornerSelectionMode;
@@ -365,11 +367,11 @@ public class Configs implements IConfigHandler
 
     public static void loadFromFile()
     {
-        File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
+        Path configFile = FileUtils.getConfigDirectoryAsPath().resolve(CONFIG_FILE_NAME);
 
-        if (configFile.exists() && configFile.isFile() && configFile.canRead())
+        if (Files.exists(configFile) && Files.isReadable(configFile))
         {
-            JsonElement element = JsonUtils.parseJsonFile(configFile);
+            JsonElement element = JsonUtils.parseJsonFileAsPath(configFile);
 
             if (element != null && element.isJsonObject())
             {
@@ -380,6 +382,12 @@ public class Configs implements IConfigHandler
                 ConfigUtils.readConfigBase(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
                 ConfigUtils.readConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Visuals", Visuals.OPTIONS);
+
+                //Litematica.debugLog("loadFromFile(): Successfully loaded config file '{}'.", configFile.toAbsolutePath());
+            }
+            else
+            {
+                Litematica.LOGGER.error("loadFromFile(): Failed to load config file '{}'.", configFile.toAbsolutePath());
             }
         }
 
@@ -393,9 +401,15 @@ public class Configs implements IConfigHandler
 
     public static void saveToFile()
     {
-        File dir = FileUtils.getConfigDirectory();
+        Path dir = FileUtils.getConfigDirectoryAsPath();
 
-        if ((dir.exists() && dir.isDirectory()) || dir.mkdirs())
+        if (!Files.exists(dir))
+        {
+            FileUtils.createDirectoriesIfMissing(dir);
+            //Litematica.debugLog("saveToFile(): Creating directory '{}'.", dir.toAbsolutePath());
+        }
+
+        if (Files.isDirectory(dir))
         {
             JsonObject root = new JsonObject();
 
@@ -405,7 +419,11 @@ public class Configs implements IConfigHandler
             ConfigUtils.writeConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Visuals", Visuals.OPTIONS);
 
-            JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
+            JsonUtils.writeJsonToFileAsPath(root, dir.resolve(CONFIG_FILE_NAME));
+        }
+        else
+        {
+            Litematica.LOGGER.error("saveToFile(): Config Folder '{}' does not exist!", dir.toAbsolutePath());
         }
     }
 

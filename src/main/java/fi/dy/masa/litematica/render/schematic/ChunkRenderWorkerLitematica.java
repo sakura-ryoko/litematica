@@ -10,7 +10,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
@@ -19,7 +19,7 @@ import fi.dy.masa.litematica.Litematica;
 
 public class ChunkRenderWorkerLitematica implements Runnable
 {
-    private static final Logger LOGGER = Litematica.logger;
+    private static final Logger LOGGER = Litematica.LOGGER;
 
     private final ChunkRenderDispatcherLitematica chunkRenderDispatcher;
     final private BufferAllocatorCache allocatorCache;
@@ -271,7 +271,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 }
             });
 
-            Futures.addCallback(listenablefuture, new FutureCallback<List<Object>>()
+            Futures.addCallback(listenablefuture, new FutureCallback<>()
             {
                 @Override
                 public void onSuccess(@Nullable List<Object> list)
@@ -292,7 +292,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
                             if (task.isFinished() == false)
                             {
-                                ChunkRenderWorkerLitematica.LOGGER.warn("Chunk render task was {} when I expected it to be uploading; aborting task", (Object)task.getStatus());
+                                ChunkRenderWorkerLitematica.LOGGER.warn("Chunk render task was {} when I expected it to be uploading; aborting task", (Object) task.getStatus());
                             }
                         }
                         finally

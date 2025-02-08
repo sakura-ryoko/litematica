@@ -30,7 +30,7 @@ import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper.HitType;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.interfaces.IMessageConsumer;
-import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 
@@ -233,7 +233,7 @@ public class SelectionManager
 
         if (file.exists() && file.isFile())
         {
-            String newFileName = FileUtils.generateSafeFileName(newName);
+            String newFileName = FileNameUtils.generateSafeFileName(newName);
 
             if (newFileName.isEmpty())
             {
@@ -257,7 +257,7 @@ public class SelectionManager
                     catch (Exception e)
                     {
                         feedback.addMessage(MessageType.ERROR, "litematica.error.area_selection.copy_failed");
-                        Litematica.logger.warn("Copy failed", e);
+                        Litematica.LOGGER.warn("Copy failed", e);
                         return false;
                     }
 
@@ -309,7 +309,7 @@ public class SelectionManager
     public String createNewSelection(File dir, final String nameIn)
     {
         String name = nameIn;
-        String safeName = FileUtils.generateSafeFileName(name);
+        String safeName = FileNameUtils.generateSafeFileName(name);
         File file = new File(dir, safeName + ".json");
         String selectionId = file.getAbsolutePath();
         int i = 1;
@@ -317,7 +317,7 @@ public class SelectionManager
         while (i < 1000 && (safeName.isEmpty() || this.selections.containsKey(selectionId) || file.exists()))
         {
             name = nameIn + " " + i;
-            safeName = FileUtils.generateSafeFileName(name);
+            safeName = FileNameUtils.generateSafeFileName(name);
             file = new File(dir, safeName + ".json");
             selectionId = file.getAbsolutePath();
             i++;
@@ -389,7 +389,7 @@ public class SelectionManager
 
     public boolean createSelectionFromPlacement(File dir, SchematicPlacement placement, String name, IMessageConsumer feedback)
     {
-        String safeName = FileUtils.generateSafeFileName(name);
+        String safeName = FileNameUtils.generateSafeFileName(name);
 
         if (safeName.isEmpty())
         {
@@ -665,7 +665,7 @@ public class SelectionManager
 
         // If the selection had only one box with the exact same name as the area selection itself,
         // then also rename that box to the new name.
-        if (boxes.size() == 1 && boxes.get(0).getName().equals(selection.getName()))
+        if (boxes.size() == 1 && boxes.getFirst().getName().equals(selection.getName()))
         {
             selection.renameSubRegionBox(selection.getName(), newName);
         }
@@ -772,7 +772,7 @@ public class SelectionManager
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("Exception while writing area selections to disk", e);
+            Litematica.LOGGER.warn("Exception while writing area selections to disk", e);
         }
 
         AreaSelection current = this.currentSelectionId != null ? this.selections.get(this.currentSelectionId) : null;

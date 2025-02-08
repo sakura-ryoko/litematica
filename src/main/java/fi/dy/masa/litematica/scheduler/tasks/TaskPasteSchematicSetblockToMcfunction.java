@@ -49,7 +49,7 @@ public class TaskPasteSchematicSetblockToMcfunction extends TaskPasteSchematicPe
         }
         catch (IOException e)
         {
-            Litematica.logger.error("Exception while writing paste commands to file", e);
+            Litematica.LOGGER.error("Exception while writing paste commands to file", e);
             this.phase = TaskPhase.FINISHED;
             this.finished = true;
         }

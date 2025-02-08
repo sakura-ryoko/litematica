@@ -1,6 +1,8 @@
 package fi.dy.masa.litematica.util;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public enum FileType
 {
@@ -12,7 +14,8 @@ public enum FileType
     SPONGE_SCHEMATIC,
     VANILLA_STRUCTURE;
 
-    public static FileType fromName(String fileName) {
+    public static FileType fromName(String fileName)
+    {
         if (fileName.endsWith(".litematic"))
             {
                 return LITEMATICA_SCHEMATIC;
@@ -37,29 +40,42 @@ public enum FileType
             return UNKNOWN;
     }
 
-    public static FileType fromFile(File file)
-    {
-        if (file.isFile() && file.canRead())
-        {
-            return fromName(file.getName());   
-        }
-        else
-        {
-            return INVALID;
-        }
-    }
+	@Deprecated
+	public static FileType fromFile(File file)
+	{
+		if (file.isFile() && file.canRead())
+		{
+			return fromName(file.getName());
+		}
+		else
+		{
+			return INVALID;
+		}
+	}
 
-    public static String getString(FileType type)
-    {
-        return switch (type)
-        {
-            case LITEMATICA_SCHEMATIC   -> "litematic";
-            case SCHEMATICA_SCHEMATIC   -> "schematic";
-            case SPONGE_SCHEMATIC       -> "sponge";
-            case VANILLA_STRUCTURE      -> "vanilla_nbt";
-            case JSON                   -> "JSON";
-            case INVALID                -> "invalid";
-            case UNKNOWN                -> "unknown";
-        };
-    }
+	public static FileType fromFile(Path file)
+	{
+		if (Files.exists(file) && Files.isReadable(file))
+		{
+			return fromName(file.getFileName().toString());
+		}
+		else
+		{
+			return INVALID;
+		}
+	}
+
+	public static String getString(FileType type)
+	{
+		return switch (type)
+		{
+			case LITEMATICA_SCHEMATIC -> "litematic";
+			case SCHEMATICA_SCHEMATIC -> "schematic";
+			case SPONGE_SCHEMATIC -> "sponge";
+			case VANILLA_STRUCTURE -> "vanilla_nbt";
+			case JSON -> "JSON";
+			case INVALID -> "invalid";
+			case UNKNOWN -> "unknown";
+		};
+	}
 }
