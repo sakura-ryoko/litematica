@@ -1,15 +1,16 @@
 package fi.dy.masa.litematica.gui;
 
-import java.io.File;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
-import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.util.FileType;
+
 import fi.dy.masa.malilib.gui.interfaces.IFileBrowserIconProvider;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
 import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.util.FileType;
 
 public enum Icons implements IGuiIcon, IFileBrowserIconProvider
 {
@@ -82,8 +83,7 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
     public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected, DrawContext drawContext)
     {
         //RenderUtils.drawTexturedRect(x, y, this.u, this.v, this.w, this.h, zLevel);
-        RenderUtils.drawTexturedRect(this.getTexture(), x, y, this.u, this.v, this.w, this.h, zLevel, drawContext);
-        RenderUtils.forceDraw(drawContext);
+        RenderUtils.drawTexturedRectAndDraw(this.getTexture(), x, y, this.u, this.v, this.w, this.h, zLevel, drawContext);
     }
 
     @Override
@@ -124,7 +124,7 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
 
     @Override
     @Nullable
-    public IGuiIcon getIconForFile(File file)
+    public IGuiIcon getIconForFile(Path file)
     {
         if (this == DUMMY)
         {
@@ -133,16 +133,14 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
 
         FileType fileType = FileType.fromFile(file);
 
-        switch (fileType)
+        return switch (fileType)
         {
-            case LITEMATICA_SCHEMATIC:  return FILE_ICON_LITEMATIC;
-            case SCHEMATICA_SCHEMATIC:  return FILE_ICON_SCHEMATIC;
-            case VANILLA_STRUCTURE:     return FILE_ICON_VANILLA;
-            case SPONGE_SCHEMATIC:      return FILE_ICON_SPONGE_SCH;
-            case JSON:                  return FILE_ICON_JSON;
-
-            default:
-                return DUMMY;
-        }
+            case LITEMATICA_SCHEMATIC -> FILE_ICON_LITEMATIC;
+            case SCHEMATICA_SCHEMATIC -> FILE_ICON_SCHEMATIC;
+            case VANILLA_STRUCTURE -> FILE_ICON_VANILLA;
+            case SPONGE_SCHEMATIC -> FILE_ICON_SPONGE_SCH;
+            case JSON -> FILE_ICON_JSON;
+            default -> DUMMY;
+        };
     }
 }

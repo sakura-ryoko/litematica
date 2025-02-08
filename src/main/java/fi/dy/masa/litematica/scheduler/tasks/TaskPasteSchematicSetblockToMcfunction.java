@@ -1,13 +1,15 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+
 import net.minecraft.client.network.ClientPlayerEntity;
+
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
@@ -49,7 +51,7 @@ public class TaskPasteSchematicSetblockToMcfunction extends TaskPasteSchematicPe
         }
         catch (IOException e)
         {
-            Litematica.logger.error("Exception while writing paste commands to file", e);
+            Litematica.LOGGER.error("Exception while writing paste commands to file", e);
             this.phase = TaskPhase.FINISHED;
             this.finished = true;
         }
@@ -69,8 +71,8 @@ public class TaskPasteSchematicSetblockToMcfunction extends TaskPasteSchematicPe
         try
         {
             String fileName = this.fileNameBase + String.format("%02d", this.fileIndex) + ".mcfunction";
-            File file = new File(DataManager.getCurrentConfigDirectory(), fileName);
-            this.writer = new BufferedWriter(new FileWriter(file));
+            Path file = DataManager.getCurrentConfigDirectory().resolve(fileName);
+            this.writer = new BufferedWriter(new FileWriter(file.toFile()));
             ++this.fileIndex;
             this.commandsInCurrentFile = 0;
         }

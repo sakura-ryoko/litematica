@@ -1,22 +1,9 @@
 package fi.dy.masa.litematica.gui;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
-import fi.dy.masa.litematica.gui.widgets.WidgetListMaterialList;
-import fi.dy.masa.litematica.gui.widgets.WidgetMaterialListEntry;
-import fi.dy.masa.litematica.materials.MaterialCache;
-import fi.dy.masa.litematica.materials.MaterialListAreaAnalyzer;
-import fi.dy.masa.litematica.materials.MaterialListBase;
-import fi.dy.masa.litematica.materials.MaterialListEntry;
-import fi.dy.masa.litematica.materials.MaterialListHudRenderer;
-import fi.dy.masa.litematica.materials.MaterialListSorter;
-import fi.dy.masa.litematica.materials.MaterialListUtils;
-import fi.dy.masa.litematica.render.infohud.InfoHud;
-import fi.dy.masa.litematica.util.BlockInfoListType;
+
 import fi.dy.masa.malilib.data.DataDump;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiListBase;
@@ -32,6 +19,14 @@ import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.gui.widgets.WidgetListMaterialList;
+import fi.dy.masa.litematica.gui.widgets.WidgetMaterialListEntry;
+import fi.dy.masa.litematica.materials.*;
+import fi.dy.masa.litematica.render.infohud.InfoHud;
+import fi.dy.masa.litematica.util.BlockInfoListType;
 
 public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMaterialListEntry, WidgetListMaterialList>
                              implements ICompletionListener
@@ -289,16 +284,16 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     break;
 
                 case WRITE_TO_FILE:
-                    File dir = new File(FileUtils.getConfigDirectory(), Reference.MOD_ID);
+                    Path dir = FileUtils.getConfigDirectoryAsPath().resolve(Reference.MOD_ID);
                     boolean csv = GuiBase.isShiftDown();
                     String ext = csv ? ".csv" : ".txt";
-                    File file = DataDump.dumpDataToFile(dir, "material_list", ext, this.getMaterialListDump(materialList, csv).getLines());
+                    Path file = DataDump.dumpDataToFile(dir, "material_list", ext, this.getMaterialListDump(materialList, csv).getLines());
 
                     if (file != null)
                     {
                         String key = "litematica.message.material_list_written_to_file";
-                        this.parent.addMessage(MessageType.SUCCESS, key, file.getName());
-                        StringUtils.sendOpenFileChatMessage(this.parent.mc.player, key, file);
+                        this.parent.addMessage(MessageType.SUCCESS, key, file.getFileName().toString());
+                        StringUtils.sendOpenFileChatMessage(this.parent.mc.player, key, file.toFile());
                     }
                     break;
             }

@@ -1,6 +1,6 @@
 package fi.dy.masa.litematica.schematic.placement;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
@@ -49,7 +49,7 @@ public class SchematicPlacement
     private final Map<String, SubRegionPlacement> relativeSubRegionPlacements = new HashMap<>();
     private final int subRegionCount;
     private SchematicVerifier verifier;
-    private LitematicaSchematic schematic;
+    private final LitematicaSchematic schematic;
     private BlockPos origin;
     private String name;
     private BlockRotation rotation = BlockRotation.NONE;
@@ -68,7 +68,7 @@ public class SchematicPlacement
     @Nullable
     private Box enclosingBox;
     @Nullable
-    private File schematicFile;
+    private final Path schematicFile;
     @Nullable
     private String selectedSubRegionName;
     @Nullable
@@ -247,7 +247,7 @@ public class SchematicPlacement
     }
 
     @Nullable
-    public File getSchematicFile()
+    public Path getSchematicFile()
     {
         return this.schematicFile;
     }
@@ -447,7 +447,7 @@ public class SchematicPlacement
 
             if (areaSize == null)
             {
-                Litematica.logger.warn("SchematicPlacement.getSubRegionBoxes(): Size for sub-region '{}' not found in the schematic '{}'", name, this.schematic.getMetadata().getName());
+                Litematica.LOGGER.warn("SchematicPlacement.getSubRegionBoxes(): Size for sub-region '{}' not found in the schematic '{}'", name, this.schematic.getMetadata().getName());
                 continue;
             }
 
@@ -493,7 +493,7 @@ public class SchematicPlacement
                 }
                 else
                 {
-                    Litematica.logger.warn("SchematicPlacement.getSubRegionBoxFor(): Size for sub-region '{}' not found in the schematic '{}'", regionName, this.schematic.getMetadata().getName());
+                    Litematica.LOGGER.warn("SchematicPlacement.getSubRegionBoxFor(): Size for sub-region '{}' not found in the schematic '{}'", regionName, this.schematic.getMetadata().getName());
                 }
             }
         }
@@ -883,7 +883,7 @@ public class SchematicPlacement
             arr.add(this.origin.getY());
             arr.add(this.origin.getZ());
 
-            obj.add("schematic", new JsonPrimitive(this.schematic.getFile().getAbsolutePath()));
+            obj.add("schematic", new JsonPrimitive(this.schematic.getFile().toAbsolutePath().toString()));
             obj.add("name", new JsonPrimitive(this.name));
             obj.add("origin", arr);
             obj.add("rotation", new JsonPrimitive(this.rotation.name()));
@@ -940,12 +940,12 @@ public class SchematicPlacement
             JsonUtils.hasString(obj, "mirror") &&
             JsonUtils.hasArray(obj, "placements"))
         {
-            File file = new File(obj.get("schematic").getAsString());
+            Path file = Path.of(obj.get("schematic").getAsString());
             LitematicaSchematic schematic = SchematicHolder.getInstance().getOrLoad(file);
 
             if (schematic == null)
             {
-                Litematica.logger.warn("Failed to load schematic '{}'", file.getAbsolutePath());
+                Litematica.LOGGER.warn("Failed to load schematic '{}'", file.toAbsolutePath());
                 return null;
             }
 
@@ -953,7 +953,7 @@ public class SchematicPlacement
 
             if (posArr.size() != 3)
             {
-                Litematica.logger.warn("Failed to load schematic placement for '{}', invalid origin position", file.getAbsolutePath());
+                Litematica.LOGGER.warn("Failed to load schematic placement for '{}', invalid origin position", file.toAbsolutePath());
                 return null;
             }
 
@@ -1054,15 +1054,19 @@ public class SchematicPlacement
     {
         NbtCompound compound = new NbtCompound();
         compound.putString("Name", name);
+
         if (withSchematic)
         {
             compound.put("Schematics", schematic.writeToNBT());
         }
+
         compound.put("Origin", NbtHelper.fromBlockPos(origin));
         compound.putInt("Rotation", rotation.ordinal());
         compound.putInt("Mirror", mirror.ordinal());
         NbtCompound subs = new NbtCompound();
-        for (String name : relativeSubRegionPlacements.keySet()) {
+
+        for (String name : relativeSubRegionPlacements.keySet())
+        {
             NbtCompound sub = new NbtCompound();
             SubRegionPlacement subRegionPlacement = relativeSubRegionPlacements.get(name);
             subs.put(name, sub);
@@ -1074,8 +1078,10 @@ public class SchematicPlacement
             sub.putBoolean("Enabled", subRegionPlacement.isEnabled());
             sub.putBoolean("IgnoreEntities", subRegionPlacement.ignoreEntities());
         }
+
         compound.put("SubRegions", subs);
         compound.putString("ReplaceMode", Configs.Generic.PASTE_REPLACE_BEHAVIOR.getStringValue());
+
         return compound;
     }
 }

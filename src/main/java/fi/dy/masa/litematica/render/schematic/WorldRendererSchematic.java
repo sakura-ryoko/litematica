@@ -465,6 +465,7 @@ public class WorldRendererSchematic
         int count = 0;
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        Fog orgFog = RenderSystem.getShaderFog();
         ShaderProgram shader = RenderSystem.getShader();
         //BufferRenderer.reset();
 
@@ -481,6 +482,7 @@ public class WorldRendererSchematic
         //shader.initializeUniforms(VertexFormat.DrawMode.QUADS, matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         RenderSystem.setupShaderLights(shader);
+        RenderSystem.setShaderFog(Fog.DUMMY);
         shader.bind();
 
         // FIXME
@@ -518,7 +520,8 @@ public class WorldRendererSchematic
                 matrix4fStack.pushMatrix();
                 matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                 buffer.bind();
-                buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
+                //buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
+                buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
                 VertexBuffer.unbind();
                 matrix4fStack.popMatrix();
                 startedDrawing = true;
@@ -548,6 +551,7 @@ public class WorldRendererSchematic
 
         VertexBuffer.unbind();
         renderLayer.endDrawing();
+        RenderSystem.setShaderFog(orgFog);
 
         profiler.pop();
         profiler.pop();

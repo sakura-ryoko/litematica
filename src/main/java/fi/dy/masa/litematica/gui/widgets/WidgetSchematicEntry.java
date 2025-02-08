@@ -1,23 +1,16 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.BlockPos;
 
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.SchematicHolder;
-import fi.dy.masa.litematica.gui.GuiSchematicSave;
-import fi.dy.masa.litematica.gui.Icons;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -27,6 +20,13 @@ import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.SchematicHolder;
+import fi.dy.masa.litematica.gui.GuiSchematicSave;
+import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 
 public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchematic>
 {
@@ -102,8 +102,8 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
         RenderUtils.color(1f, 1f, 1f, 1f);
         RenderSystem.disableBlend();
 
-        File schematicFile = this.schematic.getFile();
-        String fileName = schematicFile != null ? schematicFile.getName() : null;
+        Path schematicFile = this.schematic.getFile();
+        String fileName = schematicFile != null ? schematicFile.getFileName().toString() : null;
         this.parent.bindTexture(Icons.TEXTURE);
 
         Icons icon;
@@ -142,8 +142,8 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
         else if (GuiBase.isMouseOver(mouseX, mouseY, this.x, this.y, this.buttonsStartX - 12, this.height))
         {
             List<String> lines = new ArrayList<>();
-            File schematicFile = this.schematic.getFile();
-            String fileName = schematicFile != null ? schematicFile.getName() : null;
+            Path schematicFile = this.schematic.getFile();
+            String fileName = schematicFile != null ? schematicFile.getFileName().toString() : null;
 
             if (fileName != null)
             {

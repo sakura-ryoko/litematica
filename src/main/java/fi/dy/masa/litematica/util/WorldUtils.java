@@ -1,7 +1,8 @@
 package fi.dy.masa.litematica.util;
 
-import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nullable;
 
@@ -82,28 +83,28 @@ public class WorldUtils
     }
 
     public static boolean convertLitematicaSchematicToLitematicaSchematic(
-            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+            Path inputDir, String inputFileName, Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         LitematicaSchematic litematicaSchematic = convertLitematicaSchematicToLitematicaSchematic(inputDir, inputFileName, outputFileName, feedback);
         return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
     }
 
     public static boolean convertSpongeSchematicToLitematicaSchematic(
-            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+            Path inputDir, String inputFileName, Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         LitematicaSchematic litematicaSchematic = convertSpongeSchematicToLitematicaSchematic(inputDir, inputFileName);
         return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
     }
 
     public static boolean convertSchematicaSchematicToLitematicaSchematic(
-            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+            Path inputDir, String inputFileName, Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         LitematicaSchematic litematicaSchematic = convertSchematicaSchematicToLitematicaSchematic(inputDir, inputFileName, ignoreEntities, feedback);
         return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
     }
 
     @Nullable
-    public static LitematicaSchematic convertLitematicaSchematicToLitematicaSchematic(File inputDir, String inputFileName,
+    public static LitematicaSchematic convertLitematicaSchematicToLitematicaSchematic(Path inputDir, String inputFileName,
                                                                                       String outputFilename,
                                                                                       IStringConsumer feedback)
     {
@@ -126,10 +127,10 @@ public class WorldUtils
     }
 
     @Nullable
-    public static LitematicaSchematic convertSchematicaSchematicToLitematicaSchematic(File inputDir, String inputFileName,
+    public static LitematicaSchematic convertSchematicaSchematicToLitematicaSchematic(Path inputDir, String inputFileName,
             boolean ignoreEntities, IStringConsumer feedback)
     {
-        SchematicaSchematic schematic = SchematicaSchematic.createFromFile(new File(inputDir, inputFileName));
+        SchematicaSchematic schematic = SchematicaSchematic.createFromFile(inputDir.resolve(inputFileName));
 
         if (schematic == null)
         {
@@ -168,15 +169,15 @@ public class WorldUtils
         return litematicaSchematic;
     }
 
-    public static boolean convertStructureToLitematicaSchematic(File structureDir, String structureFileName,
-            File outputDir, String outputFileName, boolean override)
+    public static boolean convertStructureToLitematicaSchematic(Path structureDir, String structureFileName,
+                                                                Path outputDir, String outputFileName, boolean override)
     {
         LitematicaSchematic litematicaSchematic = convertStructureToLitematicaSchematic(structureDir, structureFileName);
         return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
     }
 
     @Nullable
-    public static LitematicaSchematic convertSpongeSchematicToLitematicaSchematic(File dir, String fileName)
+    public static LitematicaSchematic convertSpongeSchematicToLitematicaSchematic(Path dir, String fileName)
     {
         try
         {
@@ -193,14 +194,14 @@ public class WorldUtils
         {
             String msg = "Exception while trying to load the Sponge schematic: " + e.getMessage();
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
-            Litematica.logger.error(msg);
+            Litematica.LOGGER.error(msg);
         }
 
         return null;
     }
 
     @Nullable
-    public static LitematicaSchematic convertStructureToLitematicaSchematic(File structureDir, String structureFileName)
+    public static LitematicaSchematic convertStructureToLitematicaSchematic(Path structureDir, String structureFileName)
     {
         try
         {
@@ -216,14 +217,14 @@ public class WorldUtils
         catch (Exception e)
         {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "Exception while trying to load the vanilla structure: " + e.getMessage());
-            Litematica.logger.error("Exception while trying to load the vanilla structure: " + e.getMessage());
+            Litematica.LOGGER.error("Exception while trying to load the vanilla structure: " + e.getMessage());
         }
 
         return null;
     }
 
     public static boolean convertLitematicaSchematicToSchematicaSchematic(
-            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+            Path inputDir, String inputFileName, Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         //SchematicaSchematic schematic = convertLitematicaSchematicToSchematicaSchematic(inputDir, inputFileName, ignoreEntities, feedback);
         //return schematic != null && schematic.writeToFile(outputDir, outputFileName, override, feedback);
@@ -232,7 +233,7 @@ public class WorldUtils
     }
 
     public static boolean convertLitematicaSchematicToV6LitematicaSchematic(
-            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+            Path inputDir, String inputFileName, Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         LitematicaSchematic v7LitematicaSchematic = LitematicaSchematic.createFromFile(inputDir, inputFileName, FileType.LITEMATICA_SCHEMATIC);
 
@@ -257,14 +258,14 @@ public class WorldUtils
     }
 
     public static boolean convertLitematicaSchematicToVanillaStructure(
-            File inputDir, String inputFileName, File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+            Path inputDir, String inputFileName, Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         StructureTemplate template = convertLitematicaSchematicToVanillaStructure(inputDir, inputFileName, ignoreEntities, feedback);
         return writeVanillaStructureToFile(template, outputDir, outputFileName, override, feedback);
     }
 
     @Nullable
-    public static StructureTemplate convertLitematicaSchematicToVanillaStructure(File inputDir, String inputFileName, boolean ignoreEntities, IStringConsumer feedback)
+    public static StructureTemplate convertLitematicaSchematicToVanillaStructure(Path inputDir, String inputFileName, boolean ignoreEntities, IStringConsumer feedback)
     {
         LitematicaSchematic litematicaSchematic = LitematicaSchematic.createFromFile(inputDir, inputFileName);
 
@@ -287,7 +288,7 @@ public class WorldUtils
         return template;
     }
 
-    private static boolean writeVanillaStructureToFile(StructureTemplate template, File dir, String fileNameIn, boolean override, IStringConsumer feedback)
+    private static boolean writeVanillaStructureToFile(StructureTemplate template, Path dir, String fileNameIn, boolean override, IStringConsumer feedback)
     {
         String fileName = fileNameIn;
         String extension = ".nbt";
@@ -297,33 +298,42 @@ public class WorldUtils
             fileName = fileName + extension;
         }
 
-        File file = new File(dir, fileName);
+        Path file = dir.resolve(fileName);
         FileOutputStream os = null;
 
         try
         {
-            if (dir.exists() == false && dir.mkdirs() == false)
+            if (!Files.exists(dir))
             {
-                feedback.setString(StringUtils.translate("litematica.error.schematic_write_to_file_failed.directory_creation_failed", dir.getAbsolutePath()));
+                FileUtils.createDirectoriesIfMissing(dir);
+            }
+
+            if (!Files.isDirectory(dir))
+            {
+                feedback.setString(StringUtils.translate("litematica.error.schematic_write_to_file_failed.directory_creation_failed", dir.toAbsolutePath()));
                 return false;
             }
 
-            if (override == false && file.exists())
+            if (override == false && !Files.exists(file))
             {
-                feedback.setString(StringUtils.translate("litematica.error.structure_write_to_file_failed.exists", file.getAbsolutePath()));
+                feedback.setString(StringUtils.translate("litematica.error.structure_write_to_file_failed.exists", file.toAbsolutePath()));
                 return false;
             }
 
+            /*
             NbtCompound tag = template.writeNbt(new NbtCompound());
             os = new FileOutputStream(file);
             NbtIo.writeCompressed(tag, os);
             os.close();
+             */
+
+            NbtIo.writeCompressed(template.writeNbt(new NbtCompound()), file);
 
             return true;
         }
         catch (Exception e)
         {
-            feedback.setString(StringUtils.translate("litematica.error.structure_write_to_file_failed.exception", file.getAbsolutePath()));
+            feedback.setString(StringUtils.translate("litematica.error.structure_write_to_file_failed.exception", file.toAbsolutePath()));
         }
 
         return false;
@@ -689,12 +699,7 @@ public class WorldUtils
         BlockHitResult hitResult = (BlockHitResult) trace;
         ItemPlacementContext ctx = new ItemPlacementContext(new ItemUsageContext(player, Hand.MAIN_HAND, hitResult));
 
-        if (stateClient.canReplace(ctx) == false)
-        {
-            return true;
-        }
-
-        return false;
+        return !stateClient.canReplace(ctx);
     }
 
     public static class PlacementProtocolData
@@ -920,7 +925,7 @@ public class WorldUtils
         }
         catch (Exception e)
         {
-            Litematica.logger.warn("Exception trying to request placement protocol value", e);
+            Litematica.LOGGER.warn("Exception trying to request placement protocol value", e);
         }
 
         if (propCount > 0)

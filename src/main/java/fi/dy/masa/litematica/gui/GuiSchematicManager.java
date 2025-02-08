@@ -1,17 +1,14 @@
 package fi.dy.masa.litematica.gui;
 
-import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.ScreenshotRecorder;
-import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.util.FileType;
+
 import fi.dy.masa.malilib.config.IConfigOptionList;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -28,6 +25,11 @@ import fi.dy.masa.malilib.interfaces.IConfirmationListener;
 import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.util.FileType;
 
 public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
 {
@@ -48,7 +50,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
     }
 
     @Override
-    public File getDefaultDirectory()
+    public Path getDefaultDirectory()
     {
         return DataManager.getSchematicsBaseDirectory();
     }
@@ -212,11 +214,11 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 return;
             }
 
-            File file = entry.getFullPath();
+            Path file = entry.getFullPath();
 
-            if (file.exists() == false || file.isFile() == false || file.canRead() == false)
+            if (!Files.exists(file) || !Files.isRegularFile(file) || !Files.isReadable(file))
             {
-                this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.cant_read_file", file.getName());
+                this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.cant_read_file", file.getFileName());
                 return;
             }
 
@@ -232,7 +234,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 }
                 else
                 {
-                    this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_export.unsupported_type", file.getName());
+                    this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_export.unsupported_type", file.getFileName());
                 }
             }
             else if (this.type == Type.IMPORT_SCHEMATIC)
@@ -248,7 +250,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 }
                 else
                 {
-                    this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_import.unsupported_type", file.getName());
+                    this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_import.unsupported_type", file.getFileName());
                 }
             }
             else if (this.type == Type.RENAME_SCHEMATIC)
@@ -266,8 +268,9 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
             {
                 if (GuiBase.isShiftDown() && GuiBase.isCtrlDown() && GuiBase.isAltDown() && fileType == FileType.LITEMATICA_SCHEMATIC)
                 {
-                    File imageFile = new File(entry.getDirectory(), "thumb.png");
-                    if (imageFile.isFile() && imageFile.canRead())
+                    Path imageFile = entry.getDirectory().resolve("thumb.png");
+
+                    if (Files.exists(imageFile) && Files.isReadable(imageFile))
                     {
                         LitematicaSchematic schematic = LitematicaSchematic.createFromFile(entry.getDirectory(), entry.getName());
 
@@ -275,7 +278,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                         {
                             try
                             {
-                                InputStream inputStream = Files.newInputStream(imageFile.toPath());
+                                InputStream inputStream = Files.newInputStream(imageFile);
                                 NativeImage image = NativeImage.read(inputStream);
                                 int x = image.getWidth() >= image.getHeight() ? (image.getWidth() - image.getHeight()) / 2 : 0;
                                 int y = image.getHeight() >= image.getWidth() ? (image.getHeight() - image.getWidth()) / 2 : 0;
@@ -354,11 +357,11 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 
     private static class SchematicRenamer implements IStringConsumerFeedback
     {
-        private final File dir;
+        private final Path dir;
         private final String fileName;
         private final GuiSchematicManager gui;
 
-        public SchematicRenamer(File dir, String fileName, GuiSchematicManager gui)
+        public SchematicRenamer(Path dir, String fileName, GuiSchematicManager gui)
         {
             this.dir = dir;
             this.fileName = fileName;
@@ -392,9 +395,9 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 
     public static class FileDeleter implements IConfirmationListener
     {
-        protected final File file;
+        protected final Path file;
 
-        public FileDeleter(File file)
+        public FileDeleter(Path file)
         {
            this.file = file;
         }
@@ -410,12 +413,12 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
         {
             try
             {
-                this.file.delete();
+                Files.delete(this.file);
                 return true;
             }
             catch (Exception e)
             {
-                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.generic.failed_to_delete_file", file.getAbsolutePath());
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.generic.failed_to_delete_file", this.file.toAbsolutePath());
             }
 
             return false;
@@ -424,10 +427,10 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 
     public static class PreviewGenerator
     {
-        private final File dir;
+        private final Path dir;
         private final String fileName;
 
-        public PreviewGenerator(File dir, String fileName)
+        public PreviewGenerator(Path dir, String fileName)
         {
             this.dir = dir;
             this.fileName = fileName;
@@ -464,7 +467,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.warn("Exception while creating preview image", e);
+                    Litematica.LOGGER.warn("Exception while creating preview image", e);
                 }
             }
             else

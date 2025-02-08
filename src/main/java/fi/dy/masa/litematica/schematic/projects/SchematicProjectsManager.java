@@ -1,19 +1,22 @@
 package fi.dy.masa.litematica.schematic.projects;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import net.minecraft.client.MinecraftClient;
-import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.gui.GuiSchematicProjectManager;
-import fi.dy.masa.litematica.gui.GuiSchematicProjectsBrowser;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.gui.GuiSchematicProjectManager;
+import fi.dy.masa.litematica.gui.GuiSchematicProjectsBrowser;
 
 public class SchematicProjectsManager
 {
@@ -56,17 +59,17 @@ public class SchematicProjectsManager
         return this.currentProject != null && Configs.Generic.UNHIDE_SCHEMATIC_PROJECTS.getBooleanValue();
     }
 
-    public void createNewProject(File dir, String projectName)
+    public void createNewProject(Path dir, String projectName)
     {
         this.closeCurrentProject();
 
-        this.currentProject = new SchematicProject(dir, new File(dir, projectName + ".json"));
+        this.currentProject = new SchematicProject(dir, dir.resolve(projectName + ".json"));
         this.currentProject.setName(projectName);
         this.currentProject.setOrigin(fi.dy.masa.malilib.util.position.PositionUtils.getEntityBlockPos(this.mc.player));
         this.currentProject.saveToFile();
     }
 
-    public boolean openProject(File projectFile)
+    public boolean openProject(Path projectFile)
     {
         this.closeCurrentProject();
 
@@ -82,11 +85,11 @@ public class SchematicProjectsManager
     }
 
     @Nullable
-    public SchematicProject loadProjectFromFile(File projectFile, boolean createPlacement)
+    public SchematicProject loadProjectFromFile(Path projectFile, boolean createPlacement)
     {
-        if (projectFile.getName().endsWith(".json") && projectFile.exists() && projectFile.isFile() && projectFile.canRead())
+        if (projectFile.getFileName().endsWith(".json") && Files.exists(projectFile) && Files.isRegularFile(projectFile) && Files.isReadable(projectFile))
         {
-            JsonElement el = JsonUtils.parseJsonFile(projectFile);
+            JsonElement el = JsonUtils.parseJsonFileAsPath(projectFile);
 
             if (el != null && el.isJsonObject())
             {
@@ -201,7 +204,7 @@ public class SchematicProjectsManager
 
         if (this.currentProject != null)
         {
-            obj.add("current_project", new JsonPrimitive(this.currentProject.getProjectFile().getAbsolutePath()));
+            obj.add("current_project", new JsonPrimitive(this.currentProject.getProjectFile().toAbsolutePath().toString()));
         }
 
         return obj;
@@ -211,7 +214,7 @@ public class SchematicProjectsManager
     {
         if (JsonUtils.hasString(obj, "current_project"))
         {
-            File file = new File(JsonUtils.getString(obj, "current_project"));
+            Path file = Path.of(JsonUtils.getString(obj, "current_project"));
             this.currentProject = this.loadProjectFromFile(file, true);
         }
     }

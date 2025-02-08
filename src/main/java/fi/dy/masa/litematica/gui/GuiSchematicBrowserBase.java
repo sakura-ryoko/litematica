@@ -1,12 +1,13 @@
 package fi.dy.masa.litematica.gui;
 
-import java.io.File;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
-import fi.dy.masa.litematica.gui.widgets.WidgetSchematicBrowser;
+
 import fi.dy.masa.malilib.gui.GuiListBase;
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetDirectoryEntry;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
+import fi.dy.masa.litematica.gui.widgets.WidgetSchematicBrowser;
 
 public abstract class GuiSchematicBrowserBase extends GuiListBase<DirectoryEntry, WidgetDirectoryEntry, WidgetSchematicBrowser>
 {
@@ -29,7 +30,7 @@ public abstract class GuiSchematicBrowserBase extends GuiListBase<DirectoryEntry
      */
     public abstract String getBrowserContext();
 
-    public abstract File getDefaultDirectory();
+    public abstract Path getDefaultDirectory();
 
     @Override
     @Nullable

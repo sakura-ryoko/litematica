@@ -1,10 +1,11 @@
 package fi.dy.masa.litematica.data;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
+
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.util.FileType;
 
@@ -24,7 +25,7 @@ public class SchematicHolder
     }
 
     @Nullable
-    public LitematicaSchematic getOrLoad(File file)
+    public LitematicaSchematic getOrLoad(Path file)
     {
         for (LitematicaSchematic schematic : this.schematics)
         {
@@ -35,7 +36,7 @@ public class SchematicHolder
         }
 
         FileType type = FileType.fromFile(file);
-        LitematicaSchematic schematic = LitematicaSchematic.createFromFile(file.getParentFile(), file.getName(), type);
+        LitematicaSchematic schematic = LitematicaSchematic.createFromFile(file.getParent(), file.getFileName().toString(), type);
 
         if (schematic != null)
         {

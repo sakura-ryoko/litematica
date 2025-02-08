@@ -1,6 +1,6 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
@@ -9,12 +9,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-import fi.dy.masa.litematica.gui.GuiSubRegionConfiguration;
-import fi.dy.masa.litematica.gui.Icons;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
-import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -23,6 +17,12 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.gui.GuiSubRegionConfiguration;
+import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
+import fi.dy.masa.litematica.util.PositionUtils;
 
 public class WidgetPlacementSubRegion extends WidgetListEntryBase<SubRegionPlacement>
 {
@@ -140,8 +140,8 @@ public class WidgetPlacementSubRegion extends WidgetListEntryBase<SubRegionPlace
     public void postRenderHovered(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
     {
         LitematicaSchematic schematic = this.schematicPlacement.getSchematic();
-        File schematicFile = schematic.getFile();
-        String fileName = schematicFile != null ? schematicFile.getName() : StringUtils.translate("litematica.gui.label.schematic_placement.in_memory");
+        Path schematicFile = schematic.getFile();
+        String fileName = schematicFile != null ? schematicFile.getFileName().toString() : StringUtils.translate("litematica.gui.label.schematic_placement.in_memory");
 
         if (this.placement.isRegionPlacementModifiedFromDefault() &&
             GuiBase.isMouseOver(mouseX, mouseY, this.x + this.buttonsStartX - 25, this.y + 6, 11, 11))

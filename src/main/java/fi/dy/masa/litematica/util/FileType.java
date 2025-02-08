@@ -1,6 +1,8 @@
 package fi.dy.masa.litematica.util;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public enum FileType
 {
@@ -38,11 +40,24 @@ public enum FileType
 		return UNKNOWN;
 	}
 
+	@Deprecated
 	public static FileType fromFile(File file)
 	{
 		if (file.isFile() && file.canRead())
 		{
 			return fromName(file.getName());
+		}
+		else
+		{
+			return INVALID;
+		}
+	}
+
+	public static FileType fromFile(Path file)
+	{
+		if (Files.exists(file) && Files.isReadable(file))
+		{
+			return fromName(file.getFileName().toString());
 		}
 		else
 		{

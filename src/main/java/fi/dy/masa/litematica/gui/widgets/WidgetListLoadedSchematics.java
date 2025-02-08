@@ -38,7 +38,7 @@ public class WidgetListLoadedSchematics extends WidgetListBase<LitematicaSchemat
 
         if (entry.getFile() != null)
         {
-            String fileName = FileUtils.getNameWithoutExtension(entry.getFile().getName().toLowerCase());
+            String fileName = FileUtils.getNameWithoutExtension(entry.getFile().getFileName().toString().toLowerCase());
             return ImmutableList.of(metaName, fileName);
         }
         else

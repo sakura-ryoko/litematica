@@ -77,7 +77,7 @@ public class WidgetAreaSelectionEntry extends WidgetDirectoryEntry
     {
         if (this.entry.getType() == DirectoryEntryType.FILE && FileType.fromFile(this.entry.getFullPath()) == FileType.JSON)
         {
-            selected = this.entry.getFullPath().getAbsolutePath().equals(this.selectionManager.getCurrentNormalSelectionId());
+            selected = this.entry.getFullPath().toAbsolutePath().toString().equals(this.selectionManager.getCurrentNormalSelectionId());
             super.render(mouseX, mouseY, selected, drawContext);
         }
         else
@@ -91,7 +91,7 @@ public class WidgetAreaSelectionEntry extends WidgetDirectoryEntry
     {
         if (this.entry.getType() == DirectoryEntryType.FILE && FileType.fromFile(this.entry.getFullPath()) == FileType.JSON)
         {
-            AreaSelection selection = this.selectionManager.getOrLoadSelectionReadOnly(this.getDirectoryEntry().getFullPath().getAbsolutePath());
+            AreaSelection selection = this.selectionManager.getOrLoadSelectionReadOnly(this.getDirectoryEntry().getFullPath().toAbsolutePath().toString());
             String prefix = this.entry.getDisplayNamePrefix();
             return selection != null ? (prefix != null ? prefix + selection.getName() : selection.getName()) : "<error>";
         }
@@ -103,7 +103,7 @@ public class WidgetAreaSelectionEntry extends WidgetDirectoryEntry
     public void postRenderHovered(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
     {
         List<String> text = new ArrayList<>();
-        AreaSelection selection = this.selectionManager.getOrLoadSelectionReadOnly(this.getDirectoryEntry().getFullPath().getAbsolutePath());
+        AreaSelection selection = this.selectionManager.getOrLoadSelectionReadOnly(this.getDirectoryEntry().getFullPath().toAbsolutePath().toString());
 
         if (selection != null)
         {
@@ -151,7 +151,7 @@ public class WidgetAreaSelectionEntry extends WidgetDirectoryEntry
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
-            String selectionId = this.widget.getDirectoryEntry().getFullPath().getAbsolutePath();
+            String selectionId = this.widget.getDirectoryEntry().getFullPath().toAbsolutePath().toString();
 
             if (this.type == ButtonType.RENAME)
             {
@@ -205,7 +205,7 @@ public class WidgetAreaSelectionEntry extends WidgetDirectoryEntry
 
             private final String labelKey;
 
-            private ButtonType(String labelKey)
+            ButtonType(String labelKey)
             {
                 this.labelKey = labelKey;
             }
@@ -233,7 +233,7 @@ public class WidgetAreaSelectionEntry extends WidgetDirectoryEntry
         @Override
         public boolean setString(String string)
         {
-            String selectionId = this.widget.getDirectoryEntry().getFullPath().getAbsolutePath();
+            String selectionId = this.widget.getDirectoryEntry().getFullPath().toAbsolutePath().toString();
             return this.selectionManager.renameSelection(this.widget.getDirectoryEntry().getDirectory(), selectionId, string, this.copy, this.widget.parent.getSelectionManagerGui());
         }
     }

@@ -1,19 +1,25 @@
 package fi.dy.masa.litematica.schematic.projects;
 
-import javax.annotation.Nullable;
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.apache.commons.io.FileUtils;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.interfaces.ICompletionListener;
+import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
@@ -24,22 +30,13 @@ import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.AreaSelectionSimple;
 import fi.dy.masa.litematica.selection.SelectionManager;
 import fi.dy.masa.litematica.selection.SelectionMode;
-import fi.dy.masa.litematica.util.EntityUtils;
-import fi.dy.masa.litematica.util.FileType;
-import fi.dy.masa.litematica.util.PlacementDeletionMode;
-import fi.dy.masa.litematica.util.ToolUtils;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.interfaces.ICompletionListener;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
-import fi.dy.masa.litematica.util.WorldUtils;
+import fi.dy.masa.litematica.util.*;
 
 public class SchematicProject
 {
     private final List<SchematicVersion> versions = new ArrayList<>();
-    private final File directory;
-    private File projectFile;
+    private final Path directory;
+    private Path projectFile;
     private BlockPos origin = BlockPos.ORIGIN;
     private String projectName = "unnamed";
     private AreaSelection selection = new AreaSelection();
@@ -54,13 +51,13 @@ public class SchematicProject
     @Nullable
     private SchematicPlacement currentPlacement;
 
-    public SchematicProject(File directory, File projectFile)
+    public SchematicProject(Path directory, Path projectFile)
     {
         this.directory = directory;
         this.projectFile = projectFile;
     }
 
-    public File getDirectory()
+    public Path getDirectory()
     {
         return this.directory;
     }
@@ -88,15 +85,15 @@ public class SchematicProject
 
     public void setName(String name)
     {
-        File newFile = new File(this.directory, name + ".json");
+        Path newFile = this.directory.resolve(name + ".json");
 
-        if (newFile.exists() == false)
+        if (!Files.exists(newFile))
         {
             try
             {
-                if (this.projectFile.exists())
+                if (Files.exists(this.projectFile))
                 {
-                    FileUtils.moveFile(this.projectFile, newFile);
+                    FileUtils.move(this.projectFile, newFile);
                 }
 
                 this.projectName = name;
@@ -109,7 +106,7 @@ public class SchematicProject
             }
             catch (Exception e)
             {
-                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_projects.failed_to_rename_project_file_exception", newFile.getAbsolutePath());
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_projects.failed_to_rename_project_file_exception", newFile.toAbsolutePath());
             }
         }
         else
@@ -148,7 +145,7 @@ public class SchematicProject
         this.dirty = true;
     }
 
-    public File getProjectFile()
+    public Path getProjectFile()
     {
         return this.projectFile;
     }
@@ -429,9 +426,9 @@ public class SchematicProject
         while (failsafe-- > 0)
         {
             String name = nameBase + String.format("%05d", version) + LitematicaSchematic.FILE_EXTENSION;
-            File file = new File(this.directory, name);
+            Path file = this.directory.resolve(name);
 
-            if (file.exists() == false)
+            if (!Files.exists(file))
             {
                 return name;
             }
@@ -457,7 +454,7 @@ public class SchematicProject
 
     public boolean saveToFile()
     {
-        if (this.dirty == false || JsonUtils.writeJsonToFile(this.toJson(), this.projectFile))
+        if (this.dirty == false || JsonUtils.writeJsonToFileAsPath(this.toJson(), this.projectFile))
         {
             this.dirty = false;
             return true;
@@ -495,14 +492,14 @@ public class SchematicProject
     }
 
     @Nullable
-    public static SchematicProject fromJson(JsonObject obj, File projectFile, boolean createPlacement)
+    public static SchematicProject fromJson(JsonObject obj, Path projectFile, boolean createPlacement)
     {
         BlockPos origin = JsonUtils.blockPosFromJson(obj, "origin");
 
         if (JsonUtils.hasString(obj, "name") && JsonUtils.hasInteger(obj, "current_version_id") && origin != null)
         {
-            projectFile = fi.dy.masa.malilib.util.FileUtils.getCanonicalFileIfPossible(projectFile);
-            SchematicProject project = new SchematicProject(projectFile.getParentFile(), projectFile);
+            projectFile = FileUtils.getRealPathIfPossible(projectFile);
+            SchematicProject project = new SchematicProject(projectFile.getParent(), projectFile);
             project.projectName = JsonUtils.getString(obj, "name");
             project.origin = origin;
 
@@ -581,7 +578,7 @@ public class SchematicProject
             return false;
         }
 
-        if (this.directory == null || this.directory.exists() == false || this.directory.isDirectory() == false)
+        if (this.directory == null || !Files.exists(this.directory) || !Files.isDirectory(this.directory))
         {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_projects.invalid_project_directory");
             return false;

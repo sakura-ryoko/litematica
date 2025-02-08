@@ -1,22 +1,21 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.BlockPos;
 
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.Icons;
-import fi.dy.masa.litematica.schematic.projects.SchematicProject;
-import fi.dy.masa.litematica.schematic.projects.SchematicVersion;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.schematic.projects.SchematicProject;
+import fi.dy.masa.litematica.schematic.projects.SchematicVersion;
 
 public class WidgetSchematicProjectBrowser extends WidgetFileBrowserBase implements ISelectionListener<DirectoryEntry>
 {
@@ -36,7 +35,7 @@ public class WidgetSchematicProjectBrowser extends WidgetFileBrowserBase impleme
     }
 
     @Override
-    protected File getRootDirectory()
+    protected Path getRootDirectory()
     {
         return DataManager.getSchematicsBaseDirectory();
     }

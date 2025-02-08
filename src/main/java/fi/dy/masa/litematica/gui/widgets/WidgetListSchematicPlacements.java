@@ -42,7 +42,7 @@ public class WidgetListSchematicPlacements extends WidgetListBase<SchematicPlace
     {
         if (entry.getSchematic().getFile() != null)
         {
-            String fileName = FileUtils.getNameWithoutExtension(entry.getSchematic().getFile().getName().toLowerCase());
+            String fileName = FileUtils.getNameWithoutExtension(entry.getSchematic().getFile().getFileName().toString().toLowerCase());
             return ImmutableList.of(entry.getName().toLowerCase(), fileName);
         }
         else

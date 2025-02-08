@@ -1,12 +1,9 @@
 package fi.dy.masa.litematica.gui;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
-import fi.dy.masa.litematica.gui.widgets.WidgetSchematicProjectBrowser;
-import fi.dy.masa.litematica.schematic.projects.SchematicProject;
-import fi.dy.masa.litematica.util.FileType;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiListBase;
 import fi.dy.masa.malilib.gui.GuiTextInput;
@@ -22,6 +19,11 @@ import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.gui.widgets.WidgetSchematicProjectBrowser;
+import fi.dy.masa.litematica.schematic.projects.SchematicProject;
+import fi.dy.masa.litematica.util.FileType;
 
 public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, WidgetDirectoryEntry, WidgetSchematicProjectBrowser>
                                         implements ISelectionListener<DirectoryEntry>
@@ -200,12 +202,12 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
             @Nullable
             private final String hoverText;
 
-            private Type(String label)
+            Type(String label)
             {
                 this(label, null);
             }
 
-            private Type(String translationKey, String hoverText)
+            Type(String translationKey, String hoverText)
             {
                 this.translationKey = translationKey;
                 this.hoverText = hoverText;
@@ -226,10 +228,10 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
 
     private static class ProjectCreator implements IStringConsumerFeedback
     {
-        private final File dir;
+        private final Path dir;
         private final GuiSchematicProjectsBrowser gui;
 
-        private ProjectCreator(File dir, GuiSchematicProjectsBrowser gui)
+        private ProjectCreator(Path dir, GuiSchematicProjectsBrowser gui)
         {
             this.dir = dir;
             this.gui = gui;
@@ -238,9 +240,9 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
         @Override
         public boolean setString(String projectName)
         {
-            File file = new File(this.dir, projectName + ".json");
+            Path file = this.dir.resolve(projectName + ".json");
 
-            if (file.exists() == false)
+            if (Files.exists(file) == false)
             {
                 DataManager.getSchematicProjectsManager().createNewProject(this.dir, projectName);
                 // In here we need to add the message to the manager GUI, because InfoUtils.showGuiOrInGameMessage()

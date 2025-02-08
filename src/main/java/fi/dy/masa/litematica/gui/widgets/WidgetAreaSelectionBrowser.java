@@ -1,12 +1,12 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.nio.file.Path;
+
+import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
+import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiAreaSelectionManager;
 import fi.dy.masa.litematica.gui.Icons;
-import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
-import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
 
 public class WidgetAreaSelectionBrowser extends WidgetFileBrowserBase
 {
@@ -31,7 +31,7 @@ public class WidgetAreaSelectionBrowser extends WidgetFileBrowserBase
     }
 
     @Override
-    protected File getRootDirectory()
+    protected Path getRootDirectory()
     {
         return DataManager.getAreaSelectionsBaseDirectory();
     }
@@ -49,12 +49,23 @@ public class WidgetAreaSelectionBrowser extends WidgetFileBrowserBase
                 entry, listIndex, this.guiAreaSelectionManager.getSelectionManager(), this, this.iconProvider);
     }
 
+    /*
     public static class FileFilterJson implements FileFilter
     {
         @Override
         public boolean accept(File pathName)
         {
             return pathName.getName().endsWith(".json");
+        }
+    }
+     */
+
+    public static class FileFilterJson extends FileFilter
+    {
+        @Override
+        public boolean accept(Path entry)
+        {
+            return entry.getFileName().toString().endsWith(".json");
         }
     }
 }

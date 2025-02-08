@@ -222,7 +222,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Block Entity Request to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing Block Entity Request to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_ENTITY_REQUEST ->
@@ -235,7 +235,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Entity Request to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing Entity Request to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE ->
@@ -247,7 +247,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Block Entity Response to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing Block Entity Response to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE ->
@@ -259,7 +259,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Entity Response to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing Entity Response to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_BULK_ENTITY_NBT_REQUEST ->
@@ -271,7 +271,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing Bulk Entity Request to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing Bulk Entity Request to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_NBT_RESPONSE_DATA, PACKET_C2S_NBT_RESPONSE_DATA ->
@@ -288,7 +288,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing buffer data to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing buffer data to packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA ->
@@ -300,10 +300,10 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#toPacket: error writing NBT to packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing NBT to packet: [{}]", e.getLocalizedMessage());
                 }
             }
-            default -> Litematica.logger.error("ServuxEntitiesPacket#toPacket: Unknown packet type!");
+            default -> Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: Unknown packet type!");
         }
     }
 
@@ -316,7 +316,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
         if (type == null)
         {
             // Invalid Type
-            Litematica.logger.warn("ServuxEntitiesPacket#fromPacket: invalid packet type received");
+            Litematica.LOGGER.warn("ServuxEntitiesPacket#fromPacket: invalid packet type received");
             return null;
         }
         switch (type)
@@ -331,7 +331,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Block Entity Request from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Block Entity Request from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_ENTITY_REQUEST ->
@@ -344,7 +344,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Entity Request from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Entity Request from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE ->
@@ -355,7 +355,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Block Entity Response from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Block Entity Response from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE ->
@@ -366,7 +366,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Entity Response from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Entity Response from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_BULK_ENTITY_NBT_REQUEST ->
@@ -377,7 +377,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Bulk Entity Request from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Bulk Entity Request from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_NBT_RESPONSE_DATA ->
@@ -389,7 +389,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading S2C Bulk Response Buffer from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading S2C Bulk Response Buffer from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_NBT_RESPONSE_DATA ->
@@ -401,7 +401,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading C2S Bulk Response Buffer from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading C2S Bulk Response Buffer from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_C2S_METADATA_REQUEST ->
@@ -413,7 +413,7 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Metadata Request from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Metadata Request from packet: [{}]", e.getLocalizedMessage());
                 }
             }
             case PACKET_S2C_METADATA ->
@@ -425,10 +425,10 @@ public class ServuxLitematicaPacket implements IClientPayloadData
                 }
                 catch (Exception e)
                 {
-                    Litematica.logger.error("ServuxEntitiesPacket#fromPacket: error reading Metadata Response from packet: [{}]", e.getLocalizedMessage());
+                    Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: error reading Metadata Response from packet: [{}]", e.getLocalizedMessage());
                 }
             }
-            default -> Litematica.logger.error("ServuxEntitiesPacket#fromPacket: Unknown packet type!");
+            default -> Litematica.LOGGER.error("ServuxEntitiesPacket#fromPacket: Unknown packet type!");
         }
 
         return null;

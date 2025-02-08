@@ -1,6 +1,6 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
@@ -9,11 +9,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.GuiPlacementConfiguration;
-import fi.dy.masa.litematica.gui.Icons;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
@@ -23,6 +18,11 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiPlacementConfiguration;
+import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 
 public class WidgetSchematicPlacement extends WidgetListEntryBase<SchematicPlacement>
 {
@@ -150,8 +150,8 @@ public class WidgetSchematicPlacement extends WidgetListEntryBase<SchematicPlace
         }
         else if (GuiBase.isMouseOver(mouseX, mouseY, this.x, this.y, this.buttonsStartX - 18, this.height))
         {
-            File schematicFile = this.placement.getSchematic().getFile();
-            String fileName = schematicFile != null ? schematicFile.getName() : StringUtils.translate("litematica.gui.label.schematic_placement.in_memory");
+            Path schematicFile = this.placement.getSchematic().getFile();
+            String fileName = schematicFile != null ? schematicFile.getFileName().toString() : StringUtils.translate("litematica.gui.label.schematic_placement.in_memory");
             List<String> text = new ArrayList<>();
             text.add(StringUtils.translate("litematica.gui.label.schematic_placement.schematic_name", this.placement.getSchematic().getMetadata().getName()));
             text.add(StringUtils.translate("litematica.gui.label.schematic_placement.schematic_file", fileName));

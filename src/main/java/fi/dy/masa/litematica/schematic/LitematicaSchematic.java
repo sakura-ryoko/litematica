@@ -89,15 +89,15 @@ public class LitematicaSchematic
     private final SchematicMetadata metadata = new SchematicMetadata();
     private final SchematicConverter converter;
     private int totalBlocksReadFromWorld;
-    @Nullable private final File schematicFile;
+    @Nullable private final Path schematicFile;
     private final FileType schematicType;
 
-    private LitematicaSchematic(@Nullable File file)
+    private LitematicaSchematic(@Nullable Path file)
     {
         this(file, FileType.LITEMATICA_SCHEMATIC);
     }
 
-    private LitematicaSchematic(@Nullable File file, FileType schematicType)
+    private LitematicaSchematic(@Nullable Path file, FileType schematicType)
     {
         this.schematicFile = file;
         this.schematicType = schematicType;
@@ -105,7 +105,7 @@ public class LitematicaSchematic
     }
 
     @Nullable
-    public File getFile()
+    public Path getFile()
     {
         return this.schematicFile;
     }
@@ -376,7 +376,7 @@ public class LitematicaSchematic
                 }
                 else
                 {
-                    Litematica.logger.warn("Invalid/missing schematic data in schematic '{}' for sub-region '{}'", this.metadata.getName(), regionName);
+                    Litematica.LOGGER.warn("Invalid/missing schematic data in schematic '{}' for sub-region '{}'", this.metadata.getName(), regionName);
                 }
 
                 if (ignoreEntities == false && schematicPlacement.ignoreEntities() == false &&
@@ -530,7 +530,7 @@ public class LitematicaSchematic
                             }
                             catch (Exception e)
                             {
-                                Litematica.logger.warn("Failed to load TileEntity data for {} @ {}", state, pos);
+                                Litematica.LOGGER.warn("Failed to load TileEntity data for {} @ {}", state, pos);
                             }
                         }
                     }
@@ -956,7 +956,7 @@ public class LitematicaSchematic
 
             if (box == null)
             {
-                Litematica.logger.error("null Box for sub-region '{}' while trying to save chunk-wise schematic", regionName);
+                Litematica.LOGGER.error("null Box for sub-region '{}' while trying to save chunk-wise schematic", regionName);
                 continue;
             }
 
@@ -967,7 +967,7 @@ public class LitematicaSchematic
 
             if (container == null || tileEntityMap == null || blockTickMap == null || fluidTickMap == null)
             {
-                Litematica.logger.error("null map(s) for sub-region '{}' while trying to save chunk-wise schematic", regionName);
+                Litematica.LOGGER.error("null map(s) for sub-region '{}' while trying to save chunk-wise schematic", regionName);
                 continue;
             }
 
@@ -1480,7 +1480,7 @@ public class LitematicaSchematic
             {
                 String msg = "Invalid ID in the Sponge schematic palette: '" + id + "'";
                 InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
-                Litematica.logger.error(msg);
+                Litematica.LOGGER.error(msg);
                 return false;
             }
 
@@ -1535,7 +1535,7 @@ public class LitematicaSchematic
         {
             String msg = "Failed to read blocks from Sponge schematic";
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, msg);
-            Litematica.logger.error(msg);
+            Litematica.LOGGER.error(msg);
             return false;
         }
 
@@ -1742,11 +1742,11 @@ public class LitematicaSchematic
             Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
-                Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+                Litematica.LOGGER.info("VanillaStructure: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
             }
             else if (effective == null)
             {
-                Litematica.logger.warn("readFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
+                Litematica.LOGGER.warn("readFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
             }
             for (int id = 0; id < paletteSize; ++id)
             {
@@ -1891,11 +1891,11 @@ public class LitematicaSchematic
 
         if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
         {
-            Litematica.logger.info("VanillaStructure: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.LOGGER.info("VanillaStructure: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
         }
         else if (effective == null)
         {
-            Litematica.logger.warn("readEntitiesFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
+            Litematica.LOGGER.warn("readEntitiesFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
         }
         for (int i = 0; i < size; ++i)
         {
@@ -1994,13 +1994,13 @@ public class LitematicaSchematic
 
             if (effective == null)
             {
-                Litematica.logger.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
+                Litematica.LOGGER.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
                 return oldPalette;
             }
 
             NbtList newPalette = new NbtList();
             final int count = oldPalette.size();
-            Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.LOGGER.info("LitematicaSchematic: executing Vanilla DataFixer for Block State Palette DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (int i = 0; i < count; ++i)
             {
@@ -2025,13 +2025,13 @@ public class LitematicaSchematic
 
             if (effective == null)
             {
-                Litematica.logger.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Tile Entities DataVersion {}", minecraftDataVersion);
+                Litematica.LOGGER.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Tile Entities DataVersion {}", minecraftDataVersion);
                 return oldTE;
             }
 
             Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
-            Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.LOGGER.info("LitematicaSchematic: executing Vanilla DataFixer for Tile Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (BlockPos key : oldTE.keySet())
             {
@@ -2056,14 +2056,14 @@ public class LitematicaSchematic
 
             if (effective == null)
             {
-                Litematica.logger.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
+                Litematica.LOGGER.warn("LitematicaSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
                 return oldEntitiesList;
             }
 
             NbtList newEntitiesList = new NbtList();
             final int size = oldEntitiesList.size();
 
-            Litematica.logger.info("LitematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.LOGGER.info("LitematicaSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (int i = 0; i < size; i++)
             {
@@ -2089,13 +2089,13 @@ public class LitematicaSchematic
 
             if (effective == null)
             {
-                Litematica.logger.warn("SpongeSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
+                Litematica.LOGGER.warn("SpongeSchematic: Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Entities DataVersion {}", minecraftDataVersion);
                 return oldEntitiesList;
             }
 
             List<EntityInfo> newEntitiesList = new ArrayList<>();
 
-            Litematica.logger.info("SpongeSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
+            Litematica.LOGGER.info("SpongeSchematic: executing Vanilla DataFixer for Entities DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION);
 
             for (EntityInfo oldEntityInfo : oldEntitiesList)
             {
@@ -2112,7 +2112,7 @@ public class LitematicaSchematic
     {
         Map<BlockPos, NbtCompound> newTE = new HashMap<>();
 
-        Litematica.logger.info("LitematicaSchematic: Downgrade Tile Entities from DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION_1_20_4);
+        Litematica.LOGGER.info("LitematicaSchematic: Downgrade Tile Entities from DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION_1_20_4);
 
         for (BlockPos key : oldTE.keySet())
         {
@@ -2127,7 +2127,7 @@ public class LitematicaSchematic
         NbtList newEntitiesList = new NbtList();
         final int size = oldEntitiesList.size();
 
-        Litematica.logger.info("LitematicaSchematic: Downgrade Entities from DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION_1_20_4);
+        Litematica.LOGGER.info("LitematicaSchematic: Downgrade Entities from DataVersion {} -> {}", minecraftDataVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION_1_20_4);
 
         for (int i = 0; i < size; i++)
         {
@@ -2278,12 +2278,12 @@ public class LitematicaSchematic
         return tileMap;
     }
 
-    public boolean writeToFile(File dir, String fileNameIn, boolean override)
+    public boolean writeToFile(Path dir, String fileNameIn, boolean override)
     {
         return this.writeToFile(dir, fileNameIn, override, false);
     }
 
-    public boolean writeToFile(File dir, String fileNameIn, boolean override, boolean downgrade)
+    public boolean writeToFile(Path dir, String fileNameIn, boolean override, boolean downgrade)
     {
         String fileName = fileNameIn;
 
@@ -2292,40 +2292,47 @@ public class LitematicaSchematic
             fileName = fileName + FILE_EXTENSION;
         }
 
-        File fileSchematic = new File(dir, fileName);
+        Path fileSchematic = dir.resolve(fileName);
 
         try
         {
-            if (dir.exists() == false && dir.mkdirs() == false)
+            if (!Files.exists(dir))
             {
-                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.directory_creation_failed", dir.getAbsolutePath());
+                FileUtils.createDirectoriesIfMissing(dir);
+            }
+
+            if (!Files.isDirectory(dir))
+            {
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.directory_creation_failed", dir.toAbsolutePath());
                 return false;
             }
 
-            if (override == false && fileSchematic.exists())
+            if (override == false && Files.exists(fileSchematic))
             {
-                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.exists", fileSchematic.getAbsolutePath());
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.exists", fileSchematic.toAbsolutePath());
                 return false;
             }
 
-            FileOutputStream os = new FileOutputStream(fileSchematic);
+            //FileOutputStream os = new FileOutputStream(fileSchematic);
             if (downgrade)
             {
-                NbtIo.writeCompressed(this.writeToNBT_v6(), os);
+                //NbtIo.writeCompressed(this.writeToNBT_v6(), os);
+                NbtUtils.writeCompressed(this.writeToNBT_v6(), fileSchematic);
             }
             else
             {
-                NbtIo.writeCompressed(this.writeToNBT(), os);
+                //NbtIo.writeCompressed(this.writeToNBT(), os);
+                NbtUtils.writeCompressed(this.writeToNBT(), fileSchematic);
             }
-            os.close();
+            //os.close();
 
             return true;
         }
         catch (Exception e)
         {
-            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.exception", fileSchematic.getAbsolutePath());
-            Litematica.logger.error(StringUtils.translate("litematica.error.schematic_write_to_file_failed.exception", fileSchematic.getAbsolutePath()), e);
-            Litematica.logger.error(e.getMessage());
+            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.exception", fileSchematic.toAbsolutePath());
+            Litematica.LOGGER.error(StringUtils.translate("litematica.error.schematic_write_to_file_failed.exception", fileSchematic.toAbsolutePath()), e);
+            Litematica.LOGGER.error(e.getMessage());
         }
 
         return false;
@@ -2346,12 +2353,12 @@ public class LitematicaSchematic
             {
                 if (schematicType == FileType.SPONGE_SCHEMATIC)
                 {
-                    String name = FileUtils.getNameWithoutExtension(this.schematicFile.getName()) + " (Converted Sponge)";
+                    String name = FileUtils.getNameWithoutExtension(this.schematicFile.getFileName().toString()) + " (Converted Sponge)";
                     return this.readFromSpongeSchematic(name, nbt);
                 }
                 if (schematicType == FileType.VANILLA_STRUCTURE)
                 {
-                    String name = FileUtils.getNameWithoutExtension(this.schematicFile.getName()) + " (Converted Structure)";
+                    String name = FileUtils.getNameWithoutExtension(this.schematicFile.getFileName().toString()) + " (Converted Structure)";
                     return this.readFromVanillaStructure(name, nbt);
                 }
                 else if (schematicType == FileType.LITEMATICA_SCHEMATIC)
@@ -2362,14 +2369,14 @@ public class LitematicaSchematic
         }
         catch (Exception e)
         {
-            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.exception", this.schematicFile.getAbsolutePath());
-            Litematica.logger.error(e);
+            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.exception", this.schematicFile.toAbsolutePath());
+            Litematica.LOGGER.error(e);
         }
 
         return false;
     }
 
-    public static NbtCompound readNbtFromFile(File file)
+    public static NbtCompound readNbtFromFile(Path file)
     {
         if (file == null)
         {
@@ -2377,46 +2384,29 @@ public class LitematicaSchematic
             return null;
         }
 
-        if (file.exists() == false || file.canRead() == false)
+        if (Files.exists(file) == false || Files.isReadable(file) == false)
         {
-            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.cant_read", file.getAbsolutePath());
+            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.cant_read", file.toAbsolutePath());
             return null;
         }
 
-        return NbtUtils.readNbtFromFile(file);
+        return NbtUtils.readNbtFromFileAsPath(file);
     }
 
-    public static NbtCompound readNbtFromPath(Path path)
-    {
-        if (path == null)
-        {
-            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.no_file");
-            return null;
-        }
-
-        if (Files.exists(path) == false || Files.isReadable(path) == false)
-        {
-            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.cant_read", path.toString());
-            return null;
-        }
-
-        return NbtUtils.readNbtFromFileAsPath(path);
-    }
-
-    public static File fileFromDirAndName(File dir, String fileName, FileType schematicType)
+    public static Path fileFromDirAndName(Path dir, String fileName, FileType schematicType)
     {
         if (fileName.endsWith(FILE_EXTENSION) == false && schematicType == FileType.LITEMATICA_SCHEMATIC)
         {
             fileName = fileName + FILE_EXTENSION;
         }
 
-        return new File(dir, fileName);
+        return dir.resolve(fileName);
     }
 
     @Nullable
-    public static SchematicMetadata readMetadataFromFile(File dir, String fileName)
+    public static SchematicMetadata readMetadataFromFile(Path dir, String fileName)
     {
-        File file = new File(dir, fileName);
+        Path file = dir.resolve(fileName);
         FileType type = FileType.fromFile(file);
 
         if (type == FileType.INVALID)
@@ -2477,9 +2467,9 @@ public class LitematicaSchematic
     }
 
     @Nullable
-    public static Pair<SchematicSchema, SchematicMetadata> readMetadataAndVersionFromFile(File dir, String fileName)
+    public static Pair<SchematicSchema, SchematicMetadata> readMetadataAndVersionFromFile(Path dir, String fileName)
     {
-        File file = new File(dir, fileName);
+        Path file = dir.resolve(fileName);
         FileType type = FileType.fromFile(file);
 
         if (type == FileType.INVALID)
@@ -2557,9 +2547,9 @@ public class LitematicaSchematic
     }
 
     @Nullable
-    public static SchematicSchema readDataVersionFromFile(File dir, String fileName)
+    public static SchematicSchema readDataVersionFromFile(Path dir, String fileName)
     {
-        File file = new File(dir, fileName);
+        Path file = dir.resolve(fileName);
         FileType type = FileType.fromFile(file);
 
         if (type == FileType.INVALID)
@@ -2623,15 +2613,15 @@ public class LitematicaSchematic
     }
 
     @Nullable
-    public static LitematicaSchematic createFromFile(File dir, String fileName)
+    public static LitematicaSchematic createFromFile(Path dir, String fileName)
     {
         return createFromFile(dir, fileName, FileType.LITEMATICA_SCHEMATIC);
     }
 
     @Nullable
-    public static LitematicaSchematic createFromFile(File dir, String fileName, FileType schematicType)
+    public static LitematicaSchematic createFromFile(Path dir, String fileName, FileType schematicType)
     {
-        File file = fileFromDirAndName(dir, fileName, schematicType);
+        Path file = fileFromDirAndName(dir, fileName, schematicType);
         LitematicaSchematic schematic = new LitematicaSchematic(file, schematicType);
 
         return schematic.readFromFile(schematicType) ? schematic : null;

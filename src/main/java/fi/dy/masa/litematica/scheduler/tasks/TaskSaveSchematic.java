@@ -1,12 +1,14 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import javax.annotation.Nullable;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
+import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
@@ -24,7 +26,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
     private final BlockPos origin;
     private final ImmutableMap<String, Box> subRegions;
     private final Set<UUID> existingEntities = new HashSet<>();
-    @Nullable private final File dir;
+    @Nullable private final Path dir;
     @Nullable private final String fileName;
     private final LitematicaSchematic.SchematicSaveInfo info;
     private final boolean overrideFile;
@@ -35,7 +37,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         this(null, null, schematic, area, info, false);
     }
 
-    public TaskSaveSchematic(@Nullable File dir, @Nullable String fileName, LitematicaSchematic schematic, AreaSelection area, LitematicaSchematic.SchematicSaveInfo info, boolean overrideFile)
+    public TaskSaveSchematic(@Nullable Path dir, @Nullable String fileName, LitematicaSchematic schematic, AreaSelection area, LitematicaSchematic.SchematicSaveInfo info, boolean overrideFile)
     {
         super("litematica.gui.label.task_name.save_schematic");
 

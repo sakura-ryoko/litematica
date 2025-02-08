@@ -1,10 +1,8 @@
 package fi.dy.masa.litematica.gui;
 
-import java.io.File;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.GuiSchematicManager.ExportType;
-import fi.dy.masa.litematica.util.FileType;
-import fi.dy.masa.litematica.util.WorldUtils;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
@@ -12,15 +10,19 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntryType;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiSchematicManager.ExportType;
+import fi.dy.masa.litematica.util.FileType;
+import fi.dy.masa.litematica.util.WorldUtils;
 
 public class GuiSchematicSaveExported extends GuiSchematicSaveBase
 {
     private final ExportType exportType;
     private final DirectoryEntryType type;
-    private final File dirSource;
+    private final Path dirSource;
     private final String inputFileName;
 
-    public GuiSchematicSaveExported(DirectoryEntryType type, File dirSource, String inputFileName, ExportType exportType)
+    public GuiSchematicSaveExported(DirectoryEntryType type, Path dirSource, String inputFileName, ExportType exportType)
     {
         super(null);
 
@@ -40,7 +42,7 @@ public class GuiSchematicSaveExported extends GuiSchematicSaveBase
     }
 
     @Override
-    public File getDefaultDirectory()
+    public Path getDefaultDirectory()
     {
         return DataManager.getSchematicsBaseDirectory();
     }
@@ -67,12 +69,12 @@ public class GuiSchematicSaveExported extends GuiSchematicSaveBase
         {
             if (this.type == ButtonType.SAVE)
             {
-                File dir = this.gui.getListWidget().getCurrentDirectory();
+                Path dir = this.gui.getListWidget().getCurrentDirectory();
                 String fileName = this.gui.getTextFieldText();
 
-                if (dir.isDirectory() == false)
+                if (!Files.isDirectory(dir))
                 {
-                    this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_save.invalid_directory", dir.getAbsolutePath());
+                    this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_save.invalid_directory", dir.toAbsolutePath());
                     return;
                 }
 
@@ -84,11 +86,11 @@ public class GuiSchematicSaveExported extends GuiSchematicSaveBase
 
                 if (this.gui.type == DirectoryEntryType.FILE)
                 {
-                    File inDir = this.gui.dirSource;
+                    Path inDir = this.gui.dirSource;
                     String inFile = this.gui.inputFileName;
                     boolean override = GuiBase.isShiftDown();
                     boolean ignoreEntities = this.gui.checkboxIgnoreEntities.isChecked();
-                    FileType fileType = FileType.fromFile(new File(inDir, inFile));
+                    FileType fileType = FileType.fromFile(inDir.resolve(inFile));
 
                     if (fileType == FileType.LITEMATICA_SCHEMATIC)
                     {
