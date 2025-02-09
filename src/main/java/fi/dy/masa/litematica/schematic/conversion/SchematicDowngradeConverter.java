@@ -41,6 +41,7 @@ public class SchematicDowngradeConverter
                 case "HandItems" -> newEntity.put("HandItems", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 2));
                 case "Item" -> newEntity.put("Item", processEntityItem(oldEntity.get(key), minecraftDataVersion, registryManager));
                 case "Inventory" -> newEntity.put("Inventory", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 1));
+                // 1.21.5+ tags
                 case "equipment" -> newEntity.copyFrom(processEntityEquipment(oldEntity.get(key), minecraftDataVersion, registryManager));
                 case "drop_chances" -> newEntity.copyFrom(processEntityDropChances(oldEntity.get(key)));
                 case "fall_distance" -> newEntity.putFloat("FallDistance", oldEntity.getFloat(key));
