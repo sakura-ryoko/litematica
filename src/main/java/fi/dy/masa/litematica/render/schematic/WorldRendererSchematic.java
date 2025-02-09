@@ -2,11 +2,6 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.util.*;
 import javax.annotation.Nullable;
-
-import net.minecraft.client.render.block.BlockModelRenderer;
-import net.minecraft.client.render.model.BakedModelManager;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.profiler.Profilers;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 
@@ -15,7 +10,6 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
@@ -34,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
 
 import fi.dy.masa.malilib.util.EntityUtils;
@@ -414,7 +409,7 @@ public class WorldRendererSchematic
         profiler.pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler)
+    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, ShaderProgram shader)
     {
         RenderSystem.assertOnRenderThread();
         profiler.push("render_block_layer_" + renderLayer.toString());
@@ -469,7 +464,9 @@ public class WorldRendererSchematic
         int increment = reverse ? -1 : 1;
         int count = 0;
 
-        ShaderProgram shader = RenderSystem.getShader();
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        Fog orgFog = RenderSystem.getShaderFog();
+        //ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
 
         boolean renderAsTranslucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
@@ -485,9 +482,10 @@ public class WorldRendererSchematic
         //shader.initializeUniforms(VertexFormat.DrawMode.QUADS, matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         RenderSystem.setupShaderLights(shader);
+        RenderSystem.setShaderFog(Fog.DUMMY);
         shader.bind();
 
-        GlUniform chunkOffsetUniform = shader.modelOffset;
+        //GlUniform chunkOffsetUniform = shader.modelOffset;
         boolean startedDrawing = false;
 
         for (int i = startIndex; i != stopIndex; i += increment)
@@ -509,15 +507,21 @@ public class WorldRendererSchematic
                     continue;
                 }
 
+                /*
                 if (chunkOffsetUniform != null)
                 {
                     chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
                     chunkOffsetUniform.upload();
                 }
+                 */
 
+                matrix4fStack.pushMatrix();
+                matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                 buffer.bind();
-                buffer.draw();
+                //buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
+                buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
                 VertexBuffer.unbind();
+                matrix4fStack.popMatrix();
                 startedDrawing = true;
                 ++count;
             }
@@ -528,10 +532,12 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
+        /*
         if (chunkOffsetUniform != null)
         {
             chunkOffsetUniform.set(0.0F, 0.0F, 0.0F);
         }
+         */
 
         shader.unbind();
 
@@ -542,6 +548,7 @@ public class WorldRendererSchematic
 
         VertexBuffer.unbind();
         renderLayer.endDrawing();
+        RenderSystem.setShaderFog(orgFog);
 
         profiler.pop();
         profiler.pop();
@@ -607,10 +614,8 @@ public class WorldRendererSchematic
         }
 
         ShaderProgram originalShader = RenderSystem.getShader();
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
-        //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
 
-        ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
 
@@ -635,7 +640,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrix4fStack, projMatrix, shader);
+                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
 
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();
@@ -646,7 +651,6 @@ public class WorldRendererSchematic
         renderLayer.endDrawing();
 
         RenderSystem.setShader(originalShader);
-        //RenderSystem.setShader(() -> originalShader);
         RenderSystem.disableBlend();
 
         profiler.pop();
