@@ -409,7 +409,7 @@ public class WorldRendererSchematic
         profiler.pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler)
+    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, ShaderProgram shader)
     {
         RenderSystem.assertOnRenderThread();
         profiler.push("render_block_layer_" + renderLayer.toString());
@@ -466,7 +466,7 @@ public class WorldRendererSchematic
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         Fog orgFog = RenderSystem.getShaderFog();
-        ShaderProgram shader = RenderSystem.getShader();
+        //ShaderProgram shader = RenderSystem.getShader();
         //BufferRenderer.reset();
 
         boolean renderAsTranslucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
@@ -485,7 +485,6 @@ public class WorldRendererSchematic
         RenderSystem.setShaderFog(Fog.DUMMY);
         shader.bind();
 
-        // FIXME
         //GlUniform chunkOffsetUniform = shader.modelOffset;
         boolean startedDrawing = false;
 
@@ -508,7 +507,6 @@ public class WorldRendererSchematic
                     continue;
                 }
 
-                // FIXME
                 /*
                 if (chunkOffsetUniform != null)
                 {
@@ -534,7 +532,6 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
-        // FIXME
         /*
         if (chunkOffsetUniform != null)
         {
@@ -618,7 +615,6 @@ public class WorldRendererSchematic
 
         ShaderProgram originalShader = RenderSystem.getShader();
         ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
-        //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         //BufferRenderer.reset();
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
@@ -655,7 +651,6 @@ public class WorldRendererSchematic
         renderLayer.endDrawing();
 
         RenderSystem.setShader(originalShader);
-        //RenderSystem.setShader(() -> originalShader);
         RenderSystem.disableBlend();
 
         profiler.pop();
