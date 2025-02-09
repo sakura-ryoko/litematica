@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.schematic.conversion;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
+import net.minecraft.entity.EquipmentDropChances;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -40,11 +41,99 @@ public class SchematicDowngradeConverter
                 case "HandItems" -> newEntity.put("HandItems", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 2));
                 case "Item" -> newEntity.put("Item", processEntityItem(oldEntity.get(key), minecraftDataVersion, registryManager));
                 case "Inventory" -> newEntity.put("Inventory", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 1));
+                case "equipment" -> newEntity.copyFrom(processEntityEquipment(oldEntity.get(key), minecraftDataVersion, registryManager));
+                case "drop_chances" -> newEntity.copyFrom(processEntityDropChances(oldEntity.get(key)));
+                case "fall_distance" -> newEntity.putFloat("FallDistance", oldEntity.getFloat(key));
                 default -> newEntity.put(key, oldEntity.get(key));
             }
         }
 
         return newEntity;
+    }
+
+    private static NbtCompound processEntityDropChances(NbtElement nbtElement)
+    {
+        NbtCompound oldTags = (NbtCompound) nbtElement;
+        NbtCompound newTags = new NbtCompound();
+        NbtList handDrops = new NbtList();
+        NbtList armorDrops = new NbtList();
+
+        for (int i = 0; i < 2; i++)
+        {
+            handDrops.add(NbtFloat.of(EquipmentDropChances.DEFAULT_CHANCE));
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            armorDrops.add(NbtFloat.of(EquipmentDropChances.DEFAULT_CHANCE));
+        }
+
+        for (String key : oldTags.getKeys())
+        {
+            switch (key)
+            {
+                case "mainhand" -> handDrops.set(0, oldTags.get(key));
+                case "offhand" -> handDrops.set(1, oldTags.get(key));
+                case "feet" -> armorDrops.set(0, oldTags.get(key));
+                case "legs" -> armorDrops.set(1, oldTags.get(key));
+                case "chest" -> armorDrops.set(2, oldTags.get(key));
+                case "head" -> armorDrops.set(3, oldTags.get(key));
+                // Not used
+                //case "body" -> newTags.put("body_armor_drop_chance", oldTags.get(key));
+                //case "saddle" -> newTags.put("SaddleItem", oldTags.get(key));
+                default -> {}
+            }
+        }
+
+        newTags.put("HandDropChances", handDrops);
+        newTags.put("ArmorDropChances", armorDrops);
+
+        return newTags;
+    }
+
+    private static NbtCompound processEntityEquipment(NbtElement equipmentEntries, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
+    {
+        NbtCompound oldTags = (NbtCompound) equipmentEntries;
+        NbtCompound newTags = new NbtCompound();
+        NbtList newHandItems = new NbtList();
+        NbtList newArmorItems = new NbtList();
+
+        for (int i = 0; i < 2; i++)
+        {
+            newHandItems.add(new NbtCompound());
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            newArmorItems.add(new NbtCompound());
+        }
+
+        for (String key : oldTags.getKeys())
+        {
+            switch (key)
+            {
+                case "mainhand" -> newHandItems.set(0, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "offhand" -> newHandItems.set(1, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "feet" -> newArmorItems.set(0, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "legs" -> newArmorItems.set(1, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "chest" -> newArmorItems.set(2, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "head" -> newArmorItems.set(3, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "body" ->
+                {
+                    // Why is this duplicated in 1.20.4?  the world may never know...
+                    NbtElement ele = processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager);
+                    newArmorItems.set(2, ele);
+                    newTags.put("ArmorItem", ele);
+                }
+                case "saddle" -> newTags.put("SaddleItem", processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                default -> {}
+            }
+        }
+
+        newTags.put("HandItems", newHandItems);
+        newTags.put("ArmorItems", newArmorItems);
+
+        return newTags;
     }
 
     private static NbtElement processEntityItem(NbtElement itemEntry, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
@@ -156,6 +245,7 @@ public class SchematicDowngradeConverter
                 newMod.putDouble("Amount", modEntry.getDouble("amount"));
                 newMod.putString("Name", modiferIdToName(modEntry.getString("id")));
                 newMod.putInt("Operation", modifierOperationToInt(modEntry.getString("operation")));
+                newMod.putUuid("UUID", modEntry.contains("UUID") ? modEntry.getUuid("UUID") : UUID.randomUUID());
                 newMods.add(newMod);
             }
             if (newMods.isEmpty() == false)
