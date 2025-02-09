@@ -3,7 +3,7 @@ package fi.dy.masa.litematica.schematic.conversion;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.EquipmentDropChances;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -41,6 +41,7 @@ public class SchematicDowngradeConverter
                 case "HandItems" -> newEntity.put("HandItems", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 2));
                 case "Item" -> newEntity.put("Item", processEntityItem(oldEntity.get(key), minecraftDataVersion, registryManager));
                 case "Inventory" -> newEntity.put("Inventory", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 1));
+                // 1.21.5+ tags
                 case "equipment" -> newEntity.copyFrom(processEntityEquipment(oldEntity.get(key), minecraftDataVersion, registryManager));
                 case "drop_chances" -> newEntity.copyFrom(processEntityDropChances(oldEntity.get(key)));
                 case "fall_distance" -> newEntity.putFloat("FallDistance", oldEntity.getFloat(key));
@@ -60,12 +61,12 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < 2; i++)
         {
-            handDrops.add(NbtFloat.of(EquipmentDropChances.DEFAULT_CHANCE));
+            handDrops.add(NbtFloat.of(MobEntity.DEFAULT_DROP_CHANCE));
         }
 
         for (int i = 0; i < 4; i++)
         {
-            armorDrops.add(NbtFloat.of(EquipmentDropChances.DEFAULT_CHANCE));
+            armorDrops.add(NbtFloat.of(MobEntity.DEFAULT_DROP_CHANCE));
         }
 
         for (String key : oldTags.getKeys())
