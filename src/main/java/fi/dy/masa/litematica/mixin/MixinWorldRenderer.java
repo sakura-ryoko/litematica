@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
@@ -42,8 +43,10 @@ public abstract class MixinWorldRenderer
                 this.profiler = Profilers.get();
             }
 
+            this.profiler.push(Reference.MOD_ID+"_world_renderer");
             LitematicaRenderer.getInstance().loadRenderers(this.profiler);
             SchematicWorldRefresher.INSTANCE.updateAll();
+            this.profiler.pop();
         }
     }
 
@@ -56,7 +59,9 @@ public abstract class MixinWorldRenderer
             this.profiler = Profilers.get();
         }
 
+        this.profiler.push(Reference.MOD_ID+"_world_renderer");
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
+        this.profiler.pop();
     }
 
     @Inject(method = "render",
@@ -80,6 +85,9 @@ public abstract class MixinWorldRenderer
         {
             this.profiler = Profilers.get();
         }
+
+        this.profiler.push(Reference.MOD_ID+"_world_renderer");
+
         if (renderLayer == RenderLayer.getSolid())
         {
             LitematicaRenderer.getInstance().piecewiseRenderSolid(viewMatrix, posMatrix, this.profiler);
@@ -97,6 +105,8 @@ public abstract class MixinWorldRenderer
             LitematicaRenderer.getInstance().piecewiseRenderTranslucent(viewMatrix, posMatrix, this.profiler);
             LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
         }
+
+        this.profiler.pop();
     }
 
     @Inject(method = "renderEntities",
@@ -106,7 +116,14 @@ public abstract class MixinWorldRenderer
         if (this.posMatrix != null &&
             this.ticks != null)
         {
+            if (this.profiler == null)
+            {
+                this.profiler = Profilers.get();
+            }
+
+            this.profiler.push(Reference.MOD_ID+"_world_renderer");
             LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickProgress(false), this.profiler);
+            this.profiler.pop();
             this.posMatrix = null;
             this.ticks = null;
             this.profiler = null;

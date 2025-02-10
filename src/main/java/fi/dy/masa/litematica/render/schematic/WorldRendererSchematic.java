@@ -170,7 +170,7 @@ public class WorldRendererSchematic
             {
                 profiler = Profilers.get();
             }
-            profiler.push("litematica_load_renderers");
+            profiler.push("load_renderers");
 
             if (this.renderDispatcher == null)
             {
@@ -361,10 +361,10 @@ public class WorldRendererSchematic
 
     public void updateChunks(long finishTimeNano, Profiler profiler)
     {
-        profiler.push("litematica_run_chunk_uploads");
+        profiler.push("run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 
-        profiler.swap("litematica_check_update");
+        profiler.swap("check_update");
 
         if (this.chunksToUpdate.isEmpty() == false)
         {
@@ -378,12 +378,12 @@ public class WorldRendererSchematic
 
                 if (renderChunk.needsImmediateUpdate())
                 {
-                    profiler.push("litematica_update_now");
+                    profiler.push("update_now");
                     flag = this.renderDispatcher.updateChunkNow(renderChunk);
                 }
                 else
                 {
-                    profiler.push("litematica_update_later");
+                    profiler.push("update_later");
                     flag = this.renderDispatcher.updateChunkLater(renderChunk);
                 }
 

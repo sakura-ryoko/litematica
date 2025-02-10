@@ -14,6 +14,7 @@ import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.profiler.Profiler;
 
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -63,8 +64,9 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
         this.useWorldEdit = Configs.Generic.COMMAND_USE_WORLDEDIT.getBooleanValue();
     }
 
-    protected boolean executeMultiPhase()
+    protected boolean executeMultiPhase(Profiler profiler)
     {
+        profiler.push("chunk_multi_phase");
         this.taskStartTimeForCurrentTick = Util.getMeasuringTimeNano();
         this.sentCommandsThisTick = 0;
         this.processedChunksThisTick = 0;
@@ -77,11 +79,13 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
         if (this.phase == TaskPhase.GAME_RULE_PROBE)
         {
             this.probeTask.run();
+            profiler.pop();
             return false;
         }
 
         if (this.currentChunkPos != null && this.canProcessChunk(this.currentChunkPos) == false)
         {
+            profiler.pop();
             return false;
         }
 
@@ -119,6 +123,7 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
 
             if (this.phase == TaskPhase.FINISHED)
             {
+                profiler.pop();
                 return true;
             }
         }
@@ -128,6 +133,7 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
             this.updateInfoHudLines();
         }
 
+        profiler.pop();
         return false;
     }
 

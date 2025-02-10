@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.Profilers;
+
+import fi.dy.masa.litematica.Reference;
 
 public class TaskScheduler
 {
-    private static final TaskScheduler INSTANCE_CLIENT = new TaskScheduler();
-    private static final TaskScheduler INSTANCE_SERVER = new TaskScheduler();
+    private static final TaskScheduler INSTANCE_CLIENT = new TaskScheduler(false);
+    private static final TaskScheduler INSTANCE_SERVER = new TaskScheduler(true);
 
-    private List<ITask> tasks = new ArrayList<>();
-    private List<ITask> tasksToAdd = new ArrayList<>();
+    private final List<ITask> tasks = new ArrayList<>();
+    private final List<ITask> tasksToAdd = new ArrayList<>();
+    private final boolean isServer;
 
-    private TaskScheduler()
+    private TaskScheduler(boolean isServer)
     {
+        this.isServer = isServer;
     }
 
     public static TaskScheduler getInstanceClient()
@@ -47,6 +53,9 @@ public class TaskScheduler
 
     public void runTasks()
     {
+        Profiler profiler = Profilers.get();
+
+        profiler.push(Reference.MOD_ID+"_run_tasks");
         synchronized (this)
         {
             if (this.tasks.isEmpty() == false)
@@ -62,7 +71,7 @@ public class TaskScheduler
                     }
                     else if (task.canExecute() && task.getTimer().tick())
                     {
-                        finished = task.execute();
+                        finished = task.execute(profiler);
                     }
 
                     if (finished)
@@ -79,6 +88,8 @@ public class TaskScheduler
                 this.addNewTasks();
             }
         }
+
+        profiler.pop();
     }
 
     private void addNewTasks()

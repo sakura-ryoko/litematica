@@ -28,6 +28,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
@@ -96,7 +97,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     }
 
     @Override
-    public boolean execute()
+    public boolean execute(Profiler profiler)
     {
         // Nothing to do
         if (this.ignoreBlocks && this.ignoreEntities)
@@ -104,7 +105,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             return true;
         }
 
-        return this.executeMultiPhase();
+        return this.executeMultiPhase(profiler);
     }
 
     @Override

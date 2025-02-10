@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import com.google.common.collect.ArrayListMultimap;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.LayerMode;
@@ -43,9 +44,9 @@ public abstract class TaskProcessChunkBase extends TaskBase
     }
 
     @Override
-    public boolean execute()
+    public boolean execute(Profiler profiler)
     {
-        return this.executeForAllPendingChunks();
+        return this.executeForAllPendingChunks(profiler);
     }
 
     @Override
@@ -75,8 +76,10 @@ public abstract class TaskProcessChunkBase extends TaskBase
         return true;
     }
 
-    protected boolean executeForAllPendingChunks()
+    protected boolean executeForAllPendingChunks(Profiler profiler)
     {
+        profiler.push("process_chunks");
+
         Iterator<ChunkPos> iterator = this.pendingChunks.iterator();
         int processed = 0;
 
@@ -84,11 +87,13 @@ public abstract class TaskProcessChunkBase extends TaskBase
         {
             ChunkPos pos = iterator.next();
 
+            profiler.push("process_chunk");
             if (this.canProcessChunk(pos) && this.processChunk(pos))
             {
                 iterator.remove();
                 ++processed;
             }
+            profiler.pop();
         }
 
         if (processed > 0)
@@ -98,6 +103,7 @@ public abstract class TaskProcessChunkBase extends TaskBase
 
         this.finished = this.pendingChunks.isEmpty();
 
+        profiler.pop();
         return this.finished;
     }
 

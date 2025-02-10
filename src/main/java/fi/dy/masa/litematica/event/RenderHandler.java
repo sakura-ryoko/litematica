@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.event;
 
+import java.util.function.Supplier;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -29,19 +30,19 @@ public class RenderHandler implements IRenderer
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
-            profiler.push(Reference.MOD_ID+"_overlay_boxes");
-            OverlayRenderer.getInstance().renderBoxes(posMatrix);
+            profiler.push("overlay_boxes");
+            OverlayRenderer.getInstance().renderBoxes(posMatrix, profiler);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
-                profiler.swap(Reference.MOD_ID+"_overlay_mismatches");
-                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix);
+                profiler.swap("overlay_mismatches");
+                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix, profiler);
             }
 
             if (DataManager.getToolMode() == ToolMode.REBUILD)
             {
-                profiler.swap(Reference.MOD_ID+"_overlay_targeting");
-                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix);
+                profiler.swap("overlay_targeting");
+                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix, profiler);
             }
 
             profiler.pop();
@@ -49,11 +50,17 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
+    public Supplier<String> getProfilerSectionSupplier()
+    {
+        return () -> Reference.MOD_ID+"_render_handler";
+    }
+
+    @Override
     public void onRenderGameOverlayPostAdvanced(DrawContext drawContext, float partialTicks, Profiler profiler, MinecraftClient mc)
     {
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
-            profiler.push(Reference.MOD_ID+"_overlay_hud");
+            profiler.push("overlay_hud");
             // The Info HUD renderers can decide if they want to be rendered in GUIs
             InfoHud.getInstance().renderHud(drawContext);
 
@@ -62,14 +69,14 @@ public class RenderHandler implements IRenderer
                 if (mc.options.hudHidden == false)
                 {
                     ToolHud.getInstance().renderHud(drawContext);
-                    profiler.swap(Reference.MOD_ID +"_overlay_hoverinfo");
-                    OverlayRenderer.getInstance().renderHoverInfo(mc, drawContext);
+                    profiler.swap("overlay_hover_info");
+                    OverlayRenderer.getInstance().renderHoverInfo(mc, drawContext, profiler);
                 }
 
                 if (GuiSchematicManager.hasPendingPreviewTask())
                 {
-                    profiler.swap(Reference.MOD_ID+"_overlay_previewframe");
-                    OverlayRenderer.getInstance().renderPreviewFrame(mc, drawContext);
+                    profiler.swap("overlay_preview_frame");
+                    OverlayRenderer.getInstance().renderPreviewFrame(mc, drawContext, profiler);
                 }
             }
 
