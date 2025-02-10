@@ -3,7 +3,8 @@
   "package": "fi.dy.masa.litematica.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
-  "client": [
+  "mixins": [
+    "IMixinAbstractBlock",
     "IMixinChunkDeltaUpdateS2CPacket",
     "IMixinEntity",
     "IMixinFenceGateBlock",
@@ -28,9 +29,9 @@
     "MixinClientWorld",
     "MixinDebugHud",
     "MixinHandledScreen",
-    "MixinIntegratedServer",
     "MixinMinecraftClient",
     "MixinMinecraftClient_easyPlace",
+    "MixinMinecraftServer",
     "MixinModelOverrideList",
     "MixinRailBlocks",
     "MixinServerPlayNetworkHandler",

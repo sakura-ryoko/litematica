@@ -12,6 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 
 import fi.dy.masa.litematica.config.Configs;
@@ -96,9 +97,9 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
     }
 
     @Override
-    public boolean execute()
+    public boolean execute(Profiler profiler)
     {
-        return this.executeMultiPhase();
+        return this.executeMultiPhase(profiler);
     }
 
     @Override

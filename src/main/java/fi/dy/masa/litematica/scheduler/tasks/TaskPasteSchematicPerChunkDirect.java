@@ -6,6 +6,8 @@ import com.google.common.collect.ArrayListMultimap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.profiler.Profiler;
+
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.util.SchematicPlacingUtils;
@@ -39,13 +41,15 @@ public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunk
     }
 
     @Override
-    public boolean execute()
+    public boolean execute(Profiler profiler)
     {
         // Nothing to do
         if (this.ignoreBlocks && this.ignoreEntities)
         {
             return true;
         }
+
+        profiler.push("per_chunk_paste");
 
         MinecraftServer server = this.mc.getServer();
         final long vanillaTickTime = server.getTickTimes()[server.getTicks() % 100];
@@ -63,6 +67,8 @@ public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunk
                 break;
             }
 
+            profiler.push("process_chunk");
+
             ChunkPos pos = this.pendingChunks.get(chunkIndex);
 
             if (this.canProcessChunk(pos) && this.processChunk(pos))
@@ -70,16 +76,20 @@ public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunk
                 this.pendingChunks.remove(chunkIndex);
                 --chunkIndex;
             }
+
+            profiler.pop();
         }
 
         if (this.pendingChunks.isEmpty())
         {
             this.finished = true;
+            profiler.pop();
             return true;
         }
 
         this.updateInfoHudLines();
 
+        profiler.pop();
         return false;
     }
 

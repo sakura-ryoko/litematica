@@ -233,7 +233,7 @@ public class LitematicaRenderer
             boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
             float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
 
-            profiler.push("litematica_schematic_overlay");
+            profiler.push("schematic_overlay");
             RenderSystem.disableCull();
             //TODO: RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
             RenderSystem.enablePolygonOffset();
@@ -274,14 +274,13 @@ public class LitematicaRenderer
 
             if (this.renderPiecewiseSchematic)
             {
-                profiler.push("litematica_culling");
-
+                profiler.push("culling");
                 this.calculateFinishTime();
 
-                profiler.swap("litematica_terrain_setup");
+                profiler.swap("terrain_setup");
                 worldRenderer.setupTerrain(this.getCamera(), frustum, this.frameCount++, this.mc.player.isSpectator(), profiler);
 
-                profiler.swap("litematica_update_chunks");
+                profiler.swap("update_chunks");
                 worldRenderer.updateChunks(this.finishTimeNano, profiler);
 
                 profiler.pop();
@@ -295,7 +294,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("litematica_blocks_solid");
+            profiler.push("blocks_solid");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -320,7 +319,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("litematica_blocks_cutout_mipped");
+            profiler.push("blocks_cutout_mipped");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -345,7 +344,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("litematica_blocks_cutout");
+            profiler.push("blocks_cutout");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -370,7 +369,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("litematica_translucent");
+            profiler.push("translucent");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -395,7 +394,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseSchematic)
         {
-            profiler.push("litematica_overlay");
+            profiler.push("schematic_overlay");
 
             Framebuffer fb = MinecraftClient.isFabulousGraphicsOrBetter() ? this.mc.worldRenderer.getTranslucentFramebuffer() : null;
 
@@ -421,7 +420,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("litematica_entities");
+            profiler.push("entities");
 
             this.getWorldRenderer().renderEntities(this.getCamera(), this.frustum, posMatrix, partialTicks, profiler);
 
