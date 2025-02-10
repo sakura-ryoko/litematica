@@ -144,7 +144,7 @@ public class WorldUtils
         placementSettings.setIgnoreEntities(ignoreEntities);
         schematic.placeSchematicDirectlyToChunks(world, BlockPos.ORIGIN, placementSettings);
 
-        String subRegionName = FileUtils.getNameWithoutExtension(inputFileName) + " (Converted Schematic)";
+        String subRegionName = FileNameUtils.getFileNameWithoutExtension(inputFileName) + " (Converted Schematic)";
         AreaSelection area = new AreaSelection();
         area.setName(subRegionName);
         subRegionName = area.createNewSubRegionBox(BlockPos.ORIGIN, subRegionName);

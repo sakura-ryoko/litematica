@@ -3,14 +3,15 @@ package fi.dy.masa.litematica.gui.widgets;
 import java.util.Collection;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
+
+import fi.dy.masa.malilib.gui.LeftRight;
+import fi.dy.masa.malilib.gui.widgets.WidgetListBase;
+import fi.dy.masa.malilib.gui.widgets.WidgetSearchBar;
+import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiSchematicPlacementsList;
 import fi.dy.masa.litematica.gui.Icons;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.malilib.gui.LeftRight;
-import fi.dy.masa.malilib.gui.widgets.WidgetListBase;
-import fi.dy.masa.malilib.gui.widgets.WidgetSearchBar;
-import fi.dy.masa.malilib.util.FileUtils;
 
 public class WidgetListSchematicPlacements extends WidgetListBase<SchematicPlacement, WidgetSchematicPlacement>
 {
@@ -42,7 +43,7 @@ public class WidgetListSchematicPlacements extends WidgetListBase<SchematicPlace
     {
         if (entry.getSchematic().getFile() != null)
         {
-            String fileName = FileUtils.getNameWithoutExtension(entry.getSchematic().getFile().getName().toLowerCase());
+            String fileName = FileNameUtils.getFileNameWithoutExtension(entry.getSchematic().getFile().getName().toLowerCase());
             return ImmutableList.of(entry.getName().toLowerCase(), fileName);
         }
         else
