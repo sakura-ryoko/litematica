@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.gui.GuiSchematicVerifier;
 import fi.dy.masa.litematica.gui.GuiSchematicVerifier.BlockMismatchEntry;
 import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.BlockMismatch;
@@ -89,6 +90,10 @@ public class WidgetListSchematicVerificationResults extends WidgetListBase<Block
         if (type == MismatchType.ALL)
         {
             this.addEntriesForType(MismatchType.WRONG_BLOCK);
+            if (Configs.Generic.ENABLE_DIFFERENT_BLOCKS.getBooleanValue())
+            {
+                this.addEntriesForType(MismatchType.DIFF_BLOCK);
+            }
             this.addEntriesForType(MismatchType.WRONG_STATE);
             this.addEntriesForType(MismatchType.EXTRA);
             this.addEntriesForType(MismatchType.MISSING);

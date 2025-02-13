@@ -116,6 +116,24 @@ public class RenderUtils
         fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
     }
 
+    public static void drawBlockBoundingBoxOutlinesBatchedLines(BlockPos pos, BlockPos relPos, Color4f color,
+                                                                double expand, BufferBuilder buffer)
+    {
+        Vec3d cameraPos = relPos.toCenterPos();
+        final double dx = cameraPos.x;
+        final double dy = cameraPos.y;
+        final double dz = cameraPos.z;
+
+        float minX = (float) (pos.getX() - dx - expand);
+        float minY = (float) (pos.getY() - dy - expand);
+        float minZ = (float) (pos.getZ() - dz - expand);
+        float maxX = (float) (pos.getX() - dx + expand + 1);
+        float maxY = (float) (pos.getY() - dy + expand + 1);
+        float maxZ = (float) (pos.getZ() - dz + expand + 1);
+
+        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
+    }
+
     public static void drawConnectingLineBatchedLines(BlockPos pos1, BlockPos pos2, boolean center,
                                                       Color4f color, BufferBuilder buffer, MinecraftClient mc)
     {
@@ -571,7 +589,7 @@ public class RenderUtils
         catch (Exception ignore) {}
     }
 
-    private static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
+    public static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
     {
         final int size = quads.size();
 
@@ -581,7 +599,7 @@ public class RenderUtils
         }
     }
 
-    private static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
+    public static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
     {
         final int x = pos.getX();
         final int y = pos.getY();

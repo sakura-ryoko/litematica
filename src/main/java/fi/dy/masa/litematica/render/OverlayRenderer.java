@@ -34,7 +34,6 @@ import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.game.BlockUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.compat.jade.JadeCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -451,10 +450,7 @@ public class OverlayRenderer
                 ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
                 ctx.reset();
             }
-            catch (Exception e)
-            {
-                Litematica.LOGGER.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 1) (Error: {})", e.getLocalizedMessage());
-            }
+            catch (Exception ignored) { }
 
             profiler.swap("outlines");
 
@@ -463,6 +459,7 @@ public class OverlayRenderer
             RenderUtils.startDrawingLines();
              */
             ctx.start(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+            buffer = ctx.getBuilder();
 
             RenderSystem.lineWidth(6f);
             RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(lookPos, lookedEntry.type.getColor(), 0.002, buffer, this.mc);
@@ -479,10 +476,7 @@ public class OverlayRenderer
             ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
             ctx.reset();
         }
-        catch (Exception e)
-        {
-            Litematica.LOGGER.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 2) (Error: {})", e.getLocalizedMessage());
-        }
+        catch (Exception ignored) { }
 
         profiler.swap("sides");
         if (Configs.Visuals.RENDER_ERROR_MARKER_SIDES.getBooleanValue())
@@ -492,6 +486,7 @@ public class OverlayRenderer
 
             //buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
             ctx.start(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            buffer = ctx.getBuilder();
 
             float alpha = (float) Configs.InfoOverlays.VERIFIER_ERROR_HILIGHT_ALPHA.getDoubleValue();
 
@@ -513,10 +508,7 @@ public class OverlayRenderer
                 ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
                 ctx.close();
             }
-            catch (Exception e)
-            {
-                Litematica.LOGGER.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 3) (Error: {})", e.getLocalizedMessage());
-            }
+            catch (Exception ignored) { }
 
             RenderSystem.disableBlend();
         }

@@ -93,6 +93,11 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
         x += this.createButton(x, y, -1, ButtonListener.Type.SET_RESULT_MODE_MISSING) + 4;
         x += this.createButton(x, y, -1, ButtonListener.Type.SET_RESULT_MODE_CORRECT) + 4;
 
+        if (Configs.Generic.ENABLE_DIFFERENT_BLOCKS.getBooleanValue())
+        {
+            x += this.createButton(x, y, -1, ButtonListener.Type.SET_RESULT_MODE_DIFF_BLOCKS) + 4;
+        }
+
         y = this.getScreenHeight() - 36;
 
         if (this.verifier.isActive())
@@ -107,8 +112,15 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
             Integer m = this.verifier.getMissingBlocks();
             Integer e = this.verifier.getExtraBlocks();
             Integer c = this.verifier.getCorrectStatesCount();
+            Integer d = this.verifier.getDiffBlocks();
             Integer t = this.verifier.getSchematicTotalBlocks();
-            String str = StringUtils.translate("litematica.gui.label.schematic_verifier.status.done_errors", wb, ws, m, e);
+            String str = StringUtils.translate("litematica.gui.label.schematic_verifier.status.done_errors.no_diff", wb, ws, m, e);
+
+            if (Configs.Generic.ENABLE_DIFFERENT_BLOCKS.getBooleanValue())
+            {
+                str = StringUtils.translate("litematica.gui.label.schematic_verifier.status.done_errors", wb, ws, m, e, d);
+            }
+
             this.addLabel(12, y, 100, 12, 0xFFF0F0F0, str);
             str = StringUtils.translate("litematica.gui.label.schematic_verifier.status.done_correct_total", c, t);
             this.addLabel(12, y + 14, 100, 12, 0xFFF0F0F0, str);
@@ -131,13 +143,25 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
         switch (type)
         {
             case SET_RESULT_MODE_ALL:
-                label = MismatchType.ALL.getDisplayname();
+                if (Configs.Generic.ENABLE_DIFFERENT_BLOCKS.getBooleanValue())
+                {
+                    label = MismatchType.ALL.getDisplayname();
+                }
+                else
+                {
+                    label = StringUtils.translate("litematica.gui.label.schematic_verifier_display_type.all_not_ignored");
+                }
                 enabled = resultMode != MismatchType.ALL;
                 break;
 
             case SET_RESULT_MODE_WRONG_BLOCKS:
                 label = MismatchType.WRONG_BLOCK.getDisplayname();
                 enabled = resultMode != MismatchType.WRONG_BLOCK;
+                break;
+
+            case SET_RESULT_MODE_DIFF_BLOCKS:
+                label = MismatchType.DIFF_BLOCK.getDisplayname();
+                enabled = resultMode != MismatchType.DIFF_BLOCK;
                 break;
 
             case SET_RESULT_MODE_WRONG_STATES:
@@ -410,6 +434,10 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
                     this.parent.setResultMode(MismatchType.WRONG_BLOCK);
                     break;
 
+                case SET_RESULT_MODE_DIFF_BLOCKS:
+                    this.parent.setResultMode(MismatchType.DIFF_BLOCK);
+                    break;
+
                 case SET_RESULT_MODE_WRONG_STATES:
                     this.parent.setResultMode(MismatchType.WRONG_STATE);
                     break;
@@ -491,6 +519,7 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
         {
             SET_RESULT_MODE_ALL,
             SET_RESULT_MODE_WRONG_BLOCKS,
+            SET_RESULT_MODE_DIFF_BLOCKS,
             SET_RESULT_MODE_WRONG_STATES,
             SET_RESULT_MODE_EXTRA,
             SET_RESULT_MODE_MISSING,

@@ -18,6 +18,7 @@ import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -26,7 +27,9 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
@@ -704,6 +707,12 @@ public class WorldRendererSchematic
             this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
         }
         catch (Exception ignored) { }
+    }
+
+    public boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side)
+    {
+        List<BakedQuad> list = model.getQuads(state, side != null ? side : Direction.NORTH, Random.create());
+        return !list.isEmpty();
     }
 
     public BakedModel getModelForState(BlockState state)
