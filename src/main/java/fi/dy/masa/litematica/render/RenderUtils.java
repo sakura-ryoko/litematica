@@ -538,7 +538,7 @@ public class RenderUtils
         catch (Exception ignore) {}
     }
 
-    private static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
+    public static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
     {
         final int size = quads.size();
 
@@ -548,7 +548,7 @@ public class RenderUtils
         }
     }
 
-    private static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
+    public static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
     {
         final int x = pos.getX();
         final int y = pos.getY();

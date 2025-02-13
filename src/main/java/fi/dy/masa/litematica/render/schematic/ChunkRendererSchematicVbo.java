@@ -9,7 +9,6 @@ import com.google.common.collect.Sets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -19,14 +18,12 @@ import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.profiler.Profiler;
@@ -40,10 +37,7 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.render.RenderUtils;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.PlacementPart;
-import fi.dy.masa.litematica.util.OverlayType;
-import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRendererSchematicVbo implements AutoCloseable
@@ -52,6 +46,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected volatile WorldSchematic world;
     protected final WorldRendererSchematic worldRenderer;
+    protected ChunkRendererSchematicOverlay overlayRenderer;
     // UNTHREADED CODE
     protected final ReentrantLock chunkRenderLock;
     protected final ReentrantLock chunkRenderDataLock;
@@ -64,13 +59,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected final Map<RenderLayer, VertexBuffer> vertexBufferBlocks;
     protected final Map<OverlayRenderType, VertexBuffer> vertexBufferOverlay;
     protected final List<IntBoundingBox> boxes = new ArrayList<>();
-    protected final EnumSet<OverlayRenderType> existingOverlays = EnumSet.noneOf(OverlayRenderType.class);
 
     private net.minecraft.util.math.Box boundingBox;
-    protected Color4f overlayColor;
-    protected boolean hasOverlay = false;
-    private boolean ignoreClientWorldFluids;
-
     protected ChunkCacheSchematic schematicWorldView;
     protected ChunkCacheSchematic clientWorldView;
 
@@ -295,8 +285,10 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         LayerRange range = DataManager.getRenderLayerRange();
         BufferAllocatorCache allocators = task.getAllocatorCache();
 
-        this.existingOverlays.clear();
-        this.hasOverlay = false;
+        if (this.overlayRenderer != null)
+        {
+            this.overlayRenderer.rebuild();
+        }
 
         this.getProfiler().swap(Reference.MOD_ID+"_rebuild_chunk_start");
         
@@ -338,6 +330,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     BlockPos posFrom = new BlockPos(box.minX, box.minY, box.minZ);
                     BlockPos posTo   = new BlockPos(box.maxX, box.maxY, box.maxZ);
 
+                    this.overlayRenderer = new ChunkRendererSchematicOverlay(this.worldRenderer, this.schematicWorldView, this.clientWorldView);
+
                     for (BlockPos posMutable : BlockPos.Mutable.iterate(posFrom, posTo))
                     {
                         // Fluid models and the overlay use the VertexConsumer#vertex(x, y, z) method.
@@ -374,11 +368,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     }
                 }
 
-                if (this.hasOverlay)
+                if (this.overlayRenderer != null && this.overlayRenderer.hasOverlay())
                 {
                     this.getProfiler().swap(Reference.MOD_ID+"_rebuild_chunk_overlays");
                     //if (GuiBase.isCtrlDown()) System.out.printf("postRenderOverlays\n");
-                    for (OverlayRenderType type : this.existingOverlays)
+                    for (OverlayRenderType type : this.overlayRenderer.getOverlayTypes())
                     {
                         if (data.isOverlayTypeStarted(type))
                         {
@@ -1004,7 +998,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
-    private void postRenderOverlay(OverlayRenderType type, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
+    private void postRenderOverlay(OverlayRenderType type, float x, float y, float z,
+                                   @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws RuntimeException
     {
         //RenderSystem.applyModelViewMatrix();

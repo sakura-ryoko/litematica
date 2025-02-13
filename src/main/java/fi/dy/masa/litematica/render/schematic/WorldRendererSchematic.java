@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
@@ -772,6 +773,12 @@ public class WorldRendererSchematic
         }
 
         return false;
+    }
+
+    public boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side)
+    {
+        List<BakedQuad> list = model.getQuads(state, side != null ? side : Direction.NORTH, Random.create());
+        return !list.isEmpty();
     }
 
     public BakedModel getModelForState(BlockState state)
