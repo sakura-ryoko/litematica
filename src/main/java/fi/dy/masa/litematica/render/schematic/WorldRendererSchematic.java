@@ -748,8 +748,24 @@ public class WorldRendererSchematic
 
     public boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side)
     {
-        List<BakedQuad> list = model.getQuads(state, side != null ? side : Direction.NORTH, Random.create());
-        return !list.isEmpty();
+        if (side != null)
+        {
+            List<BakedQuad> list = model.getQuads(state, side, Random.create());
+
+            return !list.isEmpty();
+        }
+
+        for (Direction entry : Direction.values())
+        {
+            List<BakedQuad> list = model.getQuads(state, side, Random.create());
+
+            if (!list.isEmpty())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public BakedModel getModelForState(BlockState state)
