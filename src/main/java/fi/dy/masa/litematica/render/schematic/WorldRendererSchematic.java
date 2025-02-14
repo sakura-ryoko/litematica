@@ -172,7 +172,7 @@ public class WorldRendererSchematic
     {
         if (this.hasWorld())
         {
-            this.world.getProfiler().push("litematica_load_renderers");
+            this.world.getProfiler().push("load_renderers");
 
             if (this.renderDispatcher == null)
             {
@@ -293,7 +293,7 @@ public class WorldRendererSchematic
 
             //if (GuiBase.isCtrlDown()) System.out.printf("sorted positions: %d\n", positions.size());
 
-            this.world.getProfiler().swap("iteration");
+            this.world.getProfiler().swap("update_iteration");
 
             //while (queuePositions.isEmpty() == false)
             for (ChunkPos chunkPos : positions)
@@ -323,7 +323,7 @@ public class WorldRendererSchematic
                 }
             }
 
-            this.world.getProfiler().pop(); // fetch
+            this.world.getProfiler().pop(); // fetch (update_sort)
         }
 
         this.world.getProfiler().swap("rebuild_near");
@@ -485,6 +485,7 @@ public class WorldRendererSchematic
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         }
 
+        this.getProfiler().swap("init_shaders");
         initShader(shader, matrices, projMatrix);
         RenderSystem.setupShaderLights(shader);
         shader.bind();
@@ -664,6 +665,16 @@ public class WorldRendererSchematic
                 result = renderType == BlockRenderType.MODEL &&
                        this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
                 BlockModelRendererSchematic.disableCache();
+
+                //System.out.printf("renderBlock(): result [%s]\n", result);
+
+                // TODO --> For testing the Vanilla Block Model Renderer
+                /*
+                BlockModelRenderer.enableBrightnessCache();
+                this.blockRenderManager.renderBlock(state, pos, world, matrixStack, bufferBuilderIn, true, Random.create(state.getRenderingSeed(pos)));
+                result = true;
+                BlockModelRenderer.disableBrightnessCache();
+                 */
 
                 this.getProfiler().pop()
                 return result;
