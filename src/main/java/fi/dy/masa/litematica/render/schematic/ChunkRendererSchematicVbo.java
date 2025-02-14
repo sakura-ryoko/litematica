@@ -297,7 +297,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.hasOverlay = false;
 
         this.getProfiler().swap(Reference.MOD_ID+"_rebuild_chunk_start");
-
+        
         synchronized (this.boxes)
         {
             int minX = posChunk.getX();
