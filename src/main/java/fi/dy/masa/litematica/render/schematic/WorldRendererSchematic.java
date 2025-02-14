@@ -9,9 +9,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.class_10785;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -34,6 +34,7 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
 
+import fi.dy.masa.malilib.render.shader.ShaderProgramKeysTemp;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
@@ -412,7 +413,7 @@ public class WorldRendererSchematic
         profiler.pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, ShaderProgram shader)
+    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, class_10785 shaderKey)
     {
         RenderSystem.assertOnRenderThread();
         profiler.push("render_block_layer_" + renderLayer.toString());
@@ -483,10 +484,10 @@ public class WorldRendererSchematic
         // As per IMS
         //initShader(shader, matrices, projMatrix);
         //shader.initializeUniforms(VertexFormat.DrawMode.QUADS, matrices, projMatrix, MinecraftClient.getInstance().getWindow());
-        shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
-        RenderSystem.setupShaderLights(shader);
+        //shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
+        //RenderSystem.setupShaderLights(shader);
         RenderSystem.setShaderFog(Fog.DUMMY);
-        shader.bind();
+        //shader.bind();
 
         //GlUniform chunkOffsetUniform = shader.modelOffset;
         boolean startedDrawing = false;
@@ -522,7 +523,7 @@ public class WorldRendererSchematic
                 matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                 buffer.bind();
                 //buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
-                buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
+                buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), shaderKey.method_67730());
                 VertexBuffer.unbind();
                 matrix4fStack.popMatrix();
                 startedDrawing = true;
@@ -542,7 +543,7 @@ public class WorldRendererSchematic
         }
          */
 
-        shader.unbind();
+        //shader.unbind();
 
         if (startedDrawing)
         {
@@ -616,8 +617,8 @@ public class WorldRendererSchematic
             RenderSystem.enableDepthTest();
         }
 
-        ShaderProgram originalShader = RenderSystem.getShader();
-        ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        //ShaderProgram originalShader = RenderSystem.getShader();
+        //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
 
         //BufferRenderer.reset();
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
@@ -643,8 +644,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
-
+                    buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderProgramKeysTemp.POSITION_COLOR_LEGACY.method_67730());
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();
                 }
@@ -653,7 +653,7 @@ public class WorldRendererSchematic
 
         renderLayer.endDrawing();
 
-        RenderSystem.setShader(originalShader);
+        //RenderSystem.setShader(originalShader);
         RenderSystem.disableBlend();
 
         profiler.pop();

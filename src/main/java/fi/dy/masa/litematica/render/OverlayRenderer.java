@@ -14,7 +14,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.enums.ChestType;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.entity.Entity;
@@ -30,6 +29,7 @@ import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.render.RenderContext;
+import fi.dy.masa.malilib.render.shader.ShaderProgramKeysTemp;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
@@ -447,7 +447,7 @@ public class OverlayRenderer
                 meshData.close();
                  */
 
-                ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
+                ctx.drawWithShaders(buffer.end(), ShaderProgramKeysTemp.POSITION_COLOR_LEGACY);
                 ctx.reset();
             }
             catch (Exception ignored) { }
@@ -458,8 +458,7 @@ public class OverlayRenderer
             buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
             RenderUtils.startDrawingLines();
              */
-            ctx.start(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-            buffer = ctx.getBuilder();
+            buffer = ctx.start(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
             RenderSystem.lineWidth(6f);
             RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(lookPos, lookedEntry.type.getColor(), 0.002, buffer, this.mc);
@@ -473,7 +472,7 @@ public class OverlayRenderer
             meshData.close();
              */
 
-            ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
+            ctx.drawWithShaders(buffer.end(), ShaderProgramKeysTemp.POSITION_COLOR_LEGACY);
             ctx.reset();
         }
         catch (Exception ignored) { }
@@ -485,8 +484,7 @@ public class OverlayRenderer
             RenderSystem.disableCull();
 
             //buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-            ctx.start(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-            buffer = ctx.getBuilder();
+            buffer = ctx.start(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
             float alpha = (float) Configs.InfoOverlays.VERIFIER_ERROR_HILIGHT_ALPHA.getDoubleValue();
 
@@ -505,7 +503,7 @@ public class OverlayRenderer
                 meshData.close();
                  */
 
-                ctx.drawWithShaders(buffer.end(), ShaderProgramKeys.POSITION_COLOR);
+                ctx.drawWithShaders(buffer.end(), ShaderProgramKeysTemp.POSITION_COLOR_LEGACY);
                 ctx.close();
             }
             catch (Exception ignored) { }

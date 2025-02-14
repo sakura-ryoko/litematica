@@ -11,7 +11,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -591,8 +590,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             int[] light = new int[] { l, l, l, l };
             float[] brightness = new float[] { 0.75f, 0.75f, 0.75f, 1.0f };
 
-            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            //RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
             DiffuseLighting.enableGuiDepthLighting();
 
             for (Direction face : PositionUtils.ALL_DIRECTIONS)

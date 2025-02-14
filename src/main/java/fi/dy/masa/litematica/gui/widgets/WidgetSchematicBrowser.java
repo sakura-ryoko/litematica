@@ -345,8 +345,8 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                 try
                 {
                     NativeImage image = new NativeImage(size, size, false);
-                    NativeImageBackedTexture tex = new NativeImageBackedTexture(image);
                     Identifier rl = Identifier.of(Reference.MOD_ID, DigestUtils.sha1Hex(file.toAbsolutePath().toString()));
+                    NativeImageBackedTexture tex = new NativeImageBackedTexture(rl::toString, image);
                     this.mc.getTextureManager().registerTexture(rl, tex);
 
                     for (int y = 0, i = 0; y < size; ++y)

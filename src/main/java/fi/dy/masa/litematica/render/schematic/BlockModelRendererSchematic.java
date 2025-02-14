@@ -201,8 +201,8 @@ public class BlockModelRendererSchematic
 
         for (BakedQuad bakedQuad : list)
         {
-            this.getQuadDimensions(world, state, pos, bakedQuad.getVertexData(), bakedQuad.getFace(), box, flags);
-            ambientOcclusionCalculator.apply(world, state, pos, bakedQuad.getFace(), box, flags, bakedQuad.hasShade());
+            this.getQuadDimensions(world, state, pos, bakedQuad.vertexData(), bakedQuad.face(), box, flags);
+            ambientOcclusionCalculator.apply(world, state, pos, bakedQuad.face(), box, flags, bakedQuad.shade());
 
             //System.out.printf("renderQuad(): pos [%s] / state [%s] / quad face [%s]\n", pos.toShortString(), state, bakedQuad.getFace().getName());
 
@@ -227,8 +227,8 @@ public class BlockModelRendererSchematic
         {
             if (useWorldLight)
             {
-                this.getQuadDimensions(world, state, pos, bakedQuad.getVertexData(), bakedQuad.getFace(), null, flags);
-                BlockPos blockPos = flags.get(0) ? pos.offset(bakedQuad.getFace()) : pos;
+                this.getQuadDimensions(world, state, pos, bakedQuad.vertexData(), bakedQuad.face(), null, flags);
+                BlockPos blockPos = flags.get(0) ? pos.offset(bakedQuad.face()) : pos;
                 light = WorldRenderer.getLightmapCoordinates(world, state, blockPos);
             }
 
@@ -246,7 +246,7 @@ public class BlockModelRendererSchematic
 
         if (quad.hasTint())
         {
-            int color = this.colorMap.getColor(state, world, pos, quad.getTintIndex());
+            int color = this.colorMap.getColor(state, world, pos, quad.tintIndex());
             r = (float) (color >> 16 & 0xFF) / 255.0F;
             g = (float) (color >> 8 & 0xFF) / 255.0F;
             b = (float) (color & 0xFF) / 255.0F;

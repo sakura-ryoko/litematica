@@ -11,10 +11,12 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 
 public class SchematicDowngradeConverter
 {
@@ -34,9 +36,9 @@ public class SchematicDowngradeConverter
                 case "y" -> newEntity.putInt("y", oldEntity.getInt("y"));
                 case "z" -> newEntity.putInt("z", oldEntity.getInt("z"));
                 case "id" -> newEntity.putString("id", oldEntity.getString("id"));
-                case "attributes" -> newEntity.put("Attributes", processAttributes(oldEntity.get(key), minecraftDataVersion));
-                case "flower_pos" -> newEntity.put("FlowerPos", processFlowerPos(oldEntity, key));
-                case "hive_pos" -> newEntity.put("HivePos", processFlowerPos(oldEntity, key));
+                case "attributes" -> newEntity.put("Attributes", processAttributes(oldEntity.get(key), minecraftDataVersion, registryManager));
+                case "flower_pos" -> newEntity.put("FlowerPos", processFlowerPos(oldEntity, key, minecraftDataVersion, registryManager));
+                case "hive_pos" -> newEntity.put("HivePos", processFlowerPos(oldEntity, key, minecraftDataVersion, registryManager));
                 case "ArmorItems" -> newEntity.put("ArmorItems", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 4));
                 case "HandItems" -> newEntity.put("HandItems", processEntityItems(oldEntity.getList(key, Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager, 2));
                 case "Item" -> newEntity.put("Item", processEntityItem(oldEntity.get(key), minecraftDataVersion, registryManager));
@@ -222,7 +224,7 @@ public class SchematicDowngradeConverter
         return newItems;
     }
 
-    private static NbtElement processAttributes(NbtElement attrib, int minecraftDataVersion)
+    private static NbtElement processAttributes(NbtElement attrib, int minecraftDataVersion, DynamicRegistryManager registryManager)
     {
         NbtList oldAttr = (NbtList) attrib;
         NbtList newAttr = new NbtList();
@@ -246,7 +248,8 @@ public class SchematicDowngradeConverter
                 newMod.putDouble("Amount", modEntry.getDouble("amount"));
                 newMod.putString("Name", modiferIdToName(modEntry.getString("id")));
                 newMod.putInt("Operation", modifierOperationToInt(modEntry.getString("operation")));
-                newMod.putUuid("UUID", modEntry.contains("UUID") ? modEntry.getUuid("UUID") : UUID.randomUUID());
+                //newMod.putUuid("UUID", modEntry.contains("UUID") ? modEntry.getUuid("UUID") : UUID.randomUUID());
+                newMod.put("UUID", Uuids.CODEC, modEntry.get("UUID", Uuids.CODEC, registryManager.getOps(NbtOps.INSTANCE)).orElse(UUID.randomUUID()));
                 newMods.add(newMod);
             }
             if (newMods.isEmpty() == false)
@@ -451,8 +454,8 @@ public class SchematicDowngradeConverter
                 case "id" -> newTE.putString("id", oldTE.getString("id"));
                 case "Items" -> newTE.put("Items", processItemsTag(oldTE.getList("Items", Constants.NBT.TAG_COMPOUND), minecraftDataVersion, registryManager));
                 case "patterns" -> newTE.put("Patterns", processBannerPatterns(oldTE.get(key)));
-                case "profile" -> newTE.put("SkullOwner", processSkullProfile(oldTE.get(key)));
-                case "flower_pos" -> newTE.put("FlowerPos", processFlowerPos(oldTE, key));
+                case "profile" -> newTE.put("SkullOwner", processSkullProfile(oldTE.get(key), minecraftDataVersion, registryManager));
+                case "flower_pos" -> newTE.put("FlowerPos", processFlowerPos(oldTE, key, minecraftDataVersion, registryManager));
                 case "bees" -> newTE.put("Bees", processBeesTag(oldTE.get(key), minecraftDataVersion, registryManager));
                 case "item" -> newTE.put("item", processDecoratedPot(oldTE.get(key), minecraftDataVersion, registryManager));
                 case "last_interacted_slot" -> newTE.put("last_interacted_slot", oldTE.get(key));
@@ -611,7 +614,7 @@ public class SchematicDowngradeConverter
         {
             switch (key)
             {
-                case "minecraft:attribute_modifiers" -> outNbt.put("AttributeModifiers", processAttributes(nbt.get(key), minecraftDataVersion));
+                case "minecraft:attribute_modifiers" -> outNbt.put("AttributeModifiers", processAttributes(nbt.get(key), minecraftDataVersion, registryManager));
                 case "minecraft:banner_patterns" ->
                 {
                     beNbt.put("Patterns", processBannerPatterns(nbt.get(key)));
@@ -688,7 +691,7 @@ public class SchematicDowngradeConverter
                     beNbt.putString("id", itemId);
                 }
                 case "minecraft:potion_contents" -> processPotions(nbt.get(key), outNbt);
-                case "minecraft:profile" -> outNbt.put("SkullOwner", processSkullProfile(nbt.get(key)));
+                case "minecraft:profile" -> outNbt.put("SkullOwner", processSkullProfile(nbt.get(key), minecraftDataVersion, registryManager));
                 case "minecraft:repair_cost" -> outNbt.putInt("RepairCost", nbt.getInt(key));
                 case "minecraft:recipes" -> outNbt.put("Recipes", processRecipes(nbt.get(key)));
                 case "minecraft:suspicious_stew_effects" -> outNbt.put("effects", processSuspiciousStewEffects(nbt.get(key)));
@@ -1341,15 +1344,17 @@ public class SchematicDowngradeConverter
         };
     }
 
-    private static NbtElement processSkullProfile(NbtElement oldProfile)
+    private static NbtElement processSkullProfile(NbtElement oldProfile, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
         NbtCompound profile = (NbtCompound) oldProfile;
         NbtCompound newProfile = new NbtCompound();
         String name = profile.getString("name");
-        UUID uuid = profile.getUuid("id");
+        //UUID uuid = profile.getUuid("id");
+        UUID uuid = profile.get("id", Uuids.CODEC, registryManager.getOps(NbtOps.INSTANCE)).orElse(UUID.randomUUID());
 
         newProfile.putString("Name", name);
-        newProfile.putUuid("Id", uuid);
+        //newProfile.putUuid("Id", uuid);
+        newProfile.put("Id", Uuids.CODEC, uuid);
 
         NbtList properties = profile.getList("properties", Constants.NBT.TAG_COMPOUND);
         NbtCompound newProperties = new NbtCompound();
@@ -1375,10 +1380,11 @@ public class SchematicDowngradeConverter
         return newProfile;
     }
 
-    private static NbtElement processFlowerPos(NbtCompound oldNbt, String key)
+    private static NbtElement processFlowerPos(NbtCompound oldNbt, String key, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
         NbtCompound flowerOut = new NbtCompound();
-        BlockPos flowerPos = NbtHelper.toBlockPos(oldNbt, key).orElse(null);
+        //BlockPos flowerPos = NbtHelper.toBlockPos(oldNbt, key).orElse(null);
+        BlockPos flowerPos = oldNbt.get(key, BlockPos.CODEC, registryManager.getOps(NbtOps.INSTANCE)).orElse(null);
 
         if (flowerPos != null)
         {

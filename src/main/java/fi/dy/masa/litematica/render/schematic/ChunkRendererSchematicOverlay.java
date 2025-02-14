@@ -5,10 +5,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
@@ -81,7 +79,7 @@ public class ChunkRendererSchematicOverlay implements AutoCloseable
         this.existingOverlays.add(type);
         this.hasOverlay = true;
 
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        //RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         return builderCache.getBufferByOverlay(type, allocators);
     }
 
@@ -115,7 +113,7 @@ public class ChunkRendererSchematicOverlay implements AutoCloseable
             }
 
             this.profiler.push(Reference.MOD_ID+"_render_overlays");
-            RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+            //RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
 
             if (Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_SIDES.getBooleanValue())
             {
@@ -144,6 +142,7 @@ public class ChunkRendererSchematicOverlay implements AutoCloseable
 
                 this.renderOverlayOutlines(type, pos, relPos, stateSchematic, missing, bufferOverlayOutlines);
             }
+
             this.profiler.pop();
         }
     }
@@ -237,7 +236,7 @@ public class ChunkRendererSchematicOverlay implements AutoCloseable
 
             for (BakedQuad quad : list)
             {
-                Litematica.LOGGER.warn("   QUAD[{}/{}]: face: [{}], atlas-sprite: [{}]", i, j, quad.getFace().getName(), quad.getSprite().toString());
+                Litematica.LOGGER.warn("   QUAD[{}/{}]: face: [{}], atlas-sprite: [{}]", i, j, quad.face().getName(), quad.sprite().toString());
                 j++;
             }
         }

@@ -7,14 +7,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.Sets;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlUsage;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -203,9 +201,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         if (data.isBlockLayerEmpty(layerTranslucent) == false)
         {
-            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
-
+            //RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
             if (data.getBuiltBufferCache().hasBuiltBufferByLayer(layerTranslucent))
             {
                 try

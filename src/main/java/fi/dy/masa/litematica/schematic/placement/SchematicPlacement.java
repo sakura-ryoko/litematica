@@ -11,7 +11,6 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -25,6 +24,7 @@ import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
@@ -1060,7 +1060,8 @@ public class SchematicPlacement
             compound.put("Schematics", schematic.writeToNBT());
         }
 
-        compound.put("Origin", NbtHelper.fromBlockPos(origin));
+        //compound.put("Origin", NbtHelper.fromBlockPos(origin));
+        NbtUtils.writeBlockPosToArrayTag(origin, compound, "Origin");
         compound.putInt("Rotation", rotation.ordinal());
         compound.putInt("Mirror", mirror.ordinal());
         NbtCompound subs = new NbtCompound();
@@ -1071,7 +1072,8 @@ public class SchematicPlacement
             SubRegionPlacement subRegionPlacement = relativeSubRegionPlacements.get(name);
             subs.put(name, sub);
 
-            sub.put("Pos", NbtHelper.fromBlockPos(subRegionPlacement.getPos()));
+            //sub.put("Pos", NbtHelper.fromBlockPos(subRegionPlacement.getPos()));
+            NbtUtils.writeBlockPosToArrayTag(subRegionPlacement.getPos(), compound, "Pos");
             sub.putInt("Rotation", subRegionPlacement.getRotation().ordinal());
             sub.putInt("Mirror", subRegionPlacement.getMirror().ordinal());
             sub.putString("Name", subRegionPlacement.getName());

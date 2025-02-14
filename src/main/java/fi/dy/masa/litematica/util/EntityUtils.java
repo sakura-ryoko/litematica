@@ -15,9 +15,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -284,8 +286,14 @@ public class EntityUtils
         entity.setOnGround(nbt.getBoolean("OnGround"));
         entity.setInvulnerable(nbt.getBoolean("Invulnerable"));
         entity.setPortalCooldown(nbt.getInt("PortalCooldown"));
+        /*
         if (nbt.containsUuid("UUID")) {
             entity.setUuid(nbt.getUuid("UUID"));
+        }
+         */
+        if (nbt.contains("UUID"))
+        {
+            entity.setUuid(nbt.get("UUID", Uuids.CODEC, entity.getRegistryManager().getOps(NbtOps.INSTANCE)).orElse(UUID.randomUUID()));
         }
 
         if (nbt.contains("CustomName", NbtElement.STRING_TYPE)) {
