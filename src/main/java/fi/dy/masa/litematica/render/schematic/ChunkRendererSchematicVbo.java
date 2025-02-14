@@ -33,6 +33,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
@@ -222,8 +223,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         if (data.isBlockLayerEmpty(layerTranslucent) == false)
         {
             this.getProfiler().swap(Reference.MOD_ID+"_resort_blocks");
-            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            //RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            //RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
 
             if (data.getBuiltBufferCache().hasBuiltBufferByLayer(layerTranslucent))
             {
@@ -534,8 +534,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.getProfiler().push("render_overlay");
         boolean useDefault = false;
 
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
-        //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        //RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         BlockPos.Mutable relPos = this.getChunkRelativePosition(pos);
         OverlayRenderType overlayType;
 
@@ -558,7 +557,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
                 for (int i = 0; i < 6; ++i)
                 {
-                    Direction side = fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS[i];
+                    Direction side = fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS[i];
                     posMutable.set(pos.getX() + side.getOffsetX(), pos.getY() + side.getOffsetY(), pos.getZ() + side.getOffsetZ());
                     BlockState adjStateSchematic = this.schematicWorldView.getBlockState(posMutable);
                     BlockState adjStateClient    = this.clientWorldView.getBlockState(posMutable);
@@ -663,7 +662,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 this.getProfiler().swap("overlay_outlines_cull");
                 for (int i = 0; i < 6; ++i)
                 {
-                    Direction side = fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS[i];
+                    Direction side = fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS[i];
                     posMutable.set(pos.getX() + side.getOffsetX(), pos.getY() + side.getOffsetY(), pos.getZ() + side.getOffsetZ());
                     BlockState adjStateSchematic = this.schematicWorldView.getBlockState(posMutable);
                     BlockState adjStateClient = this.clientWorldView.getBlockState(posMutable);
@@ -958,7 +957,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.existingOverlays.add(type);
         this.hasOverlay = true;
 
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        //RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         //RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         return this.builderCache.getBufferByOverlay(type, allocators);
     }
