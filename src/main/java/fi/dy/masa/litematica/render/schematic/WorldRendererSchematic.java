@@ -55,6 +55,7 @@ public class WorldRendererSchematic
     private Set<ChunkRendererSchematicVbo> chunksToUpdate = new LinkedHashSet<>();
     private WorldSchematic world;
     private ChunkRenderDispatcherSchematic chunkRendererDispatcher;
+    private Profiler profiler;
     private double lastCameraChunkUpdateX = Double.MIN_VALUE;
     private double lastCameraChunkUpdateY = Double.MIN_VALUE;
     private double lastCameraChunkUpdateZ = Double.MIN_VALUE;
@@ -88,6 +89,7 @@ public class WorldRendererSchematic
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
         this.blockModelRenderer.setBakedManager(mc.getBakedModelManager());
+        this.profiler = null;
     }
 
     public void markNeedsUpdate()
@@ -131,6 +133,16 @@ public class WorldRendererSchematic
         return count;
     }
 
+    protected Profiler getProfiler()
+    {
+        if (this.profiler == null)
+        {
+            this.profiler = Profilers.get();
+        }
+
+        return this.profiler;
+    }
+
     public void setWorldAndLoadRenderers(@Nullable WorldSchematic worldSchematic)
     {
         this.lastCameraChunkUpdateX = Double.MIN_VALUE;
@@ -162,6 +174,7 @@ public class WorldRendererSchematic
             }
 
             this.renderDispatcher = null;
+            this.profiler = null;
             this.blockEntities.clear();
         }
     }
@@ -174,6 +187,9 @@ public class WorldRendererSchematic
             {
                 profiler = Profilers.get();
             }
+
+            this.profiler = profiler;
+
             profiler.push("load_renderers");
 
             if (this.renderDispatcher == null)
@@ -211,6 +227,7 @@ public class WorldRendererSchematic
         }
         this.chunksToUpdate.clear();
         this.renderDispatcher.stopChunkUpdates();
+        this.profiler = null;
     }
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator, Profiler profiler)
@@ -368,6 +385,11 @@ public class WorldRendererSchematic
         profiler.push("run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 
+        if (this.profiler == null)
+        {
+            this.profiler = profiler;
+        }
+
         profiler.swap("check_update");
 
         if (this.chunksToUpdate.isEmpty() == false)
@@ -415,6 +437,11 @@ public class WorldRendererSchematic
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, class_10785 shaderKey)
     {
+        if (this.profiler == null)
+        {
+            this.profiler = profiler;
+        }
+
         RenderSystem.assertOnRenderThread();
         profiler.push("render_block_layer_" + renderLayer.toString());
 
@@ -562,6 +589,11 @@ public class WorldRendererSchematic
 
     public void renderBlockOverlays(Matrix4f viewMatrix, Camera camera, Matrix4f projMatrix, Profiler profiler)
     {
+        if (this.profiler == null)
+        {
+            this.profiler = profiler;
+        }
+
         this.renderBlockOverlay(OverlayRenderType.OUTLINE, viewMatrix, camera, projMatrix, profiler);
         this.renderBlockOverlay(OverlayRenderType.QUAD, viewMatrix, camera, projMatrix, profiler);
     }
@@ -592,6 +624,11 @@ public class WorldRendererSchematic
 
     protected void renderBlockOverlay(OverlayRenderType type, Matrix4f viewMatrix, Camera camera, Matrix4f projMatrix, Profiler profiler)
     {
+        if (this.profiler == null)
+        {
+            this.profiler = profiler;
+        }
+
         RenderLayer renderLayer = RenderLayer.getTranslucent();
         renderLayer.startDrawing();
 
@@ -731,6 +768,11 @@ public class WorldRendererSchematic
 
     public void renderEntities(Camera camera, Frustum frustum, Matrix4f posMatrix, float partialTicks, Profiler profiler)
     {
+        if (this.profiler == null)
+        {
+            this.profiler = profiler;
+        }
+
         if (this.renderEntitiesStartupCounter > 0)
         {
             --this.renderEntitiesStartupCounter;
