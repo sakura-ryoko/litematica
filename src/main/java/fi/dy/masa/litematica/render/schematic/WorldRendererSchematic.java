@@ -89,6 +89,7 @@ public class WorldRendererSchematic
         this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
         this.blockModelRenderer.setBakedManager(mc.getBakedModelManager());
+        this.profiler = null;
     }
 
     public void markNeedsUpdate()
@@ -386,6 +387,11 @@ public class WorldRendererSchematic
         this.profiler = profiler;
         profiler.push("run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
+
+        if (this.profiler == null)
+        {
+            this.profiler = profiler;
+        }
 
         profiler.swap("check_update");
 
