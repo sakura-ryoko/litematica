@@ -781,12 +781,6 @@ public class WorldRendererSchematic
         return false;
     }
 
-    public boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side)
-    {
-        List<BakedQuad> list = model.getQuads(state, side != null ? side : Direction.NORTH, Random.create());
-        return !list.isEmpty();
-    }
-
     public BakedModel getModelForState(BlockState state)
     {
         if (state.getRenderType() == BlockRenderType.ENTITYBLOCK_ANIMATED)
