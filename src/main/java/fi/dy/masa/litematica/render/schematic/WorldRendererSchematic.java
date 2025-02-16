@@ -17,6 +17,7 @@ import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -25,8 +26,10 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.BlockRenderView;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
@@ -130,6 +133,11 @@ public class WorldRendererSchematic
 
     protected Profiler getProfiler()
     {
+        if (this.world == null && this.mc != null)
+        {
+            return this.mc.getProfiler();
+        }
+
         return this.world.getProfiler();
     }
 
@@ -143,7 +151,7 @@ public class WorldRendererSchematic
 
         if (worldSchematic != null)
         {
-            this.loadRenderers(null);
+            this.loadRenderers();
         }
         else
         {
@@ -172,7 +180,7 @@ public class WorldRendererSchematic
     {
         if (this.hasWorld())
         {
-            this.world.getProfiler().push("load_renderers");
+            this.getProfiler().push("load_renderers");
 
             if (this.renderDispatcher == null)
             {
@@ -197,7 +205,7 @@ public class WorldRendererSchematic
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
             this.renderEntitiesStartupCounter = 2;
 
-            this.world.getProfiler().pop();
+            this.getProfiler().pop();
         }
     }
 
@@ -213,7 +221,7 @@ public class WorldRendererSchematic
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator)
     {
-        this.world.getProfiler().push("setup_terrain");
+        this.getProfiler().push("setup_terrain");
 
         if (this.chunkRendererDispatcher == null ||
             this.mc.options.getViewDistance().getValue() + 2 != this.renderDistanceChunks)
@@ -230,7 +238,7 @@ public class WorldRendererSchematic
 
         //camera.update(this.world, entity, this.mc.options.perspective > 0, this.mc.options.perspective == 2, this.mc.getTickDelta());
 
-        this.world.getProfiler().push("camera");
+        this.getProfiler().swap("camera");
 
         double entityX = entity.getX();
         double entityY = entity.getY();
@@ -247,7 +255,7 @@ public class WorldRendererSchematic
             this.chunkRendererDispatcher.removeOutOfRangeRenderers();
         }
 
-        this.world.getProfiler().swap("renderlist_camera");
+        this.getProfiler().swap("renderlist_camera");
 
         Vec3d cameraPos = camera.getPos();
         double cameraX = cameraPos.x;
@@ -256,7 +264,7 @@ public class WorldRendererSchematic
 
         this.renderDispatcher.setCameraPosition(cameraPos);
 
-        this.world.getProfiler().swap("culling");
+        this.getProfiler().swap("culling");
         BlockPos viewPos = BlockPos.ofFloored(cameraX, cameraY + (double) entity.getStandingEyeHeight(), cameraZ);
         final int centerChunkX = (viewPos.getX() >> 4);
         final int centerChunkZ = (viewPos.getZ() >> 4);
@@ -275,7 +283,7 @@ public class WorldRendererSchematic
         this.lastCameraPitch = camera.getPitch();
         this.lastCameraYaw = camera.getYaw();
 
-        this.world.getProfiler().swap("update");
+        this.getProfiler().swap("update");
 
         if (this.displayListEntitiesDirty)
         {
@@ -284,7 +292,7 @@ public class WorldRendererSchematic
             this.displayListEntitiesDirty = false;
             this.renderInfos.clear();
 
-            this.world.getProfiler().push("update_sort");
+            this.getProfiler().push("update_sort");
             List<ChunkPos> positions = DataManager.getSchematicPlacementManager().getAndUpdateVisibleChunks(viewChunk);
             //positions.sort(new SubChunkPos.DistanceComparator(viewSubChunk));
 
@@ -293,7 +301,7 @@ public class WorldRendererSchematic
 
             //if (GuiBase.isCtrlDown()) System.out.printf("sorted positions: %d\n", positions.size());
 
-            this.world.getProfiler().swap("update_iteration");
+            this.getProfiler().swap("update_iteration");
 
             //while (queuePositions.isEmpty() == false)
             for (ChunkPos chunkPos : positions)
@@ -323,10 +331,10 @@ public class WorldRendererSchematic
                 }
             }
 
-            this.world.getProfiler().pop(); // fetch (update_sort)
+            this.getProfiler().pop(); // fetch (update_sort)
         }
 
-        this.world.getProfiler().swap("rebuild_near");
+        this.getProfiler().swap("rebuild_near");
         Set<ChunkRendererSchematicVbo> set = this.chunksToUpdate;
         this.chunksToUpdate = new LinkedHashSet<>();
 
@@ -345,28 +353,28 @@ public class WorldRendererSchematic
                 else
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("====== update now\n");
-                    this.world.getProfiler().push("update_now");
+                    this.getProfiler().push("update_now");
 
                     this.renderDispatcher.updateChunkNow(chunkRendererTmp);
                     chunkRendererTmp.clearNeedsUpdate();
 
-                    this.world.getProfiler().pop();
+                    this.getProfiler().pop();
                 }
             }
         }
 
         this.chunksToUpdate.addAll(set);
 
-        //this.world.getProfiler().pop();
-        this.world.getProfiler().pop();  // setup_terrain
+        //this.getProfiler().pop();
+        this.getProfiler().pop();  // setup_terrain
     }
 
     public void updateChunks(long finishTimeNano)
     {
-        this.mc.getProfiler().push("run_chunk_uploads");
+        this.getProfiler().push("run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 
-        this.mc.getProfiler().swap("check_update");
+        this.getProfiler().swap("check_update");
 
         if (this.chunksToUpdate.isEmpty() == false)
         {
@@ -380,16 +388,16 @@ public class WorldRendererSchematic
 
                 if (renderChunk.needsImmediateUpdate())
                 {
-                    this.mc.getProfiler().push("update_now");
+                    this.getProfiler().push("update_now");
                     flag = this.renderDispatcher.updateChunkNow(renderChunk);
                 }
                 else
                 {
-                    this.mc.getProfiler().push("update_later");
+                    this.getProfiler().push("update_later");
                     flag = this.renderDispatcher.updateChunkLater(renderChunk);
                 }
 
-                this.mc.getProfiler().pop();
+                this.getProfiler().pop();
 
                 if (!flag)
                 {
@@ -408,7 +416,7 @@ public class WorldRendererSchematic
             }
         }
 
-        this.mc.getProfiler().pop();
+        this.getProfiler().pop();
     }
 
     public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix)
@@ -435,7 +443,7 @@ public class WorldRendererSchematic
 
         if (isTranslucent)
         {
-            this.world.getProfiler().push("translucent_sort");
+            this.getProfiler().push("translucent_sort");
             double diffX = x - this.lastTranslucentSortX;
             double diffY = y - this.lastTranslucentSortY;
             double diffZ = z - this.lastTranslucentSortZ;
@@ -462,11 +470,11 @@ public class WorldRendererSchematic
                 }
             }
 
-            this.world.getProfiler().pop();
+            this.getProfiler().pop();
         }
 
-        //this.world.getProfiler().push("filter_empty");
-        this.world.getProfiler().swap("layer_setup");
+        //this.getProfiler().push("filter_empty");
+        this.getProfiler().swap("layer_setup");
 
         boolean reverse = isTranslucent;
         int startIndex = reverse ? this.renderInfos.size() - 1 : 0;
@@ -548,8 +556,8 @@ public class WorldRendererSchematic
         VertexBuffer.unbind();
         renderLayer.endDrawing();
 
-        this.world.getProfiler().pop();   // layer+ X
-        //this.world.getProfiler().pop();
+        this.getProfiler().pop();   // layer+ X
+        //this.getProfiler().pop();
 
         return count;
     }
@@ -676,7 +684,7 @@ public class WorldRendererSchematic
                 BlockModelRenderer.disableBrightnessCache();
                  */
 
-                this.getProfiler().pop()
+                this.getProfiler().pop();
                 return result;
             }
         }
@@ -742,7 +750,7 @@ public class WorldRendererSchematic
         }
         else
         {
-            this.world.getProfiler().push("entities_prepare");
+            this.getProfiler().push("entities_prepare");
 
             double cameraX = camera.getPos().x;
             double cameraY = camera.getPos().y;
@@ -757,7 +765,7 @@ public class WorldRendererSchematic
 
             this.countEntitiesTotal = this.world.getRegularEntityCount();
 
-            this.world.getProfiler().swap("regular_entities");
+            this.getProfiler().swap("regular_entities");
             //List<Entity> entitiesMultipass = Lists.<Entity>newArrayList();
 
             // TODO --> Convert Matrix4f back to to MatrixStack?
@@ -773,7 +781,7 @@ public class WorldRendererSchematic
             VertexConsumerProvider.Immediate entityVertexConsumers = this.bufferBuilders.getEntityVertexConsumers();
             LayerRange layerRange = DataManager.getRenderLayerRange();
 
-            this.world.getProfiler().swap("regular_iterate");
+            this.getProfiler().swap("regular_iterate");
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
             {
                 BlockPos pos = chunkRenderer.getOrigin();
@@ -810,10 +818,10 @@ public class WorldRendererSchematic
                 }
             }
 
-            this.world.getProfiler().swap("block_entities");
+            this.getProfiler().swap("block_entities");
             BlockEntityRenderDispatcher renderer = MinecraftClient.getInstance().getBlockEntityRenderDispatcher();
 
-            this.world.getProfiler().swap("block_entities_iterate");
+            this.getProfiler().swap("block_entities_iterate");
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
             {
                 ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
@@ -848,7 +856,7 @@ public class WorldRendererSchematic
                 }
             }
 
-            this.world.getProfiler().swap("block_entities_render");
+            this.getProfiler().swap("block_entities_render");
             synchronized (this.blockEntities)
             {
                 for (BlockEntity te : this.blockEntities)
@@ -871,7 +879,7 @@ public class WorldRendererSchematic
                 }
             }
 
-            this.world.getProfiler().pop();
+            this.getProfiler().pop();
         }
     }
 
