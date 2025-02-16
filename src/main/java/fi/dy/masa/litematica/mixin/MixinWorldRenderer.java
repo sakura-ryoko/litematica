@@ -41,6 +41,7 @@ public abstract class MixinWorldRenderer
             if (this.profiler == null)
             {
                 this.profiler = Profilers.get();
+                this.profiler.startTick();
             }
 
             this.profiler.push(Reference.MOD_ID+"_world_renderer");
@@ -126,7 +127,7 @@ public abstract class MixinWorldRenderer
             this.profiler.pop();
             this.posMatrix = null;
             this.ticks = null;
-            this.profiler = null;
+            //this.profiler = null;
         }
     }
 
