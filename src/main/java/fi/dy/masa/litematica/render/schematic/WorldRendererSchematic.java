@@ -155,7 +155,7 @@ public class WorldRendererSchematic
 
         if (worldSchematic != null)
         {
-            this.loadRenderers(null);
+            this.loadRenderers(this.profiler);
         }
         else
         {

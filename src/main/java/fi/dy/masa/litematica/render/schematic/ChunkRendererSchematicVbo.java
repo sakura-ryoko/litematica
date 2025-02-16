@@ -404,6 +404,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
         }
 
+        this.getProfiler().swap("rebuild_chunk_lock");
         this.chunkRenderLock.lock();
 
         try
