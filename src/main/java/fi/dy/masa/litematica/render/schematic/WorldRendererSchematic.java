@@ -9,9 +9,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.class_10785;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gl.ShaderProgramLayer;
+import net.minecraft.client.gl.ShaderProgramLayers;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -35,7 +36,6 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
 
-import fi.dy.masa.malilib.render.shader.ShaderProgramKeysTemp;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
@@ -439,7 +439,7 @@ public class WorldRendererSchematic
         profiler.pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, class_10785 shaderKey)
+    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, ShaderProgramLayer shaderKey)
     {
         this.profiler = profiler;
         RenderSystem.assertOnRenderThread();
@@ -562,7 +562,7 @@ public class WorldRendererSchematic
                 matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                 buffer.bind();
                 //buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
-                buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), shaderKey.method_67730());
+                buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), shaderKey.getProgram());
                 VertexBuffer.unbind();
                 matrix4fStack.popMatrix();
                 startedDrawing = true;
@@ -688,7 +688,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderProgramKeysTemp.POSITION_COLOR_LEGACY.method_67730());
+                    buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderProgramLayers.DEBUG_LINE_STRIP.getProgram());
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();
                 }

@@ -6,12 +6,12 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.ShaderProgramLayers;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.profiler.Profiler;
 
-import fi.dy.masa.malilib.render.shader.ShaderProgramKeysTemp;
 import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -302,7 +302,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_SOLID);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramKeysTemp.RENDER_TYPE_SOLID_LEGACY);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramLayers.SOLID);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -327,7 +327,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT_MIPPED);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramKeysTemp.RENDER_TYPE_CUTOUT_MIPPED_LEGACY);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramLayers.CUTOUT_MIPPED);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -352,7 +352,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramKeysTemp.RENDER_TYPE_CUTOUT_LEGACY);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramLayers.CUTOUT);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -377,7 +377,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramKeysTemp.RENDER_TYPE_TRANSLUCENT_LEGACY);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderProgramLayers.TRANSLUCENT);
 
             if (this.renderCollidingSchematicBlocks)
             {
