@@ -138,6 +138,7 @@ public class WorldRendererSchematic
         if (this.profiler == null)
         {
             this.profiler = Profilers.get();
+            this.profiler.startTick();
         }
 
         return this.profiler;
@@ -194,7 +195,7 @@ public class WorldRendererSchematic
 
             if (this.renderDispatcher == null)
             {
-                this.renderDispatcher = new ChunkRenderDispatcherLitematica();
+                this.renderDispatcher = new ChunkRenderDispatcherLitematica(profiler);
             }
 
             this.displayListEntitiesDirty = true;
@@ -205,7 +206,7 @@ public class WorldRendererSchematic
                 this.chunkRendererDispatcher.delete();
             }
 
-            this.stopChunkUpdates();
+            this.stopChunkUpdates(profiler);
 
             synchronized (this.blockEntities)
             {
@@ -219,14 +220,14 @@ public class WorldRendererSchematic
         }
     }
 
-    protected void stopChunkUpdates()
+    protected void stopChunkUpdates(Profiler profiler)
     {
         if (this.chunksToUpdate.isEmpty() == false)
         {
             this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
         }
         this.chunksToUpdate.clear();
-        this.renderDispatcher.stopChunkUpdates();
+        this.renderDispatcher.stopChunkUpdates(profiler);
         this.profiler = null;
     }
 
@@ -368,7 +369,7 @@ public class WorldRendererSchematic
                     profiler.push("update_now");
                     this.profiler = profiler;
 
-                    this.renderDispatcher.updateChunkNow(chunkRendererTmp);
+                    this.renderDispatcher.updateChunkNow(chunkRendererTmp, profiler);
                     chunkRendererTmp.clearNeedsUpdate();
 
                     profiler.pop();
@@ -386,7 +387,7 @@ public class WorldRendererSchematic
     {
         this.profiler = profiler;
         profiler.push("run_chunk_uploads");
-        this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
+        this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
 
         if (this.profiler == null)
         {
@@ -407,16 +408,12 @@ public class WorldRendererSchematic
 
                 if (renderChunk.needsImmediateUpdate())
                 {
-                    profiler.push("update_now");
-                    flag = this.renderDispatcher.updateChunkNow(renderChunk);
+                    flag = this.renderDispatcher.updateChunkNow(renderChunk, profiler);
                 }
                 else
                 {
-                    profiler.push("update_later");
-                    flag = this.renderDispatcher.updateChunkLater(renderChunk);
+                    flag = this.renderDispatcher.updateChunkLater(renderChunk, profiler);
                 }
-
-                profiler.pop();
 
                 if (!flag)
                 {
@@ -486,7 +483,7 @@ public class WorldRendererSchematic
                     if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(renderLayer) ||
                         (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                     {
-                        this.renderDispatcher.updateTransparencyLater(chunkRenderer);
+                        this.renderDispatcher.updateTransparencyLater(chunkRenderer, profiler);
                     }
                 }
             }
@@ -705,14 +702,14 @@ public class WorldRendererSchematic
 
     public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack, BufferBuilder bufferBuilderIn)
     {
-        this.profiler.push("render_block");
+        this.getProfiler().push("render_block");
         try
         {
             BlockRenderType renderType = state.getRenderType();
 
             if (renderType == BlockRenderType.INVISIBLE)
             {
-                this.profiler.pop();
+                this.getProfiler().pop();
                 return false;
             }
             else
@@ -733,7 +730,7 @@ public class WorldRendererSchematic
                 BlockModelRenderer.disableBrightnessCache();
                  */
 
-                this.profiler.pop();
+                this.getProfiler().pop();
                 return result;
             }
         }
@@ -742,21 +739,21 @@ public class WorldRendererSchematic
             CrashReport crashreport = CrashReport.create(throwable, "Tesselating block in world");
             CrashReportSection crashreportcategory = crashreport.addElement("Block being tesselated");
             CrashReportSection.addBlockInfo(crashreportcategory, world, pos, state);
-            this.profiler.pop();
+            this.getProfiler().pop();
             throw new CrashException(crashreport);
         }
     }
 
     public void renderFluid(BlockRenderView world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
     {
-        this.profiler.push("render_fluid");
+        this.getProfiler().push("render_fluid");
         // Sometimes this collides with FAPI
         try
         {
             this.blockRenderManager.renderFluid(pos, world, bufferBuilderIn, blockState, fluidState);
         }
         catch (Exception ignored) { }
-        this.profiler.pop();
+        this.getProfiler().pop();
     }
 
     public boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side)
@@ -972,12 +969,12 @@ public class WorldRendererSchematic
 
     public void scheduleChunkRenders(int chunkX, int chunkZ)
     {
-        this.profiler.push("schedule_render");
+        this.getProfiler().push("schedule_render");
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())
         {
             this.chunkRendererDispatcher.scheduleChunkRender(chunkX, chunkZ);
         }
-        this.profiler.pop();
+        this.getProfiler().pop();
     }
 }
