@@ -256,7 +256,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             PasteNbtBehavior nbtBehavior = this.nbtBehavior;
             BlockEntity be = schematicChunk.getBlockEntity(pos);
 
-            if (be != null && nbtBehavior != PasteNbtBehavior.NONE)
+            if (be != null && nbtBehavior != PasteNbtBehavior.NONE && this.useWorldEdit == false)
             {
                 Consumer<String> commandHandler = ignoreLimit ? this::sendCommand : this.queuedCommands::offer;
                 World schematicWorld = schematicChunk.getWorld();
@@ -279,7 +279,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected boolean useSpecialPasting(BlockState state)
     {
-        return state.isIn(BlockTags.ALL_SIGNS);
+        return this.useWorldEdit == false && state.isIn(BlockTags.ALL_SIGNS);
     }
 
     protected boolean shouldSetBlock(BlockState stateSchematic, BlockState stateClient)
