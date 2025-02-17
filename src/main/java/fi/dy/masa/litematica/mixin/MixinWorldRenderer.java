@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.mixin;
 
 import java.util.List;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.util.profiler.Profilers;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -11,6 +10,8 @@ import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.ProfilerSystem;
+import net.minecraft.util.profiler.Profilers;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
@@ -41,25 +41,31 @@ public abstract class MixinWorldRenderer
             if (this.profiler == null)
             {
                 this.profiler = Profilers.get();
+            }
+            if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
+            {
                 this.profiler.startTick();
             }
 
-            this.profiler.push(Reference.MOD_ID+"_world_renderer");
             LitematicaRenderer.getInstance().loadRenderers(this.profiler);
             SchematicWorldRefresher.INSTANCE.updateAll();
-            this.profiler.pop();
         }
     }
 
     @Inject(method = "setupTerrain", at = @At("TAIL"))
     private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci,
-            @Local Profiler profiler)
+            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
-        this.profiler = profiler;
-        this.profiler.push(Reference.MOD_ID+"_world_renderer");
+        if (this.profiler == null)
+        {
+            this.profiler = Profilers.get();
+        }
+        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
+        {
+            this.profiler.startTick();
+        }
+
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
-        this.profiler.pop();
     }
 
     @Inject(method = "render",
@@ -83,8 +89,10 @@ public abstract class MixinWorldRenderer
         {
             this.profiler = Profilers.get();
         }
-
-        this.profiler.push(Reference.MOD_ID+"_world_renderer");
+        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
+        {
+            this.profiler.startTick();
+        }
 
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -103,8 +111,11 @@ public abstract class MixinWorldRenderer
             LitematicaRenderer.getInstance().piecewiseRenderTranslucent(viewMatrix, posMatrix, this.profiler);
             LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
         }
-
-        this.profiler.pop();
+        /*
+        else if (renderLayer == RenderLayer.getTripwire())
+        {
+        }
+         */
     }
 
     @Inject(method = "renderEntities",
@@ -119,9 +130,12 @@ public abstract class MixinWorldRenderer
                 this.profiler = Profilers.get();
             }
 
-            this.profiler.push(Reference.MOD_ID+"_world_renderer");
+            if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
+            {
+                this.profiler.startTick();
+            }
+
             LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickProgress(false), this.profiler);
-            this.profiler.pop();
             this.posMatrix = null;
             this.ticks = null;
             //this.profiler = null;
