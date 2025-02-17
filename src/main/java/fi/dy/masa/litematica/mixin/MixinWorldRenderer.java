@@ -136,7 +136,7 @@ public abstract class MixinWorldRenderer
                 this.profiler.startTick();
             }
 
-            LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickProgress(false), this.profiler);
+            LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickDelta(false), this.profiler);
             this.posMatrix = null;
             this.ticks = null;
             //this.profiler = null;
