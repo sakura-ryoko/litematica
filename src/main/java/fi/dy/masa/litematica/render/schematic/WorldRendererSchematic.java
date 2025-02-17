@@ -556,8 +556,7 @@ public class WorldRendererSchematic
                 matrix4fStack.pushMatrix();
                 matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                 buffer.bind();
-                //buffer.draw(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shader);
-                buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), shaderKey.getProgram());
+                buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shaderKey.getProgram());
                 VertexBuffer.unbind();
                 matrix4fStack.popMatrix();
                 startedDrawing = true;
@@ -683,7 +682,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.method_67804(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderProgramLayers.DEBUG_LINE_STRIP.getProgram());
+                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderProgramLayers.DEBUG_LINE_STRIP.getProgram());
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();
                 }
