@@ -1073,7 +1073,7 @@ public class SchematicPlacement
             subs.put(name, sub);
 
             //sub.put("Pos", NbtHelper.fromBlockPos(subRegionPlacement.getPos()));
-            NbtUtils.writeBlockPosToArrayTag(subRegionPlacement.getPos(), compound, "Pos");
+            NbtUtils.writeBlockPosToArrayTag(subRegionPlacement.getPos(), sub, "Pos");
             sub.putInt("Rotation", subRegionPlacement.getRotation().ordinal());
             sub.putInt("Mirror", subRegionPlacement.getMirror().ordinal());
             sub.putString("Name", subRegionPlacement.getName());
