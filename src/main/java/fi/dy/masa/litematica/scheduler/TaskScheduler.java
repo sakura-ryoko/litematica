@@ -53,6 +53,7 @@ public class TaskScheduler
 
     public void runTasks()
     {
+        if (MinecraftClient.getInstance().player == null) return;
         Profiler profiler = Profilers.get();
 
         profiler.push(Reference.MOD_ID+"_run_tasks");

@@ -37,7 +37,8 @@
     "MixinStairsBlock",
     "MixinWorld",
     "MixinWorldChunk",
-    "MixinWorldRenderer"
+    "MixinWorldRenderer",
+    "IMixinProfilerSystem"
   ],
   "injectors": {
     "defaultRequire": 1

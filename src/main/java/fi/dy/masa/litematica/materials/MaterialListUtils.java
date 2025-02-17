@@ -71,7 +71,7 @@ public class MaterialListUtils
     {
         List<MaterialListEntry> list = new ArrayList<>();
 
-        if (countsTotal.isEmpty() == false)
+        if (player != null && !countsTotal.isEmpty())
         {
             MaterialCache cache = MaterialCache.getInstance();
             Object2IntOpenHashMap<ItemType> itemTypesTotal = new Object2IntOpenHashMap<>();
@@ -128,6 +128,7 @@ public class MaterialListUtils
 
     public static void updateAvailableCounts(List<MaterialListEntry> list, PlayerEntity player)
     {
+        if (player == null) return;
         Object2IntOpenHashMap<ItemType> playerInvItems = getInventoryItemCounts(player.getInventory());
 
         for (MaterialListEntry entry : list)

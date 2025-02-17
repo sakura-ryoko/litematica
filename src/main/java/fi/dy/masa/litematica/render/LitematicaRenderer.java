@@ -13,6 +13,7 @@ import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.profiler.Profiler;
 
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -274,13 +275,13 @@ public class LitematicaRenderer
 
             if (this.renderPiecewiseSchematic)
             {
-                profiler.push("culling");
+                profiler.push(Reference.MOD_ID+"_culling");
                 this.calculateFinishTime();
 
-                profiler.swap("terrain_setup");
+                profiler.swap(Reference.MOD_ID+"_terrain_setup");
                 worldRenderer.setupTerrain(this.getCamera(), frustum, this.frameCount++, this.mc.player.isSpectator(), profiler);
 
-                profiler.swap("update_chunks");
+                profiler.swap(Reference.MOD_ID+"_update_chunks");
                 worldRenderer.updateChunks(this.finishTimeNano, profiler);
 
                 profiler.pop();
@@ -294,7 +295,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("blocks_solid");
+            profiler.push(Reference.MOD_ID+"_solid");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -319,7 +320,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("blocks_cutout_mipped");
+            profiler.push(Reference.MOD_ID+"_cutout_mipped");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -344,7 +345,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("blocks_cutout");
+            profiler.push(Reference.MOD_ID+"_cutout");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -369,7 +370,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("translucent");
+            profiler.push(Reference.MOD_ID+"_translucent");
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -394,21 +395,25 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseSchematic)
         {
-            profiler.push("schematic_overlay");
+            profiler.push(Reference.MOD_ID+"_schematic_overlay");
 
+            /*
             Framebuffer fb = MinecraftClient.isFabulousGraphicsOrBetter() ? this.mc.worldRenderer.getTranslucentFramebuffer() : null;
 
             if (fb != null)
             {
                 fb.beginWrite(false);
             }
+             */
 
             this.renderSchematicOverlay(viewMatrix, posMatrix, profiler);
 
+            /*
             if (fb != null)
             {
                 this.mc.getFramebuffer().beginWrite(false);
             }
+             */
 
             profiler.pop();
         }
@@ -420,7 +425,7 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
-            profiler.push("entities");
+            profiler.push(Reference.MOD_ID+"_entities");
 
             this.getWorldRenderer().renderEntities(this.getCamera(), this.frustum, posMatrix, partialTicks, profiler);
 
