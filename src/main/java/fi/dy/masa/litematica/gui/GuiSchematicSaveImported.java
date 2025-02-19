@@ -120,7 +120,7 @@ public class GuiSchematicSaveImported extends GuiSchematicSaveBase
                     }
                     else if (fileType == FileType.VANILLA_STRUCTURE)
                     {
-                        if (WorldUtils.convertStructureToLitematicaSchematic(inDir, inFile, dir, fileName, override))
+                        if (WorldUtils.convertStructureToLitematicaSchematic(inDir, inFile, dir, fileName, ignoreEntities, override, this.gui))
                         {
                             this.gui.addMessage(MessageType.SUCCESS, "litematica.message.schematic_saved_as", fileName);
                             this.gui.getListWidget().refreshEntries();
