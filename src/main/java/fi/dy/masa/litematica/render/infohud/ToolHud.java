@@ -348,7 +348,7 @@ public class ToolHud extends InfoHud
         if (facing.isPresent())
         {
             String gold = GuiBase.TXT_GOLD;
-            String strFacing = gold + facing.get().getName().toLowerCase() + rst;
+            String strFacing = gold + facing.get().name().toLowerCase() + rst;
             strBlock += " - " + StringUtils.translate("litematica.tool_hud.facing", strFacing);
         }
 

@@ -288,19 +288,19 @@ public class BlockModelRendererSchematic
 
         if (box != null)
         {
-            box[Direction.WEST.getId()] = minX;
-            box[Direction.EAST.getId()] = maxX;
-            box[Direction.DOWN.getId()] = minY;
-            box[Direction.UP.getId()] = maxY;
-            box[Direction.NORTH.getId()] = minZ;
-            box[Direction.SOUTH.getId()] = maxZ;
+            box[Direction.WEST.getIndex()] = minX;
+            box[Direction.EAST.getIndex()] = maxX;
+            box[Direction.DOWN.getIndex()] = minY;
+            box[Direction.UP.getIndex()] = maxY;
+            box[Direction.NORTH.getIndex()] = minZ;
+            box[Direction.SOUTH.getIndex()] = maxZ;
 
-            box[Direction.WEST.getId() + 6] = 1.0F - minX;
-            box[Direction.EAST.getId() + 6] = 1.0F - maxX;
-            box[Direction.DOWN.getId() + 6] = 1.0F - minY;
-            box[Direction.UP.getId() + 6] = 1.0F - maxY;
-            box[Direction.NORTH.getId() + 6] = 1.0F - minZ;
-            box[Direction.SOUTH.getId() + 6] = 1.0F - maxZ;
+            box[Direction.WEST.getIndex() + 6] = 1.0F - minX;
+            box[Direction.EAST.getIndex() + 6] = 1.0F - maxX;
+            box[Direction.DOWN.getIndex() + 6] = 1.0F - minY;
+            box[Direction.UP.getIndex() + 6] = 1.0F - maxY;
+            box[Direction.NORTH.getIndex() + 6] = 1.0F - minZ;
+            box[Direction.SOUTH.getIndex() + 6] = 1.0F - maxZ;
         }
 
         float min = 1.0E-4F;
@@ -359,19 +359,19 @@ public class BlockModelRendererSchematic
 
         if (quadBounds != null)
         {
-            quadBounds[Direction.WEST.getId()] = f;
-            quadBounds[Direction.EAST.getId()] = f3;
-            quadBounds[Direction.DOWN.getId()] = f1;
-            quadBounds[Direction.UP.getId()] = f4;
-            quadBounds[Direction.NORTH.getId()] = f2;
-            quadBounds[Direction.SOUTH.getId()] = f5;
+            quadBounds[Direction.WEST.getIndex()] = f;
+            quadBounds[Direction.EAST.getIndex()] = f3;
+            quadBounds[Direction.DOWN.getIndex()] = f1;
+            quadBounds[Direction.UP.getIndex()] = f4;
+            quadBounds[Direction.NORTH.getIndex()] = f2;
+            quadBounds[Direction.SOUTH.getIndex()] = f5;
             int j = Direction.values().length;
-            quadBounds[Direction.WEST.getId() + j] = 1.0F - f;
-            quadBounds[Direction.EAST.getId() + j] = 1.0F - f3;
-            quadBounds[Direction.DOWN.getId() + j] = 1.0F - f1;
-            quadBounds[Direction.UP.getId() + j] = 1.0F - f4;
-            quadBounds[Direction.NORTH.getId() + j] = 1.0F - f2;
-            quadBounds[Direction.SOUTH.getId() + j] = 1.0F - f5;
+            quadBounds[Direction.WEST.getIndex() + j] = 1.0F - f;
+            quadBounds[Direction.EAST.getIndex() + j] = 1.0F - f3;
+            quadBounds[Direction.DOWN.getIndex() + j] = 1.0F - f1;
+            quadBounds[Direction.UP.getIndex() + j] = 1.0F - f4;
+            quadBounds[Direction.NORTH.getIndex() + j] = 1.0F - f2;
+            quadBounds[Direction.SOUTH.getIndex() + j] = 1.0F - f5;
         }
 
         switch (face)

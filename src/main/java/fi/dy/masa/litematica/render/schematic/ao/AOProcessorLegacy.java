@@ -134,17 +134,17 @@ public class AOProcessorLegacy extends AOProcessor
 
         public static EnumNeighborInfo getNeighbourInfo(Direction p_178273_0_)
         {
-            return VALUES[p_178273_0_.getId()];
+            return VALUES[p_178273_0_.getIndex()];
         }
 
         static
         {
-            VALUES[Direction.DOWN.getId()] = DOWN;
-            VALUES[Direction.UP.getId()] = UP;
-            VALUES[Direction.NORTH.getId()] = NORTH;
-            VALUES[Direction.SOUTH.getId()] = SOUTH;
-            VALUES[Direction.WEST.getId()] = WEST;
-            VALUES[Direction.EAST.getId()] = EAST;
+            VALUES[Direction.DOWN.getIndex()] = DOWN;
+            VALUES[Direction.UP.getIndex()] = UP;
+            VALUES[Direction.NORTH.getIndex()] = NORTH;
+            VALUES[Direction.SOUTH.getIndex()] = SOUTH;
+            VALUES[Direction.WEST.getIndex()] = WEST;
+            VALUES[Direction.EAST.getIndex()] = EAST;
         }
     }
 
@@ -167,7 +167,7 @@ public class AOProcessorLegacy extends AOProcessor
 
         Orientation(Direction p_i46233_3_, boolean p_i46233_4_)
         {
-            this.shape = p_i46233_3_.getId() + (p_i46233_4_ ? Direction.values().length : 0);
+            this.shape = p_i46233_3_.getIndex() + (p_i46233_4_ ? Direction.values().length : 0);
         }
     }
 
@@ -196,17 +196,17 @@ public class AOProcessorLegacy extends AOProcessor
 
         public static VertexTranslations getVertexTranslations(Direction p_178184_0_)
         {
-            return VALUES[p_178184_0_.getId()];
+            return VALUES[p_178184_0_.getIndex()];
         }
 
         static
         {
-            VALUES[Direction.DOWN.getId()] = DOWN;
-            VALUES[Direction.UP.getId()] = UP;
-            VALUES[Direction.NORTH.getId()] = NORTH;
-            VALUES[Direction.SOUTH.getId()] = SOUTH;
-            VALUES[Direction.WEST.getId()] = WEST;
-            VALUES[Direction.EAST.getId()] = EAST;
+            VALUES[Direction.DOWN.getIndex()] = DOWN;
+            VALUES[Direction.UP.getIndex()] = UP;
+            VALUES[Direction.NORTH.getIndex()] = NORTH;
+            VALUES[Direction.SOUTH.getIndex()] = SOUTH;
+            VALUES[Direction.WEST.getIndex()] = WEST;
+            VALUES[Direction.EAST.getIndex()] = EAST;
         }
     }
 }

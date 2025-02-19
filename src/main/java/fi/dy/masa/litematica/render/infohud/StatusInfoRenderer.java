@@ -68,7 +68,7 @@ public class StatusInfoRenderer implements IInfoHudRenderer
 
         LayerRange range = DataManager.getRenderLayerRange();
         String strMode = range.getLayerMode().getDisplayName();
-        String axisName = range.getAxis().getName().toLowerCase();
+        String axisName = range.getAxis().name().toLowerCase();
         String val = range.getCurrentLayerString();
 
         if (range.getLayerMode() == LayerMode.ALL)

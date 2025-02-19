@@ -322,12 +322,12 @@ public class AOProcessorModern extends AOProcessor
         final NO[] field_4188;
         private static final ND[] VALUES = Util.make(new ND[6], (values) ->
         {
-            values[Direction.DOWN.getId()] = DOWN;
-            values[Direction.UP.getId()] = UP;
-            values[Direction.NORTH.getId()] = NORTH;
-            values[Direction.SOUTH.getId()] = SOUTH;
-            values[Direction.WEST.getId()] = WEST;
-            values[Direction.EAST.getId()] = EAST;
+            values[Direction.DOWN.getIndex()] = DOWN;
+            values[Direction.UP.getIndex()] = UP;
+            values[Direction.NORTH.getIndex()] = NORTH;
+            values[Direction.SOUTH.getIndex()] = SOUTH;
+            values[Direction.WEST.getIndex()] = WEST;
+            values[Direction.EAST.getIndex()] = EAST;
         });
 
         ND(final Direction[] faces, final float f, final boolean nonCubicWeight, final NO[] neighborOrientations, final NO[] neighborOrientations2, final NO[] neighborOrientations3, final NO[] neighborOrientations4)
@@ -342,7 +342,7 @@ public class AOProcessorModern extends AOProcessor
 
         public static ND getData(Direction direction)
         {
-            return VALUES[direction.getId()];
+            return VALUES[direction.getIndex()];
         }
     }
 
@@ -365,7 +365,7 @@ public class AOProcessorModern extends AOProcessor
 
         NO(final Direction direction, final boolean flip)
         {
-            this.shape = direction.getId() + (flip ? DIRECTIONS.length : 0);
+            this.shape = direction.getIndex() + (flip ? DIRECTIONS.length : 0);
         }
     }
 
@@ -384,12 +384,12 @@ public class AOProcessorModern extends AOProcessor
         final int fourthCorner;
         private static final Tl[] VALUES = Util.make(new Tl[6], (values) ->
         {
-            values[Direction.DOWN.getId()] = DOWN;
-            values[Direction.UP.getId()] = UP;
-            values[Direction.NORTH.getId()] = NORTH;
-            values[Direction.SOUTH.getId()] = SOUTH;
-            values[Direction.WEST.getId()] = WEST;
-            values[Direction.EAST.getId()] = EAST;
+            values[Direction.DOWN.getIndex()] = DOWN;
+            values[Direction.UP.getIndex()] = UP;
+            values[Direction.NORTH.getIndex()] = NORTH;
+            values[Direction.SOUTH.getIndex()] = SOUTH;
+            values[Direction.WEST.getIndex()] = WEST;
+            values[Direction.EAST.getIndex()] = EAST;
         });
 
         Tl(final int firstCorner, final int secondCorner, final int thirdCorner, final int fourthCorner)
@@ -402,7 +402,7 @@ public class AOProcessorModern extends AOProcessor
 
         public static Tl getTranslations(Direction direction)
         {
-            return VALUES[direction.getId()];
+            return VALUES[direction.getIndex()];
         }
     }
 }

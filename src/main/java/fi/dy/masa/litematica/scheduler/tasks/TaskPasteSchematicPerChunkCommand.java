@@ -329,7 +329,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         if (stack.isEmpty() == false)
         {
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
-            int facingId = itemFrame.getHorizontalFacing().getId();
+            int facingId = itemFrame.getHorizontalFacing().getIndex();
             String nbtStr = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b}}", facingId, itemId);
             NbtComponent entityComp = stack.get(DataComponentTypes.ENTITY_DATA);
 

@@ -41,7 +41,7 @@ public class SchematicConversionFixers
         if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
-            DyeColor colorFromData = DyeColor.byId(15 - tag.getInt("Base"));
+            DyeColor colorFromData = DyeColor.byIndex(15 - tag.getInt("Base"));
 
             if (colorOrig != colorFromData)
             {
@@ -80,7 +80,7 @@ public class SchematicConversionFixers
         if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
-            DyeColor colorFromData = DyeColor.byId(15 - tag.getInt("Base"));
+            DyeColor colorFromData = DyeColor.byIndex(15 - tag.getInt("Base"));
 
             if (colorOrig != colorFromData)
             {
@@ -207,7 +207,7 @@ public class SchematicConversionFixers
             BlockState stateAdj = reader.getBlockState(posAdj);
             Direction sideOpposite = side.getOpposite();
             boolean flag = stateAdj.isSideSolidFullSquare(reader, posAdj, sideOpposite);
-            state = state.with(HORIZONTAL_CONNECTING_BLOCK_PROPS[side.getId()], fence.canConnect(stateAdj, flag, sideOpposite));
+            state = state.with(HORIZONTAL_CONNECTING_BLOCK_PROPS[side.getIndex()], fence.canConnect(stateAdj, flag, sideOpposite));
         }
 
         return state;
@@ -308,7 +308,7 @@ public class SchematicConversionFixers
             BlockState stateAdj = reader.getBlockState(posAdj);
             Direction sideOpposite = side.getOpposite();
             boolean flag = stateAdj.isSideSolidFullSquare(reader, posAdj, sideOpposite);
-            state = state.with(HORIZONTAL_CONNECTING_BLOCK_PROPS[side.getId()], pane.connectsTo(stateAdj, flag));
+            state = state.with(HORIZONTAL_CONNECTING_BLOCK_PROPS[side.getIndex()], pane.connectsTo(stateAdj, flag));
         }
 
         return state;

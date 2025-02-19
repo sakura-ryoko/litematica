@@ -343,7 +343,7 @@ public class PlacementHandler
         }
         else if (decodedFacingIndex >= 0 && decodedFacingIndex <= 5)
         {
-            facing = Direction.byId(decodedFacingIndex);
+            facing = Direction.byIndex(decodedFacingIndex);
 
             if (property.getValues().contains(facing) == false)
             {
