@@ -440,7 +440,7 @@ public class SchematicaSchematic
 
         if (schematic.readFromFile(file))
         {
-            schematic.metadata.setName(file.getFileName().toString());
+            schematic.metadata.setName(file.getName());
             return schematic;
         }
 

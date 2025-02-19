@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
@@ -19,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 
 public class SchematicDowngradeConverter
 {
@@ -503,15 +505,18 @@ public class SchematicDowngradeConverter
     {
         NbtCompound oldNbt = (NbtCompound) nbtIn;
         NbtCompound newNbt = new NbtCompound();
+
+        // todo -- make sure this even needed
+        /*
         Codec<Map<RegistryKey<Recipe<?>>, Integer>> CODEC = Codec.unboundedMap(Recipe.KEY_CODEC, Codec.INT);
         Reference2IntOpenHashMap<RegistryKey<Recipe<?>>> recipesUsed = new Reference2IntOpenHashMap<>();
 
-        // todo -- make sure this even needed
         recipesUsed.putAll((Map<? extends RegistryKey<Recipe<?>>, ? extends Integer>) oldNbt.get("RecipesUsed", CODEC).orElse(Map.of()));
         recipesUsed.forEach((id, count) ->
         {
             newNbt.putInt(id.getValue().toString(), count);
         });
+         */
 
         return newNbt;
     }
@@ -1091,7 +1096,7 @@ public class SchematicDowngradeConverter
 
          */
 
-        Text oldName = BlockEntity.tryParseCustomName(nameTag.get(key), registryManager);
+        Text oldName = BlockEntity.tryParseCustomName(nameTag.getString(key), registryManager);
 
         return Text.Serialization.toJsonString(oldName, registryManager);
     }
@@ -1329,10 +1334,10 @@ public class SchematicDowngradeConverter
             NbtCompound newEntry = new NbtCompound();
             String color = oldEntry.getString("color");
             String pattern = oldEntry.getString("pattern");
-            DyeColor dye = DyeColor.byId(color, DyeColor.WHITE);
+            DyeColor dye = DyeColor.byName(color, DyeColor.WHITE);
 
             newEntry.putString("Pattern", convertBannerPattern(pattern));
-            newEntry.putInt("Color", dye.getIndex());
+            newEntry.putInt("Color", dye.getId());
 
             newList.add(newEntry);
         }
