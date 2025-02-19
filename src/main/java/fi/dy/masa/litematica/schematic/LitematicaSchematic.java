@@ -2346,7 +2346,7 @@ public class LitematicaSchematic
                     String name = FileNameUtils.getFileNameWithoutExtension(this.schematicFile.getName()) + " (Converted Sponge)";
                     return this.readFromSpongeSchematic(name, nbt);
                 }
-                if (schematicType == FileType.VANILLA_STRUCTURE)
+                else if (schematicType == FileType.VANILLA_STRUCTURE)
                 {
                     String name = FileNameUtils.getFileNameWithoutExtension(this.schematicFile.getName()) + " (Converted Structure)";
                     return this.readFromVanillaStructure(name, nbt);
@@ -2355,6 +2355,8 @@ public class LitematicaSchematic
                 {
                     return this.readFromNBT(nbt);
                 }
+
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.cant_read", this.schematicFile.toAbsolutePath());
             }
         }
         catch (Exception e)
@@ -2679,5 +2681,85 @@ public class LitematicaSchematic
             this.ignoreEntities = ignoreEntities;
             this.fromSchematicWorld = fromSchematicWorld;
         }
+    }
+
+    /**
+     * FOR DEBUGGING PURPOSES ONLY
+     *
+     * @return ()
+     */
+    @Override
+    public String toString()
+    {
+        NbtCompound nbt = new NbtCompound();
+        NbtCompound list = new NbtCompound();
+
+        if (this.schematicFile != null)
+        {
+            nbt.putString("FileName", this.schematicFile.toAbsolutePath().toString());
+        }
+        if (this.schematicType != null)
+        {
+            nbt.putString("FileType", this.schematicType.name());
+        }
+
+        nbt.putInt("TotalBlocksRead", this.totalBlocksReadFromWorld);
+
+        if (this.blockContainers != null)
+        {
+            for (String key : this.blockContainers.keySet())
+            {
+                NbtCompound sub = new NbtCompound();
+
+                if (this.blockContainers.get(key) != null)
+                {
+                    sub.put("BlockStateContainerSize", Vec3i.CODEC, this.blockContainers.get(key).getSize());
+                }
+                else
+                {
+                    sub.put("BlockStateContainerSize", Vec3i.CODEC, Vec3i.ZERO);
+                }
+                if (this.subRegionPositions.get(key) != null)
+                {
+                    sub.put("SubRegionPositions", BlockPos.CODEC, this.subRegionPositions.get(key));
+                }
+                else
+                {
+                    sub.put("SubRegionPositions", BlockPos.CODEC, BlockPos.ORIGIN);
+                }
+                if (this.subRegionSizes.get(key) != null)
+                {
+                    sub.put("SubRegionSizes", BlockPos.CODEC, this.subRegionSizes.get(key));
+                }
+                else
+                {
+                    sub.put("SubRegionSizes", BlockPos.CODEC, BlockPos.ORIGIN);
+                }
+
+                if (this.tileEntities.get(key) != null)
+                {
+                    sub.putInt("TileEntityCount", this.tileEntities.get(key).size());
+                }
+                if (this.entities.get(key) != null)
+                {
+                    sub.putInt("EntityCount", this.entities.get(key).size());
+                }
+                if (this.pendingBlockTicks.get(key) != null)
+                {
+                    sub.putInt("PendingBlockTicks", this.pendingBlockTicks.get(key).size());
+                }
+                if (this.pendingFluidTicks.get(key) != null)
+                {
+                    sub.putInt("PendingFluidTicks", this.pendingFluidTicks.get(key).size());
+                }
+
+                list.put(key, NbtCompound.CODEC, sub);
+            }
+        }
+
+        nbt.put("Regions", NbtCompound.CODEC, list);
+        nbt.put("Metadata", NbtCompound.CODEC, this.metadata.writeToNbtExtra());
+
+        return "LitematicaSchematic[" + nbt.toString() + "]";
     }
 }
