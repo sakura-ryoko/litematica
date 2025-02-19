@@ -111,7 +111,7 @@ public class WorldUtils
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(origSchematic, BlockPos.ORIGIN);
         origSchematic.placeToWorld(world, schematicPlacement, false); // TODO use a per-chunk version for a bit more speed
 
-        String subRegionName = FileUtils.getNameWithoutExtension(inputFileName);
+        String subRegionName = FileNameUtils.getFileNameWithoutExtension(inputFileName);
         AreaSelection area = new AreaSelection();
         area.setName(subRegionName);
         subRegionName = area.createNewSubRegionBox(BlockPos.ORIGIN, subRegionName);
@@ -263,14 +263,14 @@ public class WorldUtils
     }
 
     public static boolean convertStructureToLitematicaSchematic(File structureDir, String structureFileName,
-            File outputDir, String outputFileName, boolean override)
+                                                                File outputDir, String outputFileName, boolean override)
     {
         LitematicaSchematic litematicaSchematic = convertStructureToLitematicaSchematic(structureDir, structureFileName);
         return litematicaSchematic != null && litematicaSchematic.writeToFile(outputDir, outputFileName, override);
     }
 
-    public static boolean convertStructureToLitematicaSchematic(Path structureDir, String structureFileName,
-            Path outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
+    public static boolean convertStructureToLitematicaSchematic(File structureDir, String structureFileName,
+                                                                File outputDir, String outputFileName, boolean ignoreEntities, boolean override, IStringConsumer feedback)
     {
         DataFixerMode oldMode = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
         Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.ALWAYS);
@@ -289,7 +289,7 @@ public class WorldUtils
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(origStructure, BlockPos.ORIGIN);
         origStructure.placeToWorld(world, schematicPlacement, false); // TODO use a per-chunk version for a bit more speed
 
-        String subRegionName = FileUtils.getNameWithoutExtension(structureFileName);
+        String subRegionName = FileNameUtils.getFileNameWithoutExtension(structureFileName);
         AreaSelection area = new AreaSelection();
         area.setName(subRegionName);
         subRegionName = area.createNewSubRegionBox(BlockPos.ORIGIN, subRegionName);

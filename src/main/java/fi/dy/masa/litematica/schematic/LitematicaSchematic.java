@@ -2356,7 +2356,7 @@ public class LitematicaSchematic
                     return this.readFromNBT(nbt);
                 }
 
-                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.cant_read", this.schematicFile.toAbsolutePath());
+                InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_read_from_file_failed.cant_read", this.schematicFile.getAbsolutePath());
             }
         }
         catch (Exception e)
@@ -2688,6 +2688,7 @@ public class LitematicaSchematic
      *
      * @return ()
      */
+    /*
     @Override
     public String toString()
     {
@@ -2762,4 +2763,5 @@ public class LitematicaSchematic
 
         return "LitematicaSchematic[" + nbt.toString() + "]";
     }
+     */
 }
