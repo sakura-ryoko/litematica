@@ -506,7 +506,10 @@
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Failed to downgrade the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Failed to create the Litematica schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Failed to load the Schematic",
-    "litematica.error.schematic_conversion.structure_to_litematica_failed": "Failed to convert the Structure to a Litematica Schematic",
+    "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Failed to create the Litematica schematic",
+    "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_read_sponge": "Failed to load the Sponge Schematic",
+    "litematica.error.schematic_conversion.structure_to_litematica.failed_to_create_litematic": "Failed to convert the Structure to a Litematica Schematic",
+    "litematica.error.schematic_conversion.structure_to_litematica.failed_to_read_structure": "Failed to load the Vanilla Structure",
 
     "litematica.error.schematic.create.no_selections": "No valid selection regions!",
 

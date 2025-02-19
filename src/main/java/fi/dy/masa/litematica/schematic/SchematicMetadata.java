@@ -348,7 +348,7 @@ public class SchematicMetadata
 
             if (size != null)
             {
-                this.enclosingSize = size != null ? size : Vec3i.ZERO;
+                this.enclosingSize = size;
             }
         }
 
@@ -360,5 +360,76 @@ public class SchematicMetadata
         {
             this.thumbnailPixelData = null;
         }
+    }
+
+    /**
+     * FOR DEBUGGING PURPOSES ONLY
+     *
+     * @return ()
+     */
+    public NbtCompound writeToNbtExtra()
+    {
+        NbtCompound nbt = this.writeToNBT();
+
+        nbt.putString("FileType", this.type.name());
+
+        if (this.minecraftDataVersion > 0)
+        {
+            nbt.putInt("MinecraftDataVersion", this.minecraftDataVersion);
+        }
+
+        if (this.schematicVersion > 0)
+        {
+            nbt.putInt("SchematicVersion", this.schematicVersion);
+        }
+
+        if (this.schema != null)
+        {
+            nbt.putString("Schema", this.schema.toString());
+        }
+
+        if (this.entityCount > 0)
+        {
+            nbt.putInt("EntityCount", this.entityCount);
+        }
+
+        if (this.blockEntityCount > 0)
+        {
+            nbt.putInt("BlockEntityCount", this.blockEntityCount);
+        }
+
+        nbt.putBoolean("IsModified", this.modifiedSinceSaved);
+
+        return nbt;
+    }
+
+    /**
+     * FOR DEBUGGING PURPOSES ONLY
+     *
+     * @return ()
+     */
+    @Override
+    public String toString()
+    {
+        NbtCompound nbt = this.writeToNbtExtra();
+
+        if (nbt.contains("PreviewImageData"))
+        {
+            nbt.remove("PreviewImageData");
+            nbt.putBoolean("PreviewImageData", true);
+        }
+
+        return "SchematicMetadata[" + nbt.toString() + "]";
+    }
+
+    /**
+     * FOR DEBUGGING PURPOSES ONLY
+     *
+     */
+    public void dumpMetadata()
+    {
+        System.out.print ("SchematicMetadata() DUMP -->\n");
+        System.out.printf("   %s\n", this.toString());
+        System.out.print ("<END>\n");
     }
 }

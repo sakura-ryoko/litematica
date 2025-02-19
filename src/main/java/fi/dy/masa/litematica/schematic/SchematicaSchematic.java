@@ -39,12 +39,14 @@ import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConverter;
 import fi.dy.masa.litematica.util.DataFixerMode;
 import fi.dy.masa.litematica.util.EntityUtils;
+import fi.dy.masa.litematica.util.FileType;
 import fi.dy.masa.litematica.util.PositionUtils;
 
 public class SchematicaSchematic
 {
     public static final String FILE_EXTENSION = ".schematic";
 
+    private final SchematicMetadata metadata = new SchematicMetadata();
     private final SchematicConverter converter;
     private final BlockState[] palette = new BlockState[65536];
     private LitematicaBlockStateContainer blocks;
@@ -58,6 +60,11 @@ public class SchematicaSchematic
     private SchematicaSchematic()
     {
         this.converter = SchematicConverter.createForSchematica();
+    }
+
+    public SchematicMetadata getMetadata()
+    {
+        return this.metadata;
     }
 
     public Vec3i getSize()
@@ -442,6 +449,7 @@ public class SchematicaSchematic
 
         if (schematic.readFromFile(file))
         {
+            schematic.metadata.setName(file.getFileName().toString());
             return schematic;
         }
 
@@ -602,6 +610,11 @@ public class SchematicaSchematic
 
         this.size = new Vec3i(sizeX, sizeY, sizeZ);
         this.blocks = new LitematicaBlockStateContainer(sizeX, sizeY, sizeZ);
+        this.metadata.setEnclosingSize(this.size);
+        this.metadata.setTotalBlocks(numBlocks);
+        this.metadata.setTotalVolume(sizeX * sizeY * sizeZ);
+        this.metadata.setRegionCount(1);
+        this.metadata.setFileType(FileType.SCHEMATICA_SCHEMATIC);
 
         // Old Schematica format
         if (nbt.contains("Add", Constants.NBT.TAG_BYTE_ARRAY))
@@ -699,6 +712,10 @@ public class SchematicaSchematic
         NbtList tagList = nbt.getList("Entities", Constants.NBT.TAG_COMPOUND);
         int minecraftDataVersion = Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
         Schema effective = DataFixerMode.getEffectiveSchema(minecraftDataVersion);
+
+        this.metadata.setSchematicVersion(-1);
+        this.metadata.setMinecraftDataVersion(minecraftDataVersion);
+        this.metadata.setSchema();
 
         if (effective != null)
         {
