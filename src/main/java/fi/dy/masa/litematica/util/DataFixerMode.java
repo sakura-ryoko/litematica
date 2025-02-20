@@ -2,9 +2,10 @@ package fi.dy.masa.litematica.util;
 
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
-import fi.dy.masa.malilib.util.Schema;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.data.Schema;
 import fi.dy.masa.litematica.config.Configs;
 
 public enum DataFixerMode implements IConfigOptionListEntry

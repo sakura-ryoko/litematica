@@ -445,25 +445,25 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 try
                 {
                     MinecraftClient mc = MinecraftClient.getInstance();
-                    NativeImage screenshot = ScreenshotRecorder.takeScreenshot(mc.getFramebuffer());
+                    ScreenshotRecorder.takeScreenshot(mc.getFramebuffer(), (screenshot) ->
+                    {
+                        int x = screenshot.getWidth() >= screenshot.getHeight() ? (screenshot.getWidth() - screenshot.getHeight()) / 2 : 0;
+                        int y = screenshot.getHeight() >= screenshot.getWidth() ? (screenshot.getHeight() - screenshot.getWidth()) / 2 : 0;
+                        int longerSide = Math.min(screenshot.getWidth(), screenshot.getHeight());
+                        //System.out.printf("w: %d, h: %d, x: %d, y: %d\n", screenshot.getWidth(), screenshot.getHeight(), x, y);
+                        //int previewDimensions = 140;
+                        int previewDimensions = 120;
+                        NativeImage scaled = new NativeImage(previewDimensions, previewDimensions, false);
+                        screenshot.resizeSubRectTo(x, y, longerSide, longerSide, scaled);
+                        @SuppressWarnings("deprecation")
+                        int[] pixels = scaled.makePixelArray();
 
-                    int x = screenshot.getWidth() >= screenshot.getHeight() ? (screenshot.getWidth() - screenshot.getHeight()) / 2 : 0;
-                    int y = screenshot.getHeight() >= screenshot.getWidth() ? (screenshot.getHeight() - screenshot.getWidth()) / 2 : 0;
-                    int longerSide = Math.min(screenshot.getWidth(), screenshot.getHeight());
-                    //System.out.printf("w: %d, h: %d, x: %d, y: %d\n", screenshot.getWidth(), screenshot.getHeight(), x, y);
-                    //int previewDimensions = 140;
-                    int previewDimensions = 120;
-                    NativeImage scaled = new NativeImage(previewDimensions, previewDimensions, false);
-                    screenshot.resizeSubRectTo(x, y, longerSide, longerSide, scaled);
-                    @SuppressWarnings("deprecation")
-                    int[] pixels = scaled.makePixelArray();
+                        schematic.getMetadata().setPreviewImagePixelData(pixels);
+                        schematic.getMetadata().setTimeModifiedToNow();
+                        schematic.writeToFile(this.dir, this.fileName, true);
 
-                    schematic.getMetadata().setPreviewImagePixelData(pixels);
-                    schematic.getMetadata().setTimeModifiedToNow();
-
-                    schematic.writeToFile(this.dir, this.fileName, true);
-
-                    InfoUtils.showGuiOrInGameMessage(MessageType.SUCCESS, "litematica.info.schematic_manager.preview.success");
+                        InfoUtils.showGuiOrInGameMessage(MessageType.SUCCESS, "litematica.info.schematic_manager.preview.success");
+                    });
                 }
                 catch (Exception e)
                 {

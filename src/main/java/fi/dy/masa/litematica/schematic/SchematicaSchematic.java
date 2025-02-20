@@ -26,9 +26,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.Schema;
+import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.data.Schema;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
