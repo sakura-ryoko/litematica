@@ -491,7 +491,7 @@
   "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Не вдалося створити схематику Litematica",
   "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Не вдалося завантажити схематику",
   "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Не вдалося створити схематику Litematica",
-  "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_read_sponge": "Не вдалося завантажити схему Sponge",
+  "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_read_sponge": "Не вдалося завантажити схематику Sponge",
   "litematica.error.schematic_conversion.structure_to_litematica.failed_to_create_litematic": "Не вдалося перетворити структуру на схематику Litematica",
   "litematica.error.schematic_conversion.structure_to_litematica.failed_to_read_structure": "Не вдалося завантажити ванілльну структуру",
   "litematica.error.schematic_load.cant_read_file": "Неможливо зчитати файл схематики «%s» (не існує або проблема з дозволом)",
