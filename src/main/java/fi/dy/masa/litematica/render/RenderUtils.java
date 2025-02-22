@@ -9,7 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgramLayers;
+import net.minecraft.client.gl.ShaderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
@@ -89,7 +89,7 @@ public class RenderUtils
             meshData.close();
              */
 
-            ctx.drawWithShaders(buffer.end(), ShaderProgramLayers.DEBUG_LINE_STRIP);
+            ctx.drawWithShaders(buffer.end(), ShaderPipelines.DEBUG_LINE_STRIP);
             ctx.close();
         }
         catch (Exception e)
@@ -238,7 +238,7 @@ public class RenderUtils
             meshData.close();
              */
 
-            ctx.drawWithShaders(buffer.end(), ShaderProgramLayers.DEBUG_LINE_STRIP);
+            ctx.drawWithShaders(buffer.end(), ShaderPipelines.DEBUG_LINE_STRIP);
             ctx.close();
 
         }
@@ -292,7 +292,7 @@ public class RenderUtils
             meshData.close();
              */
 
-            ctx.drawWithShaders(buffer.end(), ShaderProgramLayers.DEBUG_LINE_STRIP);
+            ctx.drawWithShaders(buffer.end(), ShaderPipelines.DEBUG_LINE_STRIP);
             ctx.close();
 
         }
@@ -368,7 +368,7 @@ public class RenderUtils
             meshData.close();
              */
 
-            ctx.drawWithShaders(buffer.end(), ShaderProgramLayers.DEBUG_LINE_STRIP);
+            ctx.drawWithShaders(buffer.end(), ShaderPipelines.DEBUG_LINE_STRIP);
             ctx.close();
         }
         catch (Exception ignored) { }
@@ -561,7 +561,7 @@ public class RenderUtils
             meshData.close();
              */
 
-            ctx.drawWithShaders(buffer.end(), ShaderProgramLayers.DEBUG_LINE_STRIP);
+            ctx.drawWithShaders(buffer.end(), ShaderPipelines.DEBUG_LINE_STRIP);
             ctx.close();
         }
         catch (Exception ignored) { }

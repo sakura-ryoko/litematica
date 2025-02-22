@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.util;
 
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -18,6 +20,12 @@ public enum PlacementDeletionMode implements IConfigOptionListEntry
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public Codec<PlacementDeletionMode> codec()
+    {
+        return null;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.util;
 
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -11,10 +13,16 @@ public enum BlockInfoListType implements IConfigOptionListEntry
     private final String configString;
     private final String translationKey;
 
-    private BlockInfoListType(String configString, String translationKey)
+    BlockInfoListType(String configString, String translationKey)
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public Codec<BlockInfoListType> codec()
+    {
+        return null;
     }
 
     @Override

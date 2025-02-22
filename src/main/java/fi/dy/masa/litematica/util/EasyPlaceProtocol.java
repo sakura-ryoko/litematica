@@ -1,6 +1,9 @@
 package fi.dy.masa.litematica.util;
 
 import com.google.common.collect.ImmutableList;
+
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -21,6 +24,12 @@ public enum EasyPlaceProtocol implements IConfigOptionListEntry
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public Codec<EasyPlaceProtocol> codec()
+    {
+        return null;
     }
 
     @Override

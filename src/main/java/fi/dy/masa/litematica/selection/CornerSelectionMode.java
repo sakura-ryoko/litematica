@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.selection;
 
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -11,10 +13,16 @@ public enum CornerSelectionMode implements IConfigOptionListEntry
     private final String configString;
     private final String translationKey;
 
-    private CornerSelectionMode(String configString, String translationKey)
+    CornerSelectionMode(String configString, String translationKey)
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public Codec<CornerSelectionMode> codec()
+    {
+        return null;
     }
 
     @Override

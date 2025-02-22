@@ -10,8 +10,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgramLayer;
-import net.minecraft.client.gl.ShaderProgramLayers;
+import net.minecraft.client.gl.ShaderPipeline;
+import net.minecraft.client.gl.ShaderPipelines;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -434,7 +434,7 @@ public class WorldRendererSchematic
         profiler.pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, ShaderProgramLayer shaderKey)
+    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, ShaderPipeline shaderKey)
     {
         this.profiler = profiler;
         RenderSystem.assertOnRenderThread();
@@ -682,7 +682,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderProgramLayers.DEBUG_LINE_STRIP.getProgram());
+                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderPipelines.DEBUG_LINE_STRIP.getProgram());
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();
                 }

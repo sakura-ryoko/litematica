@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.util;
 
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -12,10 +14,16 @@ public enum ReplaceBehavior implements IConfigOptionListEntry
     private final String configString;
     private final String translationKey;
 
-    private ReplaceBehavior(String configString, String translationKey)
+    ReplaceBehavior(String configString, String translationKey)
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public Codec<ReplaceBehavior> codec()
+    {
+        return null;
     }
 
     @Override

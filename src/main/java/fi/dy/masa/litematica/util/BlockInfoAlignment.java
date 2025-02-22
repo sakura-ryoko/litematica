@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.util;
 
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -11,10 +13,16 @@ public enum BlockInfoAlignment implements IConfigOptionListEntry
     private final String configString;
     private final String unlocName;
 
-    private BlockInfoAlignment(String configString, String unlocName)
+    BlockInfoAlignment(String configString, String unlocName)
     {
         this.configString = configString;
         this.unlocName = unlocName;
+    }
+
+    @Override
+    public Codec<BlockInfoAlignment> codec()
+    {
+        return null;
     }
 
     @Override

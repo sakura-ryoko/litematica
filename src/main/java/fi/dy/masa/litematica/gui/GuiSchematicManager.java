@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.ScreenshotRecorder;
@@ -160,6 +161,12 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 
     private class ConfigWrapper implements IConfigOptionList
     {
+        @Override
+        public Codec<ConfigWrapper> codec()
+        {
+            return null;
+        }
+
         @Override
         public IConfigOptionListEntry getOptionListValue()
         {
@@ -485,9 +492,15 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 
         private final String displayName;
 
-        private ExportType(String displayName)
+        ExportType(String displayName)
         {
             this.displayName = displayName;
+        }
+
+        @Override
+        public Codec<ExportType> codec()
+        {
+            return null;
         }
 
         @Override

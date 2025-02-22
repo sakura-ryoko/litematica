@@ -3,6 +3,8 @@ package fi.dy.masa.litematica.util;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
+import com.mojang.serialization.Codec;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.Schema;
@@ -30,6 +32,12 @@ public enum DataFixerMode implements IConfigOptionListEntry
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public Codec<DataFixerMode> codec()
+    {
+        return null;
     }
 
     @Override
