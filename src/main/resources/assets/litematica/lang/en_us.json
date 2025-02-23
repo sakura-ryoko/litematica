@@ -74,7 +74,6 @@
     "litematica.config.generic.name.toolItemEnabled": "toolItemEnabled",
     "litematica.config.generic.name.toolItemComponents": "toolItemComponents",
     "litematica.config.generic.name.unhideSchematicVCS": "unhideSchematicVCS",
-
     "litematica.config.visuals.name.enableAreaSelectionBoxesRendering": "enableAreaSelectionBoxesRendering",
     "litematica.config.visuals.name.enablePlacementBoxesRendering": "enablePlacementBoxesRendering",
     "litematica.config.visuals.name.enableRendering": "enableRendering",
@@ -111,7 +110,6 @@
     "litematica.config.visuals.name.schematicOverlayTypeWrongBlock": "schematicOverlayTypeWrongBlock",
     "litematica.config.visuals.name.schematicOverlayTypeWrongState": "schematicOverlayTypeWrongState",
     "litematica.config.visuals.name.schematicVerifierUseBlockModels": "schematicVerifierUseBlockModels",
-
     "litematica.config.info_overlays.name.blockInfoLinesAlignment": "blockInfoLinesAlignment",
     "litematica.config.info_overlays.name.blockInfoOverlayAlignment": "blockInfoOverlayAlignment",
     "litematica.config.info_overlays.name.infoHudAlignment": "infoHudAlignment",
@@ -138,7 +136,6 @@
     "litematica.config.info_overlays.name.verifierErrorHilightMaxPositions": "verifierErrorHilightMaxPositions",
     "litematica.config.info_overlays.name.verifierOverlayEnabled": "verifierOverlayEnabled",
     "litematica.config.info_overlays.name.warnDisabledRendering": "warnDisabledRendering",
-
     "litematica.config.colors.name.areaSelectionBoxSideColor": "areaSelectionBoxSideColor",
     "litematica.config.colors.name.hightlightBlockInInventoryColor": "hightlightBlockInInventoryColor",
     "litematica.config.colors.name.materialListHudItemCountsColor": "materialListHudItemCountsColor",
@@ -150,7 +147,6 @@
     "litematica.config.colors.name.schematicOverlayColorMissing": "schematicOverlayColorMissing",
     "litematica.config.colors.name.schematicOverlayColorWrongBlock": "schematicOverlayColorWrongBlock",
     "litematica.config.colors.name.schematicOverlayColorWrongState": "schematicOverlayColorWrongState",
-
     "litematica.config.hotkeys.name.addSelectionBox": "addSelectionBox",
     "litematica.config.hotkeys.name.cloneSelection": "cloneSelection",
     "litematica.config.hotkeys.name.deleteSelectionBox": "deleteSelectionBox",
@@ -227,7 +223,6 @@
     "litematica.config.hotkeys.name.toolSelectModifierBlock1": "toolSelectModifierBlock1",
     "litematica.config.hotkeys.name.toolSelectModifierBlock2": "toolSelectModifierBlock2",
     "litematica.config.hotkeys.name.unloadCurrentSchematic": "unloadCurrentSchematic",
-
     "litematica.config.generic.comment.easyPlaceProtocolVersion": "The type of \"accurate placement protocol\" to use.\n- Auto: Uses v3 in single player, and by default Slabs-only in multiplayer,\n  unless the server has Carpet mod that sends a 'carpet:hello'\n  packet, in which case v2 is used on that server.\n- Version 3: Only supported by Litematica itself (in single player) or with Servux.\n- Version 2: Compatible with servers with the Carpet mod\n  (either QuickCarpet by skyrising and DeadlyMC,\n  or CarpetExtra in addition to FabricCarpet.\n  And in both cases the 'accurateBlockPlacement' Carpet rule needs\n  to be enabled on the server).\n- Slabs only: Only fixes top slabs. Compatible with Paper servers.\n- None: Does not modify coordinates.",
     "litematica.config.generic.comment.pasteNbtRestoreBehavior": "Whether or not the NBT data of blocks is attempted to be restored,\nand which method is used for that.\n- Place & Data Modify will try to place the \"NBT-picked\" block\n  near the player, and then use the data modify\n  command to transfer the NBT data to the setblock'ed block\n- Place & Clone will try to place the \"NBT-picked\" block\n  near the player, and then clone it to the final location.\n- Teleport & Place will try to teleport the player nearby and then\n  directly place the NBT-picked item in the correct position.\nNote that the teleport & place method doesn't currently work correctly/at all.\nThe recommended method is §ePlace & Data Modify§r, however for that to work\nyou will probably need to lower the pasteCommandLimit to 1 per tick and increase\nthe pasteCommandInterval to 1-4 ticks or something.\nThus you should only use this for pasting important blocks that need the data,\nfor example by making a schematic of just the inventories,\nand then paste that with replace behavior set to None.",
     "litematica.config.generic.comment.pasteReplaceBehavior": "The behavior of replacing existing blocks\nin the Paste schematic tool mode",
@@ -303,7 +298,6 @@
     "litematica.config.generic.comment.toolItemEnabled": "If true, then the \"tool\" item can be used to control selections etc.",
     "litematica.config.generic.comment.toolItemComponents": "A Data Components-aware version of toolItem.\nSet to \"empty\" to disable.\nThe syntax accepted is the same as the \"/give\" command.",
     "litematica.config.generic.comment.unhideSchematicVCS": "Un-hides the Schematic VCS (Version Control System) menu button,\nand enables the hotkey and the VCS functionality in general.\n(This was called Schematic Projects before.)\n\nIn general you §6should not§r be using this feature,\nunless you really know how it works and what it does.\nIt somewhat changes how the area selections, placements and pasting works,\nin particular that there is also an area delete operation when pasting.\n\nBasically this feature is intended for §6iterative, in-place§r design work,\nand it allows you to easier create multiple versions/snapshots\nof the same build, and also to switch between the versions by deleting what is\nin the world first, and then pasting the next version in its place.",
-
     "litematica.config.visuals.comment.enableAreaSelectionBoxesRendering": "Enable Area Selection boxes rendering",
     "litematica.config.visuals.comment.enablePlacementBoxesRendering": "Enable Schematic Placement boxes rendering",
     "litematica.config.visuals.comment.enableRendering": "Main rendering toggle option. Enables/disables ALL mod rendering.",
@@ -340,7 +334,6 @@
     "litematica.config.visuals.comment.schematicOverlayTypeWrongBlock": "Enables the schematic overlay for wrong blocks",
     "litematica.config.visuals.comment.schematicOverlayTypeWrongState": "Enables the schematic overlay for wrong states",
     "litematica.config.visuals.comment.schematicVerifierUseBlockModels": "Forces using blocks models for everything in the Schematic Verifier\nresult list. Normally item models are used for anything\nthat has an item, and block models are only used for blocks\nthat don't have an item, plus for Flower Pots to see the contained item.",
-
     "litematica.config.info_overlays.comment.blockInfoLinesAlignment": "The alignment of the block info lines overlay",
     "litematica.config.info_overlays.comment.blockInfoOverlayAlignment": "The alignment of the Block Info Overlay",
     "litematica.config.info_overlays.comment.infoHudAlignment": "The alignment of the \"Info HUD\",\nused for the Material List, Schematic Verifier mismatch positions etc.",
@@ -367,7 +360,6 @@
     "litematica.config.info_overlays.comment.verifierErrorHilightMaxPositions": "The maximum number of mismatched positions to render\nat once in the Schematic Verifier overlay.",
     "litematica.config.info_overlays.comment.verifierOverlayEnabled": "Enable Schematic Verifier marker overlay rendering",
     "litematica.config.info_overlays.comment.warnDisabledRendering": "Should the warning message about being in a layer mode\nor having some of the rendering options disabled\nbe shown when loading a new schematic\nor creating a new placement",
-
     "litematica.config.colors.comment.areaSelectionBoxSideColor": "The color of the area selection boxes, when they are unselected",
     "litematica.config.colors.comment.hightlightBlockInInventoryColor": "The highlight color for the item of the looked at block",
     "litematica.config.colors.comment.materialListHudItemCountsColor": "The color of the item count text in the Material List info HUD",
@@ -379,7 +371,6 @@
     "litematica.config.colors.comment.schematicOverlayColorMissing": "The color of the blocks overlay for missing blocks",
     "litematica.config.colors.comment.schematicOverlayColorWrongBlock": "The color of the blocks overlay for wrong blocks",
     "litematica.config.colors.comment.schematicOverlayColorWrongState": "The color of the blocks overlay for wrong block states",
-
     "litematica.config.hotkeys.comment.addSelectionBox": "Add a new selection box (position 1) here",
     "litematica.config.hotkeys.comment.cloneSelection": "Quickly clone the current area selection.\nThis basically just creates an in-memory-only schematic,\nand then creates a placement of that schematic and selects it,\nand also switches the tool mode to the Paste mode.",
     "litematica.config.hotkeys.comment.deleteSelectionBox": "Delete the currently selected box",
@@ -456,14 +447,12 @@
     "litematica.config.hotkeys.comment.toolSelectModifierBlock1": "The modifier key to hold while using the 'toolSelectElements'\nhotkey, to select the primary block type to use in some of the tool modes",
     "litematica.config.hotkeys.comment.toolSelectModifierBlock2": "The modifier key to hold while using the 'toolSelectElements'\nhotkey, to select the secondary block type to use in some of the tool modes",
     "litematica.config.hotkeys.comment.unloadCurrentSchematic": "Unloads the schematic of the currently selected placement,and thus also removes all placements created from it",
-
     "litematica.config.generic.prettyName.pickBlockEnabled": "Pick Block Hotkeys",
     "litematica.config.generic.prettyName.easyPlaceMode": "Easy Place Mode",
     "litematica.config.generic.prettyName.entityDataSync": "Entity Data Sync",
     "litematica.config.generic.prettyName.placementRestriction": "Placement Restriction",
     "litematica.config.generic.prettyName.signTextPaste": "Sign Text Paste",
     "litematica.config.generic.prettyName.toolItemEnabled": "Tool Item Enabled",
-
     "litematica.config.visuals.prettyName.enableAreaSelectionBoxesRendering": "Area Selection Boxes Rendering",
     "litematica.config.visuals.prettyName.enablePlacementBoxesRendering": "Schematic Placement Boxes Rendering",
     "litematica.config.visuals.prettyName.enableRendering": "All Rendering",
@@ -476,12 +465,9 @@
     "litematica.config.visuals.prettyName.schematicOverlayEnableOutlines": "Schematic Overlay Outlines",
     "litematica.config.visuals.prettyName.schematicOverlayEnableResorting": "Schematic Overlay Translucent Sorting",
     "litematica.config.visuals.prettyName.schematicOverlayEnableSides": "Schematic Overlay Sides",
-
     "litematica.config.info_overlays.prettyName.blockInfoOverlayEnabled": "Block Info Overlay Rendering",
     "litematica.config.info_overlays.prettyName.verifierOverlayEnabled": "Verifier Overlay Rendering",
-
     "litematica.config.hotkeys.prettyName.toggleAllRendering": "All Rendering",
-
     "litematica.error.area_selection.copy_failed": "Failed to copy the selection",
     "litematica.error.area_selection.create_failed": "Failed to create a new selection by the name '%s', file already exists",
     "litematica.error.area_selection.failed_to_load": "Failed to load the Area Selection",
@@ -489,19 +475,16 @@
     "litematica.error.area_selection.no_placement_selected": "No Schematic Placement selected!",
     "litematica.error.area_selection.rename.already_exists": "Error: An area already exists with the file name '%s'",
     "litematica.error.area_selection.rename.invalid_safe_file_name": "Invalid generated safe file name '%s'",
-
     "litematica.error.duplicate_schematic_placement": "Error: Tried to add a placement that already exists",
     "litematica.error.generic.creative_mode_only": "This action is only available in Creative mode",
     "litematica.error.generic.failed_to_delete_file": "Failed to delete the file '%s'",
     "litematica.error.generic.failed_to_sort_list_of_ignored_states": "Failed to sort the list of ignored states",
     "litematica.error.generic.schematic_world_not_loaded": "Schematic world was not loaded",
-
     "litematica.error.area_editor.create_sub_region.exists": "A sub-region by the name '%s' already exists",
     "litematica.error.area_editor.no_selection": "No active Area Selections",
     "litematica.error.area_editor.open_gui.no_selection": "Currently in Selection Mode: Normal, but no area is currently selected",
     "litematica.error.area_editor.rename_sub_region.exists": "Failed to rename the sub-region:\nA sub-region already exists by the name '%s'",
     "litematica.error.area_editor.switch_mode.no_selection": "Can't switch to Selection Mode: Normal, because there is currently no area selected.\nSelect an area or create a new selection in the Area Selection browser",
-
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Failed to downgrade the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Failed to create the Litematica schematic",
@@ -510,31 +493,24 @@
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_read_sponge": "Failed to load the Sponge Schematic",
     "litematica.error.schematic_conversion.structure_to_litematica.failed_to_create_litematic": "Failed to convert the Structure to a Litematica Schematic",
     "litematica.error.schematic_conversion.structure_to_litematica.failed_to_read_structure": "Failed to load the Vanilla Structure",
-
     "litematica.error.schematic.create.no_selections": "No valid selection regions!",
-
     "litematica.error.schematic_load.cant_read_file": "Can't read the schematic file '%s' (doesn't exist or permission issue)",
     "litematica.error.schematic_load.newer_minecraft_version": "Schematic is from a future version of Minecraft: '%d' > '%d'\nSome NBT data may be at risk of corruption.",
     "litematica.error.schematic_load.no_schematic_selected": "No Schematic file selected!",
     "litematica.error.schematic_load.no_schematic_version_information": "The schematic doesn't have version information, and can't be safely loaded!",
     "litematica.error.schematic_load.unsupported_schematic_version": "Unsupported or future schematic version '%d'",
     "litematica.error.schematic_load.unsupported_type": "Unknown or unsupported file type for '%s'",
-
     "litematica.error.schematic_manager.schematic_export.unsupported_type": "Only Litematica schematics can be exported in other formats!",
     "litematica.error.schematic_manager.schematic_import.unsupported_type": "The selected schematic type isn't supported for import!",
-
     "litematica.error.schematic_placements.remove_fail_locked": "The placement is locked!\n- Hold Shift to force remove it",
-
     "litematica.error.schematic_save.directory_doesnt_exist": "No such directory: '%s'",
     "litematica.error.schematic_save.file_already_exists": "File '%s' already exists",
     "litematica.error.schematic_save.invalid_directory": "Invalid directory '%s'",
     "litematica.error.schematic_save.invalid_schematic_name": "Invalid schematic name '%s'",
     "litematica.error.schematic_save.schematic_creation_failed": "Failed to create the schematic!",
-
     "litematica.error.schematic_read_from_file_failed.cant_read": "Failed to read schematic from file '%s'",
     "litematica.error.schematic_read_from_file_failed.exception": "Exception while trying to read schematic from file '%s'",
     "litematica.error.schematic_read_from_file_failed.no_file": "Failed to read schematic from file: no file available (in-memory schematic?)",
-
     "litematica.error.schematic_projects.empty_selection": "Empty Area Selection (0 sub-regions)",
     "litematica.error.schematic_projects.failed_to_load_project": "Failed to load project",
     "litematica.error.schematic_projects.failed_to_load_schematic": "Failed to load schematic for the current version",
@@ -546,21 +522,17 @@
     "litematica.error.schematic_projects.null_player": "Player was null",
     "litematica.error.schematic_projects.project_already_exists": "Project '%s' already exists",
     "litematica.error.schematic_projects.save_already_in_progress": "Save already in progress",
-
     "litematica.error.schematic_write_to_file_failed.directory_creation_failed": "Failed to create schematic directory '%s'",
     "litematica.error.schematic_write_to_file_failed.exception": "Failed to write the schematic to file '%s' (exception)",
     "litematica.error.schematic_write_to_file_failed.exists": "Failed to write the schematic to file '%s', file already exists",
     "litematica.error.structure_write_to_file_failed.exception": "Failed to write the structure to file '%s' (exception)",
     "litematica.error.structure_write_to_file_failed.exists": "Failed to write the structure to file '%s', file already exists",
-
     "litematica.hotkeys.category.generic_hotkeys": "Generic hotkeys",
     "litematica.hotkeys.category.config_generic_hotkeys": "Generic hotkeys",
-
     "litematica.info.schematic_load.schematic_loaded": "Schematic '%s' successfully loaded to memory",
     "litematica.info.schematic_manager.preview.right_click_to_cancel": "- Right click the button to cancel a pending preview operation\n- Ctrl + Alt + Shift + click to set the thumbnail from an existing PNG image\n  called 'thumb.png' from the same directory where the schematic file is.",
     "litematica.info.schematic_manager.preview.set_preview_by_taking_a_screenshot": "Use the normal screenshot key to set the preview.\nOr right click the Set preview button to cancel setting the preview.",
     "litematica.info.schematic_manager.preview.success": "Preview image successfully set",
-
     "litematica.gui.button.area_editor.analyze_area": "Analyze Area",
     "litematica.gui.button.area_editor.change_corner_mode": "Corner Mode: %s",
     "litematica.gui.button.area_editor.change_selection_mode": "Selection Mode: %s",
@@ -569,13 +541,11 @@
     "litematica.gui.button.area_editor.origin_enabled": "Manual Origin: %s",
     "litematica.gui.button.area_editor.set_box_name": "Set",
     "litematica.gui.button.area_editor.set_selection_name": "Set",
-
     "litematica.gui.button.area_selection_mode": "Area Selection Mode: %s",
     "litematica.gui.button.area_selections.create_directory": "Create directory",
     "litematica.gui.button.area_selections.create_new_selection": "New selection",
     "litematica.gui.button.area_selections.create_selection_from_placement": "From Placement",
     "litematica.gui.button.area_selections.unselect": "Unselect",
-
     "litematica.gui.button.change_menu.area_editor": "Area Editor",
     "litematica.gui.button.change_menu.configuration_menu": "Configuration menu",
     "litematica.gui.button.change_menu.load_schematics_to_memory": "Load Schematics",
@@ -586,7 +556,6 @@
     "litematica.gui.button.change_menu.show_schematic_placements": "Schematic Placements",
     "litematica.gui.button.change_menu.task_manager": "Task Manager",
     "litematica.gui.button.change_menu.to_main_menu": "Litematica menu",
-
     "litematica.gui.button.config_gui.colors": "Colors",
     "litematica.gui.button.config_gui.generic": "Generic",
     "litematica.gui.button.config_gui.hotkeys": "Hotkeys",
@@ -594,7 +563,6 @@
     "litematica.gui.button.config_gui.render_layers": "Render Layers",
     "litematica.gui.button.config_gui.visuals": "Visuals",
     "litematica.gui.button.config_gui.test": "Test",
-
     "litematica.gui.button.hover.area_editor.shift_for_in_memory": "Hold Shift to create an in-memory-only schematic",
     "litematica.gui.button.hover.area_selections.unselect": "Unselects the current Area Selection",
     "litematica.gui.button.hover.material_list.clear_cache": "Clears the Material Cache\nNormally this should not be needed\nThis can be used instead of deleting the 'material_cache.nbt'\nfile in case the cache has some wrong data, like items\nstored for blocks that shouldn't have them, like piston heads",
@@ -609,7 +577,6 @@
     "litematica.gui.button.hover.schematic_projects.move_origin_to_player": "Move the project origin to the player's current position\nThis will also move the area selection and placement",
     "litematica.gui.button.hover.schematic_projects.place_to_world_warning": "§6Warning: This will delete/overwrite the current blocks\n§6in the world within the area that was previously\n§6placed from a version, or saved as a version\n§6(basically the last seen \"effective area selection\")",
     "litematica.gui.button.hover.schematic_projects.save_new_version": "Saves a new schematic/version to the current project",
-
     "litematica.gui.button.material_list": "Material List",
     "litematica.gui.button.material_list.clear_cache": "Clear cache",
     "litematica.gui.button.material_list.clear_ignored": "Clear ignored",
@@ -619,25 +586,19 @@
     "litematica.gui.button.material_list.refresh_list": "Refresh",
     "litematica.gui.button.material_list.toggle_info_hud": "Info HUD: %s",
     "litematica.gui.button.material_list.write_to_file": "Write to file",
-
     "litematica.gui.button.placement_sub.placement_configuration": "Placement configuration",
     "litematica.gui.button.placement_sub.reset_sub_region_placement": "Reset sub-region",
     "litematica.gui.button.placement_sub.slice_type": "Slice: %s",
-
     "litematica.gui.button.schematic_manager.export_as": "Export as:",
-
     "litematica.gui.button.schematic_placement.abbr.rendering": "R",
-
     "litematica.gui.button.schematic_placement.ignore_entities": "Ignore entities: %s",
     "litematica.gui.button.schematic_placement.region_enabled": "Region: %s",
     "litematica.gui.button.schematic_placement.reset_sub_region_placements": "Reset all sub-regions",
     "litematica.gui.button.schematic_placement.toggle_all_off": "All §cOFF§r",
     "litematica.gui.button.schematic_placement.toggle_all_on": "All §aON§r",
-
     "litematica.gui.button.schematic_placement.hover.enclosing_box": "Enclosing box rendering: %s",
     "litematica.gui.button.schematic_placement.hover.lock": "Locking a placement prevents moving or\notherwise changing it (accidentally)",
     "litematica.gui.button.schematic_placement.hover.rendering": "Rendering: %s\nNote that this works a bit funky\nand doesn't prevent entity rendering.\nUsually you should just disable\nthe placement entirely",
-
     "litematica.gui.button.schematic_placements.configure": "Configure",
     "litematica.gui.button.schematic_placements.disable": "Disable",
     "litematica.gui.button.schematic_placements.locked": "Locked: %s",
@@ -645,7 +606,6 @@
     "litematica.gui.button.schematic_placements.remove": "Remove",
     "litematica.gui.button.schematic_placements.rendering_enabled": "Rendering: %s",
     "litematica.gui.button.schematic_placements.select": "Select",
-
     "litematica.gui.button.schematic_projects.close_project": "Close current project",
     "litematica.gui.button.schematic_projects.create_project": "Create project",
     "litematica.gui.button.schematic_projects.delete_area": "Delete Area",
@@ -656,7 +616,6 @@
     "litematica.gui.button.schematic_projects.open_project_browser": "VCS Project Browser",
     "litematica.gui.button.schematic_projects.place_to_world": "Place to world",
     "litematica.gui.button.schematic_projects.save_version": "Save Version",
-
     "litematica.gui.button.schematic_verifier.ignore": "Ignore",
     "litematica.gui.button.schematic_verifier.range_type": "Range: %s",
     "litematica.gui.button.schematic_verifier.reset_ignored": "Reset ignored",
@@ -665,7 +624,6 @@
     "litematica.gui.button.schematic_verifier.start": "Start verification",
     "litematica.gui.button.schematic_verifier.stop": "Stop verification",
     "litematica.gui.button.schematic_verifier.toggle_info_hud": "Info HUD: %s",
-
     "litematica.gui.button.cancel": "Cancel",
     "litematica.gui.button.configure": "Configure",
     "litematica.gui.button.copy": "Copy",
@@ -692,7 +650,6 @@
     "litematica.gui.button.tool_mode": "Tool Mode: %s",
     "litematica.gui.button.unload": "Unload",
     "litematica.gui.button.unlocked": "Unlocked",
-
     "litematica.gui.label.area_editor.box_name": "Sub-region box name",
     "litematica.gui.label.area_editor.selection_name": "Selection name",
     "litematica.gui.label.area_editor.corner_1": "Corner 1",
@@ -702,26 +659,20 @@
     "litematica.gui.label.area_editor.pos1": "Corner 1",
     "litematica.gui.label.area_editor.pos2": "Corner 2",
     "litematica.gui.label.area_editor.sub_regions": "Sub-regions (%s)",
-
     "litematica.gui.label.area_selection_manager.current_selection": "Selected area: %s",
-
     "litematica.gui.label.area_selection_box_count": "Boxes: %d",
     "litematica.gui.label.area_selection_origin": "Origin: %s",
     "litematica.gui.label.area_selection.mode.normal": "Normal",
     "litematica.gui.label.area_selection.mode.simple": "Simple",
-
     "litematica.gui.label.block_info.state_client": "Client World Block State",
     "litematica.gui.label.block_info.state_schematic": "Schematic World Block State",
-
     "litematica.gui.label.block_info_list_type.all": "All",
     "litematica.gui.label.block_info_list_type.render_layers": "Render Layers",
-
     "litematica.gui.label.easy_place_protocol.auto": "Auto",
     "litematica.gui.label.easy_place_protocol.none": "None",
     "litematica.gui.label.easy_place_protocol.slabs_only": "Slabs only",
     "litematica.gui.label.easy_place_protocol.v2": "Version 2",
     "litematica.gui.label.easy_place_protocol.v3": "Version 3",
-
     "litematica.gui.label.data_fixer_mode.always": "Always",
     "litematica.gui.label.data_fixer_mode.below_1215": "Below 1.21.5 Only",
     "litematica.gui.label.data_fixer_mode.below_1205": "Below 1.20.5 Only",
@@ -732,15 +683,12 @@
     "litematica.gui.label.data_fixer_mode.below_113X": "Below 1.13.x Only",
     "litematica.gui.label.data_fixer_mode.below_112X": "Below 1.12.x Only",
     "litematica.gui.label.data_fixer_mode.never": "Never",
-
     "litematica.gui.label.loaded_schematic.modified_on": "§6Modified on %s§r",
-
     "litematica.gui.label.material_list.abbr.shulker_box": "SB",
     "litematica.gui.label.material_list.title.available": "Available",
     "litematica.gui.label.material_list.title.item": "Item",
     "litematica.gui.label.material_list.title.missing": "Missing",
     "litematica.gui.label.material_list.title.total": "Total",
-
     "litematica.gui.label.material_list.multiplier": "Multiplier:",
     "litematica.gui.label.material_list.name": "Name",
     "litematica.gui.label.material_list.progress": "Progress: %s",
@@ -748,33 +696,25 @@
     "litematica.gui.label.material_list.progress.mismatch": "Mismatched %s",
     "litematica.gui.label.material_list.progress.missing": "Missing %s",
     "litematica.gui.label.material_list.total": "Total: %s items",
-
     "litematica.gui.label.origin.auto": "Auto",
     "litematica.gui.label.origin.manual": "Manual",
-
     "litematica.gui.label.paste_nbt_behavior.none": "None",
     "litematica.gui.label.paste_nbt_behavior.place_data_modify": "Place & Data Modify",
     "litematica.gui.label.paste_nbt_behavior.place_clone": "Place & Clone",
-
     "litematica.gui.label.placement_deletion_mode.matching_block": "Matching Block",
     "litematica.gui.label.placement_deletion_mode.non_matching_block": "Non-Matching Block",
     "litematica.gui.label.placement_deletion_mode.any_schematic_block": "Any Schematic Block",
     "litematica.gui.label.placement_deletion_mode.no_schematic_block": "No Schematic Block",
     "litematica.gui.label.placement_deletion_mode.entire_volume": "Entire Volume",
-
     "litematica.gui.label.placement_sub.region_name": "Region name: %s",
     "litematica.gui.label.placement_sub.region_position": "Region position",
     "litematica.gui.label.placement_sub.region_size": "Region size: %s",
-
     "litematica.gui.label.placement_settings.placement_origin": "Placement origin",
-
     "litematica.gui.label.render_layers.hotkey": "Hotkey",
     "litematica.gui.label.render_layers.hover.hotkey": "The next/previous layer hotkeys will affect this boundary.\nIf both are unselected, then the hotkeys will affect\nthe boundary that is closest to the player.",
-
     "litematica.gui.label.replace_behavior.all": "All",
     "litematica.gui.label.replace_behavior.none": "None",
     "litematica.gui.label.replace_behavior.with_non_air": "With non-air",
-
     "litematica.gui.label.schematic_info.schematic_author": "Schematic by: §f%s§r",
     "litematica.gui.label.schematic_info.description": "Description:",
     "litematica.gui.label.schematic_info.enclosing_size": "Enclosing size:",
@@ -791,10 +731,8 @@
     "litematica.gui.label.schematic_info.vanilla_version": "Vanilla Structure",
     "litematica.gui.label.schematic_info.schema": "Minecraft: §f%s§r [Schema §f%d§r]",
     "litematica.gui.label.schematic_info.schema.newer": "Minecraft: §c%s§r [Schema §c%d§r]",
-
     "litematica.gui.label.schematic_load.checkbox.create_placement": "Create a placement",
     "litematica.gui.label.schematic_load.hoverinfo.create_placement": "Immediately create a new placement\nand select that placement",
-
     "litematica.gui.label.schematic_placement.enclosing_size": "Enclosing size: %s",
     "litematica.gui.label.schematic_placement.hoverinfo.hold_shift_to_create_as_disabled": "Hold shift to disable the placement when created",
     "litematica.gui.label.schematic_placement.in_memory": "IN-MEMORY ONLY",
@@ -804,14 +742,12 @@
     "litematica.gui.label.schematic_placement.schematic_name": "Schematic: %s",
     "litematica.gui.label.schematic_placement.sub_region_count": "Sub-regions: %s",
     "litematica.gui.label.schematic_placement.sub_regions": "Sub-regions (%s):",
-
     "litematica.gui.label.schematic_projects.currently_open_project": "Currently open project: %s",
     "litematica.gui.label.schematic_projects.origin": "Origin:",
     "litematica.gui.label.schematic_projects.project": "Project:",
     "litematica.gui.label.schematic_projects.version": "Version: %s (of %s)",
     "litematica.gui.label.schematic_projects.version_entry": "Ver. %d - %s",
     "litematica.gui.label.schematic_projects.version_name": "Version name:",
-
     "litematica.gui.label.schematic_save.checkbox.ignore_entities": "Ignore entities",
     "litematica.gui.label.schematic_save.hover_info.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
     "litematica.gui.label.schematic_save.checkbox.save_from_schematic_world": "Save from schematic world",
@@ -820,7 +756,6 @@
     "litematica.gui.label.schematic_save.checkbox.support_blocks": "Support blocks",
     "litematica.gui.label.schematic_save.hover_info.support_blocks": "Include any necessary support blocks in \"Visible blocks only\" mode,\nfor things like Repeaters, Comparators, Carpets or gravity blocks that would be visible",
     "litematica.gui.label.schematic_save.hoverinfo.hold_shift_to_overwrite": "Hold shift to overwrite an existing file",
-
     "litematica.gui.label.schematic_verifier.count": "Count",
     "litematica.gui.label.schematic_verifier.expected": "Expected",
     "litematica.gui.label.schematic_verifier.found": "Found",
@@ -837,7 +772,6 @@
     "litematica.gui.label.schematic_verifier.status.done_correct_total": "§aCorrect: %s§r, Total: %s",
     "litematica.gui.label.schematic_verifier.status.verifying": "Unseen Chunks: %s / %s",
     "litematica.gui.label.schematic_verifier.verifier": "Schematic Verifier",
-
     "litematica.gui.label.task.title.remaining_chunks": "%s, remaining chunks (%s)",
     "litematica.gui.label.task_name.area_analyzer": "Area Analyzer",
     "litematica.gui.label.task_name.delete": "Delete task",
@@ -846,11 +780,9 @@
     "litematica.gui.label.task_name.paste": "Paste Schematic",
     "litematica.gui.label.task_name.save_schematic": "Save Schematic",
     "litematica.gui.label.task_name.verifier": "Verifier",
-
     "litematica.gui.message.confirm_file_deletion": "Do you want to delete the file '%s'?",
     "litematica.gui.message.schematic_projects.confirm_delete_area": "Do you want to delete the \"last affected\" area?\nThis will delete whatever blocks and entities are within the area that the project manager last placed to the world, or last saved as a version. (Basically the \"last seen affected area\", such that if you were to cycle versions, it would not leave blocks behind from the previous version.)",
     "litematica.gui.message.schematic_projects.confirm_place_to_world": "Do you want to place this version to the world?\nIt will delete whatever blocks are within the area that the project manager last placed to the world, or last saved as a version. (Basically the \"last seen affected area\", such that if you were to cycle versions, it would not leave blocks behind from the previous version.)",
-
     "litematica.gui.title.area_editor_normal": "Area Editor (Normal/Multi-box mode)",
     "litematica.gui.title.area_editor_normal_schematic_projects": "Area Editor (§6§lSchematic VCS area§r)",
     "litematica.gui.title.area_editor_simple": "Area Editor (Simple mode)",
@@ -893,7 +825,6 @@
     "litematica.gui.title.schematic_verifier": "Schematic Verifier for '%s'",
     "litematica.gui.title.schematic_verifier_errors": "Schematic Verifier errors",
     "litematica.gui.title.task_manager": "Task Manager",
-
     "litematica.hud.area_selection.box_count": "Boxes: %s",
     "litematica.hud.area_selection.dimensions_position": "Dim: %s - p1: %s, p2: %s",
     "litematica.hud.area_selection.mode.corners": "Corners",
@@ -903,11 +834,9 @@
     "litematica.hud.area_selection.selected_area_simple": "Area [§6Simple mode§r]: %s",
     "litematica.hud.area_selection.selected_sub_region": "Sub-region: %s",
     "litematica.hud.area_selection.selection_corners_mode": "Corners Mode: %s",
-
     "litematica.hud.delete.target_mode": "Delete target mode: %s",
     "litematica.hud.delete.target_mode.area": "Current Area",
     "litematica.hud.delete.target_mode.placement": "Current Placement",
-
     "litematica.hud.misc.easy_place_mode_enabled": "Easy Place mode §aON§r",
     "litematica.hud.misc.none_brackets": "<none>",
     "litematica.hud.misc.placement_restriction_mode_enabled": "Placement Restriction mode §aON§r",
@@ -917,7 +846,6 @@
     "litematica.hud.misc.schematic_paste.data_restore_mode": "Data Restore Mode: §b%s",
     "litematica.hud.misc.schematic_paste.replace_mode": "Replace blocks: %s",
     "litematica.hud.misc.schematic_paste.ignore_inventory_contents": "Ignore inventory contents: %s",
-
     "litematica.hud.schematic_placement.hover_info.lock_coordinate": "Lock this coordinate\nThis allows changing the other coordinates\nwithout affecting the locked ones",
     "litematica.hud.schematic_placement.hover_info.placement_locked": "This placement has been locked and can't\nbe modified without unlocking it first",
     "litematica.hud.schematic_placement.hover_info.placement_modified": "This placement has been modified",
@@ -928,9 +856,7 @@
     "litematica.hud.schematic_placement.sub_region_modified": "Modified",
     "litematica.hud.schematic_placement.sub_region_origin": "Region origin: %s",
     "litematica.hud.schematic_placement.sub_regions_modified": "Regions modified",
-
     "litematica.hud.selected_mode": "Mode",
-
     "litematica.hud.schematic_projects.current_version_date": "Date: %s",
     "litematica.hud.schematic_projects.current_version": "Version: %s/%s - name: %s",
     "litematica.hud.schematic_projects.no_project_open": "<no project open>",
@@ -938,16 +864,12 @@
     "litematica.hud.schematic_projects.origin": "Project origin: %s",
     "litematica.hud.schematic_projects.project_name": "Project: %s",
     "litematica.hud.schematic_projects_mode": "§6Schematic VCS mode§r",
-
     "litematica.info.material_list": "- The Material List hotkey will open the last viewed Material List,\n   if there is one stored\n- To switch to a different Material List, open one via\n   the GUI button in the Placement Configuration GUI or\n   the schematic browser\n- The stored/last viewed list is also forgot\n   if the selected Schematic Placement is changed\n- If there is no last viewed Material List yet,\n   then the selected Placement is used, if there is one",
-
     "litematica.label.alignment.center": "Center",
     "litematica.label.alignment.top_center": "Top Center",
-
     "litematica.label.none_lower": "none",
     "litematica.label.no": "no",
     "litematica.label.yes": "yes",
-
     "litematica.message.error.area_deletion_aborted": "Area Deletion interrupted or aborted",
     "litematica.message.error.empty_area_selection": "Empty Area Selection (no boxes)",
     "litematica.message.error.invalid_schematic_name": "Invalid schematic name '%s'",
@@ -962,7 +884,6 @@
     "litematica.message.error.schematic_save_no_area_selected": "§cSchematic saving failed - no area selected§r",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "No suitable hotbar slot found for pick block!\nCheck the config Generic -> §epickBlockableSlots§r.\nAlso depending on the §epickBlockAvoid*§6 configs, the pick block feature may refuse to replace any tools or other damageable items in those slots.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "No hotbar slots set in the Generic -> §epickBlockableSlots§6 config!",
-
     "litematica.message.added_selection_box": "Added a new selection box at %s",
     "litematica.message.area_clear_fail": "§cFailed to clear the area(s)§r",
     "litematica.message.area_cleared": "Area cleared",
@@ -1004,11 +925,9 @@
     "litematica.message.toggled": "Toggled %s %s",
     "litematica.message.value.on": "ON",
     "litematica.message.value.off": "OFF",
-
     "litematica.message.schematic_projects.project_created": "Project '%s' created",
     "litematica.message.schematic_projects.project_loaded": "Project '%s' loaded",
     "litematica.message.schematic_projects.version_saved": "New version (#%s) saved as '%s'",
-
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Note: You are currently in the Simple Area Selection mode",
     "litematica.message.warn.layer_mode_currently_at": "Note: You are currently in the '%s' render layer mode",
     "litematica.message.warn.main_rendering_disabled": "Warning: The main rendering is currently disabled\nSee Visuals -> %s, or Hotkeys -> %s ['%s']",
@@ -1017,16 +936,12 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "The targeted placement is currently not selected. The Replace All hotkey only works on the currently selected sub-region(s) of the placement you click on. So to replace the blocks in only one sub-region, select that sub-region. To replace in the entire schematic (all sub-regions), select the entire placement and not a sub-region of it. The blocks are also only replaced within the area limited by the current Render Layers setting.",
     "litematica.message.warn.schematic_rendering_disabled": "Warning: Schematic rendering is currently disabled\nSee Visuals -> %s, or Hotkeys -> %s ['%s']",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "Warning: The verifier overlay rendering is currently disabled! See Info Overlays -> %s (or Hotkeys -> %s ['%s'])",
-
     "litematica.message.warning.invalid_number": "Invalid input for a number '%s'",
     "litematica.message.warning.schematic_projects_hidden": "Warning: The Schematic Version Control System is currently hidden. In general you should NOT use this, unless you really know how it works and changes some of the mod behavior. It is meant for iteratire, in-place design work, where flipping between different versions of the build in-place (= deleting and replacing the previous version) is needed. If you want to use it, then enable the option Generic -> unhideSchematicVCS",
-
     "litematica.warning.area_editor.area_rendering_disabled": "Note: The Area Selection boxes rendering is currently disabled\nSee Visuals -> %s, or Hotkeys -> %s ['%s']",
-
     "litematica.tool_hud.block_1": "Block: %s",
     "litematica.tool_hud.block_2": "Replace: %s",
     "litematica.tool_hud.facing": "Facing: %s",
-
     "litematica.tool_mode.name.area_selection": "Area Selection",
     "litematica.tool_mode.name.delete": "Delete",
     "litematica.tool_mode.name.fill": "Fill",
@@ -1036,6 +951,5 @@
     "litematica.tool_mode.name.rebuild": "Edit Schematic",
     "litematica.tool_mode.name.replace_block": "Replace block",
     "litematica.tool_mode.name.schematic_placement": "Schematic Placement",
-
     "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
 }
