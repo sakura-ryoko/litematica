@@ -33,13 +33,13 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.*;
-import net.minecraft.world.LightType;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
 import net.minecraft.world.entity.EntityLookup;
@@ -451,6 +451,15 @@ public class WorldSchematic extends World
     }
 
     @Override
+    public LightingProvider getLightingProvider()
+    {
+        // Returns the Fake Lighting Provider, if configured to do so
+        return this.getChunkManager().getLightingProvider();
+    }
+
+    // todo --> moved to Fake Lighting Provider
+    /*
+    @Override
     public int getLightLevel(LightType type, BlockPos pos)
     {
         //return Configs.Visuals.RENDER_FAKE_LIGHTING_LEVEL != null ? Configs.Visuals.RENDER_FAKE_LIGHTING_LEVEL.getIntegerValue() : 15;
@@ -463,6 +472,7 @@ public class WorldSchematic extends World
         //return Configs.Visuals.RENDER_FAKE_LIGHTING_LEVEL != null ? Configs.Visuals.RENDER_FAKE_LIGHTING_LEVEL.getIntegerValue() : 15;
         return 15;
     }
+     */
 
     @Override
     public void updateListeners(BlockPos blockPos_1, BlockState blockState_1, BlockState blockState_2, int flags)
