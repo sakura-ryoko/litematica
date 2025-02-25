@@ -31,6 +31,7 @@
     "item.MixinBlockItem",
     "render.MixinBufferBuilder",
     "render.MixinWorldRenderer",
+    "render.MixinModelOverrideList",
     "world.IMixinChunkDeltaUpdateS2CPacket",
     "world.IMixinWorld",
     "world.IMixinWorldTickScheduler",
@@ -40,8 +41,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "client": [
-    "render.MixinModelOverrideList"
-  ]
+  }
 }
