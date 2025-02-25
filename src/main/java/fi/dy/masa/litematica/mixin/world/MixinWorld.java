@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.world;
 
 import org.spongepowered.asm.mixin.Mixin;
 import net.minecraft.world.World;

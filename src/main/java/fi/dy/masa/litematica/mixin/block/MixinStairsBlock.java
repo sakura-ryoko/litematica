@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

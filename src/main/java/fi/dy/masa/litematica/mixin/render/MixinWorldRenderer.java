@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.render;
 
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import org.joml.Matrix4f;
@@ -13,11 +13,10 @@ import fi.dy.masa.litematica.render.LitematicaRenderer;
 @Mixin(net.minecraft.client.render.WorldRenderer.class)
 public abstract class MixinWorldRenderer
 {
-    @Shadow
-    private net.minecraft.client.world.ClientWorld world;
+    @Shadow private net.minecraft.client.world.ClientWorld world;
 
     @Inject(method = "reload()V", at = @At("RETURN"))
-    private void onLoadRenderers(CallbackInfo ci)
+    private void litematica_onLoadRenderers(CallbackInfo ci)
     {
         // Also (re-)load our renderer when the vanilla renderer gets reloaded
         if (this.world != null && this.world == net.minecraft.client.MinecraftClient.getInstance().world)
@@ -29,14 +28,14 @@ public abstract class MixinWorldRenderer
     }
 
     @Inject(method = "setupTerrain", at = @At("TAIL"))
-    private void onPostSetupTerrain(
+    private void litematica_onPostSetupTerrain(
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum);
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
-    private void onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
+    private void litematica_onRenderLayer(RenderLayer renderLayer, double x, double y, double z, Matrix4f matrix4f, Matrix4f positionMatrix, CallbackInfo ci)
     {
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -60,7 +59,7 @@ public abstract class MixinWorldRenderer
     @Inject(method = "render",
             at = @At(value = "INVOKE_STRING", args = "ldc=blockentities",
                      target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V"))
-    private void onPostRenderEntities(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    private void litematica_onPostRenderEntities(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
         LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickCounter.getTickDelta(false));
     }
