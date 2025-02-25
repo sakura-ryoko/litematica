@@ -224,7 +224,7 @@ public class BlockModelRendererSchematic
                 light = WorldRenderer.getLightmapCoordinates(world, state, blockPos);
             }
 
-            float b = world.getBrightness(bakedQuad.face(), bakedQuad.shade());
+            float b = world.getBrightness(bakedQuad.getFace(), bakedQuad.hasShade());
             int[] lo = new int[]{light, light, light, light};
             float[] bo = new float[]{b, b, b, b};
             this.renderQuad(world, state, pos, vertexConsumer, matrixStack, bakedQuad, bo, lo, overlay);
