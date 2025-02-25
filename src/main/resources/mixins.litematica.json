@@ -6,7 +6,6 @@
     "mixins": [
         "IMixinHandledScreen",
         "IMixinKeyBinding",
-        "IMixinProfilerSystem",
         "MixinClientCommonNetworkHandler",
         "MixinClientPlayerInteractionManager",
         "MixinClientPlayNetworkHandler",
@@ -14,7 +13,6 @@
         "MixinHandledScreen",
         "MixinMinecraftClient",
         "MixinMinecraftClient_easyPlace",
-        "MixinMinecraftServer",
         "MixinServerPlayNetworkHandler",
         "block.IMixinFenceGateBlock",
         "block.IMixinRedstoneWireBlock",

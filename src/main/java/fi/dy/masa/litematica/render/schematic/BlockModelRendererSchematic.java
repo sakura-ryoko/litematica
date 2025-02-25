@@ -15,10 +15,10 @@ import net.minecraft.client.render.block.FluidRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
@@ -479,7 +479,7 @@ public class BlockModelRendererSchematic
                 float green = (float) (i >> 8 & 0xFF) / 255.0f;
                 float blue = (float) (i & 0xFF) / 255.0f;
 
-                this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
+                this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn, false)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
             }
             case ENTITYBLOCK_ANIMATED ->
             {
