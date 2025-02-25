@@ -193,7 +193,7 @@ public class BlockModelRendererSchematic
     }
 
     private void renderQuadsSmooth(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack,
-                                     VertexConsumer vertexConsumer, List<BakedQuad> list, float[] box, BitSet flags, AOProcessor ambientOcclusionCalculator, int overlay)
+                                   VertexConsumer vertexConsumer, List<BakedQuad> list, float[] box, BitSet flags, AOProcessor aoCalc, int overlay)
     {
         final int size = list.size();
 
@@ -202,19 +202,11 @@ public class BlockModelRendererSchematic
         for (BakedQuad bakedQuad : list)
         {
             this.getQuadDimensions(world, state, pos, bakedQuad.getVertexData(), bakedQuad.getFace(), box, flags);
-            ambientOcclusionCalculator.apply(world, state, pos, bakedQuad.getFace(), box, flags, bakedQuad.hasShade());
+            aoCalc.apply(world, state, pos, bakedQuad.getFace(), box, flags, bakedQuad.hasShade());
 
             //System.out.printf("renderQuad(): pos [%s] / state [%s] / quad face [%s]\n", pos.toShortString(), state, bakedQuad.getFace().getName());
 
-            this.renderQuad(world, state, pos, vertexConsumer, matrixStack, bakedQuad,
-                    ambientOcclusionCalculator.brightness[0],
-                    ambientOcclusionCalculator.brightness[1],
-                    ambientOcclusionCalculator.brightness[2],
-                    ambientOcclusionCalculator.brightness[3],
-                    ambientOcclusionCalculator.light[0],
-                    ambientOcclusionCalculator.light[1],
-                    ambientOcclusionCalculator.light[2],
-                    ambientOcclusionCalculator.light[3], overlay);
+            this.renderQuad(world, state, pos, vertexConsumer, matrixStack, bakedQuad, aoCalc.brightness, aoCalc.light, overlay);
         }
     }
 
@@ -232,13 +224,15 @@ public class BlockModelRendererSchematic
                 light = WorldRenderer.getLightmapCoordinates(world, state, blockPos);
             }
 
-            this.renderQuad(world, state, pos, vertexConsumer, matrixStack, bakedQuad, 1.0F, 1.0F, 1.0F, 1.0F, light, light, light, light, overlay);
+            float b = world.getBrightness(bakedQuad.face(), bakedQuad.shade());
+            int[] lo = new int[]{light, light, light, light};
+            float[] bo = new float[]{b, b, b, b};
+            this.renderQuad(world, state, pos, vertexConsumer, matrixStack, bakedQuad, bo, lo, overlay);
         }
     }
 
     private void renderQuad(BlockRenderView world, BlockState state, BlockPos pos, VertexConsumer vertexConsumer, MatrixStack matrixStack,
-                              BakedQuad quad, float brightness0, float brightness1, float brightness2, float brightness3,
-                              int light0, int light1, int light2, int light3, int overlay)
+                            BakedQuad quad, float[] brightness, int[] light, int overlay)
     {
         float r;
         float g;
@@ -257,8 +251,9 @@ public class BlockModelRendererSchematic
             g = 1.0F;
             b = 1.0F;
         }
-        vertexConsumer.quad(matrixStack.peek(), quad, new float[]{ brightness0, brightness1, brightness2, brightness3 },
-                            r, g, b, 1.0f, new int[]{ light0, light1, light2, light3 }, overlay, true);
+
+        //System.out.printf("quad(): pos [%s] / state [%s] --> SPRITE [%s]\n", pos.toShortString(), state, quad.getSprite().toString());
+        vertexConsumer.quad(matrixStack.peek(), quad, brightness, r, g, b, 1.0f, light, overlay, true);
     }
 
     private void getQuadDimensions(BlockRenderView world, BlockState state, BlockPos pos, int[] vertexData, Direction face, @Nullable float[] box, BitSet flags)
@@ -402,8 +397,8 @@ public class BlockModelRendererSchematic
     */
 
     @ApiStatus.Experimental
-    public void renderEntity(VertexConsumer vertexConsumer, MatrixStack matrixStack, @Nullable BlockState stateIn, BakedModel modelIn,
-                                float red, float green, float blue, int light, int overlay)
+    public void renderBlockEntity(VertexConsumer vertexConsumer, MatrixStack matrixStack, @Nullable BlockState stateIn, BakedModel modelIn,
+                             float red, float green, float blue, int light, int overlay)
     {
         Random rand = Random.create();
         long life = 42L;
@@ -411,14 +406,14 @@ public class BlockModelRendererSchematic
         for (Direction side : PositionUtils.ALL_DIRECTIONS)
         {
             rand.setSeed(life);
-            this.renderQuads(vertexConsumer, matrixStack, red, green, blue, modelIn.getQuads(stateIn, side, rand), light, overlay);
+            this.renderBlockEntityQuads(vertexConsumer, matrixStack, red, green, blue, modelIn.getQuads(stateIn, side, rand), light, overlay);
         }
         rand.setSeed(life);
-        this.renderQuads(vertexConsumer, matrixStack, red, green, blue, modelIn.getQuads(stateIn, null, rand), light, overlay);
+        this.renderBlockEntityQuads(vertexConsumer, matrixStack, red, green, blue, modelIn.getQuads(stateIn, null, rand), light, overlay);
     }
 
     @ApiStatus.Experimental
-    private void renderQuads(VertexConsumer vertexConsumer, MatrixStack matrixStack,
+    private void renderBlockEntityQuads(VertexConsumer vertexConsumer, MatrixStack matrixStack,
                              float red, float green, float blue, List<BakedQuad> quads, int light, int overlay)
     {
         for (BakedQuad quad : quads)
@@ -479,12 +474,10 @@ public class BlockModelRendererSchematic
         float red = (float) (i >> 16 & 0xFF) / 255.0f;
         float green = (float) (i >> 8 & 0xFF) / 255.0f;
         float blue = (float) (i & 0xFF) / 255.0f;
-        
-        /*
-        renderEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
+
+        this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
         this.bakedManager.getBlockEntityModelsSupplier().get()
                     .render(stateIn.getBlock(), ModelTransformationMode.NONE, matrixStack, consumer, light, overlay);
-         */
 
         return true;
     }

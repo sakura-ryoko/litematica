@@ -10,18 +10,22 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
+import fi.dy.masa.litematica.config.Configs;
+
 public class ChunkManagerSchematic extends ChunkManager
 {
     private final WorldSchematic world;
     private final Long2ObjectMap<ChunkSchematic> loadedChunks = new Long2ObjectOpenHashMap<>(8192);
     private final ChunkSchematic blankChunk;
     private final LightingProvider lightingProvider;
+    private final FakeLightingProvider fakeLightingProvider;
 
     public ChunkManagerSchematic(WorldSchematic world)
     {
         this.world = world;
         this.blankChunk = new ChunkSchematic(world, new ChunkPos(0, 0));
         this.lightingProvider = new LightingProvider(this, true, world.getDimension().hasSkyLight());
+        this.fakeLightingProvider = new FakeLightingProvider(this);
     }
 
     @Override
@@ -92,6 +96,11 @@ public class ChunkManagerSchematic extends ChunkManager
     @Override
     public LightingProvider getLightingProvider()
     {
+        if (Configs.Visuals.ENABLE_SCHEMATIC_FAKE_LIGHTING.getBooleanValue())
+        {
+            return this.fakeLightingProvider;
+        }
+
         return this.lightingProvider;
     }
 
