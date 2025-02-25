@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.block;
 
 import java.util.function.Supplier;
 import org.spongepowered.asm.mixin.Mixin;

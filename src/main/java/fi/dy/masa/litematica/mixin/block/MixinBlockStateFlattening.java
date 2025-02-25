@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.block;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,7 +11,7 @@ import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 public abstract class MixinBlockStateFlattening
 {
     @Inject(method = "putStates", at = @At("HEAD"))
-    private static void onAddEntry(int id, String fixedNBT, String[] sourceNBTs, CallbackInfo ci)
+    private static void litematica_onAddEntry(int id, String fixedNBT, String[] sourceNBTs, CallbackInfo ci)
     {
         SchematicConversionMaps.addEntry(id, fixedNBT, sourceNBTs);
     }

@@ -1,7 +1,5 @@
 package fi.dy.masa.litematica.schematic;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -48,7 +46,7 @@ import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
-import fi.dy.masa.litematica.mixin.IMixinWorldTickScheduler;
+import fi.dy.masa.litematica.mixin.world.IMixinWorldTickScheduler;
 import fi.dy.masa.litematica.schematic.container.ILitematicaBlockStatePalette;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers;

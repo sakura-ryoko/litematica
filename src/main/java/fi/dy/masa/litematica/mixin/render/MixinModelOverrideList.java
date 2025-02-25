@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.render;
 
 import javax.annotation.Nullable;
 import org.spongepowered.asm.mixin.Mixin;

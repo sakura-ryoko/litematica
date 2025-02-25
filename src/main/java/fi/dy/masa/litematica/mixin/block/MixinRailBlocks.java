@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.block;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +23,7 @@ public abstract class MixinRailBlocks extends AbstractRailBlock
     }
 
     @Inject(method = "rotate", at = @At("HEAD"), cancellable = true)
-    private void fixRailRotation(BlockState state, BlockRotation rot, CallbackInfoReturnable<BlockState> cir)
+    private void litematica_fixRailRotation(BlockState state, BlockRotation rot, CallbackInfoReturnable<BlockState> cir)
     {
         if (Configs.Generic.FIX_RAIL_ROTATION.getBooleanValue() && rot == BlockRotation.CLOCKWISE_180)
         {

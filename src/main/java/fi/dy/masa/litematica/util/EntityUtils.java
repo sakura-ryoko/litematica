@@ -27,8 +27,8 @@ import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.mixin.IMixinEntity;
-import fi.dy.masa.litematica.mixin.IMixinWorld;
+import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
+import fi.dy.masa.litematica.mixin.world.IMixinWorld;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
 
