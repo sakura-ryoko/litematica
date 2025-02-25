@@ -10,16 +10,15 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.FluidRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
@@ -35,6 +34,7 @@ import net.minecraft.world.BlockRenderView;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.mixin.render.IMixinBlockRenderManager;
 import fi.dy.masa.litematica.render.schematic.ao.AOProcessor;
 import fi.dy.masa.litematica.render.schematic.ao.AOProcessorModern;
 
@@ -469,15 +469,31 @@ public class BlockModelRendererSchematic
             return false;
         }
 
-        BakedModel bakedModel = this.getBakedModel(stateIn);
-        int i = this.colorMap.getColor(stateIn, null, null, 0);
-        float red = (float) (i >> 16 & 0xFF) / 255.0f;
-        float green = (float) (i >> 8 & 0xFF) / 255.0f;
-        float blue = (float) (i & 0xFF) / 255.0f;
+        switch (blockRenderType)
+        {
+            case MODEL ->
+            {
+                BakedModel bakedModel = this.getBakedModel(stateIn);
+                int i = this.colorMap.getColor(stateIn, null, null, 0);
+                float red = (float) (i >> 16 & 0xFF) / 255.0f;
+                float green = (float) (i >> 8 & 0xFF) / 255.0f;
+                float blue = (float) (i & 0xFF) / 255.0f;
 
-        this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
-        this.bakedManager.getBlockEntityModelsSupplier().get()
-                    .render(stateIn.getBlock(), ModelTransformationMode.NONE, matrixStack, consumer, light, overlay);
+                this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
+            }
+            case ENTITYBLOCK_ANIMATED ->
+            {
+                // todo 1.21.4+
+                /*
+                this.bakedManager.getBlockEntityModelsSupplier().get()
+                            .render(stateIn.getBlock(), ModelTransformationMode.NONE, matrixStack, consumer, light, overlay);
+                 */
+
+                // todo 1.21.3-
+                ((IMixinBlockRenderManager) MinecraftClient.getInstance().getBlockRenderManager()).litematica_getBuiltinRenderer()
+                                          .render(new ItemStack(stateIn.getBlock()), ModelTransformationMode.NONE, matrixStack, consumer, light, overlay);
+            }
+        }
 
         return true;
     }
