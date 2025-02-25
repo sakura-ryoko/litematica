@@ -14,10 +14,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 
 import fi.dy.masa.malilib.util.data.Constants;
-import fi.dy.masa.litematica.mixin.IMixinFenceGateBlock;
-import fi.dy.masa.litematica.mixin.IMixinRedstoneWireBlock;
-import fi.dy.masa.litematica.mixin.IMixinStairsBlock;
-import fi.dy.masa.litematica.mixin.IMixinVineBlock;
+import fi.dy.masa.litematica.mixin.block.IMixinFenceGateBlock;
+import fi.dy.masa.litematica.mixin.block.IMixinRedstoneWireBlock;
+import fi.dy.masa.litematica.mixin.block.IMixinStairsBlock;
+import fi.dy.masa.litematica.mixin.block.IMixinVineBlock;
 
 public class SchematicConversionFixers
 {

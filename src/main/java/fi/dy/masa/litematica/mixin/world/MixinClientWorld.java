@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.world;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.world.ClientWorld;
