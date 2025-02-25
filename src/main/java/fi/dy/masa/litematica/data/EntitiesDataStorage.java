@@ -74,6 +74,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     private String servuxVersion;
     private final long chunkTimeoutMs = 5000;
     // Wait 5 seconds for loaded Client Chunks to receive Entity Data
+    private boolean checkOpStatus = true;
+    private boolean hasOpStatus = false;
+    private long lastOpCheck = 0L;
 
     // Data Cache
     private final ConcurrentHashMap<BlockPos, Pair<Long, Pair<BlockEntity, NbtCompound>>> blockEntityCache = new ConcurrentHashMap<>();
@@ -164,8 +167,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                     {
                         requestServuxBlockEntityData(pos);
                     }
-                    else
+                    else if (this.shouldUseQuery())
                     {
+                        // Only check once if we have OP
                         requestQueryBlockEntity(pos);
                     }
                 }
@@ -178,8 +182,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                     {
                         requestServuxEntityData(entityId);
                     }
-                    else
+                    else if (this.shouldUseQuery())
                     {
+                        // Only check once if we have OP
                         requestQueryEntityData(entityId);
                     }
                 }
@@ -220,6 +225,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             this.hasInValidServux = false;
             this.sentBackupPackets = false;
             this.receivedBackupPackets = false;
+            this.checkOpStatus = false;
+            this.hasOpStatus = false;
+            this.lastOpCheck = 0L;
         }
         else
         {
@@ -229,18 +237,42 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             this.tickCache(now);
             this.serverTickTime = now;
             this.clientWorld = mc.world;
+            this.checkOpStatus = true;
+            this.lastOpCheck = now;
         }
+
         // Clear data
         this.blockEntityCache.clear();
         this.entityCache.clear();
         this.pendingBlockEntitiesQueue.clear();
         this.pendingEntitiesQueue.clear();
+
         // Litematic Save values
         this.completedChunks.clear();
         this.pendingChunks.clear();
         this.pendingChunkTimeout.clear();
         this.pendingBackupChunk_BlockEntities.clear();
         this.pendingBackupChunk_Entities.clear();
+    }
+
+    private boolean shouldUseQuery()
+    {
+        if (this.hasOpStatus) return true;
+        if (this.checkOpStatus)
+        {
+            // Check for 15 minutes after login, or changing dimensions
+            if ((System.currentTimeMillis() - this.lastOpCheck) < 900000L) return true;
+            this.checkOpStatus = false;
+        }
+
+        return false;
+    }
+
+    public void resetOpCheck()
+    {
+        this.hasOpStatus = false;
+        this.checkOpStatus = true;
+        this.lastOpCheck = System.currentTimeMillis();
     }
 
     private long getCacheTimeout()
@@ -286,7 +318,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
                 if (nowTime - pair.getLeft() > blockTimeout || pair.getLeft() > nowTime)
                 {
-                    Litematica.debugLog("litematicEntityCache: be at pos [{}] has timed out by [{}] ms", pos.toShortString(), blockTimeout);
+                    //Litematica.debugLog("litematicEntityCache: be at pos [{}] has timed out by [{}] ms", pos.toShortString(), blockTimeout);
                     this.blockEntityCache.remove(pos);
                 }
                 else
@@ -311,7 +343,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
                 if (nowTime - pair.getLeft() > entityTimeout || pair.getLeft() > nowTime)
                 {
-                    Litematica.debugLog("litematicEntityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
+                    //Litematica.debugLog("litematicEntityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
                     this.entityCache.remove(entityId);
                 }
                 else
@@ -474,7 +506,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     {
         if (DataManager.getInstance().hasIntegratedServer() == false)
         {
-            Litematica.debugLog("EntitiesDataStorage#receiveServuxMetadata(): received METADATA from Servux");
+            Litematica.debugLog("LitematicDataChannel: received METADATA from Servux");
 
             if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
@@ -516,6 +548,17 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         }
         if (this.blockEntityCache.containsKey(pos))
         {
+            // Refresh at 25%
+            if (!DataManager.getInstance().hasIntegratedServer() &&
+                Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
+            {
+                if (System.currentTimeMillis() - this.blockEntityCache.get(pos).getLeft() > (this.getCacheTimeout() / 4))
+                {
+                    //Litematica.debugLog("requestBlockEntity: be at pos [{}] requeue at [{}] ms", pos.toShortString(), this.getCacheTimeout() / 4);
+                    this.pendingBlockEntitiesQueue.add(pos);
+                }
+            }
+
             return this.blockEntityCache.get(pos).getRight();
         }
         else if (world.getBlockState(pos).getBlock() instanceof BlockEntityProvider)
@@ -554,6 +597,17 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         }
         if (this.entityCache.containsKey(entityId))
         {
+            // Refresh at 25%
+            if (!DataManager.getInstance().hasIntegratedServer() &&
+                Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
+            {
+                if (System.currentTimeMillis() - this.entityCache.get(entityId).getLeft() > (this.getCacheTimeout() / 4))
+                {
+                    //Litematica.debugLog("requestEntity: entity Id [{}] requeue at [{}] ms", entityId, this.getCacheTimeout() / 4);
+                    this.pendingEntitiesQueue.add(entityId);
+                }
+            }
+
             return this.entityCache.get(entityId).getRight();
         }
         if (DataManager.getInstance().hasIntegratedServer() == false &&
@@ -1120,6 +1174,13 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     @Override
     public void handleVanillaQueryNbt(int transactionId, NbtCompound nbt)
     {
+        if (this.checkOpStatus)
+        {
+            this.hasOpStatus = true;
+            this.checkOpStatus = false;
+            this.lastOpCheck = System.currentTimeMillis();
+        }
+
         Either<BlockPos, Integer> either = this.transactionToBlockPosOrEntityId.remove(transactionId);
 
         if (either != null)
