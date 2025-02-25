@@ -70,11 +70,21 @@ public abstract class MixinClientPlayNetworkHandler
     }
 
     @Inject(method = "onNbtQueryResponse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/DataQueryHandler;handleQueryResponse(ILnet/minecraft/nbt/NbtCompound;)Z"))
-    private void onQueryResponse(NbtQueryResponseS2CPacket packet, CallbackInfo ci)
+    private void litematica_onQueryResponse(NbtQueryResponseS2CPacket packet, CallbackInfo ci)
     {
         if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
         {
             EntitiesDataStorage.getInstance().handleVanillaQueryNbt(packet.getTransactionId(), packet.getNbt());
+        }
+    }
+
+    @Inject(method = "onCommandTree", at = @At("RETURN"))
+    private void minihud_onCommandTree(CallbackInfo ci)
+    {
+        if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
+        {
+            // when the player becomes OP, the server sends the command tree to the client
+            EntitiesDataStorage.getInstance().resetOpCheck();
         }
     }
 }
