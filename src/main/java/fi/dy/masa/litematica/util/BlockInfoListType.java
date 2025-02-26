@@ -1,14 +1,21 @@
 package fi.dy.masa.litematica.util;
 
+import com.google.common.collect.ImmutableList;
+
 import com.mojang.serialization.Codec;
+
+import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum BlockInfoListType implements IConfigOptionListEntry
+public enum BlockInfoListType implements IConfigOptionListEntry, StringIdentifiable
 {
     ALL             ("all",             "litematica.gui.label.block_info_list_type.all"),
     RENDER_LAYERS   ("render_layers",   "litematica.gui.label.block_info_list_type.render_layers");
+
+    public static final StringIdentifiable.EnumCodec<BlockInfoListType> CODEC = StringIdentifiable.createCodec(BlockInfoListType::values);
+    public static final ImmutableList<BlockInfoListType> VALUES = ImmutableList.copyOf(values());
 
     private final String configString;
     private final String translationKey;
@@ -22,7 +29,13 @@ public enum BlockInfoListType implements IConfigOptionListEntry
     @Override
     public Codec<BlockInfoListType> codec()
     {
-        return null;
+        return CODEC;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 
     @Override

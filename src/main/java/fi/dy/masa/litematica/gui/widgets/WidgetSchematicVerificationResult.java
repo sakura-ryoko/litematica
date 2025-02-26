@@ -580,9 +580,8 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         if (model.isBuiltin() == false)
         {
          */
-            //Tessellator tessellator = Tessellator.getInstance();
-            //BufferBuilder buffer = tessellator.getBuffer();
-            VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE));
+            BufferAllocator allocator = new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE);
+            VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(allocator);
             VertexConsumer vertexConsumer = immediate.getBuffer(RenderLayer.getTranslucent());
             MatrixStack.Entry matrixEntry = matrixStack.peek();
 
@@ -602,8 +601,8 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             RAND.setSeed(0);
             renderQuads(model.getQuads(state, null, RAND), brightness, light, matrixEntry, vertexConsumer);
 
-            //tessellator.draw();
             immediate.draw();
+            allocator.close();
         //}
     }
 

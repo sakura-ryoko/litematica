@@ -1,14 +1,20 @@
 package fi.dy.masa.litematica.selection;
 
+import com.google.common.collect.ImmutableList;
+
 import com.mojang.serialization.Codec;
+import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum CornerSelectionMode implements IConfigOptionListEntry
+public enum CornerSelectionMode implements IConfigOptionListEntry, StringIdentifiable
 {
     CORNERS     ("corners",     "litematica.hud.area_selection.mode.corners"),
     EXPAND      ("expand",      "litematica.hud.area_selection.mode.expand");
+
+    public static final StringIdentifiable.EnumCodec<CornerSelectionMode> CODEC = StringIdentifiable.createCodec(CornerSelectionMode::values);
+    public static final ImmutableList<CornerSelectionMode> VALUES = ImmutableList.copyOf(values());
 
     private final String configString;
     private final String translationKey;
@@ -22,7 +28,7 @@ public enum CornerSelectionMode implements IConfigOptionListEntry
     @Override
     public Codec<CornerSelectionMode> codec()
     {
-        return null;
+        return CODEC;
     }
 
     @Override
@@ -77,5 +83,11 @@ public enum CornerSelectionMode implements IConfigOptionListEntry
         }
 
         return CornerSelectionMode.CORNERS;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 }

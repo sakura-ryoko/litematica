@@ -3,7 +3,13 @@ package fi.dy.masa.litematica.selection;
 import javax.annotation.Nullable;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.netty.buffer.ByteBuf;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.math.BlockPos;
 
 import fi.dy.masa.malilib.util.JsonUtils;
@@ -13,6 +19,33 @@ import fi.dy.masa.litematica.util.PositionUtils.Corner;
 
 public class Box
 {
+    public static final Codec<Box> CODEC = RecordCodecBuilder.create(
+            inst -> inst.group(
+                    BlockPos.CODEC.fieldOf("pos1").forGetter(get -> get.pos1 != null ? get.pos1 : BlockPos.ORIGIN),
+                    BlockPos.CODEC.fieldOf("pos2").forGetter(get -> get.pos2 != null ? get.pos2 : BlockPos.ORIGIN),
+                    PrimitiveCodec.STRING.fieldOf("name").forGetter(get -> get.name)
+            ).apply(inst, Box::new)
+    );
+    public static final PacketCodec<ByteBuf, Box> PACKET_CODEC = new PacketCodec<>()
+    {
+        @Override
+        public Box decode(ByteBuf buf)
+        {
+            return new Box(
+                    BlockPos.PACKET_CODEC.decode(buf),
+                    BlockPos.PACKET_CODEC.decode(buf),
+                    PacketCodecs.STRING.decode(buf)
+            );
+        }
+
+        @Override
+        public void encode(ByteBuf buf, Box value)
+        {
+            BlockPos.PACKET_CODEC.encode(buf, value.pos1 != null ? value.pos1 : BlockPos.ORIGIN);
+            BlockPos.PACKET_CODEC.encode(buf, value.pos2 != null ? value.pos2 : BlockPos.ORIGIN);
+            PacketCodecs.STRING.encode(buf, value.name);
+        }
+    };
     @Nullable private BlockPos pos1;
     @Nullable private BlockPos pos2;
     private BlockPos size = BlockPos.ORIGIN;

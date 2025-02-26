@@ -1,13 +1,21 @@
 package fi.dy.masa.litematica.schematic.container;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import io.netty.buffer.ByteBuf;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.collection.Int2ObjectBiMap;
@@ -16,8 +24,31 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class LitematicaBlockStatePaletteHashMap implements ILitematicaBlockStatePalette
 {
+    public static final Codec<LitematicaBlockStatePaletteHashMap> CODEC = RecordCodecBuilder.create(
+            inst -> inst.group(
+                    PrimitiveCodec.INT.fieldOf("Bits").forGetter(get -> get.bits),
+                    Codec.list(BlockState.CODEC).fieldOf("StatePalette").forGetter(LitematicaBlockStatePaletteHashMap::fromMapping)
+            ).apply(inst, LitematicaBlockStatePaletteHashMap::new)
+    );
+    public static final PacketCodec<ByteBuf, LitematicaBlockStatePaletteHashMap> PACKET_CODEC = new PacketCodec<>()
+    {
+        @Override
+        public void encode(ByteBuf buf, LitematicaBlockStatePaletteHashMap value)
+        {
+            PacketCodecs.INTEGER.encode(buf, value.bits);
+            PacketCodecs.UNLIMITED_NBT_ELEMENT.encode(buf, value.writeToNBT());
+        }
+
+        @Override
+        public LitematicaBlockStatePaletteHashMap decode(ByteBuf buf)
+        {
+            Integer bitsIn = PacketCodecs.INTEGER.decode(buf);
+            NbtElement nbt = PacketCodecs.UNLIMITED_NBT_ELEMENT.decode(buf);
+            return new LitematicaBlockStatePaletteHashMap(bitsIn, (NbtList) nbt);
+        }
+    };
     private final Int2ObjectBiMap<BlockState> statePaletteMap;
-    private final ILitematicaBlockStatePaletteResizer paletteResizer;
+    private ILitematicaBlockStatePaletteResizer paletteResizer;
     private final int bits;
 
     public LitematicaBlockStatePaletteHashMap(int bitsIn, ILitematicaBlockStatePaletteResizer paletteResizer)
@@ -25,6 +56,34 @@ public class LitematicaBlockStatePaletteHashMap implements ILitematicaBlockState
         this.bits = bitsIn;
         this.paletteResizer = paletteResizer;
         this.statePaletteMap = Int2ObjectBiMap.create(1 << bitsIn);
+    }
+
+    private LitematicaBlockStatePaletteHashMap(int bitsIn, List<BlockState> list)
+    {
+        this.bits = bitsIn;
+        this.paletteResizer = null;
+        this.statePaletteMap = Int2ObjectBiMap.create(1 << bitsIn);
+        this.setMapping(list);
+    }
+
+    private LitematicaBlockStatePaletteHashMap(int bitsIn, NbtList list)
+    {
+        this.bits = bitsIn;
+        this.paletteResizer = null;
+        this.statePaletteMap = Int2ObjectBiMap.create(1 << bitsIn);
+        this.readFromNBT(list);
+    }
+
+    @Override
+    public Codec<LitematicaBlockStatePaletteHashMap> codec()
+    {
+        return CODEC;
+    }
+
+    @Override
+    public void setResizer(ILitematicaBlockStatePaletteResizer resizer)
+    {
+        this.paletteResizer = resizer;
     }
 
     @Override
@@ -113,6 +172,26 @@ public class LitematicaBlockStatePaletteHashMap implements ILitematicaBlockState
         }
 
         return tagList;
+    }
+
+    @Override
+    public List<BlockState> fromMapping()
+    {
+        List<BlockState> list = new ArrayList<>();
+
+        for (int i = 0; i < this.statePaletteMap.size(); i++)
+        {
+            BlockState state = this.statePaletteMap.get(i);
+
+            if (state == null)
+            {
+                state = LitematicaBlockStateContainer.AIR_BLOCK_STATE;
+            }
+
+            list.add(state);
+        }
+
+        return list;
     }
 
     @Override

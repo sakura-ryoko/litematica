@@ -226,6 +226,15 @@ public class LitematicaSchematic
         schematic.metadata.setMinecraftDataVersion(MINECRAFT_DATA_VERSION);
         schematic.metadata.setFileType(FileType.LITEMATICA_SCHEMATIC);
 
+        // todo testing only
+        /*
+        for (String entry : schematic.blockContainers.keySet())
+        {
+            System.out.printf("BlockStateContainer[%s] --> [%s]\n", entry, LitematicaBlockStateContainer.CODEC.encodeStart(NbtOps.INSTANCE, schematic.blockContainers.get(entry)).resultOrPartial().orElse(null));
+        }
+        System.out.printf("MetaData --> [%s]\n", SchematicMetadata.CODEC.encodeStart(NbtOps.INSTANCE, schematic.metadata).resultOrPartial().orElse(null));
+         */
+
         return schematic;
     }
 

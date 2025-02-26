@@ -1,10 +1,47 @@
 package fi.dy.masa.litematica.schematic.container;
 
+import java.util.Arrays;
+import java.util.stream.LongStream;
 import javax.annotation.Nullable;
+import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.Validate;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 
 public class LitematicaBitArray
 {
+    public static final Codec<LitematicaBitArray> CODEC = RecordCodecBuilder.create(
+            inst -> inst.group(
+                    PrimitiveCodec.INT.fieldOf("BitsPerEntry").forGetter(get -> get.bitsPerEntry),
+                    PrimitiveCodec.LONG.fieldOf("Size").forGetter(get -> get.arraySize),
+                    PrimitiveCodec.LONG_STREAM.fieldOf("Array").forGetter(
+                            get -> Arrays.stream(get.longArray))
+            ).apply(inst, LitematicaBitArray::new)
+    );
+    public static final PacketCodec<ByteBuf, LitematicaBitArray> PACKET_CODEC = new PacketCodec<>()
+    {
+        @Override
+        public void encode(ByteBuf buf, LitematicaBitArray value)
+        {
+            PacketCodecs.INTEGER.encode(buf, value.bitsPerEntry);
+            PacketCodecs.LONG.encode(buf, value.arraySize);
+            PacketCodecs.LONG_ARRAY.encode(buf, value.longArray);
+        }
+
+        @Override
+        public LitematicaBitArray decode(ByteBuf buf)
+        {
+            return new LitematicaBitArray(
+                    PacketCodecs.INTEGER.decode(buf),
+                    PacketCodecs.LONG.decode(buf),
+                    PacketCodecs.LONG_ARRAY.decode(buf)
+            );
+        }
+    };
     /** The long array that is used to store the data for this BitArray. */
     private final long[] longArray;
     /** Number of bits a single entry takes up */
@@ -19,7 +56,7 @@ public class LitematicaBitArray
 
     public LitematicaBitArray(int bitsPerEntryIn, long arraySizeIn)
     {
-        this(bitsPerEntryIn, arraySizeIn, null);
+        this(bitsPerEntryIn, arraySizeIn, (long[]) null);
     }
 
     public LitematicaBitArray(int bitsPerEntryIn, long arraySizeIn, @Nullable long[] longArrayIn)
@@ -37,6 +74,11 @@ public class LitematicaBitArray
         {
             this.longArray = new long[(int) (roundUp(arraySizeIn * bitsPerEntryIn, 64L) / 64L)];
         }
+    }
+
+    private LitematicaBitArray(int bitsPerEntryIn, long arraySizeIn, LongStream longArrayIn)
+    {
+        this(bitsPerEntryIn, arraySizeIn, longArrayIn.toArray());
     }
 
     public void setAt(long index, int value)

@@ -1,16 +1,22 @@
 package fi.dy.masa.litematica.util;
 
+import com.google.common.collect.ImmutableList;
+
 import com.mojang.serialization.Codec;
+
+import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum PasteNbtBehavior implements IConfigOptionListEntry
+public enum PasteNbtBehavior implements IConfigOptionListEntry, StringIdentifiable
 {
     NONE            ("none",              "litematica.gui.label.paste_nbt_behavior.none"),
     PLACE_MODIFY    ("place_data_modify", "litematica.gui.label.paste_nbt_behavior.place_data_modify"),
     PLACE_CLONE     ("place_clone",       "litematica.gui.label.paste_nbt_behavior.place_clone");
 
+    public static final StringIdentifiable.EnumCodec<PasteNbtBehavior> CODEC = StringIdentifiable.createCodec(PasteNbtBehavior::values);
+    public static final ImmutableList<PasteNbtBehavior> VALUES = ImmutableList.copyOf(values());
     private final String configString;
     private final String translationKey;
 
@@ -23,7 +29,13 @@ public enum PasteNbtBehavior implements IConfigOptionListEntry
     @Override
     public Codec<PasteNbtBehavior> codec()
     {
-        return null;
+        return CODEC;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 
     @Override

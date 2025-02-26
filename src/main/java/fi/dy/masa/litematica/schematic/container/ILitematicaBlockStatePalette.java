@@ -2,11 +2,19 @@ package fi.dy.masa.litematica.schematic.container;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
+
+import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtList;
 
 public interface ILitematicaBlockStatePalette
 {
+    @ApiStatus.Experimental
+    Codec<? extends ILitematicaBlockStatePalette> codec();
+
+    void setResizer(ILitematicaBlockStatePaletteResizer resizer);
+
     /**
      * Gets the palette id for the given block state and adds
      * the state to the palette if it doesn't exist there yet.
@@ -32,4 +40,6 @@ public interface ILitematicaBlockStatePalette
      * @return true if the mapping was set successfully, false if it failed
      */
     boolean setMapping(List<BlockState> list);
+
+    List<BlockState> fromMapping();
 }

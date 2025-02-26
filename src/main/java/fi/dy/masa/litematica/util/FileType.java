@@ -3,8 +3,12 @@ package fi.dy.masa.litematica.util;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.google.common.collect.ImmutableList;
 
-public enum FileType
+import com.mojang.serialization.Codec;
+import net.minecraft.util.StringIdentifiable;
+
+public enum FileType implements StringIdentifiable
 {
 	INVALID,
 	UNKNOWN,
@@ -13,6 +17,14 @@ public enum FileType
 	SCHEMATICA_SCHEMATIC,
 	SPONGE_SCHEMATIC,
 	VANILLA_STRUCTURE;
+
+	public static final StringIdentifiable.EnumCodec<FileType> CODEC = StringIdentifiable.createCodec(FileType::values);
+	public static final ImmutableList<FileType> VALUES = ImmutableList.copyOf(values());
+
+	public Codec<FileType> codec()
+	{
+		return CODEC;
+	}
 
 	public static FileType fromName(String fileName)
 	{
@@ -77,5 +89,11 @@ public enum FileType
 			case INVALID -> "invalid";
 			case UNKNOWN -> "unknown";
 		};
+	}
+
+	@Override
+	public String asString()
+	{
+		return getString(this);
 	}
 }

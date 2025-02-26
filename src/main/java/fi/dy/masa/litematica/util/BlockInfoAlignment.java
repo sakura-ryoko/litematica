@@ -1,14 +1,21 @@
 package fi.dy.masa.litematica.util;
 
+import com.google.common.collect.ImmutableList;
+
 import com.mojang.serialization.Codec;
+
+import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum BlockInfoAlignment implements IConfigOptionListEntry
+public enum BlockInfoAlignment implements IConfigOptionListEntry, StringIdentifiable
 {
     CENTER      ("center",      "litematica.label.alignment.center"),
     TOP_CENTER  ("top_center",  "litematica.label.alignment.top_center");
+
+    public static final StringIdentifiable.EnumCodec<BlockInfoAlignment> CODEC = StringIdentifiable.createCodec(BlockInfoAlignment::values);
+    public static final ImmutableList<BlockInfoAlignment> VALUES = ImmutableList.copyOf(values());
 
     private final String configString;
     private final String unlocName;
@@ -22,7 +29,13 @@ public enum BlockInfoAlignment implements IConfigOptionListEntry
     @Override
     public Codec<BlockInfoAlignment> codec()
     {
-        return null;
+        return CODEC;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 
     @Override

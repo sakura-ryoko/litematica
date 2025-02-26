@@ -1,13 +1,21 @@
 package fi.dy.masa.litematica.schematic.container;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import io.netty.buffer.ByteBuf;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 
@@ -15,8 +23,31 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class LitematicaBlockStatePaletteLinear implements ILitematicaBlockStatePalette
 {
+    public static final Codec<LitematicaBlockStatePaletteLinear> CODEC = RecordCodecBuilder.create(
+            inst -> inst.group(
+                    PrimitiveCodec.INT.fieldOf("Bits").forGetter(get -> get.bits),
+                    Codec.list(BlockState.CODEC).fieldOf("StatePalette").forGetter(LitematicaBlockStatePaletteLinear::fromMapping)
+            ).apply(inst, LitematicaBlockStatePaletteLinear::new)
+    );
+    public static final PacketCodec<ByteBuf, LitematicaBlockStatePaletteLinear> PACKET_CODEC = new PacketCodec<>()
+    {
+        @Override
+        public void encode(ByteBuf buf, LitematicaBlockStatePaletteLinear value)
+        {
+            PacketCodecs.INTEGER.encode(buf, value.bits);
+            PacketCodecs.UNLIMITED_NBT_ELEMENT.encode(buf, value.writeToNBT());
+        }
+
+        @Override
+        public LitematicaBlockStatePaletteLinear decode(ByteBuf buf)
+        {
+            Integer bitsIn = PacketCodecs.INTEGER.decode(buf);
+            NbtElement nbt = PacketCodecs.UNLIMITED_NBT_ELEMENT.decode(buf);
+            return new LitematicaBlockStatePaletteLinear(bitsIn, (NbtList) nbt);
+        }
+    };
     private final BlockState[] states;
-    private final ILitematicaBlockStatePaletteResizer resizeHandler;
+    private ILitematicaBlockStatePaletteResizer resizeHandler;
     private final int bits;
     private int currentSize;
 
@@ -25,6 +56,34 @@ public class LitematicaBlockStatePaletteLinear implements ILitematicaBlockStateP
         this.states = new BlockState[1 << bitsIn];
         this.bits = bitsIn;
         this.resizeHandler = resizeHandler;
+    }
+
+    private LitematicaBlockStatePaletteLinear(int bitsIn, List<BlockState> list)
+    {
+        this.bits = bitsIn;
+        this.resizeHandler = null;
+        this.states = new BlockState[1 << bitsIn];
+        this.setMapping(list);
+    }
+
+    private LitematicaBlockStatePaletteLinear(int bitsIn, NbtList list)
+    {
+        this.bits = bitsIn;
+        this.resizeHandler = null;
+        this.states = new BlockState[1 << bitsIn];
+        this.readFromNBT(list);
+    }
+
+    @Override
+    public Codec<LitematicaBlockStatePaletteLinear> codec()
+    {
+        return CODEC;
+    }
+
+    @Override
+    public void setResizer(ILitematicaBlockStatePaletteResizer resizer)
+    {
+        this.resizeHandler = resizer;
     }
 
     @Override
@@ -144,5 +203,25 @@ public class LitematicaBlockStatePaletteLinear implements ILitematicaBlockStateP
         }
 
         return false;
+    }
+
+    @Override
+    public List<BlockState> fromMapping()
+    {
+        List<BlockState> list = new ArrayList<>();
+
+        for (int id = 0; id < this.currentSize; ++id)
+        {
+            BlockState state = this.states[id];
+
+            if (state == null)
+            {
+                state = LitematicaBlockStateContainer.AIR_BLOCK_STATE;
+            }
+
+            list.add(state);
+        }
+
+        return list;
     }
 }

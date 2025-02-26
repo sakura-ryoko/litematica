@@ -4,7 +4,13 @@ import javax.annotation.Nullable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.netty.buffer.ByteBuf;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
@@ -16,6 +22,52 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class SubRegionPlacement
 {
+    public static final Codec<SubRegionPlacement> CODEC = RecordCodecBuilder.create(
+            inst -> inst.group(
+                    PrimitiveCodec.STRING.fieldOf("name").forGetter(get -> get.name),
+                    BlockPos.CODEC.fieldOf("defaultPos").forGetter(get -> get.defaultPos),
+                    BlockPos.CODEC.fieldOf("pos").forGetter(get -> get.pos),
+                    BlockRotation.CODEC.fieldOf("rotation").forGetter(get -> get.rotation),
+                    BlockMirror.CODEC.fieldOf("mirror").forGetter(get -> get.mirror),
+                    PrimitiveCodec.BOOL.fieldOf("enabled").forGetter(get -> get.enabled),
+                    PrimitiveCodec.BOOL.fieldOf("renderingEnabled").forGetter(get -> get.renderingEnabled),
+                    PrimitiveCodec.BOOL.fieldOf("ignoreEntities").forGetter(get -> get.ignoreEntities),
+                    PrimitiveCodec.INT.fieldOf("coordinateLockMask").forGetter(get -> get.coordinateLockMask)
+            ).apply(inst, SubRegionPlacement::new)
+    );
+    public static final PacketCodec<ByteBuf, BlockMirror> BLOCK_MIRROR_PACKET_CODEC = PacketCodecs.STRING.xmap(BlockMirror::valueOf, BlockMirror::asString);
+    public static final PacketCodec<ByteBuf, SubRegionPlacement> PACKET_CODEC = new PacketCodec<>()
+    {
+        @Override
+        public void encode(ByteBuf buf, SubRegionPlacement value)
+        {
+            PacketCodecs.STRING.encode(buf, value.name);
+            BlockPos.PACKET_CODEC.encode(buf, value.defaultPos);
+            BlockPos.PACKET_CODEC.encode(buf, value.pos);
+            BlockRotation.PACKET_CODEC.encode(buf, value.rotation);
+            BLOCK_MIRROR_PACKET_CODEC.encode(buf, value.mirror);
+            PacketCodecs.BOOLEAN.encode(buf, value.enabled);
+            PacketCodecs.BOOLEAN.encode(buf, value.renderingEnabled);
+            PacketCodecs.BOOLEAN.encode(buf, value.ignoreEntities);
+            PacketCodecs.INTEGER.encode(buf, value.coordinateLockMask);
+        }
+
+        @Override
+        public SubRegionPlacement decode(ByteBuf buf)
+        {
+            return new SubRegionPlacement(
+                PacketCodecs.STRING.decode(buf),
+                BlockPos.PACKET_CODEC.decode(buf),
+                BlockPos.PACKET_CODEC.decode(buf),
+                BlockRotation.PACKET_CODEC.decode(buf),
+                BLOCK_MIRROR_PACKET_CODEC.decode(buf),
+                PacketCodecs.BOOLEAN.decode(buf),
+                PacketCodecs.BOOLEAN.decode(buf),
+                PacketCodecs.BOOLEAN.decode(buf),
+                PacketCodecs.INTEGER.decode(buf)
+            );
+        }
+    };
     private final String name;
     private final BlockPos defaultPos;
     private BlockPos pos;
@@ -31,6 +83,18 @@ public class SubRegionPlacement
         this.pos = pos;
         this.defaultPos = pos;
         this.name = name;
+    }
+
+    private SubRegionPlacement(String name, BlockPos defPos, BlockPos pos, BlockRotation rot, BlockMirror mirror, Boolean enabled, Boolean renderingEnabled, Boolean ignoreEntities, Integer coordinateLockMask)
+    {
+        this(defPos, name);
+        this.pos = pos;
+        this.rotation = rot;
+        this.mirror = mirror;
+        this.enabled = enabled;
+        this.renderingEnabled = renderingEnabled;
+        this.ignoreEntities = ignoreEntities;
+        this.coordinateLockMask = coordinateLockMask;
     }
 
     public boolean isEnabled()
