@@ -1502,8 +1502,7 @@ public class LitematicaSchematic
             blocksTag = tag.getCompound("Blocks");
 
             if (blocksTag.contains("Palette", Constants.NBT.TAG_COMPOUND) &&
-                blocksTag.contains("Data", Constants.NBT.TAG_BYTE_ARRAY) &&
-                blocksTag.contains("BlockEntities", Constants.NBT.TAG_LIST))
+                blocksTag.contains("Data", Constants.NBT.TAG_BYTE_ARRAY))
             {
                 paletteTag = blocksTag.getCompound("Palette");
                 blockData = blocksTag.getByteArray("Data");
@@ -1568,6 +1567,12 @@ public class LitematicaSchematic
     {
         Map<BlockPos, NbtCompound> blockEntities = new HashMap<>();
         String tagName = spongeVersion == 1 ? "TileEntities" : "BlockEntities";
+        
+        if (tag.contains(tagName) == false)
+        {
+            return blockEntities;
+        }
+        
         NbtList tagList = tag.getList(tagName, Constants.NBT.TAG_COMPOUND);
 
         final int size = tagList.size();
