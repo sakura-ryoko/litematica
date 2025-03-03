@@ -1,7 +1,7 @@
 {
     "litematica.config.colors.comment.areaSelectionBoxSideColor": "El color de las cajas de selección de área, cuando no están seleccionadas",
     "litematica.config.colors.comment.hightlightBlockInInventoryColor": "El color de resaltado para el ítem del bloque observado",
-    "litematica.config.colors.comment.materialListHudItemCountsColor": "El color del texto de conteo de ítems en el HUD de información de Lista de Materiales",
+    "litematica.config.colors.comment.materialListHudItemCountsColor": "El color del contador en el HUD de la Lista de Materiales",
     "litematica.config.colors.comment.schematicOverlayColorDiffBlock": "The color of the blocks overlay for different blocks of\nthe same pre-defined types, and the block states match",
     "litematica.config.colors.comment.schematicOverlayColorExtra": "El color de la superposición de bloques extra",
     "litematica.config.colors.comment.schematicOverlayColorMissing": "El color de la superposición de bloques faltantes",
