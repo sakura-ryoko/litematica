@@ -498,7 +498,6 @@
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_read_sponge": "Failed to load the Sponge Schematic",
     "litematica.error.schematic_conversion.structure_to_litematica.failed_to_create_litematic": "Ошибка конвертации структуры в схему Litematica",
     "litematica.error.schematic_conversion.structure_to_litematica.failed_to_read_structure": "Failed to load the Vanilla Structure",
-    "litematica.error.schematic_conversion.structure_to_litematica_failed": "Не удалось конвертировать структуру в схему Litematica",
     "litematica.error.schematic_load.cant_read_file": "Не удается прочитать файл схемы '%s' (не существует или проблема с правами доступа)",
     "litematica.error.schematic_load.newer_minecraft_version": "Схема из более новой версии Майнкрафта: '%d' > '%d'\nЧасть данных NBT может быть повреждена.",
     "litematica.error.schematic_load.no_schematic_selected": "Не выбрана схема!",
