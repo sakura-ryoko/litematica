@@ -393,26 +393,26 @@ public class SchematicMetadata
 
     public void readFromNBT(NbtCompound nbt)
     {
-        this.name = nbt.getString("Name");
-        this.author = nbt.getString("Author");
-        this.description = nbt.getString("Description");
-        this.regionCount = nbt.getInt("RegionCount");
-        this.timeCreated = nbt.getLong("TimeCreated");
-        this.timeModified = nbt.getLong("TimeModified");
+        this.name = nbt.getString("Name", "?");
+        this.author = nbt.getString("Author", "?");
+        this.description = nbt.getString("Description", "");
+        this.regionCount = nbt.getInt("RegionCount", 0);
+        this.timeCreated = nbt.getLong("TimeCreated", -1L);
+        this.timeModified = nbt.getLong("TimeModified", -1L);
 
-        if (nbt.contains("TotalVolume", Constants.NBT.TAG_ANY_NUMERIC))
+        if (nbt.contains("TotalVolume"))
         {
-            this.totalVolume = nbt.getInt("TotalVolume");
+            this.totalVolume = nbt.getInt("TotalVolume", 0);
         }
 
-        if (nbt.contains("TotalBlocks", Constants.NBT.TAG_ANY_NUMERIC))
+        if (nbt.contains("TotalBlocks"))
         {
-            this.totalBlocks = nbt.getInt("TotalBlocks");
+            this.totalBlocks = nbt.getInt("TotalBlocks", 0);
         }
 
-        if (nbt.contains("EnclosingSize", Constants.NBT.TAG_COMPOUND))
+        if (nbt.contains("EnclosingSize"))
         {
-            Vec3i size = NbtUtils.readVec3iFromTag(nbt.getCompound("EnclosingSize"));
+            Vec3i size = NbtUtils.readVec3iFromTag(nbt.getCompoundOrEmpty("EnclosingSize"));
 
             if (size != null)
             {
@@ -420,9 +420,9 @@ public class SchematicMetadata
             }
         }
 
-        if (nbt.contains("PreviewImageData", Constants.NBT.TAG_INT_ARRAY))
+        if (nbt.contains("PreviewImageData"))
         {
-            this.thumbnailPixelData = Arrays.stream(nbt.getIntArray("PreviewImageData"));
+            this.thumbnailPixelData = Arrays.stream(nbt.getIntArray("PreviewImageData").orElse(new int[0]));
         }
         else
         {

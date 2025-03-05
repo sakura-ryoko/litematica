@@ -143,7 +143,7 @@ public class LitematicaBlockStatePaletteHashMap implements ILitematicaBlockState
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getCompound(i);
+            NbtCompound tag = tagList.getOrCreateCompound(i);
             BlockState state = NbtHelper.toBlockState(lookup, tag);
 
             if (i > 0 || state != LitematicaBlockStateContainer.AIR_BLOCK_STATE)

@@ -66,7 +66,7 @@ public class SchematicConversionMaps
 
                     if (oldStateTag != null)
                     {
-                        String name = oldStateTag.getString("Name");
+                        String name = oldStateTag.getString("Name", "");
                         OLD_BLOCK_NAME_TO_SHIFTED_BLOCK_ID.putIfAbsent(name, data.idMeta & 0xFFF0);
                     }
                 }
@@ -170,7 +170,7 @@ public class SchematicConversionMaps
         {
             // The flattening map actually has outdated names for some blocks...
             // Ie. some blocks were renamed after the flattening, so we need to handle those here.
-            String newName = newStateTag.getString("Name");
+            String newName = newStateTag.getString("Name", "");
             String overriddenName = ID_META_TO_UPDATED_NAME.get(idMeta);
 
             if (overriddenName != null)
@@ -192,7 +192,7 @@ public class SchematicConversionMaps
             if (oldStateStrings.length > 0)
             {
                 NbtCompound oldStateTag = getStateTagFromString(oldStateStrings[0]);
-                String oldName = oldStateTag.getString("Name");
+                String oldName = oldStateTag.getString("Name", "");
 
                 // Don't run the vanilla block rename for overridden names
                 if (overriddenName == null)
@@ -242,7 +242,7 @@ public class SchematicConversionMaps
                 // FIXME Is this going to be correct for everything?
                 if (oldStateTag != null && newStateTagIn.getKeys().equals(oldStateTag.getKeys()))
                 {
-                    String oldBlockName = oldStateTag.getString("Name");
+                    String oldBlockName = oldStateTag.getString("Name", "");
                     String newBlockName = OLD_NAME_TO_NEW_NAME.get(oldBlockName);
 
                     if (newBlockName != null && newBlockName.equals(oldBlockName) == false)
@@ -288,7 +288,10 @@ public class SchematicConversionMaps
 
         try
         {
-            return MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
+            return MinecraftClient.getInstance().getDataFixer()
+                    .update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION)
+                    .getValue().asString()
+                    .orElse(oldName);
         }
         catch (Exception e)
         {
@@ -352,7 +355,7 @@ public class SchematicConversionMaps
         }
         if (tags.contains("Id"))
         {
-            tags.putString("id", tags.getString("Id"));
+            tags.putString("id", tags.getString("Id", ""));
             return tags;
         }
 
@@ -458,7 +461,7 @@ public class SchematicConversionMaps
         // Fix any erroneous Items tags with the null "tag" tag.
         if (tags.contains("Items"))
         {
-            NbtList items = fixItemsTag(tags.getList("Items", Constants.NBT.TAG_COMPOUND));
+            NbtList items = fixItemsTag(tags.getListOrEmpty("Items"));
             tags.put("Items", items);
         }
 
@@ -472,13 +475,13 @@ public class SchematicConversionMaps
 
         for (int i = 0; i < items.size(); i++)
         {
-            NbtCompound itemEntry = items.getCompound(i);
+            NbtCompound itemEntry = items.getOrCreateCompound(i);
             if (itemEntry.contains("tag"))
             {
                 NbtCompound tag = null;
                 try
                 {
-                    tag = itemEntry.getCompound("tag");
+                    tag = itemEntry.getCompoundOrEmpty("tag");
                 }
                 catch (Exception ignored) {}
 
@@ -490,13 +493,13 @@ public class SchematicConversionMaps
                 else
                 {
                     // Fix nested entries if they exist
-                    if (tag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
+                    if (tag.contains("BlockEntityTag"))
                     {
-                        NbtCompound entityEntry = tag.getCompound("BlockEntityTag");
+                        NbtCompound entityEntry = tag.getCompoundOrEmpty("BlockEntityTag");
 
-                        if (entityEntry.contains("Items", Constants.NBT.TAG_LIST))
+                        if (entityEntry.contains("Items"))
                         {
-                            NbtList nestedItems = fixItemsTag(entityEntry.getList("Items", Constants.NBT.TAG_COMPOUND));
+                            NbtList nestedItems = fixItemsTag(entityEntry.getListOrEmpty("Items"));
                             entityEntry.put("Items", nestedItems);
                         }
 

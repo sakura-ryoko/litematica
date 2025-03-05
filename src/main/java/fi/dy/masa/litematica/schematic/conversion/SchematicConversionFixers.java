@@ -38,10 +38,10 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BANNER = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
+        if (tag != null && tag.contains("Base"))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
-            DyeColor colorFromData = DyeColor.byIndex(15 - tag.getInt("Base"));
+            DyeColor colorFromData = DyeColor.byIndex(15 - tag.getInt("Base", 0));
 
             if (colorOrig != colorFromData)
             {
@@ -77,10 +77,10 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BANNER_WALL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
+        if (tag != null && tag.contains("Base"))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
-            DyeColor colorFromData = DyeColor.byIndex(15 - tag.getInt("Base"));
+            DyeColor colorFromData = DyeColor.byIndex(15 - tag.getInt("Base", 0));
 
             if (colorOrig != colorFromData)
             {
@@ -116,9 +116,9 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_BED = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("color", Constants.NBT.TAG_INT))
+        if (tag != null && tag.contains("color"))
         {
-            int colorId = tag.getInt("color");
+            int colorId = tag.getInt("color", -1);
             Direction facing = state.get(BedBlock.FACING);
             BedPart part = state.get(BedBlock.PART);
             Boolean occupied = state.get(BedBlock.OCCUPIED);
@@ -239,13 +239,13 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_FLOWER_POT = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Item", 8))
+        if (tag != null && tag.contains("Item"))
         {
-            String itemName = tag.getString("Item");
+            String itemName = tag.getString("Item", "");
 
             if (itemName.length() > 0 && tag.contains("Data"))
             {
-                int meta = tag.getInt("Data");
+                int meta = tag.getInt("Data", 0);
 
                 switch (itemName)
                 {
@@ -291,8 +291,8 @@ public class SchematicConversionFixers
         if (tag != null)
         {
             state = state
-                        .with(NoteBlock.POWERED, tag.getBoolean("powered"))
-                        .with(NoteBlock.NOTE, MathHelper.clamp(tag.getByte("note"), 0, 24))
+                        .with(NoteBlock.POWERED, tag.getBoolean("powered", false))
+                        .with(NoteBlock.NOTE, MathHelper.clamp(tag.getByte("note", (byte) 0), 0, 24))
                         .with(NoteBlock.INSTRUMENT, reader.getBlockState(pos.down()).getInstrument());
         }
 
@@ -339,7 +339,7 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_SIGN = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Text1", Constants.NBT.TAG_STRING))
+        if (tag != null && tag.contains("Text1"))
         {
             NbtList textList = new NbtList();
             textList.add(tag.get("Text1"));
@@ -349,8 +349,8 @@ public class SchematicConversionFixers
 
             NbtCompound frontTextTag = new NbtCompound();
             frontTextTag.put("messages", textList);
-            frontTextTag.putString("color", tag.getString("Color"));
-            frontTextTag.putByte("has_glowing_text", tag.getByte("GlowingText"));
+            frontTextTag.putString("color", tag.getString("Color", ""));
+            frontTextTag.putByte("has_glowing_text", tag.getByte("GlowingText", (byte) 0));
 
             tag.put("front_text", frontTextTag);
 
@@ -370,7 +370,7 @@ public class SchematicConversionFixers
 
         if (tag != null && tag.contains("SkullType"))
         {
-            int id = MathHelper.clamp(tag.getByte("SkullType"), 0, 5);
+            int id = MathHelper.clamp(tag.getByte("SkullType", (byte) 0), 0, 5);
 
             // ;_; >_> <_<
             if (id == 2) { id = 3; } else if (id == 3) { id = 2; }
@@ -406,7 +406,7 @@ public class SchematicConversionFixers
                 }
             }
 
-            state = state.with(BannerBlock.ROTATION, MathHelper.clamp(tag.getByte("Rot"), 0, 15));
+            state = state.with(BannerBlock.ROTATION, MathHelper.clamp(tag.getByte("Rot", (byte) 0), 0, 15));
         }
 
         return state;
@@ -415,9 +415,9 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_SKULL_WALL = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("SkullType", Constants.NBT.TAG_BYTE))
+        if (tag != null && tag.contains("SkullType"))
         {
-            int id = MathHelper.clamp(tag.getByte("SkullType"), 0, 5);
+            int id = MathHelper.clamp(tag.getByte("SkullType", (byte) 0), 0, 5);
 
             // ;_; >_> <_<
             if (id == 2) { id = 3; } else if (id == 3) { id = 2; }
