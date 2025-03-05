@@ -4,12 +4,16 @@ import java.util.function.Supplier;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Fog;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.profiler.Profiler;
 
+import fi.dy.masa.malilib.interfaces.IRenderer;
+import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -18,13 +22,11 @@ import fi.dy.masa.litematica.render.OverlayRenderer;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.render.infohud.ToolHud;
 import fi.dy.masa.litematica.tool.ToolMode;
-import fi.dy.masa.malilib.interfaces.IRenderer;
-import fi.dy.masa.malilib.util.GuiUtils;
 
 public class RenderHandler implements IRenderer
 {
     @Override
-    public void onRenderWorldPreWeather(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, Profiler profiler)
+    public void onRenderWorldPreWeather(Framebuffer fb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, Profiler profiler)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
 

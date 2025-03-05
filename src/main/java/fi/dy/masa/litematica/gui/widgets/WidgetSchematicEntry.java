@@ -1,13 +1,12 @@
 package fi.dy.masa.litematica.gui.widgets;
 
+import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableList;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.annotation.Nullable;
-import com.google.common.collect.ImmutableList;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.BlockPos;
 
@@ -100,11 +99,12 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
         this.drawString(this.x + 20, this.y + 7, color, schematicName, drawContext);
 
         RenderUtils.color(1f, 1f, 1f, 1f);
-        RenderSystem.disableBlend();
+        //RenderSystem.disableBlend();
+        RenderUtils.blend(false);
 
         Path schematicFile = this.schematic.getFile();
         String fileName = schematicFile != null ? schematicFile.getFileName().toString() : null;
-        this.parent.bindTexture(Icons.TEXTURE);
+        this.parent.bindTexture(Icons.TEXTURE, drawContext);
 
         Icons icon;
 

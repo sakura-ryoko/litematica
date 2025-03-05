@@ -30,7 +30,7 @@ public class WidgetPlacementSubRegion extends WidgetListEntryBase<SubRegionPlace
     private final WidgetListPlacementSubRegions parent;
     private final SubRegionPlacement placement;
     private final boolean isOdd;
-    private int buttonsStartX;
+    private final int buttonsStartX;
 
     public WidgetPlacementSubRegion(int x, int y, int width, int height, boolean isOdd,
             SchematicPlacement schematicPlacement, SubRegionPlacement placement, int listIndex,
@@ -124,7 +124,7 @@ public class WidgetPlacementSubRegion extends WidgetListEntryBase<SubRegionPlace
 
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        this.parent.bindTexture(Icons.TEXTURE);
+        this.parent.bindTexture(Icons.TEXTURE, drawContext);
         icon.renderAt(this.x + 2, this.y + 5, this.zLevel, false, false, drawContext);
 
         if (this.placement.isRegionPlacementModifiedFromDefault())

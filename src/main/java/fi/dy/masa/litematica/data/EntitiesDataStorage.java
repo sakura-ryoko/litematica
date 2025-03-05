@@ -510,12 +510,12 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
             if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
-                if (data.getInt("version") != ServuxLitematicaPacket.PROTOCOL_VERSION)
+                if (data.getInt("version", -1) != ServuxLitematicaPacket.PROTOCOL_VERSION)
                 {
                     Litematica.LOGGER.warn("LitematicDataChannel: Mis-matched protocol version!");
                 }
 
-                this.setServuxVersion(data.getString("servux"));
+                this.setServuxVersion(data.getString("servux", "?"));
                 this.setIsServuxServer();
 
                 return true;
@@ -1015,7 +1015,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
         if (blockEntity != null && (type == null || type.equals(BlockEntityType.getId(blockEntity.getType()))))
         {
-            if (nbt.contains(NbtKeys.ID, Constants.NBT.TAG_STRING) == false)
+            if (nbt.contains(NbtKeys.ID) == false)
             {
                 Identifier id = BlockEntityType.getId(blockEntity.getType());
 
@@ -1053,7 +1053,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
                 if (blockEntity2 != null)
                 {
-                    if (nbt.contains(NbtKeys.ID, Constants.NBT.TAG_STRING) == false)
+                    if (nbt.contains(NbtKeys.ID) == false)
                     {
                         Identifier id = BlockEntityType.getId(beType);
 
@@ -1098,7 +1098,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
         if (entity != null)
         {
-            if (nbt.contains(NbtKeys.ID, Constants.NBT.TAG_STRING) == false)
+            if (nbt.contains(NbtKeys.ID) == false)
             {
                 Identifier id = EntityType.getId(entity.getType());
 
@@ -1139,26 +1139,26 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         if ((nbt.contains("Task") && nbt.getString("Task").equals("BulkEntityReply")) ||
             nbt.contains("Task") == false)
         {
-            NbtList tileList = nbt.contains("TileEntities") ? nbt.getList("TileEntities", Constants.NBT.TAG_COMPOUND) : new NbtList();
-            NbtList entityList = nbt.contains("Entities") ? nbt.getList("Entities", Constants.NBT.TAG_COMPOUND) : new NbtList();
-            ChunkPos chunkPos = new ChunkPos(nbt.getInt("chunkX"), nbt.getInt("chunkZ"));
+            NbtList tileList = nbt.contains("TileEntities") ? nbt.getListOrEmpty("TileEntities") : new NbtList();
+            NbtList entityList = nbt.contains("Entities") ? nbt.getListOrEmpty("Entities") : new NbtList();
+            ChunkPos chunkPos = new ChunkPos(nbt.getInt("chunkX", 0), nbt.getInt("chunkZ", 0));
 
             this.shouldUseLongTimeout = true;
 
             for (int i = 0; i < tileList.size(); ++i)
             {
-                NbtCompound te = tileList.getCompound(i);
+                NbtCompound te = tileList.getOrCreateCompound(i);
                 BlockPos pos = NbtUtils.readBlockPos(te);
-                Identifier type = Identifier.of(te.getString("id"));
+                Identifier type = Identifier.of(te.getString("id", ""));
 
                 this.handleBlockEntityData(pos, te, type);
             }
 
             for (int i = 0; i < entityList.size(); ++i)
             {
-                NbtCompound ent = entityList.getCompound(i);
+                NbtCompound ent = entityList.getOrCreateCompound(i);
                 Vec3d pos = NbtUtils.readEntityPositionFromTag(ent);
-                int entityId = ent.getInt("entityId");
+                int entityId = ent.getInt("entityId", 0);
 
                 this.handleEntityData(entityId, ent);
             }

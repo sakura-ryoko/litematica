@@ -1,9 +1,9 @@
 package fi.dy.masa.litematica.util;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,7 +28,6 @@ import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.WorldTickScheduler;
 
 import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
@@ -389,7 +388,7 @@ public class SchematicPlacingUtils
             if (x >= minX && x < maxX && z >= minZ && z < maxZ)
             {
                 NbtCompound tag = info.nbt.copy();
-                String id = tag.getString("id");
+                String id = tag.getString("id", "");
 
                 // Avoid warning about invalid hanging position.
                 // Note that this position isn't technically correct, but it only needs to be within 16 blocks
@@ -412,9 +411,9 @@ public class SchematicPlacingUtils
                     tag.putInt("TileZ", (int) p.z);
                 }
 
-                NbtList rotation = tag.getList("Rotation", Constants.NBT.TAG_FLOAT);
-                origRot[0] = rotation.getFloat(0);
-                origRot[1] = rotation.getFloat(1);
+                NbtList rotation = tag.getListOrEmpty("Rotation");
+                origRot[0] = rotation.getFloat(0, 0f);
+                origRot[1] = rotation.getFloat(1, 0f);
 
                 Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
 

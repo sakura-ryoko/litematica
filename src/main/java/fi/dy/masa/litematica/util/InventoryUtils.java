@@ -470,7 +470,7 @@ public class InventoryUtils
         }
         if (nbt.contains("components"))
         {
-            NbtCompound components = nbt.getCompound("components");
+            NbtCompound components = nbt.getCompoundOrEmpty("components");
             int count = 0;
 
             result.append("[");
@@ -492,7 +492,7 @@ public class InventoryUtils
         }
         if (nbt.contains("count"))
         {
-            int count = nbt.getInt("count");
+            int count = nbt.getInt("count", 1);
 
             if (count > 1)
             {

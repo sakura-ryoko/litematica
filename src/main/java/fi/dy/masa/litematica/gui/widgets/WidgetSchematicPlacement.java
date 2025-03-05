@@ -115,7 +115,7 @@ public class WidgetSchematicPlacement extends WidgetListEntryBase<SchematicPlace
 
         RenderUtils.color(1, 1, 1, 1);
 
-        this.parent.bindTexture(Icons.TEXTURE);
+        this.parent.bindTexture(Icons.TEXTURE, drawContext);
         icon.renderAt(this.x + 2, this.y + 5, this.zLevel, false, false, drawContext);
 
         if (this.placement.isRegionPlacementModified())
