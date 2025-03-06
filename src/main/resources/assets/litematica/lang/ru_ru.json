@@ -2,7 +2,7 @@
     "litematica.config.colors.comment.areaSelectionBoxSideColor": "Цвет боковых сторон рамок выбора области, когда они не выбраны",
     "litematica.config.colors.comment.hightlightBlockInInventoryColor": "Цвет подсветки для предмета блока, на который вы смотрите",
     "litematica.config.colors.comment.materialListHudItemCountsColor": "Цвет текста с количеством предметов в HUD списка материалов",
-    "litematica.config.colors.comment.schematicOverlayColorDiffBlock": "The color of the blocks overlay for different blocks of\nthe same pre-defined types, and the block states match",
+    "litematica.config.colors.comment.schematicOverlayColorDiffBlock": "Цвета блоков накладываются друг на друга для разных блоков\nэто одинаковые предопределенные типы, и состояния блоков совпадают.",
     "litematica.config.colors.comment.schematicOverlayColorExtra": "Цвет наложения для дополнительных блоков в схеме",
     "litematica.config.colors.comment.schematicOverlayColorMissing": "Цвет наложения для отсутствующих блоков в схеме",
     "litematica.config.colors.comment.schematicOverlayColorWrongBlock": "Цвет наложения для неправильных блоков в схеме",
