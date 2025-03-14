@@ -12,9 +12,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.FluidRenderer;
-import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.BlockModelPart;
+import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemDisplayContext;
@@ -71,11 +72,11 @@ public class BlockModelRendererSchematic
         }
     }
 
-    public boolean renderModel(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn,
+    public boolean renderModel(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn,
                                BlockPos posIn, MatrixStack matrixStack,
                                VertexConsumer vertexConsumer, long rand)
     {
-        boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelIn.useAmbientOcclusion();
+        boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelParts.getFirst().useAmbientOcclusion();
 
         Vec3d offset = stateIn.getModelOffset(posIn);
         matrixStack.translate((float) offset.x, (float) offset.y, (float) offset.z);
@@ -86,12 +87,12 @@ public class BlockModelRendererSchematic
             if (ao)
             {
                 //System.out.printf("renderModelSmooth(): pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
-                return this.renderModelSmooth(worldIn, modelIn, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
+                return this.renderModelSmooth(worldIn, modelParts, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
             }
             else
             {
                 //System.out.printf("renderModelFlat(): pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
-                return this.renderModelFlat(worldIn, modelIn, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
+                return this.renderModelFlat(worldIn, modelParts, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
             }
         }
         catch (Throwable throwable)
@@ -106,7 +107,7 @@ public class BlockModelRendererSchematic
         }
     }
 
-    private boolean renderModelSmooth(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn, BlockPos posIn, MatrixStack matrixStack,
+    private boolean renderModelSmooth(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn, BlockPos posIn, MatrixStack matrixStack,
                                       VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
         boolean renderedSomething = false;
@@ -115,37 +116,42 @@ public class BlockModelRendererSchematic
         AOProcessor aoFace = AOProcessor.get();
         BlockPos.Mutable mutablePos = posIn.mutableCopy();
 
-        for (Direction side : PositionUtils.ALL_DIRECTIONS)
+        for (BlockModelPart part : modelParts)
         {
+            for (Direction side : PositionUtils.ALL_DIRECTIONS)
+            {
+                random.setSeed(seedIn);
+                // modelIn.getQuads(stateIn, side, random)
+                List<BakedQuad> quads = part.getQuads(side);
+
+                if (!quads.isEmpty())
+                {
+                    mutablePos.set(posIn, side);
+                    if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side, mutablePos))
+                    {
+                        //System.out.printf("renderQuadsSmooth():1: pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
+                        this.renderQuadsSmooth(worldIn, stateIn, posIn, matrixStack, vertexConsumer, quads, quadBounds, bitset, aoFace, overlay);
+                        renderedSomething = true;
+                    }
+                }
+            }
+
             random.setSeed(seedIn);
-            List<BakedQuad> quads = modelIn.getQuads(stateIn, side, random);
+            // modelIn.getQuads(stateIn, null, random);
+            List<BakedQuad> quads = part.getQuads(null);
 
             if (!quads.isEmpty())
             {
-                mutablePos.set(posIn, side);
-                if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side, mutablePos))
-                {
-                    //System.out.printf("renderQuadsSmooth():1: pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
-                    this.renderQuadsSmooth(worldIn, stateIn, posIn, matrixStack, vertexConsumer, quads, quadBounds, bitset, aoFace, overlay);
-                    renderedSomething = true;
-                }
+                //System.out.printf("renderQuadsSmooth():2: pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
+                this.renderQuadsSmooth(worldIn, stateIn, posIn, matrixStack, vertexConsumer, quads, quadBounds, bitset, aoFace, overlay);
+                renderedSomething = true;
             }
-        }
-
-        random.setSeed(seedIn);
-        List<BakedQuad> quads = modelIn.getQuads(stateIn, null, random);
-
-        if (!quads.isEmpty())
-        {
-            //System.out.printf("renderQuadsSmooth():2: pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
-            this.renderQuadsSmooth(worldIn, stateIn, posIn, matrixStack, vertexConsumer, quads, quadBounds, bitset, aoFace, overlay);
-            renderedSomething = true;
         }
 
         return renderedSomething;
     }
 
-    private boolean renderModelFlat(BlockRenderView worldIn, BakedModel modelIn, BlockState stateIn,
+    private boolean renderModelFlat(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn,
                                     BlockPos posIn, MatrixStack matrixStack,
                                     VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
@@ -153,31 +159,36 @@ public class BlockModelRendererSchematic
         BitSet bitset = new BitSet(3);
         BlockPos.Mutable mutablePos = posIn.mutableCopy();
 
-        for (Direction side : PositionUtils.ALL_DIRECTIONS)
+        for (BlockModelPart part : modelParts)
         {
+            for (Direction side : PositionUtils.ALL_DIRECTIONS)
+            {
+                random.setSeed(seedIn);
+                // modelIn.getQuads(stateIn, side, random)
+                List<BakedQuad> quads = part.getQuads(side);
+
+                if (!quads.isEmpty())
+                {
+                    mutablePos.set(posIn, side);
+                    if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side, mutablePos))
+                    {
+                        //int light = WorldRenderer.getLightmapCoordinates(worldIn, stateIn, posIn.offset(side));
+                        int light = WorldRenderer.getLightmapCoordinates(worldIn, stateIn, mutablePos);
+                        this.renderQuadsFlat(worldIn, stateIn, posIn, light, overlay, false, matrixStack, vertexConsumer, quads, bitset);
+                        renderedSomething = true;
+                    }
+                }
+            }
+
             random.setSeed(seedIn);
-            List<BakedQuad> quads = modelIn.getQuads(stateIn, side, random);
+            // modelIn.getQuads(stateIn, null, random)
+            List<BakedQuad> quads = part.getQuads(null);
 
             if (!quads.isEmpty())
             {
-                mutablePos.set(posIn, side);
-                if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side, mutablePos))
-                {
-                    //int light = WorldRenderer.getLightmapCoordinates(worldIn, stateIn, posIn.offset(side));
-                    int light = WorldRenderer.getLightmapCoordinates(worldIn, stateIn, mutablePos);
-                    this.renderQuadsFlat(worldIn, stateIn, posIn, light, overlay, false, matrixStack, vertexConsumer, quads, bitset);
-                    renderedSomething = true;
-                }
+                this.renderQuadsFlat(worldIn, stateIn, posIn, -1, overlay, true, matrixStack, vertexConsumer, quads, bitset);
+                renderedSomething = true;
             }
-        }
-
-        random.setSeed(seedIn);
-        List<BakedQuad> quads = modelIn.getQuads(stateIn, null, random);
-
-        if (!quads.isEmpty())
-        {
-            this.renderQuadsFlat(worldIn, stateIn, posIn, -1, overlay, true, matrixStack, vertexConsumer, quads, bitset);
-            renderedSomething = true;
         }
 
         return renderedSomething;
@@ -397,19 +408,21 @@ public class BlockModelRendererSchematic
     */
 
     @ApiStatus.Experimental
-    public void renderBlockEntity(VertexConsumer vertexConsumer, MatrixStack matrixStack, @Nullable BlockState stateIn, BakedModel modelIn,
+    public void renderBlockEntity(VertexConsumer vertexConsumer, MatrixStack matrixStack, BlockStateModel modelIn,
                              float red, float green, float blue, int light, int overlay)
     {
-        Random rand = Random.create();
-        long life = 42L;
+        List<BlockModelPart> parts = modelIn.getParts(Random.create(42L));
 
-        for (Direction side : PositionUtils.ALL_DIRECTIONS)
+        for (BlockModelPart part : parts)
         {
-            rand.setSeed(life);
-            this.renderBlockEntityQuads(vertexConsumer, matrixStack, red, green, blue, modelIn.getQuads(stateIn, side, rand), light, overlay);
+            for (Direction side : PositionUtils.ALL_DIRECTIONS)
+            {
+                this.renderBlockEntityQuads(vertexConsumer, matrixStack, red, green, blue, part.getQuads(side), light, overlay);
+            }
+
+            // modelIn.getQuads(stateIn, null, rand)
+            this.renderBlockEntityQuads(vertexConsumer, matrixStack, red, green, blue, part.getQuads(null), light, overlay);
         }
-        rand.setSeed(life);
-        this.renderBlockEntityQuads(vertexConsumer, matrixStack, red, green, blue, modelIn.getQuads(stateIn, null, rand), light, overlay);
     }
 
     @ApiStatus.Experimental
@@ -454,7 +467,7 @@ public class BlockModelRendererSchematic
         }
     }
 
-    public BakedModel getBakedModel(BlockState stateIn)
+    public BlockStateModel getBakedModel(BlockState stateIn)
     {
         return this.bakedManager.getBlockModels().getModel(stateIn);
     }
@@ -469,13 +482,13 @@ public class BlockModelRendererSchematic
             return false;
         }
 
-        BakedModel bakedModel = this.getBakedModel(stateIn);
+        BlockStateModel bakedModel = this.getBakedModel(stateIn);
         int i = this.colorMap.getColor(stateIn, null, null, 0);
         float red = (float) (i >> 16 & 0xFF) / 255.0f;
         float green = (float) (i >> 8 & 0xFF) / 255.0f;
         float blue = (float) (i & 0xFF) / 255.0f;
 
-        this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, stateIn, bakedModel, red, green, blue, light, overlay);
+        this.renderBlockEntity(consumer.getBuffer(RenderLayers.getEntityBlockLayer(stateIn)), matrixStack, bakedModel, red, green, blue, light, overlay);
         this.bakedManager.getBlockEntityModelsSupplier().get()
                     .render(stateIn.getBlock(), ItemDisplayContext.NONE, matrixStack, consumer, light, overlay);
 

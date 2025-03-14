@@ -1,7 +1,7 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 
 public enum OverlayRenderType
@@ -18,7 +18,7 @@ public enum OverlayRenderType
     OverlayRenderType(VertexFormat.DrawMode drawMode, int bufferSize, VertexFormat format, boolean crumbling, boolean translucent)
     {
         this.drawMode = drawMode;
-        this.bufferSize = Math.max(bufferSize, format.getVertexSizeByte());
+        this.bufferSize = Math.max(bufferSize, format.getVertexSize());
         this.vertexFormat = format;
         this.hasCrumbling = crumbling;
         this.translucent = translucent;

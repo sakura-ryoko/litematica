@@ -10,15 +10,14 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderPipeline;
 import net.minecraft.client.gl.ShaderPipelines;
-import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.BlockModelPart;
+import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -712,9 +711,12 @@ public class WorldRendererSchematic
             else
             {
                 boolean result;
+                long seed = state.getRenderingSeed(pos);
+                List<BlockModelPart> parts = this.getModelParts(pos, state, Random.create(seed));
+
                 BlockModelRendererSchematic.enableCache();
                 result = renderType == BlockRenderType.MODEL &&
-                       this.blockModelRenderer.renderModel(world, this.getModelForState(state), state, pos, matrixStack, bufferBuilderIn, state.getRenderingSeed(pos));
+                       this.blockModelRenderer.renderModel(world, parts, state, pos, matrixStack, bufferBuilderIn, seed);
                 BlockModelRendererSchematic.disableCache();
 
                 //System.out.printf("renderBlock(): result [%s]\n", result);
@@ -753,18 +755,20 @@ public class WorldRendererSchematic
         this.getProfiler().pop();
     }
 
-    public boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side)
+    public boolean hasQuadsForModel(List<BlockModelPart> modelParts, BlockState state, @Nullable Direction side)
     {
+        BlockModelPart part = modelParts.getFirst();
+
         if (side != null)
         {
-            List<BakedQuad> list = model.getQuads(state, side, Random.create());
+            List<BakedQuad> list = part.getQuads(side);
 
             return !list.isEmpty();
         }
 
         for (Direction entry : Direction.values())
         {
-            List<BakedQuad> list = model.getQuads(state, side, Random.create());
+            List<BakedQuad> list = part.getQuads(side);
 
             if (!list.isEmpty())
             {
@@ -775,18 +779,15 @@ public class WorldRendererSchematic
         return false;
     }
 
-    public BakedModel getModelForState(BlockState state)
+    public BlockStateModel getModelForState(BlockState state)
     {
-        // FIXME (ENTITYBLOCK_ANIMATED - removed)
-        /*
-        if (state.getRenderType() == BlockRenderType.ENTITYBLOCK_ANIMATED)
-        {
-            return this.blockRenderManager.getModels().getModelManager().getMissingBlockModel();
-        }
-         */
-
-        //return this.blockRenderManager.getModel(state);
         return this.blockRenderManager.getModels().getModel(state);
+    }
+
+    public List<BlockModelPart> getModelParts(BlockPos pos, BlockState state, Random rand)
+    {
+        rand.setSeed(state.getRenderingSeed(pos));
+        return this.getModelForState(state).getParts(rand);
     }
 
     public void renderEntities(Camera camera, Frustum frustum, Matrix4f posMatrix, float partialTicks, Profiler profiler)
