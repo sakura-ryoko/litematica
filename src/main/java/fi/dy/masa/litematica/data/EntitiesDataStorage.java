@@ -1147,7 +1147,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
             for (int i = 0; i < tileList.size(); ++i)
             {
-                NbtCompound te = tileList.getOrCreateCompound(i);
+                NbtCompound te = tileList.getCompoundOrEmpty(i);
                 BlockPos pos = NbtUtils.readBlockPos(te);
                 Identifier type = Identifier.of(te.getString("id", ""));
 
@@ -1156,7 +1156,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
             for (int i = 0; i < entityList.size(); ++i)
             {
-                NbtCompound ent = entityList.getOrCreateCompound(i);
+                NbtCompound ent = entityList.getCompoundOrEmpty(i);
                 Vec3d pos = NbtUtils.readEntityPositionFromTag(ent);
                 int entityId = ent.getInt("entityId", 0);
 

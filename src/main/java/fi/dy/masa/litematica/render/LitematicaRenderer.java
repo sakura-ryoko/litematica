@@ -5,12 +5,13 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderPipelines;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.profiler.Profiler;
 
+import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.config.Configs;
@@ -233,13 +234,14 @@ public class LitematicaRenderer
             float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
 
             profiler.push("schematic_overlay");
-            RenderSystem.disableCull();
+            RenderUtils.culling(false);
             //TODO: RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
-            RenderSystem.enablePolygonOffset();
-            RenderSystem.polygonOffset(-0.4f, -0.8f);
+            RenderUtils.polygonOffset(true);
+            RenderUtils.polygonOffset(-0.4f, -0.8f);
+            // todo move this
             RenderSystem.lineWidth(lineWidth);
-            fi.dy.masa.malilib.render.RenderUtils.setupBlend();
-            fi.dy.masa.malilib.render.RenderUtils.color(1f, 1f, 1f, 1f);
+            RenderUtils.blend(true);
+            RenderUtils.color(1f, 1f, 1f, 1f);
             //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
 
             if (!IrisCompat.isShadowPassActive())
@@ -247,10 +249,10 @@ public class LitematicaRenderer
                 this.getWorldRenderer().renderBlockOverlays(viewMatrix, this.getCamera(), posMatrix, profiler);
             }
 
-            RenderSystem.enableDepthTest();
-            RenderSystem.polygonOffset(0f, 0f);
-            RenderSystem.disablePolygonOffset();
-            RenderSystem.enableCull();
+            RenderUtils.depthTest(true);
+            RenderUtils.polygonOffset(0f, 0f);
+            RenderUtils.polygonOffset(false);
+            RenderUtils.culling(true);
             profiler.pop();
         }
     }
@@ -297,17 +299,17 @@ public class LitematicaRenderer
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.enablePolygonOffset();
-                RenderSystem.polygonOffset(-0.3f, -0.6f);
+                RenderUtils.polygonOffset(true);
+                RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_SOLID);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderPipelines.SOLID);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.SOLID);
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.polygonOffset(0f, 0f);
-                RenderSystem.disablePolygonOffset();
+                RenderUtils.polygonOffset(0f, 0f);
+                RenderUtils.polygonOffset(false);
             }
 
             profiler.pop();
@@ -322,17 +324,17 @@ public class LitematicaRenderer
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.enablePolygonOffset();
-                RenderSystem.polygonOffset(-0.3f, -0.6f);
+                RenderUtils.polygonOffset(true);
+                RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT_MIPPED);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderPipelines.CUTOUT_MIPPED);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.CUTOUT_MIPPED);
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.polygonOffset(0f, 0f);
-                RenderSystem.disablePolygonOffset();
+                RenderUtils.polygonOffset(0f, 0f);
+                RenderUtils.polygonOffset(false);
             }
 
             profiler.pop();
@@ -347,17 +349,17 @@ public class LitematicaRenderer
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.enablePolygonOffset();
-                RenderSystem.polygonOffset(-0.3f, -0.6f);
+                RenderUtils.polygonOffset(true);
+                RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderPipelines.CUTOUT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.CUTOUT);
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.polygonOffset(0f, 0f);
-                RenderSystem.disablePolygonOffset();
+                RenderUtils.polygonOffset(0f, 0f);
+                RenderUtils.polygonOffset(false);
             }
 
             profiler.pop();
@@ -372,17 +374,17 @@ public class LitematicaRenderer
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.enablePolygonOffset();
-                RenderSystem.polygonOffset(-0.3f, -0.6f);
+                RenderUtils.polygonOffset(true);
+                RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), viewMatrix, this.getCamera(), posMatrix, profiler, ShaderPipelines.TRANSLUCENT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.TRANSLUCENT);
 
             if (this.renderCollidingSchematicBlocks)
             {
-                RenderSystem.polygonOffset(0f, 0f);
-                RenderSystem.disablePolygonOffset();
+                RenderUtils.polygonOffset(0f, 0f);
+                RenderUtils.polygonOffset(false);
             }
 
             profiler.pop();

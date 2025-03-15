@@ -730,11 +730,11 @@ public class SchematicaSchematic
         {
             if (effective != null)
             {
-                this.entities.add(SchematicConversionMaps.updateEntity(tagList.getOrCreateCompound(i), minecraftDataVersion));
+                this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompoundOrEmpty(i), minecraftDataVersion));
             }
             else
             {
-                this.entities.add(tagList.getOrCreateCompound(i));
+                this.entities.add(tagList.getCompoundOrEmpty(i));
             }
         }
     }
@@ -757,7 +757,7 @@ public class SchematicaSchematic
 
         for (int i = 0; i < tagList.size(); ++i)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(i);
+            NbtCompound tag = tagList.getCompoundOrEmpty(i);
             BlockPos pos = new BlockPos(tag.getInt("x", 0), tag.getInt("y", 0), tag.getInt("z", 0));
             Vec3i size = this.blocks.getSize();
 

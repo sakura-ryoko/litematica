@@ -1406,7 +1406,7 @@ public class LitematicaSchematic
 
         for (int id = 0; id < size; ++id)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(id);
+            NbtCompound tag = tagList.getCompoundOrEmpty(id);
             BlockState state = NbtHelper.toBlockState(lookup, tag);
             list.add(state);
         }
@@ -1587,7 +1587,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound beTag = tagList.getOrCreateCompound(i);
+            NbtCompound beTag = tagList.getCompoundOrEmpty(i);
             BlockPos pos = NbtUtils.readBlockPosFromArrayTag(beTag, "Pos");
 
             if (pos != null && beTag.isEmpty() == false)
@@ -1626,7 +1626,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound entityEntry = tagList.getOrCreateCompound(i);
+            NbtCompound entityEntry = tagList.getCompoundOrEmpty(i);
             Vec3d pos = NbtUtils.readVec3dFromListTag(entityEntry);
 
             if (pos != null && entityEntry.isEmpty() == false)
@@ -1763,7 +1763,7 @@ public class LitematicaSchematic
             }
             for (int id = 0; id < paletteSize; ++id)
             {
-                NbtCompound t = paletteTag.getOrCreateCompound(id);
+                NbtCompound t = paletteTag.getCompoundOrEmpty(id);
                 if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
                 {
                     t = SchematicConversionMaps.updateBlockStates(t, minecraftDataVersion);
@@ -1831,7 +1831,7 @@ public class LitematicaSchematic
 
             for (int i = 0; i < count; ++i)
             {
-                NbtCompound blockTag = blockList.getOrCreateCompound(i);
+                NbtCompound blockTag = blockList.getCompoundOrEmpty(i);
                 BlockPos pos = readBlockPosFromNbtList(blockTag, "pos");
 
                 if (pos == null)
@@ -1912,7 +1912,7 @@ public class LitematicaSchematic
         }
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound entityData = tagList.getOrCreateCompound(i);
+            NbtCompound entityData = tagList.getCompoundOrEmpty(i);
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
                 entityData = SchematicConversionMaps.updateEntity(entityData, minecraftDataVersion);
@@ -1963,7 +1963,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = palette.getOrCreateCompound(i);
+            NbtCompound tag = palette.getCompoundOrEmpty(i);
             BlockState state = NbtHelper.toBlockState(lookup, tag);
 
             if (i > 0 || state != LitematicaBlockStateContainer.AIR_BLOCK_STATE)
@@ -1986,7 +1986,7 @@ public class LitematicaSchematic
 
             for (int i = 0; i < count; ++i)
             {
-                newPalette.add(SchematicConversionMaps.get_1_13_2_StateTagFor_1_12_Tag(oldPalette.getOrCreateCompound(i)));
+                newPalette.add(SchematicConversionMaps.get_1_13_2_StateTagFor_1_12_Tag(oldPalette.getCompoundOrEmpty(i)));
             }
 
             return newPalette;
@@ -2017,7 +2017,7 @@ public class LitematicaSchematic
 
             for (int i = 0; i < count; ++i)
             {
-                newPalette.add(SchematicConversionMaps.updateBlockStates(oldPalette.getOrCreateCompound(i), minecraftDataVersion));
+                newPalette.add(SchematicConversionMaps.updateBlockStates(oldPalette.getCompoundOrEmpty(i), minecraftDataVersion));
             }
 
             return newPalette;
@@ -2080,7 +2080,7 @@ public class LitematicaSchematic
 
             for (int i = 0; i < size; i++)
             {
-                newEntitiesList.add(SchematicConversionMaps.updateEntity(oldEntitiesList.getOrCreateCompound(i), minecraftDataVersion));
+                newEntitiesList.add(SchematicConversionMaps.updateEntity(oldEntitiesList.getCompoundOrEmpty(i), minecraftDataVersion));
             }
 
             return newEntitiesList;
@@ -2144,7 +2144,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; i++)
         {
-            newEntitiesList.add(SchematicDowngradeConverter.downgradeEntity_to_1_20_4(oldEntitiesList.getOrCreateCompound(i), minecraftDataVersion, MinecraftClient.getInstance().world.getRegistryManager()));
+            newEntitiesList.add(SchematicDowngradeConverter.downgradeEntity_to_1_20_4(oldEntitiesList.getCompoundOrEmpty(i), minecraftDataVersion, MinecraftClient.getInstance().world.getRegistryManager()));
         }
 
         return newEntitiesList;
@@ -2157,7 +2157,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound entityData = tagList.getOrCreateCompound(i);
+            NbtCompound entityData = tagList.getCompoundOrEmpty(i);
             Vec3d posVec = NbtUtils.readEntityPositionFromTag(entityData);
 
             if (posVec != null && entityData.isEmpty() == false)
@@ -2176,7 +2176,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(i);
+            NbtCompound tag = tagList.getCompoundOrEmpty(i);
             BlockPos pos = NbtUtils.readBlockPos(tag);
 
             if (pos != null && tag.isEmpty() == false)
@@ -2196,7 +2196,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(i);
+            NbtCompound tag = tagList.getCompoundOrEmpty(i);
 
             if (tag.contains("Time")) // XXX these were accidentally saved as longs in version 3
             {
@@ -2252,7 +2252,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(i);
+            NbtCompound tag = tagList.getCompoundOrEmpty(i);
             Vec3d posVec = NbtUtils.readVec3d(tag);
             NbtCompound entityData = tag.getCompoundOrEmpty("EntityData");
 
@@ -2274,7 +2274,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(i);
+            NbtCompound tag = tagList.getCompoundOrEmpty(i);
             NbtCompound tileNbt = tag.getCompoundOrEmpty("TileNBT");
 
             // Note: This within-schematic relative position is not inside the tile tag!

@@ -204,7 +204,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldItems.size(); i++)
         {
-            NbtCompound itemEntry = oldItems.getOrCreateCompound(i);
+            NbtCompound itemEntry = oldItems.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
 
             if (itemEntry.contains("id"))
@@ -258,7 +258,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldAttr.size(); i++)
         {
-            NbtCompound attrEntry = oldAttr.getOrCreateCompound(i);
+            NbtCompound attrEntry = oldAttr.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
 
             newEntry.putString("Name", attributeRename(attrEntry.getString("id", "")));
@@ -269,7 +269,7 @@ public class SchematicDowngradeConverter
 
             for (int y = 0; y < listEntry.size(); y++)
             {
-                NbtCompound modEntry = listEntry.getOrCreateCompound(y);
+                NbtCompound modEntry = listEntry.getCompoundOrEmpty(y);
                 NbtCompound newMod = new NbtCompound();
 
                 newMod.putDouble("Amount", modEntry.getDouble("amount", 0D));
@@ -529,7 +529,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldItems.size(); i++)
         {
-            NbtCompound itemEntry = oldItems.getOrCreateCompound(i);
+            NbtCompound itemEntry = oldItems.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
 
             if (itemEntry.contains("id") == false)
@@ -573,7 +573,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldItems.size(); i++)
         {
-            NbtCompound itemEntry = oldItems.getOrCreateCompound(i);
+            NbtCompound itemEntry = oldItems.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
 
             int slotNum = itemEntry.getInt("slot", 0);
@@ -614,7 +614,7 @@ public class SchematicDowngradeConverter
 
     private static NbtCompound processDecoratedPot_Nested(NbtList oldItems, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
-        NbtCompound itemEntry = oldItems.getOrCreateCompound(0);
+        NbtCompound itemEntry = oldItems.getCompoundOrEmpty(0);
         NbtCompound newEntry = new NbtCompound();
 
         int slotNum = itemEntry.getInt("slot", 1);
@@ -986,7 +986,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldNbt.size(); i++)
         {
-            NbtCompound itemEntry = oldNbt.getOrCreateCompound(i);
+            NbtCompound itemEntry = oldNbt.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
 
             if (itemEntry.contains("id") == false)
@@ -1132,7 +1132,7 @@ public class SchematicDowngradeConverter
 
             for (int i = 0; i < oldExplosions.size(); i++)
             {
-                newExplosions.add(processFireworkExplosion(oldExplosions.getOrCreateCompound(i)));
+                newExplosions.add(processFireworkExplosion(oldExplosions.getCompoundOrEmpty(i)));
             }
 
             newRocket.put("Explosions", newExplosions);
@@ -1230,7 +1230,7 @@ public class SchematicDowngradeConverter
 
             for (int i = 0; i < pages.size(); i++)
             {
-                NbtCompound page = pages.getOrCreateCompound(i);
+                NbtCompound page = pages.getCompoundOrEmpty(i);
                 String oldPage = page.getString("raw", "");
 
                 try
@@ -1283,7 +1283,7 @@ public class SchematicDowngradeConverter
 
             for (int i = 0; i < pages.size(); i++)
             {
-                NbtCompound page = pages.getOrCreateCompound(i);
+                NbtCompound page = pages.getCompoundOrEmpty(i);
                 String oldPage = page.getString("raw", "");
 
                 if (page.contains("filtered"))
@@ -1332,7 +1332,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldList.size(); i++)
         {
-            NbtCompound oldEntry = oldList.getOrCreateCompound(i);
+            NbtCompound oldEntry = oldList.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
             String color = oldEntry.getString("color", "");
             String pattern = oldEntry.getString("pattern", "");
@@ -1416,7 +1416,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < properties.size(); i++)
         {
-            NbtCompound property = properties.getOrCreateCompound(i);
+            NbtCompound property = properties.getCompoundOrEmpty(i);
             String propName = property.getString("name", "");
             String propValue = property.getString("value", "");
 
@@ -1458,7 +1458,7 @@ public class SchematicDowngradeConverter
 
         for (int i = 0; i < oldBees.size(); i++)
         {
-            NbtCompound oldEntry = oldBees.getOrCreateCompound(i);
+            NbtCompound oldEntry = oldBees.getCompoundOrEmpty(i);
             NbtCompound newEntry = new NbtCompound();
 
             newEntry.putInt("TicksInHive", oldEntry.getInt("ticks_in_hive", 0));

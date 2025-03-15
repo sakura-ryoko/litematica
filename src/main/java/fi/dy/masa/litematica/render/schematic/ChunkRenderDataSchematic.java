@@ -53,6 +53,21 @@ public class ChunkRenderDataSchematic implements AutoCloseable
         return this.empty;
     }
 
+    public int getStartedSize()
+    {
+        return this.blockLayersStarted.size() + this.overlayLayersStarted.size();
+    }
+
+    public int getUsedSize()
+    {
+        return this.blockLayersUsed.size() + this.overlayLayersUsed.size();
+    }
+
+    public int getSize()
+    {
+        return Math.max(this.getStartedSize(), this.getUsedSize());
+    }
+
     public boolean isBlockLayerEmpty(RenderLayer layer)
     {
         return !this.blockLayersUsed.contains(layer);

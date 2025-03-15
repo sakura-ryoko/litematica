@@ -174,7 +174,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
         int x = posX;
         int y = posY + 12;
 
-        RenderUtils.setupBlend();
+        RenderUtils.blend(true);
 
         for (int i = 0; i < size; ++i)
         {
@@ -270,7 +270,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
     {
         List<Slot> slots = gui.getScreenHandler().slots;
 
-        RenderUtils.setupBlend();
+        RenderUtils.blend(true);
         int guiX = ((IMixinHandledScreen) gui).litematica_getX();
         int guiY = ((IMixinHandledScreen) gui).litematica_getY();
 

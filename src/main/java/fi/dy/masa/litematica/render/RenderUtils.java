@@ -9,11 +9,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.BlockModelPart;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -561,45 +561,45 @@ public class RenderUtils
     /**
      * Assumes a BufferBuilder in the GL_LINES mode has been initialized
      */
-    public static void drawBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawDebugBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
         for (final BlockModelPart part : modelParts)
         {
-            drawBlockModelOutlinesBatched(part, state, pos, color, expand, buffer);
+            drawDebugBlockModelOutlinesBatched(part, state, pos, color, expand, buffer);
         }
     }
 
-    public static void drawBlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawDebugBlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
         for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
-            renderModelQuadOutlines(modelPart, state, pos, side, color, expand, buffer);
+            renderDebugModelQuadOutlines(modelPart, state, pos, side, color, expand, buffer);
         }
 
-        renderModelQuadOutlines(modelPart, state, pos, null, color, expand, buffer);
+        renderDebugModelQuadOutlines(modelPart, state, pos, null, color, expand, buffer);
     }
 
-    public static void renderModelQuadOutlines(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
+    public static void renderDebugModelQuadOutlines(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
     {
         try
         {
             // model.getQuads(state, side, RAND)
-            renderModelQuadOutlines(pos, buffer, color, modelPart.getQuads(side));
+            renderDebugModelQuadOutlines(pos, buffer, color, modelPart.getQuads(side));
         }
         catch (Exception ignore) {}
     }
 
-    public static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
+    public static void renderDebugModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
     {
         final int size = quads.size();
 
         for (int i = 0; i < size; i++)
         {
-            renderQuadOutlinesBatched(pos, buffer, color, quads.get(i).vertexData());
+            renderDebugQuadOutlinesBatched(pos, buffer, color, quads.get(i).vertexData());
         }
     }
 
-    public static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
+    public static void renderDebugQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
     {
         final int x = pos.getX();
         final int y = pos.getY();
@@ -627,6 +627,74 @@ public class RenderUtils
 
         buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a);
         buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
+    }
+
+    public static void drawBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack.Entry e)
+    {
+        for (final BlockModelPart part : modelParts)
+        {
+            drawlockModelOutlinesBatched(part, state, pos, color, expand, buffer, e);
+        }
+    }
+
+    public static void drawlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack.Entry e)
+    {
+        for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
+        {
+            renderModelQuadOutlines(modelPart, state, pos, side, color, expand, buffer, e);
+        }
+
+        renderModelQuadOutlines(modelPart, state, pos, null, color, expand, buffer, e);
+    }
+
+    public static void renderModelQuadOutlines(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer, MatrixStack.Entry e)
+    {
+        try
+        {
+            // model.getQuads(state, side, RAND)
+            renderModelQuadOutlines(pos, buffer, color, modelPart.getQuads(side), e);
+        }
+        catch (Exception ignore) {}
+    }
+
+    public static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads, MatrixStack.Entry e)
+    {
+        final int size = quads.size();
+
+        for (int i = 0; i < size; i++)
+        {
+            renderQuadOutlinesBatched(pos, buffer, color, quads.get(i).vertexData(), e);
+        }
+    }
+
+    public static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData, MatrixStack.Entry e)
+    {
+        final int x = pos.getX();
+        final int y = pos.getY();
+        final int z = pos.getZ();
+        final int vertexSize = vertexData.length / 4;
+        final float fx[] = new float[4];
+        final float fy[] = new float[4];
+        final float fz[] = new float[4];
+
+        for (int index = 0; index < 4; ++index)
+        {
+            fx[index] = x + Float.intBitsToFloat(vertexData[index * vertexSize    ]);
+            fy[index] = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
+            fz[index] = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
+        }
+
+        buffer.vertex(e, fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+        buffer.vertex(e, fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(e, fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+        buffer.vertex(e, fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(e, fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+        buffer.vertex(e, fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(e, fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
+        buffer.vertex(e, fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
     }
 
     public static void drawBlockModelQuadOverlayBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)

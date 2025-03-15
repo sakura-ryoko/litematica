@@ -201,7 +201,7 @@ public class EntityUtils
 
                 for (int i = 0; i < taglist.size(); ++i)
                 {
-                    Entity passenger = createEntityAndPassengersFromNBT(taglist.getOrCreateCompound(i), world);
+                    Entity passenger = createEntityAndPassengersFromNBT(taglist.getCompoundOrEmpty(i), world);
 
                     if (passenger != null)
                     {

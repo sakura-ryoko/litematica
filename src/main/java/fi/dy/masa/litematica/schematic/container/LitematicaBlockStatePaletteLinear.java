@@ -154,7 +154,7 @@ public class LitematicaBlockStatePaletteLinear implements ILitematicaBlockStateP
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getOrCreateCompound(i);
+            NbtCompound tag = tagList.getCompoundOrEmpty(i);
             BlockState state = NbtHelper.toBlockState(lookup, tag);
 
             if (i > 0 || state != LitematicaBlockStateContainer.AIR_BLOCK_STATE)

@@ -20,7 +20,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
@@ -475,7 +474,7 @@ public class SchematicConversionMaps
 
         for (int i = 0; i < items.size(); i++)
         {
-            NbtCompound itemEntry = items.getOrCreateCompound(i);
+            NbtCompound itemEntry = items.getCompoundOrEmpty(i);
             if (itemEntry.contains("tag"))
             {
                 NbtCompound tag = null;
