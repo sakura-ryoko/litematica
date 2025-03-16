@@ -246,7 +246,7 @@ public class LitematicaRenderer
 
             if (!IrisCompat.isShadowPassActive())
             {
-                this.getWorldRenderer().renderBlockOverlays(viewMatrix, this.getCamera(), posMatrix, profiler);
+                this.getWorldRenderer().renderBlockOverlays(viewMatrix, this.getCamera(), posMatrix, lineWidth, profiler);
             }
 
             RenderUtils.depthTest(true);
