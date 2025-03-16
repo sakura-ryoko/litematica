@@ -29,6 +29,12 @@ public abstract class MixinWorldRenderer
 {
     @Shadow private net.minecraft.client.world.ClientWorld world;
     @Shadow @Final private MinecraftClient client;
+//    @Shadow @Final private DefaultFramebufferSet framebufferSet;
+//    @Shadow @Final private BufferBuilderStorage bufferBuilders;
+
+//    @Unique private PostEffectProcessor postEffects = null;
+//    @Unique private int width;
+//    @Unique private int height;
     @Unique private Matrix4f posMatrix = null;
     @Unique private RenderTickCounter ticks = null;
     @Unique private Profiler profiler;
@@ -74,13 +80,36 @@ public abstract class MixinWorldRenderer
                     target = "Lnet/minecraft/client/render/WorldRenderer;renderMain(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Frustum;Lnet/minecraft/client/render/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/render/Fog;ZZLnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/util/profiler/Profiler;)V",
                     shift = At.Shift.BEFORE))
     private void litematica_onPreRenderMain(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline,
-                                 Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f matrix4f2, CallbackInfo ci,
-                                 @Local Profiler profiler)
+                                            Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f matrix4f2, CallbackInfo ci,
+                                            @Local Profiler profiler)
     {
         this.posMatrix = positionMatrix;
         this.ticks = tickCounter;
         this.profiler = profiler;
     }
+
+//    @Inject(method = "render",
+//            at = @At(value = "INVOKE",
+//                     target = "Lnet/minecraft/client/render/WorldRenderer;renderParticles(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Camera;FLnet/minecraft/client/render/Fog;)V",
+//                     shift = At.Shift.BEFORE))
+//    private void litematica_onRenderWorldPreParticle(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline,
+//                                                     Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci,
+//                                                     @Local Profiler profiler,
+//                                                     @Local Frustum frustum,
+//                                                     @Local FrameGraphBuilder frameGraphBuilder,
+//                                                     @Local(ordinal = 0) int i, @Local(ordinal = 1) int j,
+//                                                     @Local PostEffectProcessor postEffectProcessor)
+//    {
+//        LitematicaRenderer.getInstance().runRenderWorldOverlay(positionMatrix, projectionMatrix, this.client, frameGraphBuilder, this.framebufferSet, frustum, camera, this.bufferBuilders, profiler);
+//
+//        if (postEffectProcessor != null)
+//        {
+//            this.width = i;
+//            this.height = j;
+//            this.postEffects = postEffectProcessor;
+//            this.postEffects.render(frameGraphBuilder, this.width, this.height, this.framebufferSet, null);
+//        }
+//    }
 
     @Inject(method = "renderLayer", at = @At(value = "INVOKE",
                                              target = "Lnet/minecraft/util/profiler/ScopedProfiler;close()V"))
@@ -114,6 +143,7 @@ public abstract class MixinWorldRenderer
         }
         else if (renderLayer == RenderLayer.getTripwire())
         {
+            LitematicaRenderer.getInstance().piecewiseRenderTripwire(viewMatrix, posMatrix, this.profiler);
             LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
         }
     }

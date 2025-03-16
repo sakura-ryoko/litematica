@@ -28,6 +28,20 @@ public class RenderHandler implements IRenderer
     @Override
     public void onRenderWorldPreWeather(Framebuffer fb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, Profiler profiler)
     {
+//        MinecraftClient mc = MinecraftClient.getInstance();
+//
+//        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
+//        {
+            // Schematic Overlay Rendering
+//            profiler.push("schematic_overlay");
+//            LitematicaRenderer.getInstance().piecewiseRenderOverlay(null, null, profiler);
+//            profiler.pop();
+//        }
+    }
+
+    @Override
+    public void onRenderWorldLastAdvanced(Framebuffer fb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, Profiler profiler)
+    {
         MinecraftClient mc = MinecraftClient.getInstance();
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)

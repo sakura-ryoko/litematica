@@ -14,6 +14,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
@@ -28,10 +29,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
@@ -445,7 +443,7 @@ public class WorldRendererSchematic
         profiler.pop();
     }
 
-    public int renderBlockLayer(RenderLayer renderLayer, Matrix4f matrices, Camera camera, Matrix4f projMatrix, Profiler profiler, RenderPipeline pipeline)
+    public int renderBlockLayer(RenderLayer renderLayer, Camera camera, Profiler profiler, RenderPipeline pipeline)
     {
         this.profiler = profiler;
         RenderSystem.assertOnRenderThread();
@@ -456,10 +454,12 @@ public class WorldRendererSchematic
         }
         else
         {
-            profiler.push("layer_" + renderLayer.toString());
+            profiler.push("layer_" + ChunkRenderLayers.getFriendlyName(renderLayer));
         }
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
+
+        renderLayer.startDrawing();
 
 //        renderLayer.startDrawing();
         //RenderUtils.disableDiffuseLighting();
@@ -612,10 +612,7 @@ public class WorldRendererSchematic
 
                 arrayList.add(new RenderPass.
                         RenderObject(0, buffers.getVertexBuffer(), gpuBuffer, indexType, 0, buffers.getIndexCount(),
-                                     upload ->
-                                     {
-                                         upload.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-                                     }));
+                                     uniform -> uniform.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z))));
 
 //                matrix4fStack.popMatrix();
                 startedDrawing = true;
@@ -632,7 +629,8 @@ public class WorldRendererSchematic
 
             try (RenderPass pass = RenderSystem.getDevice()
                                                .createCommandEncoder()
-                                               .createRenderPass(renderLayer.getTarget().getColorAttachment(), OptionalInt.empty(), renderLayer.getTarget().getDepthAttachment(), OptionalDouble.empty()))
+                                               .createRenderPass(renderLayer.getTarget().getColorAttachment(), OptionalInt.empty(),
+                                                                 renderLayer.getTarget().getDepthAttachment(), OptionalDouble.empty()))
             {
                 pass.setPipeline(pipeline);
 
@@ -682,12 +680,24 @@ public class WorldRendererSchematic
         return count;
     }
 
-    public void renderBlockOverlays(Matrix4f viewMatrix, Camera camera, Matrix4f projMatrix, float lineWidth, Profiler profiler)
+    public void renderBlockOverlays(@Nullable Framebuffer otherFb, Camera camera, float lineWidth, Profiler profiler)
     {
         this.profiler = profiler;
-        this.renderBlockOverlay(OverlayRenderType.QUAD, viewMatrix, camera, projMatrix, lineWidth, profiler);
-        this.renderBlockOverlay(OverlayRenderType.OUTLINE, viewMatrix, camera, projMatrix, lineWidth, profiler);
+        this.renderBlockOverlay(OverlayRenderType.QUAD, otherFb, camera, lineWidth, profiler);
+        this.renderBlockOverlay(OverlayRenderType.OUTLINE, otherFb, camera, lineWidth, profiler);
     }
+
+//    public void renderBlockOverlayQuads(@Nullable Framebuffer otherFb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, float lineWidth, Profiler profiler)
+//    {
+//        this.profiler = profiler;
+//        this.renderBlockOverlay(OverlayRenderType.QUAD, otherFb, camera, lineWidth, profiler);
+//    }
+//
+//    public void renderBlockOverlayOutlines(@Nullable Framebuffer otherFb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, float lineWidth, Profiler profiler)
+//    {
+//        this.profiler = profiler;
+//        this.renderBlockOverlay(OverlayRenderType.OUTLINE, otherFb, camera, lineWidth, profiler);
+//    }
 
     /*
     Disable, as per IMS
@@ -713,12 +723,11 @@ public class WorldRendererSchematic
     }
      */
 
-    protected void renderBlockOverlay(OverlayRenderType type, Matrix4f viewMatrix, Camera camera, Matrix4f projMatrix, float lineWidth, Profiler profiler)
+    protected void renderBlockOverlay(OverlayRenderType type, @Nullable Framebuffer otherFb, Camera camera, float lineWidth, Profiler profiler)
     {
         profiler.push("overlay_" + type.name());
         this.profiler = profiler;
 //        RenderLayer renderLayer = RenderLayer.getTranslucent();
-        RenderLayer renderLayer = RenderLayer.getTripwire();
 //        renderLayer.startDrawing();
 
         RenderUtils.blend(true);
@@ -729,8 +738,6 @@ public class WorldRendererSchematic
         double x = cameraPos.x;
         double y = cameraPos.y;
         double z = cameraPos.z;
-
-        //profiler.swap("render");
 
         boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
         RenderPipeline pipeline = MaLiLibPipelines.getPositionColorSimple();
@@ -762,10 +769,9 @@ public class WorldRendererSchematic
             }
         }
 
-        //BufferRenderer.reset();
 //        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         ArrayList<RenderPass.RenderObject> arrayList = new ArrayList<>();
-        RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(renderLayer.getDrawMode());
+        RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
         int indexCount = 0;
         boolean startedDrawing = false;
 
@@ -779,10 +785,8 @@ public class WorldRendererSchematic
             {
                 ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
 
-                if (compiledChunk.isOverlayTypeEmpty(type) == false)
-
+                if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-//                    VertexBuffer buffer = renderer.getOverlayVertexBuffer(type);
                     ChunkRenderObjectBuffers buffers = renderer.getOverlayBuffersByType(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
@@ -831,33 +835,51 @@ public class WorldRendererSchematic
 
 //                    matrix4fStack.pushMatrix();
 //                    matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+
 //                    buffer.bind();
 //                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderPipelines.DEBUG_LINE_STRIP.getProgram());
 //                    VertexBuffer.unbind();
 
+//                    this.drawInternal(otherFb, pipeline, buffers, -1, new float[0], lineWidth, false, false, (type == OverlayRenderType.OUTLINE));
+
                     arrayList.add(new RenderPass.
                             RenderObject(0, buffers.getVertexBuffer(), gpuBuffer, indexType, 0, buffers.getIndexCount(),
-                                         upload ->
-                                         {
-                                             upload.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-                                         }));
+                                         uniform -> uniform.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z))));
 
                     startedDrawing = true;
+
 //                    matrix4fStack.popMatrix();
                 }
             }
         }
 
-        profiler.swap("overlay_draw");
-
         if (startedDrawing)
         {
+            profiler.swap("overlay_draw");
+
+            GpuTexture colorTex;
+            GpuTexture depthTex;
+
+            Framebuffer mainFb = RenderUtils.fb();
+
+            if (otherFb != null)
+            {
+                colorTex = otherFb.getColorAttachment();
+                depthTex = otherFb.getDepthAttachment();
+            }
+            else
+            {
+                colorTex = mainFb.getColorAttachment();
+                depthTex = mainFb.getDepthAttachment();
+            }
+
             GpuBuffer indexBuffer = indexCount == 0 ? null : shapeIndexBuffer.getIndexBuffer(indexCount);
             VertexFormat.IndexType indexTypeDraw = indexCount == 0 ? null : shapeIndexBuffer.getIndexType();
 
             try (RenderPass pass = RenderSystem.getDevice()
                                                .createCommandEncoder()
-                                               .createRenderPass(renderLayer.getTarget().getColorAttachment(), OptionalInt.empty(), renderLayer.getTarget().getDepthAttachment(), OptionalDouble.empty()))
+                                               .createRenderPass(colorTex, OptionalInt.empty(),
+                                                                 depthTex, OptionalDouble.empty()))
             {
                 pass.setPipeline(pipeline);
 
@@ -881,10 +903,7 @@ public class WorldRendererSchematic
         }
 
 //        renderLayer.endDrawing();
-
-        //RenderSystem.setShader(originalShader);
         RenderUtils.blend(false);
-
         profiler.pop();
     }
 
@@ -945,6 +964,117 @@ public class WorldRendererSchematic
         }
         catch (Exception ignored) { }
         this.getProfiler().pop();
+    }
+
+    private void drawInternal(@Nullable Framebuffer otherFb, RenderPipeline pipeline,
+                              ChunkRenderObjectBuffers buffers,
+                              int color, float[] offset, float lineWidth,
+                              boolean useColor, boolean useOffset, boolean setLineWidth) throws RuntimeException
+    {
+        if (RenderSystem.isOnRenderThread())
+        {
+            if (useColor)
+            {
+                float[] rgba = {ColorHelper.getRedFloat(color), ColorHelper.getGreenFloat(color), ColorHelper.getBlueFloat(color), ColorHelper.getAlphaFloat(color)};
+                RenderSystem.setShaderColor(rgba[0], rgba[1], rgba[2], rgba[3]);
+            }
+
+            if (useOffset)
+            {
+                RenderSystem.setModelOffset(-offset[0], offset[1], -offset[2]);
+            }
+
+            Framebuffer mainFb = RenderUtils.fb();
+            GpuTexture texture1;
+            GpuTexture texture2;
+
+            if (otherFb != null)
+            {
+                texture1 = otherFb.getColorAttachment();
+                texture2 = otherFb.useDepthAttachment ? otherFb.getDepthAttachment() : null;
+            }
+            else
+            {
+                texture1 = mainFb.getColorAttachment();
+                texture2 = mainFb.useDepthAttachment ? mainFb.getDepthAttachment() : null;
+            }
+
+//            Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] --> setup IndexBuffer", buffers.getName());
+            RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
+            GpuBuffer indexBuffer;
+            VertexFormat.IndexType indexType;
+
+            if (buffers.getIndexBuffer() == null)
+            {
+                if (buffers.getIndexCount() > 0)
+                {
+                    indexBuffer = shapeIndexBuffer.getIndexBuffer(buffers.getIndexCount());
+                    indexType = shapeIndexBuffer.getIndexType();
+
+                    buffers.setIndexBuffer(indexBuffer);
+                    buffers.setIndexType(indexType);
+                }
+                else
+                {
+                    Litematica.LOGGER.error("WorldRendererSchematic#drawInternal() [{}] --> setup IndexBuffer --> NO INDEX COUNT!", buffers.getName());
+                    return;
+                }
+            }
+            else
+            {
+                indexBuffer = buffers.getIndexBuffer();
+                indexType = buffers.getIndexType();
+            }
+
+//            Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] --> new renderPass", buffers.getName());
+
+            // Attach Frame buffers
+            try (RenderPass pass = RenderSystem.getDevice()
+                                               .createCommandEncoder()
+                                               .createRenderPass(texture1, OptionalInt.empty(),
+                                                                 texture2, OptionalDouble.empty()))
+            {
+//                Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> setPipeline() [{}]", buffers.getName(), pipeline.getLocation().toString());
+                pass.setPipeline(pipeline);
+
+//                for (int i = 0; i < 12; i++)
+//                {
+//                    GpuTexture drawableTexture = RenderSystem.getShaderTexture(i);
+//
+//                    if (drawableTexture != null)
+//                    {
+//                        Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> bindSampler() [{}]", buffers.getName(), i);
+//                        pass.bindSampler("Sampler"+i, drawableTexture);
+//                    }
+//                }
+
+                if (setLineWidth)
+                {
+                    float width = lineWidth > 0.0f ? lineWidth : RenderSystem.getShaderLineWidth();
+//                    Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> setUniform() // lineWidth [{}]", buffers.getName(), width);
+                    pass.setUniform("LineWidth", width);
+                }
+
+//                Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> setVertexBuffer() [0]", buffers.getName());
+                pass.setVertexBuffer(0, buffers.getVertexBuffer());
+//                Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> setIndexBuffer() [{}]", buffers.getName(), indexType.name());
+                pass.setIndexBuffer(indexBuffer, indexType);
+//                Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> drawIndexed() [0, {}]", buffers.getName(), buffers.getIndexCount());
+                pass.drawIndexed(0, buffers.getIndexCount());
+            }
+
+//            Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] --> END", buffers.getName());
+
+            if (useOffset)
+            {
+                RenderSystem.resetModelOffset();
+            }
+
+            if (useColor)
+            {
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            }
+        }
     }
 
     public boolean hasQuadsForModel(List<BlockModelPart> modelParts, BlockState state, @Nullable Direction side)

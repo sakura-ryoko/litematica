@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.Sets;
+import org.apache.logging.log4j.Logger;
 
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
@@ -50,6 +51,7 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRendererSchematicVbo implements AutoCloseable
 {
+    private static final Logger LOGGER = Litematica.LOGGER;
     protected static int schematicRenderChunksUpdated;
 
     protected volatile WorldSchematic world;
@@ -275,7 +277,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 }
                 catch (Exception e)
                 {
-                    Litematica.LOGGER.error("resortTransparency() [VBO] caught exception for layer [{}] // {}", ChunkRenderLayers.getFriendlyName(layerTranslucent), e.toString());
+                    LOGGER.error("resortTransparency() [VBO] caught exception for layer [{}] // {}", ChunkRenderLayers.getFriendlyName(layerTranslucent), e.toString());
                 }
             }
         }
@@ -298,7 +300,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     }
                     catch (Exception e)
                     {
-                        Litematica.LOGGER.error("resortTransparency() [VBO] caught exception for overlay type [{}] // {}", type.getDrawMode().name(), e.toString());
+                        LOGGER.error("resortTransparency() [VBO] caught exception for overlay type [{}] // {}", type.getDrawMode().name(), e.toString());
                     }
                 }
             }
@@ -333,7 +335,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.builderCache.clearAll();
         this.gpuBufferCache.clearAll();
 
-        Litematica.LOGGER.warn("[VBO] rebuildChunk() pos [{}]", this.position.toShortString());
+        LOGGER.warn("[VBO] rebuildChunk() pos [{}]", this.position.toShortString());
 
         Set<BlockEntity> tileEntities = new HashSet<>();
         BlockPos posChunk = this.position;
@@ -414,7 +416,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         }
                         catch (Exception e)
                         {
-                            Litematica.LOGGER.error("rebuildChunk() [VBO] failed to postRenderBlocks() for layer [{}] --> {}", ChunkRenderLayers.getFriendlyName(layerTmp), e.toString());
+                            LOGGER.error("rebuildChunk() [VBO] failed to postRenderBlocks() for layer [{}] --> {}", ChunkRenderLayers.getFriendlyName(layerTmp), e.toString());
                         }
                     }
                 }
@@ -434,7 +436,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                             }
                             catch (Exception e)
                             {
-                                Litematica.LOGGER.error("rebuildChunk() [VBO] failed to postRenderOverlay() for overlay type [{}] --> {}", type.getDrawMode().name(), e.toString());
+                                LOGGER.error("rebuildChunk() [VBO] failed to postRenderOverlay() for overlay type [{}] --> {}", type.getDrawMode().name(), e.toString());
                             }
                         }
                     }
@@ -496,7 +498,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             return;
         }
 
-        Litematica.LOGGER.warn("[VBO] renderBlocksAndOverlay() pos [{}]", pos.toShortString());
+        LOGGER.warn("[VBO] renderBlocksAndOverlay() pos [{}]", pos.toShortString());
         this.getProfiler().push("render_build");
         this.overlayColor = null;
 
@@ -1052,7 +1054,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 //        vertexBuffer.upload(builtBuffer);
 //        VertexBuffer.unbind();
 
-        Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], IndexCount [{}]", ChunkRenderLayers.getFriendlyName(layer), meshData.getDrawParameters().indexCount());
+        LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], IndexCount [{}]", ChunkRenderLayers.getFriendlyName(layer), meshData.getDrawParameters().indexCount());
         ChunkRenderObjectBuffers gpuBuffers = this.gpuBufferCache.getBuffersByLayer(layer);
 
         if (gpuBuffers != null)
@@ -1061,7 +1063,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
             if (gpuBuffers.vertexBuffer.size() < meshData.getBuffer().remaining())
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], --> RESIZE / NEW BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], --> RESIZE / NEW BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                 gpuBuffers.vertexBuffer.close();
                 gpuBuffers.setVertexBuffer(RenderSystem.getDevice()
                                                        .createBuffer(() -> "VertexBuffer: " + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer())
@@ -1069,20 +1071,20 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
             else if (!gpuBuffers.vertexBuffer.isClosed())
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], --> WRITE BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], --> WRITE BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                 encoder.writeToBuffer(gpuBuffers.vertexBuffer, meshData.getBuffer(), 0);
             }
 
             // Resorting
             if (meshData.getSortedBuffer() != null)
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], RESORTING", ChunkRenderLayers.getFriendlyName(layer));
+//                LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], RESORTING", ChunkRenderLayers.getFriendlyName(layer));
 
                 if (gpuBuffers.indexBuffer != null && gpuBuffers.indexBuffer.size() >= meshData.getSortedBuffer().remaining())
                 {
                     if (!gpuBuffers.indexBuffer.isClosed())
                     {
-//                        Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], RESORTING --> WRITE BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                        LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], RESORTING --> WRITE BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                         encoder.writeToBuffer(gpuBuffers.indexBuffer, meshData.getSortedBuffer(), 0);
                     }
                 }
@@ -1093,7 +1095,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         gpuBuffers.indexBuffer.close();
                     }
 
-//                    Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], RESORTING --> CREATE/SET INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                    LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], RESORTING --> CREATE/SET INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                     gpuBuffers.setIndexBuffer(RenderSystem.getDevice()
                                                           .createBuffer(() -> "SortedBuffer: " + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer())
                     );
@@ -1102,20 +1104,19 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             else if (gpuBuffers.indexBuffer != null)
             {
                 gpuBuffers.indexBuffer.close();
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], ELSE --> CLEAR INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], ELSE --> CLEAR INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                 gpuBuffers.setIndexBuffer(null);
             }
 
-            Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], INDEX COUNT/TYPE --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
+            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], INDEX COUNT/TYPE --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
             gpuBuffers.setIndexCount(meshData.getDrawParameters().indexCount());
             gpuBuffers.setIndexType(meshData.getDrawParameters().indexType());
-
-            this.gpuBufferCache.storeBuffersByLayer(layer, gpuBuffers);
+//            this.gpuBufferCache.storeBuffersByLayer(layer, gpuBuffers);
         }
         else
         {
             Supplier<String> name = () -> ChunkRenderLayers.getFriendlyName(layer);
-//            Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], NEW VERTEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], NEW VERTEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
             GpuBuffer vertexBuffer = RenderSystem.getDevice()
                                                  .createBuffer(() -> "VertexBuffer: " + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer()
                                                  );
@@ -1123,7 +1124,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                                                                      .createBuffer(() -> "IndexBuffer: " + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer()
                                                                                      ) : null;
 
-            Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], NEW VERTEX BUFFER --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
+            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], NEW VERTEX BUFFER --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
             this.gpuBufferCache.storeBuffersByLayer(layer,
                                                     new ChunkRenderObjectBuffers(name, vertexBuffer, indexBuffer,
                                                                                  meshData.getDrawParameters().indexCount(),
@@ -1131,44 +1132,43 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             );
         }
 
-        Litematica.LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], END", ChunkRenderLayers.getFriendlyName(layer));
+        LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], END", ChunkRenderLayers.getFriendlyName(layer));
 //        meshData.close();
     }
 
     protected void uploadBuffersByType(OverlayRenderType type, @Nonnull BuiltBuffer meshData)
     {
-        Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], IndexCount [{}]", type.name(), meshData.getDrawParameters().indexCount());
+        LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], IndexCount [{}]", type.name(), meshData.getDrawParameters().indexCount());
+        ChunkRenderObjectBuffers gpuBuffers = this.gpuBufferCache.getBuffersByType(type);
 
-        if (this.gpuBufferCache.hasBuffersByType(type))
+        if (gpuBuffers != null)
         {
-            ChunkRenderObjectBuffers gpuBuffers = this.gpuBufferCache.getBuffersByType(type);
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-            assert gpuBuffers != null;
             if (gpuBuffers.vertexBuffer.size() < meshData.getBuffer().remaining())
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> RESIZE / NEW BUFFER", type.name());
+                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> RESIZE / NEW BUFFER", type.name());
                 gpuBuffers.vertexBuffer.close();
                 gpuBuffers.setVertexBuffer(RenderSystem.getDevice()
-                                                       .createBuffer(() -> "VertexBuffer: " + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer())
+                                                       .createBuffer(() -> "VertexBuffer: Overlay/" + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer())
                 );
             }
             else if (!gpuBuffers.vertexBuffer.isClosed())
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> WRITE BUFFER", type.name());
+                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> WRITE BUFFER", type.name());
                 encoder.writeToBuffer(gpuBuffers.vertexBuffer, meshData.getBuffer(), 0);
             }
 
             // Resorting
             if (meshData.getSortedBuffer() != null)
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING", type.name());
+                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING", type.name());
 
                 if (gpuBuffers.indexBuffer != null && gpuBuffers.indexBuffer.size() >= meshData.getSortedBuffer().remaining())
                 {
                     if (!gpuBuffers.indexBuffer.isClosed())
                     {
-//                        Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> WRITE BUFFER", type.name());
+                        LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> WRITE BUFFER", type.name());
                         encoder.writeToBuffer(gpuBuffers.indexBuffer, meshData.getSortedBuffer(), 0);
                     }
                 }
@@ -1179,38 +1179,38 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         gpuBuffers.indexBuffer.close();
                     }
 
-//                    Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> CREATE/SET INDEX BUFFER", type.name());
+                    LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> CREATE/SET INDEX BUFFER", type.name());
 
                     gpuBuffers.setIndexBuffer(RenderSystem.getDevice()
-                                                          .createBuffer(() -> "SortedBuffer: " + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer())
+                                                          .createBuffer(() -> "SortedBuffer: Overlay/" + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer())
                     );
                 }
             }
             else if (gpuBuffers.indexBuffer != null)
             {
-//                Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], ELSE --> CLEAR INDEX BUFFER", type.name());
+                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], ELSE --> CLEAR INDEX BUFFER", type.name());
                 gpuBuffers.indexBuffer.close();
                 gpuBuffers.setIndexBuffer(null);
             }
 
-            Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], INDEX COUNT/TYPE --> SAVE", type.name());
+            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], INDEX COUNT/TYPE --> SAVE", type.name());
 
             gpuBuffers.setIndexCount(meshData.getDrawParameters().indexCount());
             gpuBuffers.setIndexType(meshData.getDrawParameters().indexType());
-            this.gpuBufferCache.storeBuffersByType(type, gpuBuffers);
+//            this.gpuBufferCache.storeBuffersByType(type, gpuBuffers);
         }
         else
         {
             Supplier<String> name = type::name;
-//            Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER", type.name());
+            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER", type.name());
             GpuBuffer vertexBuffer = RenderSystem.getDevice()
-                                                 .createBuffer(() -> "VertexBuffer: " + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer()
+                                                 .createBuffer(() -> "VertexBuffer: Overlay/" + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer()
                                                  );
             GpuBuffer indexBuffer = meshData.getSortedBuffer() != null ? RenderSystem.getDevice()
                                                                                      .createBuffer(() -> "IndexBuffer: " + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer()
                                                                                      ) : null;
 
-            Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER --> SAVE", type.name());
+            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER --> SAVE", type.name());
 
             this.gpuBufferCache.storeBuffersByType(type,
                                                     new ChunkRenderObjectBuffers(name, vertexBuffer, indexBuffer,
@@ -1219,13 +1219,13 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             );
         }
 
-        Litematica.LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], END", type.name());
+        LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], END", type.name());
 //        meshData.close();
     }
 
     protected void uploadIndexByLayer(RenderLayer layer, @Nonnull BufferAllocator.CloseableBuffer buffer)
     {
-        Litematica.LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> BEGIN", ChunkRenderLayers.getFriendlyName(layer));
+        LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> BEGIN", ChunkRenderLayers.getFriendlyName(layer));
         if (this.gpuBufferCache.hasBuffersByLayer(layer))
         {
             ChunkRenderObjectBuffers gpuBuffers = this.gpuBufferCache.getBuffersByLayer(layer);
@@ -1233,7 +1233,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             assert gpuBuffers != null;
             if (gpuBuffers.indexBuffer == null)
             {
-//                Litematica.LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> SET INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> SET INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                 gpuBuffers.setIndexBuffer(
                         RenderSystem.getDevice()
                                     .createBuffer(() -> "IndexBuffer: " + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, buffer.getBuffer())
@@ -1243,19 +1243,19 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             {
                 if (!gpuBuffers.indexBuffer.isClosed())
                 {
-//                    Litematica.LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> WRITE INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
+//                    LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> WRITE INDEX BUFFER", ChunkRenderLayers.getFriendlyName(layer));
                     RenderSystem.getDevice().createCommandEncoder().writeToBuffer(gpuBuffers.indexBuffer, buffer.getBuffer(), 0);
                 }
             }
         }
 
-        Litematica.LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> END", ChunkRenderLayers.getFriendlyName(layer));
+        LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> END", ChunkRenderLayers.getFriendlyName(layer));
 //        buffer.close();
     }
 
     protected void uploadIndexByType(OverlayRenderType type, @Nonnull BufferAllocator.CloseableBuffer buffer)
     {
-        Litematica.LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> BEGIN", type.name());
+        LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> BEGIN", type.name());
         if (this.gpuBufferCache.hasBuffersByType(type))
         {
             ChunkRenderObjectBuffers gpuBuffers = this.gpuBufferCache.getBuffersByType(type);
@@ -1263,23 +1263,23 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             assert gpuBuffers != null;
             if (gpuBuffers.indexBuffer == null)
             {
-//                Litematica.LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> SET INDEX BUFFER", type.name());
+                LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> SET INDEX BUFFER", type.name());
                 gpuBuffers.setIndexBuffer(
                         RenderSystem.getDevice()
-                                    .createBuffer(() -> "IndexBuffer: " + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, buffer.getBuffer())
+                                    .createBuffer(() -> "IndexBuffer: Overlay/" + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, buffer.getBuffer())
                 );
             }
             else
             {
                 if (!gpuBuffers.indexBuffer.isClosed())
                 {
-//                    Litematica.LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> WRITE INDEX BUFFER", type.name());
+                    LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> WRITE INDEX BUFFER", type.name());
                     RenderSystem.getDevice().createCommandEncoder().writeToBuffer(gpuBuffers.indexBuffer, buffer.getBuffer(), 0);
                 }
             }
         }
 
-        Litematica.LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> END", type.name());
+        LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> END", type.name());
 //        buffer.close();
     }
 
@@ -1440,12 +1440,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 return;
             }
 
-            if (layer == RenderLayer.getTranslucent())
+            if (layer.isTranslucent())
             {
                 BuiltBuffer.SortState sortingData;
                 VertexSorter sorter = VertexSorter.byDistance(x, y, z);
 
-                if (!chunkRenderData.hasTransparentSortingData())
+                if (!chunkRenderData.hasTransparentSortingDataForLayer(layer))
                 {
                     sortingData = built.sortQuads(allocator, sorter);
 
@@ -1454,11 +1454,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         throw new InterruptedException("Sort State failure");
                     }
 
-                    chunkRenderData.setTransparentSortingData(sortingData);
+                    chunkRenderData.setTransparentSortingDataForLayer(layer, sortingData);
                 }
                 else
                 {
-                    sortingData = chunkRenderData.getTransparentSortingData();
+                    sortingData = chunkRenderData.getTransparentSortingDataForLayer(layer);
                 }
 
                 if (sortingData == null)
@@ -1641,7 +1641,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             this.chunkRenderData.set(ChunkRenderDataSchematic.EMPTY);
              */
 
-            Litematica.LOGGER.warn("[VBO] clear() pos [{}]", this.position.toShortString());
+            LOGGER.warn("[VBO] clear() pos [{}]", this.position.toShortString());
 
             if (this.chunkRenderData != null && !this.chunkRenderData.equals(ChunkRenderDataSchematic.EMPTY))
             {

@@ -6,8 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
-import fi.dy.masa.litematica.Litematica;
-
 public class ChunkRenderObjectBuffers implements AutoCloseable
 {
     private final Supplier<String> name;
@@ -18,7 +16,6 @@ public class ChunkRenderObjectBuffers implements AutoCloseable
 
     protected ChunkRenderObjectBuffers(Supplier<String> name, GpuBuffer vertexBuffer, @Nullable GpuBuffer indexBuffer, int indexCount, VertexFormat.IndexType indexType)
     {
-        Litematica.LOGGER.warn("[ChunkRenderObjectBuffers] init [{}]", name.get());
         this.name = name;
         this.vertexBuffer = vertexBuffer;
         this.indexBuffer = indexBuffer;

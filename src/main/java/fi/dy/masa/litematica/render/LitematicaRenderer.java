@@ -3,8 +3,8 @@ package fi.dy.masa.litematica.render;
 import javax.annotation.Nullable;
 import org.joml.Matrix4f;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
@@ -224,7 +224,7 @@ public class LitematicaRenderer
     }
     */
 
-    public void renderSchematicOverlay(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
+    public void renderSchematicOverlays(@Nullable Framebuffer otherFb, Camera camera, Profiler profiler)
     {
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
@@ -234,28 +234,97 @@ public class LitematicaRenderer
             float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
 
             profiler.push("schematic_overlay");
-            RenderUtils.culling(false);
+//            RenderUtils.culling(false);
             //TODO: RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
             RenderUtils.polygonOffset(true);
             RenderUtils.polygonOffset(-0.4f, -0.8f);
             // todo move this
-            RenderSystem.lineWidth(lineWidth);
+//            RenderSystem.lineWidth(lineWidth);
             RenderUtils.blend(true);
-            RenderUtils.color(1f, 1f, 1f, 1f);
+//            RenderUtils.color(1f, 1f, 1f, 1f);
             //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
 
             if (!IrisCompat.isShadowPassActive())
             {
-                this.getWorldRenderer().renderBlockOverlays(viewMatrix, this.getCamera(), posMatrix, lineWidth, profiler);
+                // this.getCamera()
+                this.getWorldRenderer().renderBlockOverlays(otherFb, camera, lineWidth, profiler);
             }
 
-            RenderUtils.depthTest(true);
+//            RenderUtils.depthTest(true);
             RenderUtils.polygonOffset(0f, 0f);
             RenderUtils.polygonOffset(false);
-            RenderUtils.culling(true);
+//            RenderUtils.culling(true);
             profiler.pop();
         }
     }
+
+//    public void renderSchematicOverlayQuads(@Nullable Framebuffer otherFb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, Profiler profiler)
+//    {
+//        boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
+//
+//        if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue() != invert)
+//        {
+//            boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
+//            float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
+//
+//            profiler.push("schematic_overlay");
+////            RenderUtils.culling(false);
+//            //TODO: RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
+//            RenderUtils.polygonOffset(true);
+//            RenderUtils.polygonOffset(-0.4f, -0.8f);
+//            // todo move this
+////            RenderSystem.lineWidth(lineWidth);
+//            RenderUtils.blend(true);
+////            RenderUtils.color(1f, 1f, 1f, 1f);
+//            //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
+//
+//            if (!IrisCompat.isShadowPassActive())
+//            {
+//                // this.getCamera()
+//                this.getWorldRenderer().renderBlockOverlayQuads(otherFb, posMatrix, projMatrix, frustum, camera, fog, buffers, lineWidth, profiler);
+//            }
+//
+////            RenderUtils.depthTest(true);
+//            RenderUtils.polygonOffset(0f, 0f);
+//            RenderUtils.polygonOffset(false);
+////            RenderUtils.culling(true);
+//            profiler.pop();
+//        }
+//    }
+//
+//    public void renderSchematicOverlayOutlines(@Nullable Framebuffer otherFb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, Profiler profiler)
+//    {
+//        boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
+//
+//        if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue() != invert)
+//        {
+//            boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
+//            float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
+//
+//            profiler.push("schematic_overlay");
+////            RenderUtils.culling(false);
+//            //TODO: RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
+//            RenderUtils.polygonOffset(true);
+//            RenderUtils.polygonOffset(-0.4f, -0.8f);
+//            // todo move this
+////            RenderSystem.lineWidth(lineWidth);
+//            RenderUtils.blend(true);
+////            RenderUtils.color(1f, 1f, 1f, 1f);
+//            //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
+//
+//            if (!IrisCompat.isShadowPassActive())
+//            {
+//                // this.getCamera()
+//                this.getWorldRenderer().renderBlockOverlayOutlines(otherFb, posMatrix, projMatrix, frustum, camera, fog, buffers, lineWidth, profiler);
+//            }
+//
+////            RenderUtils.depthTest(true);
+//            RenderUtils.polygonOffset(0f, 0f);
+//            RenderUtils.polygonOffset(false);
+////            RenderUtils.culling(true);
+//            profiler.pop();
+//        }
+//    }
 
     public void piecewisePrepareAndUpdate(Frustum frustum, Profiler profiler)
     {
@@ -304,7 +373,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_SOLID);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.SOLID);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), this.getCamera(), profiler, RenderPipelines.SOLID);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -329,7 +398,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT_MIPPED);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.CUTOUT_MIPPED);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), this.getCamera(), profiler, RenderPipelines.CUTOUT_MIPPED);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -354,7 +423,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.CUTOUT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), this.getCamera(), profiler, RenderPipelines.CUTOUT);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -379,7 +448,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), viewMatrix, this.getCamera(), posMatrix, profiler, RenderPipelines.TRANSLUCENT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), this.getCamera(), profiler, RenderPipelines.TRANSLUCENT);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -391,30 +460,38 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderOverlay(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
+    public void piecewiseRenderTripwire(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
+    {
+        if (this.renderPiecewiseBlocks)
+        {
+            profiler.push(Reference.MOD_ID+"_tripwire");
+
+            if (this.renderCollidingSchematicBlocks)
+            {
+                RenderUtils.polygonOffset(true);
+                RenderUtils.polygonOffset(-0.3f, -0.6f);
+            }
+
+            //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), this.getCamera(), profiler, RenderPipelines.TRIPWIRE);
+
+            if (this.renderCollidingSchematicBlocks)
+            {
+                RenderUtils.polygonOffset(0f, 0f);
+                RenderUtils.polygonOffset(false);
+            }
+
+            profiler.pop();
+        }
+    }
+
+    public void piecewiseRenderOverlay(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseSchematic)
         {
             profiler.push(Reference.MOD_ID+"_schematic_overlay");
-
-            /*
-            Framebuffer fb = MinecraftClient.isFabulousGraphicsOrBetter() ? this.mc.worldRenderer.getTranslucentFramebuffer() : null;
-
-            if (fb != null)
-            {
-                fb.beginWrite(false);
-            }
-             */
-
-            this.renderSchematicOverlay(viewMatrix, posMatrix, profiler);
-
-            /*
-            if (fb != null)
-            {
-                this.mc.getFramebuffer().beginWrite(false);
-            }
-             */
-
+//            this.renderSchematicOverlayQuads(fb, posMatrix, projMatrix, frustum, camera, fog, buffers, profiler);
+            this.renderSchematicOverlays(null, this.getCamera(), profiler);
             profiler.pop();
         }
 
@@ -432,6 +509,72 @@ public class LitematicaRenderer
             profiler.pop();
         }
     }
+
+//    public void runRenderWorldOverlay(Matrix4f posMatrix, Matrix4f projMatrix, MinecraftClient client,
+//                                      FrameGraphBuilder frameGraphBuilder, DefaultFramebufferSet fbSet,
+//                                      Frustum frustum, Camera camera, BufferBuilderStorage buffers,
+//                                      Profiler profiler)
+//    {
+//        profiler.push(Reference.MOD_ID+"_pre_particle");
+//        FramePass pass = frameGraphBuilder.createPass(Reference.MOD_ID+"_pre_particle");
+//
+//        fbSet.mainFramebuffer = pass.transfer(fbSet.mainFramebuffer);
+//
+//        if (fbSet.translucentFramebuffer != null)
+//        {
+//            fbSet.translucentFramebuffer = pass.transfer(fbSet.translucentFramebuffer);
+//        }
+//
+//        if (fbSet.entityOutlineFramebuffer != null)
+//        {
+//            fbSet.entityOutlineFramebuffer = pass.transfer(fbSet.entityOutlineFramebuffer);
+//        }
+//
+//        Handle<Framebuffer> handleMain = fbSet.mainFramebuffer;
+//        Handle<Framebuffer> handleTranslucent = fbSet.translucentFramebuffer;
+//        Handle<Framebuffer> handleOutlines = fbSet.entityOutlineFramebuffer;
+//
+//        pass.setRenderer(() ->
+//                         {
+//                             Fog fog = RenderSystem.getShaderFog();
+//                             RenderSystem.setShaderFog(Fog.DUMMY);
+//
+//                             if (this.renderPiecewiseSchematic)
+//                             {
+//                                 profiler.push(Reference.MOD_ID+"_schematic_overlay");
+//
+//                                 if (handleTranslucent != null)
+//                                 {
+//                                     handleTranslucent.get().copyDepthFrom(handleMain.get());
+//                                 }
+//
+//                                 Framebuffer fb;
+//                                 fb = handleTranslucent != null ? handleTranslucent.get() : handleMain.get();
+//
+//                                 RenderUtils.fbStartDrawing();
+//                                 this.renderSchematicOverlayQuads(fb, posMatrix, projMatrix, frustum, camera, fog, buffers, profiler);
+//
+//                                 if (handleOutlines != null)
+//                                 {
+//                                     handleOutlines.get().copyDepthFrom(handleMain.get());
+//                                 }
+//
+//                                 fb = handleOutlines != null ? handleOutlines.get() : handleMain.get();
+//
+//                                 this.renderSchematicOverlayOutlines(fb, posMatrix, projMatrix, frustum, camera, fog, buffers, profiler);
+//
+//                                 profiler.pop();
+//                             }
+//
+//                             this.cleanup();
+//
+////                             fb.blitToScreen();
+//                             RenderSystem.setShaderFog(fog);
+//                         });
+//
+//        pass.markToBeVisited();
+//        profiler.pop();
+//    }
 
     private Camera getCamera()
     {
