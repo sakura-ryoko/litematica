@@ -103,23 +103,24 @@ public class WorldSchematic extends World
 
     private void setDimension(DynamicRegistryManager registryManager)
     {
-        RegistryEntryLookup<DimensionType> entryLookup = registryManager.getOrThrow(RegistryKeys.DIMENSION_TYPE);
-        RegistryEntry<DimensionType> nether = entryLookup.getOrThrow(DimensionTypes.THE_NETHER);
-        RegistryEntry<DimensionType> end = entryLookup.getOrThrow(DimensionTypes.THE_END);
-
-        if (this.dimensionType.equals(nether))
-        {
-            this.biome = WorldUtils.getWastes(registryManager);
-        }
-        else if (this.dimensionType.equals(end))
-        {
-            this.biome = WorldUtils.getTheEnd(registryManager);
-        }
-        else
-        {
-            this.biome = WorldUtils.getPlains(registryManager);
-        }
-
+        registryManager.getOptional(RegistryKeys.DIMENSION_TYPE).ifPresent(entryLookup -> {
+            RegistryEntry<DimensionType> nether = entryLookup.getOptional(DimensionTypes.THE_NETHER).orElse(null);
+            RegistryEntry<DimensionType> end = entryLookup.getOptional(DimensionTypes.THE_END).orElse(null);
+    
+            if (nether != null && this.dimensionType.equals(nether))
+            {
+                this.biome = WorldUtils.getWastes(registryManager);
+            }
+            else if (end != null && this.dimensionType.equals(end))
+            {
+                this.biome = WorldUtils.getTheEnd(registryManager);
+            }
+            else
+            {
+                this.biome = WorldUtils.getPlains(registryManager);
+            }
+        });
+    
         this.dimensionEffects = DimensionEffects.byDimensionType(this.dimensionType.value());
     }
 
