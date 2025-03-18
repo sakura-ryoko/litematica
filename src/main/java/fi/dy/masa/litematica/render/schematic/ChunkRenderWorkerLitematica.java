@@ -305,8 +305,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
             {
                 public void onSuccess(@Nullable List<Object> list)
                 {
-                    ChunkRenderWorkerLitematica.this.clearRenderAllocators(task);
-
+//                    ChunkRenderWorkerLitematica.this.clearRenderAllocators(task);
                     task.getLock().lock();
 
                     label49:

@@ -18,6 +18,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiSchematicManager;
+import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.render.OverlayRenderer;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.render.infohud.ToolHud;
@@ -32,10 +33,6 @@ public class RenderHandler implements IRenderer
 //
 //        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
 //        {
-            // Schematic Overlay Rendering
-//            profiler.push("schematic_overlay");
-//            LitematicaRenderer.getInstance().piecewiseRenderOverlay(null, null, profiler);
-//            profiler.pop();
 //        }
     }
 
@@ -61,6 +58,9 @@ public class RenderHandler implements IRenderer
                 OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix, profiler);
             }
 
+            // Schematic Overlay Rendering
+            profiler.swap("schematic_overlay");
+            LitematicaRenderer.getInstance().piecewiseRenderOverlay(null, null, profiler);
             profiler.pop();
         }
     }

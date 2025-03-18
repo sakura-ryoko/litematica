@@ -107,7 +107,7 @@ public class BlockModelRendererSchematic
         }
     }
 
-    private boolean renderModelSmooth(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn, BlockPos posIn, MatrixStack matrixStack,
+    public boolean renderModelSmooth(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn, BlockPos posIn, MatrixStack matrixStack,
                                       VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
         boolean renderedSomething = false;
@@ -151,7 +151,7 @@ public class BlockModelRendererSchematic
         return renderedSomething;
     }
 
-    private boolean renderModelFlat(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn,
+    public boolean renderModelFlat(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState stateIn,
                                     BlockPos posIn, MatrixStack matrixStack,
                                     VertexConsumer vertexConsumer, BaseRandom random, long seedIn, int overlay)
     {
@@ -194,7 +194,7 @@ public class BlockModelRendererSchematic
         return renderedSomething;
     }
 
-    private boolean shouldRenderModelSide(BlockRenderView worldIn, BlockState stateIn, BlockPos posIn, Direction side, BlockPos mutable)
+    public boolean shouldRenderModelSide(BlockRenderView worldIn, BlockState stateIn, BlockPos posIn, Direction side, BlockPos mutable)
     {
         return DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(posIn, side) ||
                 (Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue() && Configs.Visuals.RENDER_TRANSLUCENT_INNER_SIDES.getBooleanValue()) ||

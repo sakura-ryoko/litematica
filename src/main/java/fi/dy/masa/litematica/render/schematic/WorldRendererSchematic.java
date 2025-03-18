@@ -1,9 +1,15 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 
+import com.mojang.blaze3d.buffers.BufferType;
+import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -15,7 +21,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -23,9 +28,11 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.BlockModelPart;
 import net.minecraft.client.render.model.BlockStateModel;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
@@ -35,11 +42,13 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.BlockRenderView;
 
-import fi.dy.masa.malilib.render.MaLiLibPipelines;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.EntityUtils;
+import fi.dy.masa.malilib.util.FileNameUtils;
+import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -234,9 +243,18 @@ public class WorldRendererSchematic
         {
             this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
         }
+
         this.chunksToUpdate.clear();
         this.renderDispatcher.stopChunkUpdates(profiler);
         this.profiler = null;
+
+//        if (this.defaultTex != null)
+//        {
+//            this.defaultTex.close();
+//            this.defaultTex = null;
+//        }
+//
+//        this.defaultTexId = -1;
     }
 
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator, Profiler profiler)
@@ -457,18 +475,17 @@ public class WorldRendererSchematic
             profiler.push("layer_" + ChunkRenderLayers.getFriendlyName(renderLayer));
         }
 
-        boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
+//        boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
 
         renderLayer.startDrawing();
 
-//        renderLayer.startDrawing();
         //RenderUtils.disableDiffuseLighting();
         Vec3d cameraPos = camera.getPos();
         double x = cameraPos.x;
         double y = cameraPos.y;
         double z = cameraPos.z;
 
-        if (isTranslucent)
+        if (renderLayer.isTranslucent())
         {
             profiler.push("translucent_sort");
             this.profiler = profiler;
@@ -504,7 +521,7 @@ public class WorldRendererSchematic
         //profiler.push("filter_empty");
         profiler.swap("layer_setup");
 
-        boolean reverse = isTranslucent;
+        boolean reverse = renderLayer.isTranslucent();
         int startIndex = reverse ? this.renderInfos.size() - 1 : 0;
         int stopIndex = reverse ? -1 : this.renderInfos.size();
         int increment = reverse ? -1 : 1;
@@ -671,7 +688,8 @@ public class WorldRendererSchematic
         }
 
 //        VertexBuffer.unbind();
-//        renderLayer.endDrawing();
+
+        renderLayer.endDrawing();
         RenderSystem.setShaderFog(orgFog);
 
         profiler.pop();     // layer+ X
@@ -683,8 +701,8 @@ public class WorldRendererSchematic
     public void renderBlockOverlays(@Nullable Framebuffer otherFb, Camera camera, float lineWidth, Profiler profiler)
     {
         this.profiler = profiler;
-        this.renderBlockOverlay(OverlayRenderType.QUAD, otherFb, camera, lineWidth, profiler);
         this.renderBlockOverlay(OverlayRenderType.OUTLINE, otherFb, camera, lineWidth, profiler);
+        this.renderBlockOverlay(OverlayRenderType.QUAD, otherFb, camera, lineWidth, profiler);
     }
 
 //    public void renderBlockOverlayQuads(@Nullable Framebuffer otherFb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, BufferBuilderStorage buffers, float lineWidth, Profiler profiler)
@@ -727,8 +745,6 @@ public class WorldRendererSchematic
     {
         profiler.push("overlay_" + type.name());
         this.profiler = profiler;
-//        RenderLayer renderLayer = RenderLayer.getTranslucent();
-//        renderLayer.startDrawing();
 
         RenderUtils.blend(true);
         // ???
@@ -740,43 +756,69 @@ public class WorldRendererSchematic
         double z = cameraPos.z;
 
         boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
-        RenderPipeline pipeline = MaLiLibPipelines.getPositionColorSimple();
+//        RenderLayer renderLayer = type.getRenderLayer();
+        RenderPipeline pipeline = renderThrough ? type.getRenderThrough() : type.getPipeline();
 
-        if (type == OverlayRenderType.QUAD)
-        {
-            if (renderThrough)
-            {
-                pipeline = MaLiLibPipelines.POSITION_COLOR_MASA_NO_DEPTH_NO_CULL;
-                RenderUtils.depthTest(false);
-            }
-            else
-            {
-                pipeline = MaLiLibPipelines.POSITION_COLOR_MASA_GREATER_DEPTH;
-                RenderUtils.depthTest(true);
-            }
-        }
-        else if (type == OverlayRenderType.OUTLINE)
-        {
-            if (renderThrough)
-            {
-                pipeline = MaLiLibPipelines.LINES_MASA_NO_DEPTH_NO_CULL;
-                RenderUtils.depthTest(false);
-            }
-            else
-            {
-                pipeline = RenderPipelines.LINES;
-                RenderUtils.depthTest(true);
-            }
-        }
+        float[] offset = new float[]{0.3f, 0.0f, 0.6f};
 
-//        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
-        ArrayList<RenderPass.RenderObject> arrayList = new ArrayList<>();
-        RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
-        int indexCount = 0;
-        boolean startedDrawing = false;
+//        if (type == OverlayRenderType.QUAD)
+//        {
+//            if (renderThrough)
+//            {
+//                pipeline = MaLiLibPipelines.POSITION_COLOR_MASA_NO_DEPTH_NO_CULL;
+////                RenderUtils.depthTest(false);
+//            }
+////            else
+////            {
+////                pipeline = RenderPipelines.TRANSLUCENT;
+//////                pipeline = MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL;
+////                renderLayer = RenderLayer.getTranslucent();
+//////                RenderUtils.depthTest(true);
+////            }
+//        }
+//        else if (type == OverlayRenderType.OUTLINE)
+//        {
+//            if (renderThrough)
+//            {
+//                pipeline = MaLiLibPipelines.LINES_MASA_NO_DEPTH_NO_CULL;
+////                RenderUtils.depthTest(false);
+//            }
+////            else
+////            {
+////                pipeline = RenderPipelines.LINES;
+//////                RenderUtils.depthTest(true);
+////                renderLayer = RenderLayer.getLines();
+////            }
+//        }
+
+//        try
+//        {
+//            this.bindTexture(DEFAULT_TEX, 0, 16, 16);
+//        }
+//        catch (Exception err)
+//        {
+//            Litematica.LOGGER.error("WorldRendererSchematic: Exception loading default block texture; {}", err.getMessage());
+//
+//            try
+//            {
+//                this.bindTexture(Identifier.ofVanilla("textures/block/ice.png"), 0, 16, 16);
+//            }
+//            catch (RuntimeException e)
+//            {
+//                throw new RuntimeException("WorldRendererSchematic: Exception loading default block texture (Can't find ice.png); "+ err.getMessage());
+//            }
+//        }
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+//        ArrayList<RenderPass.RenderObject> arrayList = new ArrayList<>();
+//        RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
+//        int indexCount = 0;
+//        boolean startedDrawing = false;
 
         profiler.swap("overlay_iterate");
+//        renderLayer.startDrawing();
         this.profiler = profiler;
+
         for (int i = this.renderInfos.size() - 1; i >= 0; --i)
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
@@ -814,97 +856,272 @@ public class WorldRendererSchematic
                         continue;
                     }
 
-                    GpuBuffer gpuBuffer;
-                    VertexFormat.IndexType indexType;
+//                    GpuBuffer gpuBuffer;
+//                    VertexFormat.IndexType indexType;
+//
+//                    if (buffers.getIndexBuffer() == null)
+//                    {
+//                        if (buffers.getIndexCount() > indexCount)
+//                        {
+//                            indexCount = buffers.getIndexCount();
+//                        }
+//
+//                        gpuBuffer = null;
+//                        indexType = null;
+//                    }
+//                    else
+//                    {
+//                        gpuBuffer = buffers.getIndexBuffer();
+//                        indexType = buffers.getIndexType();
+//                    }
 
-                    if (buffers.getIndexBuffer() == null)
-                    {
-                        if (buffers.getIndexCount() > indexCount)
-                        {
-                            indexCount = buffers.getIndexCount();
-                        }
-
-                        gpuBuffer = null;
-                        indexType = null;
-                    }
-                    else
-                    {
-                        gpuBuffer = buffers.getIndexBuffer();
-                        indexType = buffers.getIndexType();
-                    }
-
-//                    matrix4fStack.pushMatrix();
-//                    matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
+                    matrix4fStack.pushMatrix();
+                    matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
 
 //                    buffer.bind();
 //                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderPipelines.DEBUG_LINE_STRIP.getProgram());
 //                    VertexBuffer.unbind();
 
-//                    this.drawInternal(otherFb, pipeline, buffers, -1, new float[0], lineWidth, false, false, (type == OverlayRenderType.OUTLINE));
+                    this.drawInternal(otherFb, pipeline, buffers, -1, offset, lineWidth, false, false, (type == OverlayRenderType.OUTLINE));
 
-                    arrayList.add(new RenderPass.
-                            RenderObject(0, buffers.getVertexBuffer(), gpuBuffer, indexType, 0, buffers.getIndexCount(),
-                                         uniform -> uniform.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z))));
+//                    arrayList.add(new RenderPass.
+//                            RenderObject(0, buffers.getVertexBuffer(), gpuBuffer, indexType, 0, buffers.getIndexCount(),
+//                                         uniform -> uniform.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z))));
 
-                    startedDrawing = true;
+//                    startedDrawing = true;
 
-//                    matrix4fStack.popMatrix();
+                    matrix4fStack.popMatrix();
                 }
             }
         }
 
-        if (startedDrawing)
-        {
-            profiler.swap("overlay_draw");
-
-            GpuTexture colorTex;
-            GpuTexture depthTex;
-
-            Framebuffer mainFb = RenderUtils.fb();
-
-            if (otherFb != null)
-            {
-                colorTex = otherFb.getColorAttachment();
-                depthTex = otherFb.getDepthAttachment();
-            }
-            else
-            {
-                colorTex = mainFb.getColorAttachment();
-                depthTex = mainFb.getDepthAttachment();
-            }
-
-            GpuBuffer indexBuffer = indexCount == 0 ? null : shapeIndexBuffer.getIndexBuffer(indexCount);
-            VertexFormat.IndexType indexTypeDraw = indexCount == 0 ? null : shapeIndexBuffer.getIndexType();
-
-            try (RenderPass pass = RenderSystem.getDevice()
-                                               .createCommandEncoder()
-                                               .createRenderPass(colorTex, OptionalInt.empty(),
-                                                                 depthTex, OptionalDouble.empty()))
-            {
-                pass.setPipeline(pipeline);
-
-                for (int k = 0; k < 12; k++)
-                {
-                    GpuTexture texture = RenderSystem.getShaderTexture(k);
-
-                    if (texture != null)
-                    {
-                        pass.bindSampler("Sampler" + k, texture);
-                    }
-                }
-
-                if (type == OverlayRenderType.OUTLINE)
-                {
-                    pass.setUniform("LineWidth", lineWidth);
-                }
-
-                pass.drawMultipleIndexed(arrayList, indexBuffer, indexTypeDraw);
-            }
-        }
+//        if (startedDrawing)
+//        {
+//            profiler.swap("overlay_dump_tex");
+//
+//            for (int k = 0; k < 12; k++)
+//            {
+//                GpuTexture texture = RenderSystem.getShaderTexture(k);
+//
+//                if (texture != null)
+//                {
+//                    this.dumpTexture(texture, Identifier.of(Reference.MOD_ID, "overlay_quad_sample_" + k));
+//                }
+//            }
+//
+////            GpuTexture colorTex = renderLayer.getTarget().getColorAttachment();
+////            GpuTexture depthTex = renderLayer.getTarget().getDepthAttachment();
+//
+//            Framebuffer mainFb = RenderUtils.fb();
+//            GpuTexture colorTex;
+//            GpuTexture depthTex;
+//
+//            if (otherFb != null)
+//            {
+//                colorTex = otherFb.getColorAttachment();
+//                depthTex = otherFb.getDepthAttachment();
+//            }
+//            else
+//            {
+//                colorTex = mainFb.getColorAttachment();
+//                depthTex = mainFb.getDepthAttachment();
+//            }
+//
+////            if (colorTex != null)
+////            {
+////                this.dumpTexture(colorTex, Identifier.of(Reference.MOD_ID, "overlay_quad_color_tex"));
+////            }
+////            else
+////            {
+////                Litematica.LOGGER.error("Overlay [{}], colorTex is NULL!", type.name());
+////            }
+////
+////            if (depthTex != null)
+////            {
+////                this.dumpTexture(depthTex, Identifier.of(Reference.MOD_ID, "overlay_quad_depth_tex"));
+////            }
+////            else
+////            {
+////                Litematica.LOGGER.error("Overlay [{}], depthTex is NULL!", type.name());
+////            }
+//
+//            profiler.swap("overlay_draw");
+//
+//            GpuBuffer indexBuffer = indexCount == 0 ? null : shapeIndexBuffer.getIndexBuffer(indexCount);
+//            VertexFormat.IndexType indexTypeDraw = indexCount == 0 ? null : shapeIndexBuffer.getIndexType();
+//
+//            try (RenderPass pass = RenderSystem.getDevice()
+//                                               .createCommandEncoder()
+//                                               .createRenderPass(colorTex, OptionalInt.empty(),
+//                                                                 depthTex, OptionalDouble.empty()))
+//            {
+//                pass.setPipeline(pipeline);
+//
+////                if (this.defaultTexId > -1 && this.defaultTexId < 12 && this.defaultTex != null)
+////                {
+////                    pass.bindSampler("Sampler"+this.defaultTexId, this.defaultTex.getGlTexture());
+////                }
+////
+////                for (int k = 0; k < 12; k++)
+////                {
+////                    if (k == this.defaultTexId && this.defaultTex != null)
+////                    {
+////                        continue;
+////                    }
+////
+////                    GpuTexture texture = RenderSystem.getShaderTexture(k);
+////
+////                    if (texture != null)
+////                    {
+////                        pass.bindSampler("Sampler" + k, texture);
+////                    }
+////                }
+//
+//                if (type == OverlayRenderType.OUTLINE)
+//                {
+//                    pass.setUniform("LineWidth", lineWidth);
+//                }
+//
+//                pass.drawMultipleIndexed(arrayList, indexBuffer, indexTypeDraw);
+//            }
+//        }
 
 //        renderLayer.endDrawing();
         RenderUtils.blend(false);
         profiler.pop();
+    }
+
+//    protected void bindTexture(Identifier id, int textureId, int width, int height) throws RuntimeException
+//    {
+//        if (textureId < 0 || textureId > 12)
+//        {
+//            throw new RuntimeException("Invalid textureId of: "+textureId+" for texture: "+id.toString());
+//        }
+//
+//        try
+//        {
+//            // Verify that we potentially have the correct texture by checking various values
+//            while (!this.isTextureValid(width, height))
+//            {
+//                this.defaultTex = (ResourceTexture) fi.dy.masa.malilib.render.RenderUtils.tex().getTexture(id);
+//
+//                if (this.isTextureValid(width, height))
+//                {
+//                    if (this.defaultTex != null)
+//                    {
+//                        this.defaultTexId = textureId;
+//                        this.defaultTex.setFilter(TriState.DEFAULT, false);
+//                        RenderSystem.setShaderTexture(textureId, this.defaultTex.getGlTexture());
+//                        return;
+//                    }
+//
+//                    break;
+//                }
+//            }
+//        }
+//        catch (Exception err)
+//        {
+//            throw new RuntimeException("Exception reading Texture ["+id.toString()+"]: "+err.getMessage());
+//        }
+//
+//        // General failure & cleanup
+//        if (this.defaultTex != null)
+//        {
+//            // Simple texture rebind since we already have a valid texture
+//            this.defaultTexId = textureId;
+//            RenderSystem.setShaderTexture(textureId, this.defaultTex.getGlTexture());
+//            return;
+//        }
+//
+//        Litematica.LOGGER.error("bindTexture: Error uploading texture [{}]", id.toString());
+//
+//        if (this.defaultTex != null)
+//        {
+//            this.defaultTex.close();
+//        }
+//
+//        this.defaultTex = null;
+//    }
+//
+//    private boolean isTextureValid(int width, int height)
+//    {
+//        if (this.defaultTex == null)
+//        {
+//            return false;
+//        }
+//
+//        try (TextureContents content = this.defaultTex.loadContents(fi.dy.masa.malilib.render.RenderUtils.mc().getResourceManager()))
+//        {
+//            NativeImage image = content.image();
+//
+//            if (image == null || image.getWidth() != width || image.getHeight() != height)
+//            {
+//                this.defaultTex.close();
+//                this.defaultTex = null;
+//                return false;
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            this.defaultTex.close();
+//            this.defaultTex = null;
+//            return false;
+//        }
+//
+//        if (((IMixinAbstractTexture) this.defaultTex).malilib_getGlTexture() == null ||
+//            this.defaultTex.getGlTexture().isClosed())
+//        {
+//            this.defaultTex.close();
+//            this.defaultTex = null;
+//            return false;
+//        }
+//
+//        return true;
+//    }
+
+    private void dumpTexture(@Nonnull GpuTexture gpuTexture, Identifier id)
+    {
+        int mip = gpuTexture.getMipLevels();
+        int width = gpuTexture.getWidth(mip);
+        int height = gpuTexture.getHeight(mip);
+
+        GpuBuffer gpuBuffer = RenderSystem.getDevice()
+                                          .createBuffer(() -> "Debug Texture", BufferType.PIXEL_PACK, BufferUsage.STATIC_READ,
+                                                        width * height * gpuTexture.getFormat().pixelSize()
+                                          );
+
+        try (GpuBuffer.ReadView readView = RenderSystem.getDevice().createCommandEncoder().readBuffer(gpuBuffer))
+        {
+            NativeImage nativeImage = new NativeImage(width, height, false);
+
+            for (int k = 0; k < height; k++)
+            {
+                for (int l = 0; l < width; l++)
+                {
+                    int m = readView.data().getInt((l + k * width) * gpuTexture.getFormat().pixelSize());
+                    nativeImage.setColor(l, height - k - 1, m | 0xFF000000);
+                }
+            }
+
+            Path dir = FileUtils.getConfigDirectoryAsPath().resolve(Reference.MOD_ID).resolve("textures");
+            //  (TextureContents content = ((ReloadableTexture) texture).loadContents(RenderUtils.mc().getResourceManager()))
+
+            try
+            {
+                if (!Files.isDirectory(dir))
+                {
+                    Files.createDirectory(dir);
+                }
+
+                nativeImage.writeTo(dir.resolve(FileNameUtils.generateSimpleSafeFileName(id.toString() + ".png")));
+            }
+            catch (Exception err)
+            {
+                Litematica.LOGGER.error("dumpTexture: Error saving debug texture for [{}]", id.toString());
+            }
+
+            nativeImage.close();
+        }
     }
 
     public boolean renderBlock(BlockRenderView world, BlockState state, BlockPos pos, MatrixStack matrixStack, BufferBuilder bufferBuilderIn)
@@ -1010,9 +1227,6 @@ public class WorldRendererSchematic
                 {
                     indexBuffer = shapeIndexBuffer.getIndexBuffer(buffers.getIndexCount());
                     indexType = shapeIndexBuffer.getIndexType();
-
-                    buffers.setIndexBuffer(indexBuffer);
-                    buffers.setIndexType(indexType);
                 }
                 else
                 {
@@ -1037,13 +1251,24 @@ public class WorldRendererSchematic
 //                Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> setPipeline() [{}]", buffers.getName(), pipeline.getLocation().toString());
                 pass.setPipeline(pipeline);
 
+//                if (this.defaultTexId > -1 && this.defaultTexId < 12 && this.defaultTex != null)
+//                {
+////                    Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> bindSampler() [{}] // DEFAULT", buffers.getName(), this.defaultTexId);
+//                    pass.bindSampler("Sampler"+this.defaultTexId, this.defaultTex.getGlTexture());
+//                }
+
 //                for (int i = 0; i < 12; i++)
 //                {
+//                    if (i == this.defaultTexId && this.defaultTex != null)
+//                    {
+//                        continue;
+//                    }
+//
 //                    GpuTexture drawableTexture = RenderSystem.getShaderTexture(i);
 //
 //                    if (drawableTexture != null)
 //                    {
-//                        Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> bindSampler() [{}]", buffers.getName(), i);
+//                        Litematica.LOGGER.warn("WorldRendererSchematic#drawInternal() [{}] renderPass --> bindSampler() [{}] // OTHER", buffers.getName(), i);
 //                        pass.bindSampler("Sampler"+i, drawableTexture);
 //                    }
 //                }

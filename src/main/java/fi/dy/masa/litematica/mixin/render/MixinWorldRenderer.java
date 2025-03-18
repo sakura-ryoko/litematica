@@ -111,8 +111,11 @@ public abstract class MixinWorldRenderer
 //        }
 //    }
 
-    @Inject(method = "renderLayer", at = @At(value = "INVOKE",
-                                             target = "Lnet/minecraft/util/profiler/ScopedProfiler;close()V"))
+    @Inject(method = "renderLayer",
+            at = @At("TAIL")
+//            at = @At(value = "INVOKE",
+//                     target = "Lnet/minecraft/util/profiler/ScopedProfiler;close()V")
+    )
     private void litematica_onRenderLayer(RenderLayer renderLayer, double x, double y, double z,
                                Matrix4f viewMatrix, Matrix4f posMatrix, CallbackInfo ci)
     {
@@ -144,7 +147,7 @@ public abstract class MixinWorldRenderer
         else if (renderLayer == RenderLayer.getTripwire())
         {
             LitematicaRenderer.getInstance().piecewiseRenderTripwire(viewMatrix, posMatrix, this.profiler);
-            LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
+//            LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
         }
     }
 

@@ -603,6 +603,15 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 bufferOverlayQuads = this.preRenderOverlay(overlayType, allocators);
             }
 
+//            try
+//            {
+//                this.worldRenderer.bindTexture(WorldRendererSchematic.DEFAULT_TEX, 0, 16, 16);
+//            }
+//            catch (Exception err)
+//            {
+//                throw new RuntimeException("[VBO] Exception binding Default Texture; "+ err.getLocalizedMessage());
+//            }
+
             if (Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue())
             {
                 this.getProfiler().swap("cull_inner_sides");
@@ -621,29 +630,27 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue())
                     {
                         this.getProfiler().swap("cull_render_model_sides");
-//                        BlockStateModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
 
-                        if (this.worldRenderer.hasQuadsForModel(modelParts, stateSchematic, side))
+                        if (type.getRenderPriority() > typeAdj.getRenderPriority() ||
+                            !Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side))
                         {
-                            if (type.getRenderPriority() > typeAdj.getRenderPriority() ||
-                                !Block.isFaceFullSquare(stateSchematic.getCollisionShape(this.schematicWorldView, pos), side))
-                            {
-                                this.getProfiler().swap("cull_render_model");
+                            this.getProfiler().swap("cull_render_model");
 
-                                for (BlockModelPart part : modelParts)
-                                {
-                                    RenderUtils.drawBlockModelQuadOverlayBatched(part, stateSchematic, relPos, side, this.overlayColor, 0, bufferOverlayQuads);
-                                }
+                            for (BlockModelPart part : modelParts)
+                            {
+                                final int light = WorldRenderer.getLightmapCoordinates(this.schematicWorldView, stateSchematic, relPos);
+                                matrices.push();
+                                RenderUtils.drawBlockModelQuadOverlayBatched(this.schematicWorldView, part, stateSchematic, relPos, side, this.overlayColor, light, 0, bufferOverlayQuads, matrices);
+                                matrices.pop();
                             }
                         }
-                        else { useDefault = true; }
                     }
-                    else { useDefault = true; }
-
-                    if (useDefault && type.getRenderPriority() > typeAdj.getRenderPriority())
+                    else if (type.getRenderPriority() > typeAdj.getRenderPriority())
                     {
                         this.getProfiler().swap("cull_render_default");
-                        RenderUtils.drawBlockBoxSideBatchedQuads(relPos, side, this.overlayColor, 0, bufferOverlayQuads);
+                        matrices.push();
+                        RenderUtils.drawBlockBoxSideBatchedQuads(relPos, side, this.overlayColor, 0, bufferOverlayQuads, matrices);
+                        matrices.pop();
                     }
                 }
             }
@@ -653,22 +660,20 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue())
                 {
                     this.getProfiler().swap("render_model_sides");
-//                    BlockStateModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
                     List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, Random.create());
 
-                    if (this.worldRenderer.hasQuadsForModel(modelParts, stateSchematic, null))
-                    {
-                        this.getProfiler().swap("render_model");
-                        RenderUtils.drawBlockModelQuadOverlayBatched(modelParts, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayQuads);
-                    }
-                    else { useDefault = true; }
+//                    this.getProfiler().swap("render_model");
+                    matrices.push();
+                    RenderUtils.drawBlockModelQuadOverlayBatched(this.schematicWorldView, modelParts, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayQuads, matrices);
+                    matrices.pop();
                 }
-                else { useDefault = true; }
-
-                if (useDefault)
+                else
                 {
                     this.getProfiler().swap("render_batched");
-                    fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxSidesBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads);
+//                    fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxSidesBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads);
+                    matrices.push();
+                    RenderUtils.drawBlockBoxBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads, matrices);
+                    matrices.pop();
                 }
             }
 
@@ -739,39 +744,28 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     }
                     else
                     {
-                        this.getProfiler().swap("model");
+//                        this.getProfiler().swap("model");
                         /*
                         if (type.getRenderPriority() > typeAdj.getRenderPriority())
                         {
                          */
 
-//                        BlockStateModel bakedModel = this.worldRenderer.getModelForState(stateSchematic);
+                        this.getProfiler().swap("render_model_batched");
                         List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, Random.create());
-
-                        if (this.worldRenderer.hasQuadsForModel(modelParts, stateSchematic, null))
-                            {
-                                this.getProfiler().swap("render_model_batched");
-                                matrices.push();
-                                //RenderUtils.renderModelQuadOutlines(bakedModel, stateSchematic, relPos, side, overlayColor, 0, bufferOverlayOutlines);
-                                RenderUtils.drawBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines, matrices.peek());
-                                matrices.pop();
-                            }
-                            else { useDefault = true; }
-                        /*
-                        }
-                        else { useDefault = true; }
-                         */
+                        matrices.push();
+                        //RenderUtils.renderModelQuadOutlines(bakedModel, stateSchematic, relPos, side, overlayColor, 0, bufferOverlayOutlines);
+                        RenderUtils.drawBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines, matrices);
+                        matrices.pop();
                     }
                 }
-                else { useDefault = true; }
-
-                if (useDefault)
+                else
                 {
                     this.getProfiler().swap("render_reduced_edges");
-                    this.renderOverlayReducedEdges(pos, adjTypes, type, bufferOverlayOutlines);
+                    matrices.push();
+                    this.renderOverlayReducedEdges(pos, adjTypes, type, bufferOverlayOutlines, matrices);
                     //RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(pos, relPos, overlayColor, 0, bufferOverlayOutlines);
+                    matrices.pop();
                 }
-            //}
             }
             else
             {
@@ -779,16 +773,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 // Only render the model-based outlines or sides for missing blocks
                 if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.getBooleanValue())
                 {
+                    this.getProfiler().swap("render_model_batched");
                     List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, Random.create());
-
-                    if (this.worldRenderer.hasQuadsForModel(modelParts, stateSchematic, null))
-                    {
-                        this.getProfiler().swap("render_model_batched");
-                        matrices.push();
-                        RenderUtils.drawBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines, matrices.peek());
-                        matrices.pop();
-                    }
-                    else { useDefault = true; }
+                    matrices.push();
+                    RenderUtils.drawBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines, matrices);
+                    matrices.pop();
                 }
                 else { useDefault = true; }
             }
@@ -817,7 +806,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return this.chunkRelativePos.set(pos.getX() & 0xF, pos.getY() - this.position.getY(), pos.getZ() & 0xF);
     }
 
-    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, BufferBuilder bufferOverlayOutlines)
+    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, BufferBuilder bufferOverlayOutlines, MatrixStack matrices)
     {
         OverlayType[] neighborTypes = new OverlayType[4];
         Vec3i[] neighborPositions = new Vec3i[4];
@@ -895,7 +884,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         try
                         {
                             this.getProfiler().swap("render_batched");
-                            RenderUtils.drawBlockBoxEdgeBatchedLines(this.getChunkRelativePosition(pos), axis, corner, this.overlayColor, bufferOverlayOutlines);
+                            RenderUtils.drawBlockBoxEdgeBatchedLines(this.getChunkRelativePosition(pos), axis, corner, this.overlayColor, bufferOverlayOutlines, matrices);
                         }
                         catch (IllegalStateException ignored)
                         {

@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.render;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -13,17 +14,25 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.BlockModelPart;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.ResourceTexture;
+import net.minecraft.client.texture.TextureContents;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.TriState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.LocalRandom;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
 
+import fi.dy.masa.malilib.MaLiLib;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
+import fi.dy.masa.malilib.mixin.render.IMixinAbstractTexture;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryProperties;
 import fi.dy.masa.malilib.render.InventoryOverlay.InventoryRenderType;
@@ -629,45 +638,45 @@ public class RenderUtils
         buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
     }
 
-    public static void drawBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack.Entry e)
+    public static void drawBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
     {
         for (final BlockModelPart part : modelParts)
         {
-            drawlockModelOutlinesBatched(part, state, pos, color, expand, buffer, e);
+            drawlockModelOutlinesBatched(part, state, pos, color, expand, buffer, matricies);
         }
     }
 
-    public static void drawlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack.Entry e)
+    public static void drawlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
     {
         for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
-            renderModelQuadOutlines(modelPart, state, pos, side, color, expand, buffer, e);
+            renderModelQuadOutlines(modelPart, state, pos, side, color, expand, buffer, matricies);
         }
 
-        renderModelQuadOutlines(modelPart, state, pos, null, color, expand, buffer, e);
+        renderModelQuadOutlines(modelPart, state, pos, null, color, expand, buffer, matricies);
     }
 
-    public static void renderModelQuadOutlines(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer, MatrixStack.Entry e)
+    public static void renderModelQuadOutlines(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
     {
         try
         {
             // model.getQuads(state, side, RAND)
-            renderModelQuadOutlines(pos, buffer, color, modelPart.getQuads(side), e);
+            renderModelQuadOutlines(pos, buffer, color, modelPart.getQuads(side), matricies);
         }
         catch (Exception ignore) {}
     }
 
-    public static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads, MatrixStack.Entry e)
+    public static void renderModelQuadOutlines(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads, MatrixStack matricies)
     {
         final int size = quads.size();
 
         for (int i = 0; i < size; i++)
         {
-            renderQuadOutlinesBatched(pos, buffer, color, quads.get(i).vertexData(), e);
+            renderQuadOutlinesBatched(pos, buffer, color, quads.get(i).vertexData(), matricies);
         }
     }
 
-    public static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData, MatrixStack.Entry e)
+    public static void renderQuadOutlinesBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData, MatrixStack matricies)
     {
         final int x = pos.getX();
         final int y = pos.getY();
@@ -684,6 +693,8 @@ public class RenderUtils
             fz[index] = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
         }
 
+        MatrixStack.Entry e = matricies.peek();
+
         buffer.vertex(e, fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
         buffer.vertex(e, fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
 
@@ -697,42 +708,54 @@ public class RenderUtils
         buffer.vertex(e, fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawBlockModelQuadOverlayBatched(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
     {
         for (final BlockModelPart part : modelParts)
         {
-            drawBlockModelQuadOverlayBatched(part, state, pos, color, expand, buffer);
+            drawBlockModelQuadOverlayBatched(worldIn, part, state, pos, color, expand, buffer, matricies);
         }
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawBlockModelQuadOverlayBatched(BlockRenderView worldIn, BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
     {
         for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
-            drawBlockModelQuadOverlayBatched(modelPart, state, pos, side, color, expand, buffer);
+            final int light = WorldRenderer.getLightmapCoordinates(worldIn, state, pos);
+            drawBlockModelQuadOverlayBatched(worldIn, modelPart, state, pos, side, color, light, expand, buffer, matricies);
         }
 
-        drawBlockModelQuadOverlayBatched(modelPart, state, pos, null, color, expand, buffer);
+        drawBlockModelQuadOverlayBatched(worldIn, modelPart, state, pos, null, color, -1, expand, buffer, matricies);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawBlockModelQuadOverlayBatched(BlockRenderView worldIn, BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, int light, double expand, BufferBuilder buffer, MatrixStack matricies)
     {
         // modelPart.getQuads(state, side, RAND)
-        renderModelQuadOverlayBatched(pos, buffer, color, modelPart.getQuads(side));
+        List<BakedQuad> quads = modelPart.getQuads(side);
+
+//        if (!quads.isEmpty())
+//        {
+            renderModelQuadOverlayBatched(worldIn, pos, buffer, color, quads, light, matricies);
+//        }
     }
 
-    private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
+    private static void renderModelQuadOverlayBatched(BlockRenderView worldIn, BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads, int light, MatrixStack matricies)
     {
         //final int size = quads.size();
 
         for (BakedQuad quad : quads)
         {
-            renderModelQuadOverlayBatched(pos, buffer, color, quad.vertexData());
+            final float b = worldIn.getBrightness(quad.face(), quad.shade());
+            final int[] lo = new int[]{light, light, light, light};
+            final float[] bo = new float[]{b, b, b, b};
+
+            renderModelQuadOverlayBatched(pos, buffer, color, quad, bo, lo, OverlayTexture.DEFAULT_UV, matricies);
         }
     }
 
-    private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, int[] vertexData)
+    private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, BakedQuad quad, float[] brightness, int[] lo, int overlay, MatrixStack matricies)
     {
+        int uv = LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE;
+        final int[] vertexData = quad.vertexData();
         final int x = pos.getX();
         final int y = pos.getY();
         final int z = pos.getZ();
@@ -745,15 +768,29 @@ public class RenderUtils
             fy = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
             fz = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
 
+//            buffer.vertex(fx, fy, fz).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
             buffer.vertex(fx, fy, fz).color(color.r, color.g, color.b, color.a);
+        }
+
+//        matricies.translate(x, y, z);
+//        MatrixStack.Entry e = matricies.peek();
+//        buffer.quad(matricies.peek(), quad, brightness, color.r, color.g, color.b, 1.0f, lo, overlay, true);
+    }
+
+    public static void drawBlockBoxBatchedQuads(BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matrices)
+    {
+        for (Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
+        {
+            drawBlockBoxSideBatchedQuads(pos, side, color, expand, buffer, matrices);
         }
     }
 
     /**
      * Assumes a BufferBuilder in GL_QUADS mode has been initialized
      */
-    public static void drawBlockBoxSideBatchedQuads(BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawBlockBoxSideBatchedQuads(BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer, MatrixStack matrices)
     {
+        int uv = LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE;
         float minX = (float) (pos.getX() - expand);
         float minY = (float) (pos.getY() - expand);
         float minZ = (float) (pos.getZ() - expand);
@@ -761,8 +798,54 @@ public class RenderUtils
         float maxY = (float) (pos.getY() + expand + 1);
         float maxZ = (float) (pos.getZ() + expand + 1);
 
+        MatrixStack.Entry e = matrices.peek();
+
+        // Why do we need a texture for this Mojang?
         switch (side)
         {
+            // .light(uv).normal(e, 0.0f, 0.0f, 0.0f);
+//            case DOWN:
+//                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                break;
+//
+//            case UP:
+//                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                break;
+//
+//            case NORTH:
+//                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                break;
+//
+//            case SOUTH:
+//                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                break;
+//
+//            case WEST:
+//                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                break;
+//
+//            case EAST:
+//                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
+//                break;
+
             case DOWN:
                 buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
                 buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
@@ -807,7 +890,7 @@ public class RenderUtils
         }
     }
 
-    public static void drawBlockBoxEdgeBatchedLines(BlockPos pos, Direction.Axis axis, int cornerIndex, Color4f color, BufferBuilder buffer)
+    public static void drawBlockBoxEdgeBatchedLines(BlockPos pos, Direction.Axis axis, int cornerIndex, Color4f color, BufferBuilder buffer, MatrixStack mastrices)
     {
         Vec3i offset = PositionUtils.getEdgeNeighborOffsets(axis, cornerIndex)[cornerIndex];
 
@@ -818,9 +901,11 @@ public class RenderUtils
         double maxY = pos.getY() + offset.getY() + (axis == Direction.Axis.Y ? 1 : 0);
         double maxZ = pos.getZ() + offset.getZ() + (axis == Direction.Axis.Z ? 1 : 0);
 
+        MatrixStack.Entry e = mastrices.peek();
+
         //System.out.printf("pos: %s, axis: %s, ind: %d\n", pos, axis, cornerIndex);
-        buffer.vertex((float) minX, (float) minY, (float) minZ).color(color.r, color.g, color.b, color.a);
-        buffer.vertex((float) maxX, (float) maxY, (float) maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(e, (float) minX, (float) minY, (float) minZ).color(color.r, color.g, color.b, color.a).normal(e,0.0f, 0.0f,0.0f);
+        buffer.vertex(e, (float) maxX, (float) maxY, (float) maxZ).color(color.r, color.g, color.b, color.a).normal(e,0.0f, 0.0f,0.0f);
     }
 
     public static int renderInventoryOverlays(BlockInfoAlignment align, int offY, World worldSchematic, World worldClient, BlockPos pos, MinecraftClient mc, DrawContext drawContext)
