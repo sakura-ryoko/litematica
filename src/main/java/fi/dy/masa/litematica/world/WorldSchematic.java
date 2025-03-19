@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
+import fi.dy.masa.malilib.util.WorldUtils;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -103,8 +104,8 @@ public class WorldSchematic extends World
     private void setDimension(DynamicRegistryManager registryManager)
     {
         registryManager.getOptional(RegistryKeys.DIMENSION_TYPE).ifPresent(entryLookup -> {
-            RegistryEntry<DimensionType> nether = entryLookup.getOptional(DimensionTypes.THE_NETHER).orElse(null);
-            RegistryEntry<DimensionType> end = entryLookup.getOptional(DimensionTypes.THE_END).orElse(null);
+            RegistryEntry<DimensionType> nether = entryLookup.getEntry(DimensionTypes.THE_NETHER).orElse(null);
+            RegistryEntry<DimensionType> end = entryLookup.getEntry(DimensionTypes.THE_END).orElse(null);
     
             if (nether != null && this.dimensionType.equals(nether))
             {
