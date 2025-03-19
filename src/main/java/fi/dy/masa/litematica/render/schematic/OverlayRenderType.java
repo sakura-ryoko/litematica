@@ -7,10 +7,10 @@ import fi.dy.masa.malilib.render.MaLiLibPipelines;
 
 public enum OverlayRenderType
 {
-    OUTLINE     (MaLiLibPipelines.LINES_MASA,
+    OUTLINE     (MaLiLibPipelines.LINES_TRANSLUCENT,
                  MaLiLibPipelines.LINES_TRANSLUCENT_NO_DEPTH_NO_CULL, false
     ),
-    QUAD        (MaLiLibPipelines.POSITION_COLOR_MASA_LESSER_DEPTH,
+    QUAD        (MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT,
                  MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL, true
     ),
     ;

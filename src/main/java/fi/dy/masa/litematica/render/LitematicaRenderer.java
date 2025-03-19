@@ -5,12 +5,12 @@ import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.profiler.Profiler;
 
+import fi.dy.masa.malilib.render.MaLiLibPipelines;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.compat.iris.IrisCompat;
@@ -335,7 +335,7 @@ public class LitematicaRenderer
         this.renderPiecewiseBlocks = false;
         WorldRendererSchematic worldRenderer = this.getWorldRenderer();
 
-        if (render && frustum != null && worldRenderer.hasWorld())
+        if (render && frustum != null && worldRenderer.hasWorld() && this.mc.player != null)
         {
             boolean invert = Hotkeys.INVERT_GHOST_BLOCK_RENDER_STATE.getKeybind().isKeybindHeld();
             this.renderPiecewiseSchematic = Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() != invert;
@@ -372,8 +372,7 @@ public class LitematicaRenderer
                 RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
-            //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_SOLID);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), this.getCamera(), profiler, RenderPipelines.SOLID);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), this.getCamera(), profiler, MaLiLibPipelines.SOLID_MASA);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -397,8 +396,7 @@ public class LitematicaRenderer
                 RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
-            //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT_MIPPED);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), this.getCamera(), profiler, RenderPipelines.CUTOUT_MIPPED);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), this.getCamera(), profiler, MaLiLibPipelines.CUTOUT_MIPPED_MASA);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -422,8 +420,7 @@ public class LitematicaRenderer
                 RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
-            //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_CUTOUT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), this.getCamera(), profiler, RenderPipelines.CUTOUT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), this.getCamera(), profiler, MaLiLibPipelines.CUTOUT_MASA);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -447,8 +444,7 @@ public class LitematicaRenderer
                 RenderUtils.polygonOffset(-0.3f, -0.6f);
             }
 
-            //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), this.getCamera(), profiler, RenderPipelines.TRANSLUCENT);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), this.getCamera(), profiler, MaLiLibPipelines.TRANSLUCENT_MASA);
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -473,7 +469,7 @@ public class LitematicaRenderer
             }
 
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), this.getCamera(), profiler, RenderPipelines.TRIPWIRE);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), this.getCamera(), profiler, MaLiLibPipelines.TRIPWIRE_MASA);
 
             if (this.renderCollidingSchematicBlocks)
             {
