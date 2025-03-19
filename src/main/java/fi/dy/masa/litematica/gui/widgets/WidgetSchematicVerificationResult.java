@@ -552,7 +552,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             return;
         }
 
-        RenderUtils.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, drawContext);
+        RenderUtils.bindGuiOverlayTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, drawContext);
         mc.getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
 
         RenderUtils.blend(true);

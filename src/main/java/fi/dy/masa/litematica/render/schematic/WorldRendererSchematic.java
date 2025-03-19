@@ -475,8 +475,6 @@ public class WorldRendererSchematic
             profiler.push("layer_" + ChunkRenderLayers.getFriendlyName(renderLayer));
         }
 
-//        boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
-
         renderLayer.startDrawing();
 
         //RenderUtils.disableDiffuseLighting();
@@ -527,14 +525,10 @@ public class WorldRendererSchematic
         int increment = reverse ? -1 : 1;
         int count = 0;
 
-//        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         Fog orgFog = RenderSystem.getShaderFog();
         ArrayList<RenderPass.RenderObject> arrayList = new ArrayList<>();
         RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(renderLayer.getDrawMode());
         int indexCount = 0;
-
-        //ShaderProgram shader = RenderSystem.getShader();
-        //BufferRenderer.reset();
 
         boolean renderAsTranslucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
         int color = -1;
@@ -552,7 +546,6 @@ public class WorldRendererSchematic
         //shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         //RenderSystem.setupShaderLights(shader);
         RenderSystem.setShaderFog(Fog.DUMMY);
-        //shader.bind();
 
         //GlUniform chunkOffsetUniform = shader.modelOffset;
         boolean startedDrawing = false;
@@ -566,7 +559,6 @@ public class WorldRendererSchematic
             if (!renderer.getChunkRenderData().isBlockLayerEmpty(renderLayer))
             {
                 BlockPos chunkOrigin = renderer.getOrigin();
-//                VertexBuffer buffer = renderer.getBlocksVertexBufferByLayer(renderLayer);
                 ChunkRenderObjectBuffers buffers = renderer.getBlockBuffersByLayer(renderLayer);
 
 //                if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByLayer(renderLayer))
@@ -620,18 +612,10 @@ public class WorldRendererSchematic
                 }
                  */
 
-//                matrix4fStack.pushMatrix();
-//                matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-
-//                buffer.bind();
-//                buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shaderKey.getProgram());
-//                VertexBuffer.unbind();
-
                 arrayList.add(new RenderPass.
                         RenderObject(0, buffers.getVertexBuffer(), gpuBuffer, indexType, 0, buffers.getIndexCount(),
                                      uniform -> uniform.upload("ModelOffset", (float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z))));
 
-//                matrix4fStack.popMatrix();
                 startedDrawing = true;
                 ++count;
             }
@@ -746,7 +730,7 @@ public class WorldRendererSchematic
         profiler.push("overlay_" + type.name());
         this.profiler = profiler;
 
-        RenderUtils.blend(true);
+//        RenderUtils.blend(true);
         // ???
 //        RenderSystem.defaultBlendFunc();
 
@@ -759,61 +743,17 @@ public class WorldRendererSchematic
 //        RenderLayer renderLayer = type.getRenderLayer();
         RenderPipeline pipeline = renderThrough ? type.getRenderThrough() : type.getPipeline();
 
-        float[] offset = new float[]{0.3f, 0.0f, 0.6f};
-
-//        if (type == OverlayRenderType.QUAD)
-//        {
-//            if (renderThrough)
-//            {
-//                pipeline = MaLiLibPipelines.POSITION_COLOR_MASA_NO_DEPTH_NO_CULL;
-////                RenderUtils.depthTest(false);
-//            }
-////            else
-////            {
-////                pipeline = RenderPipelines.TRANSLUCENT;
-//////                pipeline = MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL;
-////                renderLayer = RenderLayer.getTranslucent();
-//////                RenderUtils.depthTest(true);
-////            }
-//        }
-//        else if (type == OverlayRenderType.OUTLINE)
-//        {
-//            if (renderThrough)
-//            {
-//                pipeline = MaLiLibPipelines.LINES_MASA_NO_DEPTH_NO_CULL;
-////                RenderUtils.depthTest(false);
-//            }
-////            else
-////            {
-////                pipeline = RenderPipelines.LINES;
-//////                RenderUtils.depthTest(true);
-////                renderLayer = RenderLayer.getLines();
-////            }
-//        }
-
-//        try
-//        {
-//            this.bindTexture(DEFAULT_TEX, 0, 16, 16);
-//        }
-//        catch (Exception err)
-//        {
-//            Litematica.LOGGER.error("WorldRendererSchematic: Exception loading default block texture; {}", err.getMessage());
-//
-//            try
-//            {
-//                this.bindTexture(Identifier.ofVanilla("textures/block/ice.png"), 0, 16, 16);
-//            }
-//            catch (RuntimeException e)
-//            {
-//                throw new RuntimeException("WorldRendererSchematic: Exception loading default block texture (Can't find ice.png); "+ err.getMessage());
-//            }
-//        }
+        float[] offset = new float[]{0.3f, 3.0f, 0.6f};
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        MatrixStack matrices = new MatrixStack();
+
 //        ArrayList<RenderPass.RenderObject> arrayList = new ArrayList<>();
 //        RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
 //        int indexCount = 0;
 //        boolean startedDrawing = false;
+
+//        GlUniform chunkOffsetUniform = shader.modelOffset;
 
         profiler.swap("overlay_iterate");
 //        renderLayer.startDrawing();
@@ -856,33 +796,19 @@ public class WorldRendererSchematic
                         continue;
                     }
 
-//                    GpuBuffer gpuBuffer;
-//                    VertexFormat.IndexType indexType;
-//
-//                    if (buffers.getIndexBuffer() == null)
+//                    if (chunkOffsetUniform != null)
 //                    {
-//                        if (buffers.getIndexCount() > indexCount)
-//                        {
-//                            indexCount = buffers.getIndexCount();
-//                        }
-//
-//                        gpuBuffer = null;
-//                        indexType = null;
-//                    }
-//                    else
-//                    {
-//                        gpuBuffer = buffers.getIndexBuffer();
-//                        indexType = buffers.getIndexType();
+//                        chunkOffsetUniform.set((float)(chunkOrigin.getX() - x), (float)(chunkOrigin.getY() - y), (float)(chunkOrigin.getZ() - z));
+//                        chunkOffsetUniform.upload();
 //                    }
 
+//                    RenderSystem.backupProjectionMatrix();
                     matrix4fStack.pushMatrix();
+//                    matrices.push();
+//                    matrix4fStack.mul(matrices.peek().getPositionMatrix());
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
 
-//                    buffer.bind();
-//                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), ShaderPipelines.DEBUG_LINE_STRIP.getProgram());
-//                    VertexBuffer.unbind();
-
-                    this.drawInternal(otherFb, pipeline, buffers, -1, offset, lineWidth, false, false, (type == OverlayRenderType.OUTLINE));
+                    this.drawInternal(otherFb, pipeline, buffers, -1, offset, lineWidth, false, true, (type == OverlayRenderType.OUTLINE));
 
 //                    arrayList.add(new RenderPass.
 //                            RenderObject(0, buffers.getVertexBuffer(), gpuBuffer, indexType, 0, buffers.getIndexCount(),
@@ -891,103 +817,19 @@ public class WorldRendererSchematic
 //                    startedDrawing = true;
 
                     matrix4fStack.popMatrix();
+//                    matrices.pop();
+//                    RenderSystem.restoreProjectionMatrix();
                 }
             }
         }
 
-//        if (startedDrawing)
+//        if (chunkOffsetUniform != null)
 //        {
-//            profiler.swap("overlay_dump_tex");
-//
-//            for (int k = 0; k < 12; k++)
-//            {
-//                GpuTexture texture = RenderSystem.getShaderTexture(k);
-//
-//                if (texture != null)
-//                {
-//                    this.dumpTexture(texture, Identifier.of(Reference.MOD_ID, "overlay_quad_sample_" + k));
-//                }
-//            }
-//
-////            GpuTexture colorTex = renderLayer.getTarget().getColorAttachment();
-////            GpuTexture depthTex = renderLayer.getTarget().getDepthAttachment();
-//
-//            Framebuffer mainFb = RenderUtils.fb();
-//            GpuTexture colorTex;
-//            GpuTexture depthTex;
-//
-//            if (otherFb != null)
-//            {
-//                colorTex = otherFb.getColorAttachment();
-//                depthTex = otherFb.getDepthAttachment();
-//            }
-//            else
-//            {
-//                colorTex = mainFb.getColorAttachment();
-//                depthTex = mainFb.getDepthAttachment();
-//            }
-//
-////            if (colorTex != null)
-////            {
-////                this.dumpTexture(colorTex, Identifier.of(Reference.MOD_ID, "overlay_quad_color_tex"));
-////            }
-////            else
-////            {
-////                Litematica.LOGGER.error("Overlay [{}], colorTex is NULL!", type.name());
-////            }
-////
-////            if (depthTex != null)
-////            {
-////                this.dumpTexture(depthTex, Identifier.of(Reference.MOD_ID, "overlay_quad_depth_tex"));
-////            }
-////            else
-////            {
-////                Litematica.LOGGER.error("Overlay [{}], depthTex is NULL!", type.name());
-////            }
-//
-//            profiler.swap("overlay_draw");
-//
-//            GpuBuffer indexBuffer = indexCount == 0 ? null : shapeIndexBuffer.getIndexBuffer(indexCount);
-//            VertexFormat.IndexType indexTypeDraw = indexCount == 0 ? null : shapeIndexBuffer.getIndexType();
-//
-//            try (RenderPass pass = RenderSystem.getDevice()
-//                                               .createCommandEncoder()
-//                                               .createRenderPass(colorTex, OptionalInt.empty(),
-//                                                                 depthTex, OptionalDouble.empty()))
-//            {
-//                pass.setPipeline(pipeline);
-//
-////                if (this.defaultTexId > -1 && this.defaultTexId < 12 && this.defaultTex != null)
-////                {
-////                    pass.bindSampler("Sampler"+this.defaultTexId, this.defaultTex.getGlTexture());
-////                }
-////
-////                for (int k = 0; k < 12; k++)
-////                {
-////                    if (k == this.defaultTexId && this.defaultTex != null)
-////                    {
-////                        continue;
-////                    }
-////
-////                    GpuTexture texture = RenderSystem.getShaderTexture(k);
-////
-////                    if (texture != null)
-////                    {
-////                        pass.bindSampler("Sampler" + k, texture);
-////                    }
-////                }
-//
-//                if (type == OverlayRenderType.OUTLINE)
-//                {
-//                    pass.setUniform("LineWidth", lineWidth);
-//                }
-//
-//                pass.drawMultipleIndexed(arrayList, indexBuffer, indexTypeDraw);
-//            }
+//            chunkOffsetUniform.set(0.0F, 0.0F, 0.0F);
 //        }
 
 //        renderLayer.endDrawing();
-        RenderUtils.blend(false);
+//        RenderUtils.blend(false);
         profiler.pop();
     }
 

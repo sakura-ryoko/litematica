@@ -575,14 +575,14 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     return;
                 }
 
-                this.renderOverlay(type, pos, stateSchematic, missing, data, allocators, matrixStack);
+                this.renderOverlay(type, pos, stateSchematic, missing, data, allocators);
             }
         }
 
         this.getProfiler().pop();
     }
 
-    protected void renderOverlay(OverlayType type, BlockPos pos, BlockState stateSchematic, boolean missing, @Nonnull ChunkRenderDataSchematic data, @Nonnull BufferAllocatorCache allocators, MatrixStack matrices)
+    protected void renderOverlay(OverlayType type, BlockPos pos, BlockState stateSchematic, boolean missing, @Nonnull ChunkRenderDataSchematic data, @Nonnull BufferAllocatorCache allocators)
     {
         this.getProfiler().push("render_overlay");
         boolean useDefault = false;
@@ -602,15 +602,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 data.setOverlayTypeStarted(overlayType);
                 bufferOverlayQuads = this.preRenderOverlay(overlayType, allocators);
             }
-
-//            try
-//            {
-//                this.worldRenderer.bindTexture(WorldRendererSchematic.DEFAULT_TEX, 0, 16, 16);
-//            }
-//            catch (Exception err)
-//            {
-//                throw new RuntimeException("[VBO] Exception binding Default Texture; "+ err.getLocalizedMessage());
-//            }
 
             if (Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue())
             {
@@ -639,18 +630,14 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                             for (BlockModelPart part : modelParts)
                             {
                                 final int light = WorldRenderer.getLightmapCoordinates(this.schematicWorldView, stateSchematic, relPos);
-                                matrices.push();
-                                RenderUtils.drawBlockModelQuadOverlayBatched(this.schematicWorldView, part, stateSchematic, relPos, side, this.overlayColor, light, 0, bufferOverlayQuads, matrices);
-                                matrices.pop();
+                                RenderUtils.drawBlockModelQuadOverlayBatched(part, stateSchematic, relPos, side, this.overlayColor, 0, bufferOverlayQuads);
                             }
                         }
                     }
                     else if (type.getRenderPriority() > typeAdj.getRenderPriority())
                     {
                         this.getProfiler().swap("cull_render_default");
-                        matrices.push();
-                        RenderUtils.drawBlockBoxSideBatchedQuads(relPos, side, this.overlayColor, 0, bufferOverlayQuads, matrices);
-                        matrices.pop();
+                        RenderUtils.drawBlockBoxSideBatchedQuads(relPos, side, this.overlayColor, 0, bufferOverlayQuads);
                     }
                 }
             }
@@ -663,17 +650,13 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, Random.create());
 
 //                    this.getProfiler().swap("render_model");
-                    matrices.push();
-                    RenderUtils.drawBlockModelQuadOverlayBatched(this.schematicWorldView, modelParts, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayQuads, matrices);
-                    matrices.pop();
+                    RenderUtils.drawBlockModelQuadOverlayBatched(modelParts, stateSchematic, relPos, this.overlayColor, 0, bufferOverlayQuads);
                 }
                 else
                 {
                     this.getProfiler().swap("render_batched");
 //                    fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxSidesBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads);
-                    matrices.push();
-                    RenderUtils.drawBlockBoxBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads, matrices);
-                    matrices.pop();
+                    RenderUtils.drawBlockBoxBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads);
                 }
             }
 
@@ -752,19 +735,15 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
                         this.getProfiler().swap("render_model_batched");
                         List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, Random.create());
-                        matrices.push();
                         //RenderUtils.renderModelQuadOutlines(bakedModel, stateSchematic, relPos, side, overlayColor, 0, bufferOverlayOutlines);
-                        RenderUtils.drawBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines, matrices);
-                        matrices.pop();
+                        RenderUtils.drawDebugBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines);
                     }
                 }
                 else
                 {
                     this.getProfiler().swap("render_reduced_edges");
-                    matrices.push();
-                    this.renderOverlayReducedEdges(pos, adjTypes, type, bufferOverlayOutlines, matrices);
+                    this.renderOverlayReducedEdges(pos, adjTypes, type, bufferOverlayOutlines);
                     //RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(pos, relPos, overlayColor, 0, bufferOverlayOutlines);
-                    matrices.pop();
                 }
             }
             else
@@ -775,9 +754,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 {
                     this.getProfiler().swap("render_model_batched");
                     List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, Random.create());
-                    matrices.push();
-                    RenderUtils.drawBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines, matrices);
-                    matrices.pop();
+                    RenderUtils.drawDebugBlockModelOutlinesBatched(modelParts, stateSchematic, relPos, overlayColor, 0, bufferOverlayOutlines);
                 }
                 else { useDefault = true; }
             }
@@ -787,9 +764,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 try
                 {
                     this.getProfiler().swap("render_batched_box");
-                    matrices.push();
-                    fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(relPos, overlayColor, 0, bufferOverlayOutlines, matrices.peek());
-                    matrices.pop();
+//                    fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(relPos, overlayColor, 0, bufferOverlayOutlines, matrices.peek());
+                    RenderUtils.drawBlockBoundingBoxOutlinesBatchedDebugLines(relPos, overlayColor, 0, bufferOverlayOutlines);
                 }
 
                 catch (Exception ignored) { }
@@ -806,7 +782,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return this.chunkRelativePos.set(pos.getX() & 0xF, pos.getY() - this.position.getY(), pos.getZ() & 0xF);
     }
 
-    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, BufferBuilder bufferOverlayOutlines, MatrixStack matrices)
+    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, BufferBuilder bufferOverlayOutlines)
     {
         OverlayType[] neighborTypes = new OverlayType[4];
         Vec3i[] neighborPositions = new Vec3i[4];
@@ -884,7 +860,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         try
                         {
                             this.getProfiler().swap("render_batched");
-                            RenderUtils.drawBlockBoxEdgeBatchedLines(this.getChunkRelativePosition(pos), axis, corner, this.overlayColor, bufferOverlayOutlines, matrices);
+                            RenderUtils.drawBlockBoxEdgeBatchedDebugLines(this.getChunkRelativePosition(pos), axis, corner, this.overlayColor, bufferOverlayOutlines);
                         }
                         catch (IllegalStateException ignored)
                         {
@@ -1031,18 +1007,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void uploadBuffersByLayer(RenderLayer layer, @Nonnull BuiltBuffer meshData)
     {
-
-//        if (vertexBuffer.isClosed())
-//        {
-//            //Litematica.logger.error("uploadBuiltBuffer() [VBO] - Error, vertexBuffer is closed/Null");
-//            builtBuffer.close();
-//            return;
-//        }
-//
-//        vertexBuffer.bind();
-//        vertexBuffer.upload(builtBuffer);
-//        VertexBuffer.unbind();
-
         LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], IndexCount [{}]", ChunkRenderLayers.getFriendlyName(layer), meshData.getDrawParameters().indexCount());
         ChunkRenderObjectBuffers gpuBuffers = this.gpuBufferCache.getBuffersByLayer(layer);
 
@@ -1097,7 +1061,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 gpuBuffers.setIndexBuffer(null);
             }
 
-            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], INDEX COUNT/TYPE --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
+//            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], INDEX COUNT/TYPE --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
             gpuBuffers.setIndexCount(meshData.getDrawParameters().indexCount());
             gpuBuffers.setIndexType(meshData.getDrawParameters().indexType());
 //            this.gpuBufferCache.storeBuffersByLayer(layer, gpuBuffers);
@@ -1113,7 +1077,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                                                                      .createBuffer(() -> "IndexBuffer: " + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer()
                                                                                      ) : null;
 
-            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], NEW VERTEX BUFFER --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
+//            LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], NEW VERTEX BUFFER --> SAVE", ChunkRenderLayers.getFriendlyName(layer));
             this.gpuBufferCache.storeBuffersByLayer(layer,
                                                     new ChunkRenderObjectBuffers(name, vertexBuffer, indexBuffer,
                                                                                  meshData.getDrawParameters().indexCount(),
@@ -1136,7 +1100,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
             if (gpuBuffers.vertexBuffer.size() < meshData.getBuffer().remaining())
             {
-                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> RESIZE / NEW BUFFER", type.name());
+//                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> RESIZE / NEW BUFFER", type.name());
                 gpuBuffers.vertexBuffer.close();
                 gpuBuffers.setVertexBuffer(RenderSystem.getDevice()
                                                        .createBuffer(() -> "VertexBuffer: Overlay/" + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer())
@@ -1144,20 +1108,20 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
             else if (!gpuBuffers.vertexBuffer.isClosed())
             {
-                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> WRITE BUFFER", type.name());
+//                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], --> WRITE BUFFER", type.name());
                 encoder.writeToBuffer(gpuBuffers.vertexBuffer, meshData.getBuffer(), 0);
             }
 
             // Resorting
             if (meshData.getSortedBuffer() != null)
             {
-                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING", type.name());
+//                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING", type.name());
 
                 if (gpuBuffers.indexBuffer != null && gpuBuffers.indexBuffer.size() >= meshData.getSortedBuffer().remaining())
                 {
                     if (!gpuBuffers.indexBuffer.isClosed())
                     {
-                        LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> WRITE BUFFER", type.name());
+//                        LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> WRITE BUFFER", type.name());
                         encoder.writeToBuffer(gpuBuffers.indexBuffer, meshData.getSortedBuffer(), 0);
                     }
                 }
@@ -1168,8 +1132,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         gpuBuffers.indexBuffer.close();
                     }
 
-                    LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> CREATE/SET INDEX BUFFER", type.name());
-
+//                    LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], RESORTING --> CREATE/SET INDEX BUFFER", type.name());
                     gpuBuffers.setIndexBuffer(RenderSystem.getDevice()
                                                           .createBuffer(() -> "SortedBuffer: Overlay/" + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer())
                     );
@@ -1177,13 +1140,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
             else if (gpuBuffers.indexBuffer != null)
             {
-                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], ELSE --> CLEAR INDEX BUFFER", type.name());
+//                LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], ELSE --> CLEAR INDEX BUFFER", type.name());
                 gpuBuffers.indexBuffer.close();
                 gpuBuffers.setIndexBuffer(null);
             }
 
-            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], INDEX COUNT/TYPE --> SAVE", type.name());
-
+//            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], INDEX COUNT/TYPE --> SAVE", type.name());
             gpuBuffers.setIndexCount(meshData.getDrawParameters().indexCount());
             gpuBuffers.setIndexType(meshData.getDrawParameters().indexType());
 //            this.gpuBufferCache.storeBuffersByType(type, gpuBuffers);
@@ -1191,7 +1153,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         else
         {
             Supplier<String> name = type::name;
-            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER", type.name());
+//            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER", type.name());
             GpuBuffer vertexBuffer = RenderSystem.getDevice()
                                                  .createBuffer(() -> "VertexBuffer: Overlay/" + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.getBuffer()
                                                  );
@@ -1199,8 +1161,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                                                                      .createBuffer(() -> "IndexBuffer: " + name.get() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, meshData.getSortedBuffer()
                                                                                      ) : null;
 
-            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER --> SAVE", type.name());
-
+//            LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], NEW VERTEX BUFFER --> SAVE", type.name());
             this.gpuBufferCache.storeBuffersByType(type,
                                                     new ChunkRenderObjectBuffers(name, vertexBuffer, indexBuffer,
                                                                                  meshData.getDrawParameters().indexCount(),
@@ -1252,7 +1213,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             assert gpuBuffers != null;
             if (gpuBuffers.indexBuffer == null)
             {
-                LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> SET INDEX BUFFER", type.name());
+//                LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> SET INDEX BUFFER", type.name());
                 gpuBuffers.setIndexBuffer(
                         RenderSystem.getDevice()
                                     .createBuffer(() -> "IndexBuffer: Overlay/" + gpuBuffers.getName() + " VBO Section: [" + this.chunkRelativePos.toShortString() + "]", BufferType.INDICES, BufferUsage.STATIC_WRITE, buffer.getBuffer())
@@ -1262,7 +1223,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             {
                 if (!gpuBuffers.indexBuffer.isClosed())
                 {
-                    LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> WRITE INDEX BUFFER", type.name());
+//                    LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> WRITE INDEX BUFFER", type.name());
                     RenderSystem.getDevice().createCommandEncoder().writeToBuffer(gpuBuffers.indexBuffer, buffer.getBuffer(), 0);
                 }
             }
@@ -1275,6 +1236,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private void postRenderBlocks(RenderLayer layer, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws RuntimeException
     {
+        LOGGER.warn("[VBO] postRenderBlocks(): layer: [{}]", ChunkRenderLayers.getFriendlyName(layer));
+
         if (!chunkRenderData.isBlockLayerEmpty(layer))
         {
             BuiltBuffer built;
@@ -1322,7 +1285,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private void postRenderOverlay(OverlayRenderType type, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws RuntimeException
     {
-        //RenderSystem.applyModelViewMatrix();
+        LOGGER.warn("[VBO] postRenderOverlay(): overlay type: [{}]", type.name());
+
         if (!chunkRenderData.isOverlayTypeEmpty(type))
         {
             BuiltBuffer built;
@@ -1405,6 +1369,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private void resortRenderBlocks(RenderLayer layer, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws InterruptedException
     {
+        LOGGER.warn("[VBO] resortRenderBlocks() layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
+
         if (!chunkRenderData.isBlockLayerEmpty(layer))
         {
             BufferAllocator allocator = allocators.getBufferByLayer(layer);
@@ -1461,7 +1427,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private void resortRenderOverlay(OverlayRenderType type, float x, float y, float z, @Nonnull ChunkRenderDataSchematic chunkRenderData, @Nonnull BufferAllocatorCache allocators)
             throws InterruptedException
     {
-        //RenderSystem.applyModelViewMatrix();
+        LOGGER.warn("[VBO] resortRenderOverlay() overlay type [{}]", type.name());
+
         if (!chunkRenderData.isOverlayTypeEmpty(type))
         {
             BufferAllocator allocator = allocators.getBufferByOverlay(type);

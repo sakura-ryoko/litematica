@@ -625,17 +625,17 @@ public class RenderUtils
             fz[index] = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
         }
 
-        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
-        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
 
-        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a);
-        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[1], fy[1], fz[1]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
 
-        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a);
-        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[2], fy[2], fz[2]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
 
-        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a);
-        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(fx[3], fy[3], fz[3]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
     }
 
     public static void drawBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
@@ -708,53 +708,48 @@ public class RenderUtils
         buffer.vertex(e, fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a).normal(e, 0.0f, 0.0f, 0.0f);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockRenderView worldIn, List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
+    public static void drawBlockModelQuadOverlayBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
         for (final BlockModelPart part : modelParts)
         {
-            drawBlockModelQuadOverlayBatched(worldIn, part, state, pos, color, expand, buffer, matricies);
+            drawBlockModelQuadOverlayBatched(part, state, pos, color, expand, buffer);
         }
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockRenderView worldIn, BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matricies)
+    public static void drawBlockModelQuadOverlayBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
         for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
-            final int light = WorldRenderer.getLightmapCoordinates(worldIn, state, pos);
-            drawBlockModelQuadOverlayBatched(worldIn, modelPart, state, pos, side, color, light, expand, buffer, matricies);
+//            final int light = WorldRenderer.getLightmapCoordinates(worldIn, state, pos);
+            drawBlockModelQuadOverlayBatched(modelPart, state, pos, side, color, expand, buffer);
         }
 
-        drawBlockModelQuadOverlayBatched(worldIn, modelPart, state, pos, null, color, -1, expand, buffer, matricies);
+        drawBlockModelQuadOverlayBatched(modelPart, state, pos, null, color, expand, buffer);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockRenderView worldIn, BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, int light, double expand, BufferBuilder buffer, MatrixStack matricies)
+    public static void drawBlockModelQuadOverlayBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
     {
         // modelPart.getQuads(state, side, RAND)
-        List<BakedQuad> quads = modelPart.getQuads(side);
 
-//        if (!quads.isEmpty())
-//        {
-            renderModelQuadOverlayBatched(worldIn, pos, buffer, color, quads, light, matricies);
-//        }
+        renderModelQuadOverlayBatched(pos, buffer, color, modelPart.getQuads(side));
     }
 
-    private static void renderModelQuadOverlayBatched(BlockRenderView worldIn, BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads, int light, MatrixStack matricies)
+    private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, List<BakedQuad> quads)
     {
         //final int size = quads.size();
 
         for (BakedQuad quad : quads)
         {
-            final float b = worldIn.getBrightness(quad.face(), quad.shade());
-            final int[] lo = new int[]{light, light, light, light};
-            final float[] bo = new float[]{b, b, b, b};
+//            final float b = worldIn.getBrightness(quad.face(), quad.shade());
+//            final int[] lo = new int[]{light, light, light, light};
+//            final float[] bo = new float[]{b, b, b, b};
 
-            renderModelQuadOverlayBatched(pos, buffer, color, quad, bo, lo, OverlayTexture.DEFAULT_UV, matricies);
+            renderModelQuadOverlayBatched(pos, buffer, color, quad);
         }
     }
 
-    private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, BakedQuad quad, float[] brightness, int[] lo, int overlay, MatrixStack matricies)
+    private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, BakedQuad quad)
     {
-        int uv = LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE;
         final int[] vertexData = quad.vertexData();
         final int x = pos.getX();
         final int y = pos.getY();
@@ -768,29 +763,23 @@ public class RenderUtils
             fy = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
             fz = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
 
-//            buffer.vertex(fx, fy, fz).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
             buffer.vertex(fx, fy, fz).color(color.r, color.g, color.b, color.a);
         }
-
-//        matricies.translate(x, y, z);
-//        MatrixStack.Entry e = matricies.peek();
-//        buffer.quad(matricies.peek(), quad, brightness, color.r, color.g, color.b, 1.0f, lo, overlay, true);
     }
 
-    public static void drawBlockBoxBatchedQuads(BlockPos pos, Color4f color, double expand, BufferBuilder buffer, MatrixStack matrices)
+    public static void drawBlockBoxBatchedQuads(BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
     {
         for (Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
-            drawBlockBoxSideBatchedQuads(pos, side, color, expand, buffer, matrices);
+            drawBlockBoxSideBatchedQuads(pos, side, color, expand, buffer);
         }
     }
 
     /**
      * Assumes a BufferBuilder in GL_QUADS mode has been initialized
      */
-    public static void drawBlockBoxSideBatchedQuads(BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer, MatrixStack matrices)
+    public static void drawBlockBoxSideBatchedQuads(BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
     {
-        int uv = LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE;
         float minX = (float) (pos.getX() - expand);
         float minY = (float) (pos.getY() - expand);
         float minZ = (float) (pos.getZ() - expand);
@@ -798,54 +787,8 @@ public class RenderUtils
         float maxY = (float) (pos.getY() + expand + 1);
         float maxZ = (float) (pos.getZ() + expand + 1);
 
-        MatrixStack.Entry e = matrices.peek();
-
-        // Why do we need a texture for this Mojang?
         switch (side)
         {
-            // .light(uv).normal(e, 0.0f, 0.0f, 0.0f);
-//            case DOWN:
-//                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                break;
-//
-//            case UP:
-//                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                break;
-//
-//            case NORTH:
-//                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                break;
-//
-//            case SOUTH:
-//                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                break;
-//
-//            case WEST:
-//                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                break;
-//
-//            case EAST:
-//                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).texture(0, 0).light(uv).normal(0.0f, 0.0f, 0.0f);
-//                break;
-
             case DOWN:
                 buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
                 buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
@@ -906,6 +849,22 @@ public class RenderUtils
         //System.out.printf("pos: %s, axis: %s, ind: %d\n", pos, axis, cornerIndex);
         buffer.vertex(e, (float) minX, (float) minY, (float) minZ).color(color.r, color.g, color.b, color.a).normal(e,0.0f, 0.0f,0.0f);
         buffer.vertex(e, (float) maxX, (float) maxY, (float) maxZ).color(color.r, color.g, color.b, color.a).normal(e,0.0f, 0.0f,0.0f);
+    }
+
+    public static void drawBlockBoxEdgeBatchedDebugLines(BlockPos pos, Direction.Axis axis, int cornerIndex, Color4f color, BufferBuilder buffer)
+    {
+        Vec3i offset = PositionUtils.getEdgeNeighborOffsets(axis, cornerIndex)[cornerIndex];
+
+        double minX = pos.getX() + offset.getX();
+        double minY = pos.getY() + offset.getY();
+        double minZ = pos.getZ() + offset.getZ();
+        double maxX = pos.getX() + offset.getX() + (axis == Direction.Axis.X ? 1 : 0);
+        double maxY = pos.getY() + offset.getY() + (axis == Direction.Axis.Y ? 1 : 0);
+        double maxZ = pos.getZ() + offset.getZ() + (axis == Direction.Axis.Z ? 1 : 0);
+
+        //System.out.printf("pos: %s, axis: %s, ind: %d\n", pos, axis, cornerIndex);
+        buffer.vertex((float) minX, (float) minY, (float) minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex((float) maxX, (float) maxY, (float) maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
     }
 
     public static int renderInventoryOverlays(BlockInfoAlignment align, int offY, World worldSchematic, World worldClient, BlockPos pos, MinecraftClient mc, DrawContext drawContext)
@@ -1143,4 +1102,64 @@ public class RenderUtils
         }
     }
     */
+
+    public static void drawBlockBoundingBoxOutlinesBatchedDebugLines(BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    {
+        drawBoxAllEdgesBatchedDebugLines(pos, Vec3d.ZERO, color, expand, buffer);
+    }
+
+    public static void drawBoxAllEdgesBatchedDebugLines(BlockPos pos, Vec3d cameraPos, Color4f color, double expand, BufferBuilder buffer)
+    {
+        float minX = (float) (pos.getX() - expand - cameraPos.x);
+        float minY = (float) (pos.getY() - expand - cameraPos.y);
+        float minZ = (float) (pos.getZ() - expand - cameraPos.z);
+        float maxX = (float) (pos.getX() + expand - cameraPos.x + 1);
+        float maxY = (float) (pos.getY() + expand - cameraPos.y + 1);
+        float maxZ = (float) (pos.getZ() + expand - cameraPos.z + 1);
+
+        drawBoxAllEdgesBatchedDebugLines(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
+    }
+
+    public static void drawBoxAllEdgesBatchedDebugLines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color, BufferBuilder buffer)
+    {
+        // West side
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        // East side
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        // North side (don't repeat the vertical lines that are done by the east/west sides)
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        // South side (don't repeat the vertical lines that are done by the east/west sides)
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).normal(0.0f, 0.0f, 0.0f);
+    }
 }

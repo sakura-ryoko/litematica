@@ -145,15 +145,6 @@ public class WorldSchematic extends World
     public MapState getMapState(MapIdComponent id) { return null; }
 
     @Override
-    public void putMapState(MapIdComponent id, MapState state) { }
-
-    @Override
-    public MapIdComponent increaseAndGetMapId()
-    {
-        return null;
-    }
-
-    @Override
     public QueryableTickScheduler<Block> getBlockTickScheduler()
     {
         return EmptyTickSchedulers.getClientTickScheduler();
