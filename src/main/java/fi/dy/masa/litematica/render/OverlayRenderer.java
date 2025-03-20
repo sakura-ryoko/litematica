@@ -401,7 +401,7 @@ public class OverlayRenderer
         RenderSystem.lineWidth(2f);
 
         // VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR
-        RenderContext ctx = new RenderContext(MaLiLibPipelines.LINES_MASA_NO_DEPTH_NO_CULL);
+        RenderContext ctx = new RenderContext(MaLiLibPipelines.LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL);
         BufferBuilder buffer = ctx.getBuilder();
         MatrixStack matrices = new MatrixStack();
 
@@ -457,7 +457,7 @@ public class OverlayRenderer
             /*
             buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
              */
-            buffer = ctx.start(MaLiLibPipelines.LINES_MASA_NO_DEPTH_NO_CULL);
+            buffer = ctx.start(MaLiLibPipelines.LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL);
 
             matrices.push();
 
