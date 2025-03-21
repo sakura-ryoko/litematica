@@ -2,8 +2,6 @@ package fi.dy.masa.litematica.util;
 
 import com.google.common.collect.ImmutableList;
 
-import com.mojang.serialization.Codec;
-
 import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
@@ -24,12 +22,6 @@ public enum PasteNbtBehavior implements IConfigOptionListEntry, StringIdentifiab
     {
         this.configString = configString;
         this.translationKey = translationKey;
-    }
-
-    @Override
-    public Codec<PasteNbtBehavior> codec()
-    {
-        return CODEC;
     }
 
     @Override

@@ -2,8 +2,6 @@ package fi.dy.masa.litematica.util;
 
 import com.google.common.collect.ImmutableList;
 
-import com.mojang.serialization.Codec;
-
 import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
@@ -26,12 +24,6 @@ public enum PlacementDeletionMode implements IConfigOptionListEntry, StringIdent
     {
         this.configString = configString;
         this.translationKey = translationKey;
-    }
-
-    @Override
-    public Codec<PlacementDeletionMode> codec()
-    {
-        return CODEC;
     }
 
     @Override

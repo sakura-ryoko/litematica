@@ -2,8 +2,6 @@ package fi.dy.masa.litematica.util;
 
 import com.google.common.collect.ImmutableList;
 
-import com.mojang.serialization.Codec;
-
 import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
@@ -27,12 +25,6 @@ public enum EasyPlaceProtocol implements IConfigOptionListEntry, StringIdentifia
     {
         this.configString = configString;
         this.translationKey = translationKey;
-    }
-
-    @Override
-    public Codec<EasyPlaceProtocol> codec()
-    {
-        return CODEC;
     }
 
     @Override

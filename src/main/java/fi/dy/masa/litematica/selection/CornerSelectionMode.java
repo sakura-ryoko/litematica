@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.selection;
 
 import com.google.common.collect.ImmutableList;
 
-import com.mojang.serialization.Codec;
 import net.minecraft.util.StringIdentifiable;
 
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
@@ -23,12 +22,6 @@ public enum CornerSelectionMode implements IConfigOptionListEntry, StringIdentif
     {
         this.configString = configString;
         this.translationKey = translationKey;
-    }
-
-    @Override
-    public Codec<CornerSelectionMode> codec()
-    {
-        return CODEC;
     }
 
     @Override

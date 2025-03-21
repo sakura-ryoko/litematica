@@ -263,7 +263,7 @@ public class AOProcessorModern extends AOProcessor
                 }
             }
 
-            i = WorldRenderer.getLightmapCoordinates(world, state, pos);
+            i = WorldRenderer.getLightmapCoordinates(world, pos);
             if (this.enabled)
             {
                 if (this.intCache.size() == 100)

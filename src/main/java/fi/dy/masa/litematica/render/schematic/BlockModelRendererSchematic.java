@@ -173,7 +173,7 @@ public class BlockModelRendererSchematic
                     if (this.shouldRenderModelSide(worldIn, stateIn, posIn, side, mutablePos))
                     {
                         //int light = WorldRenderer.getLightmapCoordinates(worldIn, stateIn, posIn.offset(side));
-                        int light = WorldRenderer.getLightmapCoordinates(worldIn, stateIn, mutablePos);
+                        int light = WorldRenderer.getLightmapCoordinates(worldIn, mutablePos);
                         this.renderQuadsFlat(worldIn, stateIn, posIn, light, overlay, false, matrixStack, vertexConsumer, quads, bitset);
                         renderedSomething = true;
                     }
@@ -232,7 +232,7 @@ public class BlockModelRendererSchematic
             {
                 this.getQuadDimensions(world, state, pos, bakedQuad.vertexData(), bakedQuad.face(), null, flags);
                 BlockPos blockPos = flags.get(0) ? pos.offset(bakedQuad.face()) : pos;
-                light = WorldRenderer.getLightmapCoordinates(world, state, blockPos);
+                light = WorldRenderer.getLightmapCoordinates(world, blockPos);
             }
 
             float b = world.getBrightness(bakedQuad.face(), bakedQuad.shade());

@@ -629,7 +629,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
                             for (BlockModelPart part : modelParts)
                             {
-                                final int light = WorldRenderer.getLightmapCoordinates(this.schematicWorldView, stateSchematic, relPos);
+                                final int light = WorldRenderer.getLightmapCoordinates(this.schematicWorldView, relPos);
                                 RenderUtils.drawBlockModelQuadOverlayBatched(part, stateSchematic, relPos, side, this.overlayColor, 0, bufferOverlayQuads);
                             }
                         }
