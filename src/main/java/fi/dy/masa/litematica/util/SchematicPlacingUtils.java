@@ -28,6 +28,7 @@ import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.WorldTickScheduler;
 
 import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;

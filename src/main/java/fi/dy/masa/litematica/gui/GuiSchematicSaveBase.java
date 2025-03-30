@@ -1,7 +1,9 @@
 package fi.dy.masa.litematica.gui;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.client.gui.DrawContext;
+
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -10,7 +12,7 @@ import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntryType;
-import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -64,7 +66,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         {
             if (entry != null && entry.getType() != DirectoryEntryType.DIRECTORY && entry.getType() != DirectoryEntryType.INVALID)
             {
-                this.setTextFieldText(FileUtils.getNameWithoutExtension(entry.getName()));
+                this.setTextFieldText(FileNameUtils.getFileNameWithoutExtension(entry.getName()));
             }
             else if (this.schematic != null)
             {
@@ -150,7 +152,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     {
         if (entry != null && entry.getType() != DirectoryEntryType.DIRECTORY && entry.getType() != DirectoryEntryType.INVALID)
         {
-            this.setTextFieldText(FileUtils.getNameWithoutExtension(entry.getName()));
+            this.setTextFieldText(FileNameUtils.getFileNameWithoutExtension(entry.getName()));
         }
     }
 
