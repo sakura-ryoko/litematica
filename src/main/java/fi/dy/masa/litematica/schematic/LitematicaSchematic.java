@@ -104,6 +104,18 @@ public class LitematicaSchematic
         this.converter = SchematicConverter.createForLitematica();
     }
 
+    private LitematicaSchematic(@Nullable Path file)
+    {
+        this(file, FileType.LITEMATICA_SCHEMATIC);
+    }
+
+    private LitematicaSchematic(@Nullable Path file, FileType schematicType)
+    {
+        this.schematicFile = file.toFile();
+        this.schematicType = schematicType;
+        this.converter = SchematicConverter.createForLitematica();
+    }
+
     @Nullable
     public File getFile()
     {
@@ -201,7 +213,7 @@ public class LitematicaSchematic
             return null;
         }
 
-        LitematicaSchematic schematic = new LitematicaSchematic(null);
+        LitematicaSchematic schematic = new LitematicaSchematic((File) null);
         long time = System.currentTimeMillis();
 
         BlockPos origin = area.getEffectiveOrigin();
@@ -247,7 +259,7 @@ public class LitematicaSchematic
             return null;
         }
 
-        LitematicaSchematic schematic = new LitematicaSchematic(null);
+        LitematicaSchematic schematic = new LitematicaSchematic((File) null);
         schematic.setSubRegionPositions(boxes, area.getEffectiveOrigin());
         schematic.setSubRegionSizes(boxes);
         schematic.metadata.setAuthor(author);
@@ -286,7 +298,7 @@ public class LitematicaSchematic
      */
     public static LitematicaSchematic createEmptySchematicFromExisting(@Nonnull LitematicaSchematic existing, String newAuthor)
     {
-        LitematicaSchematic newSchematic = new LitematicaSchematic(null, existing.schematicType);
+        LitematicaSchematic newSchematic = new LitematicaSchematic((File) null, existing.schematicType);
 
         if (newAuthor.isEmpty() == false)
         {
@@ -2420,6 +2432,16 @@ public class LitematicaSchematic
         return new File(dir, fileName);
     }
 
+    public static Path fileFromDirAndName(Path dir, String fileName, FileType schematicType)
+    {
+        if (fileName.endsWith(FILE_EXTENSION) == false && schematicType == FileType.LITEMATICA_SCHEMATIC)
+        {
+            fileName = fileName + FILE_EXTENSION;
+        }
+
+        return dir.resolve(fileName);
+    }
+
     @Nullable
     public static SchematicMetadata readMetadataFromFile(File dir, String fileName)
     {
@@ -2513,6 +2535,86 @@ public class LitematicaSchematic
                     SchematicMetadata metadata = new SchematicMetadata();
 
                     if (nbt.contains("Version", Constants.NBT.TAG_INT))
+                    {
+                        final int version = nbt.getInt("Version");
+                        final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : -1;
+
+                        if (version >= 1 && version <= SCHEMATIC_VERSION)
+                        {
+                            metadata.readFromNBT(nbt.getCompound("Metadata"));
+                            metadata.setFileType(type);
+                            return Pair.of(new SchematicSchema(version, dataVersion), metadata);
+                        }
+                    }
+                }
+                case SPONGE_SCHEMATIC ->
+                {
+                    LitematicaSchematic schem = new LitematicaSchematic(file, type);
+                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
+
+                    if (schem.readFromSpongeSchematic(fileName, nbt))
+                    {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                        return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+                    }
+                    else
+                    {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                    }
+                }
+                case VANILLA_STRUCTURE ->
+                {
+                    LitematicaSchematic schem = new LitematicaSchematic(file, type);
+                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
+
+                    if (schem.readFromVanillaStructure(fileName, nbt))
+                    {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                        return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+                    }
+                    else
+                    {
+                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static Pair<SchematicSchema, SchematicMetadata> readMetadataAndVersionFromFile(Path dir, String fileName)
+    {
+        Path file = dir.resolve(fileName);
+        FileType type = FileType.fromFile(file);
+
+        if (type == FileType.INVALID)
+        {
+            file = fileFromDirAndName(dir, fileName, FileType.LITEMATICA_SCHEMATIC);
+            type = FileType.fromFile(file);
+        }
+
+        if (type == FileType.INVALID)
+        {
+            return null;
+        }
+
+        NbtCompound nbt = readNbtFromPath(file);
+
+        //System.out.printf("readMetadataAndVersionFromFile(): file [%s] // name [%s] // type [%s] // nbt? [%s]\n", file.getPath(), fileName, FileType.getString(type), nbt == null ? "null" : "has_tags");
+
+        if (nbt != null)
+        {
+            switch (type)
+            {
+                case LITEMATICA_SCHEMATIC ->
+                {
+                    SchematicMetadata metadata = new SchematicMetadata();
+
+                    if (nbt.contains("Version"))
                     {
                         final int version = nbt.getInt("Version");
                         final int dataVersion = nbt.contains("MinecraftDataVersion") ? nbt.getInt("MinecraftDataVersion") : -1;
