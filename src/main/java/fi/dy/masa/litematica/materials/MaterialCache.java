@@ -150,7 +150,7 @@ public class MaterialCache
         if (block == Blocks.PISTON_HEAD ||
             block == Blocks.MOVING_PISTON ||
             block == Blocks.NETHER_PORTAL ||
-            block == Blocks.END_PORTAL ||
+//            block == Blocks.END_PORTAL ||
             block == Blocks.END_GATEWAY)
         {
             return ItemStack.EMPTY;

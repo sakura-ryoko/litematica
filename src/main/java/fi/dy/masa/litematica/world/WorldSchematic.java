@@ -64,7 +64,10 @@ public class WorldSchematic extends World
     protected int entityCount;
     private final TickManager tickManager;
     private final RegistryEntry<DimensionType> dimensionType;
-    private DimensionEffects dimensionEffects = new DimensionEffects.Overworld();
+//    private DimensionEffects dimensionEffects = new DimensionEffects.Overworld();
+    private final DimensionEffects dimensionEffects = new DimensionEffects(
+            Optional.of(192.0F), true, Optional.of(DimensionEffects.class_11080.field_59000), false, false, DimensionEffects.FogScaler.OVERWORLD, false, true
+    );
     private final HashMap<UUID, ChunkPos> entityMap;
     private final SchematicEntityLookup<Entity> entityLookup;
 
@@ -126,8 +129,9 @@ public class WorldSchematic extends World
                 this.biome = WorldUtils.getPlains(registryManager);
             }
         });
-    
-        this.dimensionEffects = DimensionEffects.byDimensionType(this.dimensionType.value());
+
+        // TODO -- Keep the Over world for this version
+//        this.dimensionEffects = DimensionEffects.byDimensionType(this.dimensionType.value());
     }
 
     public ChunkManagerSchematic getChunkProvider()
@@ -509,7 +513,7 @@ public class WorldSchematic extends World
     @Override
     public float getBrightness(Direction direction, boolean shaded)
     {
-        boolean darkened = this.getDimensionEffects().isDarkened();
+        boolean darkened = this.getDimensionEffects().darkened();
 
         if (!shaded)
         {
