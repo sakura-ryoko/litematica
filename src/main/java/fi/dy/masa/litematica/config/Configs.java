@@ -34,6 +34,7 @@ public class Configs implements IConfigHandler
         public static final ConfigOptionList    EASY_PLACE_PROTOCOL         = new ConfigOptionList("easyPlaceProtocolVersion", EasyPlaceProtocol.AUTO).apply(GENERIC_KEY);
         public static final ConfigOptionList    PASTE_NBT_BEHAVIOR          = new ConfigOptionList("pasteNbtRestoreBehavior", PasteNbtBehavior.NONE).apply(GENERIC_KEY);
         public static final ConfigOptionList    PASTE_REPLACE_BEHAVIOR      = new ConfigOptionList("pasteReplaceBehavior", ReplaceBehavior.NONE).apply(GENERIC_KEY);
+        public static final ConfigOptionList    PASTE_LAYER_BEHAVIOR        = new ConfigOptionList("pasteLayerBehavior", PasteLayerBehavior.ALL).apply(GENERIC_KEY);
         public static final ConfigOptionList    PLACEMENT_REPLACE_BEHAVIOR  = new ConfigOptionList("placementReplaceBehavior", ReplaceBehavior.ALL).apply(GENERIC_KEY);
         public static final ConfigOptionList    PLACEMENT_RESTRICTION_WARN  = new ConfigOptionList("placementRestrictionWarn", MessageOutputType.ACTIONBAR).apply(GENERIC_KEY);
         public static final ConfigOptionList    SCHEMATIC_VCS_DELETE_MODE   = new ConfigOptionList("schematicVcsDeleteMode", PlacementDeletionMode.MATCHING_BLOCK).apply(GENERIC_KEY);
@@ -172,6 +173,7 @@ public class Configs implements IConfigHandler
                 UNHIDE_SCHEMATIC_PROJECTS,
 
                 PASTE_REPLACE_BEHAVIOR,
+                PASTE_LAYER_BEHAVIOR,
                 SCHEMATIC_VCS_DELETE_MODE,
                 SELECTION_CORNERS_MODE,
 

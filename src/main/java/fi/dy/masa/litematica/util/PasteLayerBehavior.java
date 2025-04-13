@@ -7,18 +7,17 @@ import net.minecraft.util.StringIdentifiable;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum PasteNbtBehavior implements IConfigOptionListEntry, StringIdentifiable
+public enum PasteLayerBehavior implements IConfigOptionListEntry, StringIdentifiable
 {
-    NONE            ("none",              "litematica.gui.label.paste_nbt_behavior.none"),
-    PLACE_MODIFY    ("place_data_modify", "litematica.gui.label.paste_nbt_behavior.place_data_modify"),
-    PLACE_CLONE     ("place_clone",       "litematica.gui.label.paste_nbt_behavior.place_clone");
+    ALL             ("all",             "litematica.gui.label.paste_layer_behavior.all"),
+    RENDERED_ONLY   ("rendered_only",   "litematica.gui.label.paste_layer_behavior.rendered_only");
 
-    public static final StringIdentifiable.EnumCodec<PasteNbtBehavior> CODEC = StringIdentifiable.createCodec(PasteNbtBehavior::values);
-    public static final ImmutableList<PasteNbtBehavior> VALUES = ImmutableList.copyOf(values());
+    public static final EnumCodec<PasteLayerBehavior> CODEC = StringIdentifiable.createCodec(PasteLayerBehavior::values);
+    public static final ImmutableList<PasteLayerBehavior> VALUES = ImmutableList.copyOf(values());
     private final String configString;
     private final String translationKey;
 
-    PasteNbtBehavior(String configString, String translationKey)
+    PasteLayerBehavior(String configString, String translationKey)
     {
         this.configString = configString;
         this.translationKey = translationKey;
@@ -66,14 +65,14 @@ public enum PasteNbtBehavior implements IConfigOptionListEntry, StringIdentifiab
     }
 
     @Override
-    public PasteNbtBehavior fromString(String name)
+    public PasteLayerBehavior fromString(String name)
     {
         return fromStringStatic(name);
     }
 
-    public static PasteNbtBehavior fromStringStatic(String name)
+    public static PasteLayerBehavior fromStringStatic(String name)
     {
-        for (PasteNbtBehavior val : VALUES)
+        for (PasteLayerBehavior val : PasteLayerBehavior.values())
         {
             if (val.configString.equalsIgnoreCase(name))
             {
@@ -81,6 +80,6 @@ public enum PasteNbtBehavior implements IConfigOptionListEntry, StringIdentifiab
             }
         }
 
-        return PasteNbtBehavior.NONE;
+        return PasteLayerBehavior.ALL;
     }
 }

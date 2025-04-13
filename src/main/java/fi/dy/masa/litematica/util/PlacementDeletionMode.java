@@ -1,9 +1,13 @@
 package fi.dy.masa.litematica.util;
 
+import com.google.common.collect.ImmutableList;
+
+import net.minecraft.util.StringIdentifiable;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum PlacementDeletionMode implements IConfigOptionListEntry
+public enum PlacementDeletionMode implements IConfigOptionListEntry, StringIdentifiable
 {
     MATCHING_BLOCK          ("matching_block",      "litematica.gui.label.placement_deletion_mode.matching_block"),
     NON_MATCHING_BLOCK      ("non_matching_block",  "litematica.gui.label.placement_deletion_mode.non_matching_block"),
@@ -11,6 +15,8 @@ public enum PlacementDeletionMode implements IConfigOptionListEntry
     NO_SCHEMATIC_BLOCK      ("no_schematic_block",  "litematica.gui.label.placement_deletion_mode.no_schematic_block"),
     ENTIRE_VOLUME           ("entire_volume",       "litematica.gui.label.placement_deletion_mode.entire_volume");
 
+    public static final StringIdentifiable.EnumCodec<PlacementDeletionMode> CODEC = StringIdentifiable.createCodec(PlacementDeletionMode::values);
+    public static final ImmutableList<PlacementDeletionMode> VALUES = ImmutableList.copyOf(values());
     private final String configString;
     private final String translationKey;
 
@@ -18,6 +24,12 @@ public enum PlacementDeletionMode implements IConfigOptionListEntry
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 
     @Override

@@ -17,6 +17,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -38,10 +39,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.interfaces.IMessageConsumer;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
-import fi.dy.masa.malilib.util.Color4f;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.malilib.util.PositionUtils.CoordinateType;
 
 public class SchematicPlacement
@@ -1080,6 +1078,11 @@ public class SchematicPlacement
         }
         compound.put("SubRegions", subs);
         compound.putString("ReplaceMode", Configs.Generic.PASTE_REPLACE_BEHAVIOR.getStringValue());
+        compound.putString("PasteLayerBehavior", Configs.Generic.PASTE_LAYER_BEHAVIOR.getStringValue());
+        LayerRange.CODEC.encodeStart(NbtOps.INSTANCE, DataManager.getRenderLayerRange())
+                        .resultOrPartial()
+                        .ifPresent(range -> compound.put("RenderLayerRange", range));
+        //        compound.put("RenderLayerRange", LayerRange.CODEC, DataManager.getRenderLayerRange());
         return compound;
     }
 }
