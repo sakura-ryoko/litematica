@@ -512,7 +512,7 @@
     "litematica.error.schematic_load.no_schematic_version_information": "스키매틱에 버전 정보가 없으므로, 안전하게 불러올 수 없습니다!",
     "litematica.error.schematic_load.unsupported_schematic_version": "미지원 또는 추후 스키매틱 버전입니다. '%d'",
     "litematica.error.schematic_load.unsupported_type": "미확인 또는 미지원 파일 타입입니다. '%s'",
-    "litematica.error.schematic_manager.schematic_export.unsupported_type": "오직 라이트매티카 스티메틱만 다른 형식으로 내보내기 가능합니다!",
+    "litematica.error.schematic_manager.schematic_export.unsupported_type": "오직 라이트매티카 스키매틱만 다른 형식으로 내보내기 가능합니다!",
     "litematica.error.schematic_manager.schematic_import.unsupported_type": "선택된 스키매틱 타입은 가져오기가 지원되지 않습니다!",
     "litematica.error.schematic_placements.remove_fail_locked": "배치가 잠김되었습니다!\n- 강제 삭제하려면 shift 키를 누르세요.",
     "litematica.error.schematic_projects.empty_selection": "빈 영역 선택 (0 서브-지역)",
