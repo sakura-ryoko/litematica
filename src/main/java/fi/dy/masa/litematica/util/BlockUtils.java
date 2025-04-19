@@ -9,7 +9,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.enums.ChestType;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.BlockMirror;
@@ -131,5 +133,47 @@ public class BlockUtils
         StateManager<Block, BlockState> stateManager1 = state1.getBlock().getStateManager();
         StateManager<Block, BlockState> stateManager2 = state2.getBlock().getStateManager();
         return stateManager1.getProperties().equals(stateManager2.getProperties());
+    }
+
+    public static Optional<Block> getBlockFromString(String str)
+    {
+        int index = str.indexOf("["); // [f=b]
+        String blockName = index != -1 ? str.substring(0, index) : str;
+
+        try
+        {
+            Identifier id = Identifier.tryParse(blockName);
+
+            if (Registries.BLOCK.containsId(id))
+            {
+                Block block = Registries.BLOCK.get(id);
+
+                return Optional.of(block);
+            }
+        }
+        catch (Exception e)
+        {
+            return Optional.empty();
+        }
+
+        return Optional.empty();
+    }
+
+    public static Optional<TagKey<Block>> getBlockTagFromString(String str)
+    {
+        if (str.startsWith("#")) {
+            try {
+                String tagName = str.substring(1);
+                Identifier id = Identifier.tryParse(tagName);
+
+                TagKey<Block> blockTag = TagKey.of(RegistryKeys.BLOCK, id);
+                return Optional.of(blockTag);
+
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.empty();
     }
 }
