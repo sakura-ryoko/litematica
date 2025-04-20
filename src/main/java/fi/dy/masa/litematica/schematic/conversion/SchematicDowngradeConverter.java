@@ -19,16 +19,19 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.log.AnsiLogger;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.litematica.Litematica;
 
 public class SchematicDowngradeConverter
 {
+    private static final AnsiLogger LOGGER = new AnsiLogger(SchematicDowngradeConverter.class, true, true);
+
     public static NbtCompound downgradeEntity_to_1_20_4(NbtCompound oldEntity, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
         NbtCompound newEntity = new NbtCompound();
 
-        if (oldEntity.contains("id") == false)
+        if (!oldEntity.contains("id"))
         {
             return oldEntity;
         }
@@ -167,7 +170,7 @@ public class SchematicDowngradeConverter
         NbtCompound oldItem = (NbtCompound) itemEntry;
         NbtCompound newItem = new NbtCompound();
 
-        if (oldItem.contains("id") == false)
+        if (!oldItem.contains("id"))
         {
             return itemEntry;
         }
@@ -276,7 +279,7 @@ public class SchematicDowngradeConverter
                 newMod.putUuid("UUID", modEntry.contains("UUID") ? modEntry.getUuid("UUID") : UUID.randomUUID());
                 newMods.add(newMod);
             }
-            if (newMods.isEmpty() == false)
+            if (!newMods.isEmpty())
             {
                 newEntry.put("Modifiers", newMods);
             }
@@ -425,19 +428,14 @@ public class SchematicDowngradeConverter
         return idIn;
     }
 
-    private static String modiferIdToName(String idIn)
+    private static String modifierIdToName(String idIn)
     {
-        switch (idIn)
+        if (idIn.equals("minecraft:random_spawn_bonus"))
         {
-            case "minecraft:random_spawn_bonus" ->
-            {
-                return "Random spawn bonus";
-            }
-            default ->
-            {
-                return "";
-            }
+            return "Random spawn bonus";
         }
+
+        return "";
     }
 
     private static int modifierOperationToInt(String op)
@@ -465,7 +463,7 @@ public class SchematicDowngradeConverter
     {
         NbtCompound newTE = new NbtCompound();
 
-        if (oldTE.contains("id") == false)
+        if (!oldTE.contains("id"))
         {
             oldTE.copyFrom(SchematicConversionMaps.checkForIdTag(oldTE));
         }
@@ -533,7 +531,7 @@ public class SchematicDowngradeConverter
             NbtCompound itemEntry = oldItems.getCompound(i);
             NbtCompound newEntry = new NbtCompound();
 
-            if (itemEntry.contains("id") == false)
+            if (!itemEntry.contains("id"))
             {
                 continue;
             }
@@ -580,7 +578,7 @@ public class SchematicDowngradeConverter
             int slotNum = itemEntry.getInt("slot");
             NbtCompound itemSlot = itemEntry.getCompound("item");
 
-            if (itemSlot.contains("id") == false)
+            if (!itemSlot.contains("id"))
             {
                 continue;
             }
@@ -621,7 +619,7 @@ public class SchematicDowngradeConverter
         int slotNum = itemEntry.getInt("slot");
         NbtCompound itemSlot = itemEntry.getCompound("item");
 
-        if (itemSlot.contains("id") == false)
+        if (!itemSlot.contains("id"))
         {
             return itemEntry;
         }
@@ -650,7 +648,7 @@ public class SchematicDowngradeConverter
     {
         ItemStack stack = InventoryUtils.getItemStackFromString(id);
 
-        return stack != null && stack.isEmpty() == false && stack.isDamageable();
+        return stack != null && !stack.isEmpty() && stack.isDamageable();
     }
 
     private static NbtCompound processComponentsTag(NbtCompound nbt, String itemId, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
@@ -767,19 +765,19 @@ public class SchematicDowngradeConverter
                 case "minecraft:unbreakable" -> outNbt.putBoolean("Unbreakable", processUnbreakable(nbt.get(key)));
             }
         }
-        if (beNbt.isEmpty() == false)
+        if (!beNbt.isEmpty())
         {
             outNbt.put("BlockEntityTag", beNbt);
         }
-        if (dispNbt.isEmpty() == false)
+        if (!dispNbt.isEmpty())
         {
             outNbt.put("display", dispNbt);
         }
-        if (outNbt.contains("RepairCost") == false && (itemId.equals("minecraft:dragon_head") || needsDamage))
+        if (!outNbt.contains("RepairCost") && (itemId.equals("minecraft:dragon_head") || needsDamage))
         {
             outNbt.putInt("RepairCost", 0);
         }
-        if (outNbt.contains("Damage") == false && needsDamage)
+        if (!outNbt.contains("Damage") && needsDamage)
         {
             outNbt.putInt("Damage", 0);
         }
@@ -990,7 +988,7 @@ public class SchematicDowngradeConverter
             NbtCompound itemEntry = oldNbt.getCompound(i);
             NbtCompound newEntry = new NbtCompound();
 
-            if (itemEntry.contains("id") == false)
+            if (!itemEntry.contains("id"))
             {
                 continue;
             }
@@ -1246,7 +1244,7 @@ public class SchematicDowngradeConverter
                 }
             }
         }
-        if (newPages.isEmpty() == false)
+        if (!newPages.isEmpty())
         {
             newBook.put("pages", newPages);
         }
@@ -1314,11 +1312,11 @@ public class SchematicDowngradeConverter
                 }
             }
         }
-        if (newPages.isEmpty() == false)
+        if (!newPages.isEmpty())
         {
             newBook.put("pages", newPages);
         }
-        if (filtered.isEmpty() == false)
+        if (!filtered.isEmpty())
         {
             newBook.put("filtered_pages", filtered);
         }
@@ -1400,15 +1398,71 @@ public class SchematicDowngradeConverter
         };
     }
 
-    private static NbtElement processSkullProfile(NbtElement oldProfile)
+    private static NbtElement processSkullProfile(NbtElement oldProfile, NbtCompound dispNbt, int minecraftDataVersion, @Nonnull DynamicRegistryManager registryManager)
     {
         NbtCompound profile = (NbtCompound) oldProfile;
         NbtCompound newProfile = new NbtCompound();
-        String name = profile.getString("name");
+        String customName1 = dispNbt.getString("Name", "");         // Can be either an Item Name or Custom Name Data Component
+        String customName2 = dispNbt.getString("CustomName", "");   // Only if invoked without it being stored in a Chest
+        String name = profile.getString("name", "");                // The regular Skull Owner Name
         UUID uuid = profile.getUuid("id");
+        // 1.21.5+
+        //UUID uuid = profile.get("id", Uuids.CODEC, registryManager.getOps(NbtOps.INSTANCE)).orElse(UUID.randomUUID());
+
+        LOGGER.debug("processSkullProfile(): oldNBT [{}]", profile.toString());
+        if (name.isEmpty() && !customName1.isEmpty())
+        {
+            try
+            {
+                Text disp = Text.Serialization.fromJson(customName1, registryManager);
+
+                if (disp != null)
+                {
+                    name = disp.getLiteralString();
+                }
+
+                if (name == null)
+                {
+                    name = customName1;
+                }
+
+                LOGGER.debug("processSkullProfile(): customName1 [{}], disp [{}] // name [{}]", customName1, disp != null ? disp.getString() : "<null>", name);
+            }
+            catch (Exception e)
+            {
+                Litematica.LOGGER.warn("processSkullProfile(): Exception deserializing CustomName1 for Head Name.");
+                name = customName1;
+            }
+        }
+        else if (name.isEmpty() && !customName2.isEmpty())
+        {
+            try
+            {
+                Text disp = Text.Serialization.fromJson(customName2, registryManager);
+
+                if (disp != null)
+                {
+                    name = disp.getLiteralString();
+                }
+
+                if (name == null)
+                {
+                    name = customName2;
+                }
+
+                LOGGER.debug("processSkullProfile(): customName2 [{}], disp[{}] // name [{}]", customName2, disp != null ? disp.getString() : "<null>", name);
+            }
+            catch (Exception e)
+            {
+                Litematica.LOGGER.warn("processSkullProfile(): Exception deserializing CustomName2 for Head Name.");
+                name = customName2;
+            }
+        }
 
         newProfile.putString("Name", name);
         newProfile.putUuid("Id", uuid);
+        
+        LOGGER.debug("processSkullProfile(): name [{}], uuid [{}]", name, uuid.toString());
 
         NbtList properties = profile.getList("properties", Constants.NBT.TAG_COMPOUND);
         NbtCompound newProperties = new NbtCompound();
@@ -1418,6 +1472,8 @@ public class SchematicDowngradeConverter
             NbtCompound property = properties.getCompound(i);
             String propName = property.getString("name");
             String propValue = property.getString("value");
+
+            LOGGER.debug("processSkullProfile(): entry[{}], name [{}]", i, propName);
 
             if (propName.equals("textures"))
             {
@@ -1430,6 +1486,7 @@ public class SchematicDowngradeConverter
         }
 
         newProfile.put("Properties", newProperties);
+        LOGGER.debug("processSkullProfile(): newNBT [{}]", newProfile.toString());
 
         return newProfile;
     }
