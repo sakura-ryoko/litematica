@@ -210,6 +210,8 @@ public class Configs implements IConfigHandler
         //public static final ConfigInteger       RENDER_SCHEMATIC_MAX_THREADS        = new ConfigInteger("renderSchematicMaxThreads", 4, 1, 16).apply(VISUALS_KEY);
         public static final ConfigDouble        GHOST_BLOCK_ALPHA                   = new ConfigDouble( "ghostBlockAlpha", 0.5, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBoolean       IGNORE_EXISTING_FLUIDS              = new ConfigBoolean("ignoreExistingFluids", false).apply(VISUALS_KEY);
+        public static final ConfigBoolean       IGNORE_EXISTING_BLOCKS              = new ConfigBoolean("ignoreExistingBlocks", false).apply(VISUALS_KEY);
+        public static final ConfigStringList    IGNORABLE_EXISTING_BLOCKS           = new ConfigStringList("ignorableExistingBlocks", ImmutableList.of()).apply(VISUALS_KEY);
         public static final ConfigBoolean       OVERLAY_REDUCED_INNER_SIDES         = new ConfigBoolean("overlayReducedInnerSides", false).apply(VISUALS_KEY);
         public static final ConfigDouble        PLACEMENT_BOX_SIDE_ALPHA            = new ConfigDouble( "placementBoxSideAlpha", 0.2, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_AO_MODERN_ENABLE             = new ConfigBoolean("renderAOModernEnable", false).apply(VISUALS_KEY);
@@ -250,6 +252,8 @@ public class Configs implements IConfigHandler
                 ENABLE_SCHEMATIC_FAKE_LIGHTING,
                 ENABLE_SCHEMATIC_OVERLAY,
                 IGNORE_EXISTING_FLUIDS,
+                IGNORE_EXISTING_BLOCKS,
+                IGNORABLE_EXISTING_BLOCKS,
                 OVERLAY_REDUCED_INNER_SIDES,
                 RENDER_AO_MODERN_ENABLE,
                 RENDER_AREA_SELECTION_BOX_SIDES,
