@@ -955,5 +955,5 @@
     "litematica.tool_mode.name.replace_block": "Reemplazar bloque",
     "litematica.tool_mode.name.schematic_placement": "Colocación de Esquema",
     "litematica.warning.area_editor.area_rendering_disabled": "Nota: El renderizado de cajas de Selección de Área está actualmente deshabilatado\nVer Visuales -> %s, o Teclas Rápidas -> %s ['%s']",
-    "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
+    "modmenu.descriptionTranslation.litematica": "A modern schematic mod for LiteLoader, Rift, Fabric etc."
 }
