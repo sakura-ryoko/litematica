@@ -970,5 +970,5 @@
     "litematica.tool_mode.name.replace_block": "Sostituisci blocco",
     "litematica.tool_mode.name.schematic_placement": "Posizionamento Schema",
     "litematica.warning.area_editor.area_rendering_disabled": "Nota: Il rendering delle scatole di selezione area è attualmente disabilitato\nVedi Aspetti -> %s, o Scorciatoie -> %s ['%s']",
-    "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
+    "modmenu.descriptionTranslation.litematica": "A modern schematic mod for LiteLoader, Rift, Fabric etc."
 }

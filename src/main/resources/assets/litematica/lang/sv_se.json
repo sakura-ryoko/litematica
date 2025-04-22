@@ -970,5 +970,5 @@
     "litematica.tool_mode.name.replace_block": "Ersätt block",
     "litematica.tool_mode.name.schematic_placement": "Schematisk placering",
     "litematica.warning.area_editor.area_rendering_disabled": "Obs: Områdesmarkeringsrutorna rendering är för närvarande inaktiverad\nSe Visualer -> %s, eller snabbtangenter -> %s ['%s']",
-    "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
+    "modmenu.descriptionTranslation.litematica": "A modern schematic mod for LiteLoader, Rift, Fabric etc."
 }

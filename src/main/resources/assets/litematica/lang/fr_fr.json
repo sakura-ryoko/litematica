@@ -970,5 +970,5 @@
     "litematica.tool_mode.name.replace_block": "Remplacer le bloc",
     "litematica.tool_mode.name.schematic_placement": "Placement schématique",
     "litematica.warning.area_editor.area_rendering_disabled": "Remarque : le rendu des cases de sélection de zone est actuellement désactivé\nVoir Visuels -> %s, ou Raccourcis clavier -> %s ['%s']",
-    "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
+    "modmenu.descriptionTranslation.litematica": "A modern schematic mod for LiteLoader, Rift, Fabric etc."
 }

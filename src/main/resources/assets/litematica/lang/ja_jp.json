@@ -970,5 +970,5 @@
     "litematica.tool_mode.name.replace_block": "置換",
     "litematica.tool_mode.name.schematic_placement": "図面配置",
     "litematica.warning.area_editor.area_rendering_disabled": "注意: 領域選択の描画が無効になっています．\n表示 -> %s または ショートカット -> %s ['%s'] を確認してください．",
-    "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
+    "modmenu.descriptionTranslation.litematica": "A modern schematic mod for LiteLoader, Rift, Fabric etc."
 }

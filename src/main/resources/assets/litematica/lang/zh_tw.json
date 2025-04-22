@@ -970,5 +970,5 @@
     "litematica.tool_mode.name.replace_block": "取代方塊",
     "litematica.tool_mode.name.schematic_placement": "原理圖放置",
     "litematica.warning.area_editor.area_rendering_disabled": "注意：區域選擇框呈現目前被停用\n查看視覺效果 -> %s，或者快速鍵 -> %s ['%s']",
-    "modmenu.descriptionTranslation.litematica": "Modern mod schematic for LiteLoader, Rift, Fabric, etc."
+    "modmenu.descriptionTranslation.litematica": "A modern schematic mod for LiteLoader, Rift, Fabric etc."
 }
