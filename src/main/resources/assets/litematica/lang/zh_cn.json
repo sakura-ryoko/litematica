@@ -970,5 +970,5 @@
     "litematica.tool_mode.name.replace_block": "替换方块",
     "litematica.tool_mode.name.schematic_placement": "原理图放置",
     "litematica.warning.area_editor.area_rendering_disabled": "§6注意：选区框渲染已禁用\n请查看 视觉效果 -> %s\n或快捷键 -> %s ['%s']§r",
-    "modmenu.descriptionTranslation.litematica": "适用于LiteLoader/Rift/Fabric的现代化模组"
+    "modmenu.descriptionTranslation.litematica": "适用于LiteLoader、Rift、Fabric等的现代化原理图投影mod"
 }
