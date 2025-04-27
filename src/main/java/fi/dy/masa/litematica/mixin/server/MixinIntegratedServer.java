@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.server;
 
 @Deprecated
 //@Mixin(IntegratedServer.class)
