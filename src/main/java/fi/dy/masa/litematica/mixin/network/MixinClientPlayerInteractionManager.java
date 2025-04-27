@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.network;
 
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import org.spongepowered.asm.mixin.Mixin;

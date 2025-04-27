@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.input;
 
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;

@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.server;
 
 import java.net.Proxy;
 import java.util.function.BooleanSupplier;
