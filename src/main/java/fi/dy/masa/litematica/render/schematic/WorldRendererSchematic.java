@@ -172,7 +172,11 @@ public class WorldRendererSchematic
             }
 
             this.renderDispatcher = null;
-            this.blockEntities.clear();
+
+            synchronized (this.blockEntities)
+            {
+                this.blockEntities.clear();
+            }
         }
     }
 
@@ -215,6 +219,7 @@ public class WorldRendererSchematic
         {
             this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
         }
+
         this.chunksToUpdate.clear();
         this.renderDispatcher.stopChunkUpdates();
     }
@@ -429,7 +434,7 @@ public class WorldRendererSchematic
         }
         else
         {
-            this.getProfiler().push("layer_" + renderLayer.toString());
+            profiler.push("layer_" + ChunkRenderLayers.getFriendlyName(renderLayer));
         }
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();

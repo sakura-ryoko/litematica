@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -1487,6 +1489,43 @@ public class LitematicaSchematic
         return palette.setMapping(list);
     }
 
+    protected boolean readSpongeBlocksFromTagMetadataOnly(NbtCompound tag, String schematicName, Vec3i size, int minecraftDataVersion, int spongeVersion)
+    {
+        NbtCompound blocksTag = new NbtCompound();
+        byte[] blockData;
+
+        if (spongeVersion >= 3 && tag.contains("Blocks"))
+        {
+            blocksTag = tag.getCompoundOrEmpty("Blocks");
+
+            if (blocksTag.contains("Palette") &&
+                blocksTag.contains("Data"))
+            {
+                blockData = blocksTag.getByteArray("Data").orElse(new byte[0]);
+                this.totalBlocksReadFromWorld = blockData.length;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (tag.contains("Palette") &&
+                tag.contains("BlockData"))
+            {
+                blockData = tag.getByteArray("BlockData").orElse(new byte[0]);
+                this.totalBlocksReadFromWorld = blockData.length;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected boolean readSpongeBlocksFromTag(NbtCompound tag, String schematicName, Vec3i size, int minecraftDataVersion, int spongeVersion)
     {
         NbtCompound blocksTag = new NbtCompound();
@@ -1646,6 +1685,60 @@ public class LitematicaSchematic
         return entities;
     }
 
+    public boolean readFromSpongeSchematicMetadataOnly(String name, NbtCompound tag)
+    {
+        if (isValidSpongeSchematicv3(tag))
+        {
+            // Probably not the "best" solution, but it works
+            NbtCompound spongeTag = tag.getCompoundOrEmpty("Schematic");
+            tag.remove("Schematic");
+            tag.copyFrom(spongeTag);
+        }
+        else if (isValidSpongeSchematic(tag) == false)
+        {
+            return false;
+        }
+
+        final int spongeVersion = tag.contains("Version") ? tag.getInt("Version", -1) : -1;
+        final int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()) : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+        Vec3i size = readSizeFromTagSponge(tag);
+
+        if (this.readSpongeBlocksFromTagMetadataOnly(tag, name, size, minecraftDataVersion, spongeVersion) == false)
+        {
+            return false;
+        }
+
+        if (tag.contains("Metadata"))
+        {
+            NbtCompound metadata = tag.getCompoundOrEmpty("Metadata");
+
+            this.metadata.setName(metadata.contains("Name") ? metadata.getString("Name", "?") : name);
+            this.metadata.setAuthor(metadata.contains("Author") ? metadata.getString("Author", "?") : "unknown");
+            this.metadata.setTimeCreated(metadata.contains("Date") ? metadata.getLong("Date", System.currentTimeMillis()) : System.currentTimeMillis());
+        }
+        else
+        {
+            this.metadata.setAuthor("unknown");
+            this.metadata.setName(name);
+            this.metadata.setTimeCreated(System.currentTimeMillis());
+        }
+        if (tag.contains("author"))
+        {
+            this.metadata.setAuthor(tag.getString("author", "?"));
+        }
+
+        this.metadata.setRegionCount(1);
+        this.metadata.setTotalVolume(size.getX() * size.getY() * size.getZ());
+        this.metadata.setEnclosingSize(size);
+        this.metadata.setTimeModified(this.metadata.getTimeCreated());
+        this.metadata.setTotalBlocks(this.totalBlocksReadFromWorld);
+        this.metadata.setSchematicVersion(spongeVersion);
+        this.metadata.setMinecraftDataVersion(minecraftDataVersion);
+        this.metadata.setFileType(FileType.SPONGE_SCHEMATIC);
+
+        return true;
+    }
+
     public boolean readFromSpongeSchematic(String name, NbtCompound tag)
     {
         if (isValidSpongeSchematicv3(tag))
@@ -1720,6 +1813,39 @@ public class LitematicaSchematic
         this.metadata.setFileType(FileType.SPONGE_SCHEMATIC);
 
         return true;
+    }
+
+    public boolean readFromVanillaStructureMetadataOnly(String name, NbtCompound tag)
+    {
+        Vec3i size = readSizeFromTagImpl(tag);
+
+        if (tag.contains("palette") &&
+            tag.contains("blocks") &&
+            isSizeValid(size))
+        {
+            int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()) : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+            if (tag.contains("author"))
+            {
+                this.getMetadata().setAuthor(tag.getString("author", "?"));
+            }
+
+            this.metadata.setName(name);
+            this.metadata.setRegionCount(1);
+            this.metadata.setTotalVolume(size.getX() * size.getY() * size.getZ());
+            this.metadata.setEnclosingSize(size);
+            this.metadata.setTimeCreated(System.currentTimeMillis());
+            this.metadata.setTimeModified(this.metadata.getTimeCreated());
+            this.metadata.setSchematicVersion(0);
+            this.metadata.setMinecraftDataVersion(minecraftDataVersion);
+            this.metadata.setFileType(FileType.VANILLA_STRUCTURE);
+
+            NbtList blockList = tag.getListOrEmpty("blocks");
+            this.metadata.setTotalBlocks(blockList.size());
+
+            return true;
+        }
+
+        return false;
     }
 
     public boolean readFromVanillaStructure(String name, NbtCompound tag)
@@ -2417,6 +2543,31 @@ public class LitematicaSchematic
         return new File(dir, fileName);
     }
 
+    public static Path fileFromDirAndName(Path dir, String fileName, FileType schematicType)
+    {
+        if (fileName.endsWith(FILE_EXTENSION) == false && schematicType == FileType.LITEMATICA_SCHEMATIC)
+        {
+            fileName = fileName + FILE_EXTENSION;
+        }
+
+        return dir.resolve(fileName);
+    }
+
+    public static void updateMetadataWithFileTime(Path file, SchematicMetadata metadata)
+    {
+        try
+        {
+            BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+
+            metadata.setTimeCreated(attr.creationTime().toMillis());
+            metadata.setTimeModified(attr.lastModifiedTime().toMillis());
+        }
+        catch (Exception err)
+        {
+            Litematica.LOGGER.error("getFileCreatedTime(): Exception reading file '{}'; {}", file.getFileName().toString(), err.getLocalizedMessage());
+        }
+    }
+
     @Nullable
     public static SchematicMetadata readMetadataFromFile(File dir, String fileName)
     {
@@ -2460,18 +2611,33 @@ public class LitematicaSchematic
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
 
-                    if (schem.readFromSpongeSchematic(fileName, nbt))
+                    if (schem.readFromSpongeSchematicMetadataOnly(fileName, nbt))
                     {
-                        return schem.getMetadata();
+                        SchematicMetadata meta = schem.getMetadata();
+                        updateMetadataWithFileTime(file, meta);
+                        return meta;
                     }
                 }
                 case VANILLA_STRUCTURE ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
 
-                    if (schem.readFromVanillaStructure(fileName, nbt))
+                    if (schem.readFromVanillaStructureMetadataOnly(fileName, nbt))
                     {
-                        return schem.getMetadata();
+                        SchematicMetadata meta = schem.getMetadata();
+                        updateMetadataWithFileTime(file, meta);
+                        return meta;
+                    }
+                }
+                case SCHEMATICA_SCHEMATIC ->
+                {
+                    SchematicaSchematic schem = new SchematicaSchematic();
+
+                    if (schem.readBlocksFromNBTMetadataOnly(file, nbt))
+                    {
+                        SchematicMetadata meta = schem.getMetadata();
+                        updateMetadataWithFileTime(file, meta);
+                        return meta;
                     }
                 }
             }
@@ -2525,33 +2691,49 @@ public class LitematicaSchematic
                 case SPONGE_SCHEMATIC ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
-                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
-                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
+//                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+//                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
 
-                    if (schem.readFromSpongeSchematic(fileName, nbt))
+                    if (schem.readFromSpongeSchematicMetadataOnly(fileName, nbt))
                     {
-                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
-                        return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                        SchematicMetadata meta = schem.getMetadata();
+                        updateMetadataWithFileTime(file, meta);
+                        return Pair.of(meta.getSchematicSchema(), meta);
                     }
-                    else
-                    {
-                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
-                    }
+//                    else
+//                    {
+//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+//                    }
                 }
                 case VANILLA_STRUCTURE ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
-                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
-                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
+//                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
+//                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
 
-                    if (schem.readFromVanillaStructure(fileName, nbt))
+                    if (schem.readFromVanillaStructureMetadataOnly(fileName, nbt))
                     {
-                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
-                        return Pair.of(schem.getMetadata().getSchematicSchema(), schem.getMetadata());
+//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                        SchematicMetadata meta = schem.getMetadata();
+                        updateMetadataWithFileTime(file, meta);
+                        return Pair.of(meta.getSchematicSchema(), meta);
                     }
-                    else
+//                    else
+//                    {
+//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+//                    }
+                }
+                case SCHEMATICA_SCHEMATIC ->
+                {
+                    SchematicaSchematic schem = new SchematicaSchematic();
+
+                    if (schem.readBlocksFromNBTMetadataOnly(file, nbt))
                     {
-                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
+                        SchematicMetadata meta = schem.getMetadata();
+                        updateMetadataWithFileTime(file, meta);
+                        return Pair.of(meta.getSchematicSchema(), meta);
                     }
                 }
             }
