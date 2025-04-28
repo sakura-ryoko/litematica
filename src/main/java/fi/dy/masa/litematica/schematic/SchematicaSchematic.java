@@ -556,7 +556,7 @@ public class SchematicaSchematic
         return true;
     }
 
-    protected boolean readBlocksFromNBTMetadataOnly(Path file, NbtCompound nbt)
+    protected boolean readBlocksFromNBTMetadataOnly(File file, NbtCompound nbt)
     {
         if (nbt.contains("Blocks") == false ||
             nbt.contains("Data") == false ||
@@ -567,17 +567,17 @@ public class SchematicaSchematic
             return false;
         }
 
-        this.fileName = file.getFileName().toString();
+        this.fileName = file.getName();
 
         // This method was implemented based on
         // https://minecraft.gamepedia.com/Schematic_file_format
         // as it was on 2018-04-18.
 
-        final int sizeX = nbt.getShort("Width", (short) 0);
-        final int sizeY = nbt.getShort("Height", (short) 0);
-        final int sizeZ = nbt.getShort("Length", (short) 0);
-        final byte[] blockIdsByte = nbt.getByteArray("Blocks").orElse(new byte[0]);
-        final byte[] metaArr = nbt.getByteArray("Data").orElse(new byte[0]);
+        final int sizeX = nbt.getShort("Width");
+        final int sizeY = nbt.getShort("Height");
+        final int sizeZ = nbt.getShort("Length");
+        final byte[] blockIdsByte = nbt.getByteArray("Blocks");
+        final byte[] metaArr = nbt.getByteArray("Data");
         final int numBlocks = blockIdsByte.length;
         final int layerSize = sizeX * sizeZ;
 

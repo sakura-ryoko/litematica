@@ -1511,12 +1511,12 @@ public class LitematicaSchematic
 
         if (spongeVersion >= 3 && tag.contains("Blocks"))
         {
-            blocksTag = tag.getCompoundOrEmpty("Blocks");
+            blocksTag = tag.getCompound("Blocks");
 
             if (blocksTag.contains("Palette") &&
                 blocksTag.contains("Data"))
             {
-                blockData = blocksTag.getByteArray("Data").orElse(new byte[0]);
+                blockData = blocksTag.getByteArray("Data");
                 this.totalBlocksReadFromWorld = blockData.length;
             }
             else
@@ -1529,7 +1529,7 @@ public class LitematicaSchematic
             if (tag.contains("Palette") &&
                 tag.contains("BlockData"))
             {
-                blockData = tag.getByteArray("BlockData").orElse(new byte[0]);
+                blockData = tag.getByteArray("BlockData");
                 this.totalBlocksReadFromWorld = blockData.length;
             }
             else
@@ -1705,7 +1705,7 @@ public class LitematicaSchematic
         if (isValidSpongeSchematicv3(tag))
         {
             // Probably not the "best" solution, but it works
-            NbtCompound spongeTag = tag.getCompoundOrEmpty("Schematic");
+            NbtCompound spongeTag = tag.getCompound("Schematic");
             tag.remove("Schematic");
             tag.copyFrom(spongeTag);
         }
@@ -1714,8 +1714,8 @@ public class LitematicaSchematic
             return false;
         }
 
-        final int spongeVersion = tag.contains("Version") ? tag.getInt("Version", -1) : -1;
-        final int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()) : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+        final int spongeVersion = tag.contains("Version") ? tag.getInt("Version") : -1;
+        final int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
         Vec3i size = readSizeFromTagSponge(tag);
 
         if (this.readSpongeBlocksFromTagMetadataOnly(tag, name, size, minecraftDataVersion, spongeVersion) == false)
@@ -1725,11 +1725,11 @@ public class LitematicaSchematic
 
         if (tag.contains("Metadata"))
         {
-            NbtCompound metadata = tag.getCompoundOrEmpty("Metadata");
+            NbtCompound metadata = tag.getCompound("Metadata");
 
-            this.metadata.setName(metadata.contains("Name") ? metadata.getString("Name", "?") : name);
-            this.metadata.setAuthor(metadata.contains("Author") ? metadata.getString("Author", "?") : "unknown");
-            this.metadata.setTimeCreated(metadata.contains("Date") ? metadata.getLong("Date", System.currentTimeMillis()) : System.currentTimeMillis());
+            this.metadata.setName(metadata.contains("Name") ? metadata.getString("Name") : name);
+            this.metadata.setAuthor(metadata.contains("Author") ? metadata.getString("Author") : "unknown");
+            this.metadata.setTimeCreated(metadata.contains("Date") ? metadata.getLong("Date") : System.currentTimeMillis());
         }
         else
         {
@@ -1739,7 +1739,7 @@ public class LitematicaSchematic
         }
         if (tag.contains("author"))
         {
-            this.metadata.setAuthor(tag.getString("author", "?"));
+            this.metadata.setAuthor(tag.getString("author"));
         }
 
         this.metadata.setRegionCount(1);
@@ -1838,10 +1838,10 @@ public class LitematicaSchematic
             tag.contains("blocks") &&
             isSizeValid(size))
         {
-            int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()) : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
+            int minecraftDataVersion = tag.contains("DataVersion") ? tag.getInt("DataVersion") : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
             if (tag.contains("author"))
             {
-                this.getMetadata().setAuthor(tag.getString("author", "?"));
+                this.getMetadata().setAuthor(tag.getString("author"));
             }
 
             this.metadata.setName(name);
@@ -1854,7 +1854,7 @@ public class LitematicaSchematic
             this.metadata.setMinecraftDataVersion(minecraftDataVersion);
             this.metadata.setFileType(FileType.VANILLA_STRUCTURE);
 
-            NbtList blockList = tag.getListOrEmpty("blocks");
+            NbtList blockList = tag.getList("blocks", Constants.NBT.TAG_COMPOUND);
             this.metadata.setTotalBlocks(blockList.size());
 
             return true;
@@ -2629,7 +2629,7 @@ public class LitematicaSchematic
                     if (schem.readFromSpongeSchematicMetadataOnly(fileName, nbt))
                     {
                         SchematicMetadata meta = schem.getMetadata();
-                        updateMetadataWithFileTime(file, meta);
+                        updateMetadataWithFileTime(file.toPath(), meta);
                         return meta;
                     }
                 }
@@ -2640,7 +2640,7 @@ public class LitematicaSchematic
                     if (schem.readFromVanillaStructureMetadataOnly(fileName, nbt))
                     {
                         SchematicMetadata meta = schem.getMetadata();
-                        updateMetadataWithFileTime(file, meta);
+                        updateMetadataWithFileTime(file.toPath(), meta);
                         return meta;
                     }
                 }
@@ -2651,7 +2651,7 @@ public class LitematicaSchematic
                     if (schem.readBlocksFromNBTMetadataOnly(file, nbt))
                     {
                         SchematicMetadata meta = schem.getMetadata();
-                        updateMetadataWithFileTime(file, meta);
+                        updateMetadataWithFileTime(file.toPath(), meta);
                         return meta;
                     }
                 }
@@ -2713,7 +2713,7 @@ public class LitematicaSchematic
                     {
 //                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         SchematicMetadata meta = schem.getMetadata();
-                        updateMetadataWithFileTime(file, meta);
+                        updateMetadataWithFileTime(file.toPath(), meta);
                         return Pair.of(meta.getSchematicSchema(), meta);
                     }
 //                    else
@@ -2731,7 +2731,7 @@ public class LitematicaSchematic
                     {
 //                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         SchematicMetadata meta = schem.getMetadata();
-                        updateMetadataWithFileTime(file, meta);
+                        updateMetadataWithFileTime(file.toPath(), meta);
                         return Pair.of(meta.getSchematicSchema(), meta);
                     }
 //                    else
@@ -2747,7 +2747,7 @@ public class LitematicaSchematic
                     {
 //                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         SchematicMetadata meta = schem.getMetadata();
-                        updateMetadataWithFileTime(file, meta);
+                        updateMetadataWithFileTime(file.toPath(), meta);
                         return Pair.of(meta.getSchematicSchema(), meta);
                     }
                 }
