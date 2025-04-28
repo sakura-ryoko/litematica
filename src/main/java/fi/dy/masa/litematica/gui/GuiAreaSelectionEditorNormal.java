@@ -47,6 +47,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
     protected int xNext;
     protected int yNext;
     protected int xOrigin;
+    protected int xSet;
     @Nullable protected String selectionId;
 
     public GuiAreaSelectionEditorNormal(AreaSelection selection)
@@ -113,6 +114,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
         x += this.createButton(x, y, -1, ButtonListener.Type.SET_SELECTION_NAME) + 10;
         y += 20;
 
+        this.xSet = x;
         this.yNext = y;
     }
 
@@ -131,6 +133,12 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
         // Manual Origin defined
         if (this.selection.getExplicitOrigin() != null)
         {
+            // Adjust x for Chinese or other narrow width langs
+            if ((this.xSet - xSave) > 5)
+            {
+                xSave = this.xSet + 5;
+            }
+
             x = Math.max(xSave, this.xOrigin);
             this.createCoordinateInputs(x, 5, width, Corner.NONE);
         }
