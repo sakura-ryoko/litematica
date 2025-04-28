@@ -55,7 +55,7 @@ public class SchematicaSchematic
     private IdentityHashMap<BlockState, IStateFixer> postProcessingFilter;
     private boolean needsConversionPostProcessing;
 
-    private SchematicaSchematic()
+    protected SchematicaSchematic()
     {
         this.converter = SchematicConverter.createForSchematica();
     }
@@ -552,6 +552,55 @@ public class SchematicaSchematic
             this.postProcessingFilter = this.converter.getPostProcessStateFilter();
             this.needsConversionPostProcessing = true;
         }
+
+        return true;
+    }
+
+    protected boolean readBlocksFromNBTMetadataOnly(Path file, NbtCompound nbt)
+    {
+        if (nbt.contains("Blocks") == false ||
+            nbt.contains("Data") == false ||
+            nbt.contains("Width") == false ||
+            nbt.contains("Height") == false ||
+            nbt.contains("Length") == false)
+        {
+            return false;
+        }
+
+        this.fileName = file.getFileName().toString();
+
+        // This method was implemented based on
+        // https://minecraft.gamepedia.com/Schematic_file_format
+        // as it was on 2018-04-18.
+
+        final int sizeX = nbt.getShort("Width", (short) 0);
+        final int sizeY = nbt.getShort("Height", (short) 0);
+        final int sizeZ = nbt.getShort("Length", (short) 0);
+        final byte[] blockIdsByte = nbt.getByteArray("Blocks").orElse(new byte[0]);
+        final byte[] metaArr = nbt.getByteArray("Data").orElse(new byte[0]);
+        final int numBlocks = blockIdsByte.length;
+        final int layerSize = sizeX * sizeZ;
+
+        if (numBlocks != (sizeX * sizeY * sizeZ))
+        {
+            String str = String.format("SchematicaSchematic: Mismatched block array size compared to the width/height/length,\nblocks: %d, W x H x L: %d x %d x %d", numBlocks, sizeX, sizeY, sizeZ);
+            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
+            return false;
+        }
+
+        if (numBlocks != metaArr.length)
+        {
+            String str = String.format("SchematicaSchematic: Mismatched block ID and metadata array sizes, blocks: %d, meta: %d", numBlocks, metaArr.length);
+            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
+            return false;
+        }
+
+        this.size = new Vec3i(sizeX, sizeY, sizeZ);
+        this.metadata.setEnclosingSize(this.size);
+        this.metadata.setTotalBlocks(numBlocks);
+        this.metadata.setTotalVolume(sizeX * sizeY * sizeZ);
+        this.metadata.setRegionCount(1);
+        this.metadata.setFileType(FileType.SCHEMATICA_SCHEMATIC);
 
         return true;
     }
