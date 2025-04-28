@@ -434,7 +434,7 @@ public class WorldRendererSchematic
         }
         else
         {
-            profiler.push("layer_" + ChunkRenderLayers.getFriendlyName(renderLayer));
+            this.getProfiler().push("layer_" + ChunkRenderLayers.getFriendlyName(renderLayer));
         }
 
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
