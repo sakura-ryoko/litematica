@@ -214,6 +214,8 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                         this.drawString(drawContext, str, x, y, textColor);
                         y += 12;
                     }
+                    // Not supported
+//                    case SCHEMATICA_SCHEMATIC ->  {}
                 }
 
                 Schema schema = Schema.getSchemaByDataVersion(version.minecraftDataVersion());
