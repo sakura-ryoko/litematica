@@ -8,7 +8,10 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.enums.ChestType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
@@ -20,6 +23,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
@@ -187,6 +191,8 @@ public class SchematicPlacingUtils
         final int posMinRelMinusRegY = posMinRel.getY() - regionPos.getY();
         final int posMinRelMinusRegZ = posMinRel.getZ() - regionPos.getZ();
 
+//        dumpBlockEntityMap(blockEntityMap);
+
         for (int y = startY; y <= endY; ++y)
         {
             for (int z = startZ; z <= endZ; ++z)
@@ -202,6 +208,7 @@ public class SchematicPlacingUtils
 
                     posMutable.set(x, y, z);
                     NbtCompound teNBT = blockEntityMap.get(posMutable);
+                    BlockPos origPos = posMutable.toImmutable();
 
                     posMutable.set(posMinRelMinusRegX + x,
                                    posMinRelMinusRegY + y,
@@ -216,6 +223,30 @@ public class SchematicPlacingUtils
                         (replace == ReplaceBehavior.WITH_NON_AIR && state.isAir() == true))
                     {
                         continue;
+                    }
+
+                    // Fix inventory of adjacent chest sides
+                    if (state.hasBlockEntity() && state.isOf(Blocks.CHEST) &&
+                        !ignoreInventories && mirrorMain != BlockMirror.NONE &&
+                        !(state.get(ChestBlock.CHEST_TYPE) == ChestType.SINGLE) &&
+                        Configs.Generic.FIX_CHEST_MIRROR.getBooleanValue())
+                    {
+                        Direction facing = state.get(ChestBlock.FACING);
+                        Direction.Axis axis = facing.getAxis();
+                        ChestType type = state.get(ChestBlock.CHEST_TYPE).getOpposite();
+
+                        if (mirrorMain == BlockMirror.FRONT_BACK && axis == Direction.Axis.Z)
+                        {
+                            Direction facingAdj = type == ChestType.LEFT ? facing.rotateCounterclockwise(Direction.Axis.Y) : facing.rotateClockwise(Direction.Axis.Y);
+                            BlockPos posAdj = origPos.offset(facingAdj);
+                            teNBT = blockEntityMap.getOrDefault(posAdj, teNBT).copy();
+                        }
+                        else if (mirrorMain == BlockMirror.LEFT_RIGHT && axis == Direction.Axis.Z)
+                        {
+                            Direction facingAdj = type == ChestType.LEFT ? facing.rotateCounterclockwise(Direction.Axis.Y) : facing.rotateClockwise(Direction.Axis.Y);
+                            BlockPos posAdj = origPos.offset(facingAdj);
+                            teNBT = blockEntityMap.getOrDefault(posAdj, teNBT).copy();
+                        }
                     }
 
                     if (mirrorMain != BlockMirror.NONE) { state = state.mirror(mirrorMain); }
@@ -346,6 +377,20 @@ public class SchematicPlacingUtils
         }
 
         return true;
+    }
+
+    private static void dumpBlockEntityMap(Map<BlockPos, NbtCompound> teMap)
+    {
+        System.out.print("DUMP TE-MAP:\n");
+
+        for (BlockPos pos : teMap.keySet())
+        {
+            NbtCompound nbt = teMap.get(pos);
+
+            System.out.printf("  pos[%s]: %s\n", pos.toShortString(), nbt.toString());
+        }
+
+        System.out.print("DUMP TE-MAP -- END\n");
     }
 
     public static void placeEntitiesToWorldWithinChunk(World world, ChunkPos chunkPos,
