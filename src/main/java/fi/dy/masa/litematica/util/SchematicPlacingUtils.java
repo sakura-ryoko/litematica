@@ -216,7 +216,6 @@ public class SchematicPlacingUtils
 
                     BlockPos pos = PositionUtils.getTransformedPlacementPosition(posMutable, schematicPlacement, placement);
                     pos = pos.add(regionPosTransformed).add(origin);
-
                     BlockState stateOld = world.getBlockState(pos);
 
                     if ((replace == ReplaceBehavior.NONE && stateOld.isAir() == false) ||
@@ -225,7 +224,7 @@ public class SchematicPlacingUtils
                         continue;
                     }
 
-                    // Fix inventory of adjacent chest sides
+                    // Fix inventory of adjacent chest sides when mirrored
                     if (state.hasBlockEntity() && state.isOf(Blocks.CHEST) &&
                         !ignoreInventories && mirrorMain != BlockMirror.NONE &&
                         !(state.get(ChestBlock.CHEST_TYPE) == ChestType.SINGLE) &&
@@ -235,13 +234,7 @@ public class SchematicPlacingUtils
                         Direction.Axis axis = facing.getAxis();
                         ChestType type = state.get(ChestBlock.CHEST_TYPE).getOpposite();
 
-                        if (mirrorMain == BlockMirror.FRONT_BACK && axis == Direction.Axis.Z)
-                        {
-                            Direction facingAdj = type == ChestType.LEFT ? facing.rotateCounterclockwise(Direction.Axis.Y) : facing.rotateClockwise(Direction.Axis.Y);
-                            BlockPos posAdj = origPos.offset(facingAdj);
-                            teNBT = blockEntityMap.getOrDefault(posAdj, teNBT).copy();
-                        }
-                        else if (mirrorMain == BlockMirror.LEFT_RIGHT && axis == Direction.Axis.Z)
+                        if (mirrorMain != BlockMirror.NONE && axis != Direction.Axis.Y)
                         {
                             Direction facingAdj = type == ChestType.LEFT ? facing.rotateCounterclockwise(Direction.Axis.Y) : facing.rotateClockwise(Direction.Axis.Y);
                             BlockPos posAdj = origPos.offset(facingAdj);
