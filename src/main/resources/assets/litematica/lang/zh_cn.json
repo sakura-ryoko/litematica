@@ -158,7 +158,7 @@
     "litematica.config.generic.name.pickBlockAvoidTools": "选取方块时避开工具",
     "litematica.config.generic.name.pickBlockEnabled": "启用选取方块功能",
     "litematica.config.generic.name.pickBlockIgnoreNbt": "选取方块忽略NBT数据",
-    "litematica.config.generic.name.pickBlockShulkers": "选取潜影盒方块",
+    "litematica.config.generic.name.pickBlockShulkers": "选取有此方块的潜影盒",
     "litematica.config.generic.name.pickBlockableSlots": "可选取方块的物品栏位",
     "litematica.config.generic.name.placementReplaceBehavior": "放置替换方法",
     "litematica.config.generic.name.placementRestriction": "方块放置约束模式",
