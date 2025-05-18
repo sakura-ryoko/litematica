@@ -212,6 +212,9 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       IGNORE_EXISTING_FLUIDS              = new ConfigBoolean("ignoreExistingFluids", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       IGNORE_EXISTING_BLOCKS              = new ConfigBoolean("ignoreExistingBlocks", false).apply(VISUALS_KEY);
         public static final ConfigStringList    IGNORABLE_EXISTING_BLOCKS           = new ConfigStringList("ignorableExistingBlocks", ImmutableList.of()).apply(VISUALS_KEY);
+        public static final ConfigBoolean       RENDER_IGNORED_SCHEMATIC_BLOCKS     = new ConfigBoolean("renderIgnoredSchematicBlocks", false).apply(VISUALS_KEY);
+        public static final ConfigBoolean       IGNORE_SCHEMATIC_BLOCKS             = new ConfigBoolean("ignoreSchematicBlocks", false).apply(VISUALS_KEY);
+        public static final ConfigStringList    IGNORABLE_SCHEMATIC_BLOCKS          = new ConfigStringList("ignorableSchematicBlocks", ImmutableList.of()).apply(VISUALS_KEY);
         public static final ConfigBoolean       OVERLAY_REDUCED_INNER_SIDES         = new ConfigBoolean("overlayReducedInnerSides", false).apply(VISUALS_KEY);
         public static final ConfigDouble        PLACEMENT_BOX_SIDE_ALPHA            = new ConfigDouble( "placementBoxSideAlpha", 0.2, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_AO_MODERN_ENABLE             = new ConfigBoolean("renderAOModernEnable", false).apply(VISUALS_KEY);
@@ -254,6 +257,9 @@ public class Configs implements IConfigHandler
                 IGNORE_EXISTING_FLUIDS,
                 IGNORE_EXISTING_BLOCKS,
                 IGNORABLE_EXISTING_BLOCKS,
+                RENDER_IGNORED_SCHEMATIC_BLOCKS,
+                IGNORE_SCHEMATIC_BLOCKS,
+                IGNORABLE_SCHEMATIC_BLOCKS,
                 OVERLAY_REDUCED_INNER_SIDES,
                 RENDER_AO_MODERN_ENABLE,
                 RENDER_AREA_SELECTION_BOX_SIDES,

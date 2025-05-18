@@ -1,6 +1,8 @@
 package fi.dy.masa.litematica.util;
 
 import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
+import fi.dy.masa.malilib.config.options.ConfigStringList;
 import net.minecraft.block.Block;
 import net.minecraft.registry.tag.TagKey;
 
@@ -28,12 +30,12 @@ public class IgnoreBlockRegistry {
         return this.blocks.isEmpty() && this.blockTags.isEmpty();
     }
 
-    public IgnoreBlockRegistry() {
+    public IgnoreBlockRegistry(ConfigBoolean ignoreBlocks, ConfigStringList ignorableBlocks) {
         this.blocks = new ArrayList<>();
         this.blockTags = new ArrayList<>();
 
-        if (Configs.Visuals.IGNORE_EXISTING_BLOCKS.getBooleanValue()) {
-            for (String value : Configs.Visuals.IGNORABLE_EXISTING_BLOCKS.getStrings()) {
+        if (ignoreBlocks.getBooleanValue()) {
+            for (String value : ignorableBlocks.getStrings()) {
                 String trimmed = value.trim();
                 if (trimmed.startsWith("#")) {
                     Optional<TagKey<Block>> tag = BlockUtils.getBlockTagFromString(trimmed);

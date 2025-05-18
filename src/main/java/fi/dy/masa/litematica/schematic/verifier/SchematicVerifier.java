@@ -88,6 +88,7 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
     private int clientBlocks;
     private int correctStatesCount;
     private IgnoreBlockRegistry ignoreBlockRegistry;
+    private IgnoreBlockRegistry ignoreSchematicBlockRegistry;
 
     public SchematicVerifier()
     {
@@ -315,7 +316,8 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
         this.worldClient = worldClient;
         this.worldSchematic = worldSchematic;
         this.schematicPlacement = schematicPlacement;
-        this.ignoreBlockRegistry = new IgnoreBlockRegistry();
+        this.ignoreBlockRegistry = new IgnoreBlockRegistry(Configs.Visuals.IGNORE_EXISTING_BLOCKS, Configs.Visuals.IGNORABLE_EXISTING_BLOCKS);
+        this.ignoreSchematicBlockRegistry = new IgnoreBlockRegistry(Configs.Visuals.IGNORE_SCHEMATIC_BLOCKS, Configs.Visuals.IGNORABLE_SCHEMATIC_BLOCKS);
 
         this.setCompletionListener(completionListener);
         this.requiredChunks.addAll(schematicPlacement.getTouchedChunks());
@@ -710,7 +712,8 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
     {
         BlockPos pos = new BlockPos(x, y, z);
 
-        if (stateClient != stateSchematic && (stateClient.isAir() == false || stateSchematic.isAir() == false))
+        if (stateClient != stateSchematic && (stateClient.isAir() == false || stateSchematic.isAir() == false) &&
+            !this.ignoreSchematicBlockRegistry.hasBlock(stateSchematic.getBlock()))
         {
             MUTABLE_PAIR.setLeft(stateSchematic);
             MUTABLE_PAIR.setRight(stateClient);

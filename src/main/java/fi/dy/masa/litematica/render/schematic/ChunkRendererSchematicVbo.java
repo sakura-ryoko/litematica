@@ -9,6 +9,8 @@ import com.google.common.collect.Sets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
+
+import fi.dy.masa.litematica.util.ChunkCacheSchematicIgnoreWrapper;
 import fi.dy.masa.litematica.util.IgnoreBlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -31,6 +33,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.chunk.WorldChunk;
 
 import fi.dy.masa.malilib.util.Color4f;
@@ -74,8 +77,10 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected boolean hasOverlay = false;
     private boolean ignoreClientWorldFluids;
     private IgnoreBlockRegistry ignoreBlockRegistry;
+    private IgnoreBlockRegistry ignoreSchematicBlockRegistry;
 
     protected ChunkCacheSchematic schematicWorldView;
+    protected ChunkCacheSchematicIgnoreWrapper schematicWorldViewIgnoreWrapper;
     protected ChunkCacheSchematic clientWorldView;
 
     private final BufferBuilderCache builderCache;
@@ -463,6 +468,15 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             return;
         }
 
+        if (!Configs.Visuals.RENDER_IGNORED_SCHEMATIC_BLOCKS.getBooleanValue() && this.ignoreSchematicBlockRegistry.hasBlock(stateSchematic.getBlock())) {
+            return;
+        }
+
+        BlockRenderView schematicWorldView = this.schematicWorldView;
+        if(!Configs.Visuals.RENDER_IGNORED_SCHEMATIC_BLOCKS.getBooleanValue()) {
+            schematicWorldView = schematicWorldViewIgnoreWrapper;
+        }
+
         this.getProfiler().push("render_build");
         this.overlayColor = null;
 
@@ -493,7 +507,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 }
                 ((IBufferBuilderPatch) bufferSchematic).litematica$setOffsetY(offsetY);
 
-                this.worldRenderer.renderFluid(this.schematicWorldView, stateSchematic, fluidState, pos, bufferSchematic);
+                this.worldRenderer.renderFluid(schematicWorldView, stateSchematic, fluidState, pos, bufferSchematic);
                 usedLayers.add(layer);
                 ((IBufferBuilderPatch) bufferSchematic).litematica$setOffsetY(0.0F);
             }
@@ -510,7 +524,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     bufferSchematic = this.preRenderBlocks(layer, allocators);
                 }
 
-                if (this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, matrixStack, bufferSchematic))
+                if (this.worldRenderer.renderBlock(schematicWorldView, stateSchematic, pos, matrixStack, bufferSchematic))
                 {
                     usedLayers.add(layer);
                 }
@@ -869,7 +883,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             boolean schematicHasAir = stateSchematic.isAir();
 
             // TODO --> Maybe someday Mojang will add something to replace isLiquid(), and isSolid()
-            if (schematicHasAir)
+            if (this.ignoreSchematicBlockRegistry.hasBlock(stateSchematic.getBlock()))
+            {
+                return OverlayType.NONE;
+            }
+            else if (schematicHasAir)
             {
                 if (clientHasAir)
                 {
@@ -1413,10 +1431,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         synchronized (this.boxes)
         {
             this.ignoreClientWorldFluids = Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue();
-            this.ignoreBlockRegistry = new IgnoreBlockRegistry();
+            this.ignoreBlockRegistry = new IgnoreBlockRegistry(Configs.Visuals.IGNORE_EXISTING_BLOCKS, Configs.Visuals.IGNORABLE_EXISTING_BLOCKS);
+            this.ignoreSchematicBlockRegistry = new IgnoreBlockRegistry(Configs.Visuals.IGNORE_SCHEMATIC_BLOCKS, Configs.Visuals.IGNORABLE_SCHEMATIC_BLOCKS);
             ClientWorld worldClient = MinecraftClient.getInstance().world;
             assert worldClient != null;
             this.schematicWorldView = new ChunkCacheSchematic(this.world, worldClient, this.position, 2);
+            this.schematicWorldViewIgnoreWrapper = new ChunkCacheSchematicIgnoreWrapper(this.schematicWorldView, this.ignoreSchematicBlockRegistry);
             this.clientWorldView    = new ChunkCacheSchematic(worldClient, worldClient, this.position, 2);
             this.boxes.clear();
 
