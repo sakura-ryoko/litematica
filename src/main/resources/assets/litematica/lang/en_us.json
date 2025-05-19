@@ -258,6 +258,7 @@
     "litematica.config.hotkeys.name.addSelectionBox": "addSelectionBox",
     "litematica.config.hotkeys.name.cloneSelection": "cloneSelection",
     "litematica.config.hotkeys.name.deleteSelectionBox": "deleteSelectionBox",
+    "litematica.config.hotkeys.name.easyPlaceFirst": "easyPlaceFirst",
     "litematica.config.hotkeys.name.easyPlaceToggle": "easyPlaceToggle",
     "litematica.config.hotkeys.name.easyPlaceUseKey": "easyPlaceUseKey",
     "litematica.config.hotkeys.name.executeOperation": "executeOperation",
