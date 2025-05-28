@@ -2262,7 +2262,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; i++)
         {
-            newEntitiesList.add(SchematicDowngradeConverter.downgradeEntity_to_1_20_4(oldEntitiesList.getCompound(i), minecraftDataVersion, MinecraftClient.getInstance().world.getRegistryManager()));
+            newEntitiesList.add(SchematicDowngradeConverter.downgradeEntity_to_1_20_4(SchematicConversionMaps.fixEntityTypesFrom1_21_2(oldEntitiesList.getCompound(i)), minecraftDataVersion, MinecraftClient.getInstance().world.getRegistryManager()));
         }
 
         return newEntitiesList;
