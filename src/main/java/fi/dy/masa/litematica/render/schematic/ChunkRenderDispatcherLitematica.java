@@ -442,7 +442,7 @@ public class ChunkRenderDispatcherLitematica
 
         VertexBuffer vertexBuffer = renderChunk.getBlocksVertexBufferByLayer(layer);
 
-        if (layer == RenderLayer.getTranslucent())
+        if (layer == RenderLayer.getTranslucent() && Configs.Visuals.RENDER_ENABLE_TRANSLUCENT_RESORTING.getBooleanValue())
         {
             BuiltBuffer.SortState sorting = compiledChunk.getTransparentSortingData();
 
