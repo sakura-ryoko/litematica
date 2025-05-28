@@ -770,11 +770,11 @@ public class SchematicaSchematic
         {
             if (effective != null)
             {
-                this.entities.add(SchematicConversionMaps.updateEntity(tagList.getCompound(i), minecraftDataVersion));
+                this.entities.add(SchematicConversionMaps.updateEntity(SchematicConversionMaps.fixEntityTypesFrom1_21_2(tagList.getCompound(i)), minecraftDataVersion));
             }
             else
             {
-                this.entities.add(tagList.getCompound(i));
+                this.entities.add(SchematicConversionMaps.fixEntityTypesFrom1_21_2(tagList.getCompound(i)));
             }
         }
     }

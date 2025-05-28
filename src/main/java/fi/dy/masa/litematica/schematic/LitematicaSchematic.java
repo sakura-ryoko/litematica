@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -1615,7 +1614,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound beTag = tagList.getCompound(i);
+            NbtCompound beTag = SchematicConversionMaps.checkForIdTag(tagList.getCompound(i));
             BlockPos pos = NbtUtils.readBlockPosFromArrayTag(beTag, "Pos");
 
             if (pos != null && beTag.isEmpty() == false)
@@ -1672,12 +1671,12 @@ public class LitematicaSchematic
                     {
                         entityData.putString("id", entityEntry.getString("id"));
                     }
-                    entities.add(new EntityInfo(pos, entityData));
+                    entities.add(new EntityInfo(pos, SchematicConversionMaps.fixEntityTypesFrom1_21_2(entityData)));
                 }
                 else
                 {
                     pos = new Vec3d(pos.x - offset.getX(), pos.y - offset.getY(), pos.z - offset.getZ());
-                    entities.add(new EntityInfo(pos, entityEntry));
+                    entities.add(new EntityInfo(pos, SchematicConversionMaps.fixEntityTypesFrom1_21_2(entityEntry)));
                 }
             }
         }
@@ -2036,7 +2035,7 @@ public class LitematicaSchematic
 
             if (pos != null && entityData.contains("nbt", Constants.NBT.TAG_COMPOUND))
             {
-                entities.add(new EntityInfo(pos, entityData.getCompound("nbt")));
+                entities.add(new EntityInfo(pos, SchematicConversionMaps.fixEntityTypesFrom1_21_2(entityData.getCompound("nbt"))));
             }
         }
 
@@ -2195,7 +2194,7 @@ public class LitematicaSchematic
 
             for (int i = 0; i < size; i++)
             {
-                newEntitiesList.add(SchematicConversionMaps.updateEntity(oldEntitiesList.getCompound(i), minecraftDataVersion));
+                newEntitiesList.add(SchematicConversionMaps.updateEntity(SchematicConversionMaps.fixEntityTypesFrom1_21_2(oldEntitiesList.getCompound(i)), minecraftDataVersion));
             }
 
             return newEntitiesList;
@@ -2227,7 +2226,7 @@ public class LitematicaSchematic
 
             for (EntityInfo oldEntityInfo : oldEntitiesList)
             {
-                newEntitiesList.add(new EntityInfo(oldEntityInfo.posVec, SchematicConversionMaps.updateEntity(oldEntityInfo.nbt, minecraftDataVersion)));
+                newEntitiesList.add(new EntityInfo(oldEntityInfo.posVec, SchematicConversionMaps.updateEntity(SchematicConversionMaps.fixEntityTypesFrom1_21_2(oldEntityInfo.nbt), minecraftDataVersion)));
             }
 
             return newEntitiesList;
@@ -2259,7 +2258,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; i++)
         {
-            newEntitiesList.add(SchematicDowngradeConverter.downgradeEntity_to_1_20_4(oldEntitiesList.getCompound(i), minecraftDataVersion, MinecraftClient.getInstance().world.getRegistryManager()));
+            newEntitiesList.add(SchematicDowngradeConverter.downgradeEntity_to_1_20_4(SchematicConversionMaps.fixEntityTypesFrom1_21_2(oldEntitiesList.getCompound(i)), minecraftDataVersion, MinecraftClient.getInstance().world.getRegistryManager()));
         }
 
         return newEntitiesList;
@@ -2272,7 +2271,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound entityData = tagList.getCompound(i);
+            NbtCompound entityData = SchematicConversionMaps.fixEntityTypesFrom1_21_2(tagList.getCompound(i));
             Vec3d posVec = NbtUtils.readEntityPositionFromTag(entityData);
 
             if (posVec != null && entityData.isEmpty() == false)
@@ -2291,7 +2290,7 @@ public class LitematicaSchematic
 
         for (int i = 0; i < size; ++i)
         {
-            NbtCompound tag = tagList.getCompound(i);
+            NbtCompound tag = SchematicConversionMaps.checkForIdTag(tagList.getCompound(i));
             BlockPos pos = NbtUtils.readBlockPos(tag);
 
             if (pos != null && tag.isEmpty() == false)

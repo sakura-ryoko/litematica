@@ -14,9 +14,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.PillarBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.datafixer.TypeReferences;
+import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -348,6 +350,7 @@ public class SchematicConversionMaps
         {
             return tags;
         }
+
         if (tags.contains("Id"))
         {
             tags.putString("id", tags.getString("Id"));
@@ -470,7 +473,8 @@ public class SchematicConversionMaps
 
         for (int i = 0; i < items.size(); i++)
         {
-            NbtCompound itemEntry = items.getCompound(i);
+            NbtCompound itemEntry = fixItemTypesFrom1_21_2(items.getCompound(i));
+
             if (itemEntry.contains("tag"))
             {
                 NbtCompound tag = null;
@@ -509,6 +513,189 @@ public class SchematicConversionMaps
         }
 
         return newList;
+    }
+
+    private static NbtCompound fixItemTypesFrom1_21_2(NbtCompound nbt)
+    {
+        if (!nbt.contains("id"))
+        {
+            return nbt;
+        }
+
+        String id = nbt.getString("id");
+        Identifier newId = null;
+
+        switch (id)
+        {
+            case "minecraft:pale_oak_boat" -> newId = Identifier.ofVanilla("oak_boat");
+            case "minecraft:pale_oak_chest_boat" -> newId = Identifier.ofVanilla("oak_chest_boat");
+        }
+
+        if (newId != null)
+        {
+            nbt.putString("id", newId.toString());
+        }
+
+        return nbt;
+    }
+
+    public static NbtCompound fixEntityTypesFrom1_21_2(NbtCompound nbt)
+    {
+        if (!nbt.contains("id"))
+        {
+            return nbt;
+        }
+
+        // Fix any erroneous Items tags with the null "tag" tag.
+        if (nbt.contains("Items"))
+        {
+            NbtList items = fixItemsTag(nbt.getList("Items", Constants.NBT.TAG_COMPOUND));
+            nbt.put("Items", items);
+        }
+
+        String id = nbt.getString("id");
+        Identifier newId = null;
+        BoatEntity.Type type = null;
+        boolean boatFix = false;
+
+        switch (id)
+        {
+            case "minecraft:oak_boat", "minecraft:pale_oak_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.OAK;
+                boatFix = true;
+            }
+            case "minecraft:spruce_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.SPRUCE;
+                boatFix = true;
+            }
+            case "minecraft:birch_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.BIRCH;
+                boatFix = true;
+            }
+            case "minecraft:jungle_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.JUNGLE;
+                boatFix = true;
+            }
+            case "minecraft:acacia_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.ACACIA;
+                boatFix = true;
+            }
+            case "minecraft:cherry_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.CHERRY;
+                boatFix = true;
+            }
+            case "minecraft:dark_oak_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.DARK_OAK;
+                boatFix = true;
+            }
+            case "minecraft:mangrove_boat" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.MANGROVE;
+                boatFix = true;
+            }
+            case "minecraft:bamboo_raft" ->
+            {
+                newId = Identifier.ofVanilla("boat");
+                type = BoatEntity.Type.BAMBOO;
+                boatFix = true;
+            }
+            case "minecraft:oak_chest_boat", "minecraft:pale_oak_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.OAK;
+                boatFix = true;
+            }
+            case "minecraft:spruce_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.SPRUCE;
+                boatFix = true;
+            }
+            case "minecraft:birch_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.BIRCH;
+                boatFix = true;
+            }
+            case "minecraft:jungle_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.JUNGLE;
+                boatFix = true;
+            }
+            case "minecraft:acacia_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.ACACIA;
+                boatFix = true;
+            }
+            case "minecraft:cherry_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.CHERRY;
+                boatFix = true;
+            }
+            case "minecraft:dark_oak_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.DARK_OAK;
+                boatFix = true;
+            }
+            case "minecraft:mangrove_chest_boat" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.MANGROVE;
+                boatFix = true;
+            }
+            case "minecraft:bamboo_chest_raft" ->
+            {
+                newId = Identifier.ofVanilla("chest_boat");
+                type = BoatEntity.Type.BAMBOO;
+                boatFix = true;
+            }
+            default ->
+            {
+                if (id.contains("_chest_boat"))
+                {
+                    newId = Identifier.ofVanilla("chest_boat");
+                    type = BoatEntity.Type.OAK;
+                    boatFix = true;
+                }
+                else if (id.contains("_boat"))
+                {
+                    newId = Identifier.ofVanilla("boat");
+                    type = BoatEntity.Type.OAK;
+                    boatFix = true;
+                }
+            }
+        }
+
+        if (newId != null)
+        {
+            nbt.putString("id", newId.toString());
+        }
+
+        if (boatFix)
+        {
+            nbt.putString("Type", type.asString());
+        }
+
+        return nbt;
     }
 
     private static class ConversionData
