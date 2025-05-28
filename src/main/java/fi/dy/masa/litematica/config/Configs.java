@@ -213,6 +213,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       RENDER_AO_MODERN_ENABLE             = new ConfigBoolean("renderAOModernEnable", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_AREA_SELECTION_BOX_SIDES     = new ConfigBoolean("renderAreaSelectionBoxSides", true).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_BLOCKS_AS_TRANSLUCENT        = new ConfigBoolean("renderBlocksAsTranslucent", false).apply(VISUALS_KEY);
+        public static final ConfigBoolean       RENDER_ENABLE_TRANSLUCENT_RESORTING = new ConfigBoolean("renderEnableTranslucentResorting",  true).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_COLLIDING_SCHEMATIC_BLOCKS   = new ConfigBoolean("renderCollidingSchematicBlocks", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_ERROR_MARKER_CONNECTIONS     = new ConfigBoolean("renderErrorMarkerConnections", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_ERROR_MARKER_SIDES           = new ConfigBoolean("renderErrorMarkerSides", true).apply(VISUALS_KEY);
@@ -222,7 +223,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       RENDER_PLACEMENT_ENCLOSING_BOX_SIDES= new ConfigBoolean("renderPlacementEnclosingBoxSides", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_TRANSLUCENT_INNER_SIDES      = new ConfigBoolean("renderTranslucentBlockInnerSides", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_OUTLINES   = new ConfigBoolean("schematicOverlayEnableOutlines",  true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_RESORTING  = new ConfigBoolean("schematicOverlayEnableResorting",  true).apply(VISUALS_KEY);
+        public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_RESORTING  = new ConfigBoolean("schematicOverlayEnableResorting", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_SIDES      = new ConfigBoolean("schematicOverlayEnableSides",     true).apply(VISUALS_KEY);
         public static final ConfigBoolean       SCHEMATIC_OVERLAY_MODEL_OUTLINE     = new ConfigBoolean("schematicOverlayModelOutline",    true).apply(VISUALS_KEY);
         public static final ConfigBoolean       SCHEMATIC_OVERLAY_MODEL_SIDES       = new ConfigBoolean("schematicOverlayModelSides",      true).apply(VISUALS_KEY);
@@ -252,6 +253,7 @@ public class Configs implements IConfigHandler
                 RENDER_AO_MODERN_ENABLE,
                 RENDER_AREA_SELECTION_BOX_SIDES,
                 RENDER_BLOCKS_AS_TRANSLUCENT,
+                RENDER_ENABLE_TRANSLUCENT_RESORTING,
                 RENDER_COLLIDING_SCHEMATIC_BLOCKS,
                 RENDER_ERROR_MARKER_CONNECTIONS,
                 RENDER_ERROR_MARKER_SIDES,
