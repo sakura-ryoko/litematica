@@ -231,7 +231,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         float y = (float) cameraPos.y - this.position.getY();
         float z = (float) cameraPos.z - this.position.getZ();
 
-        if (data.isBlockLayerEmpty(layerTranslucent) == false)
+        if (data.isBlockLayerEmpty(layerTranslucent) == false && Configs.Visuals.RENDER_ENABLE_TRANSLUCENT_RESORTING.getBooleanValue())
         {
             this.getProfiler().swap("resort_blocks");
             RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
@@ -1046,7 +1046,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 return;
             }
 
-            if (layer == RenderLayer.getTranslucent())
+            if (layer == RenderLayer.getTranslucent() && Configs.Visuals.RENDER_ENABLE_TRANSLUCENT_RESORTING.getBooleanValue())
             {
                 try
                 {
@@ -1169,7 +1169,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 return;
             }
 
-            if (layer == RenderLayer.getTranslucent())
+            if (layer == RenderLayer.getTranslucent() && Configs.Visuals.RENDER_ENABLE_TRANSLUCENT_RESORTING.getBooleanValue())
             {
                 BuiltBuffer.SortState sortingData;
                 VertexSorter sorter = VertexSorter.byDistance(x, y, z);
