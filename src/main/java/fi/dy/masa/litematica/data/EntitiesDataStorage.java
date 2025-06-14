@@ -29,6 +29,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
@@ -681,14 +682,20 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 BlockEntity be = this.blockEntityCache.get(pos).getRight().getLeft();
                 BlockState state = world.getBlockState(pos);
 
-                if (state.getBlock() instanceof AirBlock || state.equals(Blocks.AIR.getDefaultState()))
+                if (state.isIn(BlockTags.AIR) || !state.hasBlockEntity())
                 {
+                    synchronized (this.blockEntityCache)
+                    {
+                        this.blockEntityCache.remove(pos);
+                    }
+
+                    // Don't keep requesting if we're tick warping or something.
                     return null;
                 }
 
                 if (be instanceof Inventory inv1)
                 {
-                    if (be instanceof ChestBlockEntity)
+                    if (be instanceof ChestBlockEntity && state.contains(ChestBlock.CHEST_TYPE))
                     {
                         ChestType type = state.get(ChestBlock.CHEST_TYPE);
 
