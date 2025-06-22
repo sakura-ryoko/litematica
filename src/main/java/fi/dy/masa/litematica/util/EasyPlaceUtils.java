@@ -23,6 +23,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -220,11 +221,13 @@ public class EasyPlaceUtils
         }
         double reach = mc.player.getBlockInteractionRange();
         Entity entity = mc.getCameraEntity();
-        if (entity == null)
+
+        if (entity == null || world == null)
         {
             return null;
         }
-        HitResult traceVanilla = fi.dy.masa.malilib.util.game.RayTraceUtils.getRayTraceFromEntity(world, entity, fi.dy.masa.malilib.util.game.RayTraceUtils.RayTraceFluidHandling.NONE, false, reach);
+
+        HitResult traceVanilla = fi.dy.masa.malilib.util.game.RayTraceUtils.getRayTraceFromEntity(world, entity, RaycastContext.FluidHandling.NONE, false, reach);
 
         if (traceVanilla.getType() == HitResult.Type.BLOCK)
         {
@@ -636,8 +639,14 @@ public class EasyPlaceUtils
         MinecraftClient mc = MinecraftClient.getInstance();
         Entity entity = mc.getCameraEntity();
         World world = mc.world;
+
+        if (world == null || mc.player == null || entity == null)
+        {
+            return false;
+        }
+
         double reach = mc.player.getBlockInteractionRange();
-        HitResult trace = fi.dy.masa.malilib.util.game.RayTraceUtils.getRayTraceFromEntity(world, entity, fi.dy.masa.malilib.util.game.RayTraceUtils.RayTraceFluidHandling.NONE, false, reach);
+        HitResult trace = fi.dy.masa.malilib.util.game.RayTraceUtils.getRayTraceFromEntity(world, entity, RaycastContext.FluidHandling.NONE, false, reach);
 
         if (trace.getType() == HitResult.Type.BLOCK)
         {

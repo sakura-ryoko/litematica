@@ -69,7 +69,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     }
 
     private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> HANDLER = ServuxLitematicaHandler.getInstance();
-    private final static MinecraftClient mc = MinecraftClient.getInstance();
+    private final MinecraftClient mc;
     //private int uptimeTicks = 0;
     private boolean servuxServer = false;
     private boolean hasInValidServux = false;
@@ -116,13 +116,16 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     {
         if (this.clientWorld == null)
         {
-            clientWorld = mc.world;
+            this.clientWorld = this.mc.world;
         }
 
-        return clientWorld;
+        return this.clientWorld;
     }
 
-    private EntitiesDataStorage() { }
+    private EntitiesDataStorage()
+    {
+        this.mc = MinecraftClient.getInstance();
+    }
 
     @Override
     public void onClientTick(MinecraftClient mc)
@@ -205,11 +208,11 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         return ServuxLitematicaHandler.CHANNEL_ID;
     }
 
-    private static ClientPlayNetworkHandler getVanillaHandler()
+    private ClientPlayNetworkHandler getVanillaHandler()
     {
-        if (mc.player != null)
+        if (this.mc.player != null)
         {
-            return mc.player.networkHandler;
+            return this.mc.player.networkHandler;
         }
 
         return null;
@@ -669,22 +672,14 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
             if (entity != null && entity.saveSelfNbt(nbt))
             {
-                Pair<Entity, NbtCompound> pair = Pair.of(entity, nbt);
+                Pair<Entity, NbtCompound> pair = Pair.of(entity, nbt.copy());
 
-                synchronized (this.entityCache)
+                if (!(world instanceof WorldSchematic))
                 {
-                    nbt.putString("id", id.toString());
-                    Pair<Entity, NbtCompound> pair = Pair.of(entity, nbt.copy());
-
-                    if (!(world instanceof WorldSchematic))
+                    synchronized (this.entityCache)
                     {
-                        synchronized (this.entityCache)
-                        {
-                            this.entityCache.put(entityId, Pair.of(System.currentTimeMillis(), pair));
-                        }
+                        this.entityCache.put(entityId, Pair.of(System.currentTimeMillis(), pair));
                     }
-
-                    return pair;
                 }
 
                 return pair;
@@ -868,7 +863,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             return;
         }
 
-        ClientPlayNetworkHandler handler = getVanillaHandler();
+        ClientPlayNetworkHandler handler = this.getVanillaHandler();
 
         if (handler != null)
         {
