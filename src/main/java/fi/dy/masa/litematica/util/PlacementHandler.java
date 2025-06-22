@@ -325,7 +325,7 @@ public class PlacementHandler
         ))
         {
             // Revert only if original state was waterlogged / Still Water already
-            state.with(Properties.WATERLOGGED, true);
+            state = state.with(Properties.WATERLOGGED, true);
         }
 
         if (state.canPlaceAt(context.getWorld(), context.getPos()))
