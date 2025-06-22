@@ -13,6 +13,7 @@ import net.minecraft.block.enums.ComparatorMode;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -316,6 +317,15 @@ public class PlacementHandler
                 state = state.with(prop, def.get(prop));
                 //System.out.printf("[PHv3] blacklisted state [%s] found, setting default value\n", prop.getName());
             }
+        }
+
+        if (state.contains(Properties.WATERLOGGED) && (
+            oldState.contains(Properties.WATERLOGGED) && oldState.get(Properties.WATERLOGGED) ||
+            (oldState.getFluidState() != null && oldState.getFluidState().getFluid().matchesType(Fluids.WATER))
+        ))
+        {
+            // Revert only if original state was waterlogged / Still Water already
+            state.with(Properties.WATERLOGGED, true);
         }
 
         if (state.canPlaceAt(context.getWorld(), context.getPos()))
