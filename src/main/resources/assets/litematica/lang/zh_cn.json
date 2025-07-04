@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "§6注意：当前处于简易选区模式§r",
     "litematica.message.warn.layer_mode_currently_at": "§6注意：当前渲染层模式为'%s'§r",
     "litematica.message.warn.main_rendering_disabled": "§6警告：主渲染功能已禁用\n请查看 视觉效果 -> %s\n或快捷键 -> %s ['%s']§r",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "未找到合适的快捷栏槽位执行选取方块操作！\n请检查通用设置里的“ §e可选取方块的物品栏位（pickBlockableSlots）§r”。\n根据“§e选取方块时避开XX（pickBlockAvoid*）§6”配置，\n选取方块功能可能会拒绝替换槽位中的任何工具或其他可损耗物品。",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "§6你没有在通用设置里的“ §e可选取方块的物品栏位（pickBlockableSlots）§6”配置任何物品栏位",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "§6警告：原理图方块渲染已禁用\n请查看 视觉效果 -> %s\n或快捷键 -> %s ['%s']§r",

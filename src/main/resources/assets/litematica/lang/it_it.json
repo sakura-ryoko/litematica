@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Nota: Attualmente sei in modalità di selezione area semplice",
     "litematica.message.warn.layer_mode_currently_at": "Nota: Attualmente sei in modalità di rendering '%s'",
     "litematica.message.warn.main_rendering_disabled": "Attenzione: Il rendering principale è attualmente disabilitato\nVedi Aspetti -> %s, o Scorciatoie -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "Nessuno slot hotbar adatto trovato per il pick block!\nControlla la configurazione Generico -> §epickBlockableSlots§r.\nA seconda delle configurazioni §epickBlockAvoid*§6, la funzione pick block potrebbe rifiutare di sostituire strumenti o altri oggetti danneggiabili in quegli slot.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "Nessuno slot hotbar impostato nella configurazione Generico -> §epickBlockableSlots§6!",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "Attenzione: Il rendering dei blocchi dello schema è attualmente disabilitato\nVedi Aspetti -> %s, o Scorciatoie -> %s ['%s']",

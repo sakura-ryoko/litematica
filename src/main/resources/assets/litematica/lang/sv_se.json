@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Obs: Du är för närvarande i det enkla områdesmarkeringsläget",
     "litematica.message.warn.layer_mode_currently_at": "Obs: Du är för närvarande i '%s' render lager-läge",
     "litematica.message.warn.main_rendering_disabled": "Varning: Huvudrenderingen är för närvarande inaktiverad\nSe Visualer -> %s, eller snabbtangenter -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "Ingen lämplig hotbar slot hittades för plocka block!\nKontrollera konfigurationen generisk -> §epickBlockableSlots§r.\nBeroende på konfigurationerna för §epickBlockAvoid*§6 kan funktionen för plockblock vägra att ersätta verktyg eller andra skadliga objekt i dessa platser.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "Inga hotbar platser i generiska -> §epickBlockableSlots§6 konfiguration!",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "Varning: Schematiska block rendering är för närvarande inaktiverad\nSe Visualer -> %s, eller snabbtangenter -> %s ['%s']",

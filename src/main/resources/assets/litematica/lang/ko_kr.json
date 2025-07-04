@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "참고: 현재 간단 영역 선택 모드입니다.",
     "litematica.message.warn.layer_mode_currently_at": "참고: 현재 '%s' 렌더 레이어 모드 입니다.",
     "litematica.message.warn.main_rendering_disabled": "경고: 메인 렌더링이 현재 비활성화되었습니다.\n표시 -> %s, 또는 단축키 -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "블록 선택에 적합한 단축 바 슬롯이 없습니다!\n설정에 일반 -> §e선택 블록 슬롯 사용§r을 확인하세요.\n또한 §e선택 블록 * 제외§6 설정에 따라, 블록 선택 기능이 해당 슬롯에 있는 도구나 기타 내구도가 있는 아이템을 교체 거부할 수 있습니다.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "일반 -> §e선택 블록 슬롯 사용§6 설정에 지정된 단축 바 슬롯이 없습니다!",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "경고: 스키매틱 블록 렌더링이 현재 비활성화되었습니다.\n표시 -> %s, 또는 단축키 -> %s ['%s']",

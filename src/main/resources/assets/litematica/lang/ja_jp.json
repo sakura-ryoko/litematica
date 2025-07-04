@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "注意: 現在の領域選択モードはシンプルモードです",
     "litematica.message.warn.layer_mode_currently_at": "注意: 現在のレイヤ描画は '%s' です",
     "litematica.message.warn.main_rendering_disabled": "警告: メイン描画が無効になっています．\n表示 -> %s または ショートカット -> %s を確認してください．",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "ブロック選択に適したホットバースロットがありません！\n§e一般 -> ブロック選択対象スロット§6 の設定を確認してください．\n§eブロック選択での除外§6 の設定により，耐久値のあるアイテムやツールの持ち替えが拒否されている場合もあります．",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "§e一般 -> ブロック選択対象スロット§6 の設定にホットバースロットが登録されていません！",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "警告: 図面ブロックの描画が無効になっています．\n表示 -> %s または ショートカット -> %s を確認してください．",
