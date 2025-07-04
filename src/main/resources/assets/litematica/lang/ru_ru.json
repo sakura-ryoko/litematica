@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Примечание: В настоящее время вы в режиме простого выделения",
     "litematica.message.warn.layer_mode_currently_at": "Примечание: В настоящее время включён режим отображения '%s'",
     "litematica.message.warn.main_rendering_disabled": "Внимание: В настоящее время отображение всех элементов отключено.\nПроверьте настройки [Отображение] -> %s, или [Клавиши] -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "Нет подходящих слотов инвентаря для выбора блока!\nПроверьте настройки [Основные] -> §epickBlockableSlots§r.\nТакже в зависимости от настройки §epickBlockAvoid*§6, функция выбора блока может не выбрать слот, если там есть инструмент или другой предмет имеющий прочность.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "Ни один слот инвентаря не выбран в настройках [Основные] -> §epickBlockableSlots§6!",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "Внимание: Отображение блоков в настоящее время отключено.\nПроверьте настройки [Отображение] -> %s, или [Клавиши] -> %s ['%s']",
