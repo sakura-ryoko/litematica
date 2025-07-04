@@ -959,6 +959,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Remarque : Vous êtes actuellement en mode Sélection de zone simple",
     "litematica.message.warn.layer_mode_currently_at": "Remarque : Vous êtes actuellement en mode de rendu '%s'",
     "litematica.message.warn.main_rendering_disabled": "Attention : le rendu principal est actuellement désactivé\nVoir Visuels -> %s, ou Raccourcis clavier -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "Aucun emplacement de barre de raccourcis approprié n'a été trouvé pour le bloc de sélection !\nVérifiez la configuration Generic -> §epickBlockableSlots§r.\nEn fonction également des configurations §epickBlockAvoid*§6, la fonction de bloc de sélection peut refuser de remplacer tout outil ou autre objet endommageable dans ces emplacements.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "Aucun emplacement de barre de raccourcis n'est défini dans la configuration générique -> §epickBlockableSlots§6 !",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "Avertissement : le rendu des blocs schématiques est actuellement désactivé\nVoir Visuels -> %s, ou Raccourcis clavier -> %s ['%s']",

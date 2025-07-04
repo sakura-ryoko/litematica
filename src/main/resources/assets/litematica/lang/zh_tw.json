@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "注意：您目前處於簡單區域選擇模式",
     "litematica.message.warn.layer_mode_currently_at": "注意：你目前處在「%s」顯示層模式",
     "litematica.message.warn.main_rendering_disabled": "警告：主繪製目前已停用\n查看視覺效果 -> %s，或者快速鍵 -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "沒有可用的欄位來放置方塊！\n檢查 [通用] -> §e[快捷選擇欄位]§r 設定項。\n這也取決於 §e[避免選擇耐久物品/工具]§6 設定，只要某個欄位中有具有耐久度的物品，投影將不會選取它用來放置方塊",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "[通用] -> §e[快捷選擇欄位]§6 中的設定無效！",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "警告：原理圖塊呈現目前被停用\n查看視覺效果 -> %s，or 或者快速鍵 -> %s ['%s']",
