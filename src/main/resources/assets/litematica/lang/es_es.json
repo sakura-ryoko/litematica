@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Nota: Actualmente estás en el modo de Selección de Área Simple",
     "litematica.message.warn.layer_mode_currently_at": "Nota: Actualmente estás en el modo de capa de renderizado '%s'",
     "litematica.message.warn.main_rendering_disabled": "Advertencia: El renderizado principal está actualmente deshabilatado\nVer Visuales -> %s, o Teclas Rápidas -> %s ['%s']",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "¡No se encontró ninguna ranura adecuada en la barra de acceso rápido para seleccionar bloque!\nRevisa la configuración Genérica -> §epickBlockableSlots§r.\nTambién dependiendo de las configuraciones §epickBlockAvoid*§6, la función de selección de bloque puede negarse a reemplazar cualquier Herramienta u otros elementos dañables en esas ranuras.",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "¡No se han configurado ranuras en la barra de acceso rápido en la configuración Genérica -> §epickBlockableSlots§6!",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "Advertencia: El renderizado de bloques de esquema está actualmente deshabilatado\nVer Visuales -> %s, o Teclas Rápidas -> %s ['%s']",

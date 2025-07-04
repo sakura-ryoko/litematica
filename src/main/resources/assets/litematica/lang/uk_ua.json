@@ -961,6 +961,7 @@
     "litematica.message.warn.area_selection.browser_open_in_simple_mode": "Примітка: зараз ви перебуваєте в режимі простого «Вибір області»",
     "litematica.message.warn.layer_mode_currently_at": "Примітка: зараз ви перебуваєте в режимі показу шару «%s»",
     "litematica.message.warn.main_rendering_disabled": "Попередження: основне промальовування наразі вимкнено\nДив. Візуал -> %s або гарячі клавіші -> %s [«%s»]",
+    "litematica.message.warn.material_list.no_player_inv": "Warning: Material List has been generated without a player inventory.\nCollected item counts are not available to be loaded.",
     "litematica.message.warn.pickblock.no_suitable_slot_found": "Не знайдено відповідного слота гарячої панелі для вибору блока!\nПеревірте §epickBlockableSlots§r в «Загальні»\nКрім того, залежно від значення §epickBlockAvoid*§6, функція блокування вибору може відмовитися замінити будь-які інструменти чи інші пошкоджені предмети в цих слотах",
     "litematica.message.warn.pickblock.no_valid_slots_configured": "Немає слотів гарячої панелі для §epickBlockableSlots§r в «Загальні»!",
     "litematica.message.warn.schematic_blocks_rendering_disabled": "Попередження: промальовування блоків схематики наразі вимкнено\nДив. Візуал -> %s або гарячі клавіші -> %s [«%s»]",
