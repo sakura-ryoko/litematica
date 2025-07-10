@@ -590,7 +590,7 @@
     "litematica.gui.button.hover.area_editor.shift_for_in_memory": "按住Shift键创建仅内存原理图",
     "litematica.gui.button.hover.area_selections.unselect": "取消当前选区选择",
     "litematica.gui.button.hover.material_list.clear_cache": "清除材质缓存\n通常无需此操作\n\n可在缓存数据异常时使用\n（如活塞头等不应存储物品的方块出现错误数据），\n作为删除'material_cache.nbt'文件的替代方案",
-    "litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only": "按住 shift 只写入缺少的原材料",
+    "litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only": "按住 Shift 键就能只写入缺少的原材料；\n也可以按住 ALT 键，优先显示合成配方，而不是切石机配方。",
     "litematica.gui.button.hover.material_list.write_hold_shift_for_csv": "按住Shift键导出为CSV文件\n（默认生成ASCII字符表格文本文件）",
     "litematica.gui.button.hover.material_list_shift_to_select_sub_regions": "按住Shift键选择用于材料清单的子区域",
     "litematica.gui.button.hover.plus_minus_tip": "左键增加数值\n右键减少数值\n按住Shift/Alt键可增大调整幅度",
