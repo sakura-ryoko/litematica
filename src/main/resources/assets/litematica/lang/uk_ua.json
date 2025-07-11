@@ -590,7 +590,7 @@
     "litematica.gui.button.hover.area_editor.shift_for_in_memory": "Утримуйте Shift, щоб створити схематику лише в пам'яті.",
     "litematica.gui.button.hover.area_selections.unselect": "Скасовує виділення поточної області виділення.",
     "litematica.gui.button.hover.material_list.clear_cache": "Очищає кеш матеріалів.\nЗазвичай це не потрібно.\nЦе можна використовувати замість видалення файлу «material_cache.nbt» у випадку, якщо кеш містить неправильні дані,\nяк предмети, збережені для блоків, які їх не повинні мати, як головки поршня.",
-    "litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only": "Утримуйте shift, щоб записати лише відсутні сирі матеріали.",
+    "litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only": "Утримуйте shift, щоб записати лише відсутні сирі матеріали; і, за бажанням,\nутримуйте клавішу Alt, щоб надати перевагу рецептам майстрування над рецептами каменярства.",
     "litematica.gui.button.hover.material_list.write_hold_shift_for_csv": "Утримуйте Shift для запису у файл CSV замість звичайного текстового файлу таблиці ASCII-art.",
     "litematica.gui.button.hover.material_list_shift_to_select_sub_regions": "Утримуйте Shift, щоб вибрати підрегіони, які використовуються для списку матеріалів.",
     "litematica.gui.button.hover.plus_minus_tip": "ЛКМ, щоб збільшити.\nПКМ, щоб зменшити.\nShift та/або Alt, щоб збільшити розмір кроку.",
