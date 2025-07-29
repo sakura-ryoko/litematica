@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.joml.Matrix4f;
 
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.gl.ShaderProgram;
@@ -32,7 +34,10 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
@@ -47,7 +52,9 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.schematic.ChunkRendererSchematicVbo.OverlayRenderType;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
+import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.EntityUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 
 public class WorldRendererSchematic
@@ -85,6 +92,18 @@ public class WorldRendererSchematic
     private double lastTranslucentSortY;
     private double lastTranslucentSortZ;
     private boolean displayListEntitiesDirty = true;
+
+    protected Frustum frustum;
+    protected LayerRange layerRange;
+    protected float partialTicks;
+    protected double cameraX;
+    protected double cameraY;
+    protected double cameraZ;
+    protected int maxEntityFailCount = 100;
+    protected int maxBlockEntityFailCount = 100;
+
+    protected final Object2IntOpenHashMap<BlockEntityType<?>> blockEntityFailCounts = new Object2IntOpenHashMap<>();
+    protected final Object2IntOpenHashMap<EntityType<?>> entityFailCounts = new Object2IntOpenHashMap<>();
 
     public WorldRendererSchematic(MinecraftClient mc)
     {
@@ -196,6 +215,8 @@ public class WorldRendererSchematic
 
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
             this.renderEntitiesStartupCounter = 2;
+            this.entityFailCounts.clear();
+            this.blockEntityFailCounts.clear();
         }
     }
 
@@ -652,9 +673,12 @@ public class WorldRendererSchematic
         {
             this.world.getProfiler().push("prepare");
 
-            double cameraX = camera.getPos().x;
-            double cameraY = camera.getPos().y;
-            double cameraZ = camera.getPos().z;
+            this.frustum = frustum;
+            this.partialTicks = partialTicks;
+            this.layerRange = DataManager.getRenderLayerRange();
+            this.cameraX = camera.getPos().x;
+            this.cameraY = camera.getPos().y;
+            this.cameraZ = camera.getPos().z;
 
             MinecraftClient.getInstance().getBlockEntityRenderDispatcher().configure(this.world, camera, this.mc.crosshairTarget);
             this.entityRenderDispatcher.configure(this.world, camera, this.mc.targetedEntity);
@@ -667,9 +691,7 @@ public class WorldRendererSchematic
 
             this.world.getProfiler().swap("regular_entities");
             //List<Entity> entitiesMultipass = Lists.<Entity>newArrayList();
-
             VertexConsumerProvider.Immediate entityVertexConsumers = this.bufferBuilders.getEntityVertexConsumers();
-            LayerRange layerRange = DataManager.getRenderLayerRange();
 
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
             {
@@ -679,24 +701,9 @@ public class WorldRendererSchematic
 
                 if (list.isEmpty() == false)
                 {
-                    for (Entity entityTmp : list)
+                    for (Entity entity : list)
                     {
-                        if (layerRange.isPositionWithinRange((int) entityTmp.getX(), (int) entityTmp.getY(), (int) entityTmp.getZ()) == false)
-                        {
-                            continue;
-                        }
-
-                        boolean shouldRender = this.entityRenderDispatcher.shouldRender(entityTmp, frustum, cameraX, cameraY, cameraZ);
-
-                        if (shouldRender)
-                        {
-                            double x = entityTmp.getX() - cameraX;
-                            double y = entityTmp.getY() - cameraY;
-                            double z = entityTmp.getZ() - cameraZ;
-
-                            this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(), 1.0f, matrices, entityVertexConsumers, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
-                            ++this.countEntitiesRendered;
-                        }
+                        this.renderEntity(entity, entityVertexConsumers, matrices);
                     }
                 }
             }
@@ -716,21 +723,9 @@ public class WorldRendererSchematic
 
                     if (chunk != null && data.getTimeBuilt() >= chunk.getTimeCreated())
                     {
-                        for (BlockEntity te : tiles)
+                        for (BlockEntity be : tiles)
                         {
-                            try
-                            {
-                                BlockPos pos = te.getPos();
-                                matrices.push();
-                                matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-
-                                renderer.render(te, partialTicks, matrices, entityVertexConsumers);
-
-                                matrices.pop();
-                            }
-                            catch (Exception ignore)
-                            {
-                            }
+                            this.renderBlockEntity(be, entityVertexConsumers, renderer, matrices);
                         }
                     }
                 }
@@ -738,25 +733,50 @@ public class WorldRendererSchematic
 
             synchronized (this.blockEntities)
             {
-                for (BlockEntity te : this.blockEntities)
+                for (BlockEntity be : this.blockEntities)
                 {
-                    try
-                    {
-                        BlockPos pos = te.getPos();
-                        matrices.push();
-                        matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-
-                        renderer.render(te, partialTicks, matrices, entityVertexConsumers);
-
-                        matrices.pop();
-                    }
-                    catch (Exception ignore)
-                    {
-                    }
+                    this.renderBlockEntity(be, entityVertexConsumers, renderer, matrices);
                 }
             }
 
             this.world.getProfiler().pop();
+        }
+    }
+
+    protected void renderBlockEntity(BlockEntity be,
+                                     VertexConsumerProvider.Immediate entityVertexConsumers,
+                                     BlockEntityRenderDispatcher renderer,
+                                     MatrixStack matrices)
+    {
+        BlockEntityType<?> type = be.getType();
+        int failCount = this.blockEntityFailCounts.getInt(type);
+
+        if (failCount > this.maxBlockEntityFailCount)
+        {
+            return;
+        }
+
+        try
+        {
+            BlockPos pos = be.getPos();
+            matrices.push();
+            matrices.translate(pos.getX() - this.cameraX, pos.getY() - this.cameraY, pos.getZ() - this.cameraZ);
+
+            renderer.render(be, this.partialTicks, matrices, entityVertexConsumers);
+
+            matrices.pop();
+        }
+        catch (Exception ignore)
+        {
+            this.blockEntityFailCounts.addTo(type, 1);
+
+            if ((failCount + 1) > this.maxEntityFailCount)
+            {
+                Identifier id = Registries.BLOCK_ENTITY_TYPE.getId(type);
+                String idStr = id != null ? id.toString() : type.toString();
+                InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.message.warn.renderer.blacklisted_erroring_block_entity",
+                                                 idStr, this.maxBlockEntityFailCount);
+            }
         }
     }
 
@@ -783,6 +803,51 @@ public class WorldRendererSchematic
         }
     }
     */
+
+    protected void renderEntity(Entity entity, VertexConsumerProvider.Immediate entityVertexConsumers, MatrixStack matrices)
+    {
+        EntityType<?> type = entity.getType();
+        int failCount = this.entityFailCounts.getInt(type);
+
+        if (failCount > this.maxEntityFailCount)
+        {
+            return;
+        }
+
+        if (this.layerRange.isPositionWithinRange((int) entity.getX(), (int) entity.getY(), (int) entity.getZ()) == false)
+        {
+            return;
+        }
+
+        boolean shouldRender = this.entityRenderDispatcher.shouldRender(entity, this.frustum, this.cameraX, this.cameraY, this.cameraZ);
+
+        if (shouldRender)
+        {
+            double x = entity.getX() - this.cameraX;
+            double y = entity.getY() - this.cameraY;
+            double z = entity.getZ() - this.cameraZ;
+
+            try
+            {
+                this.entityRenderDispatcher.render(entity, x, y, z, entity.getYaw(), 1.0f,
+                                                   matrices, entityVertexConsumers,
+                                                   this.entityRenderDispatcher.getLight(entity, this.partialTicks));
+                ++this.countEntitiesRendered;
+            }
+            catch (Exception ignore)
+            {
+                this.entityFailCounts.addTo(type, 1);
+
+                if ((failCount + 1) > this.maxEntityFailCount)
+                {
+                    Identifier id = Registries.ENTITY_TYPE.getId(type);
+                    String idStr = id != null ? id.toString() : type.toString();
+                    InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.message.warn.renderer.blacklisted_erroring_entity",
+                                                     idStr, this.maxEntityFailCount);
+                }
+            }
+        }
+    }
 
     public void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd)
     {
