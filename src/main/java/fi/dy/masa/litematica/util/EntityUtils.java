@@ -208,11 +208,12 @@ public class EntityUtils
             {
                 passenger.refreshPositionAndAngles(
                         entity.getX(),
-                        entity.getY() + entity.getPassengerRidingPos(passenger).getY(),
+                        entity.getY(),
                         entity.getZ(),
                         passenger.getYaw(), passenger.getPitch());
                 setEntityRotations(passenger, passenger.getYaw(), passenger.getPitch());
                 spawnEntityAndPassengersInWorld(passenger, world);
+                entity.updatePassengerPosition(passenger);
             }
         }
     }
