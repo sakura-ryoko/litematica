@@ -25,7 +25,7 @@
     "litematica.config.generic.comment.betterRenderOrder": "활성화된 경우, 스키매틱 렌더링은 바닐라 렌더링\n코드에 다른 렌더 호출을 주입하여 수행됩니다.\n이렇게 하면 투명 블록의 렌더링/정렬이 더 좋아지고\n스키매틱 블록이 클라이언트 월드 블록/지형을 통과해\n렌더링 되지 않습니다.\n렌더링이 작동하지 않으면 (예를 들어 Optifine을 쓸 때) 이 옵션을 비활성화해 보세요.",
     "litematica.config.generic.comment.changeSelectedCornerOnMove": "true인 경우, 모서리 배치 단축키를 사용하면 선택 영역의\n선택된 모서리가 항상 마지막으로 이동한 모서리로 선택됩니다.",
     "litematica.config.generic.comment.cloneAtOriginalPosition": "활성화된 경우, 선택 복제 단축키를 사용하면 플레이어의 현재\n위치가 아닌 원래 영역 선택 위치에 배치가 생성됩니다.",
-    "litematica.config.generic.comment.commandDisableFeedback": "활성화된 경우, 멀티 플레이어에서 (/setblock 과 /fill 명령어를 사용하는) 붙여넣기, 채우기 그리고 삭제 작업에 대하여 자동으로 명령어 피드백을 비활성화하고 작업이 끝나면 다시 재-활성화합니다. 이것은 sendCommandFeedback 게임 규칙을 비활성화하고 재-활성화함으로써 작동합니다.",
+    "litematica.config.generic.comment.commandDisableFeedback": "활성화된 경우, 멀티 플레이어에서 (/setblock 과 /fill 명령어를 사용하는)\n붙여넣기, 채우기 그리고 삭제 작업에 대하여 자동으로 명령어 피드백을\n비활성화하고 작업이 끝나면 다시 재-활성화합니다. 이것은 sendCommandFeedback\n게임 규칙을 비활성화하고 재-활성화함으로써 작동합니다.",
     "litematica.config.generic.comment.commandFillMaxVolume": "명령어 기반 채우기/삭제 작업을 통해 처리할 수\n있는 각 개별 박스의 최대 크기/부피입니다.\n더 큰 영역/부피는 다중 명령로 분할됩니다.\n애초에 모든 영역은 처음에 청크 별 박스로 분할됩니다.",
     "litematica.config.generic.comment.commandFillNoChunkClamp": "부피 채우기(채우기, 교체 및 삭제 모드에서)의\n청크 별 박스 분할을 비활성화합니다.",
     "litematica.config.generic.comment.commandLimitPerTick": "setblock과 fill 명령어를 사용하는 붙여넣기, 채우기 및\n삭제 기능을 서버에서 사용할 때, 틱 당 전송하는 명령의\n최대 수입니다. NBT 복원 기능을 사용할 때 붙여넣기\n기능은 블록 당 두 개의 추가 명령이 필요하기 때문에,\n이 값을 초과할 수 있습니다.",
