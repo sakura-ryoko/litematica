@@ -1,11 +1,13 @@
 package fi.dy.masa.litematica.data;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.util.FileType;
 
@@ -27,7 +29,13 @@ public class SchematicHolder
     @Nullable
     public LitematicaSchematic getOrLoad(Path file)
     {
-        for (LitematicaSchematic schematic : this.schematics)
+		if (file == null || !Files.exists(file) || !Files.isReadable(file))
+		{
+			Litematica.LOGGER.warn("SchematicHolder#getOrLoad(): file is NULL or is unreadable; please correct this when attempting to load files.");
+			return null;
+		}
+
+		for (LitematicaSchematic schematic : this.schematics)
         {
             if (file.equals(schematic.getFile()))
             {
