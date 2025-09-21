@@ -117,25 +117,34 @@ public class MaterialListUtils
             Object2IntOpenHashMap<ItemType> itemTypesOut,
             MaterialCache cache)
     {
-        // Convert from counts per IBlockState to counts per different stacks
         for (BlockState state : blockStatesIn.keySet())
         {
-            if (cache.requiresMultipleItems(state))
+            int count = blockStatesIn.getInt(state);
+            BlockState stateToConvert = isWaterloggedBlock(state) ? getBaseBlockState(state) : state;
+
+            // Add water bucket for waterlogged blocks
+            if (isWaterloggedBlock(state))
             {
-                for (ItemStack stack : cache.getItems(state))
+                itemTypesOut.addTo(new ItemType(new ItemStack(net.minecraft.item.Items.WATER_BUCKET), false, false), count);
+            }
+
+            // Convert block to items
+            if (cache.requiresMultipleItems(stateToConvert))
+            {
+                for (ItemStack stack : cache.getItems(stateToConvert))
                 {
-                    ItemType type = new ItemType(stack, true, false);
-                    itemTypesOut.addTo(type, blockStatesIn.getInt(state) * stack.getCount());
+                    if (!stack.isEmpty())
+                    {
+                        itemTypesOut.addTo(new ItemType(stack, true, false), count * stack.getCount());
+                    }
                 }
             }
             else
             {
-                ItemStack stack = cache.getRequiredBuildItemForState(state);
-
-                if (stack.isEmpty() == false)
+                ItemStack stack = cache.getRequiredBuildItemForState(stateToConvert);
+                if (!stack.isEmpty())
                 {
-                    ItemType type = new ItemType(stack, true, false);
-                    itemTypesOut.addTo(type, blockStatesIn.getInt(state) * stack.getCount());
+                    itemTypesOut.addTo(new ItemType(stack, true, false), count * stack.getCount());
                 }
             }
         }
@@ -253,5 +262,20 @@ public class MaterialListUtils
         }
 
         return map;
+    }
+
+    private static boolean isWaterloggedBlock(BlockState state)
+    {
+        return state.contains(net.minecraft.state.property.Properties.WATERLOGGED) &&
+               state.get(net.minecraft.state.property.Properties.WATERLOGGED);
+    }
+
+    private static BlockState getBaseBlockState(BlockState state)
+    {
+        if (state.contains(net.minecraft.state.property.Properties.WATERLOGGED))
+        {
+            return state.with(net.minecraft.state.property.Properties.WATERLOGGED, false);
+        }
+        return state;
     }
 }
