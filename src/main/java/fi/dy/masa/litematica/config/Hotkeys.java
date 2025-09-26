@@ -52,6 +52,7 @@ public class Hotkeys
     public static final ConfigHotkey SCHEMATIC_EDIT_REPLACE_ALL         = new ConfigHotkey("schematicEditReplaceAll",           "", KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_EDIT_REPLACE_BLOCK       = new ConfigHotkey("schematicEditReplaceBlock",         "", KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_EDIT_REPLACE_DIRECTION   = new ConfigHotkey("schematicEditReplaceDirection",     "", KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
+	public static final ConfigHotkey SCHEMATIC_EDIT_REPLACE_SELECTION   = new ConfigHotkey("schematicEditReplaceSelection",     "", KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_PLACEMENT_ROTATION       = new ConfigHotkey("schematicPlacementRotation",        "",     KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_PLACEMENT_MIRROR         = new ConfigHotkey("schematicPlacementMirror",          "",     KeybindSettings.MODIFIER_INGAME).apply(HOTKEYS_KEY);
     public static final ConfigHotkey SCHEMATIC_VCS_DELETE_BY_PLACEMENT  = new ConfigHotkey("schematicVCSDeleteBlockByPlacement","").apply(HOTKEYS_KEY);
@@ -131,7 +132,8 @@ public class Hotkeys
             SCHEMATIC_EDIT_REPLACE_ALL,
             SCHEMATIC_EDIT_REPLACE_BLOCK,
             SCHEMATIC_EDIT_REPLACE_DIRECTION,
-            SCHEMATIC_PLACEMENT_ROTATION,
+			SCHEMATIC_EDIT_REPLACE_SELECTION,			// Requested to be added by Earthcomputer; from Litemoretica
+			SCHEMATIC_PLACEMENT_ROTATION,
             SCHEMATIC_PLACEMENT_MIRROR,
             SCHEMATIC_VCS_DELETE_BY_PLACEMENT,
             SCHEMATIC_VERSION_CYCLE_MODIFIER,
