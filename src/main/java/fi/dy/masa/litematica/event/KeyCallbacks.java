@@ -114,6 +114,7 @@ public class KeyCallbacks
         Hotkeys.TOGGLE_TRANSLUCENT_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT));
         Hotkeys.TOGGLE_VERIFIER_OVERLAY_RENDERING.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED));
         Hotkeys.TOOL_ENABLED_TOGGLE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.TOOL_ITEM_ENABLED));
+		Hotkeys.SCHEMATIC_EDIT_REPLACE_SELECTION.getKeybind().setCallback(callbackMessage);
     }
 
     private static class ValueChangeCallback implements IValueChangeCallback<ConfigString>
@@ -263,16 +264,14 @@ public class KeyCallbacks
 
             if (key == Hotkeys.EASY_PLACE_ACTIVATION.getKeybind())
             {
-                /*
-                if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
-                {
-                    return EasyPlaceUtils.handleEasyPlaceWithMessage();
-                }
-                else
-                {
-                 */
+//                if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+//                {
+//                    return EasyPlaceUtils.handleEasyPlaceWithMessage();
+//                }
+//                else
+//                {
                     return WorldUtils.handleEasyPlace(this.mc);
-                //}
+//                }
             }
             else if (key == Hotkeys.OPEN_GUI_MAIN_MENU.getKeybind())
             {
@@ -715,8 +714,24 @@ public class KeyCallbacks
                     }
                 }
             }
+			// Requested to be added by Earthcomputer; from Litemoretica
+			else if (key == Hotkeys.SCHEMATIC_EDIT_REPLACE_SELECTION.getKeybind())
+			{
+				AreaSelection selection = DataManager.getSelectionManager().getCurrentSelection();
 
-            return false;
+				if (SchematicUtils.saveAreaSelectionToSchematic(selection, this.mc.world))
+				{
+					BlockPos pos = selection.getEffectiveOrigin();
+
+					String posStr = String.format("x: %d, y: %d, z: %d", pos.getX(), pos.getY(), pos.getZ());
+					InfoUtils.showInGameMessage(MessageType.SUCCESS,
+												"litematica.message.schematic_edit_replace_selection", posStr
+					);
+					return true;
+				}
+			}
+
+			return false;
         }
     }
 }
