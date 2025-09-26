@@ -227,7 +227,6 @@
     "litematica.config.hotkeys.comment.schematicEditReplaceAll": "Modifieringsnyckel för att aktivera \"ersätt alla identiska\"\nersätt läge/funktion i Schematic Edit verktygsläge",
     "litematica.config.hotkeys.comment.schematicEditReplaceBlock": "Modifieringsnyckel för att aktivera \"ersätt blocktyp\"\nersätta läge/funktion i Schematic Edit verktygsläge",
     "litematica.config.hotkeys.comment.schematicEditReplaceDirection": "Modifieringsnyckel för att aktivera riktningen/kontinuerlig\nersätter läge/funktion i verktygsläget Schematic Edit",
-    "litematica.config.hotkeys.comment.schematicEditReplaceSelection": "A hotkey to copy the blocks in the world within the area selection into the litematic",
     "litematica.config.hotkeys.comment.schematicPlacementMirror": "Den Schematiska spegeln vänds när den trycks ned",
     "litematica.config.hotkeys.comment.schematicPlacementRotation": "Schemat roteras 90 grader medurs vid tryckning",
     "litematica.config.hotkeys.comment.schematicVCSDeleteBlockByPlacement": "A key to delete blocks from the world based on the currently\nselected version's placement.\nSee Generic -> 'schematicVcsDeleteMode' for the delete mode/behavior",

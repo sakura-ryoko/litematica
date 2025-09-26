@@ -227,7 +227,6 @@
     "litematica.config.hotkeys.comment.schematicEditReplaceAll": "Modifier la touche pour activer \"remplacer tous les identiques\"\nremplacer le mode/fonction en mode d'édition Schématique",
     "litematica.config.hotkeys.comment.schematicEditReplaceBlock": "Touche de modification pour activer le mode/fonction de remplacement \"type de bloc de remplacement\"\ndans le mode outil d'édition de schéma",
     "litematica.config.hotkeys.comment.schematicEditReplaceDirection": "Modifier la touche pour activer le mode directionnel/continu\nen remplacement de mode/fonction dans l'outil d'édition de Schématique",
-    "litematica.config.hotkeys.comment.schematicEditReplaceSelection": "A hotkey to copy the blocks in the world within the area selection into the litematic",
     "litematica.config.hotkeys.comment.schematicPlacementMirror": "Le Schéma est un miroir retourné lorsqu'il est appuyé",
     "litematica.config.hotkeys.comment.schematicPlacementRotation": "Le schéma est tourné dans le sens horaire de 90 degrés lorsqu'il est pressé",
     "litematica.config.hotkeys.comment.schematicVCSDeleteBlockByPlacement": "A key to delete blocks from the world based on the currently\nselected version's placement.\nSee Generic -> 'schematicVcsDeleteMode' for the delete mode/behavior",
