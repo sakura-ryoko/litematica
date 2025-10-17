@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fi.dy.masa.malilib.mixin.render.IMixinBufferBuilder;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
@@ -77,15 +78,13 @@ public class BufferBuilderCache implements AutoCloseable
         }
         for (BufferBuilder buffer : buffers)
         {
-            try
+            if(!((IMixinBufferBuilder)buffer).malilib_isBuilding())
+                continue;
+            BuiltBuffer built = buffer.endNullable();
+            if (built != null)
             {
-                BuiltBuffer built = buffer.endNullable();
-                if (built != null)
-                {
-                    built.close();
-                }
+                built.close();
             }
-            catch (Exception ignored) {}
         }
     }
 
