@@ -17,13 +17,16 @@ public class BufferAllocatorCache implements AutoCloseable
     protected static final List<RenderLayer> RENDER_LAYERS = ChunkRenderLayers.RENDER_LAYERS;
     protected static final List<OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
     protected static final int EXPECTED_TOTAL_SIZE;
-    private final ConcurrentHashMap<BlockRenderLayer, BufferAllocator> blockCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<RenderLayer, BufferAllocator> layerCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<OverlayRenderType, BufferAllocator> overlayCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<BlockRenderLayer, BufferAllocator> blockCache;
+    private final ConcurrentHashMap<RenderLayer, BufferAllocator> layerCache;
+    private final ConcurrentHashMap<OverlayRenderType, BufferAllocator> overlayCache;
     private boolean clear;
 
     protected BufferAllocatorCache()
     {
+	    this.blockCache = new ConcurrentHashMap<>();
+		this.layerCache = new ConcurrentHashMap<>();
+		this.overlayCache = new ConcurrentHashMap<>();
         this.clear = true;
     }
 

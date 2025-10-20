@@ -32,7 +32,7 @@
 	"mixins": [
 		"mixins.litematica.json"
 	],
-
+    "accessWidener": "litematica.accesswidener",
 	"depends": {
 		"minecraft": ">=1.21.6 <=1.21.8",
 		"malilib": ">=0.25.5- <0.26.0-"

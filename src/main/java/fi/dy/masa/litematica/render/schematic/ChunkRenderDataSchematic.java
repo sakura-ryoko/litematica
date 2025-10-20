@@ -49,22 +49,41 @@ public class ChunkRenderDataSchematic implements AutoCloseable
         }
     };
 
-    private final List<BlockEntity> blockEntities = new ArrayList<>();
-    private final List<BlockEntity> noCullBlockEntities = new ArrayList<>();
-    private final Set<BlockRenderLayer> blockLayersUsed = new ObjectArraySet<>();
-    private final Set<BlockRenderLayer> blockLayersStarted = new ObjectArraySet<>();
-    private final Set<RenderLayer> layersUsed = new ObjectArraySet<>();
-    private final Set<RenderLayer> layersStarted = new ObjectArraySet<>();
-    private final Set<OverlayRenderType> overlayLayersUsed = new ObjectArraySet<>();
-    private final Set<OverlayRenderType> overlayLayersStarted = new ObjectArraySet<>();
-    private final BuiltBufferCache builtBufferCache = new BuiltBufferCache();
-    private final Map<BlockRenderLayer, BuiltBuffer.SortState> blockSortingData = new HashMap<>();
-    private final Map<RenderLayer, BuiltBuffer.SortState> layerSortingData = new HashMap<>();
-    private final Map<OverlayRenderType, BuiltBuffer.SortState> overlaySortingData = new HashMap<>();
-    private boolean blocksEmpty = true;
-    private boolean layerEmpty = true;
-    private boolean overlayEmpty = true;
+    private final List<BlockEntity> blockEntities;
+    private final List<BlockEntity> noCullBlockEntities;
+    private final Set<BlockRenderLayer> blockLayersUsed;
+    private final Set<BlockRenderLayer> blockLayersStarted;
+    private final Set<RenderLayer> layersUsed;
+    private final Set<RenderLayer> layersStarted;
+    private final Set<OverlayRenderType> overlayLayersUsed;
+    private final Set<OverlayRenderType> overlayLayersStarted;
+    private final BuiltBufferCache builtBufferCache;
+    private final Map<BlockRenderLayer, BuiltBuffer.SortState> blockSortingData;
+    private final Map<RenderLayer, BuiltBuffer.SortState> layerSortingData;
+    private final Map<OverlayRenderType, BuiltBuffer.SortState> overlaySortingData;
+    private boolean blocksEmpty;
+    private boolean layerEmpty;
+    private boolean overlayEmpty;
     private long timeBuilt;
+
+	public ChunkRenderDataSchematic()
+	{
+		this.blockEntities = new ArrayList<>();
+		this.noCullBlockEntities = new ArrayList<>();
+		this.blockLayersUsed = new ObjectArraySet<>();
+		this.blockLayersStarted = new ObjectArraySet<>();
+		this.layersUsed = new ObjectArraySet<>();
+		this.layersStarted = new ObjectArraySet<>();
+		this.overlayLayersUsed = new ObjectArraySet<>();
+		this.overlayLayersStarted = new ObjectArraySet<>();
+		this.builtBufferCache = new BuiltBufferCache();
+		this.blockSortingData = new HashMap<>();
+		this.layerSortingData = new HashMap<>();
+		this.overlaySortingData = new HashMap<>();
+		this.blocksEmpty = true;
+		this.layerEmpty = true;
+		this.overlayEmpty = true;
+	}
 
     public boolean isBlockLayerEmpty()
     {

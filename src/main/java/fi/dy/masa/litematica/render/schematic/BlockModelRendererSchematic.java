@@ -39,14 +39,15 @@ import fi.dy.masa.litematica.render.schematic.ao.AOProcessorModern;
 
 public class BlockModelRendererSchematic
 {
-    private final LocalRandom random = new LocalRandom(0);
+	public static final ThreadLocal<AOProcessorModern.BC> CACHE = ThreadLocal.withInitial(AOProcessorModern.BC::new);
+    private final LocalRandom random;
     private final BlockColors colorMap;
     private final FluidRenderer liquidRenderer;
     private BakedModelManager bakedManager;
-    public static final ThreadLocal<AOProcessorModern.BC> CACHE = ThreadLocal.withInitial(AOProcessorModern.BC::new);
 
     public BlockModelRendererSchematic(BlockColors blockColorsIn)
     {
+		this.random = new LocalRandom(0);
         this.colorMap = blockColorsIn;
         this.liquidRenderer = new FluidRenderer();
     }
@@ -76,7 +77,9 @@ public class BlockModelRendererSchematic
                                BlockPos posIn, MatrixStack matrixStack,
                                VertexConsumer vertexConsumer, long rand)
     {
-        boolean ao = MinecraftClient.isAmbientOcclusionEnabled() && stateIn.getLuminance() == 0 && modelParts.getFirst().useAmbientOcclusion();
+        boolean ao = MinecraftClient.isAmbientOcclusionEnabled() &&
+		        stateIn.getLuminance() == 0 &&
+		        (!modelParts.isEmpty() && modelParts.getFirst().useAmbientOcclusion());
 
         Vec3d offset = stateIn.getModelOffset(posIn);
         matrixStack.translate((float) offset.x, (float) offset.y, (float) offset.z);
@@ -86,12 +89,12 @@ public class BlockModelRendererSchematic
         {
             if (ao)
             {
-                //System.out.printf("renderModelSmooth(): pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
+//                System.out.printf("renderModelSmooth(): pos [%s] / state [%s] / parts? [%d]\n", posIn.toShortString(), stateIn, modelParts.size());
                 return this.renderModelSmooth(worldIn, modelParts, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
             }
             else
             {
-                //System.out.printf("renderModelFlat(): pos [%s] / state [%s]\n", posIn.toShortString(), stateIn);
+//                System.out.printf("renderModelFlat(): pos [%s] / state [%s] / parts? [%d]\n", posIn.toShortString(), stateIn, modelParts.size());
                 return this.renderModelFlat(worldIn, modelParts, stateIn, posIn, matrixStack, vertexConsumer, this.random, rand, overlay);
             }
         }

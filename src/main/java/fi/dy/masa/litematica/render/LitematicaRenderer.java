@@ -40,16 +40,16 @@ public class LitematicaRenderer
     private boolean renderPiecewiseEntities;
     private boolean renderPiecewiseTileEntities;
 
-    private LitematicaRenderer()
-    {
-    }
-
     public static LitematicaRenderer getInstance()
     {
         return INSTANCE;
     }
 
-    public WorldRendererSchematic getWorldRenderer()
+	private LitematicaRenderer()
+	{
+	}
+
+	public WorldRendererSchematic getWorldRenderer()
     {
         if (this.worldRenderer == null)
         {

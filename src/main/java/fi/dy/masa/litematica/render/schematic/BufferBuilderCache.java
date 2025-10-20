@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fi.dy.masa.malilib.mixin.render.IMixinBufferBuilder;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
@@ -11,11 +12,16 @@ import net.minecraft.client.render.RenderLayer;
 
 public class BufferBuilderCache implements AutoCloseable
 {
-    private final ConcurrentHashMap<BlockRenderLayer, BufferBuilder> blockBufferBuilders = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<RenderLayer, BufferBuilder> layerBufferBuilders = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<OverlayRenderType, BufferBuilder> overlayBufferBuilders = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<BlockRenderLayer, BufferBuilder> blockBufferBuilders;
+    private final ConcurrentHashMap<RenderLayer, BufferBuilder> layerBufferBuilders;
+    private final ConcurrentHashMap<OverlayRenderType, BufferBuilder> overlayBufferBuilders;
 
-    protected BufferBuilderCache() { }
+    protected BufferBuilderCache()
+    {
+		this.blockBufferBuilders = new ConcurrentHashMap<>();
+		this.layerBufferBuilders = new ConcurrentHashMap<>();
+		this.overlayBufferBuilders = new ConcurrentHashMap<>();
+    }
 
     protected boolean hasBufferByBlockLayer(BlockRenderLayer layer)
     {
@@ -77,15 +83,17 @@ public class BufferBuilderCache implements AutoCloseable
         }
         for (BufferBuilder buffer : buffers)
         {
-            try
+            if (!((IMixinBufferBuilder) buffer).malilib_isBuilding())
+			{
+                continue;
+			}
+			
+            BuiltBuffer built = buffer.endNullable();
+			
+            if (built != null)
             {
-                BuiltBuffer built = buffer.endNullable();
-                if (built != null)
-                {
-                    built.close();
-                }
+                built.close();
             }
-            catch (Exception ignored) {}
         }
     }
 

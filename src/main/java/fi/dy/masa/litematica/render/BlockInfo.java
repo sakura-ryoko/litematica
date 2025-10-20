@@ -19,7 +19,7 @@ public class BlockInfo
     private final String title;
     private final BlockState state;
     private final ItemStack stack;
-    private final String blockRegistryname;
+    private final String blockRegistryName;
     private final String stackName;
     private final List<String> props;
     private final int totalWidth;
@@ -34,12 +34,12 @@ public class BlockInfo
         this.stack = ItemUtils.getItemForState(this.state);
 
         Identifier rl = Registries.BLOCK.getId(this.state.getBlock());
-        this.blockRegistryname = rl.toString();
+        this.blockRegistryName = rl.toString();
 
         this.stackName = this.stack.getName().getString();
 
         int w = StringUtils.getStringWidth(this.stackName) + 20;
-        w = Math.max(w, StringUtils.getStringWidth(this.blockRegistryname));
+        w = Math.max(w, StringUtils.getStringWidth(this.blockRegistryName));
         w = Math.max(w, StringUtils.getStringWidth(this.title));
         this.props = BlockUtils.getFormattedBlockStateProperties(this.state, " = ");
         this.totalWidth = w + 40;
@@ -93,7 +93,7 @@ public class BlockInfo
             drawContext.drawText(textRenderer, this.stackName, x1 + 20, y + 4, 0xFFFFFFFF, false);
 
             y += 20;
-            drawContext.drawText(textRenderer, this.blockRegistryname, x1, y, 0xFF4060FF, false);
+            drawContext.drawText(textRenderer, this.blockRegistryName, x1, y, 0xFF4060FF, false);
             y += textRenderer.fontHeight + 4;
 
             RenderUtils.renderText(drawContext, x1, y, 0xFFB0B0B0, this.props);

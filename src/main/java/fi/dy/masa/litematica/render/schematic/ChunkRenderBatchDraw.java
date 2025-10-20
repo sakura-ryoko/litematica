@@ -20,8 +20,8 @@ public record ChunkRenderBatchDraw(
         EnumMap<BlockRenderLayer, List<RenderPass.RenderObject<GpuBufferSlice[]>>> drawData,
         boolean renderCollidingBlocks, boolean renderTranslucent,
         int maxIndicesRequired,
-        GpuBufferSlice[] dynamicTransforms
-) {
+        GpuBufferSlice[] dynamicTransforms)
+{
     public void draw(BlockRenderLayerGroup group, Profiler profiler)
     {
         RenderSystem.ShapeIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(VertexFormat.DrawMode.QUADS);
