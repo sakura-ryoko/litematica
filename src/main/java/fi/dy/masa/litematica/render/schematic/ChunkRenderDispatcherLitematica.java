@@ -30,11 +30,11 @@ public class ChunkRenderDispatcherLitematica
     // Threaded Code
     //private static final ThreadFactory THREAD_FACTORY = (new ThreadFactoryBuilder()).setNameFormat("Litematica Chunk Batcher %d").setDaemon(true).build();
 
-    private final List<Thread> listWorkerThreads = new ArrayList<>();
-    private final List<ChunkRenderWorkerLitematica> listThreadedWorkers = new ArrayList<>();
-    private final PriorityBlockingQueue<ChunkRenderTaskSchematic> queueChunkUpdates = Queues.newPriorityBlockingQueue();
+    private final List<Thread> listWorkerThreads;
+    private final List<ChunkRenderWorkerLitematica> listThreadedWorkers;
+    private final PriorityBlockingQueue<ChunkRenderTaskSchematic> queueChunkUpdates;
     private final BlockingQueue<BufferAllocatorCache> queueFreeRenderAllocators;
-    private final Queue<ChunkRenderDispatcherLitematica.PendingUpload> queueChunkUploads = Queues.newPriorityQueue();
+    private final Queue<ChunkRenderDispatcherLitematica.PendingUpload> queueChunkUploads;
 //    final Queue<Runnable> queueChunkUploads = Queues.newConcurrentLinkedQueue();
     private final ChunkRenderWorkerLitematica renderWorker;
     private final int countRenderAllocators;
@@ -44,6 +44,11 @@ public class ChunkRenderDispatcherLitematica
 
     public ChunkRenderDispatcherLitematica(Profiler profiler)
     {
+	    this.listWorkerThreads = new ArrayList<>();
+	    this.listThreadedWorkers = new ArrayList<>();
+		this.queueChunkUpdates = Queues.newPriorityBlockingQueue();
+		this.queueChunkUploads = Queues.newPriorityQueue();
+
         /* Threaded Code
 
         int threadLimitMemory = Math.max(1, (int) ((double) Runtime.getRuntime().maxMemory() * 0.3D) / BufferAllocatorCache.EXPECTED_TOTAL_SIZE);

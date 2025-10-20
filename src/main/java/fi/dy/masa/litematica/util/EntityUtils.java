@@ -153,11 +153,13 @@ public class EntityUtils
     }
 
     private static boolean entityDebugRandom;
+    private static boolean entityDebugRandom2;
 
     public static void initEntityUtils()
     {
         Random rand = Random.create();
         entityDebugRandom = rand.nextBoolean();
+        entityDebugRandom2 = rand.nextBoolean();
     }
 
     public static Pair<String, String> getEntityDebug()
@@ -170,38 +172,66 @@ public class EntityUtils
 
         switch (name)
         {
+            case "sakuraryoko" ->
+            {
+                return Pair.of("Sakuramatica", "The Sakura Goddess Herself.");
+            }
             case "docm77" ->
             {
                 return Pair.of("Goatmatica", "Grind. Optimize. Automate. Thrive.");
             }
-            case "xisuma" ->
+            case "xisuma", "xisumavoid" ->
             {
-                return Pair.of("Xisumatica", "Check out Soulside Eclipse on Spotify.");
+                return entityDebugRandom2 ? Pair.of("Xisumatica", "Chief architect & humble leader.") : Pair.of("Xisumatica", "Check out Soulside Eclipse on Spotify.");
             }
             case "rendog" ->
             {
-                return Pair.of("Dogmatica", "Gigacorp's most famous employee.");
+                return entityDebugRandom2 ? Pair.of("Dogmatica", "Gigacorp's most famous employee.") : Pair.of("Renmatica", "Docm77's single ladies' favorite.");
             }
             case "geminitay" ->
             {
-                return Pair.of("Slaymatica", "Hermitcraft's chief remover of heads.");
+                return entityDebugRandom2 ? Pair.of("Slaymatica", "God's favorite Princess.") : Pair.of("Slaymatica", "Hermitcraft's chief remover of heads.");
             }
             case "pearlescentmoon" ->
             {
-                return Pair.of("Pearlmatica", "The queen of aussie ping.");
+                return entityDebugRandom2 ? Pair.of("Pearlmatica", "The queen of aussie ping.") : Pair.of("", "");
             }
             case "falsesymmetry" ->
             {
-                return Pair.of("Falsematica", "Promoter of Sand and Cactus sales.");
+                return entityDebugRandom2 ? Pair.of("Queenmatica", "The Queen of Hearts, Heads, and Body Parts.") : Pair.of("Falsematica", "Promoter of Sand and Cactus sales.");
             }
             case "tangotek" ->
             {
-                return Pair.of("Tangomatica", "The Dungeon Master.");
+                return entityDebugRandom2 ? Pair.of("Tangomatica", "The Dungeon Master.") : Pair.of("Tangomatica", "Master of the thingificator.");
             }
-            case "shubbleyt" ->
+            case "ethoslab" ->
             {
-                return Pair.of("Starmatica", "Red Mushroom blocks are soo underrated.");
+                return entityDebugRandom2 ? Pair.of("Slabmatica", "The Canadian legend.") : Pair.of("", "");
             }
+            case "ijevin" ->
+            {
+                return entityDebugRandom2 ? Pair.of("iJevinatica", "iJevin's favorite mod suite (thank you!)") : Pair.of("", "");
+            }
+            case "cubfan135" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Cubmatica", "Ladies and gentlemen; Beautiful, absolutely beautiful.") : Pair.of("Cubmatica", "Definitely not the Ore Snatcher.");
+            }
+	        case "smajor1995" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Scottmatica", "The most friendly and soothing voice in the game.") : Pair.of("", "");
+	        }
+	        case "shubbleyt" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Starmatica", "Red Mushroom blocks are soo underrated.") : Pair.of("", "");
+	        }
+	        case "goodtimewithscar" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Scarmatica", "The Ore Snatcher.") : Pair.of("Scarmatica", "Touched Doc's redstone.");
+	        }
+	        case "joehillstsd" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Joematica", "One of the True Hermits.") : Pair.of("", "");
+	        }
             default ->
             {
                 return Pair.of("", "");

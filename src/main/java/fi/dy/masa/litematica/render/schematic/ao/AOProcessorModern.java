@@ -130,22 +130,22 @@ public class AOProcessorModern extends AOProcessor
             y = (h + f + n + w) * 0.25F;
             z = (h + g + r + w) * 0.25F;
             aa = (m + g + t + w) * 0.25F;
-            float ab = box[neighborData.field_4192[0].shape] * box[neighborData.field_4192[1].shape];
-            float ac = box[neighborData.field_4192[2].shape] * box[neighborData.field_4192[3].shape];
-            float ad = box[neighborData.field_4192[4].shape] * box[neighborData.field_4192[5].shape];
-            float ae = box[neighborData.field_4192[6].shape] * box[neighborData.field_4192[7].shape];
-            float af = box[neighborData.field_4185[0].shape] * box[neighborData.field_4185[1].shape];
-            float ag = box[neighborData.field_4185[2].shape] * box[neighborData.field_4185[3].shape];
-            float ah = box[neighborData.field_4185[4].shape] * box[neighborData.field_4185[5].shape];
-            float ai = box[neighborData.field_4185[6].shape] * box[neighborData.field_4185[7].shape];
-            float aj = box[neighborData.field_4180[0].shape] * box[neighborData.field_4180[1].shape];
-            float ak = box[neighborData.field_4180[2].shape] * box[neighborData.field_4180[3].shape];
-            float al = box[neighborData.field_4180[4].shape] * box[neighborData.field_4180[5].shape];
-            float am = box[neighborData.field_4180[6].shape] * box[neighborData.field_4180[7].shape];
-            float an = box[neighborData.field_4188[0].shape] * box[neighborData.field_4188[1].shape];
-            float ao = box[neighborData.field_4188[2].shape] * box[neighborData.field_4188[3].shape];
-            float ap = box[neighborData.field_4188[4].shape] * box[neighborData.field_4188[5].shape];
-            float aq = box[neighborData.field_4188[6].shape] * box[neighborData.field_4188[7].shape];
+            float ab = box[neighborData.neighbor1[0].shape] * box[neighborData.neighbor1[1].shape];
+            float ac = box[neighborData.neighbor1[2].shape] * box[neighborData.neighbor1[3].shape];
+            float ad = box[neighborData.neighbor1[4].shape] * box[neighborData.neighbor1[5].shape];
+            float ae = box[neighborData.neighbor1[6].shape] * box[neighborData.neighbor1[7].shape];
+            float af = box[neighborData.neighbor2[0].shape] * box[neighborData.neighbor2[1].shape];
+            float ag = box[neighborData.neighbor2[2].shape] * box[neighborData.neighbor2[3].shape];
+            float ah = box[neighborData.neighbor2[4].shape] * box[neighborData.neighbor2[5].shape];
+            float ai = box[neighborData.neighbor2[6].shape] * box[neighborData.neighbor2[7].shape];
+            float aj = box[neighborData.neighbor3[0].shape] * box[neighborData.neighbor3[1].shape];
+            float ak = box[neighborData.neighbor3[2].shape] * box[neighborData.neighbor3[3].shape];
+            float al = box[neighborData.neighbor3[4].shape] * box[neighborData.neighbor3[5].shape];
+            float am = box[neighborData.neighbor3[6].shape] * box[neighborData.neighbor3[7].shape];
+            float an = box[neighborData.neighbor4[0].shape] * box[neighborData.neighbor4[1].shape];
+            float ao = box[neighborData.neighbor4[2].shape] * box[neighborData.neighbor4[3].shape];
+            float ap = box[neighborData.neighbor4[4].shape] * box[neighborData.neighbor4[5].shape];
+            float aq = box[neighborData.neighbor4[6].shape] * box[neighborData.neighbor4[7].shape];
             this.brightness[translation.firstCorner] = Math.clamp(x * ab + y * ac + z * ad + aa * ae, 0.0F, 1.0F);
             this.brightness[translation.secondCorner] = Math.clamp(x * af + y * ag + z * ah + aa * ai, 0.0F, 1.0F);
             this.brightness[translation.thirdCorner] = Math.clamp(x * aj + y * ak + z * al + aa * am, 0.0F, 1.0F);
@@ -316,10 +316,10 @@ public class AOProcessorModern extends AOProcessor
 
         final Direction[] faces;
         final boolean nonCubicWeight;
-        final NO[] field_4192;
-        final NO[] field_4185;
-        final NO[] field_4180;
-        final NO[] field_4188;
+        final NO[] neighbor1;
+        final NO[] neighbor2;
+        final NO[] neighbor3;
+        final NO[] neighbor4;
         private static final ND[] VALUES = Util.make(new ND[6], (values) ->
         {
             values[Direction.DOWN.getIndex()] = DOWN;
@@ -330,14 +330,14 @@ public class AOProcessorModern extends AOProcessor
             values[Direction.EAST.getIndex()] = EAST;
         });
 
-        ND(final Direction[] faces, final float f, final boolean nonCubicWeight, final NO[] neighborOrientations, final NO[] neighborOrientations2, final NO[] neighborOrientations3, final NO[] neighborOrientations4)
+        ND(final Direction[] faces, final float f, final boolean nonCubicWeight, final NO[] neighbor1, final NO[] neighbor2, final NO[] neighbor3, final NO[] neighbor4)
         {
             this.faces = faces;
             this.nonCubicWeight = nonCubicWeight;
-            this.field_4192 = neighborOrientations;
-            this.field_4185 = neighborOrientations2;
-            this.field_4180 = neighborOrientations3;
-            this.field_4188 = neighborOrientations4;
+            this.neighbor1 = neighbor1;
+            this.neighbor2 = neighbor2;
+            this.neighbor3 = neighbor3;
+            this.neighbor4 = neighbor4;
         }
 
         public static ND getData(Direction direction)

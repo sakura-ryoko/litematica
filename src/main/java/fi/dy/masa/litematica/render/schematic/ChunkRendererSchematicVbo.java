@@ -59,6 +59,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected volatile WorldSchematic world;
     protected final WorldRendererSchematic worldRenderer;
     // UNTHREADED CODE
+    private final Random rand;
     protected final ReentrantLock chunkRenderLock;
     protected final ReentrantLock chunkRenderDataLock;
     protected final Set<BlockEntity> setBlockEntities = new HashSet<>();
@@ -75,7 +76,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     private net.minecraft.util.math.Box boundingBox;
     protected Color4f overlayColor;
-    protected boolean hasOverlay = false;
+    protected boolean hasOverlay;
     private boolean ignoreClientWorldFluids;
     private IgnoreBlockRegistry ignoreBlockRegistry;
 
@@ -99,6 +100,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     {
         this.world = world;
         this.worldRenderer = worldRenderer;
+		this.rand = Random.create();
         this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
         this.chunkRenderLock = new ReentrantLock();
         this.chunkRenderDataLock = new ReentrantLock();
@@ -108,6 +110,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.chunkRelativePos = new BlockPos.Mutable();
         this.builderCache = new BufferBuilderCache();
         this.gpuBufferCache = new GpuBufferCache();
+		this.hasOverlay = false;
     }
 
     public boolean hasOverlay()
@@ -599,7 +602,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         boolean useDefault = false;
         BlockPos.Mutable relPos = this.getChunkRelativePosition(pos);
         OverlayRenderType overlayType;
-        Random rand = Random.create();
 
 //        LOGGER.error("[VBO] renderOverlay: type: [{}] (bool: {}), relPos: [{}] // stateSchematic: [{}]", type.name(), missing, relPos.toShortString(), stateSchematic.toString());
 
@@ -619,7 +621,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             {
                 this.getProfiler().swap("cull_inner_sides");
                 BlockPos.Mutable posMutable = new BlockPos.Mutable();
-                List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, rand);
+                List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, this.rand);
 
                 if (!RenderUtils.hasQuads(modelParts))
                 {
@@ -673,7 +675,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue())
                 {
                     this.getProfiler().swap("render_model_sides");
-                    List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, rand);
+                    List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, this.rand);
 
                     if (!RenderUtils.hasQuads(modelParts))
                     {
@@ -780,7 +782,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                          */
 
                         this.getProfiler().swap("render_model_batched");
-                        List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, rand);
+                        List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, this.rand);
 
                         if (!RenderUtils.hasQuads(modelParts))
                         {
@@ -807,7 +809,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 if (missing && Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.getBooleanValue())
                 {
                     this.getProfiler().swap("render_model_batched");
-                    List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, rand);
+                    List<BlockModelPart> modelParts = this.worldRenderer.getModelParts(relPos, stateSchematic, this.rand);
 
                     if (!RenderUtils.hasQuads(modelParts))
                     {

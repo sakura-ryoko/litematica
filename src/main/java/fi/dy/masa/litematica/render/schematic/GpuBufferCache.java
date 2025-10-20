@@ -8,10 +8,14 @@ import net.minecraft.client.render.RenderLayer;
 
 public class GpuBufferCache implements AutoCloseable
 {
-    private final ConcurrentHashMap<RenderLayer, ChunkRenderObjectBuffers> layerBuffers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<OverlayRenderType, ChunkRenderObjectBuffers> overlayBuffers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<RenderLayer, ChunkRenderObjectBuffers> layerBuffers;
+    private final ConcurrentHashMap<OverlayRenderType, ChunkRenderObjectBuffers> overlayBuffers;
 
-    protected GpuBufferCache() { }
+    protected GpuBufferCache()
+    {
+	    this.layerBuffers = new ConcurrentHashMap<>();
+	    this.overlayBuffers = new ConcurrentHashMap<>();
+    }
 
     protected boolean hasBuffersByLayer(RenderLayer layer)
     {

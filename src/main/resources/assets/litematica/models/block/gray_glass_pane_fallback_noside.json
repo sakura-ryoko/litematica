@@ -1,0 +1,6 @@
+{
+  "parent": "litematica:block/template_glass_pane_fallback_noside",
+  "textures": {
+    "pane": "litematica:block/gray_glass_fallback"
+  }
+}

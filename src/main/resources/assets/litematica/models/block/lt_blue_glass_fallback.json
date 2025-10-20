@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "litematica:block/lt_blue_glass_fallback"
+  }
+}
