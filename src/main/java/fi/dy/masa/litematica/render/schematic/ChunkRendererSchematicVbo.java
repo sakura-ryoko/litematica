@@ -58,7 +58,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected volatile WorldSchematic world;
     protected final WorldRendererSchematic worldRenderer;
     // UNTHREADED CODE
-    private static final Random rand = Random.create();
+    private static final Random rand;
     protected final ReentrantLock chunkRenderLock;
     protected final ReentrantLock chunkRenderDataLock;
     protected final Set<BlockEntity> setBlockEntities;
@@ -99,6 +99,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     {
         this.world = world;
         this.worldRenderer = worldRenderer;
+		this.rand = Random.create();
         this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
         this.chunkRenderLock = new ReentrantLock();
 		this.setBlockEntities = new HashSet<>();
