@@ -26,7 +26,6 @@ public class ChunkCacheSchematic implements BlockRenderView, ChunkProvider
 
     protected final World world;
     protected final ClientWorld worldClient;
-    //protected final FakeLightingProvider lightingProvider;
     protected int chunkStartX;
     protected int chunkStartZ;
     protected WorldChunk[][] chunkArray;
@@ -116,14 +115,6 @@ public class ChunkCacheSchematic implements BlockRenderView, ChunkProvider
 
         return this.chunkArray[i][j].getBlockEntity(pos, type);
     }
-
-    /*
-    @Override
-    public int getLightLevel(LightType var1, BlockPos var2)
-    {
-        return 15;
-    }
-     */
 
     @Override
     public FluidState getFluidState(BlockPos pos)

@@ -1451,7 +1451,7 @@ public class LitematicaSchematic
         return new Vec3i(tag.getInt("Width"), tag.getInt("Height"), tag.getInt("Length"));
     }
 
-    protected boolean readSpongePaletteFromTag(NbtCompound tag, ILitematicaBlockStatePalette palette)
+    protected boolean readSpongePaletteFromTag(NbtCompound tag, ILitematicaBlockStatePalette palette, int minecraftDataVersion)
     {
         final int size = tag.getKeys().size();
         List<BlockState> list = new ArrayList<>(size);
@@ -1465,7 +1465,7 @@ public class LitematicaSchematic
         for (String key : tag.getKeys())
         {
             int id = tag.getInt(key);
-            Optional<BlockState> stateOptional = BlockUtils.getBlockStateFromString(key);
+            Optional<BlockState> stateOptional = BlockUtils.getBlockStateFromString(key, minecraftDataVersion);
             BlockState state;
 
             if (stateOptional.isPresent())
@@ -1579,7 +1579,7 @@ public class LitematicaSchematic
 
         this.blockContainers.put(schematicName, container);
 
-        if (this.readSpongePaletteFromTag(paletteTag, container.getPalette()) == false)
+        if (this.readSpongePaletteFromTag(paletteTag, container.getPalette(), minecraftDataVersion) == false)
         {
             return false;
         }
@@ -1884,6 +1884,7 @@ public class LitematicaSchematic
                 NbtCompound t = paletteTag.getCompound(id);
                 if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
                 {
+					// Also updates Block Names
                     t = SchematicConversionMaps.updateBlockStates(t, minecraftDataVersion);
                 }
                 BlockState state = NbtHelper.toBlockState(lookup, t);

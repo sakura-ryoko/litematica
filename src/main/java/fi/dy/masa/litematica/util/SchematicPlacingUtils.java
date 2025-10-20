@@ -149,6 +149,9 @@ public class SchematicPlacingUtils
         BlockPos posMin = PositionUtils.getMinCorner(boxMinRel, boxMaxRel);
         BlockPos posMax = PositionUtils.getMaxCorner(boxMinRel, boxMaxRel);
 
+        // Origin and sub-region origin added together for performance
+        BlockPos totalRegionPosTransformed = regionPosTransformed.add(origin);
+
         final int startX = posMin.getX();
         final int startZ = posMin.getZ();
         final int endX = posMax.getX();
@@ -208,7 +211,7 @@ public class SchematicPlacingUtils
                                    posMinRelMinusRegZ + z);
 
                     BlockPos pos = PositionUtils.getTransformedPlacementPosition(posMutable, schematicPlacement, placement);
-                    pos = pos.add(regionPosTransformed).add(origin);
+                    pos = pos.add(totalRegionPosTransformed);
                     BlockState stateOld = world.getBlockState(pos);
 
                     if ((replace == ReplaceBehavior.NONE && stateOld.isAir() == false) ||
@@ -305,7 +308,7 @@ public class SchematicPlacingUtils
                                        posMinRelMinusRegZ + pos.getZ());
 
                         pos = PositionUtils.getTransformedPlacementPosition(posMutable, schematicPlacement, placement);
-                        pos = pos.add(regionPosTransformed).add(origin);
+                        pos = pos.add(totalRegionPosTransformed);
                         OrderedTick<Block> tick = entry.getValue();
 
                         if (world.getBlockState(pos).getBlock() == tick.type())
@@ -331,7 +334,7 @@ public class SchematicPlacingUtils
                                        posMinRelMinusRegZ + pos.getZ());
 
                         pos = PositionUtils.getTransformedPlacementPosition(posMutable, schematicPlacement, placement);
-                        pos = pos.add(regionPosTransformed).add(origin);
+                        pos = pos.add(totalRegionPosTransformed);
                         OrderedTick<Fluid> tick = entry.getValue();
 
                         if (world.getBlockState(pos).getFluidState().getFluid() == tick.type())
@@ -355,7 +358,7 @@ public class SchematicPlacingUtils
                                        posMinRelMinusRegY + y,
                                        posMinRelMinusRegZ + z);
                         BlockPos pos = PositionUtils.getTransformedPlacementPosition(posMutable, schematicPlacement, placement);
-                        pos = pos.add(regionPosTransformed).add(origin);
+                        pos = pos.add(totalRegionPosTransformed);
                         world.updateNeighbors(pos, world.getBlockState(pos).getBlock());
                     }
                 }

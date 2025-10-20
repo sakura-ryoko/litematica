@@ -1,0 +1,7 @@
+{
+  "parent": "litematica:block/template_glass_pane_fallback_post",
+  "textures": {
+    "edge": "litematica:block/purple_glass_pane_fallback_top",
+    "pane": "litematica:block/purple_glass_fallback"
+  }
+}
