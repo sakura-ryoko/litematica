@@ -14,10 +14,16 @@ public class BufferAllocatorCache implements AutoCloseable
     protected static final List<RenderLayer> LAYERS = ChunkRenderLayers.LAYERS;
     protected static final List<OverlayRenderType> TYPES = ChunkRenderLayers.TYPES;
     protected static final int EXPECTED_TOTAL_SIZE;
-    private final ConcurrentHashMap<RenderLayer, BufferAllocator> layerCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<OverlayRenderType, BufferAllocator> overlayCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<RenderLayer, BufferAllocator> layerCache;
+    private final ConcurrentHashMap<OverlayRenderType, BufferAllocator> overlayCache;
+    private boolean clear;
 
-    protected BufferAllocatorCache() { }
+    protected BufferAllocatorCache()
+    {
+		this.layerCache = new ConcurrentHashMap<>();
+		this.overlayCache = new ConcurrentHashMap<>();
+        this.clear = true;
+    }
 
     protected void allocateCache()
     {
@@ -45,6 +51,8 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.overlayCache.put(type, new BufferAllocator(type.getExpectedBufferSize()));
             }
         }
+
+        this.clear = true;
     }
 
     protected boolean hasBufferByLayer(RenderLayer layer)
@@ -59,6 +67,8 @@ public class BufferAllocatorCache implements AutoCloseable
 
     protected BufferAllocator getBufferByLayer(RenderLayer layer)
     {
+        this.clear = false;
+
         synchronized (this.layerCache)
         {
             return this.layerCache.computeIfAbsent(layer, l -> new BufferAllocator(l.getExpectedBufferSize()));
@@ -67,6 +77,8 @@ public class BufferAllocatorCache implements AutoCloseable
 
     protected BufferAllocator getBufferByOverlay(OverlayRenderType type)
     {
+        this.clear = false;
+
         synchronized (this.overlayCache)
         {
             return this.overlayCache.computeIfAbsent(type, t -> new BufferAllocator(t.getExpectedBufferSize()));
@@ -97,6 +109,8 @@ public class BufferAllocatorCache implements AutoCloseable
         catch (Exception ignored) { }
     }
 
+    protected boolean isClear() { return this.clear; }
+
     protected void resetAll()
     {
         try
@@ -105,6 +119,8 @@ public class BufferAllocatorCache implements AutoCloseable
             this.overlayCache.values().forEach(BufferAllocator::reset);
         }
         catch (Exception ignored) { }
+
+        this.clear = true;
     }
 
     protected void clearAll()
@@ -115,6 +131,8 @@ public class BufferAllocatorCache implements AutoCloseable
             this.overlayCache.values().forEach(BufferAllocator::clear);
         }
         catch (Exception ignored) { }
+
+        this.clear = true;
     }
 
     protected void closeAll()
@@ -133,6 +151,7 @@ public class BufferAllocatorCache implements AutoCloseable
         }
 
         allocators.forEach(BufferAllocator::close);
+        this.clear = true;
     }
 
     @Override

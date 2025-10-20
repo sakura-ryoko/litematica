@@ -38,14 +38,15 @@ import fi.dy.masa.litematica.render.schematic.ao.AOProcessorModern;
 
 public class BlockModelRendererSchematic
 {
-    private final LocalRandom random = new LocalRandom(0);
+	public static final ThreadLocal<AOProcessorModern.BC> CACHE = ThreadLocal.withInitial(AOProcessorModern.BC::new);
+    private final LocalRandom random;
     private final BlockColors colorMap;
     private final FluidRenderer liquidRenderer;
     private BakedModelManager bakedManager;
-    public static final ThreadLocal<AOProcessorModern.BC> CACHE = ThreadLocal.withInitial(AOProcessorModern.BC::new);
 
     public BlockModelRendererSchematic(BlockColors blockColorsIn)
     {
+		this.random = new LocalRandom(0);
         this.colorMap = blockColorsIn;
         this.liquidRenderer = new FluidRenderer();
     }

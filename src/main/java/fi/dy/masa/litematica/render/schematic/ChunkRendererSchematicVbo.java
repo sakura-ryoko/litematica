@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -55,6 +56,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected volatile WorldSchematic world;
     protected final WorldRendererSchematic worldRenderer;
     // UNTHREADED CODE
+    private final Random rand;
     protected final ReentrantLock chunkRenderLock;
     protected final ReentrantLock chunkRenderDataLock;
     protected final Set<BlockEntity> setBlockEntities = new HashSet<>();
@@ -71,7 +73,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     private net.minecraft.util.math.Box boundingBox;
     protected Color4f overlayColor;
-    protected boolean hasOverlay = false;
+    protected boolean hasOverlay;
     private boolean ignoreClientWorldFluids;
     private IgnoreBlockRegistry ignoreBlockRegistry;
 
@@ -94,6 +96,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     {
         this.world = world;
         this.worldRenderer = worldRenderer;
+		this.rand = Random.create();
         this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
         this.chunkRenderLock = new ReentrantLock();
         this.chunkRenderDataLock = new ReentrantLock();
@@ -102,6 +105,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.position = new BlockPos.Mutable();
         this.chunkRelativePos = new BlockPos.Mutable();
         this.builderCache = new BufferBuilderCache();
+		this.hasOverlay = false;
     }
 
     public boolean hasOverlay()

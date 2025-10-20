@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "litematica:block/magenta_glass_fallback"
+    }
+  }
+}
