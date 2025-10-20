@@ -12,7 +12,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.PillarBlock;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.datafixer.Schemas;
 import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.*;
@@ -288,7 +288,9 @@ public class SchematicConversionMaps
 
         try
         {
-            return MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue().asString();
+            return Schemas.getFixer()
+                    .update(TypeReferences.BLOCK_NAME, new Dynamic<>(NbtOps.INSTANCE, tagStr), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION)
+                    .getValue().asString();
         }
         catch (Exception e)
         {
@@ -297,14 +299,23 @@ public class SchematicConversionMaps
         }
     }
 
-    /**
+	/**
      * These are the Vanilla Data Fixer's for the 1.20.x -> 1.20.5 changes
      */
     public static NbtCompound updateBlockStates(NbtCompound oldBlockState, int oldVersion)
     {
+		String oldName = oldBlockState.getString("Name");
+		String blockName = updateBlockName(oldName, oldVersion);
+
+		if (!oldName.equalsIgnoreCase(blockName))
+		{
+			oldBlockState.putString("Name", blockName);
+//			Litematica.LOGGER.error("updateBlockName: [{}] -> [{}]", oldName, blockName);
+		}
+
         try
         {
-            return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+            return (NbtCompound) Schemas.getFixer().update(TypeReferences.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldBlockState), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
         }
         catch (Exception e)
         {
@@ -318,7 +329,7 @@ public class SchematicConversionMaps
     {
         try
         {
-            return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+            return (NbtCompound) Schemas.getFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldBlockEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
         }
         catch (Exception e)
         {
@@ -333,7 +344,7 @@ public class SchematicConversionMaps
     {
         try
         {
-            return (NbtCompound) MinecraftClient.getInstance().getDataFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+            return (NbtCompound) Schemas.getFixer().update(TypeReferences.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
         }
         catch (Exception e)
         {

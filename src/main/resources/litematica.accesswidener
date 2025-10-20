@@ -1,0 +1,3 @@
+accessWidener v1 named
+accessible method net/minecraft/block/Blocks register (Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/block/Block;)Lnet/minecraft/block/Block;
+accessible field net/minecraft/client/render/BufferBuilder building Z

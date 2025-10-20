@@ -12,6 +12,7 @@
         "block.IMixinVineBlock",
         "block.IMixinWallMountedBlock",
         "block.MixinBlock",
+        "block.MixinBlocks",
         "block.MixinBlockStateFlattening",
         "block.MixinChestBlock",
         "block.MixinRailBlocks",
@@ -42,5 +43,5 @@
     ],
     "injectors": {
         "defaultRequire": 1
-    }
+  }
 }

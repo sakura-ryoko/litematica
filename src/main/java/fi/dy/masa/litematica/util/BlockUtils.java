@@ -15,6 +15,8 @@ import net.minecraft.util.BlockMirror;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
+import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
+
 public class BlockUtils
 {
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
@@ -52,13 +54,15 @@ public class BlockUtils
      * The string should be in either one of the following formats:<br>
      * 'minecraft:stone' or 'minecraft:smooth_stone_slab[half=top,waterlogged=false]'
      */
-    public static Optional<BlockState> getBlockStateFromString(String str)
+    public static Optional<BlockState> getBlockStateFromString(String str, int minecraftDataVersion)
     {
         int index = str.indexOf("["); // [f=b]
         String blockName = index != -1 ? str.substring(0, index) : str;
 
         try
         {
+			// Run Data Fixer
+	        blockName = SchematicConversionMaps.updateBlockName(blockName, minecraftDataVersion);
             Identifier id = Identifier.tryParse(blockName);
 
             if (Registries.BLOCK.containsId(id))
