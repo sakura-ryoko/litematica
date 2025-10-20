@@ -83,8 +83,11 @@ public class BufferBuilderCache implements AutoCloseable
         }
         for (BufferBuilder buffer : buffers)
         {
-            if(!((IMixinBufferBuilder)buffer).malilib_isBuilding())
+            if (!((IMixinBufferBuilder) buffer).malilib_isBuilding())
+			{
                 continue;
+			}
+			
             BuiltBuffer built = buffer.endNullable();
             if (built != null)
             {
