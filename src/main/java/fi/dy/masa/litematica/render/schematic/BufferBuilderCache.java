@@ -89,6 +89,7 @@ public class BufferBuilderCache implements AutoCloseable
 			}
 			
             BuiltBuffer built = buffer.endNullable();
+			
             if (built != null)
             {
                 built.close();
