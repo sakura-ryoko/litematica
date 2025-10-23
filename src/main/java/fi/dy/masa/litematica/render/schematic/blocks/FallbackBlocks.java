@@ -4,9 +4,13 @@ import java.util.function.Function;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 
 import fi.dy.masa.litematica.Litematica;
@@ -17,8 +21,10 @@ import fi.dy.masa.litematica.Reference;
  */
 public class FallbackBlocks
 {
+    public static final StateManager<Block, BlockState> FAKE_BLACK_GLASS_MANAGER = new StateManager.Builder<Block, BlockState>(Blocks.AIR)
+            .build(Block::getDefaultState, BlockState::new);
+
 	// Glass Blocks
-	public static Block BLACK_GLASS = register("black_glass_fallback", FallbackTransparentBlock::new, glassSettings());
 	public static Block BLUE_GLASS = register("blue_glass_fallback", FallbackTransparentBlock::new, glassSettings());
 	public static Block BROWN_GLASS = register("brown_glass_fallback", FallbackTransparentBlock::new, glassSettings());
 	public static Block CYAN_GLASS = register("cyan_glass_fallback", FallbackTransparentBlock::new, glassSettings());

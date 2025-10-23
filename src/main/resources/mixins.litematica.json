@@ -38,6 +38,7 @@
         "hud.MixinDebugHudEntries",
         "hud.MixinDebugHudProfile",
         "input.IMixinKeyBinding",
+        "model.MixinBlockStateManagers",
         "network.MixinClientCommonNetworkHandler",
         "network.MixinClientPlayNetworkHandler",
         "render.IMixinGameRenderer",

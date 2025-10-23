@@ -211,7 +211,6 @@ public class WorldRendererSchematic
 
 	private void buildFallbackBlocks()
 	{
-		this.fallbackBlocks.put(Blocks.BLACK_STAINED_GLASS, FallbackBlocks.BLACK_GLASS);
 		this.fallbackBlocks.put(Blocks.BLUE_STAINED_GLASS, FallbackBlocks.BLUE_GLASS);
 		this.fallbackBlocks.put(Blocks.BROWN_STAINED_GLASS, FallbackBlocks.BROWN_GLASS);
 		this.fallbackBlocks.put(Blocks.CYAN_STAINED_GLASS, FallbackBlocks.CYAN_GLASS);
@@ -252,6 +251,29 @@ public class WorldRendererSchematic
 	private <T extends Comparable<T>> BlockState getFallbackState(BlockState origState)
 	{
 		Collection<Property<?>> props = origState.getProperties();
+
+        if (origState.getBlock() == Blocks.BLACK_STAINED_GLASS) {
+            BlockState newState = FallbackBlocks.FAKE_BLACK_GLASS_MANAGER.getDefaultState();
+
+            for (Property<?> entry : props)
+            {
+                @SuppressWarnings("unchecked")
+                Property<T> p = (Property<T>) entry;
+
+                if (newState.contains(p))
+                {
+                    T value = origState.get(p);
+
+                    if (!newState.get(p).equals(value))
+                    {
+                        newState = newState.with(p, value);
+                    }
+                }
+            }
+
+            Litematica.debugLog("Fallback Block State -- OLD: %s --> NEW: %s", origState.toString(), newState.toString());
+            return newState;
+        }
 
 		if (this.fallbackBlocks.containsKey(origState.getBlock()))
 		{
