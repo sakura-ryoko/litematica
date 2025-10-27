@@ -15,7 +15,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.DynamicUniforms;
@@ -35,6 +34,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.state.property.Property;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
@@ -69,7 +69,6 @@ public class WorldRendererSchematic
     private final Set<BlockEntity> blockEntities = new HashSet<>();
     private final List<ChunkRendererSchematicVbo> renderInfos = new ArrayList<>(1024);
 //    private final BufferBuilderStorage bufferBuilders;
-	private final HashMap<Block, Block> fallbackBlocks;
     private Set<ChunkRendererSchematicVbo> chunksToUpdate = new LinkedHashSet<>();
     private WorldSchematic world;
     private ChunkRenderDispatcherSchematic chunkRendererDispatcher;
@@ -113,12 +112,10 @@ public class WorldRendererSchematic
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
         this.blockModelRenderer.setBakedManager(mc.getBakedModelManager());
         this.fogRenderer = ((IMixinGameRenderer) mc.gameRenderer).litematica_getFogRenderer();
-		this.fallbackBlocks = new HashMap<>();
         this.profiler = null;
         this.vanillaFogBuffer = null;
         this.batchDraw = null;
         this.shouldDraw = false;
-		this.buildFallbackBlocks();
     }
 
     public void markNeedsUpdate()
@@ -188,54 +185,16 @@ public class WorldRendererSchematic
         return this.blockEntityRenderDispatcher;
     }
 
-	private void buildFallbackBlocks()
-	{
-		this.fallbackBlocks.put(Blocks.BLACK_STAINED_GLASS, FallbackBlocks.BLACK_GLASS);
-		this.fallbackBlocks.put(Blocks.BLUE_STAINED_GLASS, FallbackBlocks.BLUE_GLASS);
-		this.fallbackBlocks.put(Blocks.BROWN_STAINED_GLASS, FallbackBlocks.BROWN_GLASS);
-		this.fallbackBlocks.put(Blocks.CYAN_STAINED_GLASS, FallbackBlocks.CYAN_GLASS);
-		this.fallbackBlocks.put(Blocks.GLASS, FallbackBlocks.GLASS);
-		this.fallbackBlocks.put(Blocks.GRAY_STAINED_GLASS, FallbackBlocks.GRAY_GLASS);
-		this.fallbackBlocks.put(Blocks.GREEN_STAINED_GLASS, FallbackBlocks.GREEN_GLASS);
-		this.fallbackBlocks.put(Blocks.LIME_STAINED_GLASS, FallbackBlocks.LIME_GLASS);
-		this.fallbackBlocks.put(Blocks.LIGHT_BLUE_STAINED_GLASS, FallbackBlocks.LT_BLUE_GLASS);
-		this.fallbackBlocks.put(Blocks.LIGHT_GRAY_STAINED_GLASS, FallbackBlocks.LT_GRAY_GLASS);
-		this.fallbackBlocks.put(Blocks.MAGENTA_STAINED_GLASS, FallbackBlocks.MAGENTA_GLASS);
-		this.fallbackBlocks.put(Blocks.ORANGE_STAINED_GLASS, FallbackBlocks.ORANGE_GLASS);
-		this.fallbackBlocks.put(Blocks.PINK_STAINED_GLASS, FallbackBlocks.PINK_GLASS);
-		this.fallbackBlocks.put(Blocks.PURPLE_STAINED_GLASS, FallbackBlocks.PURPLE_GLASS);
-		this.fallbackBlocks.put(Blocks.RED_STAINED_GLASS, FallbackBlocks.RED_GLASS);
-		this.fallbackBlocks.put(Blocks.TINTED_GLASS, FallbackBlocks.TINTED_GLASS);
-		this.fallbackBlocks.put(Blocks.WHITE_STAINED_GLASS, FallbackBlocks.WHITE_GLASS);
-		this.fallbackBlocks.put(Blocks.YELLOW_STAINED_GLASS, FallbackBlocks.YELLOW_GLASS);
-
-		this.fallbackBlocks.put(Blocks.BLACK_STAINED_GLASS_PANE, FallbackBlocks.BLACK_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.BLUE_STAINED_GLASS_PANE, FallbackBlocks.BLUE_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.BROWN_STAINED_GLASS_PANE, FallbackBlocks.BROWN_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.CYAN_STAINED_GLASS_PANE, FallbackBlocks.CYAN_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.GLASS_PANE, FallbackBlocks.GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.GRAY_STAINED_GLASS_PANE, FallbackBlocks.GRAY_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.GREEN_STAINED_GLASS_PANE, FallbackBlocks.GREEN_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.LIME_STAINED_GLASS_PANE, FallbackBlocks.LIME_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.LIGHT_BLUE_STAINED_GLASS_PANE, FallbackBlocks.LT_BLUE_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.LIGHT_GRAY_STAINED_GLASS_PANE, FallbackBlocks.LT_GRAY_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.MAGENTA_STAINED_GLASS_PANE, FallbackBlocks.MAGENTA_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.ORANGE_STAINED_GLASS_PANE, FallbackBlocks.ORANGE_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.PINK_STAINED_GLASS_PANE, FallbackBlocks.PINK_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.PURPLE_STAINED_GLASS_PANE, FallbackBlocks.PURPLE_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.RED_STAINED_GLASS_PANE, FallbackBlocks.RED_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.WHITE_STAINED_GLASS_PANE, FallbackBlocks.WHITE_GLASS_PANE);
-		this.fallbackBlocks.put(Blocks.YELLOW_STAINED_GLASS_PANE, FallbackBlocks.YELLOW_GLASS_PANE);
-	}
-
 	private <T extends Comparable<T>> BlockState getFallbackState(BlockState origState)
 	{
 		Collection<Property<?>> props = origState.getProperties();
+		Block block = origState.getBlock();
 
-		if (this.fallbackBlocks.containsKey(origState.getBlock()))
+		if (FallbackBlocks.BLOCK_TO_ID.containsKey(block))
 		{
+			Identifier id = FallbackBlocks.BLOCK_TO_ID.get(block);
 //			Litematica.LOGGER.warn("getFallbackState: Invalid Block State/Block Model for block [{}]; but we found a matching Litematica fallback block state that you can use.  Perhaps you have the Fusion mod installed?", origState.getBlock().getName().getString());
-			BlockState newState = this.fallbackBlocks.get(origState.getBlock()).getDefaultState();
+			BlockState newState = FallbackBlocks.ID_TO_STATE_MANAGER.get(id).getDefaultState();
 
 			for (Property<?> entry : props)
 			{
@@ -253,7 +212,7 @@ public class WorldRendererSchematic
 				}
 			}
 
-			Litematica.debugLog("Fallback Block State -- OLD: %s --> NEW: %s", origState.toString(), newState.toString());
+//			Litematica.debugLog("Fallback Block State -- OLD: [{}] --> NEW: [{}]", origState.toString(), newState.toString());
 			return newState;
 		}
 

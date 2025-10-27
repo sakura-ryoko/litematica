@@ -12,7 +12,6 @@
         "block.IMixinVineBlock",
         "block.IMixinWallMountedBlock",
         "block.MixinBlock",
-        "block.MixinBlocks",
         "block.MixinBlockStateFlattening",
         "block.MixinChestBlock",
         "block.MixinRailBlocks",
@@ -32,6 +31,7 @@
     "client": [
         "MixinMinecraftClient",
         "MixinMinecraftClient_easyPlace",
+        "block.MixinBlockStateManagers",
         "entity.MixinAbstractSignEditScreen",
         "hud.MixinDebugHud",
         "input.IMixinKeyBinding",
