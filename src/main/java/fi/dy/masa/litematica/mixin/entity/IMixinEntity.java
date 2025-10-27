@@ -16,4 +16,7 @@ public interface IMixinEntity
 
     @Invoker("readCustomDataFromNbt")
     void litematica_readCustomDataFromNbt(NbtCompound nbt);
+
+	@Accessor("touchingWater")
+	boolean litematica_isTouchingWater();
 }
