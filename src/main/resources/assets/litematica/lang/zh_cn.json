@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "未找到有效选区！",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Litematica原理图版本回退失败",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Litematica原理图读取失败",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Litematica原理图创建失败",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "schematic原理图文件读取失败",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "创建Litematica原理图失败",

@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "Выделение не имеет ни одного компонента!",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Не удалось понизить версию схемы Litematica",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Не удалось загрузить схему Litematica",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Не удалось создать схему Litematica",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Не удалось загрузить схему",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Не удалось создать схему Litematica",

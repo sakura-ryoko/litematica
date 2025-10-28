@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "有効な選択領域がありません！",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Litematica図面ををダウングレードできませんでした",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Litematica図面を読み込めませんでした",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Litematica図面を作成できませんでした",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "図面を読み込めませんでした",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Failed to create the Litematica schematic",

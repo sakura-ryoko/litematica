@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "Inga giltiga urvalsregioner!",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Det gick inte att nedgradera Litematica Schematic",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Det gick inte att ladda Litematica Schematic",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Det gick inte att skapa schemat Litematica",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Det gick inte att läsa in det schematiska",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Failed to create the Litematica schematic",
