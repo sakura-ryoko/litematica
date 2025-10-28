@@ -399,7 +399,7 @@ public class WorldUtils
 
         if (v7LitematicaSchematic == null)
         {
-            feedback.setString("litematica.error.schematic_conversion.litematica_to_schematic.failed_to_read_schematic");
+            feedback.setString("litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_schematic");
             return false;
         }
 
@@ -412,7 +412,7 @@ public class WorldUtils
         }
         else
         {
-            feedback.setString("litematica.error.schematic_conversion.litematica_to_schematic.failed_to_downgrade_litematic");
+            feedback.setString("litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic");
             return false;
         }
     }
@@ -431,7 +431,7 @@ public class WorldUtils
 
         if (litematicaSchematic == null)
         {
-            feedback.setString("litematica.error.schematic_conversion.litematica_to_schematic.failed_to_read_schematic");
+            feedback.setString("litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic");
             return null;
         }
 

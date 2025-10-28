@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "¡No hay regiones de selección válidas!",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Error al degradar el Esquema de Litematica",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Error al cargar el Esquema de Litematica",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Error al crear el esquema de Litematica",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Error al cargar el Esquema",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Failed to create the Litematica schematic",
