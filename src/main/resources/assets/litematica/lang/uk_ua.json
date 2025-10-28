@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "Немає дійсних вибраних регіонів!",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "Не вдалося понизити схематику Litematica.",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "Не вдалося завантажити схематику Litematica.",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "Не вдалося створити схематику Litematica",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "Не вдалося завантажити схематику.",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Не вдалося створити схематику Litematica.",
