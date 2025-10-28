@@ -552,6 +552,7 @@
     "litematica.error.schematic.create.no_selections": "沒有選擇任何有效的區域！",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "無法降級原理圖檔案",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "無法載入 Litematica 原理圖",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "建立 Litematica 原理圖失敗",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "載入原理圖失敗",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "Failed to create the Litematica schematic",
