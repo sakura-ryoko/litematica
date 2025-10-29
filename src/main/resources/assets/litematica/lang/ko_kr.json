@@ -552,7 +552,7 @@
     "litematica.error.schematic.create.no_selections": "유효한 선택 지역이 없습니다!",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_downgrade_litematic": "라이트매티카 스키매틱 다운그레이드에 실패했습니다.",
     "litematica.error.schematic_conversion.litematic_to_litematica.failed_to_read_litematic": "라이트매티카 스키매틱 불러오기에 실패했습니다.",
-    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "Failed to load the Litematica Schematic",
+    "litematica.error.schematic_conversion.litematic_to_structure.failed_to_read_litematic": "라이트매티카 스키매틱 불러오기에 실패했습니다.",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_create_schematic": "라이트매티카 스키매틱 생성에 실패했습니다.",
     "litematica.error.schematic_conversion.schematic_to_litematica.failed_to_read_schematic": "스키매틱 불러오기에 실패했습니다.",
     "litematica.error.schematic_conversion.sponge_to_litematica.failed_to_create_litematic": "라이트매티카 스키매틱 생성에 실패했습니다.",
