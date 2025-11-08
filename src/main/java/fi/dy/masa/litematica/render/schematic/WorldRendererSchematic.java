@@ -41,6 +41,7 @@ import net.minecraft.world.BlockRenderView;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -164,7 +165,7 @@ public class WorldRendererSchematic
 		if (FallbackBlocks.BLOCK_TO_ID.containsKey(block))
 		{
 			Identifier id = FallbackBlocks.BLOCK_TO_ID.get(block);
-//			Litematica.LOGGER.warn("getFallbackState: Invalid Block State/Block Model for block [{}]; but we found a matching Litematica fallback block state that you can use.  Perhaps you have the Fusion mod installed?", origState.getBlock().getName().getString());
+			Litematica.LOGGER.warn("getFallbackState: Invalid Block State/Block Model for block [{}]; but we found a matching Litematica fallback block state that you can use.  Perhaps you have the Fusion mod installed?", origState.getBlock().getName().getString());
 			BlockState newState = FallbackBlocks.ID_TO_STATE_MANAGER.get(id).getDefaultState();
 
 			for (Property<?> entry : props)
@@ -183,7 +184,7 @@ public class WorldRendererSchematic
 				}
 			}
 
-//			Litematica.debugLog("Fallback Block State -- OLD: [{}] --> NEW: [{}]", origState.toString(), newState.toString());
+			Litematica.debugLog("Fallback Block State -- OLD: [{}] --> NEW: [{}]", origState.toString(), newState.toString());
 			return newState;
 		}
 
@@ -775,7 +776,7 @@ public class WorldRendererSchematic
 
         for (Direction entry : Direction.values())
         {
-            List<BakedQuad> list = model.getQuads(state, side, Random.create());
+            List<BakedQuad> list = model.getQuads(state, entry, Random.create());
 
             if (!list.isEmpty())
             {
@@ -796,10 +797,11 @@ public class WorldRendererSchematic
         //return this.blockRenderManager.getModel(state);
 	    BakedModel model = this.blockRenderManager.getModels().getModel(state);
 
-		if (model.getQuads(state, null, this.world.getRandom()).isEmpty())
-		{
-			return this.blockRenderManager.getModels().getModel(this.getFallbackState(state));
-		}
+		// fixme do not use
+//		if (this.hasQuadsForModel(model, state, null))
+//		{
+//			return this.blockRenderManager.getModels().getModel(this.getFallbackState(state));
+//		}
 
 		return model;
     }
