@@ -1,23 +1,26 @@
 package fi.dy.masa.litematica.schematic.conversion;
 
 import net.minecraft.block.*;
+import net.minecraft.block.entity.SignText;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.block.enums.WireConnection;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 
-import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.mixin.block.IMixinFenceGateBlock;
 import fi.dy.masa.litematica.mixin.block.IMixinRedstoneWireBlock;
 import fi.dy.masa.litematica.mixin.block.IMixinStairsBlock;
 import fi.dy.masa.litematica.mixin.block.IMixinVineBlock;
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class SchematicConversionFixers
 {
@@ -339,20 +342,31 @@ public class SchematicConversionFixers
     public static final IStateFixer FIXER_SIGN = (reader, state, pos) -> {
         NbtCompound tag = reader.getBlockEntityData(pos);
 
-        if (tag != null && tag.contains("Text1"))
+        if (tag != null &&
+	        (tag.contains("Text1") || tag.contains("Text2") || tag.contains("Text3") || tag.contains("Text4")))
         {
-            NbtList textList = new NbtList();
-            textList.add(tag.get("Text1"));
-            textList.add(tag.get("Text2"));
-            textList.add(tag.get("Text3"));
-            textList.add(tag.get("Text4"));
+	        Text text1 = Text.empty();
+	        Text text2 = Text.empty();
+	        Text text3 = Text.empty();
+	        Text text4 = Text.empty();
 
-            NbtCompound frontTextTag = new NbtCompound();
-            frontTextTag.put("messages", textList);
-            frontTextTag.putString("color", tag.getString("Color", ""));
-            frontTextTag.putByte("has_glowing_text", tag.getByte("GlowingText", (byte) 0));
+	        try
+	        {
+		        DynamicRegistryManager registry = SchematicWorldHandler.INSTANCE.getRegistryManager();
+		        text1 = tag.contains("Text1") ? StringUtils.legacyTextSerializer(tag.getString("Text1", ""), registry) : Text.empty();
+		        text2 = tag.contains("Text2") ? StringUtils.legacyTextSerializer(tag.getString("Text2", ""), registry) : Text.empty();
+		        text3 = tag.contains("Text3") ? StringUtils.legacyTextSerializer(tag.getString("Text3", ""), registry) : Text.empty();
+		        text4 = tag.contains("Text4") ? StringUtils.legacyTextSerializer(tag.getString("Text4", ""), registry) : Text.empty();
+	        }
+	        catch (Exception ignored) { }
 
-            tag.put("front_text", frontTextTag);
+			DyeColor color = DyeColor.byId(tag.getString("Color", ""), DyeColor.BLACK);
+			boolean glowing = tag.getBoolean("GlowingText", false);
+	        SignText frontText = new SignText(new Text[]{text1, text2, text3, text4},
+	                                          new Text[]{Text.empty(), Text.empty(), Text.empty(), Text.empty()},
+	                                          color, glowing);
+
+	        tag.put("front_text", SignText.CODEC, frontText);
 
             tag.remove("Color");
             tag.remove("GlowingText");
