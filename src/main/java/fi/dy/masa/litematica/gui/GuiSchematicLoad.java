@@ -203,7 +203,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
 
 						if (DataManager.getCreatePlacementOnLoad() && this.gui.mc.player != null)
 						{
-							BlockPos pos = BlockPos.ofFloored(this.gui.mc.player.getEntityPos());
+							BlockPos pos = BlockPos.ofFloored(this.gui.mc.player.getPos());
 							String name = schematic.getMetadata().getName();
 							boolean enabled = GuiBase.isShiftDown() == false;
 
