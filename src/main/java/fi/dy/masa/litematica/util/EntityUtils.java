@@ -190,7 +190,7 @@ public class EntityUtils
             {
                 return entityDebugRandom2 ? Pair.of("Xisumatica", "Chief architect & humble leader.") : Pair.of("Xisumatica", "Check out Soulside Eclipse on Spotify.");
             }
-            case "rendog" ->
+            case "renthedog" ->
             {
                 return entityDebugRandom2 ? Pair.of("Dogmatica", "Gigacorp's most famous employee.") : Pair.of("Renmatica", "Docm77's single ladies' favorite.");
             }
@@ -206,11 +206,11 @@ public class EntityUtils
             {
                 return entityDebugRandom2 ? Pair.of("Queenmatica", "The Queen of Hearts, Heads, and Body Parts.") : Pair.of("Falsematica", "Promoter of Sand and Cactus sales.");
             }
-            case "tangotek" ->
+            case "tango" ->
             {
                 return entityDebugRandom2 ? Pair.of("Tangomatica", "The Dungeon Master.") : Pair.of("Tangomatica", "Master of the thingificator.");
             }
-            case "ethoslab" ->
+            case "etho" ->
             {
                 return entityDebugRandom2 ? Pair.of("Slabmatica", "The Canadian legend.") : Pair.of("", "");
             }
@@ -234,7 +234,7 @@ public class EntityUtils
 	        {
 		        return entityDebugRandom2 ? Pair.of("Scarmatica", "The Ore Snatcher.") : Pair.of("Scarmatica", "Touched Doc's redstone.");
 	        }
-	        case "joehillstsd" ->
+	        case "joehillssays" ->
 	        {
 		        return entityDebugRandom2 ? Pair.of("Joematica", "One of the True Hermits.") : Pair.of("", "");
 	        }
