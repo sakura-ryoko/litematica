@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.render;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.block.BlockState;
@@ -646,6 +647,36 @@ public class RenderUtils
         {
             final InventoryRenderType type = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryType(inv);
             final InventoryProperties props = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryPropsTemp(type, inv.size());
+
+            return renderInventoryOverlay(align, side, offY, inv, type, props, mc, drawContext);
+        }
+
+        return 0;
+    }
+
+    public static int renderInventoryOverlays(BlockInfoAlignment align,
+                                              int offY,
+                                              @Nullable Inventory invSchematic,
+                                              @Nullable Inventory invClient,
+                                              DrawContext drawContext)
+    {
+        int heightSch = renderInventoryOverlay(align, LeftRight.LEFT, offY, invSchematic, drawContext);
+        int heightCli = renderInventoryOverlay(align, LeftRight.RIGHT, offY, invClient, drawContext);
+
+        return Math.max(heightSch, heightCli);
+    }
+
+    public static int renderInventoryOverlay(BlockInfoAlignment align,
+                                             LeftRight side,
+                                             int offY,
+                                             @Nullable Inventory inv,
+                                             DrawContext drawContext)
+    {
+        if (inv != null)
+        {
+            final InventoryRenderType type = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryType(inv);
+            final InventoryProperties props = fi.dy.masa.malilib.render.InventoryOverlay.getInventoryPropsTemp(type, inv.size());
+            MinecraftClient mc = MinecraftClient.getInstance();
 
             return renderInventoryOverlay(align, side, offY, inv, type, props, mc, drawContext);
         }

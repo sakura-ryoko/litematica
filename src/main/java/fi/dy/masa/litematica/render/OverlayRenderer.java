@@ -18,10 +18,12 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import fi.dy.masa.litematica.config.Configs;
@@ -99,6 +101,12 @@ public class OverlayRenderer
     private List<String> blockInfoLines = new ArrayList<>();
     private int blockInfoX;
     private int blockInfoY;
+    protected Vec3d lastOverlayRenderEntityPos = Vec3d.ZERO;
+    protected Vec3d lastOverlayRenderEntityLook = Vec3d.ZERO;
+    @Nullable protected RayTraceWrapper lastOverlayRenderRayTrace = null;
+    @Nullable protected Inventory invClient;
+    @Nullable protected Inventory invSchematic;
+    protected long lastOverlayTraceTime = 0L;
 
     private OverlayRenderer()
     {
@@ -454,27 +462,56 @@ public class OverlayRenderer
 
             boolean renderBlockInfoLines = Configs.InfoOverlays.BLOCK_INFO_LINES_ENABLED.getBooleanValue();
             boolean renderBlockInfoOverlay = verifierOverlayRendered == false && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
-            RayTraceWrapper traceWrapper = null;
+            RayTraceWrapper traceWrapper = this.lastOverlayRenderRayTrace;
 
-            if (renderBlockInfoLines || renderBlockInfoOverlay)
+            if ((renderBlockInfoLines || renderBlockInfoOverlay))
             {
                 Entity entity = fi.dy.masa.malilib.util.EntityUtils.getCameraEntity();
-                boolean targetFluids = Configs.InfoOverlays.INFO_OVERLAYS_TARGET_FLUIDS.getBooleanValue();
-                traceWrapper = RayTraceUtils.getGenericTrace(mc.world, entity, 10, true, targetFluids, false);
-            }
+                Vec3d rotVec = entity.getRotationVec(1f);
+                long currentTime = System.nanoTime();
 
-            if (traceWrapper != null &&
-                (traceWrapper.getHitType() == RayTraceWrapper.HitType.VANILLA_BLOCK ||
-                 traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK))
-            {
-                if (renderBlockInfoLines)
+                if ((traceWrapper == null ||
+                    (entity.getPos().equals(this.lastOverlayRenderEntityPos) == false ||
+                    rotVec.equals(this.lastOverlayRenderEntityLook) == false)) &&
+                    currentTime - this.lastOverlayTraceTime > 50000000L)    // 50 ms = 1 game tick
                 {
-                    this.renderBlockInfoLines(traceWrapper, mc, drawContext);
+                    boolean targetFluids = Configs.InfoOverlays.INFO_OVERLAYS_TARGET_FLUIDS.getBooleanValue();
+                    traceWrapper = RayTraceUtils.getGenericTrace(mc.world, entity, 10, true, targetFluids, false);
+                    this.lastOverlayRenderEntityPos = entity.getPos();
+                    this.lastOverlayRenderEntityLook = rotVec;
+                    this.lastOverlayTraceTime = currentTime;
+                    this.lastOverlayRenderRayTrace = traceWrapper;
+
+                    if (traceWrapper != null)
+                    {
+                        World worldSchematic = SchematicWorldHandler.getSchematicWorld();
+                        BlockPos pos = traceWrapper.getBlockHitResult().getBlockPos();
+                        BlockState stateClient = mc.world.getBlockState(pos);
+                        BlockState stateSchematic = worldSchematic.getBlockState(pos);
+                        World worldClient = WorldUtils.getBestWorld(mc);
+                        this.invClient = stateClient.hasBlockEntity() ? InventoryUtils.getInventory(worldClient, pos) : null;
+                        this.invSchematic = stateSchematic.hasBlockEntity() ? InventoryUtils.getInventory(worldSchematic, pos) : null;
+                    }
+                    else
+                    {
+                        this.invClient = null;
+                        this.invSchematic = null;
+                    }
                 }
 
-                if (renderBlockInfoOverlay)
+                if (traceWrapper != null &&
+                    (traceWrapper.getHitType() == RayTraceWrapper.HitType.VANILLA_BLOCK ||
+                     traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK))
                 {
-                    this.renderBlockInfoOverlay(traceWrapper, mc, drawContext);
+                    if (renderBlockInfoLines)
+                    {
+                        this.renderBlockInfoLines(traceWrapper, mc, drawContext);
+                    }
+    
+                    if (renderBlockInfoOverlay)
+                    {
+                        this.renderBlockInfoOverlay(traceWrapper, mc, drawContext);
+                    }
                 }
             }
         }
@@ -540,13 +577,12 @@ public class OverlayRenderer
     {
         BlockState air = Blocks.AIR.getDefaultState();
         World worldSchematic = SchematicWorldHandler.getSchematicWorld();
-        World worldClient = WorldUtils.getBestWorld(mc);
         BlockPos pos = traceWrapper.getBlockHitResult().getBlockPos();
 
         BlockState stateClient = mc.world.getBlockState(pos);
         BlockState stateSchematic = worldSchematic.getBlockState(pos);
-        boolean hasInvClient = InventoryUtils.getInventory(worldClient, pos) != null;
-        boolean hasInvSchematic = InventoryUtils.getInventory(worldSchematic, pos) != null;
+        Inventory invClient = this.invClient;
+        Inventory invSchematic = this.invSchematic;
         int invHeight = 0;
 
         int offY = Configs.InfoOverlays.BLOCK_INFO_OVERLAY_OFFSET_Y.getIntegerValue();
@@ -555,17 +591,17 @@ public class OverlayRenderer
         ItemUtils.setItemForBlock(worldSchematic, pos, stateSchematic);
         ItemUtils.setItemForBlock(mc.world, pos, stateClient);
 
-        if (hasInvClient && hasInvSchematic)
+        if (invClient != null && invSchematic != null)
         {
-            invHeight = RenderUtils.renderInventoryOverlays(align, offY, worldSchematic, worldClient, pos, mc, drawContext);
+            invHeight = RenderUtils.renderInventoryOverlays(align, offY, invSchematic, invClient, drawContext);
         }
-        else if (hasInvClient)
+        else if (invClient != null)
         {
-            invHeight = RenderUtils.renderInventoryOverlay(align, LeftRight.RIGHT, offY, worldClient, pos, mc, drawContext);
+            invHeight = RenderUtils.renderInventoryOverlay(align, LeftRight.RIGHT, offY, invClient, drawContext);
         }
-        else if (hasInvSchematic)
+        else if (invSchematic != null)
         {
-            invHeight = RenderUtils.renderInventoryOverlay(align, LeftRight.LEFT, offY, worldSchematic, pos, mc, drawContext);
+            invHeight = RenderUtils.renderInventoryOverlay(align, LeftRight.LEFT, offY, invSchematic, drawContext);
         }
 
         // Not just a missing block
