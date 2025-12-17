@@ -48,8 +48,11 @@ import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.MismatchRender
 import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.selection.SelectionManager;
-import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.util.BlockInfoAlignment;
+import fi.dy.masa.litematica.util.InventoryUtils;
+import fi.dy.masa.litematica.util.ItemUtils;
 import fi.dy.masa.litematica.util.PositionUtils.Corner;
+import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
@@ -124,7 +127,7 @@ public class OverlayRenderer
         }
     }
 
-    public void renderBoxes(Matrix4f matrix4f, Profiler profiler)
+    public void renderBoxes(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
         profiler.push("render");
         SelectionManager sm = DataManager.getSelectionManager();
@@ -155,7 +158,7 @@ public class OverlayRenderer
                 for (Box box : currentSelection.getAllSubRegionBoxes())
                 {
                     BoxType type = box == currentBox ? BoxType.AREA_SELECTED : BoxType.AREA_UNSELECTED;
-                    this.renderSelectionBox(box, type, expand, lineWidthBlockBox, lineWidthArea, null, matrix4f);
+                    this.renderSelectionBox(box, type, expand, lineWidthBlockBox, lineWidthArea, null, posMatrix);
                 }
 
                 BlockPos origin = currentSelection.getExplicitOrigin();
@@ -166,7 +169,7 @@ public class OverlayRenderer
                     if (currentSelection.isOriginSelected())
                     {
                         Color4f colorTmp = Color4f.fromColor(this.colorAreaOrigin, 0.4f);
-                        RenderUtils.renderAreaSides(origin, origin, colorTmp, matrix4f, this.mc);
+                        RenderUtils.renderAreaSides(origin, origin, colorTmp, posMatrix, this.mc);
                     }
 
                     profiler.swap("block_outlines");
@@ -198,7 +201,7 @@ public class OverlayRenderer
                         String boxName = entryBox.getKey();
                         boolean boxSelected = schematicPlacement == currentPlacement && (origin || boxName.equals(schematicPlacement.getSelectedSubRegionName()));
                         BoxType type = boxSelected ? BoxType.PLACEMENT_SELECTED : BoxType.PLACEMENT_UNSELECTED;
-                        this.renderSelectionBox(entryBox.getValue(), type, expand, 1f, 1f, schematicPlacement, matrix4f);
+                        this.renderSelectionBox(entryBox.getValue(), type, expand, 1f, 1f, schematicPlacement, posMatrix);
                     }
                     profiler.swap("block_outlines");
 
@@ -218,7 +221,7 @@ public class OverlayRenderer
                             {
                                 float alpha = (float) Configs.Visuals.PLACEMENT_BOX_SIDE_ALPHA.getDoubleValue();
                                 color = new Color4f(color.r, color.g, color.b, alpha);
-                                RenderUtils.renderAreaSides(box.getPos1(), box.getPos2(), color, matrix4f, this.mc);
+                                RenderUtils.renderAreaSides(box.getPos1(), box.getPos2(), color, posMatrix, this.mc);
                             }
                         }
                     }
@@ -360,7 +363,7 @@ public class OverlayRenderer
         }
     }
 
-    public void renderSchematicVerifierMismatches(Matrix4f matrix4f, Profiler profiler)
+    public void renderSchematicVerifierMismatches(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
         profiler.push("render_mismatches");
 
@@ -378,7 +381,7 @@ public class OverlayRenderer
                 List<BlockPos> posList = verifier.getSelectedMismatchBlockPositionsForRender();
                 BlockHitResult trace = RayTraceUtils.traceToPositions(posList, entity, 128);
                 BlockPos posLook = trace != null && trace.getType() == HitResult.Type.BLOCK ? trace.getBlockPos() : null;
-                this.renderSchematicMismatches(list, posLook, matrix4f, profiler);
+                this.renderSchematicMismatches(list, posLook, posMatrix, profiler);
             }
         }
 
@@ -738,7 +741,7 @@ public class OverlayRenderer
         this.blockInfoLines.addAll(BlockUtils.getFormattedBlockStateProperties(state));
     }
 
-    public void renderSchematicRebuildTargetingOverlay(Matrix4f matrix4f, Profiler profiler)
+    public void renderSchematicRebuildTargetingOverlay(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
         profiler.push("rebuild_trace");
         RayTraceWrapper traceWrapper = null;
@@ -794,12 +797,12 @@ public class OverlayRenderer
             if (direction)
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlay(
-                        entity, pos, trace.getSide(), trace.getPos(), color, matrix4f, this.mc);
+                        entity, pos, trace.getSide(), trace.getPos(), color, posMatrix, this.mc);
             }
             else
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlaySimple(
-                        entity, pos, trace.getSide(), color, matrix4f, this.mc);
+                        entity, pos, trace.getSide(), color, posMatrix, this.mc);
             }
 
             RenderSystem.disablePolygonOffset();

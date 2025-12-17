@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
@@ -15,6 +16,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.gui.interfaces.IMessageConsumer;
+import fi.dy.masa.malilib.util.FileNameUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -27,23 +35,27 @@ import fi.dy.masa.litematica.util.PositionUtils.Corner;
 import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper.HitType;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.gui.interfaces.IMessageConsumer;
-import fi.dy.masa.malilib.util.FileNameUtils;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
 
 public class SelectionManager
 {
-    private final MinecraftClient mc = MinecraftClient.getInstance();
-    private final Map<String, AreaSelection> selections = new HashMap<>();
-    private final Map<String, AreaSelection> readOnlySelections = new HashMap<>();
+    private final MinecraftClient mc;
+    private final Map<String, AreaSelection> selections;
+    private final Map<String, AreaSelection> readOnlySelections;
     @Nullable
     private String currentSelectionId;
     @Nullable
     private GrabbedElement grabbedElement;
-    private SelectionMode mode = SelectionMode.SIMPLE;
+    private SelectionMode mode;
+    private boolean modeDirty;
+
+    public SelectionManager()
+    {
+        this.mc = MinecraftClient.getInstance();
+        this.selections = new HashMap<>();
+        this.readOnlySelections = new HashMap<>();
+        this.mode = (SelectionMode) Configs.InfoOverlays.DEFAULT_SELECTION_MODE.getOptionListValue();
+        this.modeDirty = true;
+    }
 
     public SelectionMode getSelectionMode()
     {
@@ -54,6 +66,15 @@ public class SelectionManager
         }
 
         return this.mode;
+    }
+
+    public void checkSelectionModeConfig()
+    {
+        if (this.modeDirty)
+        {
+            this.mode = (SelectionMode) Configs.InfoOverlays.DEFAULT_SELECTION_MODE.getOptionListValue();
+            this.modeDirty = false;
+        }
     }
 
     public void switchSelectionMode()
@@ -73,7 +94,7 @@ public class SelectionManager
         }
         else
         {
-            this.mode = this.mode.cycle(true);
+            this.mode = (SelectionMode) this.mode.cycle(true);
         }
     }
 
@@ -304,7 +325,7 @@ public class SelectionManager
 
     /**
      * Creates a new schematic selection and returns the name of it
-     * @return
+     * @return ()
      */
     public String createNewSelection(File dir, final String nameIn)
     {
@@ -325,7 +346,11 @@ public class SelectionManager
 
         AreaSelection selection = new AreaSelection();
         selection.setName(name);
-        BlockPos pos = fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(this.mc.player);
+        BlockPos pos = BlockPos.ORIGIN;
+        if (this.mc.player != null)
+        {
+            pos = fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(this.mc.player);
+        }
         selection.createNewSubRegionBox(pos, name);
 
         this.selections.put(selectionId, selection);
@@ -753,7 +778,12 @@ public class SelectionManager
 
         if (JsonUtils.hasString(obj, "mode"))
         {
-            this.mode = SelectionMode.fromString(obj.get("mode").getAsString());
+            this.mode = SelectionMode.fromStringStatic(obj.get("mode").getAsString());
+            this.modeDirty = false;
+        }
+        else
+        {
+            this.mode = (SelectionMode) Configs.InfoOverlays.DEFAULT_SELECTION_MODE.getOptionListValue();
         }
     }
 

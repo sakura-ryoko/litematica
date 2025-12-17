@@ -2,7 +2,10 @@ package fi.dy.masa.litematica.render;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -15,12 +18,11 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.math.random.LocalRandom;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -40,7 +42,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class RenderUtils
 {
-    private static final LocalRandom RAND = new LocalRandom(0);
+//    private static final LocalRandom RAND = new LocalRandom(0);
 
     public static int getMaxStringRenderLength(List<String> list)
     {
@@ -520,21 +522,23 @@ public class RenderUtils
     /**
      * Assumes a BufferBuilder in the GL_LINES mode has been initialized
      */
-    public static void drawBlockModelOutlinesBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawBlockModelOutlinesBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand,
+                                                     BufferBuilder buffer, Random rand)
     {
         for (final Direction side : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
         {
-            renderModelQuadOutlines(model, state, pos, side, color, expand, buffer);
+            renderModelQuadOutlines(model, state, pos, side, color, expand, buffer, rand);
         }
 
-        renderModelQuadOutlines(model, state, pos, null, color, expand, buffer);
+        renderModelQuadOutlines(model, state, pos, null, color, expand, buffer, rand);
     }
 
-    public static void renderModelQuadOutlines(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
+    public static void renderModelQuadOutlines(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand,
+                                               BufferBuilder buffer, Random rand)
     {
         try
         {
-            renderModelQuadOutlines(pos, buffer, color, model.getQuads(state, side, RAND));
+            renderModelQuadOutlines(pos, buffer, color, model.getQuads(state, side, rand));
         }
         catch (Exception ignore) {}
     }
@@ -579,21 +583,67 @@ public class RenderUtils
         buffer.vertex(fx[0], fy[0], fz[0]).color(color.r, color.g, color.b, color.a);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    public static boolean stateModelHasQuads(BlockState state, Random rand)
+    {
+        return modelHasQuads(Objects.requireNonNull(MinecraftClient.getInstance().getBlockRenderManager().getModel(state)), state, rand);
+    }
+
+    public static boolean modelHasQuads(@Nullable BakedModel model, BlockState state, Random rand)
+    {
+        if (model == null) return false;
+        int totalSize = 0;
+
+        for (Direction face : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
+        {
+            totalSize += model.getQuads(state, face, rand).size();
+        }
+
+        totalSize += model.getQuads(state, null, rand).size();
+
+        return totalSize > 0;
+    }
+
+    public static boolean hasQuadsForModel(BakedModel model, BlockState state, @Nullable Direction side, Random rand)
+    {
+//        if (side != null)
+//        {
+//            List<BakedQuad> list = model.getQuads(state, side, rand);
+//
+//            return !list.isEmpty();
+//        }
+//
+//        for (Direction entry : Direction.values())
+//        {
+//            List<BakedQuad> list = model.getQuads(state, entry, rand);
+//
+//            if (!list.isEmpty())
+//            {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+
+        return !model.getQuads(state, side, rand).isEmpty();
+    }
+
+    public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand,
+                                                        BufferBuilder buffer, Random rand)
     {
         for (final Direction side : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
         {
-            drawBlockModelQuadOverlayBatched(model, state, pos, side, color, expand, buffer);
+            drawBlockModelQuadOverlayBatched(model, state, pos, side, color, expand, buffer, rand);
         }
 
-        drawBlockModelQuadOverlayBatched(model, state, pos, null, color, expand, buffer);
+        drawBlockModelQuadOverlayBatched(model, state, pos, null, color, expand, buffer, rand);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, BufferBuilder buffer)
+    public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand,
+                                                        BufferBuilder buffer, Random rand)
     {
         try
         {
-            renderModelQuadOverlayBatched(pos, buffer, color, model.getQuads(state, side, RAND));
+            renderModelQuadOverlayBatched(pos, buffer, color, model.getQuads(state, side, rand));
         }
         catch (Exception ignore) {}
     }
@@ -934,4 +984,64 @@ public class RenderUtils
         }
     }
     */
+
+    public static void drawBlockBoundingBoxOutlinesBatchedDebugLines(BlockPos pos, Color4f color, double expand, BufferBuilder buffer)
+    {
+        drawBoxAllEdgesBatchedDebugLines(pos, Vec3d.ZERO, color, expand, buffer);
+    }
+
+    public static void drawBoxAllEdgesBatchedDebugLines(BlockPos pos, Vec3d cameraPos, Color4f color, double expand, BufferBuilder buffer)
+    {
+        float minX = (float) (pos.getX() - expand - cameraPos.x);
+        float minY = (float) (pos.getY() - expand - cameraPos.y);
+        float minZ = (float) (pos.getZ() - expand - cameraPos.z);
+        float maxX = (float) (pos.getX() + expand - cameraPos.x + 1);
+        float maxY = (float) (pos.getY() + expand - cameraPos.y + 1);
+        float maxZ = (float) (pos.getZ() + expand - cameraPos.z + 1);
+
+        drawBoxAllEdgesBatchedDebugLines(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
+    }
+
+    public static void drawBoxAllEdgesBatchedDebugLines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Color4f color, BufferBuilder buffer)
+    {
+        // West side
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+
+        // East side
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+
+        // North side (don't repeat the vertical lines that are done by the east/west sides)
+        buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+
+        // South side (don't repeat the vertical lines that are done by the east/west sides)
+        buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+
+        buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+        buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+    }
 }

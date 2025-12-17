@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.client.MinecraftClient;
@@ -21,10 +22,15 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
@@ -79,9 +85,9 @@ public class EntityUtils
     /**
      * Checks if the requested item is currently in the player's hand such that it would be used for using/placing.
      * This means, that it must either be in the main hand, or the main hand must be empty and the item is in the offhand.
-     * @param player
-     * @param stack
-     * @return
+     * @param player ()
+     * @param stack ()
+     * @return ()
      */
     @Nullable
     public static Hand getUsedHandForItem(PlayerEntity player, ItemStack stack)
@@ -149,6 +155,93 @@ public class EntityUtils
         return null;
     }
 
+    private static boolean entityDebugRandom;
+    private static boolean entityDebugRandom2;
+
+    public static void initEntityUtils()
+    {
+        Random rand = Random.create();
+        entityDebugRandom = rand.nextBoolean();
+        entityDebugRandom2 = rand.nextBoolean();
+    }
+
+    public static Pair<String, String> getEntityDebug()
+    {
+        MinecraftClient mc = MinecraftClient.getInstance();
+
+        if (mc.player == null || !entityDebugRandom) return Pair.of("", "");
+
+        String name = mc.player.getGameProfile().getName().toLowerCase();
+
+        switch (name)
+        {
+            case "sakuraryoko" ->
+            {
+                return Pair.of("Sakuramatica", "The Sakura Goddess Herself.");
+            }
+            case "docm77" ->
+            {
+                return Pair.of("Goatmatica", "Grind. Optimize. Automate. Thrive.");
+            }
+            case "xisuma", "xisumavoid" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Xisumatica", "Chief architect & humble leader.") : Pair.of("Xisumatica", "Check out Soulside Eclipse on Spotify.");
+            }
+            case "renthedog", "rendog" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Dogmatica", "Gigacorps' most famous employee.") : Pair.of("Renmatica", "Docm77's single ladies' favorite.");
+            }
+            case "geminitay" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Slaymatica", "God's favorite Princess.") : Pair.of("Slaymatica", "Hermitcraft's chief remover of heads.");
+            }
+            case "pearlescentmoon" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Pearlmatica", "The queen of aussie ping.") : Pair.of("", "");
+            }
+            case "falsesymmetry" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Queenmatica", "The Queen of Hearts, Heads, and Body Parts.") : Pair.of("", "");
+            }
+            case "tango" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Tangomatica", "The Dungeon Master.") : Pair.of("Tangomatica", "Master of the thingificator.");
+            }
+            case "etho", "ethoslab" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Slabmatica", "The Canadian legend.") : Pair.of("", "");
+            }
+            case "ijevin" ->
+            {
+                return entityDebugRandom2 ? Pair.of("iJevinatica", "iJevin's favorite mod suite (thank you!)") : Pair.of("", "");
+            }
+            case "cubfan135" ->
+            {
+                return entityDebugRandom2 ? Pair.of("Cubmatica", "Ladies and gentlemen; Beautiful, absolutely beautiful.") : Pair.of("", "");
+            }
+	        case "smajor1995" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Scottmatica", "The most friendly and soothing voice in the game.") : Pair.of("", "");
+	        }
+	        case "shubbleyt" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Starmatica", "Red Mushroom blocks are soo underrated.") : Pair.of("", "");
+	        }
+	        case "goodtimewithscar" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Scarmatica", "The Ore Snatcher.") : Pair.of("Scarmatica", "Architect of the whimsy.");
+	        }
+	        case "joehillssays", "joehillstsd" ->
+	        {
+		        return entityDebugRandom2 ? Pair.of("Joematica", "One of the True Hermits.") : Pair.of("Hillsmatica", "Howdy y'all from Nashville, TN!");
+	        }
+            default ->
+            {
+                return Pair.of("", "");
+            }
+        }
+    }
+
     @Nullable
     public static String getEntityId(Entity entity)
     {
@@ -168,11 +261,15 @@ public class EntityUtils
             {
                 Entity entity = optional.get();
                 entity.setUuid(UUID.randomUUID());
+
+//                Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type: [{}]", entity.getType().getName().getString());
+
                 return entity;
             }
         }
-        catch (Exception ignore)
+        catch (Exception err)
         {
+            Litematica.LOGGER.error("createEntityFromNBTSingle: Exception; {}", err.getLocalizedMessage());
         }
 
         return null;
@@ -220,13 +317,16 @@ public class EntityUtils
         {
             for (Entity passenger : entity.getPassengerList())
             {
+                Vec3d adjPos = entity.getPassengerRidingPos(passenger);
+
                 passenger.refreshPositionAndAngles(
-                        entity.getX(),
-                        entity.getY() + entity.getPassengerRidingPos(passenger).getY(),
-                        entity.getZ(),
+                        adjPos.getX(),
+                        adjPos.getY(),
+                        adjPos.getZ(),
                         passenger.getYaw(), passenger.getPitch());
                 setEntityRotations(passenger, passenger.getYaw(), passenger.getPitch());
                 spawnEntityAndPassengersInWorld(passenger, world);
+                entity.updatePassengerPosition(passenger);
             }
         }
     }
@@ -287,6 +387,12 @@ public class EntityUtils
         if (nbt.containsUuid("UUID")) {
             entity.setUuid(nbt.getUuid("UUID"));
         }
+        /*
+        if (nbt.contains("UUID"))
+        {
+            entity.setUuid(nbt.get("UUID", Uuids.CODEC, entity.getRegistryManager().getOps(NbtOps.INSTANCE)).orElse(UUID.randomUUID()));
+        }
+        */
 
         if (nbt.contains("CustomName", NbtElement.STRING_TYPE)) {
             String string = nbt.getString("CustomName");
@@ -322,6 +428,7 @@ public class EntityUtils
     private static void readLeashableEntityCustomData(Entity entity, NbtCompound nbt)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.world == null) return;
         assert entity instanceof Leashable;
         Leashable leashable = (Leashable) entity;
         ((IMixinEntity) entity).litematica_readCustomDataFromNbt(nbt);
@@ -382,5 +489,35 @@ public class EntityUtils
         }
 
         return hand;
+    }
+
+    public static NbtList updatePassengersToRelativeRegionPos(NbtList passengers, BlockPos relPos)
+    {
+        NbtList newList = new NbtList();
+
+        for (int i = 0; i < passengers.size(); i++)
+        {
+            NbtCompound entry = passengers.getCompound(i);
+
+            if (!entry.isEmpty())
+            {
+                if (entry.contains(NbtKeys.POS))
+                {
+//                    Vec3d pos = entry.get(NbtKeys.POS, Vec3d.CODEC).orElse(Vec3d.ZERO);
+                    Vec3d pos = NbtUtils.readVec3dFromListTag(entry);
+                    Vec3d adjPos = new Vec3d(pos.getX() - relPos.getX(), pos.getY() - relPos.getY(), pos.getZ() - relPos.getZ());
+
+//                    entry.put(NbtKeys.POS, Vec3d.CODEC, adjPos);
+                    NbtUtils.writeVec3dToListTag(adjPos, entry);
+                    newList.add(entry);
+                }
+                else
+                {
+                    newList.add(entry);
+                }
+            }
+        }
+
+        return newList;
     }
 }

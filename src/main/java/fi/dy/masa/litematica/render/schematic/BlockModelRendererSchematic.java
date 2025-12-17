@@ -240,6 +240,7 @@ public class BlockModelRendererSchematic
         float r;
         float g;
         float b;
+        float a;
 
         if (quad.hasColor())
         {
@@ -255,8 +256,10 @@ public class BlockModelRendererSchematic
             b = 1.0F;
         }
 
+        a = 1.0f;
+
         //System.out.printf("quad(): pos [%s] / state [%s] --> SPRITE [%s]\n", pos.toShortString(), state, quad.getSprite().toString());
-        vertexConsumer.quad(matrixStack.peek(), quad, brightness, r, g, b, 1.0f, light, overlay, true);
+        vertexConsumer.quad(matrixStack.peek(), quad, brightness, r, g, b, a, light, overlay, true);
     }
 
     private void getQuadDimensions(BlockRenderView world, BlockState state, BlockPos pos, int[] vertexData, Direction face, @Nullable float[] box, BitSet flags)

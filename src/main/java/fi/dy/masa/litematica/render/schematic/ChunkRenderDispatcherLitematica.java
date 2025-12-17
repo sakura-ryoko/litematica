@@ -539,31 +539,31 @@ public class ChunkRenderDispatcherLitematica
 
         VertexBuffer vertexBuffer = renderChunk.getOverlayVertexBuffer(type);
 
-        if (type.isTranslucent() && Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_RESORTING.getBooleanValue())
-        {
-            BuiltBuffer.SortState sorting = compiledChunk.getTransparentSortingDataForOverlay(type);
-
-            if (sorting == null)
-            {
-                sorting = renderBuffer.sortQuads(allocator, sorter);
-
-                if (sorting == null)
-                {
-                    profiler.pop();
-                    throw new InterruptedException("Sort State failed to sortQuads()");
-                }
-
-                compiledChunk.setTransparentSortingDataForOverlay(type, sorting);
-            }
-
-            BufferAllocator.CloseableBuffer result = sorting.sortAndStore(allocator, sorter);
-
-            if (result != null)
-            {
-                renderChunk.uploadSortingState(result, vertexBuffer);
-                result.close();
-            }
-        }
+//        if (type.isTranslucent() && Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_RESORTING.getBooleanValue())
+//        {
+//            BuiltBuffer.SortState sorting = compiledChunk.getTransparentSortingDataForOverlay(type);
+//
+//            if (sorting == null)
+//            {
+//                sorting = renderBuffer.sortQuads(allocator, sorter);
+//
+//                if (sorting == null)
+//                {
+//                    profiler.pop();
+//                    throw new InterruptedException("Sort State failed to sortQuads()");
+//                }
+//
+//                compiledChunk.setTransparentSortingDataForOverlay(type, sorting);
+//            }
+//
+//            BufferAllocator.CloseableBuffer result = sorting.sortAndStore(allocator, sorter);
+//
+//            if (result != null)
+//            {
+//                renderChunk.uploadSortingState(result, vertexBuffer);
+//                result.close();
+//            }
+//        }
 
         if (resortOnly == false)
         {

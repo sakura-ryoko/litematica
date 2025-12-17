@@ -18,6 +18,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -62,6 +63,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected int maxCommandLength = 255;
     protected int sentFillCommands;
     protected int sentSetblockCommands;
+    protected String useStrict;
 
     public TaskPasteSchematicPerChunkCommand(Collection<SchematicPlacement> placements,
                                              LayerRange range,
@@ -77,6 +79,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         this.summonCommand = Configs.Generic.COMMAND_NAME_SUMMON.getStringValue();
         this.useFillCommand = Configs.Generic.PASTE_USE_FILL_COMMAND.getBooleanValue();
         this.useWorldEdit = Configs.Generic.COMMAND_USE_WORLDEDIT.getBooleanValue();
+//        this.useStrict = Configs.Generic.COMMAND_USE_STRICT.getBooleanValue() ? " strict" : "";
+        this.useStrict = "";
         this.nbtBehavior = (PasteNbtBehavior) Configs.Generic.PASTE_NBT_BEHAVIOR.getOptionListValue();
 
         if (this.useFillCommand)
@@ -364,7 +368,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         else
         {
             String cmdName = this.setBlockCommand;
-            commandHandler.accept(String.format("%s %d %d %d %s", cmdName, x, y, z, blockString));
+            String cmd = String.format("%s %d %d %d %s%s", cmdName, x, y, z, blockString, this.useStrict);
+            commandHandler.accept(cmd);
         }
 
         ++this.sentSetblockCommands;
@@ -425,6 +430,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 fillCommand += " replace air";
             }
 
+            fillCommand += this.useStrict;
             this.queuedCommands.offer(fillCommand);
         }
 
@@ -452,16 +458,20 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 for (String key : keys)
                 {
                     String command = String.format("data modify block %d %d %d %s set from block %d %d %d %s",
-                                                   pos.getX(), pos.getY(), pos.getZ(), key,
-                                                   placementPos.getX(), placementPos.getY(), placementPos.getZ(), key);
+                                                   pos.getX(), pos.getY(), pos.getZ(),
+                                                   key,
+                                                   placementPos.getX(), placementPos.getY(), placementPos.getZ(),
+                                                   key);
                     commandHandler.accept(command);
                 }
             }
             catch (Exception ignore) {}
 
             String cmdName = this.setBlockCommand;
-            String command = String.format("%s %d %d %d air",
-                                           cmdName, placementPos.getX(), placementPos.getY(), placementPos.getZ());
+            String command = String.format("%s %d %d %d air%s",
+                                           cmdName,
+                                           placementPos.getX(), placementPos.getY(), placementPos.getZ(),
+                                           this.useStrict);
             commandHandler.accept(command);
         }
     }
@@ -502,8 +512,13 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     tag.remove("is_waxed");
                 }
 
-                String cmd = String.format("%s %d %d %d %s%s",
-                                           cmdName, pos.getX(), pos.getY(), pos.getZ(), blockString, tag);
+                tag.remove("components");
+
+                String cmd = String.format("%s %d %d %d %s%s%s",
+                                           cmdName,
+                                           pos.getX(), pos.getY(), pos.getZ(),
+                                           blockString, tag.toString(),
+                                           this.useStrict);
 
                 if (cmd.length() <= this.maxCommandLength)
                 {
@@ -514,8 +529,10 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             }
         }
 
-        commandHandler.accept(String.format("%s %d %d %d %s",
-                                            cmdName, pos.getX(), pos.getY(), pos.getZ(), blockString));
+        String cmd = String.format("%s %d %d %d %s%s",
+                                   cmdName, pos.getX(), pos.getY(), pos.getZ(), blockString,
+                                   this.useStrict);
+        commandHandler.accept(cmd);
         ++this.sentSetblockCommands;
     }
 
@@ -527,16 +544,18 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (placementPos != null)
         {
-            String command = String.format("%s %d %d %d %d %d %d %d %d %d",
+            String command = String.format("%s %d %d %d %d %d %d %d %d %d%s",
                                            this.cloneCommand,
                                            placementPos.getX(), placementPos.getY(), placementPos.getZ(),
                                            placementPos.getX(), placementPos.getY(), placementPos.getZ(),
-                                           pos.getX(), pos.getY(), pos.getZ());
+                                           pos.getX(), pos.getY(), pos.getZ(),
+                                           this.useStrict);
             commandHandler.accept(command);
 
             String cmdName = this.setBlockCommand;
-            command = String.format("%s %d %d %d air",
-                                    cmdName, placementPos.getX(), placementPos.getY(), placementPos.getZ());
+            command = String.format("%s %d %d %d air%s",
+                                    cmdName, placementPos.getX(), placementPos.getY(), placementPos.getZ(),
+                                    this.useStrict);
             commandHandler.accept(command);
         }
     }
@@ -555,6 +574,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
             this.mc.interactionManager.interactBlock(this.mc.player, Hand.OFF_HAND, hitResult);
             this.placedPositionTimestamps.put(placementPos.asLong(), System.nanoTime());
+            this.mc.player.getInventory().setStack(PlayerInventory.OFF_HAND_SLOT, ItemStack.EMPTY);
 
             return placementPos;
         }

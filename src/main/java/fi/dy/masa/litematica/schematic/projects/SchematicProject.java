@@ -523,7 +523,7 @@ public class SchematicProject
 
             if (JsonUtils.hasString(obj, "selection_mode"))
             {
-                project.selectionMode = SelectionMode.fromString(JsonUtils.getString(obj, "selection_mode"));
+                project.selectionMode = SelectionMode.fromStringStatic(JsonUtils.getString(obj, "selection_mode"));
             }
 
             if (JsonUtils.hasArray(obj, "versions"))
