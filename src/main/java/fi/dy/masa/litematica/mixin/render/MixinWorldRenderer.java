@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.litematica.mixin.IMixinProfilerSystem;
+import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
@@ -29,33 +29,12 @@ public abstract class MixinWorldRenderer
 {
     @Shadow private net.minecraft.client.world.ClientWorld world;
     @Shadow @Final private MinecraftClient client;
-    @Unique private Matrix4f posMatrix = null;
-    @Unique private RenderTickCounter ticks = null;
+//    @Unique private Matrix4f posMatrix = null;
+//    @Unique private RenderTickCounter ticks = null;
     @Unique private Profiler profiler;
 
-    @Inject(method = "reload()V", at = @At("RETURN"))
-    private void litematica_onLoadRenderers(CallbackInfo ci)
-    {
-        // Also (re-)load our renderer when the vanilla renderer gets reloaded
-        if (this.world != null && this.world == this.client.world)
-        {
-            if (this.profiler == null)
-            {
-                this.profiler = Profilers.get();
-            }
-            if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-            {
-                this.profiler.startTick();
-            }
-
-            LitematicaRenderer.getInstance().loadRenderers(this.profiler);
-            SchematicWorldRefresher.INSTANCE.updateAll();
-        }
-    }
-
-    @Inject(method = "setupTerrain", at = @At("TAIL"))
-    private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
+    @Unique
+    private void litematica$prepareProfiler()
     {
         if (this.profiler == null)
         {
@@ -65,7 +44,25 @@ public abstract class MixinWorldRenderer
         {
             this.profiler.startTick();
         }
+    }
 
+    @Inject(method = "reload()V", at = @At("RETURN"))
+    private void litematica_onLoadRenderers(CallbackInfo ci)
+    {
+        // Also (re-)load our renderer when the vanilla renderer gets reloaded
+        if (this.world != null && this.world == this.client.world)
+        {
+            this.litematica$prepareProfiler();
+            LitematicaRenderer.getInstance().loadRenderers(this.profiler);
+            SchematicWorldRefresher.INSTANCE.updateAll();
+        }
+    }
+
+    @Inject(method = "setupTerrain", at = @At("TAIL"))
+    private void litematica_onPostSetupTerrain(
+            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
+    {
+        this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
     }
 
@@ -77,23 +74,16 @@ public abstract class MixinWorldRenderer
                                  Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f matrix4f2, CallbackInfo ci,
                                  @Local Profiler profiler)
     {
-        this.posMatrix = positionMatrix;
-        this.ticks = tickCounter;
+//        this.posMatrix = positionMatrix;
+//        this.ticks = tickCounter;
         this.profiler = profiler;
     }
 
     @Inject(method = "renderLayer", at = @At("TAIL"))
     private void litematica_onRenderLayer(RenderLayer renderLayer, double x, double y, double z,
-                               Matrix4f viewMatrix, Matrix4f posMatrix, CallbackInfo ci)
+                                          Matrix4f viewMatrix, Matrix4f posMatrix, CallbackInfo ci)
     {
-        if (this.profiler == null)
-        {
-            this.profiler = Profilers.get();
-        }
-        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-        {
-            this.profiler.startTick();
-        }
+        this.litematica$prepareProfiler();
 
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -110,6 +100,10 @@ public abstract class MixinWorldRenderer
         else if (renderLayer == RenderLayer.getTranslucent())
         {
             LitematicaRenderer.getInstance().piecewiseRenderTranslucent(viewMatrix, posMatrix, this.profiler);
+        }
+        else if (renderLayer == RenderLayer.getTripwire())
+        {
+            LitematicaRenderer.getInstance().piecewiseRenderTripwire(viewMatrix, posMatrix, this.profiler);
             LitematicaRenderer.getInstance().piecewiseRenderOverlay(viewMatrix, posMatrix, this.profiler);
         }
     }
@@ -118,44 +112,15 @@ public abstract class MixinWorldRenderer
             at = @At(value = "RETURN"))
     private void litematica_onPostRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, Camera camera, RenderTickCounter tickCounter, List<Entity> entities, CallbackInfo ci)
     {
-        if (this.posMatrix != null &&
-            this.ticks != null)
-        {
-            if (this.profiler == null)
-            {
-                this.profiler = Profilers.get();
-            }
-
-            if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-            {
-                this.profiler.startTick();
-            }
-
-            LitematicaRenderer.getInstance().piecewiseRenderEntities(this.posMatrix, this.ticks.getTickDelta(false), this.profiler);
-            this.posMatrix = null;
-            this.ticks = null;
-            //this.profiler = null;
-        }
+        this.litematica$prepareProfiler();
+        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrices, immediate, tickCounter.getTickDelta(false), this.profiler);
     }
 
-    /*
-    @Inject(method = "render", at = @At("TAIL"))
-    private void onRenderWorldLast(
-            net.minecraft.client.util.math.MatrixStack matrices,
-            float tickDelta, long limitTime, boolean renderBlockOutline,
-            net.minecraft.client.render.Camera camera,
-            net.minecraft.client.render.GameRenderer gameRenderer,
-            net.minecraft.client.render.LightmapTextureManager lightmapTextureManager,
-            net.minecraft.client.util.math.Matrix4f matrix4f,
-            CallbackInfo ci)
+    @Inject(method = "renderBlockEntities",
+            at = @At(value = "RETURN"))
+    private void litematica_onPostRenderBlockEntities(MatrixStack matrices, VertexConsumerProvider.Immediate entityVertexConsumers, VertexConsumerProvider.Immediate effectVertexConsumers, Camera camera, float tickDelta, CallbackInfo ci)
     {
-        boolean invert = Hotkeys.INVERT_GHOST_BLOCK_RENDER_STATE.getKeybind().isKeybindHeld();
-
-        if (Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() != invert &&
-            Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() == false)
-        {
-            LitematicaRenderer.getInstance().renderSchematicWorld(matrices, matrix4f, tickDelta);
-        }
+        this.litematica$prepareProfiler();
+        LitematicaRenderer.getInstance().piecewiseRenderBlockEntities(matrices, entityVertexConsumers, effectVertexConsumers, tickDelta, this.profiler);
     }
-    */
 }

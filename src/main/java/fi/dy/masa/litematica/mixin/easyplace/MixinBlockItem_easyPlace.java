@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin.item;
+package fi.dy.masa.litematica.mixin.easyplace;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,10 +14,11 @@ import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.util.PlacementHandler;
 import fi.dy.masa.litematica.util.PlacementHandler.UseContext;
 
-@Mixin(value = BlockItem.class, priority = 980)
-public abstract class MixinBlockItem extends Item
+// 980
+@Mixin(value = BlockItem.class, priority = 1010)
+public abstract class MixinBlockItem_easyPlace extends Item
 {
-    private MixinBlockItem(Item.Settings builder)
+    private MixinBlockItem_easyPlace(Item.Settings builder)
     {
         super(builder);
     }
@@ -34,10 +35,13 @@ public abstract class MixinBlockItem extends Item
         {
             BlockState stateOrig = this.getBlock().getPlacementState(ctx);
 
-            if (stateOrig != null && this.canPlace(ctx, stateOrig))
+            if (stateOrig != null)
             {
-                UseContext context = UseContext.from(ctx, ctx.getHand());
-                cir.setReturnValue(PlacementHandler.applyPlacementProtocolToPlacementState(stateOrig, context));
+                if (!Configs.Generic.EASY_PLACE_SP_VALIDATION.getBooleanValue() || this.canPlace(ctx, stateOrig))
+                {
+                    UseContext context = UseContext.from(ctx, ctx.getHand());
+                    cir.setReturnValue(PlacementHandler.applyPlacementProtocolToPlacementState(stateOrig, context));
+                }
             }
         }
     }

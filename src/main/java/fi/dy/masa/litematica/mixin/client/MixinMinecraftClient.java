@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.client;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.thread.ReentrantThreadExecutor;

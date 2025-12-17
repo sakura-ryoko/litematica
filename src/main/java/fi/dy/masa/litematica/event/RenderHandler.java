@@ -24,6 +24,16 @@ import fi.dy.masa.malilib.util.GuiUtils;
 public class RenderHandler implements IRenderer
 {
     @Override
+    public void onRenderWorldLastAdvanced(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, Profiler profiler)
+    {
+//        MinecraftClient mc = MinecraftClient.getInstance();
+//
+//        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
+//        {
+//        }
+    }
+
+    @Override
     public void onRenderWorldPreWeather(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, Profiler profiler)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -31,20 +41,23 @@ public class RenderHandler implements IRenderer
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
             profiler.push("overlay_boxes");
-            OverlayRenderer.getInstance().renderBoxes(posMatrix, profiler);
+            OverlayRenderer.getInstance().renderBoxes(posMatrix, projMatrix, profiler);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
                 profiler.swap("overlay_mismatches");
-                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix, profiler);
+                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix, projMatrix, profiler);
             }
 
             if (DataManager.getToolMode() == ToolMode.REBUILD)
             {
                 profiler.swap("overlay_targeting");
-                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix, profiler);
+                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix, projMatrix, profiler);
             }
 
+            // Schematic Overlay Rendering (1.21.5+)
+//            profiler.swap("schematic_overlay");
+//            LitematicaRenderer.getInstance().piecewiseRenderOverlay(posMatrix, projMatrix, profiler);
             profiler.pop();
         }
     }
