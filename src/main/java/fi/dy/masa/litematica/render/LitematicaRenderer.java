@@ -11,9 +11,9 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.profiler.Profiler;
 
+import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.malilib.render.MaLiLibPipelines;
 import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
@@ -236,15 +236,6 @@ public class LitematicaRenderer
             float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
 
             profiler.push("schematic_overlay");
-//            RenderUtils.culling(false);
-            //TODO: RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
-//            RenderUtils.polygonOffset(true);
-//            RenderUtils.polygonOffset(-0.4f, -0.8f);
-            // todo move this
-//            RenderSystem.lineWidth(lineWidth);
-//            RenderUtils.blend(true);
-//            RenderUtils.color(1f, 1f, 1f, 1f);
-            //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
 
             if (!IrisCompat.isShadowPassActive())
             {
@@ -252,10 +243,6 @@ public class LitematicaRenderer
                 this.getWorldRenderer().renderBlockOverlays(camera, lineWidth, profiler);
             }
 
-//            RenderUtils.depthTest(true);
-//            RenderUtils.polygonOffset(0f, 0f);
-//            RenderUtils.polygonOffset(false);
-//            RenderUtils.culling(true);
             profiler.pop();
         }
     }
@@ -304,22 +291,10 @@ public class LitematicaRenderer
         {
             profiler.push(Reference.MOD_ID+"_solid");
 
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(true);
-//                RenderUtils.polygonOffset(-0.3f, -0.6f);
-//            }
-
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), this.getCamera(), profiler,
                                                      this.renderCollidingSchematicBlocks ?
                                                      MaLiLibPipelines.SOLID_MASA_OFFSET :
                                                      MaLiLibPipelines.SOLID_MASA);
-
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(0f, 0f);
-//                RenderUtils.polygonOffset(false);
-//            }
 
             profiler.pop();
         }
@@ -331,23 +306,10 @@ public class LitematicaRenderer
         {
             profiler.push(Reference.MOD_ID+"_cutout_mipped");
 
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(true);
-//                RenderUtils.polygonOffset(-0.3f, -0.6f);
-//            }
-
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), this.getCamera(), profiler,
                                                      this.renderCollidingSchematicBlocks ?
                                                      MaLiLibPipelines.CUTOUT_MIPPED_MASA_OFFSET :
                                                      MaLiLibPipelines.CUTOUT_MIPPED_MASA);
-
-
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(0f, 0f);
-//                RenderUtils.polygonOffset(false);
-//            }
 
             profiler.pop();
         }
@@ -359,22 +321,10 @@ public class LitematicaRenderer
         {
             profiler.push(Reference.MOD_ID+"_cutout");
 
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(true);
-//                RenderUtils.polygonOffset(-0.3f, -0.6f);
-//            }
-
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), this.getCamera(), profiler,
                                                      this.renderCollidingSchematicBlocks ?
                                                      MaLiLibPipelines.CUTOUT_MASA_OFFSET :
                                                      MaLiLibPipelines.CUTOUT_MASA);
-
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(0f, 0f);
-//                RenderUtils.polygonOffset(false);
-//            }
 
             profiler.pop();
         }
@@ -386,22 +336,10 @@ public class LitematicaRenderer
         {
             profiler.push(Reference.MOD_ID+"_translucent");
 
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(true);
-//                RenderUtils.polygonOffset(-0.3f, -0.6f);
-//            }
-
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), this.getCamera(), profiler,
                                                      this.renderCollidingSchematicBlocks ?
                                                      MaLiLibPipelines.TRANSLUCENT_MASA_OFFSET :
                                                      MaLiLibPipelines.TRANSLUCENT_MASA);
-
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(0f, 0f);
-//                RenderUtils.polygonOffset(false);
-//            }
 
             profiler.pop();
         }
@@ -413,23 +351,11 @@ public class LitematicaRenderer
         {
             profiler.push(Reference.MOD_ID+"_tripwire");
 
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(true);
-//                RenderUtils.polygonOffset(-0.3f, -0.6f);
-//            }
-
             //ShaderProgram shader = RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_TRANSLUCENT);
             this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), this.getCamera(), profiler,
                                                      this.renderCollidingSchematicBlocks ?
                                                      MaLiLibPipelines.TRIPWIRE_MASA_OFFSET :
                                                      MaLiLibPipelines.TRIPWIRE_MASA);
-
-//            if (this.renderCollidingSchematicBlocks)
-//            {
-//                RenderUtils.polygonOffset(0f, 0f);
-//                RenderUtils.polygonOffset(false);
-//            }
 
             profiler.pop();
         }

@@ -36,6 +36,7 @@ public class TaskDeleteBlocksByPlacement extends TaskProcessChunkMultiPhase
     protected final String setBlockCommand;
     protected final String blockString;
     protected long blockCount;
+    protected String useStrict;
 
     public TaskDeleteBlocksByPlacement(Collection<SchematicPlacement> placements,
                                        PlacementDeletionMode mode,
@@ -47,6 +48,7 @@ public class TaskDeleteBlocksByPlacement extends TaskProcessChunkMultiPhase
         this.mode = mode;
         this.layerRange = layerRange;
         this.setBlockCommand = Configs.Generic.COMMAND_NAME_SETBLOCK.getStringValue();
+        this.useStrict = Configs.Generic.COMMAND_USE_STRICT.getBooleanValue() ? " strict" : "";
         this.blockString = BlockArgumentParser.stringifyBlockState(Blocks.AIR.getDefaultState());
         this.processBoxBlocksTask = this::sendQueuedCommands;
     }
@@ -212,8 +214,9 @@ public class TaskDeleteBlocksByPlacement extends TaskProcessChunkMultiPhase
         else
         {
             final String cmdName = this.setBlockCommand;
-            String fillCommand = String.format("%s %d %d %d %s",
-                                               cmdName, pos.getX(), pos.getY(), pos.getZ(), this.blockString);
+            String fillCommand = String.format("%s %d %d %d %s%s",
+                                               cmdName, pos.getX(), pos.getY(), pos.getZ(), this.blockString,
+                                               this.useStrict);
 
             this.queuedCommands.offer(fillCommand);
         }

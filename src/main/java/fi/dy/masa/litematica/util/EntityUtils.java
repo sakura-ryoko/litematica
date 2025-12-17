@@ -23,10 +23,12 @@ import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -184,9 +186,9 @@ public class EntityUtils
             {
                 return entityDebugRandom2 ? Pair.of("Xisumatica", "Chief architect & humble leader.") : Pair.of("Xisumatica", "Check out Soulside Eclipse on Spotify.");
             }
-            case "rendog" ->
+            case "renthedog", "rendog" ->
             {
-                return entityDebugRandom2 ? Pair.of("Dogmatica", "Gigacorp's most famous employee.") : Pair.of("Renmatica", "Docm77's single ladies' favorite.");
+                return entityDebugRandom2 ? Pair.of("Dogmatica", "Gigacorps' most famous employee.") : Pair.of("Renmatica", "Docm77's single ladies' favorite.");
             }
             case "geminitay" ->
             {
@@ -198,13 +200,13 @@ public class EntityUtils
             }
             case "falsesymmetry" ->
             {
-                return entityDebugRandom2 ? Pair.of("Queenmatica", "The Queen of Hearts, Heads, and Body Parts.") : Pair.of("Falsematica", "Promoter of Sand and Cactus sales.");
+                return entityDebugRandom2 ? Pair.of("Queenmatica", "The Queen of Hearts, Heads, and Body Parts.") : Pair.of("", "");
             }
-            case "tangotek" ->
+            case "tango" ->
             {
                 return entityDebugRandom2 ? Pair.of("Tangomatica", "The Dungeon Master.") : Pair.of("Tangomatica", "Master of the thingificator.");
             }
-            case "ethoslab" ->
+            case "etho", "ethoslab" ->
             {
                 return entityDebugRandom2 ? Pair.of("Slabmatica", "The Canadian legend.") : Pair.of("", "");
             }
@@ -214,7 +216,7 @@ public class EntityUtils
             }
             case "cubfan135" ->
             {
-                return entityDebugRandom2 ? Pair.of("Cubmatica", "Ladies and gentlemen; Beautiful, absolutely beautiful.") : Pair.of("Cubmatica", "Definitely not the Ore Snatcher.");
+                return entityDebugRandom2 ? Pair.of("Cubmatica", "Ladies and gentlemen; Beautiful, absolutely beautiful.") : Pair.of("", "");
             }
 	        case "smajor1995" ->
 	        {
@@ -226,11 +228,11 @@ public class EntityUtils
 	        }
 	        case "goodtimewithscar" ->
 	        {
-		        return entityDebugRandom2 ? Pair.of("Scarmatica", "The Ore Snatcher.") : Pair.of("Scarmatica", "Touched Doc's redstone.");
+		        return entityDebugRandom2 ? Pair.of("Scarmatica", "The Ore Snatcher.") : Pair.of("Scarmatica", "Architect of the whimsy.");
 	        }
-	        case "joehillstsd" ->
+	        case "joehillssays", "joehillstsd" ->
 	        {
-		        return entityDebugRandom2 ? Pair.of("Joematica", "One of the True Hermits.") : Pair.of("", "");
+		        return entityDebugRandom2 ? Pair.of("Joematica", "One of the True Hermits.") : Pair.of("Hillsmatica", "Howdy y'all from Nashville, TN!");
 	        }
             default ->
             {
@@ -314,13 +316,16 @@ public class EntityUtils
         {
             for (Entity passenger : entity.getPassengerList())
             {
+                Vec3d adjPos = entity.getPassengerRidingPos(passenger);
+
                 passenger.refreshPositionAndAngles(
-                        entity.getX(),
-                        entity.getY() + entity.getPassengerRidingPos(passenger).getY(),
-                        entity.getZ(),
+                        adjPos.getX(),
+                        adjPos.getY(),
+                        adjPos.getZ(),
                         passenger.getYaw(), passenger.getPitch());
                 setEntityRotations(passenger, passenger.getYaw(), passenger.getPitch());
                 spawnEntityAndPassengersInWorld(passenger, world);
+                entity.updatePassengerPosition(passenger);
             }
         }
     }
@@ -483,5 +488,33 @@ public class EntityUtils
         }
 
         return hand;
+    }
+
+    public static NbtList updatePassengersToRelativeRegionPos(NbtList passengers, BlockPos relPos)
+    {
+        NbtList newList = new NbtList();
+
+        for (int i = 0; i < passengers.size(); i++)
+        {
+            NbtCompound entry = passengers.getCompoundOrEmpty(i);
+
+            if (!entry.isEmpty())
+            {
+                if (entry.contains(NbtKeys.POS))
+                {
+                    Vec3d pos = entry.get(NbtKeys.POS, Vec3d.CODEC).orElse(Vec3d.ZERO);
+                    Vec3d adjPos = new Vec3d(pos.getX() - relPos.getX(), pos.getY() - relPos.getY(), pos.getZ() - relPos.getZ());
+
+                    entry.put(NbtKeys.POS, Vec3d.CODEC, adjPos);
+                    newList.add(entry);
+                }
+                else
+                {
+                    newList.add(entry);
+                }
+            }
+        }
+
+        return newList;
     }
 }

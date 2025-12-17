@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.litematica.mixin.IMixinProfilerSystem;
+import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
@@ -29,14 +29,6 @@ public abstract class MixinWorldRenderer
 {
     @Shadow private net.minecraft.client.world.ClientWorld world;
     @Shadow @Final private MinecraftClient client;
-//    @Shadow @Final private DefaultFramebufferSet framebufferSet;
-//    @Shadow @Final private BufferBuilderStorage bufferBuilders;
-
-//    @Unique private PostEffectProcessor postEffects = null;
-//    @Unique private int width;
-//    @Unique private int height;
-//    @Unique private Matrix4f posMatrix = null;
-//    @Unique private RenderTickCounter ticks = null;
     @Unique private Profiler profiler;
 
     @Inject(method = "reload()V", at = @At("RETURN"))
@@ -83,33 +75,8 @@ public abstract class MixinWorldRenderer
                                             Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f matrix4f2, CallbackInfo ci,
                                             @Local Profiler profiler)
     {
-//        this.posMatrix = positionMatrix;
-//        this.ticks = tickCounter;
         this.profiler = profiler;
     }
-
-//    @Inject(method = "render",
-//            at = @At(value = "INVOKE",
-//                     target = "Lnet/minecraft/client/render/WorldRenderer;renderParticles(Lnet/minecraft/client/render/FrameGraphBuilder;Lnet/minecraft/client/render/Camera;FLnet/minecraft/client/render/Fog;)V",
-//                     shift = At.Shift.BEFORE))
-//    private void litematica_onRenderWorldPreParticle(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline,
-//                                                     Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci,
-//                                                     @Local Profiler profiler,
-//                                                     @Local Frustum frustum,
-//                                                     @Local FrameGraphBuilder frameGraphBuilder,
-//                                                     @Local(ordinal = 0) int i, @Local(ordinal = 1) int j,
-//                                                     @Local PostEffectProcessor postEffectProcessor)
-//    {
-//        LitematicaRenderer.getInstance().runRenderWorldOverlay(positionMatrix, projectionMatrix, this.client, frameGraphBuilder, this.framebufferSet, frustum, camera, this.bufferBuilders, profiler);
-//
-//        if (postEffectProcessor != null)
-//        {
-//            this.width = i;
-//            this.height = j;
-//            this.postEffects = postEffectProcessor;
-//            this.postEffects.render(frameGraphBuilder, this.width, this.height, this.framebufferSet, null);
-//        }
-//    }
 
     @Inject(method = "renderLayer",
             at = @At("TAIL")
@@ -184,25 +151,4 @@ public abstract class MixinWorldRenderer
 
         LitematicaRenderer.getInstance().piecewiseRenderBlockEntities(matrices, entityVertexConsumers, effectVertexConsumers, tickProgress, this.profiler);
     }
-
-    /*
-    @Inject(method = "render", at = @At("TAIL"))
-    private void onRenderWorldLast(
-            net.minecraft.client.util.math.MatrixStack matrices,
-            float tickDelta, long limitTime, boolean renderBlockOutline,
-            net.minecraft.client.render.Camera camera,
-            net.minecraft.client.render.GameRenderer gameRenderer,
-            net.minecraft.client.render.LightmapTextureManager lightmapTextureManager,
-            net.minecraft.client.util.math.Matrix4f matrix4f,
-            CallbackInfo ci)
-    {
-        boolean invert = Hotkeys.INVERT_GHOST_BLOCK_RENDER_STATE.getKeybind().isKeybindHeld();
-
-        if (Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() != invert &&
-            Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() == false)
-        {
-            LitematicaRenderer.getInstance().renderSchematicWorld(matrices, matrix4f, tickDelta);
-        }
-    }
-    */
 }

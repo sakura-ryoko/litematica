@@ -34,6 +34,7 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
     @Nullable protected final String replaceBlockString;
     protected final int maxBoxVolume;
     protected final boolean removeEntities;
+    protected final String useStrict;
 
     public TaskFillArea(List<Box> boxes, BlockState fillState, @Nullable BlockState replaceState, boolean removeEntities)
     {
@@ -50,6 +51,7 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
         this.maxBoxVolume = Configs.Generic.COMMAND_FILL_MAX_VOLUME.getIntegerValue();
         this.maxCommandsPerTick = Configs.Generic.COMMAND_LIMIT.getIntegerValue();
         this.fillCommand = Configs.Generic.COMMAND_NAME_FILL.getStringValue();
+        this.useStrict = Configs.Generic.COMMAND_USE_STRICT.getBooleanValue() ? " strict" : "";
         this.blockString = BlockArgumentParser.stringifyBlockState(fillState);
 
         if (replaceState != null)
@@ -253,14 +255,16 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
 
             if (this.replaceState != null)
             {
-                fillCmd = String.format("%s %d %d %d %d %d %d %s replace %s", this.fillCommand,
+                fillCmd = String.format("%s %d %d %d %d %d %d %s replace %s%s", this.fillCommand,
                                         minX, minY, minZ, maxX, maxY, maxZ,
-                                        this.blockString, this.replaceBlockString);
+                                        this.blockString, this.replaceBlockString,
+                                        this.useStrict);
             }
             else
             {
-                fillCmd = String.format("%s %d %d %d %d %d %d %s", this.fillCommand,
-                                        minX, minY, minZ, maxX, maxY, maxZ, this.blockString);
+                fillCmd = String.format("%s %d %d %d %d %d %d %s%s", this.fillCommand,
+                                        minX, minY, minZ, maxX, maxY, maxZ, this.blockString,
+                                        this.useStrict);
             }
 
             this.queuedCommands.offer(fillCmd);
