@@ -58,6 +58,7 @@ public class Configs implements IConfigHandler
         public static final ConfigString        COMMAND_NAME_SUMMON         = new ConfigString( "commandNameSummon", "summon").apply(GENERIC_KEY);
         public static final ConfigInteger       COMMAND_TASK_INTERVAL       = new ConfigInteger("commandTaskInterval", 1, 1, 1000).apply(GENERIC_KEY);
         public static final ConfigBoolean       COMMAND_USE_WORLDEDIT       = new ConfigBoolean("commandUseWorldEdit", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       COMMAND_USE_STRICT          = new ConfigBoolean("commandUseStrict", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       DEBUG_LOGGING               = new ConfigBoolean("debugLogging", false).apply(GENERIC_KEY);
         public static final ConfigOptionList    DATAFIXER_MODE              = new ConfigOptionList("datafixerMode", DataFixerMode.ALWAYS).apply(GENERIC_KEY);
         public static final ConfigInteger       DATAFIXER_DEFAULT_SCHEMA    = new ConfigInteger("datafixerDefaultSchema", 1139, 99, 2724, true).apply(GENERIC_KEY);
@@ -123,6 +124,7 @@ public class Configs implements IConfigHandler
                 COMMAND_DISABLE_FEEDBACK,
                 COMMAND_FILL_NO_CHUNK_CLAMP,
                 COMMAND_USE_WORLDEDIT,
+                COMMAND_USE_STRICT,
                 CUSTOM_SCHEMATIC_BASE_DIRECTORY_ENABLED,
                 DEBUG_HUD_MODE,
                 DEBUG_LOGGING,
