@@ -7,6 +7,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.DynamicRegistryManager;
 
 import fi.dy.masa.malilib.interfaces.IWorldLoadListener;
+import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.compat.jade.JadeCompat;
+import fi.dy.masa.litematica.data.CachedTagManager;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
@@ -31,6 +34,7 @@ public class WorldLoadListener implements IWorldLoadListener
         }
         if (worldAfter != null)
         {
+            JadeCompat.checkForJade();
             EntitiesDataStorage.getInstance().onWorldPre();
             DataManager.getInstance().onWorldPre(worldAfter.getRegistryManager());
         }
@@ -46,8 +50,10 @@ public class WorldLoadListener implements IWorldLoadListener
         if (worldAfter != null)
         {
             DataManager.load();
+            Litematica.debugLog("onWorldLoadPost(): Init BlockStateFlattening DataFixer [Test: {}]", BlockStateFlattening.lookupBlock("minecraft:air"));
             SchematicConversionMaps.computeMaps();
             EntitiesDataStorage.getInstance().onWorldJoin();
+            CachedTagManager.startCache();
         }
         else
         {

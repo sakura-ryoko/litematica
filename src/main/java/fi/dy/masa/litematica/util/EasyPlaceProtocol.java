@@ -1,10 +1,13 @@
 package fi.dy.masa.litematica.util;
 
 import com.google.common.collect.ImmutableList;
+
+import net.minecraft.util.StringIdentifiable;
+
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum EasyPlaceProtocol implements IConfigOptionListEntry
+public enum EasyPlaceProtocol implements IConfigOptionListEntry, StringIdentifiable
 {
     AUTO                ("auto",                  "litematica.gui.label.easy_place_protocol.auto"),
     V3                  ("v3",                    "litematica.gui.label.easy_place_protocol.v3"),
@@ -12,6 +15,7 @@ public enum EasyPlaceProtocol implements IConfigOptionListEntry
     SLAB_ONLY           ("slabs_only",            "litematica.gui.label.easy_place_protocol.slabs_only"),
     NONE                ("none",                  "litematica.gui.label.easy_place_protocol.none");
 
+    public static final StringIdentifiable.EnumCodec<EasyPlaceProtocol> CODEC = StringIdentifiable.createCodec(EasyPlaceProtocol::values);
     public static final ImmutableList<EasyPlaceProtocol> VALUES = ImmutableList.copyOf(values());
 
     private final String configString;
@@ -21,6 +25,12 @@ public enum EasyPlaceProtocol implements IConfigOptionListEntry
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 
     @Override

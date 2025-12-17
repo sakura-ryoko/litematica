@@ -32,6 +32,7 @@ import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.compat.jade.JadeCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
@@ -47,8 +48,11 @@ import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier.MismatchRender
 import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.selection.SelectionManager;
-import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.util.BlockInfoAlignment;
+import fi.dy.masa.litematica.util.InventoryUtils;
+import fi.dy.masa.litematica.util.ItemUtils;
 import fi.dy.masa.litematica.util.PositionUtils.Corner;
+import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
@@ -123,8 +127,9 @@ public class OverlayRenderer
         }
     }
 
-    public void renderBoxes(Matrix4f matrix4f)
+    public void renderBoxes(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
+        profiler.push("render");
         SelectionManager sm = DataManager.getSelectionManager();
         AreaSelection currentSelection = sm.getCurrentSelection();
         boolean renderAreas = currentSelection != null && Configs.Visuals.ENABLE_AREA_SELECTION_RENDERING.getBooleanValue();
@@ -141,42 +146,49 @@ public class OverlayRenderer
             RenderSystem.enableDepthTest();
             RenderSystem.depthMask(false);
 
+            profiler.swap("render_areas");
             if (renderAreas)
             {
                 RenderSystem.enablePolygonOffset();
                 RenderSystem.polygonOffset(-1.2f, -0.2f);
 
+                profiler.push("selection_boxes");
                 Box currentBox = currentSelection.getSelectedSubRegionBox();
 
                 for (Box box : currentSelection.getAllSubRegionBoxes())
                 {
                     BoxType type = box == currentBox ? BoxType.AREA_SELECTED : BoxType.AREA_UNSELECTED;
-                    this.renderSelectionBox(box, type, expand, lineWidthBlockBox, lineWidthArea, null, matrix4f);
+                    this.renderSelectionBox(box, type, expand, lineWidthBlockBox, lineWidthArea, null, posMatrix);
                 }
 
                 BlockPos origin = currentSelection.getExplicitOrigin();
 
                 if (origin != null)
                 {
+                    profiler.swap("area_sides");
                     if (currentSelection.isOriginSelected())
                     {
                         Color4f colorTmp = Color4f.fromColor(this.colorAreaOrigin, 0.4f);
-                        RenderUtils.renderAreaSides(origin, origin, colorTmp, matrix4f, this.mc);
+                        RenderUtils.renderAreaSides(origin, origin, colorTmp, posMatrix, this.mc);
                     }
 
+                    profiler.swap("block_outlines");
                     Color4f color = currentSelection.isOriginSelected() ? this.colorSelectedCorner : this.colorAreaOrigin;
                     RenderUtils.renderBlockOutline(origin, expand, lineWidthBlockBox, color, this.mc);
                 }
 
                 RenderSystem.polygonOffset(0f, 0f);
                 RenderSystem.disablePolygonOffset();
+                profiler.pop();
             }
 
+            profiler.swap("render_placements");
             if (renderPlacements)
             {
                 SchematicPlacementManager spm = DataManager.getSchematicPlacementManager();
                 SchematicPlacement currentPlacement = spm.getSelectedSchematicPlacement();
 
+                profiler.push("placement");
                 for (Map.Entry<SchematicPlacement, ImmutableMap<String, Box>> entry : this.placements.entrySet())
                 {
                     SchematicPlacement schematicPlacement = entry.getKey();
@@ -188,12 +200,14 @@ public class OverlayRenderer
                         String boxName = entryBox.getKey();
                         boolean boxSelected = schematicPlacement == currentPlacement && (origin || boxName.equals(schematicPlacement.getSelectedSubRegionName()));
                         BoxType type = boxSelected ? BoxType.PLACEMENT_SELECTED : BoxType.PLACEMENT_UNSELECTED;
-                        this.renderSelectionBox(entryBox.getValue(), type, expand, 1f, 1f, schematicPlacement, matrix4f);
+                        this.renderSelectionBox(entryBox.getValue(), type, expand, 1f, 1f, schematicPlacement, posMatrix);
                     }
+                    profiler.swap("block_outlines");
 
                     Color4f color = schematicPlacement == currentPlacement && origin ? this.colorSelectedCorner : schematicPlacement.getBoxesBBColor();
                     RenderUtils.renderBlockOutline(schematicPlacement.getOrigin(), expand, lineWidthBlockBox, color, this.mc);
 
+                    profiler.swap("area_sides");
                     if (Configs.Visuals.RENDER_PLACEMENT_ENCLOSING_BOX.getBooleanValue())
                     {
                         Box box = schematicPlacement.getEclosingBox();
@@ -206,13 +220,16 @@ public class OverlayRenderer
                             {
                                 float alpha = (float) Configs.Visuals.PLACEMENT_BOX_SIDE_ALPHA.getDoubleValue();
                                 color = new Color4f(color.r, color.g, color.b, alpha);
-                                RenderUtils.renderAreaSides(box.getPos1(), box.getPos2(), color, matrix4f, this.mc);
+                                RenderUtils.renderAreaSides(box.getPos1(), box.getPos2(), color, posMatrix, this.mc);
                             }
                         }
                     }
                 }
+
+                profiler.pop();
             }
 
+            profiler.swap("render_projects");
             if (isProjectMode)
             {
                 SchematicProject project = DataManager.getSchematicProjectsManager().getCurrentProject();
@@ -225,6 +242,8 @@ public class OverlayRenderer
 
             RenderSystem.depthMask(true);
         }
+
+        profiler.pop();
     }
 
     public void renderSelectionBox(Box box, BoxType boxType, float expand,
@@ -342,8 +361,10 @@ public class OverlayRenderer
         }
     }
 
-    public void renderSchematicVerifierMismatches(Matrix4f matrix4f)
+    public void renderSchematicVerifierMismatches(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
+        profiler.push("render_mismatches");
+
         SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
 
         if (placement != null && placement.hasVerifier())
@@ -358,13 +379,16 @@ public class OverlayRenderer
                 List<BlockPos> posList = verifier.getSelectedMismatchBlockPositionsForRender();
                 BlockHitResult trace = RayTraceUtils.traceToPositions(posList, entity, 128);
                 BlockPos posLook = trace != null && trace.getType() == HitResult.Type.BLOCK ? trace.getBlockPos() : null;
-                this.renderSchematicMismatches(list, posLook, matrix4f);
+                this.renderSchematicMismatches(list, posLook, posMatrix, profiler);
             }
         }
+
+        profiler.pop();
     }
 
-    private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, Matrix4f matrix4f)
+    private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, Matrix4f matrix4f, Profiler profiler)
     {
+        profiler.push("batched_lines");
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
 
@@ -419,6 +443,8 @@ public class OverlayRenderer
                 Litematica.LOGGER.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 1) (Error: {})", e.getLocalizedMessage());
             }
 
+            profiler.swap("outlines");
+
             buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
             RenderUtils.startDrawingLines();
 
@@ -437,6 +463,7 @@ public class OverlayRenderer
             Litematica.LOGGER.error("renderSchematicMismatches: Failed to draw Schematic Mismatches (Step 2) (Error: {})", e.getLocalizedMessage());
         }
 
+        profiler.swap("sides");
         if (Configs.Visuals.RENDER_ERROR_MARKER_SIDES.getBooleanValue())
         {
             RenderSystem.enableBlend();
@@ -470,15 +497,19 @@ public class OverlayRenderer
         RenderSystem.enableCull();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
+        profiler.pop();
     }
 
     public void renderHoverInfo(MinecraftClient mc, DrawContext drawContext)
     {
+        profiler.push("render_hover_info");
+
         if (mc.world != null && mc.player != null)
         {
             boolean infoOverlayKeyActive = Hotkeys.RENDER_INFO_OVERLAY.getKeybind().isKeybindHeld();
             boolean verifierOverlayRendered = false;
 
+            profiler.swap("render_verifier_overlay");
             if (infoOverlayKeyActive && Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
                 verifierOverlayRendered = this.renderVerifierOverlay(mc, drawContext);
@@ -488,6 +519,7 @@ public class OverlayRenderer
             boolean renderBlockInfoOverlay = verifierOverlayRendered == false && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
             RayTraceWrapper traceWrapper = null;
 
+            profiler.swap("generic_trace");
             if (renderBlockInfoLines || renderBlockInfoOverlay)
             {
                 Entity entity = fi.dy.masa.malilib.util.EntityUtils.getCameraEntity();
@@ -499,17 +531,21 @@ public class OverlayRenderer
                 (traceWrapper.getHitType() == RayTraceWrapper.HitType.VANILLA_BLOCK ||
                  traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK))
             {
+                profiler.swap("render_block_lines");
                 if (renderBlockInfoLines)
                 {
                     this.renderBlockInfoLines(traceWrapper, mc, drawContext);
                 }
 
+                profiler.swap("render_block_overlay");
                 if (renderBlockInfoOverlay)
                 {
                     this.renderBlockInfoOverlay(traceWrapper, mc, drawContext);
                 }
             }
         }
+
+        profiler.pop();
     }
 
     private void renderBlockInfoLines(RayTraceWrapper traceWrapper, MinecraftClient mc, DrawContext drawContext)
@@ -668,6 +704,13 @@ public class OverlayRenderer
             case TOP_CENTER:
                 this.blockInfoX = GuiUtils.getScaledWindowWidth() / 2 - width / 2;
                 this.blockInfoY = invHeight + offY + (invHeight > 0 ? offY : 0);
+
+                // Shift Overlay Window down by getJadeShift() if Jade is active.
+                if (JadeCompat.hasJade())
+                {
+                    this.blockInfoY += JadeCompat.getJadeShift();
+                }
+
                 break;
         }
     }
@@ -706,8 +749,9 @@ public class OverlayRenderer
         this.blockInfoLines.addAll(BlockUtils.getFormattedBlockStateProperties(state));
     }
 
-    public void renderSchematicRebuildTargetingOverlay(Matrix4f matrix4f)
+    public void renderSchematicRebuildTargetingOverlay(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
+        profiler.push("rebuild_trace");
         RayTraceWrapper traceWrapper = null;
         Color4f color = null;
         boolean direction = false;
@@ -746,6 +790,7 @@ public class OverlayRenderer
             direction = true;
         }
 
+        profiler.swap("render_target_overlay");
         if (traceWrapper != null && traceWrapper.getHitType() == RayTraceWrapper.HitType.SCHEMATIC_BLOCK)
         {
             BlockHitResult trace = traceWrapper.getBlockHitResult();
@@ -760,12 +805,12 @@ public class OverlayRenderer
             if (direction)
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlay(
-                        entity, pos, trace.getSide(), trace.getPos(), color, matrix4f, this.mc);
+                        entity, pos, trace.getSide(), trace.getPos(), color, posMatrix, this.mc);
             }
             else
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlaySimple(
-                        entity, pos, trace.getSide(), color, matrix4f, this.mc);
+                        entity, pos, trace.getSide(), color, posMatrix, this.mc);
             }
 
             RenderSystem.disablePolygonOffset();
@@ -773,10 +818,13 @@ public class OverlayRenderer
             RenderSystem.enableCull();
             RenderSystem.depthMask(true);
         }
+
+        profiler.pop();
     }
 
-    public void renderPreviewFrame(MinecraftClient mc, DrawContext drawContext)
+    public void renderPreviewFrame(MinecraftClient mc, DrawContext drawContext, Profiler profiler)
     {
+        profiler.push("render_preview_frame");
         int width = GuiUtils.getScaledWindowWidth();
         int height = GuiUtils.getScaledWindowHeight();
         int x = width >= height ? (width - height) / 2 : 0;
@@ -784,6 +832,7 @@ public class OverlayRenderer
         int longerSide = Math.min(width, height);
 
         fi.dy.masa.malilib.render.RenderUtils.drawOutline(x, y, longerSide, longerSide, 2, 0xFFFFFFFF);
+        profiler.pop();
     }
 
     private enum BoxType

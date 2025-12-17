@@ -18,23 +18,31 @@ import fi.dy.masa.malilib.util.GuiUtils;
 public class RenderHandler implements IRenderer
 {
     @Override
-    public void onRenderWorldLast(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void onRenderWorldLast(Matrix4f posMatrix, Matrix4f projMatrix)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
-            OverlayRenderer.getInstance().renderBoxes(matrix4f);
+            profiler.push("overlay_boxes");
+            OverlayRenderer.getInstance().renderBoxes(posMatrix, projMatrix, profiler);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
-                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(matrix4f);
+                profiler.swap("overlay_mismatches");
+                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix, projMatrix, profiler);
             }
 
             if (DataManager.getToolMode() == ToolMode.REBUILD)
             {
-                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(matrix4f);
+                profiler.swap("overlay_targeting");
+                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix, projMatrix, profiler);
             }
+
+            // Schematic Overlay Rendering (1.21.5+)
+//            profiler.swap("schematic_overlay");
+//            LitematicaRenderer.getInstance().piecewiseRenderOverlay(posMatrix, projMatrix, profiler);
+            profiler.pop();
         }
     }
 
@@ -45,6 +53,7 @@ public class RenderHandler implements IRenderer
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
+            profiler.push("overlay_hud");
             // The Info HUD renderers can decide if they want to be rendered in GUIs
             InfoHud.getInstance().renderHud(drawContext);
 
@@ -53,14 +62,18 @@ public class RenderHandler implements IRenderer
                 if (mc.options.hudHidden == false)
                 {
                     ToolHud.getInstance().renderHud(drawContext);
+                    profiler.swap("overlay_hover_info");
                     OverlayRenderer.getInstance().renderHoverInfo(mc, drawContext);
                 }
 
                 if (GuiSchematicManager.hasPendingPreviewTask())
                 {
+                    profiler.swap("overlay_preview_frame");
                     OverlayRenderer.getInstance().renderPreviewFrame(mc, drawContext);
                 }
             }
+
+            profiler.pop();
         }
     }
 }

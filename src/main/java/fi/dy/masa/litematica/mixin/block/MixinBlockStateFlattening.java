@@ -14,5 +14,8 @@ public abstract class MixinBlockStateFlattening
     private static void litematica_onAddEntry(int id, String fixedNBT, String[] sourceNBTs, CallbackInfo ci)
     {
         SchematicConversionMaps.addEntry(id, fixedNBT, sourceNBTs);
+        // 1.21.5+
+//        List<Dynamic<?>> oldDynamics = Arrays.stream(oldStateDynamics).toList();
+//        SchematicConversionMaps.addDynamicEntry(oldIdAndMeta, newStateDynamic, oldDynamics);
     }
 }

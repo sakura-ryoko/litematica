@@ -144,6 +144,11 @@ public class ChunkSchematic extends WorldChunk
         return this.entityCount;
     }
 
+    public int getTileEntityCount()
+    {
+        return this.blockEntities.size();
+    }
+
     public long getTimeCreated()
     {
         return this.timeCreated;

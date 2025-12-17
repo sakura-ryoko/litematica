@@ -29,6 +29,8 @@ public class LitematicaRenderer
     private boolean renderCollidingSchematicBlocks;
     private boolean renderPiecewiseSchematic;
     private boolean renderPiecewiseBlocks;
+    private boolean renderPiecewiseEntities;
+    private boolean renderPiecewiseTileEntities;
 
     public static LitematicaRenderer getInstance()
     {
@@ -61,9 +63,9 @@ public class LitematicaRenderer
         return this.getWorldRenderer();
     }
 
-    public void loadRenderers()
+    public void loadRenderers(@Nullable Profiler profiler)
     {
-        this.getWorldRenderer().loadRenderers();
+        this.getWorldRenderer().loadRenderers(profiler);
     }
 
     public void onSchematicWorldChanged(@Nullable WorldSchematic worldClient)
@@ -221,7 +223,7 @@ public class LitematicaRenderer
     }
     */
 
-    public void renderSchematicOverlay(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void renderSchematicOverlay(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
     {
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
@@ -254,11 +256,12 @@ public class LitematicaRenderer
 
     public void piecewisePrepareAndUpdate(Frustum frustum)
     {
-        boolean render = Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() &&
-                         Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
+        boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                          this.mc.getCameraEntity() != null;
         this.renderPiecewiseSchematic = false;
         this.renderPiecewiseBlocks = false;
+        this.renderPiecewiseEntities = false;
+        this.renderPiecewiseTileEntities = false;
         WorldRendererSchematic worldRenderer = this.getWorldRenderer();
 
         if (render && frustum != null && worldRenderer.hasWorld())
@@ -267,6 +270,8 @@ public class LitematicaRenderer
             this.renderPiecewiseSchematic = Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() != invert;
             this.renderPiecewiseBlocks = this.renderPiecewiseSchematic && Configs.Visuals.ENABLE_SCHEMATIC_BLOCKS.getBooleanValue();
             this.renderCollidingSchematicBlocks = Configs.Visuals.RENDER_COLLIDING_SCHEMATIC_BLOCKS.getBooleanValue();
+            this.renderPiecewiseEntities = this.renderPiecewiseSchematic && Configs.Visuals.RENDER_SCHEMATIC_ENTITIES.getBooleanValue();
+            this.renderPiecewiseTileEntities = this.renderPiecewiseSchematic && Configs.Visuals.RENDER_SCHEMATIC_TILE_ENTITIES.getBooleanValue();
 
             if (this.renderPiecewiseSchematic)
             {
@@ -387,7 +392,32 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderOverlay(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void piecewiseRenderTripwire(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
+    {
+        if (this.renderPiecewiseBlocks)
+        {
+            profiler.push(Reference.MOD_ID+"_tripwire");
+
+            if (this.renderCollidingSchematicBlocks)
+            {
+                RenderSystem.enablePolygonOffset();
+                RenderSystem.polygonOffset(-0.3f, -0.6f);
+            }
+
+            ShaderProgram shader = RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), viewMatrix, this.getCamera(), posMatrix, profiler, shader);
+
+            if (this.renderCollidingSchematicBlocks)
+            {
+                RenderSystem.polygonOffset(0f, 0f);
+                RenderSystem.disablePolygonOffset();
+            }
+
+            profiler.pop();
+        }
+    }
+
+    public void piecewiseRenderOverlay(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseSchematic)
         {
@@ -413,15 +443,24 @@ public class LitematicaRenderer
         this.cleanup();
     }
 
-    public void piecewiseRenderEntities(Matrix4f matrix4f, float partialTicks)
+    public void piecewiseRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, float partialTicks, Profiler profiler)
     {
-        if (this.renderPiecewiseBlocks)
+        if (this.renderPiecewiseEntities)
         {
-            this.mc.getProfiler().push("litematica_entities");
+            profiler.push(Reference.MOD_ID+"_entities");
+            this.getWorldRenderer().renderEntities(this.getCamera(), this.frustum, matrices, immediate, partialTicks, profiler);
+            profiler.pop();
+        }
+    }
 
-            this.getWorldRenderer().renderEntities(this.getCamera(), this.frustum, matrix4f, partialTicks);
 
-            this.mc.getProfiler().pop();
+    public void piecewiseRenderBlockEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, VertexConsumerProvider.Immediate immediate2, float partialTicks, Profiler profiler)
+    {
+        if (this.renderPiecewiseTileEntities)
+        {
+            profiler.push(Reference.MOD_ID+"_block_entities");
+            this.getWorldRenderer().renderBlockEntities(this.getCamera(), this.frustum, matrices, immediate, immediate2, partialTicks, profiler);
+            profiler.pop();
         }
     }
 
@@ -434,5 +473,7 @@ public class LitematicaRenderer
     {
         this.renderPiecewiseSchematic = false;
         this.renderPiecewiseBlocks = false;
+        this.renderPiecewiseEntities = false;
+        this.renderPiecewiseTileEntities = false;
     }
 }

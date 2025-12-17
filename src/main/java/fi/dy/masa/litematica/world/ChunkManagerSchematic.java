@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.world;
 
+import java.util.Iterator;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.util.math.ChunkPos;
@@ -108,5 +109,19 @@ public class ChunkManagerSchematic extends ChunkManager
     public void tick(BooleanSupplier shouldKeepTicking, boolean tickChunks)
     {
         // NO-OP
+    }
+
+    public int getTileEntityCount()
+    {
+        int count = 0;
+
+        Iterator<ChunkSchematic> iter = this.loadedChunks.values().stream().iterator();
+
+        while (iter.hasNext())
+        {
+            count += iter.next().getTileEntityCount();
+        }
+
+        return count;
     }
 }

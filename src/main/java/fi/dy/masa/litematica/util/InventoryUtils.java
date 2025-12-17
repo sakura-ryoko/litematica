@@ -3,6 +3,8 @@ package fi.dy.masa.litematica.util;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -29,13 +31,9 @@ import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.world.WorldSchematic;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.ApiStatus;
 
 public class InventoryUtils
 {
@@ -114,7 +112,7 @@ public class InventoryUtils
                     fi.dy.masa.malilib.util.InventoryUtils.swapItemToMainHand(stack.copy(), mc);
                 }
 
-                WorldUtils.setEasyPlaceLastPickBlockTime();
+                EasyPlaceUtils.setEasyPlaceLastPickBlockTime();
             }
             else
             {
@@ -122,6 +120,115 @@ public class InventoryUtils
             }
         }
     }
+
+	/**
+	 * Simulates the 'setPickedItemToHand' logic but does not actually swap the item.
+	 * @param stack (Reference Stack)
+	 * @param mc ()
+	 * @return (Slot Number, or -1)
+	 */
+	public static int getPickedItemHandSlotNoSwap(ItemStack stack, MinecraftClient mc)
+	{
+		if (mc.player == null) return -1;
+		int slotNum = mc.player.getInventory().getSlotWithStack(stack);
+		return getPickedItemHandSlotNoSwap(slotNum, stack, mc);
+	}
+
+	/**
+	 * Simulates the 'setPickedItemToHand' logic but does not actually swap the item.
+	 * @param sourceSlot ()
+	 * @param stack (Reference Stack)
+	 * @param mc ()
+	 * @return (Slot Number, or -1)
+	 */
+	public static int getPickedItemHandSlotNoSwap(int sourceSlot, ItemStack stack, MinecraftClient mc)
+	{
+		if (mc.player == null) return -1;
+		PlayerEntity player = mc.player;
+		PlayerInventory inventory = player.getInventory();
+
+		if (PlayerInventory.isValidHotbarIndex(sourceSlot))
+		{
+			inventory.setSelectedSlot(sourceSlot);
+		}
+		else
+		{
+			if (PICK_BLOCKABLE_SLOTS.size() == 0)
+			{
+				InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.message.warn.pickblock.no_valid_slots_configured");
+				return -1;
+			}
+
+			int hotbarSlot = sourceSlot;
+
+			if (sourceSlot == -1 || PlayerInventory.isValidHotbarIndex(sourceSlot) == false)
+			{
+				hotbarSlot = getEmptyPickBlockableHotbarSlot(inventory);
+			}
+
+			if (hotbarSlot == -1)
+			{
+				hotbarSlot = getPickBlockTargetSlot(player);
+			}
+
+			if (hotbarSlot != -1)
+			{
+				int resultSlot = -1;
+				inventory.setSelectedSlot(hotbarSlot);
+
+				if (EntityUtils.isCreativeMode(player))
+				{
+					resultSlot = hotbarSlot;
+				}
+				else
+				{
+					resultSlot = getMainHandSlotForItem(stack.copy(), mc);
+				}
+
+				// Can still be -1
+				if (resultSlot != -1)
+				{
+					EasyPlaceUtils.setEasyPlaceLastPickBlockTime();
+				}
+
+				return resultSlot;
+			}
+			else
+			{
+				InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.message.warn.pickblock.no_suitable_slot_found");
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * Simulates the MaLiLib -> swapItemToMainHand() without actually swapping the item.
+	 * @param stackReference ()
+	 * @param mc ()
+	 * @return (The Slot ID or -1)
+	 */
+	private static int getMainHandSlotForItem(ItemStack stackReference, MinecraftClient mc)
+	{
+		PlayerEntity player = mc.player;
+		if (mc.player == null) return -1;
+		boolean isCreative = player.isInCreativeMode();
+
+		if (fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreNbt(stackReference, player.getMainHandStack()))
+		{
+			return -1;
+		}
+
+		if (isCreative)
+		{
+			player.getInventory().setSelectedSlot(player.getInventory().getSwappableHotbarSlot());
+			return 36 + player.getInventory().selectedSlot;
+		}
+		else
+		{
+			return fi.dy.masa.malilib.util.InventoryUtils.findSlotWithItem(player.playerScreenHandler, stackReference, true);
+		}
+	}
 
     public static void schematicWorldPickBlock(ItemStack stack, BlockPos pos,
                                                World schematicWorld, MinecraftClient mc)
