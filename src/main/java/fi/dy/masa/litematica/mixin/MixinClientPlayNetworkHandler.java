@@ -23,7 +23,7 @@ public abstract class MixinClientPlayNetworkHandler
     {
         int chunkX = packet.getChunkX();
         int chunkZ = packet.getChunkZ();
-        Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onUpdateChunk({}, {})", chunkX, chunkZ);
+//        Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onUpdateChunk({}, {})", chunkX, chunkZ);
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())
@@ -40,7 +40,7 @@ public abstract class MixinClientPlayNetworkHandler
     {
         if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
         {
-            Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
+//            Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
             DataManager.getSchematicPlacementManager().onClientChunkUnload(packet.pos().x, packet.pos().z);
         }
     }
