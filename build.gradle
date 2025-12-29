@@ -4,15 +4,15 @@ plugins {
 }
 
 repositories {
-	maven {
-		name = "Masa"
-		url = "https://masa.dy.fi/maven/sakura-ryoko"
-		content {
-			includeGroupAndSubgroups("fi.dy.masa")
-		}
+	maven {url = "https://masa.dy.fi/maven/sakura-ryoko"
+		content {includeGroupAndSubgroups("fi.dy.masa")}
 	}
-	maven { url = 'https://maven.fallenbreath.me/releases' }
-	maven { url = 'https://maven.terraformersmc.com/releases/' }
+	maven {url = 'https://maven.fallenbreath.me/releases'
+		content {includeGroupAndSubgroups("me.fallenbreath")}
+	}
+	maven {url = 'https://maven.terraformersmc.com/releases/'
+		content { includeGroupAndSubgroups("com.terraformersmc")}
+	}
 	maven { url = 'https://jitpack.io' }
 }
 
