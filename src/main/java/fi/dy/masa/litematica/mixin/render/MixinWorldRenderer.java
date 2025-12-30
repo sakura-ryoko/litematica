@@ -60,8 +60,10 @@ public abstract class MixinWorldRenderer
 
     @Inject(method = "setupTerrain", at = @At("TAIL"))
     private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
+            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci,
+            @Local Profiler profiler)
     {
+        this.profiler = profiler;
         this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
     }

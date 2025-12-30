@@ -9,6 +9,7 @@ import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.util.PasteLayerBehavior;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.ReplaceBehavior;
 
@@ -17,6 +18,7 @@ public abstract class TaskPasteSchematicPerChunkBase extends TaskProcessChunkMul
     protected final ImmutableList<SchematicPlacement> placements;
     protected final LayerRange layerRange;
     protected final ReplaceBehavior replace;
+    protected final PasteLayerBehavior layerBehavior;
     protected final boolean changedBlockOnly;
     protected boolean ignoreBlocks;
     protected boolean ignoreEntities;
@@ -32,6 +34,7 @@ public abstract class TaskPasteSchematicPerChunkBase extends TaskProcessChunkMul
         this.changedBlockOnly = changedBlocksOnly;
         this.ignoreEntities = Configs.Generic.PASTE_IGNORE_ENTITIES.getBooleanValue();
         this.replace = (ReplaceBehavior) Configs.Generic.PASTE_REPLACE_BEHAVIOR.getOptionListValue();
+        this.layerBehavior = (PasteLayerBehavior) Configs.Generic.PASTE_LAYER_BEHAVIOR.getOptionListValue();
     }
 
     @Override

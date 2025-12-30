@@ -35,6 +35,7 @@ public class WorldLoadListener implements IWorldLoadListener
         }
         if (worldAfter != null)
         {
+            JadeCompat.checkForJade();
             EntitiesDataStorage.getInstance().onWorldPre();
             DataManager.getInstance().onWorldPre(worldAfter.getRegistryManager());
         }

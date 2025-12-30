@@ -42,10 +42,7 @@ import fi.dy.masa.litematica.render.infohud.RenderPhase;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
 import fi.dy.masa.litematica.scheduler.tasks.TaskBase;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.litematica.util.BlockInfoListType;
-import fi.dy.masa.litematica.util.ItemUtils;
-import fi.dy.masa.litematica.util.PositionUtils;
-import fi.dy.masa.litematica.util.WorldUtils;
+import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
@@ -86,6 +83,7 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
     private int schematicBlocks;
     private int clientBlocks;
     private int correctStatesCount;
+    private IgnoreBlockRegistry ignoreBlockRegistry;
 
     public SchematicVerifier()
     {
@@ -313,6 +311,7 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
         this.worldClient = worldClient;
         this.worldSchematic = worldSchematic;
         this.schematicPlacement = schematicPlacement;
+        this.ignoreBlockRegistry = new IgnoreBlockRegistry();
 
         this.setCompletionListener(completionListener);
         this.requiredChunks.addAll(schematicPlacement.getTouchedChunks());
@@ -754,7 +753,8 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
                         }
                     }
                 }
-                else if (Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue() == false || stateClient.isLiquid() == false)
+                else if ((Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue() == false || stateClient.isLiquid() == false) &&
+                        !this.ignoreBlockRegistry.hasBlock(stateClient.getBlock()))
                 {
                     mismatch = new BlockMismatch(MismatchType.EXTRA, stateSchematic, stateClient, 1);
                     this.extraBlocksPositions.put(Pair.of(stateSchematic, stateClient), pos);

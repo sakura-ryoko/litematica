@@ -35,6 +35,7 @@ public class Configs implements IConfigHandler
         public static final ConfigOptionList    EASY_PLACE_PROTOCOL         = new ConfigOptionList("easyPlaceProtocolVersion", EasyPlaceProtocol.AUTO).apply(GENERIC_KEY);
         public static final ConfigOptionList    PASTE_NBT_BEHAVIOR          = new ConfigOptionList("pasteNbtRestoreBehavior", PasteNbtBehavior.NONE).apply(GENERIC_KEY);
         public static final ConfigOptionList    PASTE_REPLACE_BEHAVIOR      = new ConfigOptionList("pasteReplaceBehavior", ReplaceBehavior.NONE).apply(GENERIC_KEY);
+        public static final ConfigOptionList    PASTE_LAYER_BEHAVIOR        = new ConfigOptionList("pasteLayerBehavior", PasteLayerBehavior.ALL).apply(GENERIC_KEY);
         public static final ConfigOptionList    PLACEMENT_REPLACE_BEHAVIOR  = new ConfigOptionList("placementReplaceBehavior", ReplaceBehavior.ALL).apply(GENERIC_KEY);
         public static final ConfigOptionList    PLACEMENT_RESTRICTION_WARN  = new ConfigOptionList("placementRestrictionWarn", MessageOutputType.ACTIONBAR).apply(GENERIC_KEY);
         public static final ConfigOptionList    SCHEMATIC_VCS_DELETE_MODE   = new ConfigOptionList("schematicVcsDeleteMode", PlacementDeletionMode.MATCHING_BLOCK).apply(GENERIC_KEY);
@@ -179,6 +180,7 @@ public class Configs implements IConfigHandler
                 UNHIDE_SCHEMATIC_PROJECTS,
 
                 PASTE_REPLACE_BEHAVIOR,
+                PASTE_LAYER_BEHAVIOR,
                 SCHEMATIC_VCS_DELETE_MODE,
                 SELECTION_CORNERS_MODE,
 
@@ -215,6 +217,8 @@ public class Configs implements IConfigHandler
         //public static final ConfigInteger       RENDER_SCHEMATIC_MAX_THREADS        = new ConfigInteger("renderSchematicMaxThreads", 4, 1, 16).apply(VISUALS_KEY);
         public static final ConfigDouble        GHOST_BLOCK_ALPHA                   = new ConfigDouble( "ghostBlockAlpha", 0.5, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBoolean       IGNORE_EXISTING_FLUIDS              = new ConfigBoolean("ignoreExistingFluids", false).apply(VISUALS_KEY);
+        public static final ConfigBoolean       IGNORE_EXISTING_BLOCKS              = new ConfigBoolean("ignoreExistingBlocks", false).apply(VISUALS_KEY);
+        public static final ConfigStringList    IGNORABLE_EXISTING_BLOCKS           = new ConfigStringList("ignorableExistingBlocks", ImmutableList.of()).apply(VISUALS_KEY);
         public static final ConfigBoolean       OVERLAY_REDUCED_INNER_SIDES         = new ConfigBoolean("overlayReducedInnerSides", false).apply(VISUALS_KEY);
         public static final ConfigDouble        PLACEMENT_BOX_SIDE_ALPHA            = new ConfigDouble( "placementBoxSideAlpha", 0.2, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_AO_MODERN_ENABLE             = new ConfigBoolean("renderAOModernEnable", false).apply(VISUALS_KEY);
@@ -258,6 +262,8 @@ public class Configs implements IConfigHandler
                 ENABLE_SCHEMATIC_FAKE_LIGHTING,
                 ENABLE_SCHEMATIC_OVERLAY,
                 IGNORE_EXISTING_FLUIDS,
+                IGNORE_EXISTING_BLOCKS,
+                IGNORABLE_EXISTING_BLOCKS,
                 OVERLAY_REDUCED_INNER_SIDES,
                 RENDER_AO_MODERN_ENABLE,
                 RENDER_AREA_SELECTION_BOX_SIDES,

@@ -192,8 +192,9 @@ public class CachedTagManager
         list.add(Registries.ITEM.getId(Items.RAW_GOLD_BLOCK).toString());
         list.add(Registries.ITEM.getId(Items.RAW_IRON_BLOCK).toString());
         list.add(Registries.ITEM.getId(Items.REDSTONE_BLOCK).toString());
-        list.add(Registries.ITEM.getId(Items.RESIN_BLOCK).toString());
-        list.add(Registries.ITEM.getId(Items.RESIN_BRICKS).toString());
+		// 1.21.4+
+//        list.add(Registries.ITEM.getId(Items.RESIN_BLOCK).toString());
+//        list.add(Registries.ITEM.getId(Items.RESIN_BRICKS).toString());
         list.add(Registries.ITEM.getId(Items.SLIME_BLOCK).toString());
 
         return list;
@@ -222,8 +223,9 @@ public class CachedTagManager
         list.add(Registries.ITEM.getId(Items.NETHER_WART).toString());
         list.add(Registries.ITEM.getId(Items.PACKED_ICE).toString());
         list.add(Registries.ITEM.getId(Items.REDSTONE).toString());
-        list.add(Registries.ITEM.getId(Items.RESIN_BRICK).toString());
-        list.add(Registries.ITEM.getId(Items.RESIN_CLUMP).toString());
+	    // 1.21.4+
+//        list.add(Registries.ITEM.getId(Items.RESIN_BRICK).toString());
+//        list.add(Registries.ITEM.getId(Items.RESIN_CLUMP).toString());
         list.add(Registries.ITEM.getId(Items.SLIME_BALL).toString());
         list.add(Registries.ITEM.getId(Items.WHEAT).toString());
 

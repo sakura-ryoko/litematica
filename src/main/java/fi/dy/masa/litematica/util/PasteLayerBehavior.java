@@ -7,21 +7,17 @@ import net.minecraft.util.StringIdentifiable;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public enum EasyPlaceProtocol implements IConfigOptionListEntry, StringIdentifiable
+public enum PasteLayerBehavior implements IConfigOptionListEntry, StringIdentifiable
 {
-    AUTO                ("auto",                  "litematica.gui.label.easy_place_protocol.auto"),
-    V3                  ("v3",                    "litematica.gui.label.easy_place_protocol.v3"),
-    V2                  ("v2",                    "litematica.gui.label.easy_place_protocol.v2"),
-    SLAB_ONLY           ("slabs_only",            "litematica.gui.label.easy_place_protocol.slabs_only"),
-    NONE                ("none",                  "litematica.gui.label.easy_place_protocol.none");
+    ALL             ("all",             "litematica.gui.label.paste_layer_behavior.all"),
+    RENDERED_ONLY   ("rendered_only",   "litematica.gui.label.paste_layer_behavior.rendered_only");
 
-    public static final StringIdentifiable.EnumCodec<EasyPlaceProtocol> CODEC = StringIdentifiable.createCodec(EasyPlaceProtocol::values);
-    public static final ImmutableList<EasyPlaceProtocol> VALUES = ImmutableList.copyOf(values());
-
+    public static final EnumCodec<PasteLayerBehavior> CODEC = StringIdentifiable.createCodec(PasteLayerBehavior::values);
+    public static final ImmutableList<PasteLayerBehavior> VALUES = ImmutableList.copyOf(values());
     private final String configString;
     private final String translationKey;
 
-    EasyPlaceProtocol(String configString, String translationKey)
+    PasteLayerBehavior(String configString, String translationKey)
     {
         this.configString = configString;
         this.translationKey = translationKey;
@@ -69,14 +65,14 @@ public enum EasyPlaceProtocol implements IConfigOptionListEntry, StringIdentifia
     }
 
     @Override
-    public EasyPlaceProtocol fromString(String name)
+    public PasteLayerBehavior fromString(String name)
     {
         return fromStringStatic(name);
     }
 
-    public static EasyPlaceProtocol fromStringStatic(String name)
+    public static PasteLayerBehavior fromStringStatic(String name)
     {
-        for (EasyPlaceProtocol val : VALUES)
+        for (PasteLayerBehavior val : PasteLayerBehavior.values())
         {
             if (val.configString.equalsIgnoreCase(name))
             {
@@ -84,6 +80,6 @@ public enum EasyPlaceProtocol implements IConfigOptionListEntry, StringIdentifia
             }
         }
 
-        return EasyPlaceProtocol.AUTO;
+        return PasteLayerBehavior.ALL;
     }
 }

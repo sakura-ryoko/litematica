@@ -370,6 +370,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
                 y = mouseY - height - 2;
             }
 
+            this.mismatchInfo.toggleUseBackgroundMask(true);
             this.mismatchInfo.render(x, y, this.mc, drawContext);
 
             matrixStack.pop();
