@@ -51,6 +51,7 @@ public class DataManager implements IDirectoryCache
     private static boolean createPlacementOnLoad = true;
     private static boolean canSave;
     private static boolean isCarpetServer;
+    private static boolean hasServuxServer;
     private static long clientTickStart;
     private boolean hasIntegratedServer = false;
 
@@ -131,6 +132,16 @@ public class DataManager implements IDirectoryCache
     public static boolean isCarpetServer()
     {
         return isCarpetServer;
+    }
+
+    public static void setHasServuxServer(boolean hasServuxServer)
+    {
+        DataManager.hasServuxServer = hasServuxServer;
+    }
+
+    public static boolean hasServuxServer()
+    {
+        return hasServuxServer;
     }
 
     public boolean hasIntegratedServer() { return this.hasIntegratedServer; }
@@ -376,6 +387,7 @@ public class DataManager implements IDirectoryCache
 
         InfoHud.getInstance().reset(); // remove the line providers and clear the data
         setIsCarpetServer(false);
+        setHasServuxServer(false);
     }
 
     private void savePerDimensionData()

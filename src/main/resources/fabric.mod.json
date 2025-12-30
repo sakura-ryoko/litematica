@@ -35,9 +35,9 @@
     "accessWidener": "litematica.accesswidener",
     "depends": {
         "minecraft": ">=1.21.9 <=1.21.10",
-        "malilib": ">=0.26.4- <0.27.0-"
+        "malilib": ">=0.26.7- <0.27.0-"
     },
     "breaks": {
-        "malilib": "<0.26.4-"
+        "malilib": "<0.26.7-"
     }
 }

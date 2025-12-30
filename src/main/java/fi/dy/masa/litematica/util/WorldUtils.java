@@ -1601,7 +1601,7 @@ public class WorldUtils
 	 * Moved to {@link EasyPlaceUtils}
 	 */
 	@Deprecated(forRemoval = true)
-    public static void setEasyPlaceLastPickBlockTime()
+    private static void setEasyPlaceLastPickBlockTime()
     {
         easyPlaceLastPickBlockTime = System.nanoTime();
     }

@@ -4,7 +4,7 @@
     "compatibilityLevel": "JAVA_21",
     "minVersion": "0.8",
     "mixins": [
-        "IMixinProfilerSystem",
+        "client.IMixinProfilerSystem",
         "block.IMixinAbstractBlock",
         "block.IMixinFenceGateBlock",
         "block.IMixinRedstoneWireBlock",
@@ -29,7 +29,7 @@
         "world.MixinWorldChunk"
     ],
     "client": [
-        "MixinMinecraftClient",
+        "client.MixinMinecraftClient",
         "block.MixinBlockStateManagers",
         "easyplace.MixinClientPlayerInteractionManager_easyPlace",
         "easyplace.MixinMinecraftClient_easyPlace",

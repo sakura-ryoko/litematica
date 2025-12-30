@@ -67,6 +67,10 @@ public abstract class MixinClientPlayNetworkHandler
             Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onCustomPayload(): received carpet hello packet");
             DataManager.setIsCarpetServer(true);
         }
+        else if (payload.getId().id().getNamespace().equals("servux"))
+        {
+            DataManager.setHasServuxServer(true);
+        }
     }
 
     @Inject(method = "onNbtQueryResponse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/DataQueryHandler;handleQueryResponse(ILnet/minecraft/nbt/NbtCompound;)Z"))

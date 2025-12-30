@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.mixin.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import fi.dy.masa.litematica.compat.sodium.SodiumCompat;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -17,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import fi.dy.masa.litematica.mixin.IMixinProfilerSystem;
+import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import net.minecraft.client.MinecraftClient;
@@ -37,6 +36,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.profiler.Profilers;
+
+import fi.dy.masa.malilib.compat.iris.IrisCompat;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer
@@ -74,8 +75,7 @@ public abstract class MixinWorldRenderer
 
 	// cullTerrain -> method_74752
     @Inject(method = "method_74752", at = @At("TAIL"))
-    private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean bl, CallbackInfo ci)
+    private void litematica_onPostSetupTerrain(Camera camera, Frustum frustum, boolean bl, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
@@ -95,16 +95,7 @@ public abstract class MixinWorldRenderer
 //    @Inject(method = "translucencySort", at = @At("TAIL"))
 //    private void litematica_onScheduleTranslucentSort(Vec3d cameraPos, CallbackInfo ci)
 //    {
-//        if (this.profiler == null)
-//        {
-//            this.profiler = Profilers.get();
-//        }
-//
-//        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-//        {
-//            this.profiler.startTick();
-//        }
-//
+//        this.litematica$prepareProfiler();
 //        if (!SodiumCompat.hasSodium())
 //        {
 //            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
@@ -123,8 +114,6 @@ public abstract class MixinWorldRenderer
     {
         this.profiler = profiler;
         LitematicaRenderer.getInstance().capturePreMainValues(camera, gpuBufferSlice, profiler);
-//		LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, this.capturedFrustum, tickCounter, this.profiler);
-//		LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, this.capturedFrustum, tickCounter.getTickProgress(false), this.profiler);
     }
 
     @Inject(method = "renderBlockLayers", at = @At("TAIL"))
@@ -181,7 +170,7 @@ public abstract class MixinWorldRenderer
         LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, frustum, renderStates, tickCounter, this.profiler);
 
 		// Why Sodium?
-		if (SodiumCompat.hasSodium())
+		if (IrisCompat.hasSodium())
 		{
 			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, frustum, renderStates, tickCounter.getTickProgress(false), this.profiler);
 		}
@@ -200,7 +189,7 @@ public abstract class MixinWorldRenderer
                                                        CallbackInfo ci)
     {
 		// Why Sodium?
-		if (!SodiumCompat.hasSodium())
+		if (!IrisCompat.hasSodium())
 		{
 			this.litematica$prepareProfiler();
 			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, this.capturedFrustum, renderStates, tickProgress, this.profiler);
