@@ -41,8 +41,7 @@ public class PlacementHandler
             Properties.INVERTED,
             Properties.OPEN,
             //Properties.PERSISTENT,
-            //Properties.POWERED,
-            //Properties.LOCKED,
+
             // EnumProperty:
             // ATTACHMENT - Bells
             // AXIS - Pillar
@@ -71,6 +70,8 @@ public class PlacementHandler
             Properties.STRAIGHT_RAIL_SHAPE,
             Properties.SLAB_TYPE,
             Properties.STAIR_SHAPE,
+//            Properties.COPPER_GOLEM_POSE,     // todo 1.21.11
+
             // IntProperty:
             // BITES - Cake
             // DELAY - Repeater
@@ -96,7 +97,9 @@ public class PlacementHandler
 
         if (protocol == EasyPlaceProtocol.AUTO)
         {
-            if (MinecraftClient.getInstance().isInSingleplayer() || EntitiesDataStorage.getInstance().hasServuxServer())
+            if (MinecraftClient.getInstance().isInSingleplayer() ||
+                EntitiesDataStorage.getInstance().hasServuxServer() ||
+                DataManager.hasServuxServer())
             {
                 return EasyPlaceProtocol.V3;
             }

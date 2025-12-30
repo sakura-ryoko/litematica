@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin;
+package fi.dy.masa.litematica.mixin.client;
 
 import net.minecraft.util.profiler.ProfilerSystem;
 import org.spongepowered.asm.mixin.Mixin;

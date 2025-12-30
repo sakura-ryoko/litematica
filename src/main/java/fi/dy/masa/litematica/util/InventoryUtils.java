@@ -112,7 +112,7 @@ public class InventoryUtils
                     fi.dy.masa.malilib.util.InventoryUtils.swapItemToMainHand(stack.copy(), mc);
                 }
 
-                WorldUtils.setEasyPlaceLastPickBlockTime();
+                EasyPlaceUtils.setEasyPlaceLastPickBlockTime();
             }
             else
             {
@@ -188,7 +188,7 @@ public class InventoryUtils
 				// Can still be -1
 				if (resultSlot != -1)
 				{
-					WorldUtils.setEasyPlaceLastPickBlockTime();
+					EasyPlaceUtils.setEasyPlaceLastPickBlockTime();
 				}
 
 				return resultSlot;

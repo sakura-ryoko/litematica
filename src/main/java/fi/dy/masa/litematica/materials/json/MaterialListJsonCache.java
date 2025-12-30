@@ -25,6 +25,7 @@ import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.MathHelper;
 
+import fi.dy.masa.malilib.data.CachedTagUtils;
 import fi.dy.masa.malilib.util.game.RecipeBookUtils;
 import fi.dy.masa.litematica.data.CachedTagManager;
 
@@ -128,7 +129,7 @@ public class MaterialListJsonCache
         RegistryEntry<Item> baseItem = currentItem.rawItem();
         if (baseItem == null || mc.world == null) return List.of(currentItem);
 
-        if (CachedTagManager.matchItemTag(CachedTagManager.UNPACKED_BLOCK_ITEMS_KEY, baseItem))
+        if (CachedTagUtils.matchItemTag(CachedTagManager.UNPACKED_BLOCK_ITEMS_KEY, baseItem))
         {
             final int total = currentItem.total();
             Triple<RegistryEntry<Item>, Float, Integer> pair = MaterialListJsonOverrides.INSTANCE.matchPackingOverride(baseItem, total);

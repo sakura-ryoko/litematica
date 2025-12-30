@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin.network;
+package fi.dy.masa.litematica.mixin.easyplace;
 
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
  * Post Re-Write code
  */
 @Mixin(value = ClientPlayerInteractionManager.class)
-public class MixinClientPlayerInteractionManager
+public class MixinClientPlayerInteractionManager_easyPlace
 {
     /*
     @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)

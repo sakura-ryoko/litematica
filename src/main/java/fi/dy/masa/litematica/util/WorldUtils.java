@@ -67,7 +67,17 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class WorldUtils
 {
+//    private static final List<PositionCache> EASY_PLACE_POSITIONS = new ArrayList<>();
+//    private static long easyPlaceLastPickBlockTime = System.nanoTime();
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
     private static final List<PositionCache> EASY_PLACE_POSITIONS = new ArrayList<>();
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
     private static long easyPlaceLastPickBlockTime = System.nanoTime();
 
     public static double getValidBlockRange(MinecraftClient mc)
@@ -744,13 +754,13 @@ public class WorldUtils
             ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic);
 
             // Already placed to that position, possible server sync delay
-            if (easyPlaceIsPositionCached(pos))
+            if (EasyPlaceUtils.easyPlaceIsPositionCached(pos))
             {
                 return ActionResult.FAIL;
             }
 
             // Ignore action if too fast
-            if (easyPlaceIsTooFast())
+            if (EasyPlaceUtils.easyPlaceIsTooFast())
             {
                 return ActionResult.FAIL;
             }
@@ -844,7 +854,7 @@ public class WorldUtils
                 }
 
                 // Mark that this position has been handled (use the non-offset position that is checked above)
-                cacheEasyPlacePosition(pos);
+                EasyPlaceUtils.cacheEasyPlacePosition(pos);
 
                 BlockHitResult hitResult = new BlockHitResult(hitPos, side, pos, false);
 
@@ -917,6 +927,7 @@ public class WorldUtils
         Vec3d hitVec;
     }
 
+    // TODO --> Move to EasyPlaceUtils
     public static PlacementProtocolData applyPlacementProtocolAll(BlockPos pos, BlockState stateSchematic, Vec3d hitVecIn)
     {
         PlacementProtocolData placementData = new PlacementProtocolData();
@@ -968,6 +979,7 @@ public class WorldUtils
     /**
      * Apply the Carpet-Extra mod accurate block placement protocol support
      */
+    // TODO --> Move to EasyPlaceUtils
     public static Vec3d applyCarpetProtocolHitVec(BlockPos pos, BlockState state, Vec3d hitVecIn)
     {
         double x = hitVecIn.x;
@@ -1025,6 +1037,7 @@ public class WorldUtils
         return new Vec3d(x, y, z);
     }
 
+    // TODO --> Move to EasyPlaceUtils
     private static double applySlabOrStairHitVecY(double origY, BlockPos pos, BlockState state)
     {
         double y = origY;
@@ -1051,12 +1064,14 @@ public class WorldUtils
         return y;
     }
 
-    private static Vec3d applyBlockSlabProtocol(BlockPos pos, BlockState state, Vec3d hitVecIn)
+    // TODO --> Move to EasyPlaceUtils
+    protected static Vec3d applyBlockSlabProtocol(BlockPos pos, BlockState state, Vec3d hitVecIn)
     {
         double newY = applySlabOrStairHitVecY(hitVecIn.y, pos, state);
         return newY != hitVecIn.y ? new Vec3d(hitVecIn.x, newY, hitVecIn.z) : hitVecIn;
     }
 
+    // TODO --> Move to EasyPlaceUtils
     public static <T extends Comparable<T>> Vec3d applyPlacementProtocolV3(BlockPos pos, BlockState state, Vec3d hitVecIn)
     {
         Collection<Property<?>> props = state.getBlock().getStateManager().getProperties();
@@ -1144,7 +1159,8 @@ public class WorldUtils
         return hitVecIn;
     }
 
-    private static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
+    // TODO --> Move to EasyPlaceUtils
+    protected static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
     {
         Block blockSchematic = stateSchematic.getBlock();
         Block blockClient = stateClient.getBlock();
@@ -1498,7 +1514,11 @@ public class WorldUtils
         return true;
     }
 
-    public static boolean easyPlaceIsPositionCached(BlockPos pos)
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
+    private static boolean easyPlaceIsPositionCached(BlockPos pos)
     {
         long currentTime = System.nanoTime();
         boolean cached = false;
@@ -1528,12 +1548,20 @@ public class WorldUtils
         return cached;
     }
 
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
     private static void cacheEasyPlacePosition(BlockPos pos)
     {
         EASY_PLACE_POSITIONS.add(new PositionCache(pos, System.nanoTime(), 2000000000));
     }
 
-    public static class PositionCache
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
+    private static class PositionCache
     {
         private final BlockPos pos;
         private final long time;
@@ -1557,12 +1585,20 @@ public class WorldUtils
         }
     }
 
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
     private static boolean easyPlaceIsTooFast()
     {
         return System.nanoTime() - easyPlaceLastPickBlockTime < 1000000L * Configs.Generic.EASY_PLACE_SWAP_INTERVAL.getIntegerValue();
     }
 
-    public static void setEasyPlaceLastPickBlockTime()
+    /**
+     * Moved to {@link EasyPlaceUtils}
+     */
+    @Deprecated(forRemoval = true)
+    private static void setEasyPlaceLastPickBlockTime()
     {
         easyPlaceLastPickBlockTime = System.nanoTime();
     }
