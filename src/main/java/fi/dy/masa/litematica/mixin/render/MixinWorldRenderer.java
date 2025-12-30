@@ -31,29 +31,8 @@ public abstract class MixinWorldRenderer
     @Shadow @Final private MinecraftClient client;
     @Unique private Profiler profiler;
 
-    @Inject(method = "reload()V", at = @At("RETURN"))
-    private void litematica_onLoadRenderers(CallbackInfo ci)
-    {
-        // Also (re-)load our renderer when the vanilla renderer gets reloaded
-        if (this.world != null && this.world == this.client.world)
-        {
-            if (this.profiler == null)
-            {
-                this.profiler = Profilers.get();
-            }
-            if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-            {
-                this.profiler.startTick();
-            }
-
-            LitematicaRenderer.getInstance().loadRenderers(this.profiler);
-            SchematicWorldRefresher.INSTANCE.updateAll();
-        }
-    }
-
-    @Inject(method = "setupTerrain", at = @At("TAIL"))
-    private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
+    @Unique
+    private void litematica$prepareProfiler()
     {
         if (this.profiler == null)
         {
@@ -63,7 +42,27 @@ public abstract class MixinWorldRenderer
         {
             this.profiler.startTick();
         }
+    }
 
+    @Inject(method = "reload()V", at = @At("RETURN"))
+    private void litematica_onLoadRenderers(CallbackInfo ci)
+    {
+        // Also (re-)load our renderer when the vanilla renderer gets reloaded
+        if (this.world != null && this.world == this.client.world)
+        {
+            this.litematica$prepareProfiler();
+            LitematicaRenderer.getInstance().loadRenderers(this.profiler);
+            SchematicWorldRefresher.INSTANCE.updateAll();
+        }
+    }
+
+    @Inject(method = "setupTerrain", at = @At("TAIL"))
+    private void litematica_onPostSetupTerrain(
+            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci,
+            @Local Profiler profiler)
+    {
+        this.profiler = profiler;
+        this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
     }
 
@@ -86,14 +85,7 @@ public abstract class MixinWorldRenderer
     private void litematica_onRenderLayer(RenderLayer renderLayer, double x, double y, double z,
                                Matrix4f viewMatrix, Matrix4f posMatrix, CallbackInfo ci)
     {
-        if (this.profiler == null)
-        {
-            this.profiler = Profilers.get();
-        }
-        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-        {
-            this.profiler.startTick();
-        }
+        this.litematica$prepareProfiler();
 
         if (renderLayer == RenderLayer.getSolid())
         {
@@ -122,16 +114,7 @@ public abstract class MixinWorldRenderer
             at = @At(value = "RETURN"))
     private void litematica_onPostRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, Camera camera, RenderTickCounter tickCounter, List<Entity> entities, CallbackInfo ci)
     {
-        if (this.profiler == null)
-        {
-            this.profiler = Profilers.get();
-        }
-
-        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-        {
-            this.profiler.startTick();
-        }
-
+        this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewiseRenderEntities(matrices, immediate, tickCounter.getTickProgress(false), this.profiler);
     }
 
@@ -139,16 +122,7 @@ public abstract class MixinWorldRenderer
             at = @At(value = "RETURN"))
     private void litematica_onPostRenderBlockEntities(MatrixStack matrices, VertexConsumerProvider.Immediate entityVertexConsumers, VertexConsumerProvider.Immediate effectVertexConsumers, Camera camera, float tickProgress, CallbackInfo ci)
     {
-        if (this.profiler == null)
-        {
-            this.profiler = Profilers.get();
-        }
-
-        if (this.profiler instanceof ProfilerSystem ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
-        {
-            this.profiler.startTick();
-        }
-
+        this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewiseRenderBlockEntities(matrices, entityVertexConsumers, effectVertexConsumers, tickProgress, this.profiler);
     }
 }
