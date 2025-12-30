@@ -13,7 +13,7 @@ public enum ReplaceBehavior implements IConfigOptionListEntry, StringIdentifiabl
     ALL             ("all",             "litematica.gui.label.replace_behavior.all"),
     WITH_NON_AIR    ("with_non_air",    "litematica.gui.label.replace_behavior.with_non_air");
 
-    public static final StringIdentifiable.EnumCodec<ReplaceBehavior> CODEC = StringIdentifiable.createCodec(ReplaceBehavior::values);
+    public static final EnumCodec<ReplaceBehavior> CODEC = StringIdentifiable.createCodec(ReplaceBehavior::values);
     public static final ImmutableList<ReplaceBehavior> VALUES = ImmutableList.copyOf(values());
     private final String configString;
     private final String translationKey;
@@ -22,6 +22,12 @@ public enum ReplaceBehavior implements IConfigOptionListEntry, StringIdentifiabl
     {
         this.configString = configString;
         this.translationKey = translationKey;
+    }
+
+    @Override
+    public String asString()
+    {
+        return this.configString;
     }
 
     @Override
@@ -76,11 +82,5 @@ public enum ReplaceBehavior implements IConfigOptionListEntry, StringIdentifiabl
         }
 
         return ReplaceBehavior.NONE;
-    }
-
-    @Override
-    public String asString()
-    {
-        return this.configString;
     }
 }

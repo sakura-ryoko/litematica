@@ -15,6 +15,7 @@ public enum PasteNbtBehavior implements IConfigOptionListEntry, StringIdentifiab
 
     public static final StringIdentifiable.EnumCodec<PasteNbtBehavior> CODEC = StringIdentifiable.createCodec(PasteNbtBehavior::values);
     public static final ImmutableList<PasteNbtBehavior> VALUES = ImmutableList.copyOf(values());
+
     private final String configString;
     private final String translationKey;
 

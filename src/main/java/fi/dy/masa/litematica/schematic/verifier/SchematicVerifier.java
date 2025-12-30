@@ -758,7 +758,7 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
                     }
                 }
                 else if ((Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue() == false || stateClient.isLiquid() == false) &&
-                    !ignoreBlockRegistry.hasBlock(stateClient.getBlock()))
+                        !this.ignoreBlockRegistry.hasBlock(stateClient.getBlock()))
                 {
                     mismatch = new BlockMismatch(MismatchType.EXTRA, stateSchematic, stateClient, 1);
                     this.extraBlocksPositions.put(Pair.of(stateSchematic, stateClient), pos);

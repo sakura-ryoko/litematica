@@ -15,7 +15,7 @@ public enum PlacementDeletionMode implements IConfigOptionListEntry, StringIdent
     NO_SCHEMATIC_BLOCK      ("no_schematic_block",  "litematica.gui.label.placement_deletion_mode.no_schematic_block"),
     ENTIRE_VOLUME           ("entire_volume",       "litematica.gui.label.placement_deletion_mode.entire_volume");
 
-    public static final StringIdentifiable.EnumCodec<PlacementDeletionMode> CODEC = StringIdentifiable.createCodec(PlacementDeletionMode::values);
+    public static final EnumCodec<PlacementDeletionMode> CODEC = StringIdentifiable.createCodec(PlacementDeletionMode::values);
     public static final ImmutableList<PlacementDeletionMode> VALUES = ImmutableList.copyOf(values());
     private final String configString;
     private final String translationKey;

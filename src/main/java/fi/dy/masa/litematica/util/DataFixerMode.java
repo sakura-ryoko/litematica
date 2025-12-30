@@ -103,7 +103,10 @@ public enum DataFixerMode implements IConfigOptionListEntry, StringIdentifiable
 
         switch (config)
         {
-            case ALWAYS -> { return schema; }
+            case ALWAYS ->
+            {
+                return schema;
+            }
             // FIXME 1.21.5+
             /*
             case BELOW_1215 ->
@@ -179,8 +182,14 @@ public enum DataFixerMode implements IConfigOptionListEntry, StringIdentifiable
 
                 return null;
             }
-            case NEVER -> { return null; }
-            default -> { return Schema.getSchemaByDataVersion(Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getDefaultIntegerValue()); }
+            case NEVER ->
+            {
+                return null;
+            }
+            default ->
+            {
+                return Schema.getSchemaByDataVersion(Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getDefaultIntegerValue());
+            }
         }
     }
 }
