@@ -310,7 +310,13 @@ public class SchematicPlacementManager
         {
             this.schematicPlacements.add(placement);
             this.addTouchedChunksFor(placement);
+            ((SchematicPlacementEventHandler) SchematicPlacementEventHandler.getInstance()).onPlacementAdded(placement);
             this.onPlacementAdded();
+
+            if (this.selectedPlacement == null)
+            {
+                this.setSelectedSchematicPlacement(placement);
+            }
 
             if (printMessages)
             {
@@ -450,6 +456,7 @@ public class SchematicPlacementManager
     {
         if (placement == null || this.schematicPlacements.contains(placement))
         {
+            ((SchematicPlacementEventHandler) SchematicPlacementEventHandler.getInstance()).onPlacementSelected(this.selectedPlacement, placement);
             this.selectedPlacement = placement;
             OverlayRenderer.getInstance().updatePlacementCache();
             // Forget the last viewed material list when changing the placement selection
@@ -614,6 +621,8 @@ public class SchematicPlacementManager
 
     protected void onPlacementModified(SchematicPlacement placement)
     {
+        ((SchematicPlacementEventHandler) SchematicPlacementEventHandler.getInstance()).onPlacementUpdated(placement);
+
         if (placement.isEnabled())
         {
             OverlayRenderer.getInstance().updatePlacementCache();

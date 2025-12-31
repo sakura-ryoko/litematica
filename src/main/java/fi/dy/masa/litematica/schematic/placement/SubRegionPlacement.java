@@ -83,6 +83,7 @@ public class SubRegionPlacement
         this.pos = pos;
         this.defaultPos = pos;
         this.name = name;
+        SchematicPlacementEventHandler.getInstance().onSubRegionInit(this);
     }
 
     private SubRegionPlacement(String name, BlockPos defPos, BlockPos pos, BlockRotation rot, BlockMirror mirror, Boolean enabled, Boolean renderingEnabled, Boolean ignoreEntities, Integer coordinateLockMask)
@@ -95,6 +96,7 @@ public class SubRegionPlacement
         this.renderingEnabled = renderingEnabled;
         this.ignoreEntities = ignoreEntities;
         this.coordinateLockMask = coordinateLockMask;
+        SchematicPlacementEventHandler.getInstance().onSubRegionInit(this);
     }
 
     public boolean isEnabled()
@@ -152,6 +154,11 @@ public class SubRegionPlacement
         return this.name;
     }
 
+    public BlockPos getDefaultPos()
+    {
+        return this.defaultPos;
+    }
+
     public BlockPos getPos()
     {
         return this.pos;
@@ -170,6 +177,7 @@ public class SubRegionPlacement
     public void setRenderingEnabled(boolean renderingEnabled)
     {
         this.renderingEnabled = renderingEnabled;
+        SchematicPlacementEventHandler.getInstance().onSetSubRegionRender(this, renderingEnabled);
     }
 
     public void toggleRenderingEnabled()
@@ -180,6 +188,7 @@ public class SubRegionPlacement
     void setEnabled(boolean enabled)
     {
         this.enabled = enabled;
+        SchematicPlacementEventHandler.getInstance().onSetSubRegionEnabled(this, enabled);
     }
 
     void toggleEnabled()
@@ -195,20 +204,24 @@ public class SubRegionPlacement
     void setPos(BlockPos pos)
     {
         this.pos = PositionUtils.getModifiedPartiallyLockedPosition(this.pos, pos, this.coordinateLockMask);
+        SchematicPlacementEventHandler.getInstance().onSetSubRegionOrigin(this, this.pos);
     }
 
     void setRotation(BlockRotation rotation)
     {
         this.rotation = rotation;
+        SchematicPlacementEventHandler.getInstance().onSetSubRegionRotation(this, rotation);
     }
 
     void setMirror(BlockMirror mirror)
     {
         this.mirror = mirror;
+        SchematicPlacementEventHandler.getInstance().onSetSubRegionMirror(this, mirror);
     }
 
     void resetToOriginalValues()
     {
+        SchematicPlacementEventHandler.getInstance().onSubRegionReset(this);
         this.pos = this.defaultPos;
         this.rotation = BlockRotation.NONE;
         this.mirror = BlockMirror.NONE;
@@ -248,6 +261,8 @@ public class SubRegionPlacement
         obj.add("rendering_enabled", new JsonPrimitive(this.renderingEnabled));
         obj.add("ignore_entities", new JsonPrimitive(this.ignoreEntities));
 
+        SchematicPlacementEventHandler.getInstance().onSaveSubRegionToJson(this, obj);
+
         return obj;
     }
 
@@ -286,6 +301,8 @@ public class SubRegionPlacement
             {
                 Litematica.LOGGER.warn("Placement.fromJson(): Invalid rotation or mirror value for a placement");
             }
+
+            SchematicPlacementEventHandler.getInstance().onSubRegionCreateFromJson(placement, pos, placement.getName(), placement.getRotation(), placement.getMirror(), placement.isEnabled(), placement.renderingEnabled, obj);
 
             return placement;
         }
