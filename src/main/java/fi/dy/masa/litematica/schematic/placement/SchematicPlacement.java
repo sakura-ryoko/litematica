@@ -1,11 +1,9 @@
 package fi.dy.masa.litematica.schematic.placement;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.nio.file.Path;
+import java.util.*;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
@@ -35,12 +33,14 @@ import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement.RequiredEnab
 import fi.dy.masa.litematica.schematic.verifier.SchematicVerifier;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.BlockInfoListType;
+import fi.dy.masa.litematica.util.FileType;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.interfaces.IMessageConsumer;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.malilib.util.PositionUtils.CoordinateType;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 
 public class SchematicPlacement
 {

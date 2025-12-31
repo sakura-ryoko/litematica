@@ -1,6 +1,9 @@
 package fi.dy.masa.litematica.network;
 
+import javax.annotation.Nullable;
 import io.netty.buffer.Unpooled;
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
@@ -18,7 +21,10 @@ import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.PacketSplitter;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 
 @Environment(EnvType.CLIENT)
 public abstract class ServuxLitematicaHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
@@ -99,7 +105,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     try
                     {
                         this.readingSessionKey = -1;
-                        EntitiesDataStorage.getInstance().handleBulkEntityData(fullPacket.readVarInt(), (NbtCompound) fullPacket.readNbt(NbtSizeTracker.ofUnlimitedBytes()));
+                        this.handleBulkData(fullPacket.readVarInt(), (NbtCompound) fullPacket.readNbt(NbtSizeTracker.ofUnlimitedBytes()));
                     }
                     catch (Exception e)
                     {
@@ -108,6 +114,39 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                 }
             }
             default -> Litematica.LOGGER.warn("ServuxLitematicaHandler#decodeClientData(): received unhandled packetType {} of size {} bytes.", packet.getPacketType(), packet.getTotalSize());
+        }
+    }
+
+    private void handleBulkData(final int type, @Nullable NbtCompound nbt)
+    {
+        if (nbt == null || nbt.isEmpty())
+        {
+            return;
+        }
+
+        String task = nbt.getString("Task");
+
+        // For future Granular Task Management
+        switch (task)
+        {
+            // File-Transmit support
+            case "Litematic-TransmitStart", "Litematic-TransmitCancel", "Litematic-TransmitData", "Litematic-TransmitEnd" ->
+            {
+                Pair<LitematicaSchematic, NbtCompound> schemPair = LitematicaSchematic.receiveFileTransmit(nbt);
+
+                if (schemPair != null && schemPair.getLeft().getFile() != null)
+                {
+                    Litematica.LOGGER.info("handleBulkData(): Received litematic '{}' from the server", schemPair.getLeft().getFile().getAbsolutePath());
+
+                    SchematicPlacement placement = SchematicPlacement.createFromNbt(schemPair.getLeft(), schemPair.getRight());
+
+                    if (placement != null)
+                    {
+                        DataManager.getSchematicPlacementManager().addSchematicPlacement(placement, true);
+                    }
+                }
+            }
+            default -> EntitiesDataStorage.getInstance().handleBulkEntityData(type, nbt);
         }
     }
 

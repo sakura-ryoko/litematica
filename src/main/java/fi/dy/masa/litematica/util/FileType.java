@@ -73,6 +73,20 @@ public enum FileType implements StringIdentifiable
 		}
 	}
 
+	public static String getFileExt(FileType type)
+	{
+		return switch (type)
+		{
+			case LITEMATICA_SCHEMATIC -> ".litematic";
+			case SCHEMATICA_SCHEMATIC -> ".schematic";
+			case SPONGE_SCHEMATIC -> ".schem";
+			case VANILLA_STRUCTURE -> ".nbt";
+			case JSON -> ".json";
+			case INVALID -> ".invalid";
+			case UNKNOWN -> ".unknown";
+		};
+	}
+
 	public static String getString(FileType type)
 	{
 		return switch (type)
