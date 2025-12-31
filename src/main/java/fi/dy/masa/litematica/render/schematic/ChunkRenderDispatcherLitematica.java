@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -118,7 +119,7 @@ public class ChunkRenderDispatcherLitematica
             this.queueFreeRenderAllocators.add(new BufferAllocatorCache());
         }
 
-        this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferAllocatorCache(), profiler);
+        this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferAllocatorCache());
     }
 
     protected void setCameraPosition(Vec3d cameraPos)
@@ -156,7 +157,7 @@ public class ChunkRenderDispatcherLitematica
                 {
                     try
                     {
-                        this.renderWorker.processTask(generator);
+                        this.renderWorker.processTask(generator, profiler);
                         processedTask = true;
                     }
                     catch (InterruptedException e)
@@ -275,8 +276,13 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-    protected void stopChunkUpdates(Profiler profiler)
+    protected void stopChunkUpdates(@Nullable Profiler profiler)
     {
+        if (profiler == null)
+        {
+            profiler = MinecraftClient.getInstance().getProfiler();
+        }
+
         profiler.push("stop_chunk_updates");
         this.clearChunkUpdates();
         List<BufferAllocatorCache> list = new ArrayList<>();
@@ -379,7 +385,7 @@ public class ChunkRenderDispatcherLitematica
         {
             try
             {
-                this.uploadVertexBufferByLayer(layer, allocators, renderChunk, chunkRenderData, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly);
+                this.uploadVertexBufferByLayer(layer, allocators, renderChunk, chunkRenderData, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly, profiler);
             }
             catch (Exception e)
             {

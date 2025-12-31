@@ -1,8 +1,9 @@
 package fi.dy.masa.litematica.gui.widgets;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.joml.Quaternionf;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -23,16 +24,17 @@ import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.LocalRandom;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntrySortable;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.gui.GuiSchematicVerifier;
 import fi.dy.masa.litematica.gui.GuiSchematicVerifier.BlockMismatchEntry;

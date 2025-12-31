@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.datafixer.fix.BlockStateFlattening;
 import net.minecraft.registry.DynamicRegistryManager;
 
 import fi.dy.masa.malilib.interfaces.IWorldLoadListener;

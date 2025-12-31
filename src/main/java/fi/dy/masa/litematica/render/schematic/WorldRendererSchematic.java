@@ -74,6 +74,7 @@ public class WorldRendererSchematic
     private final IChunkRendererFactory renderChunkFactory;
     //private ShaderGroup entityOutlineShader;
     //private boolean entityOutlinesRendered;
+    private Profiler profiler;
 
     private int renderDistanceChunks = -1;
     private int renderEntitiesStartupCounter = 2;
@@ -142,12 +143,24 @@ public class WorldRendererSchematic
 
     protected Profiler getProfiler()
     {
-        if (this.world == null && this.mc != null)
+        if (this.profiler != null)
         {
-            return this.mc.getProfiler();
+            return this.profiler;
         }
 
-        return this.world.getProfiler();
+        if (this.world == null && this.mc != null)
+        {
+            this.profiler = this.mc.getProfiler();
+        }
+
+        this.profiler = this.world.getProfiler();
+
+        return this.profiler;
+    }
+
+    protected BlockModelRendererSchematic getBlockModelRenderer()
+    {
+        return this.blockModelRenderer;
     }
 
     protected EntityRenderDispatcher getEntityRenderer()
@@ -234,15 +247,27 @@ public class WorldRendererSchematic
         }
     }
 
-    public void loadRenderers()
+    public void loadRenderers(Profiler profiler)
     {
         if (this.hasWorld())
         {
-            this.getProfiler().push("load_renderers");
+            if (this.profiler == null)
+            {
+                if (profiler == null)
+                {
+                    profiler = this.getProfiler();
+                }
+                else
+                {
+                    this.profiler = profiler;
+                }
+            }
+
+            profiler.push("load_renderers");
 
             if (this.renderDispatcher == null)
             {
-                this.renderDispatcher = new ChunkRenderDispatcherLitematica();
+                this.renderDispatcher = new ChunkRenderDispatcherLitematica(profiler);
             }
 
             this.displayListEntitiesDirty = true;
@@ -263,11 +288,11 @@ public class WorldRendererSchematic
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
             this.renderEntitiesStartupCounter = 2;
 
-            this.getProfiler().pop();
+            profiler.pop();
         }
     }
 
-    protected void stopChunkUpdates(Profiler profiler)
+    protected void stopChunkUpdates()
     {
         if (this.chunksToUpdate.isEmpty() == false)
         {
@@ -275,7 +300,7 @@ public class WorldRendererSchematic
         }
 
         this.chunksToUpdate.clear();
-        this.renderDispatcher.stopChunkUpdates(profiler);
+        this.renderDispatcher.stopChunkUpdates(this.getProfiler());
         this.profiler = null;
     }
 
@@ -550,7 +575,7 @@ public class WorldRendererSchematic
 
         //Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         //Fog orgFog = RenderSystem.getShaderFog();
-        ShaderProgram shader = RenderSystem.getShader();
+//        ShaderProgram shader = RenderSystem.getShader();
         BufferRenderer.reset();
 
         boolean renderAsTranslucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
@@ -564,7 +589,7 @@ public class WorldRendererSchematic
         profiler.swap("layer_uniforms");
         initShader(shader, matrices, projMatrix);
         // As per IMS
-        //shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
+//        shader.initializeUniforms(renderLayer.getDrawMode(), matrices, projMatrix, MinecraftClient.getInstance().getWindow());
         RenderSystem.setupShaderLights(shader);
         //RenderSystem.setShaderFog(Fog.DUMMY);
         shader.bind();
@@ -718,7 +743,7 @@ public class WorldRendererSchematic
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
                     buffer.bind();
-                    buffer.draw(matrix4fStack, projMatrix, shader);
+                    buffer.draw(matrix4fStack, RenderSystem.getProjectionMatrix(), shader);
 
                     VertexBuffer.unbind();
                     matrix4fStack.popMatrix();
@@ -870,17 +895,17 @@ public class WorldRendererSchematic
 
                         if (shouldRender)
                         {
-//                            double x = entityTmp.getX() - cameraX;
-//                            double y = entityTmp.getY() - cameraY;
-//                            double z = entityTmp.getZ() - cameraZ;
+                            double x = entityTmp.getX() - cameraX;
+                            double y = entityTmp.getY() - cameraY;
+                            double z = entityTmp.getZ() - cameraZ;
 
-                            double lerpX = MathHelper.lerp(partialTicks, entityTmp.lastRenderX, entityTmp.getX());
-                            double lerpY = MathHelper.lerp(partialTicks, entityTmp.lastRenderY, entityTmp.getY());
-                            double lerpZ = MathHelper.lerp(partialTicks, entityTmp.lastRenderZ, entityTmp.getZ());
-
-                            double x = lerpX - cameraX;
-                            double y = lerpY - cameraY;
-                            double z = lerpZ - cameraZ;
+//                            double lerpX = MathHelper.lerp(partialTicks, entityTmp.lastRenderX, entityTmp.getX());
+//                            double lerpY = MathHelper.lerp(partialTicks, entityTmp.lastRenderY, entityTmp.getY());
+//                            double lerpZ = MathHelper.lerp(partialTicks, entityTmp.lastRenderZ, entityTmp.getZ());
+//
+//                            double x = lerpX - cameraX;
+//                            double y = lerpY - cameraY;
+//                            double z = lerpZ - cameraZ;
 
 //                        Litematica.LOGGER.warn("[WorldRenderer] Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]", pos.toShortString(), entityTmp.getBlockPos().toShortString(), x, y, z);
 
@@ -890,13 +915,13 @@ public class WorldRendererSchematic
                             // Because the entities might be following the ClientWorld State
                             if (entityTmp instanceof SalmonEntity || entityTmp instanceof CodEntity ||
                                 entityTmp instanceof TadpoleEntity || entityTmp instanceof AbstractHorseEntity ||
-                                entityTmp instanceof TropicalFishEntity || entityTmp instanceof WaterAnimalEntity)
+                                entityTmp instanceof TropicalFishEntity || entityTmp instanceof WaterCreatureEntity)
                             {
                                 BlockState state = this.world.getBlockState(entityTmp.getBlockPos());
                                 Fluid fluid = state.getFluidState() != null ? state.getFluidState().getFluid() : Fluids.EMPTY;
 
                                 if ((fluid == Fluids.WATER || fluid == Fluids.FLOWING_WATER) &&
-                                        !((IMixinEntity) entityTmp).litematica_isTouchingWater())
+                                    !((IMixinEntity) entityTmp).litematica_isTouchingWater())
                                 {
                                     ((IEntityInvoker) entityTmp).litematica$toggleTouchingWater(true);
                                 }
@@ -904,7 +929,7 @@ public class WorldRendererSchematic
 
                             // TODO --> this render() call does not seem to have a push() and pop(),
                             //  and does not accept Matrix4f/Matrix4fStack as a parameter
-                            this.entityRenderDispatcher.render(entityTmp, x, y, z, partialTicks, matrices, immediate, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
+                            this.entityRenderDispatcher.render(entityTmp, x, y, z, entityTmp.getYaw(partialTicks), partialTicks, matrices, immediate, this.entityRenderDispatcher.getLight(entityTmp, partialTicks));
                             ++this.countEntitiesRendered;
                             matrices.pop();
                         }
@@ -913,6 +938,8 @@ public class WorldRendererSchematic
 //                        Litematica.LOGGER.warn("Skipping Entity at pos X: [{}], Y: [{}], Z: [{}] (Should Render = False)", entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
 //                    }
                     }
+
+                    immediate.drawCurrentLayer();
                 }
             }
 
@@ -923,7 +950,6 @@ public class WorldRendererSchematic
     public void renderBlockEntities(Camera camera, Frustum frustum, MatrixStack matrices, VertexConsumerProvider.Immediate immediate, VertexConsumerProvider.Immediate immediate2, float partialTicks, Profiler profiler)
     {
         this.profiler = profiler;
-
         profiler.push("block_entities_prepare");
 
         double cameraX = camera.getPos().x;
@@ -970,7 +996,7 @@ public class WorldRendererSchematic
                         {
                             matrices.push();
                             matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-                            this.blockEntityRenderDispatcher.render(te, partialTicks, matrices, immediate2);
+                            this.blockEntityRenderDispatcher.render(te, partialTicks, matrices, immediate);
                             matrices.pop();
                         }
                         catch (Exception err)
@@ -982,7 +1008,7 @@ public class WorldRendererSchematic
             }
         }
 
-        immediate2.drawCurrentLayer();
+        immediate.drawCurrentLayer();
 
         profiler.swap("render_be_no_cull");
         synchronized (this.blockEntities)
@@ -1000,7 +1026,7 @@ public class WorldRendererSchematic
                 {
                     matrices.push();
                     matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-                    this.blockEntityRenderDispatcher.render(te, partialTicks, matrices, immediate);
+                    this.blockEntityRenderDispatcher.render(te, partialTicks, matrices, immediate2);
                     matrices.pop();
                 }
                 catch (Exception err)
@@ -1010,7 +1036,7 @@ public class WorldRendererSchematic
             }
         }
 
-        immediate.drawCurrentLayer();
+        immediate2.drawCurrentLayer();
         profiler.pop();
     }
 

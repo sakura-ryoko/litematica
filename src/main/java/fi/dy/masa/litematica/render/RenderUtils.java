@@ -21,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.random.LocalRandom;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
@@ -41,7 +42,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class RenderUtils
 {
-//    private static final LocalRandom RAND = new LocalRandom(0);
+    private static final LocalRandom RAND = new LocalRandom(0);
 
     public static int getMaxStringRenderLength(List<String> list)
     {
@@ -519,22 +520,22 @@ public class RenderUtils
      * Assumes a BufferBuilder in the GL_LINES mode has been initialized
      */
     public static void drawBlockModelOutlinesBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand,
-                                                     BufferBuilder buffer, Random rand)
+                                                     BufferBuilder buffer)
     {
         for (final Direction side : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
         {
-            renderModelQuadOutlines(model, state, pos, side, color, expand, buffer, rand);
+            renderModelQuadOutlines(model, state, pos, side, color, expand, buffer);
         }
 
-        renderModelQuadOutlines(model, state, pos, null, color, expand, buffer, rand);
+        renderModelQuadOutlines(model, state, pos, null, color, expand, buffer);
     }
 
     public static void renderModelQuadOutlines(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand,
-                                               BufferBuilder buffer, Random rand)
+                                               BufferBuilder buffer)
     {
         try
         {
-            renderModelQuadOutlines(pos, buffer, color, model.getQuads(state, side, rand));
+            renderModelQuadOutlines(pos, buffer, color, model.getQuads(state, side, RAND));
         }
         catch (Exception ignore) {}
     }
@@ -624,22 +625,22 @@ public class RenderUtils
     }
 
     public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Color4f color, double expand,
-                                                        BufferBuilder buffer, Random rand)
+                                                        BufferBuilder buffer)
     {
         for (final Direction side : fi.dy.masa.malilib.util.PositionUtils.ALL_DIRECTIONS)
         {
-            drawBlockModelQuadOverlayBatched(model, state, pos, side, color, expand, buffer, rand);
+            drawBlockModelQuadOverlayBatched(model, state, pos, side, color, expand, buffer);
         }
 
-        drawBlockModelQuadOverlayBatched(model, state, pos, null, color, expand, buffer, rand);
+        drawBlockModelQuadOverlayBatched(model, state, pos, null, color, expand, buffer);
     }
 
     public static void drawBlockModelQuadOverlayBatched(BakedModel model, BlockState state, BlockPos pos, Direction side, Color4f color, double expand,
-                                                        BufferBuilder buffer, Random rand)
+                                                        BufferBuilder buffer)
     {
         try
         {
-            renderModelQuadOverlayBatched(pos, buffer, color, model.getQuads(state, side, rand));
+            renderModelQuadOverlayBatched(pos, buffer, color, model.getQuads(state, side, RAND));
         }
         catch (Exception ignore) {}
     }

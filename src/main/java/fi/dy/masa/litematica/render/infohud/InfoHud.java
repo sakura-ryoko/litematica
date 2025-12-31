@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.profiler.Profiler;
 
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.malilib.config.HudAlignment;
@@ -60,7 +61,7 @@ public class InfoHud
         return Configs.InfoOverlays.INFO_HUD_OFFSET_Y.getIntegerValue();
     }
 
-    public void renderHud(DrawContext drawContext)
+    public void renderHud(DrawContext drawContext, Profiler profiler)
     {
         if (this.mc.player != null && this.shouldRender())
         {

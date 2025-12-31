@@ -22,6 +22,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.config.HudAlignment;
@@ -500,7 +501,7 @@ public class OverlayRenderer
         profiler.pop();
     }
 
-    public void renderHoverInfo(MinecraftClient mc, DrawContext drawContext)
+    public void renderHoverInfo(MinecraftClient mc, DrawContext drawContext, Profiler profiler)
     {
         profiler.push("render_hover_info");
 

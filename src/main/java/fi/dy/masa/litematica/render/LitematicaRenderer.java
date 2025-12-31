@@ -1,16 +1,17 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
-
-import fi.dy.masa.litematica.compat.iris.IrisCompat;
-import net.minecraft.client.render.GameRenderer;
 import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.profiler.Profiler;
+
+import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
@@ -223,7 +224,7 @@ public class LitematicaRenderer
     }
     */
 
-    public void renderSchematicOverlay(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
+    public void renderSchematicOverlay(Matrix4f viewMatrix, Matrix4f projMatrix, Profiler profiler)
     {
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
@@ -243,7 +244,7 @@ public class LitematicaRenderer
             //TODO: RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240.0F, 240.0F);
 
             if (!IrisCompat.isShadowPassActive()) {
-                this.getWorldRenderer().renderBlockOverlays(matrix4f, this.getCamera(), projMatrix);
+                this.getWorldRenderer().renderBlockOverlays(viewMatrix, this.getCamera(), projMatrix, profiler);
             }
 
             RenderSystem.enableDepthTest();
@@ -254,7 +255,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewisePrepareAndUpdate(Frustum frustum)
+    public void piecewisePrepareAndUpdate(Frustum frustum, Profiler profiler)
     {
         boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                          this.mc.getCameraEntity() != null;
@@ -280,10 +281,10 @@ public class LitematicaRenderer
                 this.calculateFinishTime();
 
                 this.mc.getProfiler().swap("litematica_terrain_setup");
-                worldRenderer.setupTerrain(this.getCamera(), frustum, this.frameCount++, this.mc.player.isSpectator());
+                worldRenderer.setupTerrain(this.getCamera(), frustum, this.frameCount++, this.mc.player.isSpectator(), profiler);
 
                 this.mc.getProfiler().swap("litematica_update_chunks");
-                worldRenderer.updateChunks(this.finishTimeNano);
+                worldRenderer.updateChunks(this.finishTimeNano, profiler);
 
                 this.mc.getProfiler().pop();
 
@@ -292,7 +293,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderSolid(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void piecewiseRenderSolid(Matrix4f matrix4f, Matrix4f projMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -305,7 +306,7 @@ public class LitematicaRenderer
             }
 
             RenderSystem.setShader(GameRenderer::getRenderTypeSolidProgram);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), matrix4f, this.getCamera(), projMatrix);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getSolid(), matrix4f, this.getCamera(), projMatrix, profiler, GameRenderer.getRenderTypeSolidProgram());
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -317,7 +318,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderCutoutMipped(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void piecewiseRenderCutoutMipped(Matrix4f matrix4f, Matrix4f projMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -330,7 +331,7 @@ public class LitematicaRenderer
             }
 
             RenderSystem.setShader(GameRenderer::getRenderTypeCutoutMippedProgram);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), matrix4f, this.getCamera(), projMatrix);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutoutMipped(), matrix4f, this.getCamera(), projMatrix, profiler, GameRenderer.getRenderTypeCutoutMippedProgram());
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -342,7 +343,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderCutout(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void piecewiseRenderCutout(Matrix4f matrix4f, Matrix4f projMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -355,7 +356,7 @@ public class LitematicaRenderer
             }
 
             RenderSystem.setShader(GameRenderer::getRenderTypeCutoutProgram);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), matrix4f, this.getCamera(), projMatrix);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getCutout(), matrix4f, this.getCamera(), projMatrix, profiler, GameRenderer.getRenderTypeCutoutProgram());
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -367,7 +368,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderTranslucent(Matrix4f matrix4f, Matrix4f projMatrix)
+    public void piecewiseRenderTranslucent(Matrix4f matrix4f, Matrix4f projMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -380,7 +381,7 @@ public class LitematicaRenderer
             }
 
             RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), matrix4f, this.getCamera(), projMatrix);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTranslucent(), matrix4f, this.getCamera(), projMatrix, profiler, GameRenderer.getRenderTypeTranslucentProgram());
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -404,8 +405,8 @@ public class LitematicaRenderer
                 RenderSystem.polygonOffset(-0.3f, -0.6f);
             }
 
-            ShaderProgram shader = RenderSystem.setShader(GameRenderer::getRenderTypeTranslucentProgram);
-            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), viewMatrix, this.getCamera(), posMatrix, profiler, shader);
+            RenderSystem.setShader(GameRenderer::getRenderTypeTripwireProgram);
+            this.getWorldRenderer().renderBlockLayer(RenderLayer.getTripwire(), viewMatrix, this.getCamera(), posMatrix, profiler, GameRenderer.getRenderTypeTripwireProgram());
 
             if (this.renderCollidingSchematicBlocks)
             {
@@ -417,7 +418,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseRenderOverlay(Matrix4f viewMatrix, Matrix4f posMatrix, Profiler profiler)
+    public void piecewiseRenderOverlay(Matrix4f posMatrix, Matrix4f projMatrix, Profiler profiler)
     {
         if (this.renderPiecewiseSchematic)
         {
@@ -430,7 +431,7 @@ public class LitematicaRenderer
                 fb.beginWrite(false);
             }
 
-            this.renderSchematicOverlay(matrix4f, projMatrix);
+            this.renderSchematicOverlay(posMatrix, projMatrix, profiler);
 
             if (fb != null)
             {

@@ -2,14 +2,9 @@ package fi.dy.masa.litematica.gui;
 
 import java.io.File;
 import javax.annotation.Nullable;
+
 import net.minecraft.client.MinecraftClient;
-import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.scheduler.TaskScheduler;
-import fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.selection.AreaSelection;
-import fi.dy.masa.litematica.selection.SelectionManager;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
@@ -20,6 +15,13 @@ import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.scheduler.TaskScheduler;
+import fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.selection.AreaSelection;
+import fi.dy.masa.litematica.selection.SelectionManager;
 
 public class GuiSchematicSave extends GuiSchematicSaveBase implements ICompletionListener
 {

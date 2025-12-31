@@ -149,7 +149,7 @@ public class InventoryUtils
 
 		if (PlayerInventory.isValidHotbarIndex(sourceSlot))
 		{
-			inventory.setSelectedSlot(sourceSlot);
+			inventory.selectedSlot = sourceSlot;
 		}
 		else
 		{
@@ -174,7 +174,7 @@ public class InventoryUtils
 			if (hotbarSlot != -1)
 			{
 				int resultSlot = -1;
-				inventory.setSelectedSlot(hotbarSlot);
+				inventory.selectedSlot = hotbarSlot;
 
 				if (EntityUtils.isCreativeMode(player))
 				{
@@ -221,7 +221,7 @@ public class InventoryUtils
 
 		if (isCreative)
 		{
-			player.getInventory().setSelectedSlot(player.getInventory().getSwappableHotbarSlot());
+			player.getInventory().selectedSlot = player.getInventory().getSwappableHotbarSlot();
 			return 36 + player.getInventory().selectedSlot;
 		}
 		else
