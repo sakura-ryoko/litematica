@@ -35,6 +35,7 @@ public class SubRegionPlacement
             ).apply(inst, SubRegionPlacement::new)
     );
     public static final PacketCodec<ByteBuf, BlockMirror> BLOCK_MIRROR_PACKET_CODEC = PacketCodecs.STRING.xmap(BlockMirror::valueOf, BlockMirror::asString);
+    public static final PacketCodec<ByteBuf, BlockRotation> BLOCK_ROTATION_PACKET_CODEC = PacketCodecs.STRING.xmap(BlockRotation::valueOf, BlockRotation::asString);
     public static final PacketCodec<ByteBuf, SubRegionPlacement> PACKET_CODEC = new PacketCodec<>()
     {
         @Override
@@ -43,11 +44,11 @@ public class SubRegionPlacement
             PacketCodecs.STRING.encode(buf, value.name);
             BlockPos.PACKET_CODEC.encode(buf, value.defaultPos);
             BlockPos.PACKET_CODEC.encode(buf, value.pos);
-            BlockRotation.PACKET_CODEC.encode(buf, value.rotation);
+            BLOCK_ROTATION_PACKET_CODEC.encode(buf, value.rotation);
             BLOCK_MIRROR_PACKET_CODEC.encode(buf, value.mirror);
-            PacketCodecs.BOOLEAN.encode(buf, value.enabled);
-            PacketCodecs.BOOLEAN.encode(buf, value.renderingEnabled);
-            PacketCodecs.BOOLEAN.encode(buf, value.ignoreEntities);
+            PacketCodecs.BOOL.encode(buf, value.enabled);
+            PacketCodecs.BOOL.encode(buf, value.renderingEnabled);
+            PacketCodecs.BOOL.encode(buf, value.ignoreEntities);
             PacketCodecs.INTEGER.encode(buf, value.coordinateLockMask);
         }
 
@@ -58,11 +59,11 @@ public class SubRegionPlacement
                 PacketCodecs.STRING.decode(buf),
                 BlockPos.PACKET_CODEC.decode(buf),
                 BlockPos.PACKET_CODEC.decode(buf),
-                BlockRotation.PACKET_CODEC.decode(buf),
+                BLOCK_ROTATION_PACKET_CODEC.decode(buf),
                 BLOCK_MIRROR_PACKET_CODEC.decode(buf),
-                PacketCodecs.BOOLEAN.decode(buf),
-                PacketCodecs.BOOLEAN.decode(buf),
-                PacketCodecs.BOOLEAN.decode(buf),
+                PacketCodecs.BOOL.decode(buf),
+                PacketCodecs.BOOL.decode(buf),
+                PacketCodecs.BOOL.decode(buf),
                 PacketCodecs.INTEGER.decode(buf)
             );
         }
