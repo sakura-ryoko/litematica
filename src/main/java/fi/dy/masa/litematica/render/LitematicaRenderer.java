@@ -260,7 +260,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewisePrepareAndUpdate(Frustum frustum, Profiler profiler)
+    public void piecewisePrepare(Frustum frustum, Profiler profiler)
     {
         boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                          this.mc.getCameraEntity() != null;
@@ -287,13 +287,27 @@ public class LitematicaRenderer
                 profiler.swap(Reference.MOD_ID+"_terrain_setup");
                 worldRenderer.setupTerrain(this.getCamera(), frustum, this.frameCount++, this.mc.player.isSpectator(), profiler);
 
-                profiler.swap(Reference.MOD_ID+"_update_chunks");
-                worldRenderer.updateChunks(this.finishTimeNano, profiler);
+//                profiler.swap(Reference.MOD_ID+"_update_chunks");
+//                worldRenderer.updateChunks(this.finishTimeNano, profiler);
 
                 profiler.pop();
 
                 this.frustum = frustum;
             }
+        }
+    }
+
+    public void piecewiseUpdate(Camera camera, Profiler profiler)
+    {
+        boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && camera != null;
+        WorldRendererSchematic worldRenderer = this.getWorldRenderer();
+
+        if (render && frustum != null && worldRenderer.hasWorld() &&
+            this.renderPiecewiseSchematic)
+        {
+            profiler.push(Reference.MOD_ID+"_update_chunks");
+            worldRenderer.updateChunks(this.finishTimeNano, profiler);
+            profiler.pop();
         }
     }
 
