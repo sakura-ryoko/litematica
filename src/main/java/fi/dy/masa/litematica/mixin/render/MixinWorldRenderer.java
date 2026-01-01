@@ -7,6 +7,19 @@ import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.command.OrderedRenderCommandQueueImpl;
+import net.minecraft.client.render.state.WorldRenderState;
+import net.minecraft.client.util.Handle;
+import net.minecraft.client.util.ObjectAllocator;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.ProfilerSystem;
+import net.minecraft.util.profiler.Profilers;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,28 +29,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.render.BlockRenderLayerGroup;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.SectionRenderState;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.command.OrderedRenderCommandQueueImpl;
-import net.minecraft.client.render.state.WorldRenderState;
-import net.minecraft.client.util.Handle;
-import net.minecraft.client.util.ObjectAllocator;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.profiler.ProfilerSystem;
-import net.minecraft.util.profiler.Profilers;
-
-import fi.dy.masa.malilib.compat.iris.IrisCompat;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer
@@ -78,7 +73,7 @@ public abstract class MixinWorldRenderer
     private void litematica_onPostSetupTerrain(Camera camera, Frustum frustum, boolean bl, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
+        LitematicaRenderer.getInstance().piecewisePrepare(frustum, this.profiler);
     }
 
     @Inject(method = "updateChunks",
@@ -89,18 +84,24 @@ public abstract class MixinWorldRenderer
     private void litematica_onPostUpdateChunks(Camera camera, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.getPos(), this.profiler);
+        LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
+
+        if (IrisCompat.hasSodium())
+        {
+            LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.getPos(), this.profiler);
+        }
     }
 
-//    @Inject(method = "translucencySort", at = @At("TAIL"))
-//    private void litematica_onScheduleTranslucentSort(Vec3d cameraPos, CallbackInfo ci)
-//    {
-//        this.litematica$prepareProfiler();
-//        if (!SodiumCompat.hasSodium())
-//        {
-//            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
-//        }
-//    }
+    // Sodium Compat issue
+    @Inject(method = "translucencySort", at = @At("TAIL"))
+    private void litematica_onScheduleTranslucentSort(Vec3d cameraPos, CallbackInfo ci)
+    {
+        if (!IrisCompat.hasSodium())
+        {
+            this.litematica$prepareProfiler();
+            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
+        }
+    }
 
     @Inject(method = "render",
             at = @At(value = "INVOKE",
