@@ -14,6 +14,7 @@ import net.minecraft.client.util.Handle;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.profiler.Profilers;
@@ -26,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
@@ -68,7 +70,7 @@ public abstract class MixinWorldRenderer
             Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
+        LitematicaRenderer.getInstance().piecewisePrepare(frustum, this.profiler);
     }
 
     @Inject(method = "updateChunks",
@@ -79,18 +81,24 @@ public abstract class MixinWorldRenderer
     private void litematica_onPostUpdateChunks(Camera camera, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.getPos(), this.profiler);
+        LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
+
+        if (IrisCompat.hasSodium())
+        {
+            LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.getPos(), this.profiler);
+        }
     }
 
-//    @Inject(method = "translucencySort", at = @At("TAIL"))
-//    private void litematica_onScheduleTranslucentSort(Vec3d cameraPos, CallbackInfo ci)
-//    {
-//        this.litematica$prepareProfiler();
-//        if (!SodiumCompat.hasSodium())
-//        {
-//            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
-//        }
-//    }
+    // Sodium Compat issue
+    @Inject(method = "translucencySort", at = @At("TAIL"))
+    private void litematica_onScheduleTranslucentSort(Vec3d cameraPos, CallbackInfo ci)
+    {
+        if (!IrisCompat.hasSodium())
+        {
+            this.litematica$prepareProfiler();
+            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
+        }
+    }
 
     @Inject(method = "render",
             at = @At(value = "INVOKE",
