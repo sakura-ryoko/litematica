@@ -58,12 +58,17 @@ public abstract class MixinWorldRenderer
 
     @Inject(method = "setupTerrain", at = @At("TAIL"))
     private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci,
-            @Local Profiler profiler)
+            Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci)
     {
-        this.profiler = profiler;
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareAndUpdate(frustum, this.profiler);
+        LitematicaRenderer.getInstance().piecewisePrepare(frustum, this.profiler);
+    }
+
+    @Inject(method = "updateChunks", at = @At("TAIL"))
+    private void litematica_onPostSetupChunks(Camera camera, CallbackInfo ci)
+    {
+        this.litematica$prepareProfiler();
+        LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
     }
 
     @Inject(method = "render",
