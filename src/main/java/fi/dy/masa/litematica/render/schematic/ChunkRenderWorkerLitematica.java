@@ -40,13 +40,13 @@ public class ChunkRenderWorkerLitematica implements Runnable
         this.allocatorCache = allocatorCache;
         this.profiler = profiler;
 
-//        LOGGER.error("[LW] init() [Cache: {}]", allocatorCache != null);
+        //LOGGER.error("[LW] init() [Cache: {}]", allocatorCache != null);
     }
 
     @Override
     public void run()
     {
-//        LOGGER.warn("[LW] run()");
+        //LOGGER.warn("[LW] run()");
 
         if (this.profiler == null)
         {
@@ -166,7 +166,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
         profiler.push("process_task");
         task.getLock().lock();
 
-//        LOGGER.warn("[LW] processTask() task [{}] / [{}]", task.getType().name(), task.getStatus().name());
+        //LOGGER.warn("[LW] processTask() task [{}] / [{}]", task.getType().name(), task.getStatus().name());
         try
         {
             if (task.getStatus() != ChunkRenderTaskSchematic.Status.PENDING)
@@ -209,6 +209,11 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 //LOGGER.warn("[LW] (REBUILD_CHUNK) --> [VBO]");
                 task.getRenderChunk().rebuildChunk(task, profiler);
             }
+//            else if (taskType == ChunkRenderTaskSchematic.Type.UPLOAD_CHUNK)
+//            {
+//                LOGGER.warn("[LW] (UPLOAD_CHUNK) --> [VBO]");
+//                task.getRenderChunk().uploadChunk(task, profiler);
+//            }
             else if (taskType == ChunkRenderTaskSchematic.Type.RESORT_TRANSPARENCY)
             {
                 //LOGGER.warn("[LW] (RESORT_TRANSPARENCY) --> [VBO]");
@@ -246,7 +251,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
             if (taskType == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK)
             {
-                //LOGGER.warn("[LW] (REBUILD_CHUNK) --> Schedule Uploads");
+                //LOGGER.warn("[LW] (REBUILD_CHUNK) --> Run Uploads");
 
                 //if (GuiBase.isCtrlDown()) System.out.printf("pre uploadChunk()\n");
                 for (ChunkSectionLayer layer : ChunkRenderLayers.BLOCK_RENDER_LAYERS)
@@ -254,7 +259,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (chunkRenderData.isBlockLayerEmpty(layer) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks()\n");
-//                        System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks(%s)\n", ChunkRenderLayers.getFriendlyName(layer));
+                        //LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkBlocks({})", layer.label());
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), false, profiler));
                     }
                 }
@@ -264,7 +269,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (chunkRenderData.isOverlayTypeEmpty(type) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay()\n");
-//                        System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay(%s)\n", type.name());
+                        //LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkOverlay({})", type.name());
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), false, profiler));
                     }
                 }
@@ -277,13 +282,14 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 if (chunkRenderData.isBlockLayerEmpty(layer) == false)
                 {
                     //System.out.printf("RESORT_TRANSPARENCY pre uploadChunkBlocks(%s)\n", layer.toString());
-//                    System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks(%s)\n", ChunkRenderLayers.getFriendlyName(layer));
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(ChunkSectionLayer.TRANSLUCENT, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), true, profiler));
+                    //LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkBlocks({})", layer.label());
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), true, profiler));
                 }
+
                 if (chunkRenderData.isOverlayTypeEmpty(OverlayRenderType.QUAD) == false)
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("RESORT_TRANSPARENCY pre uploadChunkOverlay()\n");
-//                    System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay(%s)\n", OverlayRenderType.QUAD.name());
+                    //LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkOverlay({})", OverlayRenderType.QUAD.name());
                     futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, allocators, renderChunk, chunkRenderData, task.getDistanceSq(), true, profiler));
                 }
             }
@@ -391,7 +397,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
     public void notifyToStop()
     {
-//        LOGGER.warn("[LW] stop()");
+        //LOGGER.warn("[LW] stop()");
         this.shouldRun = false;
     }
 }

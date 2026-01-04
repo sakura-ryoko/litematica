@@ -11,5 +11,5 @@ public class Reference
     public static final String MC_VERSION = SharedConstants.getCurrentVersion().id();
     public static final String MOD_TYPE = "fabric";
     public static final String MOD_STRING = MOD_ID+"-"+MOD_TYPE+"-"+MC_VERSION+"-"+MOD_VERSION;
-//    public static final boolean EXPERIMENTAL = true;
+    public static final boolean DEBUG_MODE = true;
 }

@@ -26,6 +26,7 @@ public class ChunkManagerSchematic extends ChunkSource
     {
         this.world = world;
         this.blankChunk = new ChunkSchematic(world, new ChunkPos(0, 0));
+        this.blankChunk.setState(ChunkSchematicState.EMPTY);
         this.lightingProvider = new LevelLightEngine(this, true, world.dimensionType().hasSkyLight());
         this.fakeLightingProvider = new FakeLightingProvider(this);
     }
@@ -36,64 +37,90 @@ public class ChunkManagerSchematic extends ChunkSource
         return this.world;
     }
 
-    public void loadChunk(int chunkX, int chunkZ)
+    public synchronized void loadChunk(int chunkX, int chunkZ)
     {
         ChunkSchematic chunk = new ChunkSchematic(this.world, new ChunkPos(chunkX, chunkZ));
+        chunk.setState(ChunkSchematicState.LOADED);
         this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), chunk);
     }
 
     @Override
-    public boolean hasChunk(int chunkX, int chunkZ)
+    public synchronized boolean hasChunk(int chunkX, int chunkZ)
     {
         return this.loadedChunks.containsKey(ChunkPos.asLong(chunkX, chunkZ));
+    }
+
+    public synchronized ChunkSchematicState getChunkState(int chunkX, int chunkZ)
+    {
+        long key = ChunkPos.asLong(chunkX, chunkZ);
+
+        if (this.loadedChunks.containsKey(key))
+        {
+            return this.loadedChunks.get(key).getState();
+        }
+        else
+        {
+            return ChunkSchematicState.UNLOADED;
+        }
+    }
+
+    public synchronized void setChunkState(int chunkX, int chunkZ, ChunkSchematicState state)
+    {
+        long key = ChunkPos.asLong(chunkX, chunkZ);
+
+        if (this.loadedChunks.containsKey(key))
+        {
+            this.loadedChunks.get(key).setState(state);
+        }
     }
 
     @Override
     public @Nonnull String gatherStats()
     {
-        return "Schematic Chunk Cache: " + this.getLoadedChunksCount();
+        return "Schematic Chunk Manager: " + this.getLoadedChunksCount();
     }
 
     @Override
-    public int getLoadedChunksCount()
+    public synchronized int getLoadedChunksCount()
     {
         return this.loadedChunks.size();
     }
 
-    public Long2ObjectMap<ChunkSchematic> getLoadedChunks()
+    public synchronized Long2ObjectMap<ChunkSchematic> getLoadedChunks()
     {
         return this.loadedChunks;
     }
 
     @Override
-    public LevelChunk getChunk(int chunkX, int chunkZ, @Nonnull ChunkStatus status, boolean fallbackToEmpty)
+    public synchronized LevelChunk getChunk(int chunkX, int chunkZ, @Nonnull ChunkStatus status, boolean fallbackToEmpty)
     {
         ChunkSchematic chunk = this.getChunkForLighting(chunkX, chunkZ);
         return chunk == null && fallbackToEmpty ? this.blankChunk : chunk;
     }
 
     @Override
-    public ChunkSchematic getChunkForLighting(int chunkX, int chunkZ)
+    public synchronized ChunkSchematic getChunkForLighting(int chunkX, int chunkZ)
     {
         ChunkSchematic chunk = this.loadedChunks.get(ChunkPos.asLong(chunkX, chunkZ));
         return chunk == null ? this.blankChunk : chunk;
     }
 
     @Nullable
-    public ChunkSchematic getChunkIfExists(int chunkX, int chunkZ)
+    public synchronized ChunkSchematic getChunkIfExists(int chunkX, int chunkZ)
     {
         return this.loadedChunks.get(ChunkPos.asLong(chunkX, chunkZ));
     }
 
-    public void unloadChunk(int chunkX, int chunkZ)
+    public synchronized void unloadChunk(int chunkX, int chunkZ)
     {
         ChunkSchematic chunk = this.loadedChunks.remove(ChunkPos.asLong(chunkX, chunkZ));
 
         if (chunk != null)
         {
-            this.world.unloadedEntities(chunk.getEntityCount());
+//            this.world.unloadedEntities(chunk.getEntityCount());
             this.world.unloadEntitiesByChunk(chunkX, chunkZ);
-            chunk.clearEntities();
+//            chunk.clearEntities();
+            chunk.setState(ChunkSchematicState.UNLOADED);
         }
     }
 
@@ -114,7 +141,7 @@ public class ChunkManagerSchematic extends ChunkSource
         // NO-OP
     }
 
-    public int getTileEntityCount()
+    public synchronized int getTileEntityCount()
     {
         int count = 0;
 

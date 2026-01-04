@@ -33,7 +33,7 @@ public class ChunkRenderDispatcherLitematica
     private final List<ChunkRenderWorkerLitematica> listThreadedWorkers;
     private final PriorityBlockingQueue<ChunkRenderTaskSchematic> queueChunkUpdates;
     private final BlockingQueue<BufferAllocatorCache> queueFreeRenderAllocators;
-    private final Queue<ChunkRenderDispatcherLitematica.PendingUpload> queueChunkUploads;
+    private final Queue<PendingUpload> queueChunkUploads;
 //    final Queue<Runnable> queueChunkUploads = Queues.newConcurrentLinkedQueue();
     private final ChunkRenderWorkerLitematica renderWorker;
     private final int countRenderAllocators;
@@ -140,7 +140,7 @@ public class ChunkRenderDispatcherLitematica
     protected boolean runChunkUploads(long finishTimeNano, ProfilerFiller profiler)
     {
         boolean ranTasks = false;
-//        LOGGER.warn("[Dispatch] runChunkUploads()");
+        //LOGGER.warn("[Dispatch] runChunkUploads() - queueChunkUpdates({}) // queueChunkUploads({})", this.queueChunkUpdates.size(), this.queueChunkUploads.size());
 
         profiler.push("run_chunk_uploads");
         while (true)
@@ -204,7 +204,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[Dispatch] updateChunkLater()");
+        //LOGGER.warn("[Dispatch] updateChunkLater()");
 
         profiler.push("update_chunk_later");
         /* Threaded Code
@@ -249,7 +249,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[Dispatch] updateChunkNow()");
+        //LOGGER.warn("[Dispatch] updateChunkNow()");
 
         profiler.push("update_chunk_now");
         /* Threaded Code
@@ -289,10 +289,76 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
+//    protected boolean uploadChunkNow(ChunkRendererSchematicVbo renderChunk, ProfilerFiller profiler)
+//    {
+//        LOGGER.warn("[Dispatch] uploadChunkNow()");
+//        profiler.push("upload_chunks_now");
+//        renderChunk.getLockCompileTask().lock();
+//        boolean flag = false;
+//
+//        try
+//        {
+//            final ChunkRenderTaskSchematic generator = renderChunk.makeUploadTaskChunkSchematic(this::getCameraPos);
+//
+//            if (generator == null)
+//            {
+//                LOGGER.error("[Dispatch] uploadChunkNow() -- Make Task returned null");
+//                flag = false;
+//                profiler.pop();
+//                return flag;
+//            }
+//
+//            try
+//            {
+//                this.renderWorker.processTask(generator, profiler);
+//            }
+//            catch (InterruptedException ignored) {}
+//
+//            flag = true;
+//        }
+//        finally
+//        {
+//            renderChunk.getLockCompileTask().unlock();
+//        }
+//
+//        profiler.pop();
+//        return flag;
+//    }
+//
+//    protected boolean uploadChunkLater(ChunkRendererSchematicVbo renderChunk, ProfilerFiller profiler)
+//    {
+//        LOGGER.warn("[Dispatch] uploadChunkLater()");
+//        profiler.push("upload_chunks_later");
+//        renderChunk.getLockCompileTask().lock();
+//        boolean flag;
+//
+//        try
+//        {
+//            final ChunkRenderTaskSchematic generator = renderChunk.makeUploadTaskChunkSchematic(this::getCameraPos);
+//
+//            if (generator == null)
+//            {
+//                flag = true;
+//                profiler.pop();
+//                return flag;
+//            }
+//
+//            generator.addFinishRunnable(() -> ChunkRenderDispatcherLitematica.this.queueChunkUpdates.remove(generator));
+//
+//            flag = this.queueChunkUpdates.offer(generator);
+//        }
+//        finally
+//        {
+//            renderChunk.getLockCompileTask().unlock();
+//        }
+//
+//        profiler.pop();
+//        return flag;
+//    }
+
     protected void stopChunkUpdates(ProfilerFiller profiler)
     {
-//        LOGGER.warn("[Dispatch] stopChunkUpdates()");
-
+        //LOGGER.warn("[Dispatch] stopChunkUpdates()");
         profiler.push("stop_chunk_updates");
         this.clearChunkUpdates();
         List<BufferAllocatorCache> list = new ArrayList<>();
@@ -381,9 +447,37 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
+//    protected ListenableFuture<Object> scheduleChunkUploads(final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq, ProfilerFiller profiler)
+//    {
+//        LOGGER.warn("[Dispatch] scheduleChunkUploads()");
+//
+//        profiler.push("schedule_chunk_uploads");
+//        if (Minecraft.getInstance().isSameThread())
+//        {
+//            if (!chunkRenderData.isBlockLayerEmpty())
+//            {
+//                this.uploadChunkNow(renderChunk, profiler);
+//            }
+//
+//            profiler.pop();
+//            return Futures.immediateFuture(null);
+//        }
+//        else
+//        {
+//            ListenableFutureTask<Object> futureTask = ListenableFutureTask.create(() -> ChunkRenderDispatcherLitematica.this.scheduleChunkUploads(renderChunk, chunkRenderData, distanceSq, profiler), null);
+//
+//            synchronized (this.queueChunkUploads)
+//            {
+//                this.queueChunkUploads.add(new PendingUpload(futureTask, distanceSq));
+//                profiler.pop();
+//                return futureTask;
+//            }
+//        }
+//    }
+
     protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final BufferAllocatorCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[Dispatch] uploadChunkBlocks layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
+        //LOGGER.warn("[Dispatch] uploadChunkBlocks layer [{}]", layer.name());
 
         profiler.push("upload_chunk_blocks");
         if (Minecraft.getInstance().isSameThread())
@@ -414,7 +508,7 @@ public class ChunkRenderDispatcherLitematica
 
             synchronized (this.queueChunkUploads)
             {
-                this.queueChunkUploads.add(new ChunkRenderDispatcherLitematica.PendingUpload(futureTask, distanceSq));
+                this.queueChunkUploads.add(new PendingUpload(futureTask, distanceSq));
                 profiler.pop();
                 return futureTask;
             }
@@ -423,7 +517,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferAllocatorCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[Dispatch] uploadChunkOverlay type [{}]", type.name());
+        //LOGGER.warn("[Dispatch] uploadChunkOverlay type [{}]", type.name());
 
         profiler.push("upload_chunk_overlay");
         if (Minecraft.getInstance().isSameThread())
@@ -436,7 +530,7 @@ public class ChunkRenderDispatcherLitematica
             {
                 // TODO --> This one will throw if it's not sorted as Translucent,
                 //  but it will cause a crash during draw() --> Ignored
-                LOGGER.error("uploadChunkOverlay(): [Dispatch] Error uploading Vertex Buffer for overlay type [{}], Caught error: [{}]", type.getDrawMode().name(), e.toString());
+                LOGGER.error("uploadChunkOverlay(): [Dispatch] Error uploading Vertex Buffer for overlay type [{}], Caught error: [{}]", type.name(), e.toString());
             }
 
             profiler.pop();
@@ -449,7 +543,7 @@ public class ChunkRenderDispatcherLitematica
 
             synchronized (this.queueChunkUploads)
             {
-                this.queueChunkUploads.add(new ChunkRenderDispatcherLitematica.PendingUpload(futureTask, distanceSq));
+                this.queueChunkUploads.add(new PendingUpload(futureTask, distanceSq));
                 profiler.pop();
                 return futureTask;
             }
@@ -459,7 +553,7 @@ public class ChunkRenderDispatcherLitematica
     private void uploadVertexBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull BufferAllocatorCache allocators, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull ChunkRenderDataSchematic compiledChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
-//        LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", ChunkRenderLayers.getFriendlyName(layer));
+        //LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", layer.label());
 
         profiler.push("upload_vbo_layer_"+layer.label());
         ByteBufferBuilder allocator = allocators.getBufferByBlockLayer(layer);
@@ -467,6 +561,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (allocator == null)
         {
+            //LOGGER.error("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> ALLOC NULL", layer.label());
             allocators.closeByBlockLayer(layer);
             compiledChunk.setBlockLayerUnused(layer);
             profiler.pop();
@@ -475,6 +570,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (builtBuffer == null)
         {
+            //LOGGER.error("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> MESHDATA NULL", layer.label());
             compiledChunk.setBlockLayerUnused(layer);
             profiler.pop();
             return;
@@ -496,6 +592,7 @@ public class ChunkRenderDispatcherLitematica
                 if (sorting == null)
                 {
                     profiler.pop();
+                    //LOGGER.error("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> SORT FAILURE", layer.label());
                     throw new InterruptedException("Sort State failed to sortQuads()");
                 }
 
@@ -506,18 +603,20 @@ public class ChunkRenderDispatcherLitematica
 
             if (result != null)
             {
+                //LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> UPLOAD INDEX", layer.label());
                 renderChunk.uploadIndexByBlockLayer(layer, result);
                 result.close();
             }
         }
 
+        //LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> DONE", layer.label());
         profiler.pop();
     }
 
     private void uploadVertexBufferByType(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull ChunkRenderDataSchematic compiledChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
-//        LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
+        //LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
 
         profiler.push("upload_vbo_overlay_"+type.name());
         ByteBufferBuilder allocator = allocators.getBufferByOverlay(type);
@@ -525,7 +624,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (allocator == null)
         {
-//            LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> ALLOC NULL", type.name());
+            //LOGGER.error("[Dispatch] uploadVertexBufferByType type [{}] --> ALLOC NULL", type.name());
             allocators.closeByType(type);
             compiledChunk.setOverlayTypeUnused(type);
             profiler.pop();
@@ -534,7 +633,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (builtBuffer == null)
         {
-//            LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> MESHDATA NULL", type.name());
+            //LOGGER.error("[Dispatch] uploadVertexBufferByType type [{}] --> MESHDATA NULL", type.name());
             compiledChunk.setOverlayTypeUnused(type);
             profiler.pop();
             return;
@@ -542,7 +641,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (resortOnly == false)
         {
-//            LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> UPLOAD VERTEX", type.name());
+            //LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> UPLOAD VERTEX", type.name());
             renderChunk.uploadBuffersByType(type, builtBuffer);
         }
 
@@ -629,7 +728,7 @@ public class ChunkRenderDispatcherLitematica
         return this.queueFreeRenderAllocators.isEmpty();
     }
 
-    protected static class PendingUpload implements Comparable<ChunkRenderDispatcherLitematica.PendingUpload>
+    protected static class PendingUpload implements Comparable<PendingUpload>
     {
         private final ListenableFutureTask<Object> uploadTask;
         private final double distanceSq;
@@ -640,7 +739,7 @@ public class ChunkRenderDispatcherLitematica
             this.distanceSq = distanceSqIn;
         }
 
-        public int compareTo(ChunkRenderDispatcherLitematica.PendingUpload other)
+        public int compareTo(PendingUpload other)
         {
             return Doubles.compare(this.distanceSq, other.distanceSq);
         }

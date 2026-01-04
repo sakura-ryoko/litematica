@@ -44,6 +44,7 @@ import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.PositionUtils.ChunkPosDistanceComparator;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper.HitType;
+import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
@@ -64,9 +65,9 @@ public class SchematicPlacementManager
     protected final List<SchematicPlacement> schematicPlacements = new ArrayList<>();
     protected final ArrayListMultimap<ChunkPos, SchematicPlacement> schematicsTouchingChunk = ArrayListMultimap.create();
     protected final Long2ObjectOpenHashMap<List<PlacementPart>> touchedVolumesInChunk = new Long2ObjectOpenHashMap<>();
-    protected final Set<ChunkPos> chunksToRebuild = new HashSet<>();
+    protected final Set<ChunkPos> chunksToRebuild = new HashSet<>();            // todo
     protected final Set<ChunkPos> chunkRebuildQueue = new HashSet<>();
-    protected final LongOpenHashSet chunksToUnload = new LongOpenHashSet();
+    protected final LongOpenHashSet chunksToUnload = new LongOpenHashSet();     // todo
     protected final Set<ChunkPos> chunksPreChange = new HashSet<>();
     protected final List<ChunkPos> visibleChunks = new ArrayList<>();
     protected final Supplier<WorldSchematic> worldSupplier;
@@ -86,14 +87,22 @@ public class SchematicPlacementManager
     @Nullable
     private SchematicPlacement selectedPlacement;
 
+    @Deprecated
     public boolean hasPendingRebuilds()
     {
-        return this.chunksToRebuild.isEmpty() == false;
+        return this.chunksToRebuild.isEmpty() == false;     // todo
     }
 
+    @Deprecated
     public boolean hasPendingRebuildFor(ChunkPos pos)
     {
-        return this.chunksToRebuild.contains(pos);
+        return this.chunksToRebuild.contains(pos);      // todo
+    }
+
+    @Deprecated
+    public void removePendingRebuildFor(ChunkPos pos)
+    {
+        this.chunksToRebuild.remove(pos);       // todo
     }
 
     public void setVisibleSubChunksNeedsUpdate()
@@ -106,7 +115,7 @@ public class SchematicPlacementManager
         return (System.nanoTime() - DataManager.getClientTickStartTime()) <= 50000000L;
     }
 
-    protected boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
+    public boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
     {
         return Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() ||
                WorldUtils.isClientChunkLoaded(clientWorld, chunkX, chunkZ);
@@ -119,6 +128,7 @@ public class SchematicPlacementManager
 
     public void processQueuedChunks()
     {
+        // TODO Remove
         if (this.chunksToUnload.isEmpty() == false)
         {
             WorldSchematic worldSchematic = this.worldSupplier.get();
@@ -131,9 +141,10 @@ public class SchematicPlacementManager
                 }
             }
 
-            this.chunksToUnload.clear();
+            this.chunksToUnload.clear();            // todo
         }
 
+        // TODO Remove
         //System.out.printf("processQueuedChunks, size: %d\n", this.chunksToRebuild.size());
         if (this.hasQueuedChunks())
         {
@@ -141,7 +152,7 @@ public class SchematicPlacementManager
 
             if (worldClient == null)
             {
-                this.chunksToRebuild.clear();
+                this.chunksToRebuild.clear();       // todo
                 this.chunkRebuildQueue.clear();
                 return;
             }
@@ -161,7 +172,7 @@ public class SchematicPlacementManager
                 if (this.schematicsTouchingChunk.containsKey(pos) == false)
                 {
                     queueIterator.remove();
-                    this.chunksToRebuild.remove(pos);
+                    this.chunksToRebuild.remove(pos);       // todo
                     continue;
                 }
 
@@ -175,6 +186,7 @@ public class SchematicPlacementManager
                     this.visibleChunksNeedsUpdate = true;
                 }
 
+                // TODO Remove
                 if (worldSchematic.getChunkProvider().hasChunk(pos.x, pos.z))
                 {
                     //System.out.printf("placing at %s\n", pos);
@@ -196,12 +208,13 @@ public class SchematicPlacementManager
                         worldSchematic.scheduleChunkRenders(pos.x, pos.z);
                     }
 
-                    this.chunksToRebuild.remove(pos);
+                    this.chunksToRebuild.remove(pos);       // todo
                 }
 
                 queueIterator.remove();
             }
 
+            // TODO -- Plan
             LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
         }
     }
@@ -216,7 +229,7 @@ public class SchematicPlacementManager
     {
         if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
         {
-            this.chunksToUnload.add(ChunkPos.asLong(chunkX, chunkZ));
+            this.chunksToUnload.add(ChunkPos.asLong(chunkX, chunkZ));       // todo
         }
     }
 
@@ -258,7 +271,12 @@ public class SchematicPlacementManager
 
                     if (range.intersectsBox(minX, minY, minZ, maxX, maxY, maxZ))
                     {
-                        this.visibleChunks.add(new ChunkPos(posLong));
+                        ChunkPos pos = new ChunkPos(posLong);
+
+                        if (worldSchematic.getChunkSource().getChunkState(pos.x, pos.z).atLeast(ChunkSchematicState.FILLED))
+                        {
+                            this.visibleChunks.add(pos);
+                        }
                     }
                 }
 
@@ -280,6 +298,11 @@ public class SchematicPlacementManager
     public List<SchematicPlacement> getAllSchematicsPlacements()
     {
         return this.schematicPlacements;
+    }
+
+    public List<SchematicPlacement> getAllSchematicsTouchingChunk(ChunkPos pos)
+    {
+        return this.schematicsTouchingChunk.get(pos);
     }
 
     public List<PlacementPart> getPlacementPartsInChunk(int chunkX, int chunkZ)
@@ -476,7 +499,7 @@ public class SchematicPlacementManager
                     this.updateTouchedBoxesInChunk(pos);
                 }
 
-                this.chunksToUnload.remove(pos.toLong());
+                this.chunksToUnload.remove(pos.toLong());       // todo
             }
 
             this.markChunksForRebuild(placement);
@@ -499,7 +522,7 @@ public class SchematicPlacementManager
 
                 if (this.schematicsTouchingChunk.containsKey(pos) == false)
                 {
-                    this.chunksToUnload.add(pos.toLong());
+                    this.chunksToUnload.add(pos.toLong());      // todo
                     it.remove();
                 }
             }
@@ -531,7 +554,7 @@ public class SchematicPlacementManager
             if (this.schematicsTouchingChunk.containsKey(pos) == false)
             {
                 //System.out.printf("unloading: %s\n", pos);
-                this.chunksToUnload.add(pos.toLong());
+                this.chunksToUnload.add(pos.toLong());      // todo
             }
             else
             {
@@ -607,13 +630,13 @@ public class SchematicPlacementManager
     void markChunksForRebuild(Collection<ChunkPos> chunks)
     {
         //System.out.printf("rebuilding %d chunks: %s\n", chunks.size(), chunks);
-        this.chunksToRebuild.addAll(chunks);
+        this.chunksToRebuild.addAll(chunks);        // todo
         this.chunkRebuildQueue.addAll(chunks);
     }
 
     public void markChunkForRebuild(ChunkPos pos)
     {
-        this.chunksToRebuild.add(pos);
+        this.chunksToRebuild.add(pos);      // todo
         this.chunkRebuildQueue.add(pos);
     }
 
@@ -889,9 +912,9 @@ public class SchematicPlacementManager
         this.schematicsTouchingChunk.clear();
         this.touchedVolumesInChunk.clear();
         this.chunksPreChange.clear();
-        this.chunksToRebuild.clear();
+        this.chunksToRebuild.clear();       // todo
         this.chunkRebuildQueue.clear();
-        this.chunksToUnload.clear();
+        this.chunksToUnload.clear();        // todo
         this.visibleChunks.clear();
 
         SchematicHolder.getInstance().clearLoadedSchematics();

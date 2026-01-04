@@ -38,7 +38,7 @@ import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
 
 public class EntityUtils
 {
-    public static final Predicate<Entity> NOT_PLAYER = entity -> (entity instanceof Player) == false;
+    public static final Predicate<Entity> NOT_PLAYER = entity -> !(entity instanceof Player);
 
     public static boolean isCreativeMode(Player player)
     {

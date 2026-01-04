@@ -7,10 +7,7 @@ import org.jspecify.annotations.NonNull;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -136,6 +133,13 @@ public class ChunkCacheSchematic implements BlockAndTintGetter, LightChunkGetter
     {
         return colorResolver.getColor(this.worldClient.getBiome(pos).value(), pos.getX(), pos.getZ());
     }
+
+    // todo not needed
+//    @Override
+//    public int getBrightness(@NonNull LightLayer lightLayer, @NonNull BlockPos blockPos)
+//    {
+//        return this.getLightEngine().getLayerListener(lightLayer).getLightValue(blockPos);
+//    }
 
     @Override
     public float getShade(@Nonnull Direction direction, boolean bl)

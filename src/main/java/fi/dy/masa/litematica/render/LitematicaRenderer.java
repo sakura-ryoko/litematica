@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
+import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
@@ -16,11 +17,11 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.state.LevelRenderState;
-import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -30,6 +31,7 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 public class LitematicaRenderer
 {
     private static final LitematicaRenderer INSTANCE = new LitematicaRenderer();
+    private static final Logger LOGGER = Litematica.LOGGER;
 
     private Minecraft mc;
     private WorldRendererSchematic worldRenderer;
@@ -146,6 +148,7 @@ public class LitematicaRenderer
 
     public void piecewisePrepare(Frustum frustum, ProfilerFiller profiler)
     {
+        //LOGGER.error("[LR] piecewisePrepare()");
 		// Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() &&
         boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                          this.mc.getCameraEntity() != null;
@@ -184,21 +187,29 @@ public class LitematicaRenderer
 
     public void piecewiseUpdate(Camera camera, ProfilerFiller profiler)
     {
-        boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
-                camera != null;
-        WorldRendererSchematic worldRenderer = this.getWorldRenderer();
-
-        if (render && this.frustum != null && worldRenderer.hasWorld() &&
-            this.renderPiecewiseSchematic)
+        //LOGGER.error("[LR] piecewiseUpdate()");
+        if (this.renderPiecewiseSchematic)
         {
             profiler.push(Reference.MOD_ID+"_update_chunks");
-            worldRenderer.updateChunks(this.finishTimeNano, profiler);
+            this.getWorldRenderer().updateChunks(this.finishTimeNano, profiler);
             profiler.pop();
         }
     }
 
+//    public void scheduleChunkUploads(Vec3 camera, ProfilerFiller profiler)
+//    {
+//        if (this.renderPiecewiseBlocks)
+//        {
+//            profiler.push(Reference.MOD_ID+"_schedule_chunk_uploads");
+//            this.getWorldRenderer().scheduleChunkUploads(camera, profiler);
+//            profiler.pop();
+//        }
+//    }
+
     public void scheduleTranslucentSorting(Vec3 camera, ProfilerFiller profiler)
     {
+        //LOGGER.error("[LR] scheduleTranslucentSorting()");
+
         if (this.renderPiecewiseBlocks)
         {
             profiler.push(Reference.MOD_ID + "_schedule_translucent_sorting");

@@ -24,7 +24,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         this.uuidMap = new ConcurrentHashMap<>();
     }
 
-    protected void put(T entity)
+    protected synchronized void put(T entity)
     {
         T tmp = this.get(entity.getUUID());
 
@@ -44,12 +44,12 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         }
     }
 
-    protected int size()
+    protected synchronized int size()
     {
         return this.entityMap.size();
     }
 
-    protected void remove(UUID uuid)
+    protected synchronized void remove(UUID uuid)
     {
         Integer key = this.uuidMap.get(uuid);
 
@@ -84,7 +84,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
     }
 
     @Override
-    public @Nullable T get(int id)
+    public synchronized @Nullable T get(int id)
     {
         if (this.entityMap.containsKey(id))
         {
@@ -105,7 +105,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
     }
 
     @Override
-    public @Nullable T get(@Nonnull UUID uuid)
+    public synchronized @Nullable T get(@Nonnull UUID uuid)
     {
         if (this.uuidMap.containsKey(uuid))
         {
@@ -146,13 +146,13 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
     }
 
     @Override
-    public @Nonnull Iterable<T> getAll()
+    public synchronized @Nonnull Iterable<T> getAll()
     {
         return Iterables.unmodifiableIterable(this.entityMap.values());
     }
 
     @Override
-    public void get(@Nonnull AABB box, @Nonnull Consumer<T> action)
+    public synchronized void get(@Nonnull AABB box, @Nonnull Consumer<T> action)
     {
         this.entityMap.forEach(
                 (id, e) ->
@@ -170,7 +170,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
     }
 
     @Override
-    public <U extends T> void get(@Nonnull EntityTypeTest<T, U> filter, @Nonnull AABB box, @Nonnull AbortableIterationConsumer<U> consumer)
+    public synchronized <U extends T> void get(@Nonnull EntityTypeTest<T, U> filter, @Nonnull AABB box, @Nonnull AbortableIterationConsumer<U> consumer)
     {
         this.entityMap.forEach(
                 (id, e) ->
@@ -188,7 +188,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
     }
 
     @Override
-    public <U extends T> void get(@Nonnull EntityTypeTest<T, U> filter, @Nonnull AbortableIterationConsumer<U> consumer)
+    public synchronized <U extends T> void get(@Nonnull EntityTypeTest<T, U> filter, @Nonnull AbortableIterationConsumer<U> consumer)
     {
         this.entityMap.forEach(
                 (id, e) ->

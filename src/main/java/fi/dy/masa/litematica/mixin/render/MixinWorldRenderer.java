@@ -94,6 +94,7 @@ public abstract class MixinWorldRenderer
     {
         this.litematica$prepareProfiler();
 	    LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
+//	    LitematicaRenderer.getInstance().scheduleChunkUploads(camera.position(), this.profiler);
 
 		if (IrisCompat.hasSodium())
 		{

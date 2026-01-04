@@ -1,0 +1,39 @@
+package fi.dy.masa.litematica.schematic.placement.thread;
+
+import java.util.function.Supplier;
+
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.world.WorldSchematic;
+
+public class SchematicPlacementManagerTaskUnload extends SchematicPlacementManagerTask
+{
+	private final Runnable task;
+
+	protected SchematicPlacementManagerTaskUnload(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
+	{
+		super(worldSupplier, chunkX, chunkZ);
+		this.task = this.buildTask();
+	}
+
+	@Override
+	public void run()
+	{
+		this.task.run();
+	}
+
+	@Override
+	protected Runnable buildTask()
+	{
+		return () ->
+		{
+			WorldSchematic worldSchematic = this.worldSupplier().get();
+
+			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+			{
+				worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
+				worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
+				DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
+			}
+		};
+	}
+}

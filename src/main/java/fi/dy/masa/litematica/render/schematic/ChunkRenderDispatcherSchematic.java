@@ -77,6 +77,7 @@ public class ChunkRenderDispatcherSchematic
         {
             renderer = this.chunkRendererFactory.create(this.world, this.renderer);
             renderer.setPosition(chunkX << 4, this.world.getMinY(), chunkZ << 4);
+            renderer.setChunkPosition(chunkX, chunkZ);
             this.chunkRenderers.put(index, renderer);
         }
 

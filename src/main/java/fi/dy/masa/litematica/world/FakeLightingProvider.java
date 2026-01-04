@@ -64,7 +64,7 @@ public class FakeLightingProvider extends LevelLightEngine
         @Override
         public DataLayer getDataLayerData(@Nonnull SectionPos pos)
         {
-            return FakeLightingProvider.chunkNibbleArray;
+            return FakeLightingProvider.getChunkNibbleArray();
         }
 
         @Override

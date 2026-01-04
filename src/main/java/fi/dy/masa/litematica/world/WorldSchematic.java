@@ -58,6 +58,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
@@ -181,7 +182,7 @@ public class WorldSchematic extends Level
 
     public String getEntityDebug()
     {
-        return String.format("eL: %d, eM: %d, cE: %d", this.entityLookup.size(), this.entityMap.size(), this.entityCount);
+        return String.format("eL: %02d, eM: %02d, cE: %02d", this.entityLookup.size(), this.entityMap.size(), this.entityCount);
     }
 
     @Override
@@ -246,7 +247,7 @@ public class WorldSchematic extends Level
         {
             entity.setId(this.nextEntityId++);
             // TODO --> MOVE TO SchematicEntityLookup
-            this.chunkManagerSchematic.getChunkForLighting(chunkX, chunkZ).addEntity(entity);
+//            this.chunkManagerSchematic.getChunkForLighting(chunkX, chunkZ).addEntity(entity);
             ++this.entityCount;
             this.entityMap.put(entity.getUUID(), new ChunkPos(chunkX, chunkZ));
             this.entityLookup.put(entity);
@@ -282,13 +283,15 @@ public class WorldSchematic extends Level
 
                     this.entityLookup.remove(uuid);
                 });
+
+        this.unloadedEntities(list.size());
     }
 
     @Nullable
     @Override
     public Entity getEntity(int id)
     {
-        return this.entityLookup.get(id);
+        return this.getEntities().get(id);
     }
 
     protected void closeEntityLookup() throws Exception
@@ -349,25 +352,25 @@ public class WorldSchematic extends Level
     public @Nonnull List<Entity> getEntities(@Nullable final Entity except, @Nonnull final AABB box, @Nonnull Predicate<? super Entity> predicate)
     {
         final List<Entity> list = new ArrayList<>();
-        List<ChunkSchematic> chunks = this.getChunksWithinBox(box);
+//        List<ChunkSchematic> chunks = this.getChunksWithinBox(box);
 
         // TODO --> MOVE TO SchematicEntityLookup
-        for (ChunkSchematic chunk : chunks)
-        {
-            chunk.getEntityList().forEach((e) -> {
-                if (e != except && box.intersects(e.getBoundingBox()) && predicate.test(e)) {
-	                list.add(e);
-                }
-            });
-        }
-
-//        this.entityLookup.forEachIntersects(box, e ->
+//        for (ChunkSchematic chunk : chunks)
 //        {
-//            if (e != except && predicate.test(e))
-//            {
-//                list.add(e);
-//            }
-//        });
+//            chunk.getEntityList().forEach((e) -> {
+//                if (e != except && box.intersects(e.getBoundingBox()) && predicate.test(e)) {
+//	                list.add(e);
+//                }
+//            });
+//        }
+
+        this.getEntities().get(box, e ->
+        {
+            if (e != except && predicate.test(e))
+            {
+                list.add(e);
+            }
+        });
 
         return list;
     }

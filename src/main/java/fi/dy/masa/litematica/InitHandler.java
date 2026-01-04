@@ -14,6 +14,7 @@ import fi.dy.masa.litematica.event.*;
 import fi.dy.masa.litematica.gui.GuiConfigs;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
 import fi.dy.masa.litematica.scheduler.ClientTickHandler;
+import fi.dy.masa.litematica.schematic.placement.thread.SchematicPlacementDaemonHandler;
 
 public class InitHandler implements IInitializationHandler
 {
@@ -40,6 +41,7 @@ public class InitHandler implements IInitializationHandler
 
         TickHandler.getInstance().registerClientTickHandler(new ClientTickHandler());
         TickHandler.getInstance().registerClientTickHandler(EntitiesDataStorage.getInstance());
+        TickHandler.getInstance().registerClientTickHandler(SchematicPlacementDaemonHandler.INSTANCE);
 
         WorldLoadListener listener = new WorldLoadListener();
         WorldLoadHandler.getInstance().registerWorldLoadPreHandler(listener);

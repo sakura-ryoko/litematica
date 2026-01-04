@@ -4,7 +4,6 @@
     "compatibilityLevel": "JAVA_21",
     "minVersion": "0.8",
     "mixins": [
-        "client.IMixinProfilerSystem",
         "block.IMixinAbstractBlock",
         "block.IMixinFenceGateBlock",
         "block.IMixinRedstoneWireBlock",
@@ -16,6 +15,7 @@
         "block.MixinChestBlock",
         "block.MixinRailBlocks",
         "block.MixinStairsBlock",
+        "client.IMixinProfilerSystem",
         "easyplace.MixinBlockItem_easyPlace",
         "easyplace.MixinServerPlayNetworkHandler_easyPlace",
         "entity.IMixinEntity",
@@ -29,11 +29,12 @@
         "world.MixinWorldChunk"
     ],
     "client": [
-        "client.MixinMinecraftClient",
         "block.MixinBlockStateManagers",
+        "client.MixinMinecraftClient",
         "easyplace.MixinClientPlayerInteractionManager_easyPlace",
         "easyplace.MixinMinecraftClient_easyPlace",
         "entity.MixinAbstractSignEditScreen",
+        "entity.MixinClientMannequin",
         "hud.MixinDebugHud",
         "hud.MixinDebugHudProfile",
         "network.MixinClientCommonNetworkHandler",

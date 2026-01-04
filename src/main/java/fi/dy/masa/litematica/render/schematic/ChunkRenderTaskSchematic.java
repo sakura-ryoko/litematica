@@ -228,6 +228,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     public enum Type
     {
         REBUILD_CHUNK,
+//        UPLOAD_CHUNK,
         RESORT_TRANSPARENCY
     }
 }
