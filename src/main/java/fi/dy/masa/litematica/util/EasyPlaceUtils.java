@@ -442,7 +442,7 @@ public class EasyPlaceUtils
 		Level schematicWorld = SchematicWorldHandler.getSchematicWorld();
 		BlockState stateSchematic = schematicWorld.getBlockState(targetBlockPos);
 		BlockState stateClient = world.getBlockState(targetBlockPos);
-		ItemStack requiredStack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic);
+		ItemStack requiredStack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic, schematicWorld, targetBlockPos);
 
 		if (stateSchematic.is(BlockTags.AIR))
 		{
@@ -804,7 +804,7 @@ public class EasyPlaceUtils
             }
 
             BlockState stateSchematic = worldSchematic.getBlockState(pos);
-            ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic);
+            ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic, worldSchematic, pos);
 
             // The player is holding the wrong item for the targeted position
             return stack.isEmpty() || EntityUtils.getUsedHandForItem(mc.player, stack, true) == null;

@@ -8,12 +8,11 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BundleItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
@@ -122,7 +121,7 @@ public class MaterialListUtils
             // Add water bucket for waterlogged blocks
             if (isWaterloggedBlock(state))
             {
-                itemTypesOut.addTo(new ItemType(new ItemStack(net.minecraft.world.item.Items.WATER_BUCKET), false, false), count);
+                itemTypesOut.addTo(new ItemType(new ItemStack(Items.WATER_BUCKET), false, false), count);
             }
 
             // Convert block to items
@@ -263,15 +262,15 @@ public class MaterialListUtils
 
     private static boolean isWaterloggedBlock(BlockState state)
     {
-        return state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED) &&
-               state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED);
+        return state.hasProperty(BlockStateProperties.WATERLOGGED) &&
+               state.getValue(BlockStateProperties.WATERLOGGED);
     }
 
     private static BlockState getBaseBlockState(BlockState state)
     {
-        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED))
+        if (state.hasProperty(BlockStateProperties.WATERLOGGED))
         {
-            return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, false);
+            return state.setValue(BlockStateProperties.WATERLOGGED, false);
         }
         return state;
     }

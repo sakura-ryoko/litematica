@@ -1,13 +1,10 @@
 package fi.dy.masa.litematica.materials;
 
 import java.util.IdentityHashMap;
-import java.util.List;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -20,9 +17,6 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import fi.dy.masa.litematica.mixin.block.IMixinAbstractBlock;
-import fi.dy.masa.litematica.util.WorldUtils;
-import fi.dy.masa.litematica.world.SchematicWorldHandler;
-import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class MaterialCache
 {
@@ -30,16 +24,14 @@ public class MaterialCache
 
     protected final IdentityHashMap<BlockState, ItemStack> buildItemsForStates = new IdentityHashMap<>();
     protected final IdentityHashMap<BlockState, ItemStack> displayItemsForStates = new IdentityHashMap<>();
-    protected final WorldSchematic tempWorld;
+//    protected final WorldSchematic tempWorld;
     protected final BlockPos checkPos;
-    private final List<Pair<Integer, Integer>> tempChunks;          // TODO
 
     private MaterialCache()
     {
-        this.tempWorld = SchematicWorldHandler.createSchematicWorld(null);
+//        this.tempWorld = SchematicWorldHandler.createSchematicWorld(null);
         this.checkPos = new BlockPos(8, 0, 8);
-
-        this.tempChunks = WorldUtils.loadChunksSchematicWorld(this.tempWorld, this.checkPos, new Vec3i(1, 1, 1));
+//        this.tempChunks = WorldUtils.loadChunksSchematicWorld(this.tempWorld, this.checkPos, new Vec3i(1, 1, 1));
     }
 
     public static MaterialCache getInstance()
@@ -53,9 +45,21 @@ public class MaterialCache
         this.displayItemsForStates.clear();
     }
 
+//    public ItemStack getRequiredBuildItemForState(BlockState state)
+//    {
+//        return this.getRequiredBuildItemForState(state);
+//    }
+
     public ItemStack getRequiredBuildItemForState(BlockState state)
     {
-        return this.getRequiredBuildItemForState(state, this.tempWorld, this.checkPos);
+        ItemStack stack = this.buildItemsForStates.get(state);
+
+        if (stack == null)
+        {
+            stack = this.getItemForStateFromWorld(state, true);
+        }
+
+        return stack;
     }
 
     public ItemStack getRequiredBuildItemForState(BlockState state, Level world, BlockPos pos)
@@ -76,10 +80,15 @@ public class MaterialCache
 
         if (stack == null)
         {
-            stack = this.getItemForStateFromWorld(state, this.tempWorld, this.checkPos, false);
+            stack = this.getItemForStateFromWorld(state, false);
         }
 
         return stack;
+    }
+
+    protected ItemStack getItemForStateFromWorld(BlockState state, boolean isBuildItem)
+    {
+        return getItemForStateFromWorld(state, null, BlockPos.ZERO, isBuildItem);
     }
 
     protected ItemStack getItemForStateFromWorld(BlockState state, Level world, BlockPos pos, boolean isBuildItem)
@@ -88,8 +97,15 @@ public class MaterialCache
 
         if (stack == null)
         {
-            world.setBlock(pos, state, 0x14);
-            stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
+            if (world == null)
+            {
+                stack = state.getBlock().asItem().getDefaultInstance();
+            }
+            else
+            {
+//            world.setBlock(pos, state, 0x14);
+                stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
+            }
         }
 
         if (stack == null || stack.isEmpty())
@@ -140,18 +156,26 @@ public class MaterialCache
         else return block instanceof AbstractCauldronBlock && block != Blocks.CAULDRON;
     }
 
-    public ImmutableList<ItemStack> getItems(BlockState state)
-    {
-        return this.getItems(state, this.tempWorld, this.checkPos);
-    }
+//    public ImmutableList<ItemStack> getItems(BlockState state)
+//    {
+//        return this.getItems(state, this.checkPos);
+//    }
 
-    public ImmutableList<ItemStack> getItems(BlockState state, Level world, BlockPos pos)
+    public ImmutableList<ItemStack> getItems(BlockState state)
     {
         Block block = state.getBlock();
 
         if (block instanceof FlowerPotBlock && block != Blocks.FLOWER_POT)
         {
-            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state, false));
+            Block pottedBlock = ((FlowerPotBlock) block).getPotted();
+
+            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT),
+                                    pottedBlock.equals(Blocks.AIR)
+                                    ? ItemStack.EMPTY
+                                    : pottedBlock.asItem().getDefaultInstance()
+            );
+
+//            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state, false));
         }
 //        else if (block instanceof LecternBlock && state.get(LecternBlock.HAS_BOOK))
 //        {
@@ -185,7 +209,7 @@ public class MaterialCache
             }
         }
 
-        return ImmutableList.of(this.getRequiredBuildItemForState(state, world, pos));
+        return ImmutableList.of(this.getRequiredBuildItemForState(state));
     }
 
     @Nullable

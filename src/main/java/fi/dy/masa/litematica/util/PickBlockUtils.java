@@ -1,6 +1,8 @@
 package fi.dy.masa.litematica.util;
 
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -10,12 +12,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.ApiStatus;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.game.PlacementUtils;
-import fi.dy.masa.litematica.materials.MaterialCache;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 /**
@@ -107,7 +108,8 @@ public class PickBlockUtils
             return null;
         }
         BlockState state = world.getBlockState(pos);
-        ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(state, world, pos);
+//        ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(state, world, pos);
+        ItemStack stack = state.getBlock().asItem().getDefaultInstance();
 //        boolean ignoreNbt = Configs.Generic.PICK_BLOCK_IGNORE_NBT.getBooleanValue();
         boolean ignoreNbt = false;
 

@@ -483,8 +483,9 @@ public class EntityUtils
         ItemStack handStack = entity.getItemInHand(tmpHand);
 
 
-        if ((lenient && fi.dy.masa.malilib.util.InventoryUtils.areStacksEqualIgnoreDurability(handStack, stack)) ||
-            (lenient == false && fi.dy.masa.malilib.util.InventoryUtils.areStacksEqual(handStack, stack)))
+        if ((lenient && InventoryUtils.areStacksEqualIgnoreDurability(handStack, stack)) ||
+            (lenient && InventoryUtils.areStacksEqualIgnoreNbt(handStack, stack)) ||
+            (lenient == false && InventoryUtils.areStacksEqual(handStack, stack)))
         {
             hand = tmpHand;
         }
