@@ -1,34 +1,32 @@
-package fi.dy.masa.litematica.schematic.placement.thread;
+package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.malilib.interfaces.IThreadDaemonHandler;
 import fi.dy.masa.malilib.util.MathUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 
-public class SchematicPlacementDaemonHandler implements IThreadDaemonHandler<SchematicPlacementManagerTask>
+public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
 //	 		Thread.ofPlatform().name(Reference.MOD_NAME+" Placement Manager").daemon(true).factory();
 //			Thread.ofVirtual() .name(Reference.MOD_NAME+" Placement Manager").factory();
 	private static final ThreadFactory THREAD_FACTORY = Thread.ofPlatform().name(Reference.MOD_NAME+" Placement Manager").daemon(true).factory();
-	public static final SchematicPlacementDaemonHandler INSTANCE = new SchematicPlacementDaemonHandler();
+	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
 	private final Thread thread;
-	private final SchematicPlacementDaemonExecutor threadExecutor;
+	private final PlacementManagerDaemonExecutor threadExecutor;
 
-	private final Queue<SchematicPlacementManagerTask> queue = new LinkedBlockingQueue<>();
+	private final Queue<PlacementManagerTask> queue = new LinkedBlockingQueue<>();
 	private final float taskInterval = 50.0f;
 	private long lastTick;
 
-	private SchematicPlacementDaemonHandler()
+	private PlacementManagerDaemonHandler()
 	{
 		this.lastTick = System.currentTimeMillis();
-		this.threadExecutor = new SchematicPlacementDaemonExecutor();
+		this.threadExecutor = new PlacementManagerDaemonExecutor();
 		this.thread = THREAD_FACTORY.newThread(this.threadExecutor);
 		this.start();
 	}
@@ -56,13 +54,13 @@ public class SchematicPlacementDaemonHandler implements IThreadDaemonHandler<Sch
 	}
 
 	@Override
-	public void addTask(SchematicPlacementManagerTask newTask)
+	public void addTask(PlacementManagerTask newTask)
 	{
 		this.queue.offer(newTask);
 	}
 
 	@Override
-	public SchematicPlacementManagerTask getNextTask()
+	public PlacementManagerTask getNextTask()
 	{
 		return this.queue.poll();
 	}

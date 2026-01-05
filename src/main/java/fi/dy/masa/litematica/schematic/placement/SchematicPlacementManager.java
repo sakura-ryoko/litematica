@@ -3,6 +3,14 @@ package fi.dy.masa.litematica.schematic.placement;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -15,21 +23,22 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
+import fi.dy.masa.malilib.config.options.ConfigHotkey;
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.GuiConfirmAction;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.interfaces.IConfirmationListener;
+import fi.dy.masa.malilib.network.PacketSplitter;
+import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
-import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
-import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.data.SchematicHolder;
+import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
+import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.render.OverlayRenderer;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
@@ -41,24 +50,14 @@ import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicSetblockToMcfunct
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement.RequiredEnabled;
 import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PositionUtils.ChunkPosDistanceComparator;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper;
 import fi.dy.masa.litematica.util.RayTraceUtils.RayTraceWrapper.HitType;
+import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
-import fi.dy.masa.malilib.config.options.ConfigHotkey;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.GuiConfirmAction;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.interfaces.IConfirmationListener;
-import fi.dy.masa.malilib.network.PacketSplitter;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.JsonUtils;
-import fi.dy.masa.malilib.util.LayerMode;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.StringUtils;
 
 public class SchematicPlacementManager
 {
@@ -100,7 +99,7 @@ public class SchematicPlacementManager
     }
 
     @Deprecated
-    public void removePendingRebuildFor(ChunkPos pos)
+    protected void removePendingRebuildFor(ChunkPos pos)
     {
         this.chunksToRebuild.remove(pos);       // todo
     }
@@ -115,13 +114,13 @@ public class SchematicPlacementManager
         return (System.nanoTime() - DataManager.getClientTickStartTime()) <= 50000000L;
     }
 
-    public boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
+    protected boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
     {
         return Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() ||
                WorldUtils.isClientChunkLoaded(clientWorld, chunkX, chunkZ);
     }
 
-    public boolean hasQueuedChunks()
+    protected boolean hasQueuedChunks()
     {
         return this.chunkRebuildQueue.isEmpty() == false;
     }
@@ -300,7 +299,7 @@ public class SchematicPlacementManager
         return this.schematicPlacements;
     }
 
-    public List<SchematicPlacement> getAllSchematicsTouchingChunk(ChunkPos pos)
+    protected List<SchematicPlacement> getAllSchematicsTouchingChunk(ChunkPos pos)
     {
         return this.schematicsTouchingChunk.get(pos);
     }

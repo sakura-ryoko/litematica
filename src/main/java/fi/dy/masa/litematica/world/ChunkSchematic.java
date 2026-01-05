@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.world;
 
 import javax.annotation.Nonnull;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +42,7 @@ public class ChunkSchematic extends LevelChunk
 //        this.entityCount = 0;
     }
 
-    protected void setState(ChunkSchematicState state)
+    public void setState(ChunkSchematicState state)
     {
         this.state = state;
     }
@@ -79,6 +80,12 @@ public class ChunkSchematic extends LevelChunk
     public BlockState setBlockState(@Nonnull BlockPos pos, @Nonnull BlockState newState, @Block.UpdateFlags int flags)
     {
         BlockState stateOld = this.getBlockState(pos);
+
+        if (this.getState().atLeast(ChunkSchematicState.FILLED))
+        {
+            return stateOld;
+        }
+
         int y = pos.getY();
 
         if (stateOld == newState || y >= this.topY || y < this.bottomY)
@@ -122,7 +129,7 @@ public class ChunkSchematic extends LevelChunk
             {
                 if (newState.hasBlockEntity() && blockNew instanceof EntityBlock)
                 {
-                    BlockEntity te = this.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+                    BlockEntity te = this.createBlockEntity(pos);
 
                     if (te == null)
                     {
@@ -130,7 +137,8 @@ public class ChunkSchematic extends LevelChunk
 
                         if (te != null)
                         {
-                            this.getLevel().getChunkAt(pos).setBlockEntity(te);
+//                            this.getLevel().getChunkAt(pos).setBlockEntity(te);
+                            this.setBlockEntity(te);
                         }
                     }
                 }
@@ -138,6 +146,58 @@ public class ChunkSchematic extends LevelChunk
 //                this.isUnsaved();
 
                 return stateOld;
+            }
+        }
+    }
+
+    @Nullable
+    public BlockEntity createBlockEntity(BlockPos pos)
+    {
+        BlockState state = this.getBlockState(pos);
+
+        return !state.hasBlockEntity()
+               ? null
+               : ((EntityBlock) state.getBlock()).newBlockEntity(pos, state
+        );
+    }
+
+    @Override
+    public void setBlockEntity(@NonNull BlockEntity te)
+    {
+        BlockPos pos = te.getBlockPos();
+        BlockState currState = this.getBlockState(pos);
+
+        if (!currState.hasBlockEntity())
+        {
+            Litematica.LOGGER.error("setBlockEntity: Can't set block entity at pos '{}', because the existing state '{}' doesn't accept block entities",
+                                    pos.toShortString(), currState.toString());
+            return;
+        }
+        else
+        {
+            BlockState teState = te.getBlockState();
+
+            if (!teState.equals(currState) &&
+                te.getType().isValid(currState))
+            {
+                if (!currState.getBlock().equals(teState.getBlock()))
+                {
+                    Litematica.LOGGER.error("setBlockEntity: Can't set block entity at pos '{}', because the Tile Entities' Block '{}' doesn't match '{}'",
+                                            pos.toShortString(), currState.getBlock().toString(), teState.getBlock().toString());
+                    return;
+                }
+
+                te.setBlockState(currState);
+            }
+
+            te.setLevel(this.getLevel());
+            te.clearRemoved();
+
+            BlockEntity oldTe = this.blockEntities.put(pos.immutable(), te);
+
+            if (oldTe != null && oldTe != te)
+            {
+                oldTe.setRemoved();
             }
         }
     }

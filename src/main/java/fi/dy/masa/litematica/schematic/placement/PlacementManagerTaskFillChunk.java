@@ -1,26 +1,20 @@
-package fi.dy.masa.litematica.schematic.placement.thread;
+package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.ChunkPos;
-
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 import fi.dy.masa.litematica.util.PasteLayerBehavior;
 import fi.dy.masa.litematica.util.ReplaceBehavior;
 import fi.dy.masa.litematica.util.SchematicPlacingUtils;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
-public class SchematicPlacementManagerTaskFillChunk extends SchematicPlacementManagerTask
+public class PlacementManagerTaskFillChunk extends PlacementManagerTask
 {
 	private final Runnable task;
 
-	protected SchematicPlacementManagerTaskFillChunk(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
+	protected PlacementManagerTaskFillChunk(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
 	{
 		super(worldSupplier, chunkX, chunkZ);
 		this.task = this.buildTask();

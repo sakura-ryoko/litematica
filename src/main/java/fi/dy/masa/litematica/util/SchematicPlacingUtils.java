@@ -40,6 +40,7 @@ import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
+import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -89,8 +90,14 @@ public class SchematicPlacingUtils
                     Map<BlockPos, CompoundTag> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
                     Map<BlockPos, ScheduledTick<Block>> scheduledBlockTicks = schematic.getScheduledBlockTicksForRegion(regionName);
                     Map<BlockPos, ScheduledTick<Fluid>> scheduledFluidTicks = schematic.getScheduledFluidTicksForRegion(regionName);
+                    ChunkSchematic chunk = null;
 
-                    if (placeBlocksWithinChunk(world, chunkPos, regionName, container, blockEntityMap,
+                    if (world instanceof WorldSchematic ws)
+                    {
+                        chunk = createChunkForLoading(ws, chunkPos);
+                    }
+
+                    if (placeBlocksWithinChunk(world, chunkPos, regionName, chunk, container, blockEntityMap,
                                                origin, schematicPlacement, placement, scheduledBlockTicks,
                                                scheduledFluidTicks, replace, layerBehavior, notifyNeighbors) == false)
                     {
@@ -103,7 +110,7 @@ public class SchematicPlacingUtils
                     if (schematicPlacement.ignoreEntities() == false &&
                         placement.ignoreEntities() == false && entityList != null)
                     {
-                        placeEntitiesToWorldWithinChunk(world, chunkPos, entityList, origin, schematicPlacement, placement, layerBehavior);
+                        placeEntitiesToWorldWithinChunk(world, chunkPos, chunk, entityList, origin, schematicPlacement, placement, layerBehavior);
                     }
                 }
             }
@@ -117,6 +124,7 @@ public class SchematicPlacingUtils
     }
 
     public static boolean placeBlocksWithinChunk(Level world, ChunkPos chunkPos, String regionName,
+                                                 @Nullable ChunkSchematic chunk,
                                                  LitematicaBlockStateContainer container,
                                                  Map<BlockPos, CompoundTag> blockEntityMap,
                                                  BlockPos origin,
@@ -276,12 +284,39 @@ public class SchematicPlacingUtils
                             ((Container) te).clearContent();
                         }
 
-                        world.setBlock(pos, barrier, 0x14);
+                        if (world instanceof WorldSchematic && chunk != null)
+                        {
+                            chunk.setBlockState(pos, barrier, 0x14);
+                        }
+                        else
+                        {
+                            world.setBlock(pos, barrier, 0x14);
+                        }
                     }
 
-                    if (world.setBlock(pos, state, 0x12) && teNBT != null)
+                    boolean setBlock = false;
+
+                    if (world instanceof WorldSchematic && chunk != null)
                     {
-                        te = world.getBlockEntity(pos);
+                        chunk.setBlockState(pos, state, 0x12);
+                        setBlock = true;
+                    }
+                    else
+                    {
+                        setBlock = world.setBlock(pos, state, 0x12);
+                    }
+
+                    // world.setBlock(pos, state, 0x12)
+                    if (setBlock && teNBT != null)
+                    {
+                        if (world instanceof WorldSchematic && chunk != null)
+                        {
+                            te = chunk.createBlockEntity(pos);
+                        }
+                        else
+                        {
+                            te = world.getBlockEntity(pos);
+                        }
 
                         if (te != null)
                         {
@@ -309,9 +344,27 @@ public class SchematicPlacingUtils
                             {
                                 Litematica.LOGGER.warn("Failed to load BlockEntity data for {} @ {}", state, pos);
                             }
+
+                            if (world instanceof WorldSchematic && chunk != null)
+                            {
+                                chunk.setBlockEntity(te);
+                            }
                         }
                     }
                 }
+            }
+        }
+
+        if (world instanceof WorldSchematic ws)
+        {
+            if (chunk != null)
+            {
+                chunk.setState(ChunkSchematicState.FILLED);
+                ws.getChunkProvider().replaceChunk(chunkPos.x,  chunkPos.z, chunk);
+            }
+            else
+            {
+                ws.getChunkProvider().setChunkState(chunkPos.x, chunkPos.z, ChunkSchematicState.FILLED);
             }
         }
 
@@ -391,11 +444,6 @@ public class SchematicPlacingUtils
             }
         }
 
-        if (world instanceof WorldSchematic worldSchematic)
-        {
-            worldSchematic.getChunkProvider().setChunkState(chunkPos.x, chunkPos.z, ChunkSchematicState.FILLED);
-        }
-
         return true;
     }
 
@@ -414,6 +462,7 @@ public class SchematicPlacingUtils
     }
 
     public static void placeEntitiesToWorldWithinChunk(Level world, ChunkPos chunkPos,
+                                                       @Nullable ChunkSchematic chunk,
                                                        List<EntityInfo> entityList,
                                                        BlockPos origin,
                                                        SchematicPlacement schematicPlacement,
@@ -589,5 +638,18 @@ public class SchematicPlacingUtils
         }
 
         return DataManager.getRenderLayerRange().isPositionWithinRange((int) pos.x(), (int) pos.y(), (int) pos.z());
+    }
+
+    public static ChunkSchematic createChunkForLoading(WorldSchematic world, int cx, int cz)
+    {
+        return createChunkForLoading(world, new ChunkPos(cx, cz));
+    }
+
+    public static ChunkSchematic createChunkForLoading(WorldSchematic world, ChunkPos pos)
+    {
+        ChunkSchematic chunk = new ChunkSchematic(world, pos);
+        chunk.setState(ChunkSchematicState.UNLOADED);
+
+        return chunk;
     }
 }

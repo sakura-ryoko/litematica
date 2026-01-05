@@ -1,8 +1,10 @@
 package fi.dy.masa.litematica.materials;
 
 import java.util.IdentityHashMap;
+import java.util.List;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -30,13 +32,14 @@ public class MaterialCache
     protected final IdentityHashMap<BlockState, ItemStack> displayItemsForStates = new IdentityHashMap<>();
     protected final WorldSchematic tempWorld;
     protected final BlockPos checkPos;
+    private final List<Pair<Integer, Integer>> tempChunks;          // TODO
 
     private MaterialCache()
     {
         this.tempWorld = SchematicWorldHandler.createSchematicWorld(null);
         this.checkPos = new BlockPos(8, 0, 8);
 
-        WorldUtils.loadChunksSchematicWorld(this.tempWorld, this.checkPos, new Vec3i(1, 1, 1));
+        this.tempChunks = WorldUtils.loadChunksSchematicWorld(this.tempWorld, this.checkPos, new Vec3i(1, 1, 1));
     }
 
     public static MaterialCache getInstance()

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.data.Schema;
@@ -37,10 +39,10 @@ import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.IStateFixer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConverter;
-import fi.dy.masa.litematica.util.DataFixerMode;
-import fi.dy.masa.litematica.util.EntityUtils;
-import fi.dy.masa.litematica.util.FileType;
-import fi.dy.masa.litematica.util.PositionUtils;
+import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.world.ChunkSchematic;
+import fi.dy.masa.litematica.world.ChunkSchematicState;
+import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class SchematicaSchematic
 {
@@ -201,7 +203,7 @@ public class SchematicaSchematic
         }
     }
 
-    public void placeSchematicDirectlyToChunks(Level world, BlockPos posStart, StructurePlaceSettings placement)
+    public void placeSchematicDirectlyToChunks(WorldSchematic world, BlockPos posStart, StructurePlaceSettings placement)
     {
         final int width = this.size.getX();
         final int height = this.size.getY();
@@ -229,12 +231,8 @@ public class SchematicaSchematic
                     final int zMinChunk = Math.max(cz << 4, posMin.getZ());
                     final int xMaxChunk = Math.min((cx << 4) + 15, posMax.getX());
                     final int zMaxChunk = Math.min((cz << 4) + 15, posMax.getZ());
-                    LevelChunk chunk = world.getChunk(cx, cz);
-
-                    if (chunk == null)
-                    {
-                        continue;
-                    }
+//                    ChunkSchematic existing = world.getChunk(cx, cz);
+                    ChunkSchematic chunk = SchematicPlacingUtils.createChunkForLoading(world, cx, cz);
 
                     for (int y = posMin.getY(), ySrc = 0; ySrc < height; ++y, ++ySrc)
                     {
@@ -259,7 +257,7 @@ public class SchematicaSchematic
 
                                 if (teNBT != null)
                                 {
-                                    BlockEntity te = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+                                    BlockEntity te = chunk.createBlockEntity(pos);
 
                                     if (te != null)
                                     {
@@ -268,15 +266,18 @@ public class SchematicaSchematic
                                             ((Container) te).clearContent();
                                         }
 
-                                        world.setBlock(pos, Blocks.BARRIER.defaultBlockState(), 0x14);
+//                                        world.setBlock(pos, Blocks.BARRIER.defaultBlockState(), 0x14);
+                                        chunk.setBlockState(pos, Blocks.BARRIER.defaultBlockState(), 0x14);
                                     }
                                 }
 
-                                chunk.setBlockState(pos, state, 3);
+//                                chunk.setBlockState(pos, state, 3);
+                                chunk.setBlockState(pos, state, 0x12);
 
                                 if (teNBT != null)
                                 {
-                                    BlockEntity te = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+//                                    BlockEntity te = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+                                    BlockEntity te = chunk.createBlockEntity(pos);
 
                                     if (te != null)
                                     {
@@ -293,11 +294,16 @@ public class SchematicaSchematic
                                         {
                                             Litematica.LOGGER.warn("Failed to load TileEntity data for {} @ {}", state, pos);
                                         }
+
+                                        chunk.setBlockEntity(te);
                                     }
                                 }
                             }
                         }
                     }
+
+                    chunk.setState(ChunkSchematicState.FILLED);
+                    world.getChunkProvider().replaceChunk(cx, cz, chunk);
                 }
             }
 

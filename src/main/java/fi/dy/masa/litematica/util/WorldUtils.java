@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -116,7 +118,7 @@ public class WorldUtils
 
         WorldSchematic world = SchematicWorldHandler.createSchematicWorld(null);
         BlockPos size = new BlockPos(origSchematic.getTotalSize());
-        loadChunksSchematicWorld(world, BlockPos.ZERO, size);
+        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, size);     // TODO FIXME
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(origSchematic, BlockPos.ZERO);
         origSchematic.placeToWorld(world, schematicPlacement, false); // TODO use a per-chunk version for a bit more speed
 
@@ -236,7 +238,7 @@ public class WorldUtils
 
         WorldSchematic world = SchematicWorldHandler.createSchematicWorld(null);
 
-        loadChunksSchematicWorld(world, BlockPos.ZERO, schematic.getSize());
+        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, schematic.getSize());      // TODO FIXME
         StructurePlaceSettings placementSettings = new StructurePlaceSettings();
         placementSettings.setIgnoreEntities(ignoreEntities);
         schematic.placeSchematicDirectlyToChunks(world, BlockPos.ZERO, placementSettings);
@@ -296,7 +298,7 @@ public class WorldUtils
 
         WorldSchematic world = SchematicWorldHandler.createSchematicWorld(null);
         BlockPos size = new BlockPos(origStructure.getTotalSize());
-        loadChunksSchematicWorld(world, BlockPos.ZERO, size);
+        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, size);             // TODO FIXME
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(origStructure, BlockPos.ZERO);
         origStructure.placeToWorld(world, schematicPlacement, false); // TODO use a per-chunk version for a bit more speed
 
@@ -452,7 +454,7 @@ public class WorldUtils
         WorldSchematic world = SchematicWorldHandler.createSchematicWorld(null);
 
         BlockPos size = new BlockPos(litematicaSchematic.getTotalSize());
-        loadChunksSchematicWorld(world, BlockPos.ZERO, size);
+        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, size);         // TODO FIXME
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(litematicaSchematic, BlockPos.ZERO);
         litematicaSchematic.placeToWorld(world, schematicPlacement, false); // TODO use a per-chunk version for a bit more speed
 
@@ -523,8 +525,9 @@ public class WorldUtils
         return test;
     }
 
-    public static void loadChunksSchematicWorld(WorldSchematic world, BlockPos origin, Vec3i areaSize)
+    public static List<Pair<Integer, Integer>> loadChunksSchematicWorld(WorldSchematic world, BlockPos origin, Vec3i areaSize)
     {
+        List<Pair<Integer, Integer>> chunks = new ArrayList<>();
         BlockPos posEnd = origin.offset(PositionUtils.getRelativeEndPositionFromAreaSize(areaSize));
         BlockPos posMin = PositionUtils.getMinCorner(origin, posEnd);
         BlockPos posMax = PositionUtils.getMaxCorner(origin, posEnd);
@@ -537,9 +540,12 @@ public class WorldUtils
         {
             for (int cx = cxMin; cx <= cxMax; ++cx)
             {
-                world.getChunkProvider().loadChunk(cx, cz);
+                world.getChunkProvider().loadChunk(cx, cz);         // TODO FIXME
+                chunks.add(Pair.of(cx, cz));
             }
         }
+
+        return chunks;
     }
 
     public static void setToolModeBlockState(ToolMode mode, boolean primary, Minecraft mc)

@@ -94,7 +94,14 @@ public class SchematicWorldHandler
             if (this.world != null)
             {
                 this.world.clearEntities();
+
+                try
+                {
+                    this.world.close();
+                }
+                catch (Exception ignored) {}
             }
+
             this.world = null;
             LitematicaRenderer.getInstance().onSchematicWorldChanged(null);
         }

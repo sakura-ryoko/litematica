@@ -58,6 +58,8 @@ import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.mixin.world.IMixinWorldTickScheduler;
 import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
+import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkDirect;
+import fi.dy.masa.litematica.scheduler.tasks.TaskProcessChunkBase;
 import fi.dy.masa.litematica.schematic.container.ILitematicaBlockStatePalette;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers;
@@ -204,6 +206,9 @@ public class LitematicaSchematic
         return builder.build();
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     @Nullable
     public static LitematicaSchematic createFromWorld(Level world, AreaSelection area, SchematicSaveInfo info,
                                                       String author, IStringConsumer feedback)
@@ -368,11 +373,17 @@ public class LitematicaSchematic
         this.entities.put(subRegionName, schematic.getEntities());
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     public boolean placeToWorld(Level world, SchematicPlacement schematicPlacement, boolean notifyNeighbors)
     {
         return this.placeToWorld(world, schematicPlacement, notifyNeighbors, false);
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     public boolean placeToWorld(Level world, SchematicPlacement schematicPlacement, boolean notifyNeighbors, boolean ignoreEntities)
     {
         WorldUtils.setShouldPreventBlockUpdates(world, true);
@@ -425,6 +436,9 @@ public class LitematicaSchematic
         return true;
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     private boolean placeBlocksToWorld(Level world, BlockPos origin, BlockPos regionPos, BlockPos regionSize,
             SchematicPlacement schematicPlacement, SubRegionPlacement placement,
             LitematicaBlockStateContainer container, Map<BlockPos, CompoundTag> tileMap,
@@ -623,6 +637,9 @@ public class LitematicaSchematic
         return true;
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     private void placeEntitiesToWorld(Level world, BlockPos origin, BlockPos regionPos, BlockPos regionSize, SchematicPlacement schematicPlacement, SubRegionPlacement placement, List<EntityInfo> entityList)
     {
         BlockPos regionPosRelTransformed = PositionUtils.getTransformedBlockPos(regionPos, schematicPlacement.getMirror(), schematicPlacement.getRotation());
@@ -668,6 +685,9 @@ public class LitematicaSchematic
         }
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     private void takeEntitiesFromWorld(Level world, List<Box> boxes, BlockPos origin)
     {
         for (Box box : boxes)
@@ -700,6 +720,9 @@ public class LitematicaSchematic
         }
     }
 
+    /**
+     * This is used by {@link fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic}
+     */
     public void takeEntitiesFromWorldWithinChunk(Level world, int chunkX, int chunkZ,
             ImmutableMap<String, IntBoundingBox> volumes, ImmutableMap<String, Box> boxes,
             Set<UUID> existingEntities, BlockPos origin)
@@ -794,6 +817,9 @@ public class LitematicaSchematic
         }
     }
 
+    /**
+     * This version is not Chunk-Specific.  It is only used by {@link WorldUtils} during conversions.
+     */
     @SuppressWarnings("unchecked")
     private void takeBlocksFromWorld(Level world, List<Box> boxes, SchematicSaveInfo info)
     {
@@ -1018,6 +1044,9 @@ public class LitematicaSchematic
                (isExposed(world, posUp) || supportsExposedBlocks(world, posUp));
     }
 
+    /**
+     * This is used by both {@link TaskProcessChunkBase} and {@link TaskPasteSchematicPerChunkDirect}
+     */
     @SuppressWarnings("unchecked")
     public void takeBlocksFromWorldWithinChunk(Level world, ImmutableMap<String, IntBoundingBox> volumes,
                                                ImmutableMap<String, Box> boxes, SchematicSaveInfo info)

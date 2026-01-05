@@ -1,11 +1,11 @@
-package fi.dy.masa.litematica.schematic.placement.thread;
+package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import fi.dy.masa.malilib.interfaces.IThreadDaemonExecutor;
 import fi.dy.masa.litematica.Litematica;
 
-public class SchematicPlacementDaemonExecutor implements IThreadDaemonExecutor<SchematicPlacementManagerTask>
+public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<PlacementManagerTask>
 {
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -34,7 +34,7 @@ public class SchematicPlacementDaemonExecutor implements IThreadDaemonExecutor<S
 		{
 			try
 			{
-				SchematicPlacementManagerTask task = SchematicPlacementDaemonHandler.INSTANCE.getNextTask();
+				PlacementManagerTask task = PlacementManagerDaemonHandler.INSTANCE.getNextTask();
 
 				if (task != null)
 				{
@@ -51,7 +51,7 @@ public class SchematicPlacementDaemonExecutor implements IThreadDaemonExecutor<S
 	}
 
 	@Override
-	public void processTask(SchematicPlacementManagerTask task)
+	public void processTask(PlacementManagerTask task)
 	{
 		task.run();
 	}

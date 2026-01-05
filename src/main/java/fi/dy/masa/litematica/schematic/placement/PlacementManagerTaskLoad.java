@@ -1,20 +1,18 @@
-package fi.dy.masa.litematica.schematic.placement.thread;
+package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
-public class SchematicPlacementManagerTaskLoad extends SchematicPlacementManagerTask
+public class PlacementManagerTaskLoad extends PlacementManagerTask
 {
 	private final Runnable task;
 
-	protected SchematicPlacementManagerTaskLoad(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
+	protected PlacementManagerTaskLoad(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
 	{
 		super(worldSupplier, chunkX, chunkZ);
 		this.task = this.buildTask();
@@ -47,12 +45,12 @@ public class SchematicPlacementManagerTaskLoad extends SchematicPlacementManager
 				return;
 			}
 
-			if (DataManager.getSchematicPlacementManager().canHandleChunk(level, this.cx(), this.cz()))
+			if (manager.canHandleChunk(level, this.cx(), this.cz()))
 			{
 				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
 				{
 					worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
-					DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
+					manager.setVisibleSubChunksNeedsUpdate();
 				}
 
 				worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());

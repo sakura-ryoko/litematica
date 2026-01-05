@@ -1,15 +1,15 @@
-package fi.dy.masa.litematica.schematic.placement.thread;
+package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.function.Supplier;
 
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
-public class SchematicPlacementManagerTaskUnload extends SchematicPlacementManagerTask
+public class PlacementManagerTaskUnload extends PlacementManagerTask
 {
 	private final Runnable task;
 
-	protected SchematicPlacementManagerTaskUnload(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
+	protected PlacementManagerTaskUnload(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
 	{
 		super(worldSupplier, chunkX, chunkZ);
 		this.task = this.buildTask();

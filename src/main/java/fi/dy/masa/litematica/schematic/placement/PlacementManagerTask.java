@@ -1,15 +1,13 @@
-package fi.dy.masa.litematica.schematic.placement.thread;
+package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.function.Supplier;
-import org.jspecify.annotations.Nullable;
 
 import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.malilib.interfaces.DefaultThreadTaskBase;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
-public abstract class SchematicPlacementManagerTask extends DefaultThreadTaskBase
+public abstract class PlacementManagerTask extends DefaultThreadTaskBase
 {
 	private final Supplier<WorldSchematic> worldSupplier;
 	private final int chunkX;
@@ -17,7 +15,7 @@ public abstract class SchematicPlacementManagerTask extends DefaultThreadTaskBas
 	private final ChunkPos chunkPos;
 	private final Long chunkLong;
 
-	protected SchematicPlacementManagerTask(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
+	protected PlacementManagerTask(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ)
 	{
 		super();
 		this.worldSupplier = worldSupplier;
@@ -27,7 +25,7 @@ public abstract class SchematicPlacementManagerTask extends DefaultThreadTaskBas
 		this.chunkLong = this.chunkPos.toLong();
 	}
 
-	protected SchematicPlacementManagerTask(Supplier<WorldSchematic> worldSupplier, ChunkPos chunkPos)
+	protected PlacementManagerTask(Supplier<WorldSchematic> worldSupplier, ChunkPos chunkPos)
 	{
 		super();
 		this.worldSupplier = worldSupplier;
@@ -37,7 +35,7 @@ public abstract class SchematicPlacementManagerTask extends DefaultThreadTaskBas
 		this.chunkLong = chunkPos.toLong();
 	}
 
-	protected SchematicPlacementManagerTask(Supplier<WorldSchematic> worldSupplier, Long longPos)
+	protected PlacementManagerTask(Supplier<WorldSchematic> worldSupplier, Long longPos)
 	{
 		super();
 		this.worldSupplier = worldSupplier;
