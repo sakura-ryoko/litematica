@@ -36,6 +36,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ScheduledTick;
@@ -60,6 +61,7 @@ import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkDirect;
 import fi.dy.masa.litematica.scheduler.tasks.TaskProcessChunkBase;
+import fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic;
 import fi.dy.masa.litematica.schematic.container.ILitematicaBlockStatePalette;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers;
@@ -73,7 +75,9 @@ import fi.dy.masa.litematica.schematic.transmit.SchematicBufferManager;
 import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
+import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class LitematicaSchematic
 {
@@ -692,7 +696,7 @@ public class LitematicaSchematic
     {
         for (Box box : boxes)
         {
-            net.minecraft.world.phys.AABB bb = PositionUtils.createEnclosingAABB(box.getPos1(), box.getPos2());
+            AABB bb = PositionUtils.createEnclosingAABB(box.getPos1(), box.getPos2());
             BlockPos regionPosAbs = box.getPos1();
             List<EntityInfo> list = new ArrayList<>();
             List<Entity> entities = world.getEntities((Entity) null, bb, EntityUtils.NOT_PLAYER);
@@ -721,7 +725,7 @@ public class LitematicaSchematic
     }
 
     /**
-     * This is used by {@link fi.dy.masa.litematica.scheduler.tasks.TaskSaveSchematic}
+     * This is used by {@link TaskSaveSchematic}
      */
     public void takeEntitiesFromWorldWithinChunk(Level world, int chunkX, int chunkZ,
             ImmutableMap<String, IntBoundingBox> volumes, ImmutableMap<String, Box> boxes,
@@ -738,7 +742,7 @@ public class LitematicaSchematic
                 continue;
             }
 
-            net.minecraft.world.phys.AABB bb = PositionUtils.createAABBFrom(entry.getValue());
+            AABB bb = PositionUtils.createAABBFrom(entry.getValue());
             List<Entity> entities = world.getEntities((Entity) null, bb, EntityUtils.NOT_PLAYER);
             BlockPos regionPosAbs = box.getPos1();
 
@@ -3116,7 +3120,7 @@ public class LitematicaSchematic
             this.nbt = nbt;
         }
 
-        public net.minecraft.world.phys.Vec3 toVanilla()
+        public Vec3 toVanilla()
         {
             return this.posVec;
         }

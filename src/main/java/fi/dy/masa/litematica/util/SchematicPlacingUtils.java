@@ -94,7 +94,14 @@ public class SchematicPlacingUtils
 
                     if (world instanceof WorldSchematic ws)
                     {
-                        chunk = createChunkForLoading(ws, chunkPos);
+                        if (ws.getChunkProvider().getChunkState(chunkPos.x, chunkPos.z).atLeast(ChunkSchematicState.FILLED))
+                        {
+                            chunk = ws.getChunkProvider().getChunkForLighting(chunkPos.x, chunkPos.z);
+                        }
+                        else
+                        {
+                            chunk = createChunkForLoading(ws, chunkPos);
+                        }
                     }
 
                     if (placeBlocksWithinChunk(world, chunkPos, regionName, chunk, container, blockEntityMap,
@@ -359,7 +366,11 @@ public class SchematicPlacingUtils
         {
             if (chunk != null)
             {
-                chunk.setState(ChunkSchematicState.FILLED);
+                if (!chunk.getState().atLeast(ChunkSchematicState.FILLED))
+                {
+                    chunk.setState(ChunkSchematicState.FILLED);
+                }
+
                 ws.getChunkProvider().replaceChunk(chunkPos.x,  chunkPos.z, chunk);
             }
             else

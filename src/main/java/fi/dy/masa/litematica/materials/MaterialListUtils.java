@@ -3,6 +3,8 @@ package fi.dy.masa.litematica.materials;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
@@ -13,11 +15,10 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.ItemType;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 
 public class MaterialListUtils
 {

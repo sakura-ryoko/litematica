@@ -25,12 +25,12 @@ public class MaterialCache
     protected final IdentityHashMap<BlockState, ItemStack> buildItemsForStates = new IdentityHashMap<>();
     protected final IdentityHashMap<BlockState, ItemStack> displayItemsForStates = new IdentityHashMap<>();
 //    protected final WorldSchematic tempWorld;
-    protected final BlockPos checkPos;
+//    protected final BlockPos checkPos;
 
     private MaterialCache()
     {
 //        this.tempWorld = SchematicWorldHandler.createSchematicWorld(null);
-        this.checkPos = new BlockPos(8, 0, 8);
+//        this.checkPos = new BlockPos(8, 0, 8);
 //        this.tempChunks = WorldUtils.loadChunksSchematicWorld(this.tempWorld, this.checkPos, new Vec3i(1, 1, 1));
     }
 
@@ -62,7 +62,7 @@ public class MaterialCache
         return stack;
     }
 
-    public ItemStack getRequiredBuildItemForState(BlockState state, Level world, BlockPos pos)
+    public ItemStack getRequiredBuildItemForState(BlockState state, @Nullable Level world, BlockPos pos)
     {
         ItemStack stack = this.buildItemsForStates.get(state);
 
@@ -91,7 +91,7 @@ public class MaterialCache
         return getItemForStateFromWorld(state, null, BlockPos.ZERO, isBuildItem);
     }
 
-    protected ItemStack getItemForStateFromWorld(BlockState state, Level world, BlockPos pos, boolean isBuildItem)
+    protected ItemStack getItemForStateFromWorld(BlockState state, @Nullable Level world, BlockPos pos, boolean isBuildItem)
     {
         ItemStack stack = isBuildItem ? this.getStateToItemOverride(state) : null;
 
@@ -177,14 +177,6 @@ public class MaterialCache
 
 //            return ImmutableList.of(new ItemStack(Blocks.FLOWER_POT), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state, false));
         }
-//        else if (block instanceof LecternBlock && state.get(LecternBlock.HAS_BOOK))
-//        {
-//            return ImmutableList.of(new ItemStack(Blocks.LECTERN), ((IMixinAbstractBlock) block).litematica_getPickStack(world, pos, state, false));
-//        }
-//        else if (block instanceof ChiseledBookshelfBlock)
-//        {
-//            // Block Entity Stuff
-//        }
         else if (block instanceof AbstractCauldronBlock && block != Blocks.CAULDRON)
         {
             if (block instanceof LavaCauldronBlock)

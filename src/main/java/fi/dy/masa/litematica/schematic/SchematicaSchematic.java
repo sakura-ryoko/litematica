@@ -232,7 +232,16 @@ public class SchematicaSchematic
                     final int xMaxChunk = Math.min((cx << 4) + 15, posMax.getX());
                     final int zMaxChunk = Math.min((cz << 4) + 15, posMax.getZ());
 //                    ChunkSchematic existing = world.getChunk(cx, cz);
-                    ChunkSchematic chunk = SchematicPlacingUtils.createChunkForLoading(world, cx, cz);
+                    ChunkSchematic chunk;
+
+                    if (world.getChunkProvider().getChunkState(cx, cz).atLeast(ChunkSchematicState.FILLED))
+                    {
+                        chunk = world.getChunkProvider().getChunkForLighting(cx, cz);
+                    }
+                    else
+                    {
+                        chunk = SchematicPlacingUtils.createChunkForLoading(world, cx, cz);
+                    }
 
                     for (int y = posMin.getY(), ySrc = 0; ySrc < height; ++y, ++ySrc)
                     {

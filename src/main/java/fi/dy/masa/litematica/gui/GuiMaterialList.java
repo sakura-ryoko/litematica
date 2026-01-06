@@ -239,17 +239,8 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         return new WidgetListMaterialList(listX, listY, this.getBrowserWidth(), this.getBrowserHeight(), this);
     }
 
-    private static class ButtonListener implements IButtonActionListener
+    private record ButtonListener(Type type, GuiMaterialList parent) implements IButtonActionListener
     {
-        private final GuiMaterialList parent;
-        private final Type type;
-
-        public ButtonListener(Type type, GuiMaterialList parent)
-        {
-            this.parent = parent;
-            this.type = type;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
@@ -268,7 +259,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     break;
 
                 case HIDE_AVAILABLE:
-                    materialList.setHideAvailable(! materialList.getHideAvailable());
+                    materialList.setHideAvailable(!materialList.getHideAvailable());
                     materialList.refreshPreFilteredList();
                     materialList.recreateFilteredList();
                     break;
@@ -322,7 +313,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     final String dateExt = "_" + TimeFormat.REGULAR.formatNow();
                     String fileName = "raw_material_list_recipe_details" + (missingOnly ? "_missing_only" : "") + dateExt;
                     MaterialListJson jsonWriter = new MaterialListJson();
-                    Path jsonFile = jsonDir.resolve(fileName+".json");
+                    Path jsonFile = jsonDir.resolve(fileName + ".json");
                     MaterialListJsonCache cache = new MaterialListJsonCache();
 
                     if (!this.getMaterialListForJson(materialList, jsonWriter, cache, missingOnly, craftingOnly))
@@ -345,7 +336,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     }
 
                     fileName = "raw_material_list_recipe_steps" + (missingOnly ? "_missing_only" : "") + dateExt;
-                    jsonFile = jsonDir.resolve(fileName+".json");
+                    jsonFile = jsonDir.resolve(fileName + ".json");
 
                     if (!jsonWriter.writeCacheFlatJson(cache, jsonFile, mc))
                     {
@@ -357,7 +348,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     }
 
                     fileName = "raw_material_list_simplified" + (missingOnly ? "_missing_only" : "") + dateExt;
-                    jsonFile = jsonDir.resolve(fileName+".json");
+                    jsonFile = jsonDir.resolve(fileName + ".json");
 
                     if (jsonWriter.writeCacheCombinedJson(cache, jsonFile, mc))
                     {
@@ -424,14 +415,14 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
         public enum Type
         {
-            REFRESH_LIST        ("litematica.gui.button.material_list.refresh_list"),
-            LIST_TYPE           ("litematica.gui.button.material_list.list_type"),
-            HIDE_AVAILABLE      ("litematica.gui.button.material_list.hide_available"),
-            TOGGLE_INFO_HUD     ("litematica.gui.button.material_list.toggle_info_hud"),
-            CLEAR_IGNORED       ("litematica.gui.button.material_list.clear_ignored"),
-            CLEAR_CACHE         ("litematica.gui.button.material_list.clear_cache"),
-            WRITE_TO_FILE       ("litematica.gui.button.material_list.write_to_file"),
-            WRITE_TO_JSON       ("litematica.gui.button.material_list.write_to_json"),
+            REFRESH_LIST("litematica.gui.button.material_list.refresh_list"),
+            LIST_TYPE("litematica.gui.button.material_list.list_type"),
+            HIDE_AVAILABLE("litematica.gui.button.material_list.hide_available"),
+            TOGGLE_INFO_HUD("litematica.gui.button.material_list.toggle_info_hud"),
+            CLEAR_IGNORED("litematica.gui.button.material_list.clear_ignored"),
+            CLEAR_CACHE("litematica.gui.button.material_list.clear_cache"),
+            WRITE_TO_FILE("litematica.gui.button.material_list.write_to_file"),
+            WRITE_TO_JSON("litematica.gui.button.material_list.write_to_json"),
             ;
 
             private final String translationKey;
@@ -453,17 +444,9 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         }
     }
 
-    private static class MultiplierListener implements ITextFieldListener<GuiTextFieldInteger>
+    private record MultiplierListener(MaterialListBase materialList,
+                                      GuiMaterialList gui) implements ITextFieldListener<GuiTextFieldInteger>
     {
-        private final MaterialListBase materialList;
-        private final GuiMaterialList gui;
-
-        private MultiplierListener(MaterialListBase materialList, GuiMaterialList gui)
-        {
-            this.materialList = materialList;
-            this.gui = gui;
-        }
-
         @Override
         public boolean onTextChange(GuiTextFieldInteger textField)
         {
