@@ -415,14 +415,14 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
         public enum Type
         {
-            REFRESH_LIST("litematica.gui.button.material_list.refresh_list"),
-            LIST_TYPE("litematica.gui.button.material_list.list_type"),
-            HIDE_AVAILABLE("litematica.gui.button.material_list.hide_available"),
-            TOGGLE_INFO_HUD("litematica.gui.button.material_list.toggle_info_hud"),
-            CLEAR_IGNORED("litematica.gui.button.material_list.clear_ignored"),
-            CLEAR_CACHE("litematica.gui.button.material_list.clear_cache"),
-            WRITE_TO_FILE("litematica.gui.button.material_list.write_to_file"),
-            WRITE_TO_JSON("litematica.gui.button.material_list.write_to_json"),
+            REFRESH_LIST        ("litematica.gui.button.material_list.refresh_list"),
+            LIST_TYPE           ("litematica.gui.button.material_list.list_type"),
+            HIDE_AVAILABLE      ("litematica.gui.button.material_list.hide_available"),
+            TOGGLE_INFO_HUD     ("litematica.gui.button.material_list.toggle_info_hud"),
+            CLEAR_IGNORED       ("litematica.gui.button.material_list.clear_ignored"),
+            CLEAR_CACHE         ("litematica.gui.button.material_list.clear_cache"),
+            WRITE_TO_FILE       ("litematica.gui.button.material_list.write_to_file"),
+            WRITE_TO_JSON       ("litematica.gui.button.material_list.write_to_json"),
             ;
 
             private final String translationKey;
