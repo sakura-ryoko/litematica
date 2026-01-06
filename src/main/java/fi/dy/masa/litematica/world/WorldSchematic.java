@@ -3,6 +3,10 @@ package fi.dy.masa.litematica.world;
 import java.util.*;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
+import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -53,12 +57,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
-import com.google.common.collect.ImmutableList;
-import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import fi.dy.masa.malilib.util.WorldUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
@@ -285,6 +285,18 @@ public class WorldSchematic extends Level
                 });
 
         this.unloadedEntities(list.size());
+        this.checkForStaleEntities();
+    }
+
+    private void checkForStaleEntities()
+    {
+        if (this.entityMap.isEmpty() && this.entityLookup.size() > 0)
+        {
+            this.entityLookup.reset();
+            this.entityMap.clear();
+            this.entityCount = 0;
+            this.nextEntityId = 0;
+        }
     }
 
     @Nullable

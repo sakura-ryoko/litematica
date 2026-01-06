@@ -205,8 +205,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
                 });
     }
 
-    @Override
-    public void close() throws Exception
+    protected void reset()
     {
         synchronized (this.entityMap)
         {
@@ -217,5 +216,11 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         {
             this.uuidMap.clear();
         }
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        this.reset();
     }
 }

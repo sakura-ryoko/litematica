@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -112,6 +113,7 @@ public class SchematicPlacementManager
     protected boolean hasTimeToExecuteMoreTasks()
     {
         return (System.nanoTime() - DataManager.getClientTickStartTime()) <= 50000000L;
+//        return true;
     }
 
     protected boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
@@ -136,7 +138,8 @@ public class SchematicPlacementManager
             {
                 for (long posLong : this.chunksToUnload)
                 {
-                    this.unloadSchematicChunk(worldSchematic, ChunkPos.getX(posLong), ChunkPos.getZ(posLong));
+//                    this.unloadSchematicChunk(worldSchematic, ChunkPos.getX(posLong), ChunkPos.getZ(posLong));
+                    PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, ChunkPos.getX(posLong), ChunkPos.getZ(posLong)));
                 }
             }
 
@@ -175,46 +178,51 @@ public class SchematicPlacementManager
                     continue;
                 }
 
-                if (this.canHandleChunk(worldClient, pos.x, pos.z))
-                {
-                    // Wipe the old chunk if it exists
-                    this.unloadSchematicChunk(worldSchematic, pos.x, pos.z);
+                PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskLoad(this.worldSupplier, pos.x, pos.z));
 
-                    //System.out.printf("loading chunk at %s\n", pos);
-                    worldSchematic.getChunkProvider().loadChunk(pos.x, pos.z);
-                    this.visibleChunksNeedsUpdate = true;
-                }
+//                if (this.canHandleChunk(worldClient, pos.x, pos.z))
+//                {
+//                    // Wipe the old chunk if it exists
+//                    this.unloadSchematicChunk(worldSchematic, pos.x, pos.z);
+//
+//                    //System.out.printf("loading chunk at %s\n", pos);
+//                    worldSchematic.getChunkProvider().loadChunk(pos.x, pos.z);
+//                    this.visibleChunksNeedsUpdate = true;
+//                }
 
                 // TODO Remove
-                if (worldSchematic.getChunkProvider().hasChunk(pos.x, pos.z))
-                {
-                    //System.out.printf("placing at %s\n", pos);
-                    Collection<SchematicPlacement> placements = this.schematicsTouchingChunk.get(pos);
+//                if (worldSchematic.getChunkProvider().hasChunk(pos.x, pos.z))
+//                {
+//                    //System.out.printf("placing at %s\n", pos);
+//                    Collection<SchematicPlacement> placements = this.schematicsTouchingChunk.get(pos);
+//
+//                    if (placements.isEmpty() == false)
+//                    {
+//                        ReplaceBehavior behavior = (ReplaceBehavior) Configs.Generic.PLACEMENT_REPLACE_BEHAVIOR.getOptionListValue();
+//                        PasteLayerBehavior layers = (PasteLayerBehavior) Configs.Generic.PASTE_LAYER_BEHAVIOR.getOptionListValue();
+//
+//                        for (SchematicPlacement placement : placements)
+//                        {
+//                            if (placement.isEnabled())
+//                            {
+//                                SchematicPlacingUtils.placeToWorldWithinChunk(worldSchematic, pos, placement, behavior, layers, false);
+//                            }
+//                        }
+//
+//                        worldSchematic.scheduleChunkRenders(pos.x, pos.z);
+//                    }
+//
+//                    this.chunksToRebuild.remove(pos);       // todo
+//                }
 
-                    if (placements.isEmpty() == false)
-                    {
-                        ReplaceBehavior behavior = (ReplaceBehavior) Configs.Generic.PLACEMENT_REPLACE_BEHAVIOR.getOptionListValue();
-                        PasteLayerBehavior layers = (PasteLayerBehavior) Configs.Generic.PASTE_LAYER_BEHAVIOR.getOptionListValue();
-
-                        for (SchematicPlacement placement : placements)
-                        {
-                            if (placement.isEnabled())
-                            {
-                                SchematicPlacingUtils.placeToWorldWithinChunk(worldSchematic, pos, placement, behavior, layers, false);
-                            }
-                        }
-
-                        worldSchematic.scheduleChunkRenders(pos.x, pos.z);
-                    }
-
-                    this.chunksToRebuild.remove(pos);       // todo
-                }
+                PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskFillChunk(this.worldSupplier, pos.x, pos.z));
 
                 queueIterator.remove();
             }
 
-            // TODO -- Plan
-            LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
+            // TODO -- Plan (Daemon Handler when tasks complete)
+//            LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
+            PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskNeedsUpdate(this.worldSupplier));
         }
     }
 
@@ -229,6 +237,7 @@ public class SchematicPlacementManager
         if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
         {
             this.chunksToUnload.add(ChunkPos.asLong(chunkX, chunkZ));       // todo
+//            PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, chunkX, chunkZ));
         }
     }
 
@@ -261,7 +270,9 @@ public class SchematicPlacementManager
                 int minY = worldSchematic.getMinY();
                 int maxY = worldSchematic.getMaxY() - 1;
 
-                for (long posLong : worldSchematic.getChunkSource().getLoadedChunks().keySet())
+                ImmutableList<Long> keySet = worldSchematic.getChunkSource().getLoadedKeySet();
+
+                for (long posLong : keySet)
                 {
                     int minX = ChunkPos.getX(posLong) << 4;
                     int minZ = ChunkPos.getZ(posLong) << 4;
@@ -499,6 +510,7 @@ public class SchematicPlacementManager
                 }
 
                 this.chunksToUnload.remove(pos.toLong());       // todo
+//                PlacementManagerDaemonHandler.INSTANCE.removeTasksMatching(pos.x, pos.z);
             }
 
             this.markChunksForRebuild(placement);
@@ -522,6 +534,7 @@ public class SchematicPlacementManager
                 if (this.schematicsTouchingChunk.containsKey(pos) == false)
                 {
                     this.chunksToUnload.add(pos.toLong());      // todo
+//                    PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, pos.x, pos.z));
                     it.remove();
                 }
             }
@@ -554,6 +567,7 @@ public class SchematicPlacementManager
             {
                 //System.out.printf("unloading: %s\n", pos);
                 this.chunksToUnload.add(pos.toLong());      // todo
+//                PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, pos.x, pos.z));
             }
             else
             {

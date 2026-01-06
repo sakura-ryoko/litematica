@@ -39,11 +39,11 @@ public class PlacementManagerTaskLoad extends PlacementManagerTask
 				return;
 			}
 
-			if (manager.getAllSchematicsTouchingChunk(this.pos()).isEmpty())
-			{
-				manager.removePendingRebuildFor(this.pos());
-				return;
-			}
+//			if (manager.getAllSchematicsTouchingChunk(this.pos()).isEmpty())
+//			{
+//				manager.removePendingRebuildFor(this.pos());
+//				return;
+//			}
 
 			if (manager.canHandleChunk(level, this.cx(), this.cz()))
 			{

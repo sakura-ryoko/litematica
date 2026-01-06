@@ -1,11 +1,11 @@
 package fi.dy.masa.litematica.world;
 
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import com.google.common.collect.ImmutableList;
 
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkSource;
@@ -19,7 +19,8 @@ import fi.dy.masa.litematica.config.Configs;
 public class ChunkManagerSchematic extends ChunkSource
 {
     private final WorldSchematic world;
-    private final Long2ObjectMap<ChunkSchematic> loadedChunks = new Long2ObjectOpenHashMap<>(8192);
+//    private final Long2ObjectMap<ChunkSchematic> loadedChunks = new Long2ObjectOpenHashMap<>(8192);
+    private final ConcurrentHashMap<Long, ChunkSchematic> loadedChunks;
     private final ChunkSchematic blankChunk;
     private final LevelLightEngine lightingProvider;
     private final FakeLightingProvider fakeLightingProvider;
@@ -27,6 +28,7 @@ public class ChunkManagerSchematic extends ChunkSource
     public ChunkManagerSchematic(WorldSchematic world)
     {
         this.world = world;
+        this.loadedChunks = new ConcurrentHashMap<>();
         this.blankChunk = new ChunkSchematic(world, new ChunkPos(0, 0));
         this.blankChunk.setState(ChunkSchematicState.EMPTY);
         this.lightingProvider = new LevelLightEngine(this, true, world.dimensionType().hasSkyLight());
@@ -88,9 +90,32 @@ public class ChunkManagerSchematic extends ChunkSource
         return this.loadedChunks.size();
     }
 
-    public synchronized Long2ObjectMap<ChunkSchematic> getLoadedChunks()
+//    public synchronized Long2ObjectMap<ChunkSchematic> getLoadedChunks()
+//    {
+//        return this.loadedChunks;
+//    }
+
+    public synchronized ImmutableList<Long> getLoadedKeySet()
     {
-        return this.loadedChunks;
+        ImmutableList.Builder<Long> builder = ImmutableList.builder();
+        this.loadedChunks.keySet().forEach(builder::add);
+        return builder.build();
+    }
+
+    public synchronized ImmutableList<ChunkPos> getLoadedNonEmptyChunkPosSet()
+    {
+        ImmutableList.Builder<ChunkPos> builder = ImmutableList.builder();
+
+        this.loadedChunks.forEach(
+                (key, chunk) ->
+                {
+                    if (!chunk.isEmpty())
+                    {
+                        builder.add(chunk.getPos());
+                    }
+                });
+
+        return builder.build();
     }
 
     @Override

@@ -20,6 +20,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 import fi.dy.masa.litematica.util.DebugHudMode;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
@@ -125,12 +126,14 @@ public class LitematicaDebugHud implements DebugScreenEntry
 
 			WorldRendererSchematic renderer = LitematicaRenderer.getInstance().getWorldRenderer();
 			String str = this.getWorldDebug(worldSchematic);
+			String pmStr = PlacementManagerDaemonHandler.INSTANCE.getDebugString();
 
 			if (this.isLeft())
 			{
-				list.add(String.format("%s[Litematica]%s %s",
+				list.add(String.format("%s[Litematica]%s %s %s",
 				                       pre, rst,
-				                       renderer.getDebugInfoRenders()
+				                       renderer.getDebugInfoRenders(),
+				                       pmStr
 				));
 
 				list.add(String.format("%s[Litematica]%s %s %s",
@@ -149,7 +152,8 @@ public class LitematicaDebugHud implements DebugScreenEntry
 			}
 			else
 			{
-				list.add(String.format("%s %s[Litematica]%s",
+				list.add(String.format("%s %s %s[Litematica]%s",
+				                       pmStr,
 				                       renderer.getDebugInfoRenders(),
 				                       rst+pre, rst
 				));
