@@ -231,16 +231,11 @@ public class SchematicaSchematic
                     final int zMinChunk = Math.max(cz << 4, posMin.getZ());
                     final int xMaxChunk = Math.min((cx << 4) + 15, posMax.getX());
                     final int zMaxChunk = Math.min((cz << 4) + 15, posMax.getZ());
-//                    ChunkSchematic existing = world.getChunk(cx, cz);
-                    ChunkSchematic chunk;
+                    ChunkSchematic chunk = world.getChunk(cx, cz);
 
-                    if (world.getChunkProvider().getChunkState(cx, cz).atLeast(ChunkSchematicState.FILLED))
+                    if (chunk == null)
                     {
-                        chunk = world.getChunkProvider().getChunkForLighting(cx, cz);
-                    }
-                    else
-                    {
-                        chunk = SchematicPlacingUtils.createChunkForLoading(world, cx, cz);
+                        continue;
                     }
 
                     for (int y = posMin.getY(), ySrc = 0; ySrc < height; ++y, ++ySrc)
@@ -266,7 +261,7 @@ public class SchematicaSchematic
 
                                 if (teNBT != null)
                                 {
-                                    BlockEntity te = chunk.createBlockEntity(pos);
+                                    BlockEntity te = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
 
                                     if (te != null)
                                     {
@@ -275,18 +270,16 @@ public class SchematicaSchematic
                                             ((Container) te).clearContent();
                                         }
 
-//                                        world.setBlock(pos, Blocks.BARRIER.defaultBlockState(), 0x14);
-                                        chunk.setBlockState(pos, Blocks.BARRIER.defaultBlockState(), 0x14);
+                                        world.setBlock(pos, Blocks.BARRIER.defaultBlockState(), 0x14);
                                     }
                                 }
 
-//                                chunk.setBlockState(pos, state, 3);
-                                chunk.setBlockState(pos, state, 0x12);
+                                chunk.setBlockState(pos, state, 3);
+//                                world.setBlock(pos, state, 0x12);
 
                                 if (teNBT != null)
                                 {
-//                                    BlockEntity te = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
-                                    BlockEntity te = chunk.createBlockEntity(pos);
+                                    BlockEntity te = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
 
                                     if (te != null)
                                     {
@@ -303,16 +296,16 @@ public class SchematicaSchematic
                                         {
                                             Litematica.LOGGER.warn("Failed to load TileEntity data for {} @ {}", state, pos);
                                         }
-
-                                        chunk.setBlockEntity(te);
                                     }
                                 }
                             }
                         }
                     }
 
-                    chunk.setState(ChunkSchematicState.FILLED);
-                    world.getChunkProvider().replaceChunk(cx, cz, chunk);
+                    if (!chunk.getState().atLeast(ChunkSchematicState.FILLED))
+                    {
+                        chunk.setState(ChunkSchematicState.FILLED);
+                    }
                 }
             }
 

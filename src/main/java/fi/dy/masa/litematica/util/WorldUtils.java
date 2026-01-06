@@ -123,7 +123,7 @@ public class WorldUtils
         TemporaryWorldHolder holder = TemporaryWorldManager.INSTANCE.getTemporaryWorld("sponge_to_litematica", BlockPos.ZERO, size);
 //        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, size);
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(origSchematic, BlockPos.ZERO);
-        origSchematic.placeToWorld(holder.world().get(), schematicPlacement, false);      // TODO FIXME
+        origSchematic.placeToWorld(holder.world(), schematicPlacement, false);      // TODO FIXME
 
         String subRegionName = FileUtils.getNameWithoutExtension(inputFileName);
         AreaSelection area = new AreaSelection();
@@ -135,7 +135,7 @@ public class WorldUtils
         area.setSubRegionCornerPos(box, Corner.CORNER_2, size.offset(-1, -1, -1));
         LitematicaSchematic.SchematicSaveInfo info = new LitematicaSchematic.SchematicSaveInfo(false, false);
 
-        LitematicaSchematic newSchem = LitematicaSchematic.createFromWorld(holder.world().get(), area, info, "?", feedback);
+        LitematicaSchematic newSchem = LitematicaSchematic.createFromWorld(holder.world(), area, info, "?", feedback);
 
         if (newSchem == null)
         {
@@ -246,7 +246,7 @@ public class WorldUtils
 //        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, schematic.getSize());
         StructurePlaceSettings placementSettings = new StructurePlaceSettings();
         placementSettings.setIgnoreEntities(ignoreEntities);
-        schematic.placeSchematicDirectlyToChunks(holder.world().get(), BlockPos.ZERO, placementSettings);      // TODO FIXME
+        schematic.placeSchematicDirectlyToChunks(holder.world(), BlockPos.ZERO, placementSettings);      // TODO FIXME
 
         String subRegionName = FileUtils.getNameWithoutExtension(inputFileName) + " (Converted Schematic)";
         AreaSelection area = new AreaSelection();
@@ -258,7 +258,7 @@ public class WorldUtils
         area.setSubRegionCornerPos(box, Corner.CORNER_2, (new BlockPos(schematic.getSize())).offset(-1, -1, -1));
         LitematicaSchematic.SchematicSaveInfo info = new LitematicaSchematic.SchematicSaveInfo(false, false);
 
-        LitematicaSchematic newSchematic = LitematicaSchematic.createFromWorld(holder.world().get(), area, info, "?", feedback);
+        LitematicaSchematic newSchematic = LitematicaSchematic.createFromWorld(holder.world(), area, info, "?", feedback);
 
         if (newSchematic != null && ignoreEntities == false)
         {
@@ -307,7 +307,7 @@ public class WorldUtils
 //        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, size);
         TemporaryWorldHolder holder = TemporaryWorldManager.INSTANCE.getTemporaryWorld("structure_to_litematica", BlockPos.ZERO, size);
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(origStructure, BlockPos.ZERO);
-        origStructure.placeToWorld(holder.world().get(), schematicPlacement, false);             // TODO FIXME
+        origStructure.placeToWorld(holder.world(), schematicPlacement, false);             // TODO FIXME
 
         String subRegionName = FileUtils.getNameWithoutExtension(structureFileName);
         AreaSelection area = new AreaSelection();
@@ -319,7 +319,7 @@ public class WorldUtils
         area.setSubRegionCornerPos(box, Corner.CORNER_2, size.offset(-1, -1, -1));
         LitematicaSchematic.SchematicSaveInfo info = new LitematicaSchematic.SchematicSaveInfo(false, false);
 
-        LitematicaSchematic newSchem = LitematicaSchematic.createFromWorld(holder.world().get(), area, info, "?", feedback);
+        LitematicaSchematic newSchem = LitematicaSchematic.createFromWorld(holder.world(), area, info, "?", feedback);
 
         if (newSchem == null)
         {
@@ -465,10 +465,10 @@ public class WorldUtils
 //        List<Pair<Integer, Integer>> tempChunks = loadChunksSchematicWorld(world, BlockPos.ZERO, size);
         SchematicPlacement schematicPlacement = SchematicPlacement.createForSchematicConversion(litematicaSchematic, BlockPos.ZERO);
         TemporaryWorldHolder holder = TemporaryWorldManager.INSTANCE.getTemporaryWorld("litematic_to_structure", BlockPos.ZERO, size);
-        litematicaSchematic.placeToWorld(holder.world().get(), schematicPlacement, false);         // TODO FIXME
+        litematicaSchematic.placeToWorld(holder.world(), schematicPlacement, false);         // TODO FIXME
 
         StructureTemplate template = new StructureTemplate();
-        template.fillFromWorld(holder.world().get(), BlockPos.ZERO, size, ignoreEntities == false, List.of(Blocks.STRUCTURE_VOID));
+        template.fillFromWorld(holder.world(), BlockPos.ZERO, size, ignoreEntities == false, List.of(Blocks.STRUCTURE_VOID));
 
 //        world.clearEntities();
         TemporaryWorldManager.INSTANCE.removeTemporaryWorld("litematic_to_structure");

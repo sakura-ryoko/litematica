@@ -81,7 +81,7 @@ public class ChunkSchematic extends LevelChunk
     {
         BlockState stateOld = this.getBlockState(pos);
 
-        if (this.getState().atLeast(ChunkSchematicState.FILLED))
+        if (!this.getState().atLeast(ChunkSchematicState.LOADED))
         {
             return stateOld;
         }

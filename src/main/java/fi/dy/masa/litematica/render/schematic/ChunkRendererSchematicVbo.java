@@ -547,7 +547,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.getProfiler().pop();
         this.profiler = null;
 
-        if (this.worldRenderer.getChunkSchematicState(this.chunkPosition.x, this.chunkPosition.z) != ChunkSchematicState.RENDERED)
+        if (this.worldRenderer.getChunkSchematicState(this.chunkPosition.x, this.chunkPosition.z).atLeast(ChunkSchematicState.RENDERED))
         {
             this.worldRenderer.setChunkSchematicState(this.chunkPosition.x, this.chunkPosition.z, ChunkSchematicState.RENDERED);
         }

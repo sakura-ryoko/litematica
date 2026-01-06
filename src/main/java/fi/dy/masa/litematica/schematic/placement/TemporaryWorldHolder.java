@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 
@@ -16,7 +15,7 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class TemporaryWorldHolder implements AutoCloseable
 {
-	private Supplier<WorldSchematic> world;
+	private WorldSchematic world;
 	private BlockPos origin;
 	private Vec3i size;
 	private List<Pair<Integer, Integer>> chunks;
@@ -38,11 +37,12 @@ public class TemporaryWorldHolder implements AutoCloseable
 
 	protected void createWorld()
 	{
-		this.world = () -> SchematicWorldHandler.createSchematicWorld(null);
+		this.world = SchematicWorldHandler.createSchematicWorld(null);
 	}
 
-	protected void calculateChunks(BlockPos origin, Vec3i size)
+	protected void calculateChunks(BlockPos origin, Vec3i size) throws IllegalArgumentException
 	{
+		this.ensureWorld();
 		this.chunks = new ArrayList<>();
 		this.origin = origin;
 		this.size = size;
@@ -59,7 +59,7 @@ public class TemporaryWorldHolder implements AutoCloseable
 		{
 			for (int cx = cxMin; cx <= cxMax; ++cx)
 			{
-//				world.getChunkProvider().loadChunk(cx, cz);         // TODO FIXME
+				this.chunkManager().loadChunk(cx, cz);         // TODO FIXME
 				this.chunks.add(Pair.of(cx, cz));
 			}
 		}
@@ -75,7 +75,7 @@ public class TemporaryWorldHolder implements AutoCloseable
 		return this.chunks.isEmpty();
 	}
 
-	public Supplier<WorldSchematic> world()
+	public @Nullable WorldSchematic world()
 	{
 		return this.world;
 	}
@@ -95,14 +95,18 @@ public class TemporaryWorldHolder implements AutoCloseable
 		return this.chunks;
 	}
 
-	protected @Nullable ChunkManagerSchematic chunkManager()
+	protected @Nullable ChunkManagerSchematic chunkManager() throws IllegalStateException
+	{
+		this.ensureWorld();
+		return this.world.getChunkProvider();
+	}
+
+	private void ensureWorld() throws IllegalStateException
 	{
 		if (this.world == null)
 		{
-			return null;
+			throw new IllegalStateException("TemporaryWorldHolder: No World!");
 		}
-
-		return this.world.get().getChunkProvider();
 	}
 
 	protected void clear()
@@ -111,13 +115,13 @@ public class TemporaryWorldHolder implements AutoCloseable
 		this.origin = BlockPos.ZERO;
 		this.size = BlockPos.ZERO;
 
-		if (this.world.get() != null)
+		if (this.world != null)
 		{
-			this.world.get().clearEntities();
+			this.world.clearEntities();
 
 			try
 			{
-				this.world.get().close();
+				this.world.close();
 			}
 			catch (Exception ignored)
 			{

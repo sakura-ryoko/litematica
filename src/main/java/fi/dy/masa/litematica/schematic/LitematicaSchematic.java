@@ -1925,7 +1925,7 @@ public class LitematicaSchematic
         for (int i = 0; i < size; ++i)
         {
             CompoundTag entityEntry = tagList.getCompoundOrEmpty(i);
-//            Vec3d pos = NbtUtils.readVec3dFromListTag(entityEntry);
+            // pos = NbtUtils.readVec3dFromListTag(entityEntry);
             Vec3 pos = NbtUtils.getVec3dCodec(entityEntry, "Pos");
 
             if (pos != null && entityEntry.isEmpty() == false)
@@ -1944,11 +1944,13 @@ public class LitematicaSchematic
                         entityData.putString("id", entityEntry.getStringOr("id", ""));
                     }
                     entities.add(new EntityInfo(pos, entityData));
+//                    Litematica.LOGGER.error("[SPONGE-V3] Pos[{}] / entity: {}", pos.toString(), entityData.toString());
                 }
                 else
                 {
                     pos = new Vec3(pos.x - offset.getX(), pos.y - offset.getY(), pos.z - offset.getZ());
                     entities.add(new EntityInfo(pos, entityEntry));
+//                    Litematica.LOGGER.error("[SPONGE-V2] Pos[{}] / entity: {}", pos.toString(), entityEntry.toString());
                 }
             }
         }
@@ -2300,15 +2302,17 @@ public class LitematicaSchematic
         for (int i = 0; i < size; ++i)
         {
             CompoundTag entityData = tagList.getCompoundOrEmpty(i);
+            CompoundTag nbtData = entityData.getCompoundOrEmpty("nbt");
             if (minecraftDataVersion < LitematicaSchematic.MINECRAFT_DATA_VERSION && effective != null)
             {
-                entityData = SchematicConversionMaps.updateEntity(entityData, minecraftDataVersion);
+                nbtData = SchematicConversionMaps.updateEntity(nbtData, minecraftDataVersion);
             }
-            Vec3 pos = readVec3dFromNbtList(entityData, "pos");
+//            Vec3 pos = readVec3dFromNbtList(entityData, "pos");
+            Vec3 pos = NbtUtils.getVec3dCodec(entityData, "pos");
 
-            if (pos != null && entityData.contains("nbt"))
+            if (pos != null && !nbtData.isEmpty())
             {
-                entities.add(new EntityInfo(pos, entityData.getCompoundOrEmpty("nbt")));
+                entities.add(new EntityInfo(pos, nbtData));
             }
         }
 

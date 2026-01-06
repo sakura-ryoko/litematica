@@ -90,21 +90,8 @@ public class SchematicPlacingUtils
                     Map<BlockPos, CompoundTag> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
                     Map<BlockPos, ScheduledTick<Block>> scheduledBlockTicks = schematic.getScheduledBlockTicksForRegion(regionName);
                     Map<BlockPos, ScheduledTick<Fluid>> scheduledFluidTicks = schematic.getScheduledFluidTicksForRegion(regionName);
-                    ChunkSchematic chunk = null;
 
-                    if (world instanceof WorldSchematic ws)
-                    {
-                        if (ws.getChunkProvider().getChunkState(chunkPos.x, chunkPos.z).atLeast(ChunkSchematicState.FILLED))
-                        {
-                            chunk = ws.getChunkProvider().getChunkForLighting(chunkPos.x, chunkPos.z);
-                        }
-                        else
-                        {
-                            chunk = createChunkForLoading(ws, chunkPos);
-                        }
-                    }
-
-                    if (placeBlocksWithinChunk(world, chunkPos, regionName, chunk, container, blockEntityMap,
+                    if (placeBlocksWithinChunk(world, chunkPos, regionName, container, blockEntityMap,
                                                origin, schematicPlacement, placement, scheduledBlockTicks,
                                                scheduledFluidTicks, replace, layerBehavior, notifyNeighbors) == false)
                     {
@@ -117,7 +104,7 @@ public class SchematicPlacingUtils
                     if (schematicPlacement.ignoreEntities() == false &&
                         placement.ignoreEntities() == false && entityList != null)
                     {
-                        placeEntitiesToWorldWithinChunk(world, chunkPos, chunk, entityList, origin, schematicPlacement, placement, layerBehavior);
+                        placeEntitiesToWorldWithinChunk(world, chunkPos, entityList, origin, schematicPlacement, placement, layerBehavior);
                     }
                 }
             }
@@ -131,7 +118,6 @@ public class SchematicPlacingUtils
     }
 
     public static boolean placeBlocksWithinChunk(Level world, ChunkPos chunkPos, String regionName,
-                                                 @Nullable ChunkSchematic chunk,
                                                  LitematicaBlockStateContainer container,
                                                  Map<BlockPos, CompoundTag> blockEntityMap,
                                                  BlockPos origin,
@@ -291,39 +277,12 @@ public class SchematicPlacingUtils
                             ((Container) te).clearContent();
                         }
 
-                        if (world instanceof WorldSchematic && chunk != null)
-                        {
-                            chunk.setBlockState(pos, barrier, 0x14);
-                        }
-                        else
-                        {
-                            world.setBlock(pos, barrier, 0x14);
-                        }
+                        world.setBlock(pos, barrier, 0x14);
                     }
 
-                    boolean setBlock = false;
-
-                    if (world instanceof WorldSchematic && chunk != null)
+                    if (world.setBlock(pos, state, 0x12) && teNBT != null)
                     {
-                        chunk.setBlockState(pos, state, 0x12);
-                        setBlock = true;
-                    }
-                    else
-                    {
-                        setBlock = world.setBlock(pos, state, 0x12);
-                    }
-
-                    // world.setBlock(pos, state, 0x12)
-                    if (setBlock && teNBT != null)
-                    {
-                        if (world instanceof WorldSchematic && chunk != null)
-                        {
-                            te = chunk.createBlockEntity(pos);
-                        }
-                        else
-                        {
-                            te = world.getBlockEntity(pos);
-                        }
+                        te = world.getBlockEntity(pos);
 
                         if (te != null)
                         {
@@ -351,11 +310,6 @@ public class SchematicPlacingUtils
                             {
                                 Litematica.LOGGER.warn("Failed to load BlockEntity data for {} @ {}", state, pos);
                             }
-
-                            if (world instanceof WorldSchematic && chunk != null)
-                            {
-                                chunk.setBlockEntity(te);
-                            }
                         }
                     }
                 }
@@ -364,16 +318,7 @@ public class SchematicPlacingUtils
 
         if (world instanceof WorldSchematic ws)
         {
-            if (chunk != null)
-            {
-                if (!chunk.getState().atLeast(ChunkSchematicState.FILLED))
-                {
-                    chunk.setState(ChunkSchematicState.FILLED);
-                }
-
-                ws.getChunkProvider().replaceChunk(chunkPos.x,  chunkPos.z, chunk);
-            }
-            else
+            if (!ws.getChunk(chunkPos.x, chunkPos.z).getState().atLeast(ChunkSchematicState.FILLED))
             {
                 ws.getChunkProvider().setChunkState(chunkPos.x, chunkPos.z, ChunkSchematicState.FILLED);
             }
@@ -473,7 +418,6 @@ public class SchematicPlacingUtils
     }
 
     public static void placeEntitiesToWorldWithinChunk(Level world, ChunkPos chunkPos,
-                                                       @Nullable ChunkSchematic chunk,
                                                        List<EntityInfo> entityList,
                                                        BlockPos origin,
                                                        SchematicPlacement schematicPlacement,
@@ -649,18 +593,5 @@ public class SchematicPlacingUtils
         }
 
         return DataManager.getRenderLayerRange().isPositionWithinRange((int) pos.x(), (int) pos.y(), (int) pos.z());
-    }
-
-    public static ChunkSchematic createChunkForLoading(WorldSchematic world, int cx, int cz)
-    {
-        return createChunkForLoading(world, new ChunkPos(cx, cz));
-    }
-
-    public static ChunkSchematic createChunkForLoading(WorldSchematic world, ChunkPos pos)
-    {
-        ChunkSchematic chunk = new ChunkSchematic(world, pos);
-        chunk.setState(ChunkSchematicState.UNLOADED);
-
-        return chunk;
     }
 }

@@ -272,7 +272,7 @@ public class SchematicPlacementManager
                     {
                         ChunkPos pos = new ChunkPos(posLong);
 
-                        if (worldSchematic.getChunkSource().getChunkState(pos.x, pos.z).atLeast(ChunkSchematicState.FILLED))
+                        if (worldSchematic.getChunkSource().getChunkState(pos.x, pos.z).atLeast(ChunkSchematicState.LOADED))
                         {
                             this.visibleChunks.add(pos);
                         }
