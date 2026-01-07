@@ -57,6 +57,7 @@ public class WorldLoadListener implements IWorldLoadListener
             EntitiesDataStorage.getInstance().onWorldJoin();
             CachedTagManager.startCache();
 	        LitematicaDebugHud.INSTANCE.checkConfig();
+            DataManager.getSchematicPlacementManager().onWorldJoin();
         }
         else
         {

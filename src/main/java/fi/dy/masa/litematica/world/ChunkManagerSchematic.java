@@ -13,7 +13,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 
 public class ChunkManagerSchematic extends ChunkSource
@@ -151,27 +150,28 @@ public class ChunkManagerSchematic extends ChunkSource
         }
     }
 
-    public synchronized boolean replaceChunk(int chunkX, int chunkZ,
-                                          @Nonnull ChunkSchematic newChunk)
-    {
-        ChunkPos pos = new ChunkPos(chunkX, chunkZ);
-
-        if (newChunk.getPos().equals(pos) == false)
-        {
-            Litematica.LOGGER.error("replaceChunk: Position of new Chunk is mismatched: '{}' != '{}' -- Please fix", pos.toString(), newChunk.getPos().toString());
-            return false;
-        }
-
-        this.unloadChunk(chunkX, chunkZ);
-
-        if (!newChunk.getState().atLeast(ChunkSchematicState.LOADED))
-        {
-            newChunk.setState(ChunkSchematicState.LOADED);
-        }
-
-        this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), newChunk);
-        return true;
-    }
+    // Causes issues
+//    public synchronized boolean replaceChunk(int chunkX, int chunkZ,
+//                                          @Nonnull ChunkSchematic newChunk)
+//    {
+//        ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+//
+//        if (newChunk.getPos().equals(pos) == false)
+//        {
+//            Litematica.LOGGER.error("replaceChunk: Position of new Chunk is mismatched: '{}' != '{}' -- Please fix", pos.toString(), newChunk.getPos().toString());
+//            return false;
+//        }
+//
+//        this.unloadChunk(chunkX, chunkZ);
+//
+//        if (!newChunk.getState().atLeast(ChunkSchematicState.LOADED))
+//        {
+//            newChunk.setState(ChunkSchematicState.LOADED);
+//        }
+//
+//        this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), newChunk);
+//        return true;
+//    }
 
     @Override
     public @Nonnull LevelLightEngine getLightEngine()

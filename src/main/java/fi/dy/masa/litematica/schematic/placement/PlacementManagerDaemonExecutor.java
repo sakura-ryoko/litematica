@@ -32,20 +32,21 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		while (this.isRunning())
 		{
-			try
-			{
-				PlacementManagerTask task = PlacementManagerDaemonHandler.INSTANCE.getNextTask();
+			PlacementManagerTask task = PlacementManagerDaemonHandler.INSTANCE.getNextTask();
 
-				if (task != null)
+			if (task != null)
+			{
+				try
 				{
 					this.processTask(task);
 				}
-			}
-			catch (Exception err)
-			{
-				Litematica.LOGGER.error("PlacementManagerDaemonExecutor1: Exception: {}", err.getLocalizedMessage());
-				this.stop();
-				return;
+				catch (Exception err)
+				{
+					Litematica.LOGGER.error("PlacementManagerDaemonExecutor: Exception: {}", err.getLocalizedMessage());
+
+					// Reschedule it
+					PlacementManagerDaemonHandler.INSTANCE.addTask(task);
+				}
 			}
 		}
 	}

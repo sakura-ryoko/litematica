@@ -27,12 +27,14 @@ public class PlacementManagerTaskUnload extends PlacementManagerTask
 		return () ->
 		{
 			WorldSchematic worldSchematic = this.worldSupplier().get();
+			SchematicPlacementManager manager =  DataManager.getSchematicPlacementManager();
 
 			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
 			{
 				worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
+				worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
 				worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
-				DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
+				manager.setVisibleSubChunksNeedsUpdate();
 			}
 		};
 	}

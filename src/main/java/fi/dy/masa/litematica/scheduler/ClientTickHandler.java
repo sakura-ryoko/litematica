@@ -40,7 +40,7 @@ public class ClientTickHandler implements IClientTickHandler
                 DataManager.getRenderLayerRange().setSingleBoundaryToPosition(EntityUtils.getCameraEntity());
             }
 
-            DataManager.getSchematicPlacementManager().processQueuedChunks();
+//            DataManager.getSchematicPlacementManager().processQueuedChunks();
             TaskScheduler.getInstanceClient().runTasks();
         }
     }

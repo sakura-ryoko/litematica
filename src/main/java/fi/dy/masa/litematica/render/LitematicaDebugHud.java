@@ -130,16 +130,20 @@ public class LitematicaDebugHud implements DebugScreenEntry
 
 			if (this.isLeft())
 			{
-				list.add(String.format("%s[Litematica]%s %s %s",
+				list.add(String.format("%s[Litematica]%s %s",
 				                       pre, rst,
-				                       renderer.getDebugInfoRenders(),
-				                       pmStr
+				                       renderer.getDebugInfoRenders()
 				));
 
 				list.add(String.format("%s[Litematica]%s %s %s",
 				                       pre, rst,
 				                       renderer.getDebugInfoEntities(),
 				                       str
+				));
+
+				list.add(String.format("%s[Litematica]%s %s",
+				                       pre, rst,
+				                       pmStr
 				));
 
 				if (!pair.getLeft().isEmpty())
@@ -152,17 +156,21 @@ public class LitematicaDebugHud implements DebugScreenEntry
 			}
 			else
 			{
-				list.add(String.format("%s %s %s[Litematica]%s",
-				                       pmStr,
+				list.add(String.format("%s %s[Litematica]%s",
 				                       renderer.getDebugInfoRenders(),
 				                       rst+pre, rst
 				));
 
 				list.add(String.format("%s %s %s[Litematica]%s",
-				                       str,
 				                       renderer.getDebugInfoEntities(),
+				                       str,
 				                       rst+pre, rst
 				));
+
+				list.add(String.format("PM- %s %s[Litematica]%s",
+				                       pmStr,
+				                       pre, rst
+                ));
 
 				if (!pair.getLeft().isEmpty())
 				{

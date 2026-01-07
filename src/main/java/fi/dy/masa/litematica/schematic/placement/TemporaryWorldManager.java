@@ -2,10 +2,7 @@ package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jspecify.annotations.NonNull;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -13,7 +10,6 @@ import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.world.ChunkSchematic;
 
 public class TemporaryWorldManager implements AutoCloseable
 {
@@ -111,41 +107,41 @@ public class TemporaryWorldManager implements AutoCloseable
 		return chunks;
 	}
 
-	public synchronized boolean replaceChunkAt(String worldName, int cx, int cz, @NonNull ChunkSchematic newChunk)
-	{
-		worldName = this.ensureSafeWorldName(worldName);
-
-		if (this.tempWorlds.containsKey(worldName))
-		{
-			TemporaryWorldHolder world = this.tempWorlds.get(worldName);
-
-			if (world.isEmpty())
-			{
-				Litematica.LOGGER.error("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}' is empty!  Cannot replace a chunk that was not calculated!", worldName);
-				return false;
-			}
-
-			if (!world.chunkList().contains(Pair.of(cx, cz)))
-			{
-				Litematica.LOGGER.error("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}' is empty!  Cannot replace chunk [cx: {}, cz: {}] outside of the requested Area Size", worldName, cx, cz);
-				return false;
-			}
-
-			// TODO --> create a task
-			if (world.chunkManager() != null && Objects.requireNonNull(world.chunkManager()).replaceChunk(cx, cz, newChunk))
-			{
-				Litematica.debugLog("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}' --> Replaced Chunk at [cx: {}, cz: {}] successfully!", worldName, cx, cz);
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		Litematica.LOGGER.error("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}'; was not found!", worldName);
-		return false;
-	}
+//	public synchronized boolean replaceChunkAt(String worldName, int cx, int cz, @NonNull ChunkSchematic newChunk)
+//	{
+//		worldName = this.ensureSafeWorldName(worldName);
+//
+//		if (this.tempWorlds.containsKey(worldName))
+//		{
+//			TemporaryWorldHolder world = this.tempWorlds.get(worldName);
+//
+//			if (world.isEmpty())
+//			{
+//				Litematica.LOGGER.error("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}' is empty!  Cannot replace a chunk that was not calculated!", worldName);
+//				return false;
+//			}
+//
+//			if (!world.chunkList().contains(Pair.of(cx, cz)))
+//			{
+//				Litematica.LOGGER.error("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}' is empty!  Cannot replace chunk [cx: {}, cz: {}] outside of the requested Area Size", worldName, cx, cz);
+//				return false;
+//			}
+//
+//			// TODO --> create a task
+//			if (world.chunkManager() != null && Objects.requireNonNull(world.chunkManager()).replaceChunk(cx, cz, newChunk))
+//			{
+//				Litematica.debugLog("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}' --> Replaced Chunk at [cx: {}, cz: {}] successfully!", worldName, cx, cz);
+//				return true;
+//			}
+//			else
+//			{
+//				return false;
+//			}
+//		}
+//
+//		Litematica.LOGGER.error("TemporaryWorldManager#replaceChunkAt(): Temporary world: '{}'; was not found!", worldName);
+//		return false;
+//	}
 
 	private String ensureSafeWorldName(String worldName) throws IllegalStateException
 	{

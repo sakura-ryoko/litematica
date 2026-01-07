@@ -260,7 +260,7 @@ public class WorldSchematic extends Level
         this.entityCount -= count;
     }
 
-    protected void unloadEntitiesByChunk(int chunkX, int chunkZ)
+    public void unloadEntitiesByChunk(int chunkX, int chunkZ)
     {
         List<UUID> list = new ArrayList<>();
 

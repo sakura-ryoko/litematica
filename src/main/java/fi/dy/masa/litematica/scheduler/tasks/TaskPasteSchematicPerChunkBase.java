@@ -2,12 +2,14 @@ package fi.dy.masa.litematica.scheduler.tasks;
 
 import java.util.Collection;
 import java.util.Set;
-import net.minecraft.world.level.ChunkPos;
 import com.google.common.collect.ImmutableList;
+
+import net.minecraft.world.level.ChunkPos;
+
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.util.PasteLayerBehavior;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -99,7 +101,8 @@ public abstract class TaskPasteSchematicPerChunkBase extends TaskProcessChunkMul
     protected boolean canProcessChunk(ChunkPos pos)
     {
         if (this.schematicWorld.getChunkProvider().hasChunk(pos.x, pos.z) == false ||
-            DataManager.getSchematicPlacementManager().hasPendingRebuildFor(pos))
+//            DataManager.getSchematicPlacementManager().hasPendingRebuildFor(pos))
+            PlacementManagerDaemonHandler.INSTANCE.hasAnyRebuildTasksFor(pos))
         {
             return false;
         }
