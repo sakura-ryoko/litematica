@@ -9,9 +9,10 @@ public enum ChunkSchematicState
 	NEW                     (1),
 	EMPTY                   (2),
 	UNLOADED                (3),
-	LOADED                  (4),
-	FILLED                  (5),
-	RENDERED                (6),
+	PROTO                   (4),
+	LOADED                  (5),
+	FILLED                  (6),
+	RENDERED                (7),
 	;
 
 	private final int index;

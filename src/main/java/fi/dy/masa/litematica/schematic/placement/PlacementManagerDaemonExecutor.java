@@ -45,7 +45,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 					Litematica.LOGGER.error("PlacementManagerDaemonExecutor: Exception: {}", err.getLocalizedMessage());
 
 					// Reschedule it
-					PlacementManagerDaemonHandler.INSTANCE.addTask(task);
+//					PlacementManagerDaemonHandler.INSTANCE.addTask(task);
 				}
 			}
 		}

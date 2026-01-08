@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.lang.Math;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
@@ -463,6 +464,7 @@ public class WorldRendererSchematic
         this.lastCameraYaw = camera.yRot();
 
         profiler.popPush("update");
+        List<ChunkPos> updatePositions = new ArrayList<>();
 
         if (this.displayListEntitiesDirty)
         {
@@ -480,6 +482,7 @@ public class WorldRendererSchematic
             //queuePositions.addAll(set);
 
             //if (GuiBase.isCtrlDown()) System.out.printf("sorted positions: %d\n", positions.size());
+//            Litematica.LOGGER.warn("setupTerrain(): positions: {}", positions.size());
 
             profiler.popPush("update_iteration");
 
@@ -502,14 +505,21 @@ public class WorldRendererSchematic
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("add @ %s\n", subChunk);
                         if (chunkRenderer.needsUpdate() && chunkPos.equals(viewChunk))
+//                        if (chunkPos.equals(viewPos))
                         {
                             chunkRenderer.setNeedsUpdate(true);
                         }
+//                        else if (chunkPos.distanceSquared(viewChunk) <= (renderDistance / 5))
+//                        {
+//                            // Mark anything within 1/5 of your render distance as needing an update, but not immediately
+//                            chunkRenderer.setNeedsUpdate(false);
+//                        }
 
                         this.renderInfos.add(chunkRenderer);
                     }
                 }
 
+                updatePositions.add(chunkPos);
                 count++;
             }
 
@@ -525,31 +535,32 @@ public class WorldRendererSchematic
             if (chunkRendererTmp.needsUpdate() || set.contains(chunkRendererTmp))
             {
                 this.displayListEntitiesDirty = true;
-                BlockPos pos = chunkRendererTmp.getOrigin().offset(8, 8, 8);
-                boolean isNear = pos.distSqr(viewPos) < 1024.0D;
+//                BlockPos pos = chunkRendererTmp.getOrigin().offset(8, 8, 8);
+//                boolean isNear = pos.distSqr(viewPos) < 1024.0D;
 
-                if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
-                {
-                    //LOGGER.warn("[WorldRenderer] setupTerrain --> Update Later @ Origin: {}", chunkRendererTmp.getOrigin().toShortString());
-                    this.chunksToUpdate.add(chunkRendererTmp);
-                }
-                else
+//                if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
+                if (chunkRendererTmp.needsImmediateUpdate())
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("====== update now\n");
-                    //LOGGER.warn("[WorldRenderer] setupTerrain --> Update Now @ Origin: {}", chunkRendererTmp.getOrigin().toShortString());
+//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Now @ Origin: {}", chunkRendererTmp.getOrigin().toShortString());
                     profiler.push("update_now");
                     this.profiler = profiler;
 
                     this.renderDispatcher.updateChunkNow(chunkRendererTmp, profiler);
-//                    this.renderDispatcher.uploadChunkNow(chunkRendererTmp, profiler);
 
                     chunkRendererTmp.clearNeedsUpdate();
                     profiler.pop();
+                }
+                else
+                {
+//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Later @ Origin: {}", chunkRendererTmp.getOrigin().toShortString());
+                    this.chunksToUpdate.add(chunkRendererTmp);
                 }
             }
         }
 
         this.chunksToUpdate.addAll(set);
+//        Litematica.LOGGER.warn("[WorldRenderer] setupTerrain // chunksToUpdate: {}", this.chunksToUpdate.size());
         this.clearBlockBatchDraw();
 		this.clearWorldRenderStates();
 
@@ -611,7 +622,10 @@ public class WorldRendererSchematic
                 index++;
             }
 
-            LOGGER.info("[WorldRenderer] updateChunks(): {} Chunks updated.", index);
+            if (Reference.DEBUG_MODE && index > 0)
+            {
+                LOGGER.info("[WorldRenderer] updateChunks(): {} Chunks updated.", index);
+            }
         }
 
         profiler.pop();

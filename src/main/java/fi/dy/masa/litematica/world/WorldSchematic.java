@@ -59,6 +59,7 @@ import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 
 import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
@@ -243,21 +244,48 @@ public class WorldSchematic extends Level
         {
             return false;
         }
-        else
-        {
-            entity.setId(this.nextEntityId++);
             // TODO --> MOVE TO SchematicEntityLookup
 //            this.chunkManagerSchematic.getChunkForLighting(chunkX, chunkZ).addEntity(entity);
+
+        if (this.entityLookup.contains(entity.getUUID()))
+        {
+            return false;
+        }
+
+        if (!this.entityMap.containsKey(entity.getUUID()))
+        {
+            if (this.entityLookup.contains(entity.getId()) ||
+                entity.getId() < 0)
+            {
+                entity.setId(this.nextEntityId++);
+            }
+
+            Litematica.LOGGER.error("addFreshEntity(): [cx: {}, cz {}] -- add({}) [{}/{}] @ [{}]", chunkX, chunkZ,
+                                    entity.getId(),
+                                    entity.getStringUUID(),
+                                    entity.getType().getDescription().getString(),
+                                    entity.position().toString());
+
             ++this.entityCount;
             this.entityMap.put(entity.getUUID(), new ChunkPos(chunkX, chunkZ));
             this.entityLookup.put(entity);
             return true;
         }
+
+        return false;
     }
 
     public void unloadedEntities(int count)
     {
         this.entityCount -= count;
+
+        if (this.entityCount <= 0)
+        {
+            this.entityLookup.reset();
+            this.entityMap.clear();
+            this.entityCount = 0;
+            this.nextEntityId = 0;
+        }
     }
 
     public void unloadEntitiesByChunk(int chunkX, int chunkZ)

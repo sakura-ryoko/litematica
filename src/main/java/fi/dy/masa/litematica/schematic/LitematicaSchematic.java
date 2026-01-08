@@ -777,6 +777,7 @@ public class LitematicaSchematic
                             tag = view.readNbt() != null ? view.readNbt() : new CompoundTag();
                             Identifier id = EntityType.getKey(entity.getType());
                             tag.putString("id", id.toString());
+                            tag.putInt("LastEntityID", entity.getId());
                         }
                     }
 

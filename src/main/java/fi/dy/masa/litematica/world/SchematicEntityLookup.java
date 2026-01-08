@@ -205,6 +205,16 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
                 });
     }
 
+    public synchronized boolean contains(int id)
+    {
+        return this.entityMap.containsKey(id);
+    }
+
+    public synchronized boolean contains(UUID uuid)
+    {
+        return this.uuidMap.containsKey(uuid);
+    }
+
     protected void reset()
     {
         synchronized (this.entityMap)

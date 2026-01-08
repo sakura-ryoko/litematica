@@ -259,9 +259,21 @@ public class EntityUtils
             if (optional.isPresent())
             {
                 Entity entity = optional.get();
-                entity.setUUID(UUID.randomUUID());
 
-//                Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type: [{}]", entity.getType().getName().getString());
+                if (!nbt.contains("UUID"))
+                {
+                    entity.setUUID(UUID.randomUUID());
+                }
+
+                if (nbt.contains("LastEntityID"))
+                {
+                    entity.setId(nbt.getIntOr("LastEntityID", -1));
+                }
+
+                Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type({}): [{}/{}]",
+                                       entity.getId(),
+                                       entity.getStringUUID(),
+                                       entity.getType().getDescription().getString());
 
                 return entity;
             }

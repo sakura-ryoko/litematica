@@ -23,11 +23,9 @@ public class ChunkSchematic extends LevelChunk
 {
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
 
-//    private final List<Entity> entityList = new ArrayList<>();
     private final long timeCreated;
     private final int bottomY;
     private final int topY;
-//    private int entityCount;
     private boolean isEmpty = true;
     private ChunkSchematicState state;
 
@@ -39,7 +37,6 @@ public class ChunkSchematic extends LevelChunk
         this.timeCreated = worldIn.getGameTime();
         this.bottomY = worldIn.getMinY();
         this.topY = worldIn.getMaxY();
-//        this.entityCount = 0;
     }
 
     public void setState(ChunkSchematicState state)
@@ -81,7 +78,7 @@ public class ChunkSchematic extends LevelChunk
     {
         BlockState stateOld = this.getBlockState(pos);
 
-        if (!this.getState().atLeast(ChunkSchematicState.LOADED))
+        if (!this.getState().atLeast(ChunkSchematicState.PROTO))
         {
             return stateOld;
         }
@@ -150,6 +147,9 @@ public class ChunkSchematic extends LevelChunk
         }
     }
 
+//    protected BlockState setBlockStateNoCheck(BlockPos pos, BlockState newState)
+//    {}
+
     @Nullable
     public BlockEntity createBlockEntity(BlockPos pos)
     {
@@ -214,43 +214,13 @@ public class ChunkSchematic extends LevelChunk
     @Override
     public void addEntity(@Nonnull Entity entity)
     {
-//        this.entityList.forEach(
-//                (ent ->
-//                {
-//                    if (ent.getUUID() == entity.getUUID() || ent.getId() == entity.getId())
-//                    {
-//                        return;
-//                    }
-//                })
-//        );
-//
-//        this.entityList.add(entity);
-//        ++this.entityCount;
-
-        this.getLevel().addFreshEntity(entity);
+//        this.getLevel().addFreshEntity(entity);
     }
-
-    // todo --> MOVED TO EntityLookup
-//    public List<Entity> getEntityList()
-//    {
-//        return this.entityList;
-//    }
-
-//    public int getEntityCount()
-//    {
-//        return this.entityCount;
-//    }
 
     public int getTileEntityCount()
     {
         return this.blockEntities.size();
     }
-
-//    protected void clearEntities()
-//    {
-//        this.entityList.clear();
-//        this.entityCount = 0;
-//    }
 
     public long getTimeCreated()
     {

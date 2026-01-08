@@ -140,6 +140,8 @@ public class SchematicPlacementManager
                     (schematicPlacement) ->
                             this.addTouchedChunksFor(schematicPlacement)
             );
+
+            this.setVisibleSubChunksNeedsUpdate();
         }
     }
 
@@ -291,6 +293,7 @@ public class SchematicPlacementManager
                 int maxY = worldSchematic.getMaxY() - 1;
 
                 ImmutableList<Long> keySet = worldSchematic.getChunkSource().getLoadedKeySet();
+//                Litematica.LOGGER.error("getAndUpdateVisibleChunks: size: [{}]", keySet.size());
 
                 for (long posLong : keySet)
                 {

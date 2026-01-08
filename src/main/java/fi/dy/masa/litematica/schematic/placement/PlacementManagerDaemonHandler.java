@@ -24,7 +24,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueRebuild = new ConcurrentLinkedQueue<>();
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueOther = new ConcurrentLinkedQueue<>();
 
-	private static final int MAX_THREADS = 1;      // Please do not increase this value beyond 2 - 4
+	private static final int MAX_THREADS = 2;      // Please do not increase this value beyond 2 - 4
 	private static final float taskInterval = 0.75f;
 	private long lastTick;
 	private boolean processing = false;

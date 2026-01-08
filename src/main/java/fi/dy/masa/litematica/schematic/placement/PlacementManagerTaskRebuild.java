@@ -6,11 +6,11 @@ import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 
-import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.util.PasteLayerBehavior;
-import fi.dy.masa.litematica.util.ReplaceBehavior;
-import fi.dy.masa.litematica.util.SchematicPlacingUtils;
+import fi.dy.masa.litematica.util.WorldPlacingUtils;
+import fi.dy.masa.litematica.world.ChunkSchematic;
+import fi.dy.masa.litematica.world.ChunkSchematicState;
+import fi.dy.masa.litematica.world.ProtoChunkSchematic;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class PlacementManagerTaskRebuild extends PlacementManagerTask
@@ -52,42 +52,60 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 				return;
 			}
 
+			boolean shouldLoad = false;
+
 			if (manager.canHandleChunk(level, this.cx(), this.cz()))
 			{
 				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
 				{
 					worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
 					worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
-					manager.setVisibleSubChunksNeedsUpdate();       // todo
+					manager.setVisibleSubChunksNeedsUpdate();
 				}
 
-				worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
+//				worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
+				shouldLoad = true;
 			}
 
-			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+//			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+//			{
+			if (shouldLoad)
 			{
+				ProtoChunkSchematic protoChunk = new ProtoChunkSchematic(new ChunkSchematic(worldSchematic, this.pos()));
 				Collection<SchematicPlacement> placements = manager.getAllSchematicsTouchingChunk(this.pos());
+
+				protoChunk.setState(ChunkSchematicState.PROTO);
 
 				if (!placements.isEmpty())
 				{
-					ReplaceBehavior behavior = (ReplaceBehavior) Configs.Generic.PLACEMENT_REPLACE_BEHAVIOR.getOptionListValue();
-					PasteLayerBehavior layers = (PasteLayerBehavior) Configs.Generic.PASTE_LAYER_BEHAVIOR.getOptionListValue();
-
 					for (SchematicPlacement placement : placements)
 					{
 						if (placement.isEnabled())
 						{
-							SchematicPlacingUtils.placeToWorldWithinChunk(worldSchematic, this.pos(), placement, behavior, layers, false);
+							WorldPlacingUtils.placeToProtoChunk(protoChunk, this.pos(), placement);
 						}
 					}
 
-					worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
-					manager.setVisibleSubChunksNeedsUpdate();
+					// Load Real Chunk and spawn the entities
+					worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
+					worldSchematic.getChunkProvider().replaceChunk(this.cx(), this.cz(), protoChunk.getWrapped());
+					protoChunk.spawnAllEntitiesNow(worldSchematic);
+					protoChunk.clear();
+				}
+				else
+				{
+					worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
 				}
 
-//				manager.removePendingRebuildFor(this.pos());
-				PlacementManagerDaemonHandler.INSTANCE.removeUnloadTasksFor(this.cx(), this.cz());
-				PlacementManagerDaemonHandler.INSTANCE.removeRebuildTasksFor(this.cx(), this.cz());
+				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+				{
+//				      manager.removePendingRebuildFor(this.pos());
+					worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
+					manager.setVisibleSubChunksNeedsUpdate();
+
+					PlacementManagerDaemonHandler.INSTANCE.removeUnloadTasksFor(this.cx(), this.cz());
+					PlacementManagerDaemonHandler.INSTANCE.removeRebuildTasksFor(this.cx(), this.cz());
+				}
 			}
 		};
 	}

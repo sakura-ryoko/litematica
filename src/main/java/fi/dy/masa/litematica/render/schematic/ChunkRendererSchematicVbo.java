@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -78,7 +79,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected final List<IntBoundingBox> boxes;
     protected final EnumSet<OverlayRenderType> existingOverlays;
 
-    private net.minecraft.world.phys.AABB boundingBox;
+    private AABB boundingBox;
     protected Color4f overlayColor;
     protected boolean hasOverlay;
     private boolean ignoreClientWorldFluids;
@@ -211,14 +212,14 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return this.position;
     }
 
-    public net.minecraft.world.phys.AABB getBoundingBox()
+    public AABB getBoundingBox()
     {
         if (this.boundingBox == null)
         {
             int x = this.position.getX();
             int y = this.position.getY();
             int z = this.position.getZ();
-            this.boundingBox = new net.minecraft.world.phys.AABB(x, y, z, x + 16, y + this.world.getHeight(), z + 16);
+            this.boundingBox = new AABB(x, y, z, x + 16, y + this.world.getHeight(), z + 16);
         }
 
         return this.boundingBox;
