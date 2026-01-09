@@ -165,6 +165,7 @@ public class ChunkManagerSchematic extends ChunkSource
 
         if (this.hasChunk(chunkX, chunkZ))
         {
+            this.world.unloadEntitiesByChunk(chunkX, chunkZ);
             this.unloadChunk(chunkX, chunkZ);
         }
 

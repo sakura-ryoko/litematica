@@ -1,6 +1,9 @@
 package fi.dy.masa.litematica.world;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
@@ -59,7 +62,6 @@ import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 
 import fi.dy.masa.malilib.util.WorldUtils;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 
@@ -72,13 +74,13 @@ public class WorldSchematic extends Level
     @Nullable protected final WorldRendererSchematic worldRenderer;
     private final TickRateManager tickManager;
     private final Holder<DimensionType> dimensionType;
-    private final HashMap<UUID, ChunkPos> entityMap;
+//    private final HashMap<UUID, ChunkPos> entityMap;
     private final SchematicEntityLookup<Entity> entityLookup;
     protected Holder<Biome> biome;
 //    private DimensionEffects dimensionEffects = new DimensionEffects.Overworld();
     private LevelData.RespawnData properties;
     protected int nextEntityId;
-    protected int entityCount;
+//    protected int entityCount;
 
     public WorldSchematic(WritableLevelData properties,
                           @Nonnull RegistryAccess registryManager,
@@ -108,8 +110,8 @@ public class WorldSchematic extends Level
         }
 
         this.tickManager = new TickRateManager();
-        this.entityCount = 0;
-        this.entityMap = new HashMap<>();
+//        this.entityCount = 0;
+//        this.entityMap = new HashMap<>();
         this.entityLookup = new SchematicEntityLookup<>();
         this.properties = LevelData.RespawnData.DEFAULT;
     }
@@ -183,7 +185,8 @@ public class WorldSchematic extends Level
 
     public String getEntityDebug()
     {
-        return String.format("eL: %02d, eM: %02d, cE: %02d", this.entityLookup.size(), this.entityMap.size(), this.entityCount);
+        // , this.entityMap.size()
+        return String.format("%s", this.entityLookup.getDebugString());
     }
 
     @Override
@@ -240,89 +243,140 @@ public class WorldSchematic extends Level
         int chunkX = Mth.floor(entity.getX() / 16.0D);
         int chunkZ = Mth.floor(entity.getZ() / 16.0D);
 
-        if (!this.chunkManagerSchematic.hasChunk(chunkX, chunkZ))
-        {
-            return false;
-        }
+        // A fresh spawn could cross a chunk border; so perhaps
+        // it could be in the adjacent chunk than
+        // originally spawned in with.
+//        if (!this.chunkManagerSchematic.hasChunk(chunkX, chunkZ))
+//        {
+//            return false;
+//        }
             // TODO --> MOVE TO SchematicEntityLookup
 //            this.chunkManagerSchematic.getChunkForLighting(chunkX, chunkZ).addEntity(entity);
 
         if (this.entityLookup.contains(entity.getUUID()))
         {
-            return false;
-        }
+            Entity e = this.entityLookup.get(entity.getUUID());
 
-        if (!this.entityMap.containsKey(entity.getUUID()))
-        {
-            if (this.entityLookup.contains(entity.getId()) ||
-                entity.getId() < 0)
+            if (e != null && e.getType().equals(entity.getType()))
             {
-                entity.setId(this.nextEntityId++);
+                if (e.position().equals(entity.position()))
+                {
+//                    Litematica.LOGGER.warn("addFreshEntity: [cx: {}, cz {}] -- types & positions are equal, skipping [{}/{}]",
+//                                           chunkX, chunkZ,
+//                                           entity.getStringUUID(),
+//                                           entity.getType().getDescription().getString()
+//                    );
+                    return false;
+                }
+
+//                // Split the POS difference, and merge.
+//                final double diff = entity.position().distanceTo(e.position()) / 2;
+//                final Vec3 adjPos = entity.position().subtract(diff, 0, diff);
+//
+//                Litematica.LOGGER.warn("addFreshEntity: [cx: {}, cz {}] -- merge({}) [{}/{}] @ DIFF-ADJ({}) // [{}] --> [{}]", chunkX, chunkZ,
+//                                       entity.getId(),
+//                                       entity.getStringUUID(),
+//                                       entity.getType().getDescription().getString(),
+//                                       diff, e.position().toString(), adjPos.toString());
+//
+//                e.setPos(adjPos.x, adjPos.y, adjPos.z);
+//                this.entityLookup.swapOnly(e);
+//
+//                return true;
+
+//                Litematica.LOGGER.warn("addFreshEntity: [cx: {}, cz {}] -- Removing previous entry [{}/{}]",
+//                                       chunkX, chunkZ,
+//                                       entity.getStringUUID(),
+//                                       entity.getType().getDescription().getString()
+//                );
+
+                this.entityLookup.remove(entity.getUUID());
             }
-
-            Litematica.LOGGER.error("addFreshEntity(): [cx: {}, cz {}] -- add({}) [{}/{}] @ [{}]", chunkX, chunkZ,
-                                    entity.getId(),
-                                    entity.getStringUUID(),
-                                    entity.getType().getDescription().getString(),
-                                    entity.position().toString());
-
-            ++this.entityCount;
-            this.entityMap.put(entity.getUUID(), new ChunkPos(chunkX, chunkZ));
-            this.entityLookup.put(entity);
-            return true;
+            else
+            {
+//                Litematica.LOGGER.warn("addFreshEntity: [cx: {}, cz {}] -- UUID is equal, skipping [{}/{}]",
+//                                       chunkX, chunkZ,
+//                                       entity.getStringUUID(),
+//                                       entity.getType().getDescription().getString()
+//                );
+                return false;
+            }
         }
 
-        return false;
-    }
+        ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
 
-    public void unloadedEntities(int count)
-    {
-        this.entityCount -= count;
-
-        if (this.entityCount <= 0)
+        if (this.entityLookup.contains(entity.getId()) ||
+            entity.getId() < 0)
         {
-            this.entityLookup.reset();
-            this.entityMap.clear();
-            this.entityCount = 0;
-            this.nextEntityId = 0;
+            entity.setId(this.nextEntityId++);
         }
+
+//        Litematica.LOGGER.error("addFreshEntity(): [cx: {}, cz {}] -- add({}) [{}/{}] @ [{}]", chunkX, chunkZ,
+//                                entity.getId(),
+//                                entity.getStringUUID(),
+//                                entity.getType().getDescription().getString(),
+//                                entity.position().toString());
+
+//        ++this.entityCount;
+//        this.entityMap.put(entity.getUUID(), new ChunkPos(chunkX, chunkZ));
+        this.entityLookup.put(entity, chunkPos);
+        return true;
     }
+
+//    public void unloadedEntities(int count)
+//    {
+//        this.entityCount -= count;
+//
+//        if (this.entityCount <= 0)
+//        {
+//            this.entityLookup.reset();
+////            this.entityMap.clear();
+//            this.entityCount = 0;
+//            this.nextEntityId = 0;
+//        }
+//    }
 
     public void unloadEntitiesByChunk(int chunkX, int chunkZ)
     {
-        List<UUID> list = new ArrayList<>();
+        if (!this.hasChunk(chunkX, chunkZ))
+        {
+            return;
+        }
 
-        this.entityMap.forEach(
-                (u, cp) ->
-                {
-                    if (cp.x == chunkX && cp.z == chunkZ)
-                    {
-                        list.add(u);
-                    }
-                });
+        ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+        int count = this.entityLookup.removeByChunk(pos);
 
-        list.forEach(
-                (uuid) ->
-                {
-                    synchronized (this.entityMap)
-                    {
-                        this.entityMap.remove(uuid);
-                    }
+//        this.entityMap.forEach(
+//                (u, cp) ->
+//                {
+//                    if (cp.x == chunkX && cp.z == chunkZ)
+//                    {
+//                        list.add(u);
+//                    }
+//                });
 
-                    this.entityLookup.remove(uuid);
-                });
+//        list.forEach(
+//                (uuid) ->
+//                {
+//                    synchronized (this.entityMap)
+//                    {
+//                        this.entityMap.remove(uuid);
+//                    }
+//
+//                    this.entityLookup.remove(uuid);
+//                });
 
-        this.unloadedEntities(list.size());
+//        this.unloadedEntities(count);
         this.checkForStaleEntities();
     }
 
     private void checkForStaleEntities()
     {
-        if (this.entityMap.isEmpty() && this.entityLookup.size() > 0)
+        if (this.entityLookup.size() < 1)
         {
             this.entityLookup.reset();
-            this.entityMap.clear();
-            this.entityCount = 0;
+//            this.entityMap.clear();
+//            this.entityCount = 0;
             this.nextEntityId = 0;
         }
     }
@@ -332,6 +386,13 @@ public class WorldSchematic extends Level
     public Entity getEntity(int id)
     {
         return this.getEntities().get(id);
+    }
+
+    @Nullable
+    @Override
+    public Entity getEntity(@Nonnull UUID uuid)
+    {
+        return this.getEntities().get(uuid);
     }
 
     protected void closeEntityLookup() throws Exception
@@ -347,8 +408,8 @@ public class WorldSchematic extends Level
         }
         catch (Exception ignored) { }
 
-        this.entityMap.clear();
-        this.entityCount = 0;
+//        this.entityMap.clear();
+//        this.entityCount = 0;
         this.nextEntityId = 0;
     }
 
@@ -388,13 +449,33 @@ public class WorldSchematic extends Level
         return this.entityLookup;
     }
 
+    public ImmutableList<Entity> getEntitiesByChunk(int cx, int cz, @Nonnull Predicate<? super Entity> predicate)
+    {
+        if (!this.hasChunk(cx, cz))
+        {
+            return ImmutableList.of();
+        }
+
+        ImmutableList.Builder<Entity> builder = ImmutableList.builder();
+
+	    for (Entity e : this.entityLookup.getAllByChunk(new ChunkPos(cx, cz)))
+	    {
+		    if (e != null && predicate.test(e))
+		    {
+			    builder.add(e);
+		    }
+	    }
+
+        return builder.build();
+    }
+
     @Override
     public @Nonnull List<Entity> getEntities(@Nullable final Entity except, @Nonnull final AABB box, @Nonnull Predicate<? super Entity> predicate)
     {
         final List<Entity> list = new ArrayList<>();
 //        List<ChunkSchematic> chunks = this.getChunksWithinBox(box);
-
-        // TODO --> MOVE TO SchematicEntityLookup
+//        List<UUID> refs = new ArrayList<>();
+//
 //        for (ChunkSchematic chunk : chunks)
 //        {
 //            chunk.getEntityList().forEach((e) -> {
@@ -402,6 +483,10 @@ public class WorldSchematic extends Level
 //	                list.add(e);
 //                }
 //            });
+
+//            chunk.getEntityReferences().stream()
+//                 .filter(u -> !refs.contains(u))
+//                 .forEach(refs::add);
 //        }
 
         this.getEntities().get(box, e ->
@@ -420,8 +505,7 @@ public class WorldSchematic extends Level
     {
         ArrayList<T> list = new ArrayList<>();
 
-        // TODO --> MOVE TO SchematicEntityLookup
-        for (Entity e : this.getEntities((Entity) null, box, e -> true))
+        for (Entity e : this.getEntities(arg, box, e -> true))
         {
             T t = arg.tryCast(e);
 
@@ -699,7 +783,8 @@ public class WorldSchematic extends Level
     @Override
     public @Nonnull String gatherChunkSourceStats()
     {
-        return "Chunks[SCH] W: "+this.getChunkSource().gatherStats()+" E: "+this.getRegularEntityCount()+" (eL: "+this.entityLookup.size()+"/"+ this.entityMap.size()+")";
+        // +"/"+ this.entityMap.size()
+        return "Chunks[SCH] W: "+this.getChunkSource().gatherStats()+" E: "+this.getRegularEntityCount()+" (eL: "+this.entityLookup.size()+")";
     }
 
     @Override

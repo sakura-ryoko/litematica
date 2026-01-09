@@ -141,10 +141,13 @@ public class LitematicaDebugHud implements DebugScreenEntry
 				                       str
 				));
 
-				list.add(String.format("%s[Litematica]%s %s",
-				                       pre, rst,
-				                       pmStr
-				));
+				if (Reference.DEBUG_MODE)
+				{
+					list.add(String.format("%s[Litematica]%s %s",
+					                       pre, rst,
+					                       pmStr
+					));
+				}
 
 				if (!pair.getLeft().isEmpty())
 				{
@@ -167,10 +170,13 @@ public class LitematicaDebugHud implements DebugScreenEntry
 				                       rst+pre, rst
 				));
 
-				list.add(String.format("PM- %s %s[Litematica]%s",
-				                       pmStr,
-				                       pre, rst
-                ));
+				if (Reference.DEBUG_MODE)
+				{
+					list.add(String.format("%s %s[Litematica]%s",
+					                       pmStr,
+					                       pre, rst
+					));
+				}
 
 				if (!pair.getLeft().isEmpty())
 				{

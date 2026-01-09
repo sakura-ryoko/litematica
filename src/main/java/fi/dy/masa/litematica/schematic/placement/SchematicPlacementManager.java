@@ -268,6 +268,7 @@ public class SchematicPlacementManager
         if (worldSchematic.getChunkProvider().hasChunk(chunkX, chunkZ))
         {
             //System.out.printf("unloading chunk at %d, %d\n", chunkX, chunkZ);
+            worldSchematic.unloadEntitiesByChunk(chunkX,chunkZ);
             worldSchematic.getChunkProvider().unloadChunk(chunkX, chunkZ);
             worldSchematic.scheduleChunkRenders(chunkX, chunkZ);
             this.visibleChunksNeedsUpdate = true;

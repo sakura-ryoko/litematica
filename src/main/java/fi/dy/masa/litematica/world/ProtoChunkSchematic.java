@@ -78,6 +78,11 @@ public class ProtoChunkSchematic extends ImposterProtoChunk
 		this.entities.clear();
 	}
 
+	public int getEntityCount()
+	{
+		return this.entities.size();
+	}
+
 	public synchronized void clear()
 	{
 		this.entities.clear();

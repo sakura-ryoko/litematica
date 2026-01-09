@@ -212,6 +212,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return this.position;
     }
 
+    protected ChunkPos getChunkPos()
+    {
+        return this.chunkPosition;
+    }
+
     public AABB getBoundingBox()
     {
         if (this.boundingBox == null)

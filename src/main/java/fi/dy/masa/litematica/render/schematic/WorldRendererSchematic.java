@@ -2,8 +2,10 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.lang.Math;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
 
@@ -77,6 +79,7 @@ import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -124,7 +127,7 @@ public class WorldRendererSchematic
     //private ShaderGroup entityOutlineShader;
     //private boolean entityOutlinesRendered;
 
-    private final List<UUID> renderedEntities;
+    private final HashMap<Vec3, UUID> renderedEntities;
     private int renderDistanceChunks;
     private int renderEntitiesStartupCounter;
     private int countEntitiesTotal;
@@ -144,7 +147,7 @@ public class WorldRendererSchematic
         this.blockRenderManager = Minecraft.getInstance().getBlockRenderer();
 	    this.blockEntities = new HashSet<>();
 	    this.renderInfos = new ArrayList<>(1024);
-        this.renderedEntities = new ArrayList<>();
+        this.renderedEntities = new HashMap<>();
         this.entityRenderManager = mc.getEntityRenderDispatcher();
         this.blockEntityRenderManager = mc.getBlockEntityRenderDispatcher();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors(), this.blockRenderManager);
@@ -1218,26 +1221,31 @@ public class WorldRendererSchematic
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
             {
                 BlockPos pos = chunkRenderer.getOrigin();
-                ChunkSchematic chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
+                ChunkPos chunkPos = chunkRenderer.getChunkPos();
+//                ChunkPos chunkPos = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
+//                ChunkSchematic chunk = this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
 //                List<Entity> list = chunk.getEntityList();
-                AABB bb = chunk.getBoundingBox();
-                List<Entity> list = this.world.getEntities((Entity) null, bb, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
+//                AABB bb = chunkRenderer.getBoundingBox();
+//                List<Entity> list = this.world.getEntities((Entity) null, bb, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
+                ImmutableList<Entity> list = this.world.getEntitiesByChunk(chunkPos.x, chunkPos.z, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
 
-//                LOGGER.error("[WorldRenderer] Chunk: [{}], EntityList [{}]", pos.toShortString(), list.size());
-//                LOGGER.warn("[WorldRenderer] Chunk: [{}], BB: [{}] // TestList: [{}]", pos.toShortString(), bb.toString(), list.size());
+//                LOGGER.error("[WorldRenderer] prepareEntities: Chunk: {}, EntityList [{}] // BB: [{}]", chunkPos.toString(), list.size(), bb.toString());
+//                LOGGER.warn("[WorldRenderer] prepareEntities: Chunk: [{}], TestList: [{}]", pos.toShortString(), list.size());
 
                 for (Entity entityTmp : list)
                 {
-//                    LOGGER.error("[WorldRenderer] Chunk: [{}], Entity [{}/{}], CHK-Pos: [X: {} (vs {}), Y: {} (vs {}), Z: {} (vs {})]",
-//                                            pos.toShortString(),
-//                                            entityTmp.getName().getString(), entityTmp.getUuidAsString(),
-//                                            entityTmp.getX(), (int) entityTmp.getX(),
-//                                            entityTmp.getY(), (int) entityTmp.getY(),
-//                                            entityTmp.getZ(), (int) entityTmp.getZ()
+//                    LOGGER.error("[WorldRenderer] prepareEntities/iterate: Chunk: {}, Entity [{}/{}], CHK-Pos: [X: {}, Y: {}, Z: {}]",
+//                                            chunkPos.toString(),
+//                                            entityTmp.getName().getString(), entityTmp.getStringUUID(),
+//                                            entityTmp.getX(),
+//                                            entityTmp.getY(),
+//                                            entityTmp.getZ()
 //                    );
 
-                    if (this.renderedEntities.contains(entityTmp.getUUID()) || !layerRange.isPositionWithinRange((int) entityTmp.getX(), (int) entityTmp.getY(), (int) entityTmp.getZ()))
+                    if ((this.renderedEntities.containsKey(entityTmp.position()) && this.renderedEntities.get(entityTmp.position()).equals(entityTmp.getUUID())) ||
+                        !layerRange.isPositionWithinRange(MathUtils.floor(entityTmp.getX()), MathUtils.floor(entityTmp.getY()), MathUtils.floor(entityTmp.getZ())))
                     {
+//                        LOGGER.warn("[WorldRenderer] prepareEntities/iterate: Chunk: {}, Skipping POS / UUID [{}]", chunkPos.toString(), entityTmp.position(), entityTmp.getStringUUID());
                         continue;
                     }
 
@@ -1254,7 +1262,7 @@ public class WorldRendererSchematic
                             if (state != null)
                             {
                                 this.schematicRenderState.entityStates.add(state);
-                                this.renderedEntities.add(entityTmp.getUUID());
+                                this.renderedEntities.put(entityTmp.position(), entityTmp.getUUID());
                                 ++this.countEntitiesRendered;
                             }
                         }
@@ -1267,7 +1275,9 @@ public class WorldRendererSchematic
 
                     if (shouldRender)
                     {
-//                        LOGGER.warn("[WorldRenderer] Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]", pos.toShortString(), entityTmp.getBlockPos().toShortString(), x, y, z);
+//                        LOGGER.warn("[WorldRenderer] prepareEntities/shouldRender: Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]",
+//                                    pos.toShortString(), entityTmp.position().toString(),
+//                                    entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
 
                         // Check for Salmon / Cod 'inWater' fix
                         // Because the entities might be following the ClientWorld State
@@ -1288,7 +1298,7 @@ public class WorldRendererSchematic
 						EntityRenderState state = this.entityRenderManager.extractEntity(entityTmp, tickProgress);
 						this.schematicRenderState.entityStates.add(state);
 
-                        this.renderedEntities.add(entityTmp.getUUID());
+                        this.renderedEntities.put(entityTmp.position(), entityTmp.getUUID());
                         ++this.countEntitiesRendered;
                     }
 //                    else

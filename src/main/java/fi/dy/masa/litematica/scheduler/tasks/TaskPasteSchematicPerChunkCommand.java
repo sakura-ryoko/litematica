@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.Queues;
@@ -162,7 +163,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected void prepareSummoningEntities(IntBoundingBox box)
     {
-        net.minecraft.world.phys.AABB bb = new net.minecraft.world.phys.AABB(box.minX(), box.minY(), box.minZ(), box.maxX() + 1, box.maxY() + 1, box.maxZ() + 1);
+        AABB bb = new AABB(box.minX(), box.minY(), box.minZ(), box.maxX() + 1, box.maxY() + 1, box.maxZ() + 1);
         this.entityIterator = this.schematicWorld.getEntities((Entity) null, bb, (e) -> true).iterator();
         this.phase = TaskPhase.PROCESS_BOX_ENTITIES;
     }

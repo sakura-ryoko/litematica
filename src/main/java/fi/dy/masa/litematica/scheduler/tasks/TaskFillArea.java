@@ -13,6 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
@@ -178,7 +180,7 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
 
     public static void directRemoveEntities(IntBoundingBox box, Level world)
     {
-        net.minecraft.world.phys.AABB aabb = new net.minecraft.world.phys.AABB(box.minX(), box.minY(), box.minZ(), box.maxX() + 1, box.maxY() + 1, box.maxZ() + 1);
+        AABB aabb = new AABB(box.minX(), box.minY(), box.minZ(), box.maxX() + 1, box.maxY() + 1, box.maxZ() + 1);
         List<Entity> entities = world.getEntities((Entity) null, aabb, EntityUtils.NOT_PLAYER);
 
         for (Entity entity : entities)
@@ -194,7 +196,7 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
     {
         if (removeEntities)
         {
-            net.minecraft.world.phys.AABB aabb = new net.minecraft.world.phys.AABB(box.minX(), box.minY(), box.minZ(), box.maxX() + 1, box.maxY() + 1, box.maxZ() + 1);
+            AABB aabb = new AABB(box.minX(), box.minY(), box.minZ(), box.maxX() + 1, box.maxY() + 1, box.maxZ() + 1);
 
             if (this.world.getEntities(this.mc.player, aabb, EntityUtils.NOT_PLAYER).size() > 0)
             {

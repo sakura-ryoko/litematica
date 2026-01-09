@@ -31,8 +31,8 @@ public class PlacementManagerTaskUnload extends PlacementManagerTask
 
 			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
 			{
-				worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
 				worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
+				worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
 				worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
 				manager.setVisibleSubChunksNeedsUpdate();
 			}
