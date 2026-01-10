@@ -12,20 +12,14 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 {
     private final ChunkRendererSchematicVbo chunkRenderer;
     private final ChunkRenderTaskSchematic.Type type;
-    // Threaded
-    //private final ConcurrentLinkedQueue<Runnable> finishRunnables = new ConcurrentLinkedQueue<>();
     private final List<Runnable> listFinishRunnables;
     private final ReentrantLock lock;
-    //
     private final Supplier<Vec3> cameraPosSupplier;
     private final double distanceSq;
     private BufferAllocatorCache allocatorCache;
     private ChunkRenderDataSchematic chunkRenderData;
-    // Threaded
-    //private final AtomicReference<ChunkRenderTaskSchematic.Status> status = new AtomicReference<>(Status.PENDING);
     private ChunkRenderTaskSchematic.Status status;
     private boolean finished;
-    //
 
     public ChunkRenderTaskSchematic(ChunkRendererSchematicVbo renderChunkIn, ChunkRenderTaskSchematic.Type typeIn, Supplier<Vec3> cameraPosSupplier, double distanceSqIn)
     {
@@ -45,8 +39,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     public ChunkRenderTaskSchematic.Status getStatus()
     {
-        //Threaded Code
-        //return this.status.get();
         return this.status;
     }
 
@@ -90,49 +82,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.allocatorCache = allocatorCache;
         return true;
     }
-
-    /* Threaded Code
-    protected Status casStatus(Status expected, Status nStatus)
-    {
-        return status.compareAndExchange(expected, nStatus);
-    }
-
-    protected void finish()
-    {
-        Status current = status.get();
-
-        if (current == Status.DONE)
-        {
-            return;
-        }
-        if (status.compareAndSet(current,Status.DONE))
-        {
-            Runnable runnable;
-            while((runnable = finishRunnables.poll())!= null)
-            {
-                runnable.run();
-            }
-        }
-    }
-
-    protected void addFinishRunnable(Runnable runnable)
-    {
-        if (status.get() == Status.DONE)
-        {
-            runnable.run();
-            return;
-        }
-        finishRunnables.add(runnable);
-        if (status.get() == Status.DONE)
-        {
-            runnable = finishRunnables.poll();
-            if (runnable != null)
-            {
-                runnable.run();
-            }
-        }
-    }
-     */
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {

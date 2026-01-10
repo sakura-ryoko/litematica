@@ -195,9 +195,9 @@ public class WidgetSchematicPlacement extends WidgetListEntryBase<SchematicPlace
 
 		public enum ButtonType
 		{
-			CONFIGURE("litematica.gui.button.schematic_placements.configure"),
-			REMOVE("litematica.gui.button.schematic_placements.remove"),
-			TOGGLE_ENABLED("litematica.gui.button.schematic_placements.placement_enabled");
+			CONFIGURE       ("litematica.gui.button.schematic_placements.configure"),
+			REMOVE          ("litematica.gui.button.schematic_placements.remove"),
+			TOGGLE_ENABLED  ("litematica.gui.button.schematic_placements.placement_enabled");
 
 			private final String translationKey;
 

@@ -165,8 +165,8 @@ public class WidgetPlacementSubRegion extends WidgetListEntryBase<SubRegionPlace
         }
     }
 
-	private record ButtonListener(WidgetSchematicPlacement.ButtonListener.ButtonType type,
-								  WidgetPlacementSubRegion widget) implements IButtonActionListener
+	private record ButtonListener(WidgetSchematicPlacement.ButtonListener.ButtonType type, WidgetPlacementSubRegion widget)
+            implements IButtonActionListener
 	{
 		@Override
 		public void actionPerformedWithButton(ButtonBase button, int mouseButton)

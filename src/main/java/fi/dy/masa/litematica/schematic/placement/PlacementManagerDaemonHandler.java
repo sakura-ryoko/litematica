@@ -13,11 +13,13 @@ import fi.dy.masa.malilib.interfaces.IThreadDaemonHandler;
 import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
-	private final static int MAX_THREADS = 4;       // You should never need more than this.
 	private final int threadCount = this.calculateMaxThreads();
 	private final ConcurrentHashMap<String, Pair<Thread, PlacementManagerDaemonExecutor>> threadMap = this.builder();
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
@@ -32,8 +34,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	private int calculateMaxThreads()
 	{
-		// Don't use more than 1 / 4 of possible Platform threads for this; or MAX_THREADS.
-		return Math.clamp((Runtime.getRuntime().availableProcessors() / 4), 1, MAX_THREADS);
+		// Don't use more than 1 / 4 of possible Platform threads for this; or MAX_PLATFORM_THREADS.
+		return Math.clamp((Runtime.getRuntime().availableProcessors() / 4), 1, Reference.MAX_PLATFORM_THREADS);
 	}
 
 	private ConcurrentHashMap<String, Pair<Thread, PlacementManagerDaemonExecutor>> builder()
@@ -93,17 +95,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	public void reset()
 	{
 		this.updateAll();
-		this.stop();
-		this.start();
 	}
-
-//	protected void scheduleFullRebuild(Supplier<WorldSchematic> supplier, int cx, int cz)
-//	{
-//		this.addTask(new PlacementManagerTaskUnload(supplier, cx, cz));
-//		this.addTask(new PlacementManagerTaskLoad(supplier, cx, cz));
-//		this.addTask(new PlacementManagerTaskFillChunk(supplier, cx, cz));
-//		this.addTask(new PlacementManagerTaskNeedsUpdate(supplier, cx, cz));
-//	}
 
 	@Override
 	public synchronized void addTask(PlacementManagerTask newTask)
@@ -131,7 +123,12 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			return this.queueRebuild.poll();
 		}
 
-		return this.queueOther.poll();
+		if (!this.queueOther.isEmpty())
+		{
+			return this.queueOther.poll();
+		}
+
+		return null;
 	}
 
 	@Override
@@ -160,15 +157,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		// Scheduled maintenance tasks
 		if ((now - this.lastTick) > this.getTaskInterval())
 		{
-			this.threadMap.forEach(
-					(name, pair) ->
-					{
-						if (!pair.getLeft().isAlive())
-						{
-							pair.getLeft().interrupt();
-						}
-					}
-			);
+			this.ensureThreadSafety();
 
 			if (this.processing && this.allDone())
 			{
@@ -181,6 +170,32 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			// Scheduled updates
 			this.lastTick = now;
 		}
+	}
+
+	private void ensureThreadSafety()
+			throws RuntimeException
+	{
+		this.threadMap.forEach(
+				(name, pair) ->
+				{
+					if (!pair.getLeft().isAlive() || pair.getLeft().isInterrupted())
+					{
+						String err = String.format("'%s' was killed [%s]", name, this.getThreadStatus(pair.getLeft()));
+						this.updateAll();
+						this.stop();
+
+						TemporaryWorldManager.INSTANCE.reset();
+						EntitiesDataStorage.getInstance().reset(true);
+						Configs.saveToFile();
+						DataManager.save(true);
+						DataManager.getInstance().reset(true);
+						DataManager.clear();
+						Litematica.LOGGER.fatal(err);
+
+						throw new RuntimeException(err);
+					}
+				}
+		);
 	}
 
 	private String getThreadStatus(Thread thread)

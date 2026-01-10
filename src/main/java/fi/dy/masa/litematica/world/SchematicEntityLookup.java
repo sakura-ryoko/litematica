@@ -17,6 +17,10 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
 
+/**
+ * Vanilla-compatible Entity Storage
+ * @param <T> ()
+ */
 public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntityGetter<T>, AutoCloseable
 {
     private final ConcurrentHashMap<Integer, T> entityMap;

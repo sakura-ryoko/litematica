@@ -31,7 +31,6 @@ public class GuiMainMenu extends GuiBase
         int y = 30;
         int width = this.getButtonWidth();
 
-//        this.bindTexture(ButtonIcons.TEXTURE, this.getDrawContext());
         this.createChangeMenuButton(x, y, width, ButtonListenerChangeMenu.ButtonType.SCHEMATIC_PLACEMENTS);
         y += 22;
         this.createChangeMenuButton(x, y, width, ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS);
@@ -216,15 +215,8 @@ public class GuiMainMenu extends GuiBase
         }
     }
 
-    private static class ButtonListenerCycleToolMode implements IButtonActionListener
+    private record ButtonListenerCycleToolMode(GuiMainMenu gui) implements IButtonActionListener
     {
-        private final GuiMainMenu gui;
-
-        private ButtonListenerCycleToolMode(GuiMainMenu gui)
-        {
-            this.gui = gui;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
@@ -234,15 +226,8 @@ public class GuiMainMenu extends GuiBase
         }
     }
 
-    private static class ButtonListenerCycleAreaMode implements IButtonActionListener
+    private record ButtonListenerCycleAreaMode(GuiMainMenu gui) implements IButtonActionListener
     {
-        private final GuiMainMenu gui;
-
-        private ButtonListenerCycleAreaMode(GuiMainMenu gui)
-        {
-            this.gui = gui;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {

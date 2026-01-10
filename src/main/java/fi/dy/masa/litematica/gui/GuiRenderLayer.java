@@ -85,15 +85,8 @@ public class GuiRenderLayer extends GuiRenderLayerEditBase
         return y;
     }
 
-    private static class ButtonListenerTab implements IButtonActionListener
+    private record ButtonListenerTab(ConfigGuiTab tab) implements IButtonActionListener
     {
-        private final ConfigGuiTab tab;
-
-        public ButtonListenerTab(ConfigGuiTab tab)
-        {
-            this.tab = tab;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {

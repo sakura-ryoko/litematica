@@ -1,8 +1,14 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import javax.annotation.Nullable;
-import net.minecraft.world.level.ChunkPos;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
+
+import net.minecraft.world.level.ChunkPos;
+
+import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRenderDispatcherSchematic
@@ -15,7 +21,7 @@ public class ChunkRenderDispatcherSchematic
     protected int viewDistanceBlocksSq;
 
     protected ChunkRenderDispatcherSchematic(WorldSchematic world, int viewDistanceChunks,
-            WorldRendererSchematic worldRenderer, IChunkRendererFactory factory)
+                                             WorldRendererSchematic worldRenderer, IChunkRendererFactory factory)
     {
         this.chunkRendererFactory = factory;
 		this.chunkRenderers = new Long2ObjectOpenHashMap<>();
@@ -52,10 +58,65 @@ public class ChunkRenderDispatcherSchematic
         return false;
     }
 
-    protected void removeOutOfRangeRenderers()
+    protected synchronized void removeOutOfRangeRenderers()
     {
         // Remove renderers that go out of view distance
-        this.chunkRenderers.values().removeIf(this::rendererOutOfRange);
+//        this.chunkRenderers.values().removeIf(this::rendererOutOfRange);
+        Long2ObjectOpenHashMap<ChunkRendererSchematicVbo> newList = new Long2ObjectOpenHashMap<>();
+
+        if (!this.chunkRenderers.isEmpty())
+        {
+            int prevCount = this.chunkRenderers.size();
+
+            try
+            {
+                final LongSet keys = this.chunkRenderers.keySet();
+
+                for (long key : keys)
+                {
+                    try
+                    {
+                        ChunkRendererSchematicVbo cr = this.chunkRenderers.get(key);
+
+                        if (cr != null)
+                        {
+                            if (!this.rendererOutOfRange(cr))
+                            {
+                                newList.put(key, cr);
+                            }
+                            else
+                            {
+                                ChunkPos pos = cr.getChunkPos();
+                                cr.deleteGlResources();
+
+                                // Because sometimes they aren't unloaded
+                                // properly when not actively rendering a placement
+                                if (this.world.getChunkProvider().hasChunk(pos.x, pos.z))
+                                {
+                                    DataManager.getSchematicPlacementManager().markChunkForUnload(pos);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Litematica.LOGGER.error("removeOutOfRangeRenderers: get() threw an exception; {}", e.getMessage());
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Litematica.LOGGER.error("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getMessage());
+            }
+
+            if (Reference.DEBUG_MODE && prevCount != newList.size())
+            {
+                Litematica.LOGGER.warn("[Dispatch] removeOutOfRangeRenderers: [{}] -> [{}}", prevCount, newList.size());
+            }
+        }
+
+        this.chunkRenderers.clear();
+        this.chunkRenderers.putAll(newList);
     }
 
     protected void scheduleChunkRender(int chunkX, int chunkZ)
@@ -71,17 +132,17 @@ public class ChunkRenderDispatcherSchematic
     protected ChunkRendererSchematicVbo getOrCreateChunkRenderer(int chunkX, int chunkZ)
     {
         long index = ChunkPos.asLong(chunkX, chunkZ);
-        ChunkRendererSchematicVbo renderer = this.chunkRenderers.get(index);
 
-        if (renderer == null)
+        if (!this.chunkRenderers.containsKey(index))
         {
-            renderer = this.chunkRendererFactory.create(this.world, this.renderer);
+            ChunkRendererSchematicVbo renderer = this.chunkRendererFactory.create(this.world, this.renderer);
+
             renderer.setPosition(chunkX << 4, this.world.getMinY(), chunkZ << 4);
             renderer.setChunkPosition(chunkX, chunkZ);
             this.chunkRenderers.put(index, renderer);
         }
 
-        return renderer;
+        return this.chunkRenderers.get(index);
     }
 
     @Nullable

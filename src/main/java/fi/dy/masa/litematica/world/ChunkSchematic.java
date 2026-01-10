@@ -147,9 +147,6 @@ public class ChunkSchematic extends LevelChunk
         }
     }
 
-//    protected BlockState setBlockStateNoCheck(BlockPos pos, BlockState newState)
-//    {}
-
     @Nullable
     public BlockEntity createBlockEntity(BlockPos pos)
     {
@@ -205,8 +202,6 @@ public class ChunkSchematic extends LevelChunk
     public AABB getBoundingBox()
     {
         final ChunkPos pos = this.getPos();
-//        AABB bb = new AABB(pos.getMinBlockX(), this.getMinY(), pos.getMinBlockZ(), pos.getMaxBlockX(), this.getMaxY(), pos.getMaxBlockZ());
-//        Litematica.debugLog("ChunkSchematic#getBoundingBox(): --> {}", bb.toString());
         return new AABB(pos.getMinBlockX(), this.getMinY(), pos.getMinBlockZ(), pos.getMaxBlockX(), this.getMaxY(), pos.getMaxBlockZ());
     }
 

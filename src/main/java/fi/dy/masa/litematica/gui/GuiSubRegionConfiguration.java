@@ -347,9 +347,11 @@ public class GuiSubRegionConfiguration extends GuiBase
         }
     }
 
-    private record TextFieldListener(CoordinateType type, SchematicPlacement schematicPlacement,
+    private record TextFieldListener(CoordinateType type,
+                                     SchematicPlacement schematicPlacement,
                                      SubRegionPlacement placement,
-                                     GuiSubRegionConfiguration parent) implements ITextFieldListener<GuiTextFieldInteger>
+                                     GuiSubRegionConfiguration parent)
+            implements ITextFieldListener<GuiTextFieldInteger>
         {
             @Override
             public boolean onTextChange(GuiTextFieldInteger textField)
@@ -389,8 +391,8 @@ public class GuiSubRegionConfiguration extends GuiBase
             }
         }
 
-    private record CoordinateLockListener(CoordinateType type,
-                                          SubRegionPlacement placement) implements ISelectionListener<WidgetCheckBox>
+    private record CoordinateLockListener(CoordinateType type, SubRegionPlacement placement)
+            implements ISelectionListener<WidgetCheckBox>
         {
             @Override
             public void onSelectionChange(WidgetCheckBox entry)

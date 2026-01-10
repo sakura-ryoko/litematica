@@ -24,15 +24,8 @@ public class MaterialCache
 
     protected final IdentityHashMap<BlockState, ItemStack> buildItemsForStates = new IdentityHashMap<>();
     protected final IdentityHashMap<BlockState, ItemStack> displayItemsForStates = new IdentityHashMap<>();
-//    protected final WorldSchematic tempWorld;
-//    protected final BlockPos checkPos;
 
-    private MaterialCache()
-    {
-//        this.tempWorld = SchematicWorldHandler.createSchematicWorld(null);
-//        this.checkPos = new BlockPos(8, 0, 8);
-//        this.tempChunks = WorldUtils.loadChunksSchematicWorld(this.tempWorld, this.checkPos, new Vec3i(1, 1, 1));
-    }
+    private MaterialCache() { }
 
     public static MaterialCache getInstance()
     {

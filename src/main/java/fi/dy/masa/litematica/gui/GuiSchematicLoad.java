@@ -291,10 +291,10 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
 
 			public enum Type
 			{
-				LOAD_SCHEMATIC("litematica.gui.button.load_schematic_to_memory"),
-				MATERIAL_LIST("litematica.gui.button.material_list"),
-				RENAME_SCHEMATIC("litematica.gui.button.rename_schematic"),
-				RENAME_FILE("litematica.gui.button.rename_file"),
+				LOAD_SCHEMATIC      ("litematica.gui.button.load_schematic_to_memory"),
+				MATERIAL_LIST       ("litematica.gui.button.material_list"),
+				RENAME_SCHEMATIC    ("litematica.gui.button.rename_schematic"),
+				RENAME_FILE         ("litematica.gui.button.rename_file"),
 				;
 
 				private final String translationKey;

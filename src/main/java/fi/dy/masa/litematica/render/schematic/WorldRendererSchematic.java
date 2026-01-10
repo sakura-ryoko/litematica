@@ -508,7 +508,6 @@ public class WorldRendererSchematic
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("add @ %s\n", subChunk);
                         if (chunkRenderer.needsUpdate() && chunkPos.equals(viewChunk))
-//                        if (chunkPos.equals(viewPos))
                         {
                             chunkRenderer.setNeedsUpdate(true);
                         }
@@ -599,12 +598,10 @@ public class WorldRendererSchematic
                 if (immediate)
                 {
                     flag = this.renderDispatcher.updateChunkNow(renderChunk, profiler);
-//                    this.renderDispatcher.uploadChunkNow(renderChunk, profiler);
                 }
                 else
                 {
                     flag = this.renderDispatcher.updateChunkLater(renderChunk, profiler);
-//                    this.renderDispatcher.uploadChunkLater(renderChunk, profiler);
                 }
 
                 if (!flag)
@@ -957,24 +954,6 @@ public class WorldRendererSchematic
                         // LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
                     }
-
-//                    if (buffers == null)
-//                    {
-//                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS (NULL)", type.name(), chunkOrigin.toShortString());
-//                        continue;
-//                    }
-//
-//                    if (buffers.isClosed())
-//                    {
-//                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS (CLOSED)", type.name(), chunkOrigin.toShortString());
-//                        continue;
-//                    }
-//
-//                    if (!renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByType(type))
-//                    {
-//                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS (NO DATA)", type.name(), chunkOrigin.toShortString());
-//                        continue;
-//                    }
 
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
@@ -1454,30 +1433,6 @@ public class WorldRendererSchematic
 
 		profiler.pop();
 	}
-
-    /*
-    private boolean isOutlineActive(Entity entityIn, Entity viewer, Camera camera)
-    {
-        boolean sleeping = viewer instanceof LivingEntity && ((LivingEntity) viewer).isSleeping();
-
-        if (entityIn == viewer && this.mc.options.perspective == 0 && sleeping == false)
-        {
-            return false;
-        }
-        else if (entityIn.isGlowing())
-        {
-            return true;
-        }
-        else if (this.mc.player.isSpectator() && this.mc.options.keySpectatorOutlines.isPressed() && entityIn instanceof PlayerEntity)
-        {
-            return entityIn.ignoreFrustumCheck || camera.isBoundingBoxInFrustum(entityIn.getBoundingBox()) || entityIn.isRidingOrBeingRiddenBy(this.mc.player);
-        }
-        else
-        {
-            return false;
-        }
-    }
-    */
 
     public void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd)
     {

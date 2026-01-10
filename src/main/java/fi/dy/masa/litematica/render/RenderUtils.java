@@ -39,7 +39,7 @@ import fi.dy.masa.litematica.util.PositionUtils;
 
 public class RenderUtils
 {
-//    private static final SingleThreadedRandomSource RAND = new SingleThreadedRandomSource(0);
+    private static final SingleThreadedRandomSource RAND = new SingleThreadedRandomSource(0);
 
     public static int getMaxStringRenderLength(List<String> list)
     {
@@ -224,7 +224,7 @@ public class RenderUtils
 
     public static boolean modelHasQuads(@Nonnull BlockStateModel model)
     {
-        return hasQuads(model.collectParts(new SingleThreadedRandomSource(0)));
+        return hasQuads(model.collectParts(RAND));
     }
 
     public static boolean hasQuads(List<BlockModelPart> modelParts)
@@ -497,155 +497,6 @@ public class RenderUtils
     {
         fi.dy.masa.malilib.render.RenderUtils.drawTexturedRect(ctx, GuiBase.BG_TEXTURE, startX, startY, 0, 0, width, height);
     }
-
-    /*
-    private static void renderModelBrightnessColor(IBlockState state, IBakedModel model, float brightness, float r, float g, float b)
-    {
-        for (EnumFacing facing : EnumFacing.values())
-        {
-            renderModelBrightnessColorQuads(brightness, r, g, b, model.getQuads(state, facing, 0L));
-        }
-
-        renderModelBrightnessColorQuads(brightness, r, g, b, model.getQuads(state, null, 0L));
-    }
-
-    private static void renderModelBrightnessColorQuads(float brightness, float red, float green, float blue, List<BakedQuad> listQuads)
-    {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        int i = 0;
-
-        for (int j = listQuads.size(); i < j; ++i)
-        {
-            BakedQuad quad = listQuads.get(i);
-            bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-            bufferbuilder.addVertexData(quad.getVertexData());
-
-            if (quad.hasTintIndex())
-            {
-                bufferbuilder.putColorRGB_F4(red * brightness, green * brightness, blue * brightness);
-            }
-            else
-            {
-                bufferbuilder.putColorRGB_F4(brightness, brightness, brightness);
-            }
-
-            Vec3i direction = quad.getFace().getDirectionVec();
-            bufferbuilder.putNormal(direction.getX(), direction.getY(), direction.getZ());
-
-            tessellator.draw();
-        }
-    }
-    */
-
-    /*
-    private static void renderModel(final IBlockState state, final IBakedModel model, final BlockPos pos, final int alpha)
-    {
-        //BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-        //dispatcher.getBlockModelRenderer().renderModelBrightnessColor(model, 1f, 1f, 1f, 1f);
-
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-
-        for (final EnumFacing facing : EnumFacing.values())
-        {
-            renderQuads(state, pos, buffer, model.getQuads(state, facing, 0), alpha);
-        }
-
-        renderQuads(state, pos, buffer, model.getQuads(state, null, 0), alpha);
-        tessellator.draw();
-    }
-
-    private static void renderQuads(final IBlockState state, final BlockPos pos, final BufferBuilder buffer, final List<BakedQuad> quads, final int alpha)
-    {
-        final int size = quads.size();
-
-        for (int i = 0; i < size; i++)
-        {
-            final BakedQuad quad = quads.get(i);
-            final int color = quad.getTintIndex() == -1 ? alpha | 0xffffff : getTint(state, pos, alpha, quad.getTintIndex());
-            //LightUtil.renderQuadColor(buffer, quad, color);
-            renderQuad(buffer, quad, color);
-        }
-    }
-
-    public static void renderQuad(BufferBuilder buffer, BakedQuad quad, int auxColor)
-    {
-        buffer.addVertexData(quad.getVertexData());
-        putQuadColor(buffer, quad, auxColor);
-    }
-
-    private static int getTint(final IBlockState state, final BlockPos pos, final int alpha, final int tintIndex)
-    {
-        Minecraft mc = Minecraft.getMinecraft();
-        return alpha | mc.getBlockColors().colorMultiplier(state, null, pos, tintIndex);
-    }
-
-    private static void putQuadColor(BufferBuilder buffer, BakedQuad quad, int color)
-    {
-        float cb = color & 0xFF;
-        float cg = (color >>> 8) & 0xFF;
-        float cr = (color >>> 16) & 0xFF;
-        float ca = (color >>> 24) & 0xFF;
-        VertexFormat format = DefaultVertexFormats.ITEM; //quad.getFormat();
-        int size = format.getIntegerSize();
-        int offset = format.getColorOffset() / 4; // assumes that color is aligned
-
-        for (int i = 0; i < 4; i++)
-        {
-            int vc = quad.getVertexData()[offset + size * i];
-            float vcr = vc & 0xFF;
-            float vcg = (vc >>> 8) & 0xFF;
-            float vcb = (vc >>> 16) & 0xFF;
-            float vca = (vc >>> 24) & 0xFF;
-            int ncr = Math.min(0xFF, (int)(cr * vcr / 0xFF));
-            int ncg = Math.min(0xFF, (int)(cg * vcg / 0xFF));
-            int ncb = Math.min(0xFF, (int)(cb * vcb / 0xFF));
-            int nca = Math.min(0xFF, (int)(ca * vca / 0xFF));
-
-            IBufferBuilder bufferMixin = (IBufferBuilder) buffer;
-            bufferMixin.putColorRGBA(bufferMixin.getColorIndexAccessor(4 - i), ncr, ncg, ncb, nca);
-        }
-    }
-    */
-
-    /*
-    public static void renderQuadColorSlow(BufferBuilder wr, BakedQuad quad, int auxColor)
-    {
-        ItemConsumer cons;
-
-        if(wr == Tessellator.getInstance().getBuffer())
-        {
-            cons = getItemConsumer();
-        }
-        else
-        {
-            cons = new ItemConsumer(new VertexBufferConsumer(wr));
-        }
-
-        float b = (float)  (auxColor & 0xFF) / 0xFF;
-        float g = (float) ((auxColor >>>  8) & 0xFF) / 0xFF;
-        float r = (float) ((auxColor >>> 16) & 0xFF) / 0xFF;
-        float a = (float) ((auxColor >>> 24) & 0xFF) / 0xFF;
-
-        cons.setAuxColor(r, g, b, a);
-        quad.pipe(cons);
-    }
-
-    public static void renderQuadColor(BufferBuilder wr, BakedQuad quad, int auxColor)
-    {
-        if (quad.getFormat().equals(wr.getVertexFormat())) 
-        {
-            wr.addVertexData(quad.getVertexData());
-            ForgeHooksClient.putQuadColor(wr, quad, auxColor);
-        }
-        else
-        {
-            renderQuadColorSlow(wr, quad, auxColor);
-        }
-    }
-    */
 
     public static void drawBlockBoundingBoxOutlinesBatchedDebugLines(BlockPos pos, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
     {

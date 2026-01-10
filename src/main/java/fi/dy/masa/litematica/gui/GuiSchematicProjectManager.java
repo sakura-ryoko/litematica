@@ -13,6 +13,7 @@ import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.interfaces.IConfirmationListener;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.position.PositionUtils;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.widgets.WidgetListSchematicVersions;
 import fi.dy.masa.litematica.gui.widgets.WidgetSchematicVersion;
@@ -124,17 +125,8 @@ public class GuiSchematicProjectManager extends GuiListBase<SchematicVersion, Wi
         return new WidgetListSchematicVersions(listX, listY, this.getBrowserWidth() - 186, this.getBrowserHeight(), this.project, this);
     }
 
-    private static class ButtonListener implements IButtonActionListener
+    private record ButtonListener(Type type, GuiSchematicProjectManager gui) implements IButtonActionListener
     {
-        private final Type type;
-        private final GuiSchematicProjectManager gui;
-
-        public ButtonListener(Type type, GuiSchematicProjectManager gui)
-        {
-            this.type = type;
-            this.gui = gui;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
@@ -178,7 +170,7 @@ public class GuiSchematicProjectManager extends GuiListBase<SchematicVersion, Wi
 
                 if (project != null)
                 {
-                    project.setOrigin(fi.dy.masa.malilib.util.position.PositionUtils.getEntityBlockPos(this.gui.mc.player));
+                    project.setOrigin(PositionUtils.getEntityBlockPos(this.gui.mc.player));
                     this.gui.reCreateGuiElements();
                 }
             }
@@ -201,7 +193,8 @@ public class GuiSchematicProjectManager extends GuiListBase<SchematicVersion, Wi
             SAVE_VERSION            ("litematica.gui.button.schematic_projects.save_version", "litematica.gui.button.hover.schematic_projects.save_new_version");
 
             private final String translationKey;
-            @Nullable private final String hoverText;
+            @Nullable
+            private final String hoverText;
 
             Type(String label)
             {

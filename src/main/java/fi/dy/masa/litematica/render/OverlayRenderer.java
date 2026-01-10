@@ -141,8 +141,6 @@ public class OverlayRenderer
 
         if (renderAreas || renderPlacements || isProjectMode)
         {
-//            fi.dy.masa.malilib.render.RenderUtils.color(1f, 1f, 1f, 1f);
-
             profiler.popPush("render_areas");
             if (renderAreas)
             {

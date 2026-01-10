@@ -130,17 +130,8 @@ public class GuiSchematicProjectsBrowser extends GuiListBase<DirectoryEntry, Wid
         return new WidgetSchematicProjectBrowser(listX, listY, 100, 100, this.getSelectionListener());
     }
 
-    private static class ButtonListener implements IButtonActionListener
+    private record ButtonListener(Type type, GuiSchematicProjectsBrowser gui) implements IButtonActionListener
     {
-        private final Type type;
-        private final GuiSchematicProjectsBrowser gui;
-
-        public ButtonListener(Type type, GuiSchematicProjectsBrowser gui)
-        {
-            this.type = type;
-            this.gui = gui;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {

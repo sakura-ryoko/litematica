@@ -105,21 +105,25 @@ public class GuiConfigs extends GuiConfigsBase
         SchematicWorldRefresher.INSTANCE.updateAll();
     }
 
-    private record ButtonListener(ConfigGuiTab tab, GuiConfigs parent) implements IButtonActionListener {
-
+    private record ButtonListener(ConfigGuiTab tab, GuiConfigs parent) implements IButtonActionListener
+    {
         @Override
-            public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
-                DataManager.setConfigGuiTab(this.tab);
+        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
+        {
+            DataManager.setConfigGuiTab(this.tab);
 
-                if (this.tab != ConfigGuiTab.RENDER_LAYERS) {
-                    this.parent.reCreateListWidget(); // apply the new config width
-                    Objects.requireNonNull(this.parent.getListWidget()).resetScrollbarPosition();
-                    this.parent.initGui();
-                } else {
-                    GuiBase.openGui(new GuiRenderLayer());
-                }
+            if (this.tab != ConfigGuiTab.RENDER_LAYERS)
+            {
+                this.parent.reCreateListWidget(); // apply the new config width
+                Objects.requireNonNull(this.parent.getListWidget()).resetScrollbarPosition();
+                this.parent.initGui();
+            }
+            else
+            {
+                GuiBase.openGui(new GuiRenderLayer());
             }
         }
+    }
 
     public enum ConfigGuiTab
     {
@@ -133,7 +137,7 @@ public class GuiConfigs extends GuiConfigsBase
 
         private final String translationKey;
 
-        private ConfigGuiTab(String translationKey)
+        ConfigGuiTab(String translationKey)
         {
             this.translationKey = translationKey;
         }

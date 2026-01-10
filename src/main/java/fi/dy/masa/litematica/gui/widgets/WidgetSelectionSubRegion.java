@@ -127,7 +127,8 @@ public class WidgetSelectionSubRegion extends WidgetListEntryBase<String>
         }
     }
 
-	private record ButtonListener(ButtonType type, WidgetSelectionSubRegion widget) implements IButtonActionListener
+	private record ButtonListener(ButtonType type, WidgetSelectionSubRegion widget)
+			implements IButtonActionListener
 	{
 		@Override
 		public void actionPerformedWithButton(ButtonBase button, int mouseButton)
@@ -155,9 +156,9 @@ public class WidgetSelectionSubRegion extends WidgetListEntryBase<String>
 
 		public enum ButtonType
 		{
-			RENAME("litematica.gui.button.rename"),
-			CONFIGURE("litematica.gui.button.configure"),
-			REMOVE(GuiBase.TXT_RED + "-");
+			RENAME      ("litematica.gui.button.rename"),
+			CONFIGURE   ("litematica.gui.button.configure"),
+			REMOVE      (GuiBase.TXT_RED + "-");
 
 			private final String labelKey;
 

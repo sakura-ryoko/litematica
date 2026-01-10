@@ -326,27 +326,30 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
         return new WidgetListPlacementSubRegions(listX, listY, this.getBrowserWidth(), this.getBrowserHeight(), this);
     }
 
-    public static class ButtonListener implements IButtonActionListener
+    public record ButtonListener(Type type, SchematicPlacement placement, GuiPlacementConfiguration parent)
+            implements IButtonActionListener
     {
-        public final GuiPlacementConfiguration parent;
-        public final SchematicPlacement placement;
-        public final Type type;
-
-        public ButtonListener(Type type, SchematicPlacement placement, GuiPlacementConfiguration parent)
-        {
-            this.parent = parent;
-            this.placement = placement;
-            this.type = type;
-        }
-
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return;
+
+            if (mc.player == null)
+            {
+                return;
+            }
+
             int amount = mouseButton == 1 ? -1 : 1;
-            if (GuiBase.isShiftDown()) { amount *= 8; }
-            if (GuiBase.isAltDown()) { amount *= 4; }
+
+            if (GuiBase.isShiftDown())
+            {
+                amount *= 8;
+            }
+            if (GuiBase.isAltDown())
+            {
+                amount *= 4;
+            }
+
             BlockPos oldOrigin = this.placement.getOrigin();
             this.parent.setNextMessageType(MessageType.ERROR);
 
@@ -396,7 +399,7 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
                     break;
 
                 case TOGGLE_RENDERING:
-                    this.placement.setRenderSchematic(! this.placement.isRenderingEnabled());
+                    this.placement.setRenderSchematic(!this.placement.isRenderingEnabled());
                     break;
 
                 case TOGGLE_LOCKED:
@@ -467,7 +470,8 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
             OPEN_MATERIAL_LIST_GUI  ("litematica.gui.button.material_list");
 
             private final String translationKey;
-            @Nullable private final String hoverText;
+            @Nullable
+            private final String hoverText;
 
             Type(String translationKey)
             {
@@ -498,19 +502,9 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
         }
     }
 
-    public static class TextFieldListener implements ITextFieldListener<GuiTextFieldInteger>
+    public record TextFieldListener(CoordinateType type, SchematicPlacement placement, GuiPlacementConfiguration parent)
+            implements ITextFieldListener<GuiTextFieldInteger>
     {
-        public final GuiPlacementConfiguration parent;
-        public final SchematicPlacement placement;
-        public final CoordinateType type;
-
-        public TextFieldListener(CoordinateType type, SchematicPlacement placement, GuiPlacementConfiguration parent)
-        {
-            this.placement = placement;
-            this.type = type;
-            this.parent = parent;
-        }
-
         @Override
         public boolean onTextChange(GuiTextFieldInteger textField)
         {
@@ -522,34 +516,37 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
 
                 switch (this.type)
                 {
-                    case X: this.placement.setOrigin(new BlockPos(value, posOld.getY(), posOld.getZ()), this.parent); break;
-                    case Y: this.placement.setOrigin(new BlockPos(posOld.getX(), value, posOld.getZ()), this.parent); break;
-                    case Z: this.placement.setOrigin(new BlockPos(posOld.getX(), posOld.getY(), value), this.parent); break;
+                    case X:
+                        this.placement.setOrigin(new BlockPos(value, posOld.getY(), posOld.getZ()), this.parent);
+                        break;
+                    case Y:
+                        this.placement.setOrigin(new BlockPos(posOld.getX(), value, posOld.getZ()), this.parent);
+                        break;
+                    case Z:
+                        this.placement.setOrigin(new BlockPos(posOld.getX(), posOld.getY(), value), this.parent);
+                        break;
                 }
 
                 this.parent.updateElements();
             }
-            catch (NumberFormatException ignored) { }
+            catch (NumberFormatException ignored)
+            {
+            }
 
             return false;
         }
     }
 
-    public static class CoordinateLockListener implements ISelectionListener<WidgetCheckBox>
+    public record CoordinateLockListener(CoordinateType type, SchematicPlacement placement)
+            implements ISelectionListener<WidgetCheckBox>
     {
-        public final SchematicPlacement placement;
-        public final CoordinateType type;
-
-        public CoordinateLockListener(CoordinateType type, SchematicPlacement placement)
-        {
-            this.type = type;
-            this.placement = placement;
-        }
-
         @Override
         public void onSelectionChange(WidgetCheckBox entry)
         {
-            if (entry == null) return;
+            if (entry == null)
+            {
+                return;
+            }
             this.placement.setCoordinateLocked(this.type, entry.isChecked());
         }
     }

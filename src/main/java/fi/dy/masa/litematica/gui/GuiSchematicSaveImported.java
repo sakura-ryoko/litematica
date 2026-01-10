@@ -50,7 +50,8 @@ public class GuiSchematicSaveImported extends GuiSchematicSaveBase
         return new ButtonListener(type, this);
     }
 
-    private record ButtonListener(ButtonType type, GuiSchematicSaveImported gui) implements IButtonActionListener
+    private record ButtonListener(ButtonType type, GuiSchematicSaveImported gui)
+            implements IButtonActionListener
     {
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)

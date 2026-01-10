@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import com.google.common.collect.ArrayListMultimap;
@@ -71,6 +72,8 @@ public class SchematicPlacementManager
     protected final Supplier<WorldSchematic> worldSupplier;
     protected ChunkPos lastVisibleChunksSortPos = new ChunkPos(0, 0);
     protected boolean visibleChunksNeedsUpdate;
+    private long lastTick;
+    private int tickRate = 10;
 
     public SchematicPlacementManager()
     {
@@ -80,6 +83,7 @@ public class SchematicPlacementManager
     protected SchematicPlacementManager(Supplier<WorldSchematic> worldSupplier)
     {
         this.worldSupplier = worldSupplier;
+        this.lastTick = System.currentTimeMillis();
     }
 
     @Nullable
@@ -142,6 +146,54 @@ public class SchematicPlacementManager
             );
 
             this.setVisibleSubChunksNeedsUpdate();
+        }
+    }
+
+    private long getTickRateMs()
+    {
+        return this.tickRate * 1000L;
+    }
+
+    public void onClientTick(Minecraft mc)
+    {
+        long now = System.currentTimeMillis();
+
+        if ((now - this.lastTick) > this.getTickRateMs())
+        {
+            this.checkNearbyChunksAreLoaded(mc);
+            this.lastTick = now;
+        }
+    }
+
+    // This ensures that chunks in the immediate vicinity
+    // around the player are marked for loading every so often.
+    private void checkNearbyChunksAreLoaded(Minecraft mc)
+    {
+        ChunkPos cameraChunk = mc.getCameraEntity().chunkPosition();
+        List<ChunkPos> notLoaded = new ArrayList<>();
+        if (mc.level == null) return;
+
+        final int offset = Math.clamp(mc.options.getEffectiveRenderDistance() / 2, 1, 8);
+        final int startcx = cameraChunk.x - offset;
+        final int startcz = cameraChunk.z - offset;
+        final int endcx = cameraChunk.x + offset;
+        final int endcz = cameraChunk.z + offset;
+
+        for (int cx = startcx; cx < endcx; cx++)
+        {
+            for (int cz = startcz; cz < endcz; cz++)
+            {
+                if (!this.worldSupplier.get().getChunkProvider().hasChunk(cx, cz) &&
+                    this.canHandleChunk(mc.level, cx, cz))
+                {
+                    notLoaded.add(new ChunkPos(cx, cz));
+                }
+            }
+        }
+
+        if (!notLoaded.isEmpty())
+        {
+            this.markChunksForRebuild(notLoaded);
         }
     }
 
@@ -250,7 +302,8 @@ public class SchematicPlacementManager
     {
 //        ChunkPos pos = new ChunkPos(chunkX, chunkZ);
 //        this.chunkRebuildQueue.add(pos);
-        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskRebuild(this.worldSupplier, chunkX, chunkZ));
+//        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskRebuild(this.worldSupplier, chunkX, chunkZ));
+        this.markChunkForRebuild(chunkX, chunkZ);
     }
 
     public void onClientChunkUnload(int chunkX, int chunkZ)
@@ -258,7 +311,7 @@ public class SchematicPlacementManager
         if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
         {
 //            this.chunksToUnload.add(ChunkPos.asLong(chunkX, chunkZ));       // todo
-            PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, chunkX, chunkZ));
+            this.markChunkForUnload(chunkX, chunkZ);
         }
     }
 
@@ -570,7 +623,7 @@ public class SchematicPlacementManager
                 if (this.schematicsTouchingChunk.containsKey(pos) == false)
                 {
 //                    this.chunksToUnload.add(pos.toLong());      // todo
-                    PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, pos.x, pos.z));
+                    this.markChunkForUnload(pos);
                     it.remove();
                 }
             }
@@ -603,7 +656,7 @@ public class SchematicPlacementManager
             {
                 //System.out.printf("unloading: %s\n", pos);
 //                this.chunksToUnload.add(pos.toLong());      // todo
-                PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, pos.x, pos.z));
+                this.markChunkForUnload(pos);
             }
             else
             {
@@ -676,7 +729,27 @@ public class SchematicPlacementManager
         }
     }
 
-    void markChunksForRebuild(Collection<ChunkPos> chunks)
+    public void markChunkForUnload(ChunkPos pos)
+    {
+        this.markChunkForUnload(pos.x, pos.z);
+    }
+
+    private void markChunksForUnload(Collection<ChunkPos> chunks)
+    {
+        for (ChunkPos pos : chunks)
+        {
+            this.markChunkForUnload(pos);
+        }
+    }
+
+    public void markChunkForUnload(int cx, int cz)
+    {
+        System.out.printf("markChunkForUnload: [%d, %d]\n", cx, cz);
+        this.updateTouchedBoxesInChunk(new ChunkPos(cx, cz));
+        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier, cx, cz));
+    }
+
+    private void markChunksForRebuild(Collection<ChunkPos> chunks)
     {
         //System.out.printf("rebuilding %d chunks: %s\n", chunks.size(), chunks);
 //        this.chunksToRebuild.addAll(chunks);        // todo
@@ -685,8 +758,7 @@ public class SchematicPlacementManager
         chunks.forEach(
                 pos ->
                 {
-                    PlacementManagerDaemonHandler.INSTANCE.removeAllTasksFor(pos.x,  pos.z);
-                    PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskRebuild(this.worldSupplier, pos.x, pos.z));
+                    this.markChunkForRebuild(pos);
                 }
         );
     }
@@ -696,8 +768,14 @@ public class SchematicPlacementManager
 //        this.chunksToRebuild.add(pos);      // todo
 //        this.chunkRebuildQueue.add(pos);
 
-        PlacementManagerDaemonHandler.INSTANCE.removeAllTasksFor(pos.x,  pos.z);
-        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskRebuild(this.worldSupplier, pos.x, pos.z));
+        this.markChunkForRebuild(pos.x, pos.z);
+    }
+
+    public void markChunkForRebuild(int cx, int cz)
+    {
+        System.out.printf("markChunkForRebuild: [%d, %d]\n", cx, cz);
+        PlacementManagerDaemonHandler.INSTANCE.removeAllTasksFor(cx,  cz);
+        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskRebuild(this.worldSupplier, cx, cz));
     }
 
     protected void onPlacementModified(SchematicPlacement placement)

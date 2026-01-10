@@ -134,13 +134,6 @@ public class ChunkCacheSchematic implements BlockAndTintGetter, LightChunkGetter
         return colorResolver.getColor(this.worldClient.getBiome(pos).value(), pos.getX(), pos.getZ());
     }
 
-    // todo not needed
-//    @Override
-//    public int getBrightness(@NonNull LightLayer lightLayer, @NonNull BlockPos blockPos)
-//    {
-//        return this.getLightEngine().getLayerListener(lightLayer).getLightValue(blockPos);
-//    }
-
     @Override
     public float getShade(@Nonnull Direction direction, boolean bl)
     {

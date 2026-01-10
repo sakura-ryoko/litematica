@@ -52,7 +52,8 @@ public class WidgetTaskEntry extends WidgetListEntryBase<ITask>
         this.drawSubWidgets(ctx, mouseX, mouseY);
     }
 
-	private record ButtonListener(Type type, WidgetTaskEntry widget) implements IButtonActionListener
+	private record ButtonListener(Type type, WidgetTaskEntry widget)
+			implements IButtonActionListener
 	{
 		@Override
 		public void actionPerformedWithButton(ButtonBase button, int mouseButton)

@@ -48,7 +48,7 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 			{
 //				manager.removePendingRebuildFor(this.pos());
 				PlacementManagerDaemonHandler.INSTANCE.removeAllTasksFor(this.cx(), this.cz());
-				PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskUnload(this.worldSupplier(), this.cx(), this.cz()));
+				manager.markChunkForUnload(this.cx(), this.cz());
 				return;
 			}
 

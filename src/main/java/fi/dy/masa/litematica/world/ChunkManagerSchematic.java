@@ -19,7 +19,6 @@ import fi.dy.masa.litematica.config.Configs;
 public class ChunkManagerSchematic extends ChunkSource
 {
     private final WorldSchematic world;
-//    private final Long2ObjectMap<ChunkSchematic> loadedChunks = new Long2ObjectOpenHashMap<>(8192);
     private final ConcurrentHashMap<Long, ChunkSchematic> loadedChunks;
     private final ChunkSchematic blankChunk;
     private final LevelLightEngine lightingProvider;
@@ -90,11 +89,6 @@ public class ChunkManagerSchematic extends ChunkSource
         return this.loadedChunks.size();
     }
 
-//    public synchronized Long2ObjectMap<ChunkSchematic> getLoadedChunks()
-//    {
-//        return this.loadedChunks;
-//    }
-
     public synchronized ImmutableList<Long> getLoadedKeySet()
     {
         ImmutableList.Builder<Long> builder = ImmutableList.builder();
@@ -144,9 +138,7 @@ public class ChunkManagerSchematic extends ChunkSource
 
         if (chunk != null)
         {
-//            this.world.unloadedEntities(chunk.getEntityCount());
             this.world.unloadEntitiesByChunk(chunkX, chunkZ);
-//            chunk.clearEntities();
             chunk.setState(ChunkSchematicState.UNLOADED);
         }
     }

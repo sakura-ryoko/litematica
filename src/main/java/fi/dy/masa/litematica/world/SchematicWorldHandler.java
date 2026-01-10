@@ -69,18 +69,7 @@ public class SchematicWorldHandler
             return null;
         }
 
-        /*
-        //RegistryEntryLookup.RegistryLookup lookup = world.getRegistryManager().createRegistryLookup();
-        RegistryEntryLookup<DimensionType> entryLookup = SchematicWorldHandler.INSTANCE.getRegistryManager().getOrThrow(RegistryKeys.DIMENSION_TYPE);
-        RegistryEntry<DimensionType> entry = entryLookup.getOrThrow(DimensionTypes.OVERWORLD);
-
-        if (entry == null)
-        {
-            entry = world.getDimensionEntry();
-        }
-         */
         // Use the DimensionType of the current client world
-
         ClientLevel.ClientLevelData levelInfo = new ClientLevel.ClientLevelData(Difficulty.PEACEFUL, false, true);
 
         return new WorldSchematic(levelInfo, world.registryAccess(), world.dimensionTypeRegistration(), worldRenderer);

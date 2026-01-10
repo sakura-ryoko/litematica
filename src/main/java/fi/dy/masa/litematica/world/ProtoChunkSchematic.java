@@ -15,6 +15,10 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
 
 import fi.dy.masa.litematica.util.WorldPlacingUtils;
 
+/**
+ * Used when building chunks from {@link WorldPlacingUtils}
+ * Also temporarily holds references to entity spawning positions
+ */
 public class ProtoChunkSchematic extends ImposterProtoChunk
 {
 	private final CopyOnWriteArrayList<Pair<WorldPlacingUtils.EntityPosAndRot, CompoundTag>> entities = new  CopyOnWriteArrayList<>();

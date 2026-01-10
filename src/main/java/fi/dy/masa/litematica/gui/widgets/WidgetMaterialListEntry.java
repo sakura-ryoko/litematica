@@ -341,8 +341,10 @@ public class WidgetMaterialListEntry extends WidgetListEntrySortable<MaterialLis
         return strCount;
     }
 
-	record ButtonListener(ButtonType type, MaterialListBase materialList, MaterialListEntry entry,
-						  WidgetListMaterialList listWidget) implements IButtonActionListener
+	record ButtonListener(ButtonType type,
+                          MaterialListBase materialList, MaterialListEntry entry,
+						  WidgetListMaterialList listWidget)
+            implements IButtonActionListener
 	{
 		@Override
 		public void actionPerformedWithButton(ButtonBase button, int mouseButton)

@@ -148,7 +148,8 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
         super.postRenderHovered(ctx, mouseX, mouseY, selected);
     }
 
-	private record ButtonListener(Type type, WidgetSchematicEntry widget) implements IButtonActionListener
+	private record ButtonListener(Type type, WidgetSchematicEntry widget)
+			implements IButtonActionListener
 	{
 		@Override
 		public void actionPerformedWithButton(ButtonBase button, int mouseButton)
@@ -186,10 +187,10 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
 
 		public enum Type
 		{
-			CREATE_PLACEMENT("litematica.gui.button.create_placement"),
-			RELOAD("litematica.gui.button.reload", "litematica.gui.button.hover.schematic_list.reload_schematic"),
-			SAVE_TO_FILE("litematica.gui.button.save_to_file"),
-			UNLOAD("litematica.gui.button.unload");
+			CREATE_PLACEMENT        ("litematica.gui.button.create_placement"),
+			RELOAD                  ("litematica.gui.button.reload", "litematica.gui.button.hover.schematic_list.reload_schematic"),
+			SAVE_TO_FILE            ("litematica.gui.button.save_to_file"),
+			UNLOAD                  ("litematica.gui.button.unload");
 
 			private final String translationKey;
 			@Nullable

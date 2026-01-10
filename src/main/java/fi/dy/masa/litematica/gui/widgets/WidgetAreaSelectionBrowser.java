@@ -49,17 +49,6 @@ public class WidgetAreaSelectionBrowser extends WidgetFileBrowserBase
                 entry, listIndex, this.guiAreaSelectionManager.getSelectionManager(), this, this.iconProvider);
     }
 
-    /*
-    public static class FileFilterJson implements FileFilter
-    {
-        @Override
-        public boolean accept(File pathName)
-        {
-            return pathName.getName().endsWith(".json");
-        }
-    }
-     */
-
     public static class FileFilterJson extends FileFilter
     {
         @Override
