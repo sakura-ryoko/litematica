@@ -190,6 +190,15 @@ public class Box
         this.setPosition(pos, corner);
     }
 
+    @Override
+    public String toString()
+    {
+	    return "Box[name='" + this.name + "',"
+			    + ",pos1={" + (this.pos1 != null ? this.pos1.toString() : "<>") + "},"
+			    + ",pos2={" + (this.pos2 != null ? this.pos2.toString() : "<>") + "}"
+			    + "]";
+    }
+
     @Nullable
     public static Box fromJson(JsonObject obj)
     {

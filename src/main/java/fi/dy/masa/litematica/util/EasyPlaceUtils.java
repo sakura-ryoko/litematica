@@ -33,6 +33,7 @@ import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.MessageOutputType;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.game.PlacementUtils;
 import fi.dy.masa.malilib.util.game.wrap.GameWrap;
@@ -150,11 +151,22 @@ public class EasyPlaceUtils
 		// Only print the warning message once per right click
 		if (isFirstClickEasyPlace && result == InteractionResult.FAIL)
 		{
+			MessageOutputType type = (MessageOutputType) Configs.Generic.PLACEMENT_RESTRICTION_WARN.getOptionListValue();
 			//MessageOutput output = Configs.InfoOverlays.EASY_PLACE_WARNINGS.getValue();
 			//MessageDispatcher.warning(1500).type(output).translate("litematica.message.easy_place_fail");
 
-//            InfoUtils.printActionbarMessage("litematica.message.easy_place_fail");
-			InfoUtils.showInGameMessage(Message.MessageType.WARNING, "litematica.message.easy_place_fail");
+			if (type == MessageOutputType.MESSAGE)
+			{
+				InfoUtils.showInGameMessage(Message.MessageType.WARNING, "litematica.message.easy_place_fail");
+			}
+			else if (type == MessageOutputType.ACTIONBAR)
+			{
+                InfoUtils.printActionbarMessage("litematica.message.easy_place_fail");
+			}
+
+			isFirstClickEasyPlace = false;
+
+			return true;
 		}
 
 		isFirstClickEasyPlace = false;
@@ -731,11 +743,18 @@ public class EasyPlaceUtils
 
         if (cancel && isFirstClickPlacementRestriction)
         {
+	        MessageOutputType type = (MessageOutputType) Configs.Generic.PLACEMENT_RESTRICTION_WARN.getOptionListValue();
             //MessageOutput output = Configs.InfoOverlays.EASY_PLACE_WARNINGS.getValue();
             //MessageDispatcher.warning(1000).type(output).translate("litematica.message.placement_restriction_fail");
 
-//            InfoUtils.printActionbarMessage("litematica.message.placement_restriction_fail");
-			InfoUtils.showInGameMessage(Message.MessageType.WARNING, "litematica.message.placement_restriction_fail");
+	        if (type ==  MessageOutputType.MESSAGE)
+	        {
+		        InfoUtils.showInGameMessage(Message.MessageType.WARNING, "litematica.message.placement_restriction_fail");
+	        }
+			else if (type == MessageOutputType.ACTIONBAR)
+	        {
+		        InfoUtils.printActionbarMessage("litematica.message.placement_restriction_fail");
+	        }
         }
 
         isFirstClickPlacementRestriction = false;
