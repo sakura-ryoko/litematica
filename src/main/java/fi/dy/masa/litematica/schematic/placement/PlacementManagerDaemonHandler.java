@@ -17,6 +17,8 @@ import fi.dy.masa.litematica.render.LitematicaRenderer;
 
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
+	private final static int MAX_THREADS = 4;       // You should never need more than this.
+	private final int threadCount = this.calculateMaxThreads();
 	private final ConcurrentHashMap<String, Pair<Thread, PlacementManagerDaemonExecutor>> threadMap = this.builder();
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
 
@@ -24,17 +26,22 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueRebuild = new ConcurrentLinkedQueue<>();
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueOther = new ConcurrentLinkedQueue<>();
 
-	private static final int MAX_THREADS = 2;      // Please do not increase this value beyond 2 - 4
 	private static final float taskInterval = 0.75f;
 	private long lastTick;
 	private boolean processing = false;
+
+	private int calculateMaxThreads()
+	{
+		// Don't use more than 1 / 4 of possible Platform threads for this; or MAX_THREADS.
+		return Math.clamp((Runtime.getRuntime().availableProcessors() / 4), 1, MAX_THREADS);
+	}
 
 	private ConcurrentHashMap<String, Pair<Thread, PlacementManagerDaemonExecutor>> builder()
 	{
 		ConcurrentHashMap<String, Pair<Thread, PlacementManagerDaemonExecutor>> threads = new ConcurrentHashMap<>();
 		String prefix = Reference.MOD_NAME+" Placement Manager ";
 
-		for (int i = 0; i < MAX_THREADS; i++)
+		for (int i = 0; i < this.threadCount; i++)
 		{
 			String name = prefix + (i+1);
 			ThreadFactory FACTORY = Thread.ofPlatform().name(name).daemon(true).factory();

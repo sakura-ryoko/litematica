@@ -126,7 +126,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
 	public boolean isEmpty()
 	{
-		return this.boxes.isEmpty();
+		return this.boxes.isEmpty() && this.getPartsCount() == 0;
 	}
 
     protected ProfilerFiller getProfiler()
@@ -1986,6 +1986,14 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected boolean needsImmediateUpdate()
     {
         return this.needsUpdate && this.needsImmediateUpdate;
+    }
+
+    protected int getPartsCount()
+    {
+        int chunkX = this.position.getX() / 16;
+        int chunkZ = this.position.getZ() / 16;
+
+        return DataManager.getSchematicPlacementManager().getPlacementPartsInChunkCount(chunkX, chunkZ);
     }
 
     private void rebuildWorldView()

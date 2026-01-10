@@ -349,6 +349,18 @@ public class SchematicPlacementManager
         return this.touchedVolumesInChunk.getOrDefault(ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4), Collections.emptyList());
     }
 
+    public int getPlacementPartsInChunkCount(int chunkX, int chunkZ)
+    {
+        long longPos = ChunkPos.asLong(chunkX, chunkZ);
+
+        if (this.touchedVolumesInChunk.containsKey(longPos))
+        {
+            return this.touchedVolumesInChunk.get(longPos).size();
+        }
+
+        return 0;
+    }
+
     public int getTouchedChunksCount()
     {
         return this.touchedVolumesInChunk.size();
