@@ -2150,6 +2150,7 @@ public class LitematicaSchematic
             {
                 Litematica.LOGGER.warn("readFromVanillaStructure(): Effective Schema has been bypassed.  Not applying Vanilla Data Fixer for Block State Palette DataVersion {}", minecraftDataVersion);
             }
+
             for (int id = 0; id < paletteSize; ++id)
             {
                 CompoundTag t = paletteTag.getCompoundOrEmpty(id);
@@ -2158,6 +2159,7 @@ public class LitematicaSchematic
 					// Also updates Block Names
                     t = SchematicConversionMaps.updateBlockStates(t, minecraftDataVersion);
                 }
+
                 BlockState state = net.minecraft.nbt.NbtUtils.readBlockState(lookup, t);
                 list.add(state);
             }

@@ -1446,14 +1446,15 @@ public class WorldRendererSchematic
         }
     }
 
-    public void scheduleChunkRenders(int chunkX, int chunkZ)
+    // `immediate` is only to be used with 'setBlockDirty()`
+    public void scheduleChunkRenders(int chunkX, int chunkZ, boolean immediate)
     {
         // LOGGER.warn("[WorldRenderer] scheduleChunkRenders()");
         this.getProfiler().push("schedule_render");
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())
         {
-            this.chunkRendererDispatcher.scheduleChunkRender(chunkX, chunkZ);
+            this.chunkRendererDispatcher.scheduleChunkRender(chunkX, chunkZ, immediate);
         }
         this.getProfiler().pop();
     }

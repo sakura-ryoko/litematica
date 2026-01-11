@@ -52,7 +52,7 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 				return;
 			}
 
-			boolean shouldLoad = false;
+//			boolean shouldLoad = false;
 
 			if (manager.canHandleChunk(level, this.cx(), this.cz()))
 			{
@@ -63,13 +63,13 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 					manager.setVisibleSubChunksNeedsUpdate();
 				}
 
-//				worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
-				shouldLoad = true;
+				worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
+				manager.setVisibleSubChunksNeedsUpdate();
+//				shouldLoad = true;
 			}
 
-//			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
-//			{
-			if (shouldLoad)
+//			if (shouldLoad)
+			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
 			{
 				ProtoChunkSchematic protoChunk = new ProtoChunkSchematic(new ChunkSchematic(worldSchematic, this.pos()));
 				Collection<SchematicPlacement> placements = manager.getAllSchematicsTouchingChunk(this.pos());
@@ -90,23 +90,25 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 					worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
 					worldSchematic.getChunkProvider().replaceChunk(this.cx(), this.cz(), protoChunk.getWrapped());
 					protoChunk.spawnAllEntitiesNow(worldSchematic);
-					protoChunk.clear();
-				}
-				else
-				{
-					worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
 				}
 
-				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
-				{
+				protoChunk.clear();
+
+//				else
+//				{
+//					worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
+//				}
+
+//				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+//				{
 //				      manager.removePendingRebuildFor(this.pos());
 					worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
-					manager.setVisibleSubChunksNeedsUpdate();
+//					manager.setVisibleSubChunksNeedsUpdate();
 
 					PlacementManagerDaemonHandler.INSTANCE.removeUnloadTasksFor(this.cx(), this.cz());
 					PlacementManagerDaemonHandler.INSTANCE.removeRebuildTasksFor(this.cx(), this.cz());
 				}
-			}
+//			}
 		};
 	}
 }

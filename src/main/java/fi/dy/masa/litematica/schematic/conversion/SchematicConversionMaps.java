@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
@@ -489,14 +490,18 @@ public class SchematicConversionMaps
      */
     public static CompoundTag updateBlockStates(CompoundTag oldBlockState, int oldVersion)
     {
-		String oldName = oldBlockState.getStringOr("Name", "");
-		String blockName = updateBlockName(oldName, oldVersion);
+        // Don't update the name yet if block is pre-flattening
+        if (oldVersion >= LitematicaSchematic.MINECRAFT_DATA_VERSION_1_13_2)
+        {
+            String oldName = oldBlockState.getStringOr("Name", "");
+            String blockName = updateBlockName(oldName, oldVersion);
 
-		if (!oldName.equalsIgnoreCase(blockName))
-		{
-			oldBlockState.putString("Name", blockName);
-//			Litematica.LOGGER.error("updateBlockName: [{}] -> [{}]", oldName, blockName);
-		}
+            if (!oldName.equalsIgnoreCase(blockName))
+            {
+                oldBlockState.putString("Name", blockName);
+//			      Litematica.LOGGER.error("updateBlockName: [{}] -> [{}]", oldName, blockName);
+            }
+        }
 
         try
         {

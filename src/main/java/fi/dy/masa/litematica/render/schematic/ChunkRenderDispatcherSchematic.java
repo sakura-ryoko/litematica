@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -8,7 +9,6 @@ import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRenderDispatcherSchematic
@@ -93,7 +93,7 @@ public class ChunkRenderDispatcherSchematic
                                 // properly when not actively rendering a placement
                                 if (this.world.getChunkProvider().hasChunk(pos.x, pos.z))
                                 {
-                                    DataManager.getSchematicPlacementManager().markChunkForUnload(pos);
+                                    this.world.getChunkProvider().unloadChunk(pos.x, pos.z);
                                 }
                             }
                         }
@@ -111,7 +111,7 @@ public class ChunkRenderDispatcherSchematic
 
             if (Reference.DEBUG_MODE && prevCount != newList.size())
             {
-                Litematica.LOGGER.warn("[Dispatch] removeOutOfRangeRenderers: [{}] -> [{}}", prevCount, newList.size());
+                Litematica.LOGGER.warn("[Dispatch] removeOutOfRangeRenderers: [{}] -> [{}]", prevCount, newList.size());
             }
         }
 
@@ -119,9 +119,10 @@ public class ChunkRenderDispatcherSchematic
         this.chunkRenderers.putAll(newList);
     }
 
-    protected void scheduleChunkRender(int chunkX, int chunkZ)
+    // `immediate` is only to be used with 'setBlockDirty()`
+    protected void scheduleChunkRender(int chunkX, int chunkZ, boolean immediate)
     {
-        this.getOrCreateChunkRenderer(chunkX, chunkZ).setNeedsUpdate(false);
+        this.getOrCreateChunkRenderer(chunkX, chunkZ).ifPresent(cr -> cr.setNeedsUpdate(immediate));
     }
 
     protected int getRendererCount()
@@ -129,25 +130,34 @@ public class ChunkRenderDispatcherSchematic
         return this.chunkRenderers.size();
     }
 
-    protected ChunkRendererSchematicVbo getOrCreateChunkRenderer(int chunkX, int chunkZ)
+    protected Optional<ChunkRendererSchematicVbo> getOrCreateChunkRenderer(int chunkX, int chunkZ)
     {
         long index = ChunkPos.asLong(chunkX, chunkZ);
 
-        if (!this.chunkRenderers.containsKey(index))
+        try
         {
-            ChunkRendererSchematicVbo renderer = this.chunkRendererFactory.create(this.world, this.renderer);
+            if (!this.chunkRenderers.containsKey(index))
+            {
+                ChunkRendererSchematicVbo renderer = this.chunkRendererFactory.create(this.world, this.renderer);
 
-            renderer.setPosition(chunkX << 4, this.world.getMinY(), chunkZ << 4);
-            renderer.setChunkPosition(chunkX, chunkZ);
-            this.chunkRenderers.put(index, renderer);
+                renderer.setPosition(chunkX << 4, this.world.getMinY(), chunkZ << 4);
+                renderer.setChunkPosition(chunkX, chunkZ);
+                this.chunkRenderers.put(index, renderer);
+            }
+
+            return Optional.of(this.chunkRenderers.get(index));
+        }
+        catch (Exception e)
+        {
+            Litematica.LOGGER.error("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getMessage());
         }
 
-        return this.chunkRenderers.get(index);
+        return Optional.empty();
     }
 
     @Nullable
     protected ChunkRendererSchematicVbo getChunkRenderer(int chunkX, int chunkZ)
     {
-        return this.getOrCreateChunkRenderer(chunkX, chunkZ);
+        return this.getOrCreateChunkRenderer(chunkX, chunkZ).orElse(null);
     }
 }

@@ -440,7 +440,7 @@ public class WorldSchematic extends Level
     {
         if (stateNew != stateOld)
         {
-            this.scheduleChunkRenders(pos.getX() >> 4, pos.getZ() >> 4);
+            this.scheduleChunkRenders(pos.getX() >> 4, pos.getZ() >> 4, true);
         }
     }
 
@@ -465,11 +465,16 @@ public class WorldSchematic extends Level
 		// NO-OP
 	}
 
-	public void scheduleChunkRenders(int chunkX, int chunkZ)
+    public void scheduleChunkRenders(int chunkX, int chunkZ)
+    {
+        this.scheduleChunkRenders(chunkX, chunkZ, false);
+    }
+
+	public void scheduleChunkRenders(int chunkX, int chunkZ, boolean immediate)
     {
         if (this.worldRenderer != null)
         {
-            this.worldRenderer.scheduleChunkRenders(chunkX, chunkZ);
+            this.worldRenderer.scheduleChunkRenders(chunkX, chunkZ, immediate);
         }
     }
 

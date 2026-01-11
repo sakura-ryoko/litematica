@@ -51,9 +51,9 @@ public class WorldLoadListener implements IWorldLoadListener
 
         if (worldAfter != null)
         {
-            DataManager.load();
             Litematica.debugLog("onWorldLoadPost(): Init BlockStateFlattening DataFixer [Test: {}]", BlockStateData.upgradeBlock("minecraft:air"));
             SchematicConversionMaps.computeMaps();
+            DataManager.load();
             EntitiesDataStorage.getInstance().onWorldJoin();
             CachedTagManager.startCache();
 	        LitematicaDebugHud.INSTANCE.checkConfig();

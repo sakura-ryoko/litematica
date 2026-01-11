@@ -64,6 +64,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public void start()
 	{
+		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads", this.threadMap.size());
+
 		synchronized (this.threadMap)
 		{
 			this.threadMap.forEach(
@@ -79,6 +81,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public void stop()
 	{
+		Litematica.debugLog("Stopping [{}] Placement Manager Daemon threads", this.threadMap.size());
+
 		synchronized (this.threadMap)
 		{
 			this.threadMap.forEach(
@@ -161,7 +165,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 			if (this.processing && this.allDone())
 			{
-				Litematica.LOGGER.warn("PlacementManagerDaemonHandler:  All tasks complete");
+//				Litematica.LOGGER.warn("PlacementManagerDaemonHandler:  All tasks complete");
 //				DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
 				LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
 				this.processing = false;
@@ -172,6 +176,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		}
 	}
 
+	// TODO -- is this even necessary?
 	private void ensureThreadSafety()
 			throws RuntimeException
 	{
@@ -309,7 +314,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public String getDebugString()
 	{
-		return String.format("T: %02d RB: %04d UL: %02d O: %02d",
+		return String.format("T: %02d RB: %02d UL: %02d O: %02d",
 		                     this.threadMap.size(),
 		                     this.queueRebuild.size(),
 		                     this.queueUnload.size(),
@@ -325,10 +330,15 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		this.processing = false;
 	}
 
-	@Override
-	public void close() throws Exception
+	public void endAll()
 	{
 		this.updateAll();
 		this.stop();
+	}
+
+	@Override
+	public void close() throws Exception
+	{
+		this.endAll();
 	}
 }
