@@ -100,13 +100,13 @@ public class ChunkRenderDispatcherSchematic
                     }
                     catch (Exception e)
                     {
-                        Litematica.LOGGER.error("removeOutOfRangeRenderers: get() threw an exception; {}", e.getMessage());
+//                        Litematica.LOGGER.error("removeOutOfRangeRenderers: get() threw an exception; {}", e.getMessage());
                     }
                 }
             }
             catch (Exception e)
             {
-                Litematica.LOGGER.error("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getMessage());
+//                Litematica.LOGGER.error("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getMessage());
             }
 
             if (Reference.DEBUG_MODE && prevCount != newList.size())
@@ -149,7 +149,7 @@ public class ChunkRenderDispatcherSchematic
         }
         catch (Exception e)
         {
-            Litematica.LOGGER.error("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getMessage());
+//            Litematica.LOGGER.error("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getMessage());
         }
 
         return Optional.empty();

@@ -270,10 +270,10 @@ public class EntityUtils
                     entity.setId(nbt.getIntOr("LastEntityID", -1));
                 }
 
-                Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type({}): [{}/{}]",
-                                       entity.getId(),
-                                       entity.getStringUUID(),
-                                       entity.getType().getDescription().getString());
+//                Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type({}): [{}/{}]",
+//                                       entity.getId(),
+//                                       entity.getStringUUID(),
+//                                       entity.getType().getDescription().getString());
 
                 return entity;
             }

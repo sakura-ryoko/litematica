@@ -73,7 +73,7 @@ public class SchematicPlacementManager
     protected ChunkPos lastVisibleChunksSortPos = new ChunkPos(0, 0);
     protected boolean visibleChunksNeedsUpdate;
     private long lastTick;
-    private int tickRate = 10;      // in seconds
+    private int tickRate = 5;      // in seconds
 
     public SchematicPlacementManager()
     {
@@ -161,7 +161,11 @@ public class SchematicPlacementManager
         {
             final int offset = Math.clamp(mc.options.getEffectiveRenderDistance() / 2, 1, 12);
 
-            this.checkNearbyChunksAreLoaded(mc, offset);
+            if (this.hasTimeToExecuteMoreTasks())
+            {
+                this.checkNearbyChunksAreLoaded(mc, offset);
+            }
+
             this.lastTick = now;
         }
     }
@@ -198,7 +202,7 @@ public class SchematicPlacementManager
 
         if (!loaded.isEmpty())
         {
-            Litematica.LOGGER.warn("checkNearbyChunksAreLoaded: checking [{}] loaded chunks", loaded.size());
+//            Litematica.LOGGER.warn("checkNearbyChunksAreLoaded: checking [{}] loaded chunks", loaded.size());
             loaded.forEach(c ->
                            {
                                PlacementManagerDaemonHandler.INSTANCE.addTask(
@@ -233,7 +237,7 @@ public class SchematicPlacementManager
 
         if (!notLoaded.isEmpty())
         {
-            Litematica.LOGGER.warn("checkNearbyChunksAreLoaded: checking [{}] unloaded chunks", notLoaded.size());
+//            Litematica.LOGGER.warn("checkNearbyChunksAreLoaded: checking [{}] unloaded chunks", notLoaded.size());
             notLoaded.forEach(c ->
                            {
                                PlacementManagerDaemonHandler.INSTANCE.addTask(
