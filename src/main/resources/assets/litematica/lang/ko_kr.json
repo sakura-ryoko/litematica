@@ -861,7 +861,7 @@
     "litematica.gui.label.schematic_verifier.expected": "필요",
     "litematica.gui.label.schematic_verifier.found": "보유",
     "litematica.gui.label.schematic_verifier.status.done_correct_total": "§a일치: %s§r, 총: %s",
-    "litematica.gui.label.schematic_verifier.status.done_errors": "틀림: §c블록: %s§r, §6상태: %s§r, §b결손: %s§r, §d나머지: %s§r",
+    "litematica.gui.label.schematic_verifier.status.done_errors": "틀림: §c블록: %s§r, §6상태: %s§r, §b결손: %s§r, §d나머지: %s§r, §e다름: %s§r",
     "litematica.gui.label.schematic_verifier.status.done_errors.no_diff": "틀림: §c블록: %s§r, §6상태: %s§r, §b결손: %s§r, §d나머지: %s§r",
     "litematica.gui.label.schematic_verifier.status.verifying": "확인되지 않은 청크: %s / %s",
     "litematica.gui.label.schematic_verifier.verifier": "스키매틱 검증기",
