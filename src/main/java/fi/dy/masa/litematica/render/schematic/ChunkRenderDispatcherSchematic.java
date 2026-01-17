@@ -41,7 +41,10 @@ public class ChunkRenderDispatcherSchematic
     {
         for (ChunkRendererSchematicVbo chunkRenderer : this.chunkRenderers.values())
         {
-            chunkRenderer.deleteGlResources();
+            if (chunkRenderer != null)
+            {
+                chunkRenderer.deleteGlResources();
+            }
         }
 
         this.chunkRenderers.clear();
@@ -49,6 +52,8 @@ public class ChunkRenderDispatcherSchematic
 
     private boolean rendererOutOfRange(ChunkRendererSchematicVbo cr)
     {
+        if (cr == null) return false;
+
         if (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty())     // Also remove "Empty" chunks, and clear resources.
         {
             cr.deleteGlResources();
@@ -100,13 +105,19 @@ public class ChunkRenderDispatcherSchematic
                     }
                     catch (Exception e)
                     {
-//                        Litematica.LOGGER.error("removeOutOfRangeRenderers: get() threw an exception; {}", e.getMessage());
+                        if (Reference.DEBUG_MODE)
+                        {
+                            Litematica.LOGGER.error("removeOutOfRangeRenderers: get() threw an exception; {}", e.getMessage());
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
-//                Litematica.LOGGER.error("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getMessage());
+                if (Reference.DEBUG_MODE)
+                {
+                    Litematica.LOGGER.error("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getMessage());
+                }
             }
 
             if (Reference.DEBUG_MODE && prevCount != newList.size())
@@ -142,6 +153,8 @@ public class ChunkRenderDispatcherSchematic
 
                 renderer.setPosition(chunkX << 4, this.world.getMinY(), chunkZ << 4);
                 renderer.setChunkPosition(chunkX, chunkZ);
+                renderer.setNeedsUpdate(false);
+
                 this.chunkRenderers.put(index, renderer);
             }
 
@@ -149,7 +162,10 @@ public class ChunkRenderDispatcherSchematic
         }
         catch (Exception e)
         {
-//            Litematica.LOGGER.error("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getMessage());
+            if (Reference.DEBUG_MODE)
+            {
+                Litematica.LOGGER.error("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getMessage());
+            }
         }
 
         return Optional.empty();

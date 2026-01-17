@@ -537,32 +537,36 @@ public class WorldRendererSchematic
             if (chunkRendererTmp.needsUpdate() || set.contains(chunkRendererTmp))
             {
                 this.displayListEntitiesDirty = true;
-//                BlockPos pos = chunkRendererTmp.getOrigin().offset(8, 8, 8);
-//                boolean isNear = pos.distSqr(viewPos) < 1024.0D;
+                BlockPos pos = chunkRendererTmp.getOrigin().offset(8, 8, 8);
+                boolean isNear = pos.distSqr(viewPos) < 1024.0D;
 
-//                if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
-                if (chunkRendererTmp.needsImmediateUpdate())
+                if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
+                {
+//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Later @ cp: {}", chunkRendererTmp.getChunkPos().toString());
+                    this.chunksToUpdate.add(chunkRendererTmp);
+                }
+                else
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("====== update now\n");
-//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Now @ Origin: {}", chunkRendererTmp.getOrigin().toShortString());
+//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Now @ cp: {}", chunkRendererTmp.getChunkPos().toString());
                     profiler.push("update_now");
                     this.profiler = profiler;
 
                     this.renderDispatcher.updateChunkNow(chunkRendererTmp, profiler);
-
                     chunkRendererTmp.clearNeedsUpdate();
+
                     profiler.pop();
-                }
-                else
-                {
-//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Later @ Origin: {}", chunkRendererTmp.getOrigin().toShortString());
-                    this.chunksToUpdate.add(chunkRendererTmp);
                 }
             }
         }
 
         this.chunksToUpdate.addAll(set);
-//        Litematica.LOGGER.warn("[WorldRenderer] setupTerrain // chunksToUpdate: {}", this.chunksToUpdate.size());
+
+//        if (Reference.DEBUG_MODE && !this.chunksToUpdate.isEmpty())
+//        {
+//            Litematica.LOGGER.warn("[WorldRenderer] setupTerrain // chunksToUpdate: {}", this.chunksToUpdate.size());
+//        }
+
         this.clearBlockBatchDraw();
 		this.clearWorldRenderStates();
 

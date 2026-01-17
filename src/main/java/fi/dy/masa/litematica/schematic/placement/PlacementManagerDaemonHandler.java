@@ -274,6 +274,26 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return !this.queueOther.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
 	}
 
+	public boolean hasAnyTasks()
+	{
+		return this.hasAnyUnloadTasks() || this.hasAnyRebuildTasks() || this.hasAnyOtherTasks();
+	}
+
+	public boolean hasAnyUnloadTasks()
+	{
+		return !this.queueUnload.isEmpty();
+	}
+
+	public boolean hasAnyRebuildTasks()
+	{
+		return !this.queueRebuild.isEmpty();
+	}
+
+	public boolean hasAnyOtherTasks()
+	{
+		return !this.queueOther.isEmpty();
+	}
+
 	public boolean hasAnyTasksFor(int cx, int cz)
 	{
 		return  this.hasAnyUnloadTasksFor(cx, cz) ||

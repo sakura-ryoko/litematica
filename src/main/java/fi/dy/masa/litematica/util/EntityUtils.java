@@ -29,6 +29,7 @@ import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.malilib.util.nbt.NbtView;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
@@ -244,8 +245,8 @@ public class EntityUtils
     public static String getEntityId(Entity entity)
     {
         EntityType<?> entitytype = entity.getType();
-        Identifier resourcelocation = EntityType.getKey(entitytype);
-        return entitytype.canSerialize() && resourcelocation != null ? resourcelocation.toString() : null;
+        Identifier id = EntityType.getKey(entitytype);
+        return entitytype.canSerialize() && id != null ? id.toString() : null;
     }
 
     @Nullable
@@ -270,10 +271,13 @@ public class EntityUtils
                     entity.setId(nbt.getIntOr("LastEntityID", -1));
                 }
 
-//                Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type({}): [{}/{}]",
-//                                       entity.getId(),
-//                                       entity.getStringUUID(),
-//                                       entity.getType().getDescription().getString());
+                if (Reference.DEBUG_MODE)
+                {
+                    Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type({}): [{}/{}]",
+                                           entity.getId(),
+                                           entity.getStringUUID(),
+                                           entity.getType().getDescription().getString());
+                }
 
                 return entity;
             }
