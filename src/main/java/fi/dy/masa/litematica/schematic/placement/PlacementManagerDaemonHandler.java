@@ -100,7 +100,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public void reset()
 	{
-		this.updateAll();
+		this.clearAllTasks();
 	}
 
 	@Override
@@ -225,7 +225,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 					if (!pair.getLeft().isAlive() || pair.getLeft().isInterrupted())
 					{
 						String err = String.format("'%s' was killed [%s]", name, this.getThreadStatus(pair.getLeft()));
-						this.updateAll();
+						this.clearAllTasks();
 						this.stop();
 
 						TemporaryWorldManager.INSTANCE.reset();
@@ -416,7 +416,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		);
 	}
 
-	public void updateAll()
+	public void clearAllTasks()
 	{
 		this.removeAllUnloadTasks();
 		this.removeAllRebuildTasks();
@@ -427,7 +427,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public void endAll()
 	{
-		this.updateAll();
+		this.clearAllTasks();
 		this.stop();
 	}
 

@@ -40,7 +40,7 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 
 			if (level == null)
 			{
-				PlacementManagerDaemonHandler.INSTANCE.updateAll();
+				PlacementManagerDaemonHandler.INSTANCE.clearAllTasks();
 				return;
 			}
 

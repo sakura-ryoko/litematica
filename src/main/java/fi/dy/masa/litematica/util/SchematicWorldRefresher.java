@@ -8,7 +8,6 @@ import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.malilib.interfaces.IRangeChangeListener;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -25,7 +24,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener
 
         if (world != null && this.mc.level != null)
         {
-            PlacementManagerDaemonHandler.INSTANCE.updateAll();
+//            PlacementManagerDaemonHandler.INSTANCE.clearAllTasks();
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
             final int minY = world.getMinY();
             final int maxY = world.getMaxY() - 1;
