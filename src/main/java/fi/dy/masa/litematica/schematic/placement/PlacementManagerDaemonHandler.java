@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.schematic.placement;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,6 +28,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueUnload = new ConcurrentLinkedQueue<>();
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueRebuild = new ConcurrentLinkedQueue<>();
 	private final ConcurrentLinkedQueue<PlacementManagerTask> queueOther = new ConcurrentLinkedQueue<>();
+	private final ConcurrentLinkedQueue<PlacementManagerTask> deferredQueue = new ConcurrentLinkedQueue<>();
 
 	private static final float taskInterval = 0.75f;
 	private long lastTick;
@@ -104,6 +106,12 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public synchronized void addTask(PlacementManagerTask newTask)
 	{
+		if (this.checkIfTasksAreFull())
+		{
+			this.deferredQueue.add(newTask);
+			return;
+		}
+
 		switch (newTask)
 		{
 			case PlacementManagerTaskUnload tU -> this.queueUnload.offer(newTask);
@@ -132,6 +140,11 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			return this.queueOther.poll();
 		}
 
+//		if (!this.deferredQueue.isEmpty())
+//		{
+//			this.fillDeferredTasks();
+//		}
+
 		return null;
 	}
 
@@ -141,15 +154,41 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return MathUtils.floor(taskInterval * 1000L);
 	}
 
+	private synchronized boolean checkIfTasksAreFull()
+	{
+		return (this.queueUnload.size() + this.queueRebuild.size() + this.queueOther.size())
+				>= ((this.threadMap.size() / 3) * 1000);
+	}
+
 	protected boolean allDone()
 	{
 		if (this.queueUnload.isEmpty() &&
-			this.queueRebuild.isEmpty())
+			this.queueRebuild.isEmpty() &&
+			this.queueOther.isEmpty())
 		{
-			return this.queueOther.isEmpty();
+			if (!this.deferredQueue.isEmpty())
+			{
+				this.fillDeferredTasks();
+				return false;
+			}
+
+			return true;
 		}
 
 		return false;
+	}
+
+	private synchronized void fillDeferredTasks()
+	{
+		CopyOnWriteArrayList<PlacementManagerTask> tasks = new CopyOnWriteArrayList<>(this.deferredQueue);
+
+		synchronized (this.deferredQueue)
+		{
+			this.deferredQueue.clear();
+		}
+
+		tasks.forEach(this::addTask);
+		tasks.clear();
 	}
 
 	@Override
@@ -254,6 +293,19 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		}
 	}
 
+	protected void removeDeferredTasksFor(int x, int z)
+	{
+		synchronized (this.deferredQueue)
+		{
+			Queue<PlacementManagerTask> newQueue = new ConcurrentLinkedQueue<>(this.deferredQueue);
+
+			this.deferredQueue.clear();
+			this.deferredQueue.addAll(newQueue.stream()
+			                                  .filter(task -> !(task.cx() == x && task.cz() == z))
+			                                  .toList());
+		}
+	}
+
 	public boolean hasAnyRebuildTasksFor(ChunkPos pos)
 	{
 		return this.hasAnyRebuildTasksFor(pos.x, pos.z);
@@ -274,9 +326,15 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return !this.queueOther.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
 	}
 
+	public synchronized boolean hasAnyDeferredTasksFor(int cx, int cz)
+	{
+		return !this.deferredQueue.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
+	}
+
 	public boolean hasAnyTasks()
 	{
-		return this.hasAnyUnloadTasks() || this.hasAnyRebuildTasks() || this.hasAnyOtherTasks();
+		return  this.hasAnyUnloadTasks() || this.hasAnyRebuildTasks() ||
+				this.hasAnyOtherTasks()  || this.hasAnyDeferredTasks();
 	}
 
 	public boolean hasAnyUnloadTasks()
@@ -294,11 +352,17 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return !this.queueOther.isEmpty();
 	}
 
+	public boolean hasAnyDeferredTasks()
+	{
+		return !this.deferredQueue.isEmpty();
+	}
+
 	public boolean hasAnyTasksFor(int cx, int cz)
 	{
 		return  this.hasAnyUnloadTasksFor(cx, cz) ||
 				this.hasAnyRebuildTasksFor(cx, cz) ||
-				this.hasAnyOtherTasksFor(cx, cz);
+				this.hasAnyOtherTasksFor(cx, cz) ||
+				this.hasAnyDeferredTasksFor(cx, cz);
 	}
 
 	protected void removeAllTasksFor(int cx, int cz)
@@ -306,6 +370,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		this.removeOtherTasksFor(cx, cz);
 		this.removeRebuildTasksFor(cx, cz);
 		this.removeUnloadTasksFor(cx, cz);
+		this.removeDeferredTasksFor(cx, cz);
 	}
 
 	protected void removeAllUnloadTasks()
@@ -332,13 +397,22 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		}
 	}
 
+	protected void removeAllDeferredTasks()
+	{
+		synchronized (this.deferredQueue)
+		{
+			this.deferredQueue.clear();
+		}
+	}
+
 	public String getDebugString()
 	{
-		return String.format("T: %02d RB: %02d UL: %02d O: %02d",
+		return String.format("T: %02d RB: %03d UL: %02d O: %02d D: %02d",
 		                     this.threadMap.size(),
 		                     this.queueRebuild.size(),
 		                     this.queueUnload.size(),
-		                     this.queueOther.size()
+		                     this.queueOther.size(),
+		                     this.deferredQueue.size()
 		);
 	}
 
@@ -347,6 +421,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		this.removeAllUnloadTasks();
 		this.removeAllRebuildTasks();
 		this.removeAllOtherTasks();
+		this.removeAllDeferredTasks();
 		this.processing = false;
 	}
 
