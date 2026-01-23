@@ -250,7 +250,7 @@ public class TaskDeleteBlocksByPlacement extends TaskProcessChunkMultiPhase
     @Override
     protected boolean canProcessChunk(ChunkPos pos)
     {
-        if (this.schematicWorld.getChunkProvider().hasChunk(pos.x, pos.z) == false)
+        if (this.schematicWorld.getChunkSource().hasChunk(pos.x, pos.z) == false)
         {
             return false;
         }

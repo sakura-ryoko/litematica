@@ -361,7 +361,7 @@ public class SchematicUtils
             posMutable.move(direction);
 
             if (range.isPositionWithinRange(posMutable) == false ||
-                world.getChunkProvider().hasChunk(posMutable.getX() >> 4, posMutable.getZ() >> 4) == false ||
+                world.getChunkSource().hasChunk(posMutable.getX() >> 4, posMutable.getZ() >> 4) == false ||
                 world.getBlockState(posMutable) != stateStart)
             {
                 posMutable.move(direction.getOpposite());

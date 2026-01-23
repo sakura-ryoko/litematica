@@ -170,14 +170,14 @@ public class SchematicPlacementManager
                     {
                         for (int cz = startcz; cz < endcz; cz++)
                         {
-                            if (!this.worldSupplier.get().getChunkProvider().hasChunk(cx, cz) &&
+                            if (!this.worldSupplier.get().getChunkSource().hasChunk(cx, cz) &&
                                 DataManager.getSchematicPlacementManager().canHandleChunk(Minecraft.getInstance().level, cx, cz))
                             {
                                 notLoaded.add(new ChunkPos(cx, cz));
                             }
-                            else if (this.worldSupplier.get().getChunkProvider().hasChunk(cx, cz))
+                            else if (this.worldSupplier.get().getChunkSource().hasChunk(cx, cz))
                             {
-                                if (this.worldSupplier.get().getChunkProvider().getChunkState(cx, cz).atLeast(ChunkSchematicState.LOADED))
+                                if (this.worldSupplier.get().getChunkSource().getChunkState(cx, cz).atLeast(ChunkSchematicState.LOADED))
                                 {
                                     loaded.add(new ChunkPos(cx, cz));
                                 }
@@ -281,11 +281,11 @@ public class SchematicPlacementManager
     @Deprecated
     protected void unloadSchematicChunk(WorldSchematic worldSchematic, int chunkX, int chunkZ)
     {
-        if (worldSchematic.getChunkProvider().hasChunk(chunkX, chunkZ))
+        if (worldSchematic.getChunkSource().hasChunk(chunkX, chunkZ))
         {
             //System.out.printf("unloading chunk at %d, %d\n", chunkX, chunkZ);
             worldSchematic.unloadEntitiesByChunk(chunkX,chunkZ);
-            worldSchematic.getChunkProvider().unloadChunk(chunkX, chunkZ);
+            worldSchematic.getChunkSource().unloadChunk(chunkX, chunkZ);
             worldSchematic.scheduleChunkRenders(chunkX, chunkZ);
             this.visibleChunksNeedsUpdate = true;
         }
@@ -893,7 +893,7 @@ public class SchematicPlacementManager
     {
         if (this.worldSupplier.get() != null)
         {
-            ChunkSchematic chunk = this.worldSupplier.get().getChunkProvider().getChunkIfExists(cx, cz);
+            ChunkSchematic chunk = this.worldSupplier.get().getChunkSource().getChunkIfExists(cx, cz);
 
             if (chunk != null)
             {

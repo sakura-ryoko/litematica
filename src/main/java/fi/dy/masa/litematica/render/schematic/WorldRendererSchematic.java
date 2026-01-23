@@ -500,7 +500,7 @@ public class WorldRendererSchematic
                 // have been already properly loaded on the client
                 if (Math.abs(cx - centerChunkX) <= renderDistance &&
                     Math.abs(cz - centerChunkZ) <= renderDistance &&
-                    this.world.getChunkProvider().hasChunk(cx, cz))
+                    this.world.getChunkSource().hasChunk(cx, cz))
                 {
                     ChunkRendererSchematicVbo chunkRenderer = this.chunkRendererDispatcher.getChunkRenderer(cx, cz);
 
@@ -1345,7 +1345,7 @@ public class WorldRendererSchematic
             if (!tiles.isEmpty())
             {
                 BlockPos chunkOrigin = chunkRenderer.getOrigin();
-                ChunkSchematic chunk = this.world.getChunkProvider().getChunkForLighting(chunkOrigin.getX() >> 4, chunkOrigin.getZ() >> 4);
+                ChunkSchematic chunk = this.world.getChunkSource().getChunkForLighting(chunkOrigin.getX() >> 4, chunkOrigin.getZ() >> 4);
 
                 if (chunk != null &&
                     chunk.getState().atLeast(ChunkSchematicState.LOADED) &&
@@ -1467,7 +1467,7 @@ public class WorldRendererSchematic
     {
         if (this.hasWorld())
         {
-            return this.world.getChunkProvider().getChunkState(chunkX, chunkZ);
+            return this.world.getChunkSource().getChunkState(chunkX, chunkZ);
         }
 
         return ChunkSchematicState.NO_WORLD_EXCEPTION;
@@ -1477,7 +1477,7 @@ public class WorldRendererSchematic
     {
         if (this.hasWorld())
         {
-            this.world.getChunkProvider().setChunkState(chunkX, chunkZ, state);
+            this.world.getChunkSource().setChunkState(chunkX, chunkZ, state);
         }
     }
 

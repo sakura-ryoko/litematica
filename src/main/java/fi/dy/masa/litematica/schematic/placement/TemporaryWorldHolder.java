@@ -98,7 +98,7 @@ public class TemporaryWorldHolder implements AutoCloseable
 	protected @Nullable ChunkManagerSchematic chunkManager() throws IllegalStateException
 	{
 		this.ensureWorld();
-		return this.world.getChunkProvider();
+		return this.world.getChunkSource();
 	}
 
 	private void ensureWorld() throws IllegalStateException

@@ -41,8 +41,8 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         if (world != null && this.mc.level != null)
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
-//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkProvider().getLoadedChunks();
-            ImmutableList<ChunkPos> keySet = world.getChunkProvider().getLoadedNonEmptyChunkPosSet();
+//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkSource().getLoadedChunks();
+            ImmutableList<ChunkPos> keySet = world.getChunkSource().getLoadedNonEmptyChunkPosSet();
 
             final int cxMin = (Math.min(minX, maxX) >> 4);
             final int cxMax = (Math.max(minX, maxX) >> 4);
@@ -71,8 +71,8 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         if (world != null && this.mc.level != null)
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
-//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkProvider().getLoadedChunks();
-            ImmutableList<ChunkPos> keySet = world.getChunkProvider().getLoadedNonEmptyChunkPosSet();
+//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkSource().getLoadedChunks();
+            ImmutableList<ChunkPos> keySet = world.getChunkSource().getLoadedNonEmptyChunkPosSet();
 
 //            for (ChunkSchematic chunk : schematicChunks.values())
             for (ChunkPos pos : keySet)
@@ -96,8 +96,8 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         if (world != null && this.mc.level != null)
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
-//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkProvider().getLoadedChunks();
-            ImmutableList<ChunkPos> keySet = world.getChunkProvider().getLoadedNonEmptyChunkPosSet();
+//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkSource().getLoadedChunks();
+            ImmutableList<ChunkPos> keySet = world.getChunkSource().getLoadedNonEmptyChunkPosSet();
             final int czMin = (Math.min(minZ, maxZ) >> 4);
             final int czMax = (Math.max(minZ, maxZ) >> 4);
 
@@ -123,7 +123,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener
 
         if (world != null && this.mc.level != null)
         {
-            if (world.getChunkProvider().hasChunk(chunkX, chunkZ) &&
+            if (world.getChunkSource().hasChunk(chunkX, chunkZ) &&
                 WorldUtils.isClientChunkLoaded(this.mc.level, chunkX, chunkZ))
             {
                 world.scheduleChunkRenders(chunkX, chunkZ);
@@ -141,7 +141,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener
             int chunkZ = pos.getZ() >> 4;
             //Litematica.debugLog("SchematicWorldRefresher#markSchematicChunkForRenderUpdate({}, {})", chunkX, chunkZ);
 
-            if (world.getChunkProvider().hasChunk(chunkX, chunkZ) &&
+            if (world.getChunkSource().hasChunk(chunkX, chunkZ) &&
                 WorldUtils.isClientChunkLoaded(this.mc.level, chunkX, chunkZ))
             {
                 world.scheduleChunkRenders(chunkX, chunkZ);

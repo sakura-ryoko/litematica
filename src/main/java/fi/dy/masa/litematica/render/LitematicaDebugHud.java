@@ -220,8 +220,8 @@ public class LitematicaDebugHud implements DebugScreenEntry
 		{
 			str = String.format("[%s] // TE: %02d C: %02d, CT: %02d, CV: %02d",
 			                    worldSchematic.getEntityDebug(),
-			                    worldSchematic.getChunkProvider().getTileEntityCount(),
-			                    worldSchematic.getChunkProvider().getLoadedChunksCount(),
+			                    worldSchematic.getChunkSource().getTileEntityCount(),
+			                    worldSchematic.getChunkSource().getLoadedChunksCount(),
 			                    DataManager.getSchematicPlacementManager().getTouchedChunksCount(),
 			                    DataManager.getSchematicPlacementManager().getLastVisibleChunksCount()
 			);
@@ -230,8 +230,8 @@ public class LitematicaDebugHud implements DebugScreenEntry
 		{
 			str = String.format("E: %02d TE: %02d C: %02d, CT: %02d, CV: %02d",
 			                    worldSchematic.getRegularEntityCount(),
-			                    worldSchematic.getChunkProvider().getTileEntityCount(),
-			                    worldSchematic.getChunkProvider().getLoadedChunksCount(),
+			                    worldSchematic.getChunkSource().getTileEntityCount(),
+			                    worldSchematic.getChunkSource().getLoadedChunksCount(),
 			                    DataManager.getSchematicPlacementManager().getTouchedChunksCount(),
 			                    DataManager.getSchematicPlacementManager().getLastVisibleChunksCount()
 			);

@@ -320,7 +320,7 @@ public class SchematicPlacingUtils
         {
             if (!ws.getChunk(chunkPos.x, chunkPos.z).getState().atLeast(ChunkSchematicState.FILLED))
             {
-                ws.getChunkProvider().setChunkState(chunkPos.x, chunkPos.z, ChunkSchematicState.FILLED);
+                ws.getChunkSource().setChunkState(chunkPos.x, chunkPos.z, ChunkSchematicState.FILLED);
             }
         }
 

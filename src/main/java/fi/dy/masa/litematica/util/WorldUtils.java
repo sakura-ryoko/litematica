@@ -551,7 +551,7 @@ public class WorldUtils
         {
             for (int cx = cxMin; cx <= cxMax; ++cx)
             {
-                world.getChunkProvider().loadChunk(cx, cz);         // TODO FIXME
+                world.getChunkSource().loadChunk(cx, cz);         // TODO FIXME
                 chunks.add(Pair.of(cx, cz));
             }
         }

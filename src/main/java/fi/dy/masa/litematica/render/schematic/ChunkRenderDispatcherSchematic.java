@@ -96,9 +96,9 @@ public class ChunkRenderDispatcherSchematic
 
                                 // Because sometimes they aren't unloaded
                                 // properly when not actively rendering a placement
-                                if (this.world.getChunkProvider().hasChunk(pos.x, pos.z))
+                                if (this.world.getChunkSource().hasChunk(pos.x, pos.z))
                                 {
-                                    this.world.getChunkProvider().unloadChunk(pos.x, pos.z);
+                                    this.world.getChunkSource().unloadChunk(pos.x, pos.z);
                                 }
                             }
                         }

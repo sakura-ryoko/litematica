@@ -140,6 +140,7 @@ public class WorldSchematic extends Level
 //        this.dimensionEffects = DimensionEffects.byDimensionType(this.dimensionType.value());
     }
 
+    @Deprecated(forRemoval = true)
     public ChunkManagerSchematic getChunkProvider()
     {
         return this.getChunkSource();

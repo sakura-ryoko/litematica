@@ -100,7 +100,7 @@ public abstract class TaskPasteSchematicPerChunkBase extends TaskProcessChunkMul
     @Override
     protected boolean canProcessChunk(ChunkPos pos)
     {
-        if (this.schematicWorld.getChunkProvider().hasChunk(pos.x, pos.z) == false ||
+        if (this.schematicWorld.getChunkSource().hasChunk(pos.x, pos.z) == false ||
 //            DataManager.getSchematicPlacementManager().hasPendingRebuildFor(pos))
             PlacementManagerDaemonHandler.INSTANCE.hasAnyRebuildTasksFor(pos))
         {

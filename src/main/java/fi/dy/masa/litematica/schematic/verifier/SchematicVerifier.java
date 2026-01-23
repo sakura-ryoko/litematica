@@ -488,7 +488,7 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
                 }
 
                 // Require the surrounding chunks in the client world to be loaded as well
-                if (count == 9 && this.worldSchematic.getChunkProvider().hasChunk(pos.x, pos.z))
+                if (count == 9 && this.worldSchematic.getChunkSource().hasChunk(pos.x, pos.z))
                 {
                     ChunkAccess chunkClient = this.worldClient.getChunk(pos.x, pos.z);
                     ChunkAccess chunkSchematic = this.worldSchematic.getChunk(pos.x, pos.z);

@@ -56,20 +56,20 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 
 			if (manager.canHandleChunk(level, this.cx(), this.cz()))
 			{
-				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+				if (worldSchematic.getChunkSource().hasChunk(this.cx(), this.cz()))
 				{
 					worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
-					worldSchematic.getChunkProvider().unloadChunk(this.cx(), this.cz());
+					worldSchematic.getChunkSource().unloadChunk(this.cx(), this.cz());
 					manager.setVisibleSubChunksNeedsUpdate();
 				}
 
-				worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
+				worldSchematic.getChunkSource().loadChunk(this.cx(), this.cz());
 				manager.setVisibleSubChunksNeedsUpdate();
 //				shouldLoad = true;
 			}
 
 //			if (shouldLoad)
-			if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+			if (worldSchematic.getChunkSource().hasChunk(this.cx(), this.cz()))
 			{
 				ProtoChunkSchematic protoChunk = new ProtoChunkSchematic(new ChunkSchematic(worldSchematic, this.pos()));
 				Collection<SchematicPlacement> placements = manager.getAllSchematicsTouchingChunk(this.pos());
@@ -88,7 +88,7 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 
 					// Load Real Chunk and spawn the entities
 					worldSchematic.unloadEntitiesByChunk(this.cx(), this.cz());
-					worldSchematic.getChunkProvider().replaceChunk(this.cx(), this.cz(), protoChunk.getWrapped());
+					worldSchematic.getChunkSource().replaceChunk(this.cx(), this.cz(), protoChunk.getWrapped());
 					protoChunk.spawnAllEntitiesNow(worldSchematic);
 				}
 
@@ -96,10 +96,10 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 
 //				else
 //				{
-//					worldSchematic.getChunkProvider().loadChunk(this.cx(), this.cz());
+//					worldSchematic.getChunkSource().loadChunk(this.cx(), this.cz());
 //				}
 
-//				if (worldSchematic.getChunkProvider().hasChunk(this.cx(), this.cz()))
+//				if (worldSchematic.getChunkSource().hasChunk(this.cx(), this.cz()))
 //				{
 //				      manager.removePendingRebuildFor(this.pos());
 					worldSchematic.scheduleChunkRenders(this.cx(), this.cz());
