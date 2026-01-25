@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -47,6 +48,7 @@ import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 import fi.dy.masa.litematica.render.RenderUtils;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager.PlacementPart;
 import fi.dy.masa.litematica.util.IgnoreBlockRegistry;
@@ -61,7 +63,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected static int schematicRenderChunksUpdated;
 
     protected volatile WorldSchematic world;
-    protected final WorldRendererSchematic worldRenderer;
+    protected final IWorldSchematicRenderer worldRenderer;
     // UNTHREADED CODE
     private final RandomSource rand;
     protected final ReentrantLock chunkRenderLock;
@@ -101,7 +103,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private boolean needsUpdate;
     private boolean needsImmediateUpdate;
 
-    protected ChunkRendererSchematicVbo(WorldSchematic world, WorldRendererSchematic worldRenderer)
+    protected ChunkRendererSchematicVbo(WorldSchematic world, IWorldSchematicRenderer worldRenderer)
     {
         this.world = world;
         this.worldRenderer = worldRenderer;

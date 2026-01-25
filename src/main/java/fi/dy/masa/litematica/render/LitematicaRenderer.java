@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
-import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
@@ -21,7 +20,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -31,16 +29,14 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 public class LitematicaRenderer
 {
     private static final LitematicaRenderer INSTANCE = new LitematicaRenderer();
-    private static final Logger LOGGER = Litematica.LOGGER;
+//    private static final Logger LOGGER = Litematica.LOGGER;
 
     private Minecraft mc;
-    private WorldRendererSchematic worldRenderer;
+    private IWorldSchematicRenderer worldRenderer;
     private Frustum frustum;
     private int frameCount;
     private long finishTimeNano;
 
-    // Moved to ChunkRenderBatchDraw
-//    private boolean renderCollidingSchematicBlocks;
     private boolean renderPiecewiseSchematic;
     private boolean renderPiecewiseBlocks;
     private boolean renderPiecewiseEntities;
@@ -55,7 +51,7 @@ public class LitematicaRenderer
 	{
 	}
 
-	public WorldRendererSchematic getWorldRenderer()
+	public IWorldSchematicRenderer getWorldRenderer()
     {
         if (this.worldRenderer == null)
         {
@@ -66,7 +62,7 @@ public class LitematicaRenderer
         return this.worldRenderer;
     }
 
-    public WorldRendererSchematic resetWorldRenderer()
+    public IWorldSchematicRenderer resetWorldRenderer()
     {
         if (this.worldRenderer != null)
         {
@@ -156,7 +152,7 @@ public class LitematicaRenderer
         this.renderPiecewiseBlocks = false;
         this.renderPiecewiseEntities = false;
         this.renderPiecewiseTileEntities = false;
-        WorldRendererSchematic worldRenderer = this.getWorldRenderer();
+        IWorldSchematicRenderer worldRenderer = this.getWorldRenderer();
 
         if (render && frustum != null && worldRenderer.hasWorld() && this.mc.player != null)
         {

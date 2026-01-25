@@ -3,15 +3,16 @@ package fi.dy.masa.litematica.render;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.StringUtils;
@@ -19,7 +20,6 @@ import fi.dy.masa.malilib.util.game.DebugHudUtils;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
 import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 import fi.dy.masa.litematica.util.DebugHudMode;
 import fi.dy.masa.litematica.util.EntityUtils;
@@ -124,7 +124,7 @@ public class LitematicaDebugHud implements DebugScreenEntry
 			// Loaded
 			Pair<String, String> pair = EntityUtils.getEntityDebug();
 
-			WorldRendererSchematic renderer = LitematicaRenderer.getInstance().getWorldRenderer();
+			IWorldSchematicRenderer renderer = LitematicaRenderer.getInstance().getWorldRenderer();
 			String str = this.getWorldDebug(worldSchematic);
 			String pmStr = PlacementManagerDaemonHandler.INSTANCE.getDebugString();
 

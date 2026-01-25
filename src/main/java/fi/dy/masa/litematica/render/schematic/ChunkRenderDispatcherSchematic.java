@@ -9,19 +9,20 @@ import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRenderDispatcherSchematic
 {
     protected final Long2ObjectOpenHashMap<ChunkRendererSchematicVbo> chunkRenderers;
-    protected final WorldRendererSchematic renderer;
+    protected final IWorldSchematicRenderer renderer;
     protected final IChunkRendererFactory chunkRendererFactory;
     protected final WorldSchematic world;
     protected int viewDistanceChunks;
     protected int viewDistanceBlocksSq;
 
     protected ChunkRenderDispatcherSchematic(WorldSchematic world, int viewDistanceChunks,
-                                             WorldRendererSchematic worldRenderer, IChunkRendererFactory factory)
+                                             IWorldSchematicRenderer worldRenderer, IChunkRendererFactory factory)
     {
         this.chunkRendererFactory = factory;
 		this.chunkRenderers = new Long2ObjectOpenHashMap<>();

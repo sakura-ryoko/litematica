@@ -2,11 +2,13 @@ package fi.dy.masa.litematica.render.schematic.ao;
 
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+
+import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 
 public class AOBrightness
 {
@@ -33,7 +35,7 @@ public class AOBrightness
 		                                                                 long2FloatLinkedOpenHashMap.defaultReturnValue(Float.NaN);
 		                                                                 return long2FloatLinkedOpenHashMap;
 	                                                                 });
-	private final WorldRendererSchematic.LightGetter lightGetter = (world, pos) ->
+	private final IWorldSchematicRenderer.LightGetter lightGetter = (world, pos) ->
 	{
 		long l = pos.asLong();
 		int i = this.intCache.get(l);
@@ -44,7 +46,7 @@ public class AOBrightness
 		}
 		else
 		{
-			int j = WorldRendererSchematic.LightGetter.DEFAULT.packedLight(world, pos);
+			int j = IWorldSchematicRenderer.LightGetter.DEFAULT.packedLight(world, pos);
 
 			if (this.intCache.size() == 100)
 			{
@@ -105,9 +107,9 @@ public class AOBrightness
 //
 //		return i;
 
-		return WorldRendererSchematic.getLightmap(this.enabled
+		return IWorldSchematicRenderer.getLightmap(this.enabled
 		                                          ? this.lightGetter
-		                                          : WorldRendererSchematic.LightGetter.DEFAULT, world, state, pos);
+		                                          : IWorldSchematicRenderer.LightGetter.DEFAULT, world, state, pos);
 	}
 
 	public float getFloat(BlockState state, BlockAndTintGetter blockView, BlockPos pos)

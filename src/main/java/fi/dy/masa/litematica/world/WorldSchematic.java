@@ -63,7 +63,7 @@ import net.minecraft.world.ticks.LevelTickAccess;
 
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.litematica.Reference;
-import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 
 public class WorldSchematic extends Level
 {
@@ -71,7 +71,7 @@ public class WorldSchematic extends Level
 
     protected final Minecraft mc;
     protected final ChunkManagerSchematic chunkManagerSchematic;
-    @Nullable protected final WorldRendererSchematic worldRenderer;
+    @Nullable protected final IWorldSchematicRenderer worldRenderer;
     private final TickRateManager tickManager;
     private final Holder<DimensionType> dimensionType;
     private final SchematicEntityLookup<Entity> entityLookup;
@@ -82,7 +82,7 @@ public class WorldSchematic extends Level
     public WorldSchematic(WritableLevelData properties,
                           @Nonnull RegistryAccess registryManager,
                           Holder<DimensionType> dimension,
-                          @Nullable WorldRendererSchematic worldRenderer)
+                          @Nullable IWorldSchematicRenderer worldRenderer)
     {
         super(properties, REGISTRY_KEY, !registryManager.equals(RegistryAccess.EMPTY) ? registryManager : SchematicWorldHandler.INSTANCE.getRegistryManager(), dimension, true, false, 0L, 0);
 
