@@ -489,16 +489,13 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
                 for (String key : keys)
                 {
-//                    commandHandler.accept(String.format("data get block %d %d %d", pos.getX(), pos.getY(), pos.getZ()));
-                    commandHandler.accept(this.delayCommand);
-
                     String command = String.format("data modify block %d %d %d %s set from block %d %d %d %s",
                                                    pos.getX(), pos.getY(), pos.getZ(),
                                                    key,
                                                    placementPos.getX(), placementPos.getY(), placementPos.getZ(),
                                                    key);
 
-//                    commandHandler.accept(String.format("data get block %d %d %d", pos.getX(), pos.getY(), pos.getZ()));
+                    commandHandler.accept(this.delayCommand);
                     commandHandler.accept(command);
                 }
             }
