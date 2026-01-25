@@ -69,7 +69,12 @@ public class EasyPlaceUtils
         isHandling = handling;
     }
 
-    public static void setIsFirstClick()
+	public static double getValidBlockRange(Minecraft mc)
+	{
+		return Configs.Generic.EASY_PLACE_VANILLA_REACH.getBooleanValue() ? mc.player.blockInteractionRange() : mc.player.blockInteractionRange() + 1.0;
+	}
+
+	public static void setIsFirstClick()
     {
         if (shouldDoEasyPlaceActions())
         {
@@ -435,8 +440,24 @@ public class EasyPlaceUtils
         Minecraft mc = Minecraft.getInstance();
         Entity entity = mc.getCameraEntity();
         ClientLevel world = mc.level;
-        double reach = mc.player.blockInteractionRange();
-        RayTraceUtils.RayTraceWrapper traceWrapper = RayTraceUtils.getGenericTrace(world, entity, reach, true, true, true);
+        double reach = getValidBlockRange(mc);
+        RayTraceUtils.RayTraceWrapper traceWrapper;
+
+	    if (Configs.Generic.EASY_PLACE_FIRST.getBooleanValue())
+	    {
+		    boolean targetFluids = Configs.InfoOverlays.INFO_OVERLAYS_TARGET_FLUIDS.getBooleanValue();
+		    traceWrapper = RayTraceUtils.getGenericTrace(world, entity, reach, true, targetFluids, false);
+	    }
+		else
+	    {
+		    traceWrapper = RayTraceUtils.getFurthestSchematicWorldTraceBeforeVanilla(mc.level, mc.player, reach);
+
+		    if (traceWrapper == null && placementRestrictionInEffect())
+		    {
+			    return InteractionResult.FAIL;
+		    }
+	    }
+
 		BlockHitResult targetPosition = getTargetPosition(traceWrapper);
 
 		// No position override, and didn't ray trace to a schematic block
