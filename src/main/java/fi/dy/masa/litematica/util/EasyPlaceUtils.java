@@ -96,14 +96,14 @@ public class EasyPlaceUtils
             try
             {
                 // TODO FIXME cross-MC-version fragile
-                String name = Block.class.getSimpleName().equals("Block") ? "onUse": "a";
+                String name = Block.class.getSimpleName().equals("Block") ? "useWithoutItem": "a";
                 Method method = block.getClass().getMethod(name, BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
                 Method baseMethod = Block.class.getMethod(name, BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
                 val = method.equals(baseMethod) == false;
             }
             catch (Exception e)
             {
-                Litematica.LOGGER.warn("EasyPlaceUtils: Failed to reflect method Block::onUse", e);
+                Litematica.LOGGER.warn("EasyPlaceUtils: Failed to reflect method Block::useWithoutItem", e);
                 val = false;
             }
 

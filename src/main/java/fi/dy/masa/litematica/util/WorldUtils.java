@@ -691,7 +691,10 @@ public class WorldUtils
         }
     }
 
-	@Deprecated
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static void easyPlaceOnUseTick(Minecraft mc)
     {
         if (mc.player != null && DataManager.getToolMode() != ToolMode.REBUILD &&
@@ -704,7 +707,10 @@ public class WorldUtils
         }
     }
 
-	@Deprecated
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static boolean handleEasyPlace(Minecraft mc)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
@@ -735,7 +741,10 @@ public class WorldUtils
         return false;
     }
 
-	@Deprecated
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     private static InteractionResult doEasyPlaceAction(Minecraft mc)
     {
         RayTraceWrapper traceWrapper;
@@ -910,7 +919,10 @@ public class WorldUtils
         return InteractionResult.PASS;
     }
 
-	@Deprecated
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     private static boolean easyPlaceBlockChecksCancel(BlockState stateSchematic, BlockState stateClient,
             Player player, HitResult trace, ItemStack stack)
     {
@@ -937,7 +949,10 @@ public class WorldUtils
         return !stateClient.canBeReplaced(ctx);
     }
 
-	// TODO --> Move to EasyPlaceUtils
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static class PlacementProtocolData
     {
         boolean handled;
@@ -947,7 +962,10 @@ public class WorldUtils
         Vec3 hitVec;
     }
 
-	// TODO --> Move to EasyPlaceUtils
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static PlacementProtocolData applyPlacementProtocolAll(BlockPos pos, BlockState stateSchematic, Vec3 hitVecIn)
     {
         PlacementProtocolData placementData = new PlacementProtocolData();
@@ -998,8 +1016,9 @@ public class WorldUtils
 
     /**
      * Apply the Carpet-Extra mod accurate block placement protocol support
+     * @deprecated Moving to {@link EasyPlaceUtils}
      */
-	// TODO --> Move to EasyPlaceUtils
+    @Deprecated
     public static Vec3 applyCarpetProtocolHitVec(BlockPos pos, BlockState state, Vec3 hitVecIn)
     {
         double x = hitVecIn.x;
@@ -1057,7 +1076,10 @@ public class WorldUtils
         return new Vec3(x, y, z);
     }
 
-	// TODO --> Move to EasyPlaceUtils
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     private static double applySlabOrStairHitVecY(double origY, BlockPos pos, BlockState state)
     {
         double y = origY;
@@ -1084,14 +1106,20 @@ public class WorldUtils
         return y;
     }
 
-	// TODO --> Move to EasyPlaceUtils
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static Vec3 applyBlockSlabProtocol(BlockPos pos, BlockState state, Vec3 hitVecIn)
     {
         double newY = applySlabOrStairHitVecY(hitVecIn.y, pos, state);
         return newY != hitVecIn.y ? new Vec3(hitVecIn.x, newY, hitVecIn.z) : hitVecIn;
     }
 
-	// TODO --> Move to EasyPlaceUtils
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static <T extends Comparable<T>> Vec3 applyPlacementProtocolV3(BlockPos pos, BlockState state, Vec3 hitVecIn)
     {
         Collection<Property<?>> props = state.getBlock().getStateDefinition().getProperties();
@@ -1179,7 +1207,10 @@ public class WorldUtils
         return hitVecIn;
     }
 
-	// TODO --> Move to EasyPlaceUtils
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     public static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
     {
         Block blockSchematic = stateSchematic.getBlock();
@@ -1221,7 +1252,9 @@ public class WorldUtils
      * to indicate that the use action should be cancelled.
      * @param mc
      * @return
+     * @deprecated Moving to {@link EasyPlaceUtils}
      */
+    @Deprecated
     public static boolean handlePlacementRestriction(Minecraft mc)
     {
         boolean cancel = placementRestrictionInEffect(mc);
@@ -1250,7 +1283,9 @@ public class WorldUtils
      * to indicate that the use action should be cancelled.
      * @param mc
      * @return true if the use action should be cancelled
+     * @deprecated Moving to {@link EasyPlaceUtils}
      */
+    @Deprecated
     private static boolean placementRestrictionInEffect(Minecraft mc)
     {
         HitResult trace = mc.hitResult;
@@ -1332,6 +1367,10 @@ public class WorldUtils
         return false;
     }
 
+    /**
+     * @deprecated Moving to {@link EasyPlaceUtils}
+     */
+    @Deprecated
     private static boolean isMatchingStatePlacementRestriction (BlockState state1, BlockState state2)
     {
         if (state1 == null || state2 == null)

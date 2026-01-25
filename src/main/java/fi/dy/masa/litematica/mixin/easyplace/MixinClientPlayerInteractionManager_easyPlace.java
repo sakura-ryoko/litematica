@@ -20,7 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 public class MixinClientPlayerInteractionManager_easyPlace
 {
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
-    private void onInteractBlock(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
+    private void litematica_onInteractBlock(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
             Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
@@ -50,24 +50,24 @@ public class MixinClientPlayerInteractionManager_easyPlace
     }
 
 	// This causes double-placements
-//    @Inject(method = "interactBlockInternal",
-//			at = @At(value = "INVOKE",
-//            target = "Lnet/minecraft/client/network/ClientPlayerEntity;getMainHandStack()Lnet/minecraft/item/ItemStack;",
-//            shift = At.Shift.BEFORE), cancellable = true)
-//    private void onInteractBlockInternal(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir)
-//    {
-//        if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
-//            Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
-//        {
-//            // Prevent recursion, since the Easy Place mode can call this code again
-//            if (EasyPlaceUtils.isHandling() == false)
-//            {
-//                if (EasyPlaceUtils.shouldDoEasyPlaceActions() &&
-//                    EasyPlaceUtils.handleEasyPlaceWithMessage())
-//                {
-//                    cir.setReturnValue(ActionResult.FAIL);
-//                }
-//            }
-//        }
-//    }
+    @Inject(method = "performUseItemOn",
+			at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;",
+            shift = At.Shift.BEFORE), cancellable = true)
+    private void litematica_onInteractBlockInternal(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
+    {
+        if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
+            Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+        {
+            // Prevent recursion, since the Easy Place mode can call this code again
+            if (EasyPlaceUtils.isHandling() == false)
+            {
+                if (EasyPlaceUtils.shouldDoEasyPlaceActions() &&
+                    EasyPlaceUtils.handleEasyPlaceWithMessage())
+                {
+                    cir.setReturnValue(InteractionResult.FAIL);
+                }
+            }
+        }
+    }
 }
