@@ -66,6 +66,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected final String fillCommand;
     protected final String setBlockCommand;
     protected final String summonCommand;
+    protected final String delayCommand;
     protected final int maxBoxVolume;
     protected final boolean useFillCommand;
     protected final boolean useWorldEdit;
@@ -87,6 +88,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         this.fillCommand = Configs.Generic.COMMAND_NAME_FILL.getStringValue();
         this.setBlockCommand = Configs.Generic.COMMAND_NAME_SETBLOCK.getStringValue();
         this.summonCommand = Configs.Generic.COMMAND_NAME_SUMMON.getStringValue();
+        this.delayCommand = "<TICK_DELAY>";
         this.useFillCommand = Configs.Generic.PASTE_USE_FILL_COMMAND.getBooleanValue();
         this.useWorldEdit = Configs.Generic.COMMAND_USE_WORLDEDIT.getBooleanValue();
         this.useStrict = Configs.Generic.COMMAND_USE_STRICT.getBooleanValue() ? " strict" : "";
@@ -173,7 +175,16 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         while (this.sentCommandsThisTick < this.maxCommandsPerTick && this.queuedCommands.isEmpty() == false)
         {
-            this.sendCommand(this.queuedCommands.poll());
+            String command = this.queuedCommands.poll();
+
+            if (command.equals(this.delayCommand))
+            {
+                this.sentCommandsThisTick = this.maxCommandsPerTick;
+            }
+            else
+            {
+                this.sendCommand(command);
+            }
         }
     }
 
@@ -478,11 +489,16 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
                 for (String key : keys)
                 {
+//                    commandHandler.accept(String.format("data get block %d %d %d", pos.getX(), pos.getY(), pos.getZ()));
+                    commandHandler.accept(this.delayCommand);
+
                     String command = String.format("data modify block %d %d %d %s set from block %d %d %d %s",
                                                    pos.getX(), pos.getY(), pos.getZ(),
                                                    key,
                                                    placementPos.getX(), placementPos.getY(), placementPos.getZ(),
                                                    key);
+
+//                    commandHandler.accept(String.format("data get block %d %d %d", pos.getX(), pos.getY(), pos.getZ()));
                     commandHandler.accept(command);
                 }
             }
