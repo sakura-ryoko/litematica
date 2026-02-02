@@ -1,16 +1,20 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.14-SNAPSHOT'
+	id 'maven-publish'
 }
-
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
 
 repositories {
-	maven { url 'https://masa.dy.fi/maven' }
-	maven { url 'https://maven.terraformersmc.com/releases/' }
-	// maven { url 'https://maven.quiltmc.org/repository/release/' }
+	maven {url = 'https://masa.dy.fi/maven/sakura-ryoko'
+		content { includeGroupAndSubgroups("fi.dy.masa") }
+	}
+	maven {url = 'https://maven.fallenbreath.me/releases'
+		content { includeGroupAndSubgroups("me.fallenbreath") }
+	}
+	maven {url = 'https://maven.terraformersmc.com/releases/'
+		content { includeGroupAndSubgroups("com.terraformersmc") }
+	}
+	maven { url = 'https://jitpack.io' }
 }
-
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.mappings_version}:v2"
@@ -18,20 +22,36 @@ dependencies {
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
 
 	modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
+//	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
 
 	//include(modApi(fabricApi.module("fabric-api-base", project.fabric_api_version)))
-	include(modApi(fabricApi.module("fabric-networking-api-v1", project.fabric_api_version)))
-	include(modApi(fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version)))
-
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+//	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
 }
 
-group = project.group + "." + project.mod_id
-archivesBaseName = project.mod_file_name + '-' + project.minecraft_version_out
-version = project.mod_version
+base {
+	group = project.group + "." + project.mod_id
+	archivesName = project.mod_file_name + '-' + project.minecraft_version_out
+	version = project.mod_version
 
-if (version.endsWith('-dev')) {
-	version += "." + new Date().format('yyyyMMdd.HHmmss')
+	if (version.endsWith('-dev')) {
+		version += "." + new Date().format('yyyyMMdd.HHmmss')
+	}
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/litematica.accesswidener")
+
+//	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
+//	// [FEATURE] MIXIN_AUDITOR
+//	runs {
+//		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
+//		clientMixinAudit {
+//			client()
+//			vmArgs auditVmArgs
+//			ideConfigGenerated false
+//		}
+//	}
 }
 
 processResources {
@@ -63,4 +83,37 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(AbstractArchiveTask).configureEach {
 	preserveFileTimestamps = true
 	//reproducibleFileOrder = true
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${base.archivesName}"}
+	}
+}
+
+tasks.publish.dependsOn build
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			// add all the jars that should be included when publishing to maven
+			//artifact(jar)             { builtBy remapJar }
+			artifactId = base.archivesName.get()
+			from components.java
+		}
+	}
+
+	repositories {
+		maven {
+			url = "$projectDir/../../CommonMaven"
+		}
+	}
 }
