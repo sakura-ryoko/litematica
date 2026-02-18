@@ -1074,7 +1074,7 @@
     "litematica.pm_command.display_chunk_debug.base": "§eЧанк [%d, %d]§7 — Стан: §b%s§7 [Створено: %d]§r",
     "litematica.pm_command.display_chunk_debug.entities": "§7Сутності: §f%02d§7 / Блоки-сутності: §f%02d§r",
     "litematica.pm_command.display_chunk_debug.not_loaded": "§eЧанк [%d, %d] §cIНе завантажено§r",
-    "litematica.pm_command.display_chunk_debug.schematics": "§7Схематики: §f%02d§7 / Чатини розміщення: §f%02d§7 / задання Daemon: §f%s§r",
+    "litematica.pm_command.display_chunk_debug.schematics": "§7Схематики: §f%02d§7 / Чатини розміщення: §f%02d§7 / завдання Daemon: §f%s§r",
     "litematica.pm_command.display_chunk_debug.sections": "§7Розліи: §f%02d§7 / Висота: §f%02d§7 / minY: §f%02d§r",
     "litematica.pm_command.help": "§eДоступні команди:§r\n§7 — §bci [<cx> <cz>]§7 — Отримати інформацію про налагодження завантаження блоку§r\n§7 — §brb [<cx> <cz>]§7 — Примусово перебудувати блок§r\n§6Якщо §7[<cx> <cz>]§6 не надано, буде використано поточне розташування камери§r",
     "litematica.pm_command.invalid_args": "§cNumberFormatException: аргументи не є дійсною парою Int (cx, cz)§r",
