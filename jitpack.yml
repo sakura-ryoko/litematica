@@ -1,3 +1,4 @@
 before_install:
   - sdk install java 21.0.9-tem
   - sdk use java 21.0.9-tem
+  - export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
