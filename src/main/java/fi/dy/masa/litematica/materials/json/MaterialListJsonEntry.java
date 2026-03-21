@@ -175,7 +175,7 @@ public class MaterialListJsonEntry
                 SlotDisplay display = ing.display();
                 List<ItemStack> displayStacks = display.resolveForStacks(map);
                 ItemStack displayStack = displayStacks.getFirst();
-                Holder<Item> itemEntry = displayStack.getItemHolder();
+                Holder<Item> itemEntry = displayStack.typeHolder();
                 HolderSet<Item> ingEntries = ((IMixinIngredient) (Object) ing).malilib_getEntries();
 
                 if (ingEntries.size() > 1)

@@ -368,7 +368,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public boolean hasAnyRebuildTasksFor(ChunkPos pos)
 	{
-		return this.hasAnyRebuildTasksFor(pos.x, pos.z);
+		return this.hasAnyRebuildTasksFor(pos.x(), pos.z());
 	}
 
 	public synchronized boolean hasAnyUnloadTasksFor(int cx, int cz)

@@ -68,7 +68,7 @@ public abstract class TaskPasteSchematicPerChunkBase extends TaskProcessChunkMul
         {
             int count = 0;
 
-            for (IntBoundingBox box : placement.getBoxesWithinChunk(pos.x, pos.z).values())
+            for (IntBoundingBox box : placement.getBoxesWithinChunk(pos.x(), pos.z()).values())
             {
                 box = PositionUtils.getClampedBox(box, range);
 
@@ -101,7 +101,7 @@ public abstract class TaskPasteSchematicPerChunkBase extends TaskProcessChunkMul
     @Override
     protected boolean canProcessChunk(ChunkPos pos)
     {
-        if (this.schematicWorld.getChunkSource().hasChunk(pos.x, pos.z) == false ||
+        if (this.schematicWorld.getChunkSource().hasChunk(pos.x(), pos.z()) == false ||
 //            DataManager.getSchematicPlacementManager().hasPendingRebuildFor(pos))
             PlacementManagerDaemonHandler.INSTANCE.hasAnyRebuildTasksFor(pos))
         {

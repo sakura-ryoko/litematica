@@ -1051,7 +1051,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         maxY = Mth.clamp(maxY, -60, 319);
 
         ClientLevel world = this.getClientWorld();
-        ChunkAccess chunk = world != null ? world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false) : null;
+        ChunkAccess chunk = world != null ? world.getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, false) : null;
 
         if (chunk == null)
         {
@@ -1195,11 +1195,11 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
         BlockEntity blockEntity = this.getClientWorld().getBlockEntity(pos);
 
-        if (blockEntity != null && (type == null || type.equals(BlockEntityType.getKey(blockEntity.getType()))))
+        if (blockEntity != null && (type == null || type.equals(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()))))
         {
             if (data.contains(NbtKeys.ID, Constants.NBT.TAG_STRING) == false)
             {
-                Identifier id = BlockEntityType.getKey(blockEntity.getType());
+                Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType());
 
                 if (id != null)
                 {
@@ -1214,7 +1214,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
             NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
             blockEntity.loadWithComponents(view.getReader());
-            ChunkPos chunkPos = new ChunkPos(pos);
+            ChunkPos chunkPos = ChunkPos.containing(pos);
 
             if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
             {
@@ -1238,7 +1238,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 {
                     if (data.contains(NbtKeys.ID, Constants.NBT.TAG_STRING) == false)
                     {
-                        Identifier id = BlockEntityType.getKey(beType);
+                        Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(beType);
 
                         if (id != null)
                         {
@@ -1257,7 +1257,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                         this.getClientWorld().setBlockEntity(blockEntity2);
                     }
 
-                    ChunkPos chunkPos = new ChunkPos(pos);
+                    ChunkPos chunkPos = ChunkPos.containing(pos);
 
                     if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
                     {
@@ -1406,7 +1406,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             long now = Util.getMillis();
 
             // Take no action when ChunkPos is not loaded by the ClientWorld.
-            if (WorldUtils.isClientChunkLoaded(this.mc.level, pos.x, pos.z) == false)
+            if (WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()) == false)
             {
                 this.pendingChunkTimeout.replace(pos, now);
                 return;

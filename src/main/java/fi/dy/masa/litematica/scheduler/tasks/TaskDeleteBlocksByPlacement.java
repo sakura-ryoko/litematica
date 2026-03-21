@@ -74,7 +74,7 @@ public class TaskDeleteBlocksByPlacement extends TaskProcessChunkMultiPhase
         {
             int count = 0;
 
-            for (IntBoundingBox box : placement.getBoxesWithinChunk(pos.x, pos.z).values())
+            for (IntBoundingBox box : placement.getBoxesWithinChunk(pos.x(), pos.z()).values())
             {
                 box = PositionUtils.getClampedBox(box, range);
 
@@ -252,7 +252,7 @@ public class TaskDeleteBlocksByPlacement extends TaskProcessChunkMultiPhase
     @Override
     protected boolean canProcessChunk(ChunkPos pos)
     {
-        if (this.schematicWorld.getChunkSource().hasChunk(pos.x, pos.z) == false)
+        if (this.schematicWorld.getChunkSource().hasChunk(pos.x(), pos.z()) == false)
         {
             return false;
         }

@@ -926,7 +926,7 @@ public class LitematicaSchematic
         {
             for (int cz = minCZ; cz <= maxCZ; ++cz)
             {
-                long cp = ChunkPos.asLong(cx, cz);
+                long cp = ChunkPos.pack(cx, cz);
 
                 LevelChunkTicks<T> chunkTickScheduler = chunkTickSchedulers.get(cp);
 

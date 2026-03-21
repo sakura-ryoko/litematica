@@ -84,7 +84,7 @@ public class MaterialListJsonExporter
 					int mismatched = entry.getCountMismatched() * mul;
 					int available = entry.getCountAvailable();
 
-					this.putEntry(new Entry(entry.getStack().getItemHolder(), total, missing, mismatched, available));
+					this.putEntry(new Entry(entry.getStack().typeHolder(), total, missing, mismatched, available));
 				}
 		);
 

@@ -42,7 +42,7 @@ public abstract class MixinClientPacketListener
         if (Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() == false)
         {
             //Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
-            DataManager.getSchematicPlacementManager().onClientChunkUnload(packet.pos().x, packet.pos().z);
+            DataManager.getSchematicPlacementManager().onClientChunkUnload(packet.pos().x(), packet.pos().z());
         }
     }
 

@@ -477,9 +477,9 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
                 ChunkPos pos = iter.next();
                 int count = 0;
 
-                for (int cx = pos.x - 1; cx <= pos.x + 1; ++cx)
+                for (int cx = pos.x() - 1; cx <= pos.x() + 1; ++cx)
                 {
-                    for (int cz = pos.z - 1; cz <= pos.z + 1; ++cz)
+                    for (int cz = pos.z() - 1; cz <= pos.z() + 1; ++cz)
                     {
                         if (WorldUtils.isClientChunkLoaded(this.worldClient, cx, cz))
                         {
@@ -489,11 +489,11 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
                 }
 
                 // Require the surrounding chunks in the client world to be loaded as well
-                if (count == 9 && this.worldSchematic.getChunkSource().hasChunk(pos.x, pos.z))
+                if (count == 9 && this.worldSchematic.getChunkSource().hasChunk(pos.x(), pos.z()))
                 {
-                    ChunkAccess chunkClient = this.worldClient.getChunk(pos.x, pos.z);
-                    ChunkAccess chunkSchematic = this.worldSchematic.getChunk(pos.x, pos.z);
-                    Map<String, IntBoundingBox> boxes = this.schematicPlacement.getBoxesWithinChunk(pos.x, pos.z);
+                    ChunkAccess chunkClient = this.worldClient.getChunk(pos.x(), pos.z());
+                    ChunkAccess chunkSchematic = this.worldSchematic.getChunk(pos.x(), pos.z());
+                    Map<String, IntBoundingBox> boxes = this.schematicPlacement.getBoxesWithinChunk(pos.x(), pos.z());
 
                     for (IntBoundingBox box : boxes.values())
                     {

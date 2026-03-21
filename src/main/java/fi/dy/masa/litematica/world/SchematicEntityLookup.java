@@ -52,10 +52,10 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
         synchronized (this.chunkMap)
         {
-            List<UUID> list = this.chunkMap.getOrDefault(pos.toLong(), new ArrayList<>());
+            List<UUID> list = this.chunkMap.getOrDefault(pos.pack(), new ArrayList<>());
 
             list.add(entity.getUUID());
-            this.chunkMap.put(pos.toLong(), list);
+            this.chunkMap.put(pos.pack(), list);
         }
 
         synchronized (this.uuidMap)
@@ -137,7 +137,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
     protected synchronized int removeByChunk(ChunkPos pos)
     {
-        final Long longPos = pos.toLong();
+        final Long longPos = pos.pack();
         int count = 0;
 
         synchronized (this.chunkMap)
@@ -256,7 +256,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
     {
         synchronized (this.chunkMap)
         {
-            final List<UUID> list = this.chunkMap.get(pos.toLong());
+            final List<UUID> list = this.chunkMap.get(pos.pack());
 
             if (list == null || list.isEmpty())
             {
@@ -366,7 +366,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
     public synchronized boolean contains(ChunkPos pos)
     {
-        return this.chunkMap.containsKey(pos.toLong());
+        return this.chunkMap.containsKey(pos.pack());
     }
 
     protected void reset()

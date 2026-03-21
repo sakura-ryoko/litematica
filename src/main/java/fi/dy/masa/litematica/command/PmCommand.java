@@ -69,13 +69,13 @@ public class PmCommand implements IClientCommandListener
 
 	private boolean processInvalid(ChatComponent chat)
 	{
-		chat.addMessage(StringUtils.translateAsText(PREFIX+".invalid_other"));
+		chat.addClientSystemMessage(StringUtils.translateAsText(PREFIX+".invalid_other"));
 		return true;
 	}
 
 	private boolean processHelp(ChatComponent chat)
 	{
-		chat.addMessage(StringUtils.translateAsText(PREFIX+".help")
+		chat.addClientSystemMessage(StringUtils.translateAsText(PREFIX+".help")
 		);
 
 		return true;
@@ -97,12 +97,12 @@ public class PmCommand implements IClientCommandListener
 			}
 			catch (NumberFormatException e)
 			{
-				chat.addMessage(StringUtils.translateAsText(PREFIX+".invalid_args"));
+				chat.addClientSystemMessage(StringUtils.translateAsText(PREFIX+".invalid_args"));
 			}
 		}
 		else
 		{
-			DataManager.getSchematicPlacementManager().displayChunkDebugCmd(camPos.x, camPos.z, chat);
+			DataManager.getSchematicPlacementManager().displayChunkDebugCmd(camPos.x(), camPos.z(), chat);
 		}
 
 		return true;
@@ -124,12 +124,12 @@ public class PmCommand implements IClientCommandListener
 			}
 			catch (NumberFormatException e)
 			{
-				chat.addMessage(StringUtils.translateAsText(PREFIX+".invalid_args"));
+				chat.addClientSystemMessage(StringUtils.translateAsText(PREFIX+".invalid_args"));
 			}
 		}
 		else
 		{
-			DataManager.getSchematicPlacementManager().markChunkForRebuildCmd(camPos.x, camPos.z, chat);
+			DataManager.getSchematicPlacementManager().markChunkForRebuildCmd(camPos.x(), camPos.z(), chat);
 		}
 
 		return true;

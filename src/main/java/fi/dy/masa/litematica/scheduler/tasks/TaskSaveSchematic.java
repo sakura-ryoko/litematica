@@ -58,7 +58,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
     {
         if (this.fromSchematicWorld)
         {
-            return this.schematicWorld != null && this.schematicWorld.getChunkSource().hasChunk(pos.x, pos.z);
+            return this.schematicWorld != null && this.schematicWorld.getChunkSource().hasChunk(pos.x(), pos.z());
         }
 
         // Request entity data from Servux, if the ClientWorld matches, and treat it as not yet loaded
@@ -72,7 +72,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
             }
             else if (EntitiesDataStorage.getInstance().hasPendingChunk(pos) == false)
             {
-                ImmutableMap<@NotNull String, @NotNull IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x, pos.z, this.subRegions);
+                ImmutableMap<@NotNull String, @NotNull IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x(), pos.z(), this.subRegions);
                 int minY = 319;         // Invert Values
                 int maxY = -60;
 
@@ -104,12 +104,12 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
     protected boolean processChunk(ChunkPos pos)
     {
         Level world = this.fromSchematicWorld ? this.schematicWorld : this.world;
-        ImmutableMap<@NotNull String, @NotNull IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x, pos.z, this.subRegions);
+        ImmutableMap<@NotNull String, @NotNull IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x(), pos.z(), this.subRegions);
         this.schematic.takeBlocksFromWorldWithinChunk(world, volumes, this.subRegions, this.info);
 
         if (this.info.ignoreEntities == false)
         {
-            this.schematic.takeEntitiesFromWorldWithinChunk(world, pos.x, pos.z, volumes, this.subRegions, this.existingEntities, this.origin);
+            this.schematic.takeEntitiesFromWorldWithinChunk(world, pos.x(), pos.z(), volumes, this.subRegions, this.existingEntities, this.origin);
         }
 
         if ((EntitiesDataStorage.getInstance().hasServuxServer() ||

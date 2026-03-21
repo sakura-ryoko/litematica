@@ -192,9 +192,9 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         ChunkPos chunkPos = this.currentChunkPos;
         if (chunkPos == null || this.positionIterator == null || this.mc.level == null) return;
-        ChunkSchematic schematicChunk = this.schematicWorld.getChunkSource().getChunkForLighting(chunkPos.x, chunkPos.z);
+        ChunkSchematic schematicChunk = this.schematicWorld.getChunkSource().getChunkForLighting(chunkPos.x(), chunkPos.z());
         if (schematicChunk == null || this.currentBox == null) return;
-        ChunkAccess clientChunk = this.mc.level.getChunk(chunkPos.x, chunkPos.z);
+        ChunkAccess clientChunk = this.mc.level.getChunk(chunkPos.x(), chunkPos.z());
         boolean ignoreLimit = Configs.Generic.PASTE_IGNORE_CMD_LIMIT.getBooleanValue();
 
         while (this.positionIterator.hasNext() &&
@@ -224,10 +224,10 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         ChunkPos chunkPos = this.currentChunkPos;
         if (chunkPos == null || this.currentBox == null || this.mc.level == null) return;
-        final int baseX = chunkPos.x << 4;
-        final int baseZ = chunkPos.z << 4;
-        ChunkSchematic schematicChunk = this.schematicWorld.getChunkSource().getChunkForLighting(chunkPos.x, chunkPos.z);
-        ChunkAccess clientChunk = this.mc.level.getChunk(chunkPos.x, chunkPos.z);
+        final int baseX = chunkPos.x() << 4;
+        final int baseZ = chunkPos.z() << 4;
+        ChunkSchematic schematicChunk = this.schematicWorld.getChunkSource().getChunkForLighting(chunkPos.x(), chunkPos.z());
+        ChunkAccess clientChunk = this.mc.level.getChunk(chunkPos.x(), chunkPos.z());
 
         while (this.fillVolumes.isEmpty() == false && this.queuedCommands.size() < this.maxCommandsPerTick)
         {

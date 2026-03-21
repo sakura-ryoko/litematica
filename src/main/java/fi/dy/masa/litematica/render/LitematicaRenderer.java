@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
-import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -284,7 +283,7 @@ public class LitematicaRenderer
 		}
 	}
 
-	public void piecewiseRenderOverlay(Matrix4f posMatrix, Matrix4f projMatrix, ProfilerFiller profiler)
+	public void piecewiseRenderOverlay(ProfilerFiller profiler)
     {
         if (this.renderPiecewiseSchematic)
         {

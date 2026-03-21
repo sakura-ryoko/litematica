@@ -160,7 +160,7 @@ public class SchematicConversionFixers
 
     public static final IStateFixer FIXER_DIRT_SNOWY = (reader, state, pos) -> {
         Block block = reader.getBlockState(pos.above()).getBlock();
-        return state.setValue(SnowyDirtBlock.SNOWY, (block == Blocks.SNOW_BLOCK || block == Blocks.SNOW));
+        return state.setValue(SnowyBlock.SNOWY, (block == Blocks.SNOW_BLOCK || block == Blocks.SNOW));
     };
 
     public static final IStateFixer FIXER_DOOR = (reader, state, pos) -> {

@@ -1,11 +1,13 @@
 package fi.dy.masa.litematica.selection;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import fi.dy.masa.malilib.util.JsonUtils;
+
+import net.minecraft.core.BlockPos;
+
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 
 public class AreaSelectionSimple extends AreaSelection
 {
@@ -110,7 +112,7 @@ public class AreaSelectionSimple extends AreaSelection
             area.setName(obj.get("name").getAsString());
         }
 
-        BlockPos pos = JsonUtils.blockPosFromJson(obj, "origin");
+        BlockPos pos = JsonUtils.getBlockPos(obj, "origin");
 
         if (pos != null)
         {

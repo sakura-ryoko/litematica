@@ -44,18 +44,18 @@ public class ChunkManagerSchematic extends ChunkSource
     {
         ChunkSchematic chunk = new ChunkSchematic(this.world, new ChunkPos(chunkX, chunkZ));
         chunk.setState(ChunkSchematicState.LOADED);
-        this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), chunk);
+        this.loadedChunks.put(ChunkPos.pack(chunkX, chunkZ), chunk);
     }
 
     @Override
     public synchronized boolean hasChunk(int chunkX, int chunkZ)
     {
-        return this.loadedChunks.containsKey(ChunkPos.asLong(chunkX, chunkZ));
+        return this.loadedChunks.containsKey(ChunkPos.pack(chunkX, chunkZ));
     }
 
     public synchronized ChunkSchematicState getChunkState(int chunkX, int chunkZ)
     {
-        long key = ChunkPos.asLong(chunkX, chunkZ);
+        long key = ChunkPos.pack(chunkX, chunkZ);
 
         if (this.loadedChunks.containsKey(key))
         {
@@ -69,7 +69,7 @@ public class ChunkManagerSchematic extends ChunkSource
 
     public synchronized void setChunkState(int chunkX, int chunkZ, ChunkSchematicState state)
     {
-        long key = ChunkPos.asLong(chunkX, chunkZ);
+        long key = ChunkPos.pack(chunkX, chunkZ);
 
         if (this.loadedChunks.containsKey(key))
         {
@@ -122,19 +122,19 @@ public class ChunkManagerSchematic extends ChunkSource
     @Override
     public synchronized ChunkSchematic getChunkForLighting(int chunkX, int chunkZ)
     {
-        ChunkSchematic chunk = this.loadedChunks.get(ChunkPos.asLong(chunkX, chunkZ));
+        ChunkSchematic chunk = this.loadedChunks.get(ChunkPos.pack(chunkX, chunkZ));
         return chunk == null ? this.blankChunk : chunk;
     }
 
     @Nullable
     public synchronized ChunkSchematic getChunkIfExists(int chunkX, int chunkZ)
     {
-        return this.loadedChunks.get(ChunkPos.asLong(chunkX, chunkZ));
+        return this.loadedChunks.get(ChunkPos.pack(chunkX, chunkZ));
     }
 
     public synchronized void unloadChunk(int chunkX, int chunkZ)
     {
-        ChunkSchematic chunk = this.loadedChunks.remove(ChunkPos.asLong(chunkX, chunkZ));
+        ChunkSchematic chunk = this.loadedChunks.remove(ChunkPos.pack(chunkX, chunkZ));
 
         if (chunk != null)
         {
@@ -166,7 +166,7 @@ public class ChunkManagerSchematic extends ChunkSource
             newChunk.setState(ChunkSchematicState.LOADED);
         }
 
-        this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), newChunk);
+        this.loadedChunks.put(ChunkPos.pack(chunkX, chunkZ), newChunk);
         return true;
     }
 

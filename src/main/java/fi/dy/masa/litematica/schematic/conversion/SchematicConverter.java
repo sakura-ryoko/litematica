@@ -230,7 +230,7 @@ public class SchematicConverter
         this.fixersPerBlock.put(IronBarsBlock.class,                    SchematicConversionFixers.FIXER_PANE); // Iron Bars & Glass Pane
         this.fixersPerBlock.put(RepeaterBlock.class,                SchematicConversionFixers.FIXER_REDSTONE_REPEATER);
         this.fixersPerBlock.put(RedStoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
-        this.fixersPerBlock.put(SnowyDirtBlock.class,                   SchematicConversionFixers.FIXER_DIRT_SNOWY); // Podzol
+        this.fixersPerBlock.put(SnowyBlock.class,                   SchematicConversionFixers.FIXER_DIRT_SNOWY); // Podzol
         this.fixersPerBlock.put(StemBlock.class,                    SchematicConversionFixers.FIXER_STEM);
         this.fixersPerBlock.put(StainedGlassPaneBlock.class,        SchematicConversionFixers.FIXER_PANE);
         this.fixersPerBlock.put(StairBlock.class,                  SchematicConversionFixers.FIXER_STAIRS);

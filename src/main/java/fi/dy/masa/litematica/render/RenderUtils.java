@@ -1,14 +1,12 @@
 package fi.dy.masa.litematica.render;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.BlockStateModelSet;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -56,15 +54,15 @@ public class RenderUtils
     /**
      * Assumes a BufferBuilder in the GL_LINES mode has been initialized
      */
-    public static void drawDebugBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
+    public static void drawDebugBlockModelOutlinesBatched(List<BlockStateModelPart> modelParts, BlockState state, BlockPos pos, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
     {
-        for (final BlockModelPart part : modelParts)
+        for (final BlockStateModelPart part : modelParts)
         {
             drawDebugBlockModelOutlinesBatched(part, state, pos, color, expand, lineWidth, buffer);
         }
     }
 
-    public static void drawDebugBlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
+    public static void drawDebugBlockModelOutlinesBatched(BlockStateModelPart modelPart, BlockState state, BlockPos pos, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
     {
         for (final Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
         {
@@ -74,7 +72,7 @@ public class RenderUtils
         renderDebugModelQuadOutlines(modelPart, state, pos, null, color, expand, lineWidth, buffer);
     }
 
-    public static void renderDebugModelQuadOutlines(BlockModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
+    public static void renderDebugModelQuadOutlines(BlockStateModelPart modelPart, BlockState state, BlockPos pos, Direction side, Color4f color, double expand, float lineWidth, BufferBuilder buffer)
     {
         try
         {
@@ -131,17 +129,17 @@ public class RenderUtils
         buffer.addVertex(fx[0], fy[0], fz[0]).setColor(color.r, color.g, color.b, color.a).setLineWidth(lineWidth);
     }
 
-    public static void drawBlockModelOutlinesBatched(List<BlockModelPart> modelParts, BlockState state, BlockPos pos,
+    public static void drawBlockModelOutlinesBatched(List<BlockStateModelPart> modelParts, BlockState state, BlockPos pos,
                                                      Color4f color, double expand, float lineWidth,
                                                      BufferBuilder buffer, PoseStack matrices)
     {
-        for (final BlockModelPart part : modelParts)
+        for (final BlockStateModelPart part : modelParts)
         {
             drawBlockModelOutlinesBatched(part, state, pos, color, expand, lineWidth, buffer, matrices);
         }
     }
 
-    public static void drawBlockModelOutlinesBatched(BlockModelPart modelPart, BlockState state, BlockPos pos,
+    public static void drawBlockModelOutlinesBatched(BlockStateModelPart modelPart, BlockState state, BlockPos pos,
                                                      Color4f color, double expand, float lineWidth,
                                                      BufferBuilder buffer, PoseStack matrices)
     {
@@ -153,7 +151,7 @@ public class RenderUtils
         renderModelQuadOutlines(modelPart, state, pos, null, color, expand, lineWidth, buffer, matrices);
     }
 
-    public static void renderModelQuadOutlines(BlockModelPart modelPart, BlockState state,
+    public static void renderModelQuadOutlines(BlockStateModelPart modelPart, BlockState state,
                                                BlockPos pos, Direction side,
                                                Color4f color, double expand, float lineWidth,
                                                BufferBuilder buffer,
@@ -219,20 +217,23 @@ public class RenderUtils
 
     public static boolean stateModelHasQuads(BlockState state)
     {
-        return modelHasQuads(Objects.requireNonNull(Minecraft.getInstance().getBlockRenderer().getBlockModel(state)));
+        BlockStateModelSet modelSet = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
+        return modelHasQuads(modelSet.get(state));
     }
 
     public static boolean modelHasQuads(@Nonnull BlockStateModel model)
     {
-        return hasQuads(model.collectParts(RAND));
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(RAND, parts);
+        return hasQuads(parts);
     }
 
-    public static boolean hasQuads(List<BlockModelPart> modelParts)
+    public static boolean hasQuads(List<BlockStateModelPart> modelParts)
     {
         if (modelParts.isEmpty()) return false;
         int totalSize = 0;
 
-        for (BlockModelPart part : modelParts)
+        for (BlockStateModelPart part : modelParts)
         {
             for (Direction face : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
             {
@@ -245,20 +246,20 @@ public class RenderUtils
         return totalSize > 0;
     }
 
-    public static void drawBlockModelQuadOverlayBatched(List<BlockModelPart> modelParts,
+    public static void drawBlockModelQuadOverlayBatched(List<BlockStateModelPart> modelParts,
                                                         BlockState state, BlockPos pos,
                                                         Color4f color, double expand,
                                                         BufferBuilder buffer)
     {
 //        System.out.printf("drawBlockModelQuadOverlayBatched - pos [%s], parts [%d], state [%s]\n", pos.toShortString(), modelParts.size(), state.toString());
 
-        for (final BlockModelPart part : modelParts)
+        for (final BlockStateModelPart part : modelParts)
         {
             drawBlockModelQuadOverlayBatched(part, state, pos, color, expand, buffer);
         }
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockModelPart modelPart,
+    public static void drawBlockModelQuadOverlayBatched(BlockStateModelPart modelPart,
                                                         BlockState state, BlockPos pos,
                                                         Color4f color, double expand,
                                                         BufferBuilder buffer)
@@ -271,7 +272,7 @@ public class RenderUtils
         drawBlockModelQuadOverlayBatched(modelPart, state, pos, null, color, expand, buffer);
     }
 
-    public static void drawBlockModelQuadOverlayBatched(BlockModelPart modelPart,
+    public static void drawBlockModelQuadOverlayBatched(BlockStateModelPart modelPart,
                                                         BlockState state, BlockPos pos,
                                                         Direction side,
                                                         Color4f color, double expand,

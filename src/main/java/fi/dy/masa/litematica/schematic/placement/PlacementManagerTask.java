@@ -22,17 +22,17 @@ public abstract class PlacementManagerTask extends DefaultThreadTaskBase
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
 		this.chunkPos = new ChunkPos(chunkX, chunkZ);
-		this.chunkLong = this.chunkPos.toLong();
+		this.chunkLong = this.chunkPos.pack();
 	}
 
 	protected PlacementManagerTask(Supplier<WorldSchematic> worldSupplier, ChunkPos chunkPos)
 	{
 		super();
 		this.worldSupplier = worldSupplier;
-		this.chunkX = chunkPos.x;
-		this.chunkZ = chunkPos.z;
+		this.chunkX = chunkPos.x();
+		this.chunkZ = chunkPos.z();
 		this.chunkPos = chunkPos;
-		this.chunkLong = chunkPos.toLong();
+		this.chunkLong = chunkPos.pack();
 	}
 
 	protected PlacementManagerTask(Supplier<WorldSchematic> worldSupplier, Long longPos)

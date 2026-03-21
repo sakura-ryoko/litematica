@@ -13,7 +13,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -662,8 +662,8 @@ public class InventoryUtils
                     //clickSlot(container, slot, button, ClickType.PICKUP);
                     //clickSlot(container, currentSlot, 0, ClickType.PICKUP);
 
-                    mc.gameMode.handleInventoryMouseClick(handler.containerId, slot.index, button, ClickType.PICKUP, player);
-                    mc.gameMode.handleInventoryMouseClick(handler.containerId, currentSlot, 0, ClickType.PICKUP, player);
+                    mc.gameMode.handleContainerInput(handler.containerId, slot.index, button, ContainerInput.PICKUP, player);
+                    mc.gameMode.handleContainerInput(handler.containerId, currentSlot, 0, ContainerInput.PICKUP, player);
 
                     break;
                 }

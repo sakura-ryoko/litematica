@@ -5,8 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -14,12 +12,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringUtils;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
@@ -479,7 +480,7 @@ public class SchematicProject
 
     public boolean saveToFile()
     {
-        if (this.dirty == false || JsonUtils.writeJsonToFileAsPath(this.toJson(), this.projectFile))
+        if (this.dirty == false || JsonUtils.writeJsonToFile(this.toJson(), this.projectFile))
         {
             this.dirty = false;
             return true;
@@ -519,7 +520,7 @@ public class SchematicProject
     @Nullable
     public static SchematicProject fromJson(JsonObject obj, Path projectFile, boolean createPlacement)
     {
-        BlockPos origin = JsonUtils.blockPosFromJson(obj, "origin");
+        BlockPos origin = JsonUtils.getBlockPos(obj, "origin");
 
         if (JsonUtils.hasString(obj, "name") && JsonUtils.hasInteger(obj, "current_version_id") && origin != null)
         {

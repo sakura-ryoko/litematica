@@ -72,7 +72,7 @@ public class PositionUtils
 
     public static long getChunkPosLong(BlockPos blockPos)
     {
-        return ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4);
+        return ChunkPos.pack(blockPos.getX() >> 4, blockPos.getZ() >> 4);
     }
 
     public static BlockPos getMinCorner(BlockPos pos1, BlockPos pos2)
@@ -1202,8 +1202,8 @@ public class PositionUtils
 
         private double distanceSq(ChunkPos pos)
         {
-            double dx = (double) (pos.x << 4) - this.posReference.getX();
-            double dz = (double) (pos.z << 4) - this.posReference.getZ();
+            double dx = (double) (pos.x() << 4) - this.posReference.getX();
+            double dz = (double) (pos.z() << 4) - this.posReference.getZ();
 
             return dx * dx + dz * dz;
         }
@@ -1221,11 +1221,11 @@ public class PositionUtils
         @Override
         public int compare(ChunkPos pos1, ChunkPos pos2)
         {
-            int refX = this.referencePosition.x;
-            int refZ = this.referencePosition.z;
+            int refX = this.referencePosition.x();
+            int refZ = this.referencePosition.z();
 
-            double dist1 = (refX - pos1.x) * (refX - pos1.x) + (refZ - pos1.z) * (refZ - pos1.z);
-            double dist2 = (refX - pos2.x) * (refX - pos2.x) + (refZ - pos2.z) * (refZ - pos2.z);
+            double dist1 = (refX - pos1.x()) * (refX - pos1.x()) + (refZ - pos1.z()) * (refZ - pos1.z());
+            double dist2 = (refX - pos2.x()) * (refX - pos2.x()) + (refZ - pos2.z()) * (refZ - pos2.z());
 
             return Double.compare(dist1, dist2);
         }

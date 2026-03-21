@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.schematic.projects;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringUtils;
@@ -9,8 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 
 public class SchematicVersion
 {
@@ -90,7 +90,7 @@ public class SchematicVersion
     @Nullable
     public static SchematicVersion fromJson(JsonObject obj)
     {
-        BlockPos areaOffset = JsonUtils.blockPosFromJson(obj, "area_offset");
+        BlockPos areaOffset = JsonUtils.getBlockPos(obj, "area_offset");
 
         if (areaOffset != null &&
             JsonUtils.hasString(obj, "name") &&

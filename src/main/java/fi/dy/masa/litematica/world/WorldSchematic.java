@@ -26,6 +26,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
+import net.minecraft.world.clock.ClockManager;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeAccess;
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
@@ -553,21 +555,21 @@ public class WorldSchematic extends Level
         return this.dimensionType;
     }
 
-    @Override
+//    @Override
     public float getShade(@Nonnull Direction direction, boolean shaded)
     {
-	    DimensionType.CardinalLightType cardinalLightType = this.dimensionType().cardinalLightType();
+        CardinalLighting.Type cardinalLightType = this.dimensionType().cardinalLightType();
 
         if (!shaded)
         {
-            return cardinalLightType == DimensionType.CardinalLightType.NETHER ? 0.9F : 1.0F;
+            return cardinalLightType == CardinalLighting.Type.NETHER ? 0.9F : 1.0F;
         }
         else
         {
             return switch (direction)
             {
-	            case DOWN -> cardinalLightType == DimensionType.CardinalLightType.NETHER ? 0.9F : 0.5F;
-	            case UP -> cardinalLightType == DimensionType.CardinalLightType.NETHER ? 0.9F : 1.0F;
+	            case DOWN -> cardinalLightType == CardinalLighting.Type.NETHER ? 0.9F : 0.5F;
+	            case UP -> cardinalLightType == CardinalLighting.Type.NETHER ? 0.9F : 1.0F;
 	            case NORTH, SOUTH -> 0.8F;
 	            case WEST, EAST -> 0.6F;
             };
@@ -628,7 +630,18 @@ public class WorldSchematic extends Level
         }
     }
 
-	@Override
+    @Override
+    public @NonNull ClockManager clockManager()
+    {
+        if (this.mc != null && this.mc.level != null)
+        {
+            return this.mc.level.clockManager();
+        }
+
+        return null;
+    }
+
+    @Override
 	public @NonNull EnvironmentAttributeSystem environmentAttributes()
 	{
 		if (this.mc != null && this.mc.level != null)

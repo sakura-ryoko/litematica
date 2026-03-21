@@ -53,10 +53,10 @@ public class SchematicWorldRefresher implements IRangeChangeListener
 
                 // && chunk.isEmpty() == false
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
-                if (pos.x >= cxMin && pos.x <= cxMax &&
-                    WorldUtils.isClientChunkLoaded(this.mc.level, pos.x, pos.z))
+                if (pos.x() >= cxMin && pos.x() <= cxMax &&
+                    WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()))
                 {
-                    world.scheduleChunkRenders(pos.x, pos.z);
+                    world.scheduleChunkRenders(pos.x(), pos.z());
                 }
             }
         }
@@ -79,9 +79,9 @@ public class SchematicWorldRefresher implements IRangeChangeListener
 //                ChunkPos pos = chunk.getPos();
                 // chunk.isEmpty() == false &&
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
-                if (WorldUtils.isClientChunkLoaded(this.mc.level, pos.x, pos.z))
+                if (WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()))
                 {
-                    world.scheduleChunkRenders(pos.x, pos.z);
+                    world.scheduleChunkRenders(pos.x(), pos.z());
                 }
             }
         }
@@ -107,10 +107,10 @@ public class SchematicWorldRefresher implements IRangeChangeListener
 
                 //  && chunk.isEmpty() == false
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
-                if (pos.z >= czMin && pos.z <= czMax &&
-                    WorldUtils.isClientChunkLoaded(this.mc.level, pos.x, pos.z))
+                if (pos.z() >= czMin && pos.z() <= czMax &&
+                    WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()))
                 {
-                    world.scheduleChunkRenders(pos.x, pos.z);
+                    world.scheduleChunkRenders(pos.x(), pos.z());
                 }
             }
         }

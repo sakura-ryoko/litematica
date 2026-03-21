@@ -21,6 +21,6 @@ public abstract class MixinLevelChunk
 						 ordinal = 0))
     private boolean litematica_redirectIsRemote(Level instance, Operation<Boolean> original)
     {
-        return WorldUtils.shouldPreventBlockUpdates(instance) || instance.isClientSide();
+        return WorldUtils.shouldPreventBlockUpdates(instance) || original.call(instance);
     }
 }

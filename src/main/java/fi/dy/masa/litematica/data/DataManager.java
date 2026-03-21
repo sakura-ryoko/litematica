@@ -19,7 +19,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import fi.dy.masa.malilib.gui.interfaces.IDirectoryCache;
-import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -294,7 +298,7 @@ public class DataManager implements IDirectoryCache
         getInstance().loadPerDimensionData();
 
         Path file = getCurrentStorageFile(true);
-        JsonElement element = JsonUtils.parseJsonFileAsPath(file);
+        JsonElement element = JsonUtils.parseJsonFile(file);
 
         if (element != null && element.isJsonObject())
         {
@@ -371,7 +375,7 @@ public class DataManager implements IDirectoryCache
         root.add("config_gui_tab", new JsonPrimitive(configGuiTab.name()));
 
         Path file = getCurrentStorageFile(true);
-        JsonUtils.writeJsonToFileAsPath(root, file);
+        JsonUtils.writeJsonToFile(root, file);
 
         canSave = false;
     }
@@ -400,7 +404,7 @@ public class DataManager implements IDirectoryCache
         root.add("block_entities", EntitiesDataStorage.getInstance().toJson());
 
         Path file = getCurrentStorageFile(false);
-        JsonUtils.writeJsonToFileAsPath(root, file);
+        JsonUtils.writeJsonToFile(root, file);
     }
 
     private void loadPerDimensionData()
@@ -411,7 +415,7 @@ public class DataManager implements IDirectoryCache
         this.materialList = null;
 
         Path file = getCurrentStorageFile(false);
-        JsonElement element = JsonUtils.parseJsonFileAsPath(file);
+        JsonElement element = JsonUtils.parseJsonFile(file);
 
         if (element != null && element.isJsonObject())
         {

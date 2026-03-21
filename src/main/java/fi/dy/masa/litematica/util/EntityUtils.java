@@ -438,13 +438,15 @@ public class EntityUtils
         entity.setNoGravity(nbt.getBooleanOr("NoGravity", false));
         entity.setGlowingTag(nbt.getBooleanOr("Glowing", false));
         entity.setTicksFrozen(nbt.getIntOr("TicksFrozen", 0));
-        if (nbt.contains("Tags")) {
-            entity.getTags().clear();
+        if (nbt.contains("Tags"))
+        {
+            entity.entityTags().clear();
             ListTag nbtList4 = nbt.getListOrEmpty("Tags");
             int max = Math.min(nbtList4.size(), 1024);
 
-            for(int i = 0; i < max; ++i) {
-                entity.getTags().add(nbtList4.getStringOr(i, ""));
+            for(int i = 0; i < max; ++i)
+            {
+                entity.entityTags().add(nbtList4.getStringOr(i, ""));
             }
         }
 

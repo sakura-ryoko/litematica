@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.Slot;
@@ -75,12 +75,12 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
     }
 
     @Override
-    public int render(GuiGraphics drawContext, int xOffset, int yOffset, HudAlignment alignment)
+    public int render(GuiGraphicsExtractor graphics, int xOffset, int yOffset, HudAlignment alignment)
     {
         Minecraft mc = Minecraft.getInstance();
         long currentTime = System.currentTimeMillis();
         List<MaterialListEntry> list;
-		GuiContext ctx = (GuiContext) drawContext;
+		GuiContext ctx = GuiContext.fromGuiGraphics(graphics);
 
         if (currentTime - this.lastUpdateTime > 2000)
         {

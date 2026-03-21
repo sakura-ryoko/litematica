@@ -51,7 +51,7 @@ public class MaterialListJson
         materials.forEach(
                 (entry) ->
                 {
-                    Holder<Item> resultItem = entry.getStack().getItemHolder();
+                    Holder<Item> resultItem = entry.getStack().typeHolder();
                     final int total = (entry.getStack().getCount() * entry.getCountTotal());
                     MaterialListJsonBase base = new MaterialListJsonBase(resultItem, total, null, craftingOnly);
 
@@ -80,7 +80,7 @@ public class MaterialListJson
         materials.forEach(
                 (entry) ->
                 {
-                    Holder<Item> resultItem = entry.getStack().getItemHolder();
+                    Holder<Item> resultItem = entry.getStack().typeHolder();
                     final int total = (entry.getStack().getCount() * entry.getCountTotal());
                     MaterialListJsonBase base = new MaterialListJsonBase(resultItem, total, null, craftingOnly);
 

@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -13,16 +17,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.interfaces.IMessageConsumer;
 import fi.dy.masa.malilib.util.FileNameUtils;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -208,7 +210,7 @@ public class SelectionManager
     @Nullable
     public static AreaSelection tryLoadSelectionFromFile(Path file)
     {
-        JsonElement el = JsonUtils.parseJsonFileAsPath(file);
+        JsonElement el = JsonUtils.parseJsonFile(file);
 
         if (el != null && el.isJsonObject())
         {
@@ -356,7 +358,7 @@ public class SelectionManager
         this.selections.put(selectionId, selection);
         this.currentSelectionId = selectionId;
 
-        JsonUtils.writeJsonToFileAsPath(selection.toJson(), file);
+        JsonUtils.writeJsonToFile(selection.toJson(), file);
 
         return this.currentSelectionId;
     }
@@ -435,7 +437,7 @@ public class SelectionManager
             this.selections.put(selectionId, selection);
             this.currentSelectionId = selectionId;
 
-            JsonUtils.writeJsonToFileAsPath(selection.toJson(), file);
+            JsonUtils.writeJsonToFile(selection.toJson(), file);
 
             return true;
         }
@@ -802,7 +804,7 @@ public class SelectionManager
         {
             for (Map.Entry<String, AreaSelection> entry : this.selections.entrySet())
             {
-                JsonUtils.writeJsonToFileAsPath(entry.getValue().toJson(), Path.of(entry.getKey()));
+                JsonUtils.writeJsonToFile(entry.getValue().toJson(), Path.of(entry.getKey()));
             }
         }
         catch (Exception e)

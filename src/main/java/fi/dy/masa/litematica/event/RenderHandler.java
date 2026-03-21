@@ -1,16 +1,22 @@
 package fi.dy.masa.litematica.event;
 
 import java.util.function.Supplier;
+import org.joml.Matrix4fc;
+import org.joml.Vector4f;
+
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.util.profiling.ProfilerFiller;
-import org.joml.Matrix4f;
+
 import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.malilib.render.GuiContext;
 import fi.dy.masa.malilib.util.GuiUtils;
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -23,41 +29,37 @@ import fi.dy.masa.litematica.tool.ToolMode;
 
 public class RenderHandler implements IRenderer
 {
-//    @Override
-//    public void onRenderWorldPreWeather(Framebuffer fb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, BufferBuilderStorage buffers, Profiler profiler)
-//    {
-//        MinecraftClient mc = MinecraftClient.getInstance();
-//
-//        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
-//        {
-//        }
-//    }
+    @Override
+    public void onExtractWorldLast(DeltaTracker deltaTracker, Camera camera, float ticks, ProfilerFiller profiler)
+    {
+        // TODO
+    }
 
     @Override
-    public void onRenderWorldLastAdvanced(RenderTarget fb, Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, RenderBuffers buffers, ProfilerFiller profiler)
+    public void onRenderWorldLast(RenderTarget fb, Matrix4fc modelViewMatrix, CameraRenderState cameraState, Frustum culling, RenderBuffers buffers, GpuBufferSlice terrainFog, Vector4f fogColor, ProfilerFiller profiler)
     {
         Minecraft mc = Minecraft.getInstance();
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null)
         {
             profiler.push("overlay_boxes");
-            OverlayRenderer.getInstance().renderBoxes(posMatrix, projMatrix, profiler);
+            OverlayRenderer.getInstance().renderBoxes(profiler);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
                 profiler.popPush("overlay_mismatches");
-                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(posMatrix, projMatrix, profiler);
+                OverlayRenderer.getInstance().renderSchematicVerifierMismatches(profiler);
             }
 
             if (DataManager.getToolMode() == ToolMode.REBUILD)
             {
                 profiler.popPush("overlay_targeting");
-                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(posMatrix, projMatrix, profiler);
+                OverlayRenderer.getInstance().renderSchematicRebuildTargetingOverlay(profiler);
             }
 
             // Schematic Overlay Rendering
             profiler.popPush("schematic_overlay");
-            LitematicaRenderer.getInstance().piecewiseRenderOverlay(posMatrix, projMatrix, profiler);
+            LitematicaRenderer.getInstance().piecewiseRenderOverlay(profiler);
             profiler.pop();
         }
     }
@@ -69,7 +71,7 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
-    public void onRenderGameOverlayPostAdvanced(GuiContext ctx, float partialTicks, ProfilerFiller profiler)
+    public void onExtractGuiOverlayPost(GuiContext ctx, float partialTicks, ProfilerFiller profiler)
     {
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && ctx.mc().player != null)
         {

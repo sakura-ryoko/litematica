@@ -1,12 +1,12 @@
 plugins {
-	id 'fabric-loom' version '1.15-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom' version '1.15.+'
 	id 'maven-publish'
 }
 
 repositories {
-	maven {url = "https://masa.dy.fi/maven/sakura-ryoko"
-		content {includeGroupAndSubgroups("fi.dy.masa")}
-	}
+//	maven {url = "https://masa.dy.fi/maven/sakura-ryoko"
+//		content {includeGroupAndSubgroups("fi.dy.masa")}
+//	}
 	maven {url = 'https://maven.fallenbreath.me/releases'
 		content {includeGroupAndSubgroups("me.fallenbreath")}
 	}
@@ -16,28 +16,26 @@ repositories {
 	maven { url = 'https://jitpack.io'
 		content { includeGroupAndSubgroups("com.github")}
 	}
-//	maven { url = 'https://api.modrinth.com/maven' }
-//	mavenLocal()
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-//	mappings "net.fabricmc:yarn:${project.mappings_version}:v2"
-    mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+//    mappings loom.officialMojangMappings()
+	implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
+//	implementation "org.jspecify:jspecify:1.0.0"
 
-	modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
-//	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
+//	implementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
+	implementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	//modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	compileOnly fabricApi.module("fabric-api-base", project.fabric_api_version)
+	compileOnly fabricApi.module("fabric-networking-api-v1", project.fabric_api_version)
+	compileOnly fabricApi.module("fabric-resource-loader-v1", project.fabric_api_version)
 	include(implementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
 
-	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-//	modCompileOnly "maven.modrinth:iris:${project.iris_version}+${project.iris_mc_version}-fabric"
-//	modCompileOnly "net.irisshaders:iris-fabric-1.8.12-snapshot+mc1.21.5-local"
-//	modRuntimeOnly 'me.fallenbreath:mixin-auditor:0.1.0'
+	compileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	runtimeOnly 'me.fallenbreath:mixin-auditor:0.2.0-u'
 }
 
 base {
@@ -53,16 +51,16 @@ base {
 loom {
     accessWidenerPath = file("src/main/resources/litematica.accesswidener")
 
-//	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
-//	// [FEATURE] MIXIN_AUDITOR
-//	runs {
-//		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
-//		clientMixinAudit {
-//			client()
-//			vmArgs auditVmArgs
-//			ideConfigGenerated false
-//		}
-//	}
+	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
+	// [FEATURE] MIXIN_AUDITOR
+	runs {
+		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
+		clientMixinAudit {
+			client()
+			vmArgs auditVmArgs
+			ideConfigGenerated false
+		}
+	}
 }
 
 processResources {
@@ -87,8 +85,8 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 
-	// Minecraft 1.20.5 (24w14a) upwards uses Java 21.
-	it.options.release = 21
+	// Minecraft 26.1+ uses Java 25.
+	it.options.release = 25
 }
 
 tasks.withType(AbstractArchiveTask).configureEach {
@@ -97,8 +95,8 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
 	// If you remove this line, sources will not be generated.

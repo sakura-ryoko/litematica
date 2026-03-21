@@ -13,9 +13,9 @@ import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 @Mixin(value = Minecraft.class)
 public abstract class MixinMinecraft extends ReentrantBlockableEventLoop<Runnable>
 {
-    public MixinMinecraft(String string_1)
+    public MixinMinecraft(String name, boolean propagatesCrashes)
     {
-        super(string_1);
+        super(name, propagatesCrashes);
     }
 
     @Inject(method = "tick()V", at = @At("HEAD"))

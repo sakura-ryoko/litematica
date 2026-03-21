@@ -23,7 +23,7 @@ public abstract class MixinDebugScreenOverlay
 {
 	@Shadow @Final private Minecraft minecraft;
 
-	@WrapOperation(method = "render(Lnet/minecraft/client/gui/GuiGraphics;)V",
+	@WrapOperation(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V",
 	               at = @At(value = "INVOKE",
 					   target = "Ljava/util/Collection;isEmpty()Z",
 					   ordinal = 0))
@@ -34,12 +34,12 @@ public abstract class MixinDebugScreenOverlay
 			return false;
 		}
 
-		return instance.isEmpty();
+		return original.call(instance);
 	}
 
-	@ModifyArg(method = "render(Lnet/minecraft/client/gui/GuiGraphics;)V",
+	@ModifyArg(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V",
 			   at = @At(value = "INVOKE",
-					 target = "Lnet/minecraft/client/gui/components/DebugScreenOverlay;renderLines(Lnet/minecraft/client/gui/GuiGraphics;Ljava/util/List;Z)V",
+					 target = "Lnet/minecraft/client/gui/components/DebugScreenOverlay;extractLines(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Ljava/util/List;Z)V",
 						ordinal = 0),
 			   index = 1)
 	private List<String> litematica_addDebugLines_Left(List<String> text)

@@ -4,16 +4,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.gui.GuiSchematicProjectManager;
 import fi.dy.masa.litematica.gui.GuiSchematicProjectsBrowser;
@@ -104,7 +106,7 @@ public class SchematicProjectsManager
         if (FileType.fromFile(projectFile) == FileType.JSON &&
             Files.exists(projectFile) && Files.isRegularFile(projectFile) && Files.isReadable(projectFile))
         {
-            JsonElement el = JsonUtils.parseJsonFileAsPath(projectFile);
+            JsonElement el = JsonUtils.parseJsonFile(projectFile);
 
             if (el != null && el.isJsonObject())
             {
