@@ -13,6 +13,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -32,6 +33,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
+import fi.dy.masa.litematica.render.schematic.BlockModelRendererSchematic;
+import fi.dy.masa.litematica.render.schematic.IBlockOutputSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -59,9 +62,13 @@ public interface IWorldSchematicRenderer
 
 	ProfilerFiller getProfiler();
 
-	EntityRenderDispatcher getEntityRenderer();
+	BlockModelRendererSchematic getBlockRenderer();
 
 	BlockEntityRenderDispatcher getBlockEntityRenderer();
+
+	FluidRenderer getFluidRenderer();
+
+	EntityRenderDispatcher getEntityRenderer();
 
 	void setWorldAndLoadRenderers(@Nullable WorldSchematic world);
 
@@ -91,9 +98,9 @@ public interface IWorldSchematicRenderer
 
 	List<BlockStateModelPart> getModelParts(BlockPos pos, BlockState state, RandomSource rand);
 
-	boolean renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, PoseStack matrices, BufferBuilder bufferBuilderIn);
+	void renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output);
 
-	void renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn);
+	void renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output);
 
 	void drawBlockLayerGroup(ChunkSectionLayerGroup group, @Nullable GpuSampler sampler);
 
@@ -107,7 +114,7 @@ public interface IWorldSchematicRenderer
 
 	void renderBlockEntities(Camera camera, Frustum frustum, PoseStack matrices, LevelRenderState renderStates, SubmitNodeCollector queue, ProfilerFiller profiler);
 
-	void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd);
+//	void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd);
 
 	void renderBlockOverlays(Camera camera, float lineWidth, ProfilerFiller profiler);
 

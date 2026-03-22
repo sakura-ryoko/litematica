@@ -3,10 +3,10 @@ package fi.dy.masa.litematica.render.schematic;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
-import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
-import fi.dy.masa.litematica.Litematica;
+
+import net.minecraft.world.phys.Vec3;
 
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
@@ -16,7 +16,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ReentrantLock lock;
     private final Supplier<Vec3> cameraPosSupplier;
     private final double distanceSq;
-    private ByteBufferBuilderCache allocatorCache;
+//    private ByteBufferBuilderCache allocatorCache;
     private ChunkMeshDataSchematic chunkRenderData;
     private ChunkRenderTaskSchematic.Status status;
     private boolean finished;
@@ -62,26 +62,26 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.chunkRenderData = chunkRenderData;
     }
 
-    public ByteBufferBuilderCache getAllocatorCache()
-    {
-        return this.allocatorCache;
-    }
+//    public ByteBufferBuilderCache getAllocatorCache()
+//    {
+//        return this.allocatorCache;
+//    }
 
-    public boolean setRegionRenderCacheBuilder(ByteBufferBuilderCache allocatorCache)
-    {
-        if (allocatorCache == null)
-        {
-            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] allocatorCache is null");
-            return false;
-        }
-        if (this.allocatorCache != null && !this.allocatorCache.isClear())
-        {
-            this.allocatorCache.closeAll();
-        }
-
-        this.allocatorCache = allocatorCache;
-        return true;
-    }
+//    public boolean setRegionRenderCacheBuilder(ByteBufferBuilderCache allocatorCache)
+//    {
+//        if (allocatorCache == null)
+//        {
+//            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] allocatorCache is null");
+//            return false;
+//        }
+//        if (this.allocatorCache != null && !this.allocatorCache.isClear())
+//        {
+//            this.allocatorCache.closeAll();
+//        }
+//
+//        this.allocatorCache = allocatorCache;
+//        return true;
+//    }
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {

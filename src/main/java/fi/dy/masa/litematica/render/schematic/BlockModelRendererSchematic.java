@@ -85,7 +85,7 @@ public class BlockModelRendererSchematic
 	public boolean tessellateBlock(final BlockAndTintGetter worldIn,
 	                               final BlockState stateIn, final BlockPos posIn, final Vec3 pos,
 	                               final BlockStateModel modelIn, final long seed,
-	                               final BlockQuadOutput output)
+	                               final IBlockOutputSchematic output)
 	{
 		BlockModelCacheSchematic.INSTANCE.rand().setSeed(seed);
 		modelIn.collectParts(BlockModelCacheSchematic.INSTANCE.rand(), this.parts);
@@ -131,7 +131,7 @@ public class BlockModelRendererSchematic
 
     public boolean tessellateModelFlat(final BlockAndTintGetter worldIn, final List<BlockStateModelPart> modelParts,
                                        final BlockState stateIn, final BlockPos posIn, final Vec3f v3,
-                                       final BlockQuadOutput out)
+                                       final IBlockOutputSchematic out)
     {
 	    boolean renderedSomething = false;
 	    int isValid = 0;
@@ -189,7 +189,7 @@ public class BlockModelRendererSchematic
 
 	public boolean tessellateModelSmooth(final BlockAndTintGetter worldIn, final List<BlockStateModelPart> modelParts,
 	                                     final BlockState stateIn, final BlockPos posIn, final Vec3f v3,
-	                                     final BlockQuadOutput out)
+	                                     final IBlockOutputSchematic out)
 	{
 		boolean renderedSomething = false;
 		int isValid = 0;
@@ -247,7 +247,7 @@ public class BlockModelRendererSchematic
 	                                 final BlockState state, final BlockPos pos,
 	                                 final List<BakedQuad> quads,
 	                                 final int light, final Vec3f v3,
-	                                 final BlockQuadOutput out)
+	                                 final IBlockOutputSchematic out)
 	{
 		for (BakedQuad quad : quads)
 		{
@@ -260,7 +260,7 @@ public class BlockModelRendererSchematic
 	                                   final BlockState state, final BlockPos pos,
 	                                   final List<BakedQuad> quads,
 	                                   final Vec3f v3,
-	                                   final BlockQuadOutput out)
+	                                   final IBlockOutputSchematic out)
 	{
 		for (BakedQuad bakedQuad : quads)
 		{
@@ -271,7 +271,7 @@ public class BlockModelRendererSchematic
 
 	private void tessellateQuad(final BlockAndTintGetter world,
 	                            final BlockState state, final BlockPos pos, final BakedQuad bakedQuad,
-	                            final Vec3f v3, final BlockQuadOutput out)
+	                            final Vec3f v3, final IBlockOutputSchematic out)
     {
 		int tint = bakedQuad.materialInfo().tintIndex();
 

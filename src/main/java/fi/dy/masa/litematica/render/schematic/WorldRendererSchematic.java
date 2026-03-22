@@ -4,6 +4,7 @@ import java.lang.Math;
 import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
 
@@ -15,7 +16,6 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.CrashReport;
@@ -27,10 +27,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.FluidRenderer;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -39,9 +39,9 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.fog.FogRenderer;
-import net.minecraft.client.renderer.state.LevelRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -57,7 +57,6 @@ import net.minecraft.world.entity.animal.fish.Cod;
 import net.minecraft.world.entity.animal.fish.Salmon;
 import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.entity.animal.frog.Tadpole;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -93,11 +92,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 {
     private static final Logger LOGGER = Litematica.LOGGER;
     private final Minecraft mc;
-    private final EntityRenderDispatcher entityRenderManager;
-    private final BlockEntityRenderDispatcher blockEntityRenderManager;
-    private BlockRenderDispatcher blockRenderManager;
     private final BlockModelRendererSchematic blockModelRenderer;
-    private final Set<BlockEntity> blockEntities;
+    private final BlockEntityRenderDispatcher blockEntityRenderManager;
+    private final FluidRenderer fluidRenderer;
+    private final EntityRenderDispatcher entityRenderManager;
+//    private final Set<BlockEntity> blockEntities;
     private final List<ChunkRendererSchematicVbo> renderInfos;
     private final SchematicRenderState schematicRenderState;
     private Set<ChunkRendererSchematicVbo> chunksToUpdate;
@@ -138,12 +137,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     {
         this.mc = mc;
         this.renderChunkFactory = ChunkRendererSchematicVbo::new;
-	    this.blockEntities = new HashSet<>();
+//	    this.blockEntities = new HashSet<>();
 	    this.renderInfos = new ArrayList<>(1024);
         this.renderedEntities = new HashMap<>();
-        this.entityRenderManager = mc.getEntityRenderDispatcher();
-        this.blockEntityRenderManager = mc.getBlockEntityRenderDispatcher();
         this.blockModelRenderer = new BlockModelRendererSchematic();
+        this.blockEntityRenderManager = mc.getBlockEntityRenderDispatcher();
+        this.entityRenderManager = mc.getEntityRenderDispatcher();
+        this.fluidRenderer = new FluidRenderer(BlockModelCacheSchematic.INSTANCE.fluidStateModelSet());
         this.fogRenderer = ((IMixinGameRenderer) mc.gameRenderer).litematica_getFogRenderer();
 		this.schematicRenderState = new SchematicRenderState();
 	    this.chunksToUpdate = new LinkedHashSet<>();
@@ -228,15 +228,27 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public EntityRenderDispatcher getEntityRenderer()
+    public BlockModelRendererSchematic getBlockRenderer()
     {
-        return this.entityRenderManager;
+        return this.blockModelRenderer;
     }
 
     @Override
     public BlockEntityRenderDispatcher getBlockEntityRenderer()
     {
         return this.blockEntityRenderManager;
+    }
+
+    @Override
+    public FluidRenderer getFluidRenderer()
+    {
+        return this.fluidRenderer;
+    }
+
+    @Override
+    public EntityRenderDispatcher getEntityRenderer()
+    {
+        return this.entityRenderManager;
     }
 
     @Override
@@ -335,10 +347,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 this.vanillaFogBuffer = null;
             }
 
-            synchronized (this.blockEntities)
-            {
-                this.blockEntities.clear();
-            }
+//            synchronized (this.blockEntities)
+//            {
+//                this.blockEntities.clear();
+//            }
         }
     }
 
@@ -374,10 +386,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             this.clearBlockBatchDraw();
 			this.clearWorldRenderStates();
 
-            synchronized (this.blockEntities)
-            {
-                this.blockEntities.clear();
-            }
+//            synchronized (this.blockEntities)
+//            {
+//                this.blockEntities.clear();
+//            }
 
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
             this.renderEntitiesStartupCounter = 2;
@@ -456,7 +468,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         final int centerChunkX = (viewPos.getX() >> 4);
         final int centerChunkZ = (viewPos.getZ() >> 4);
         final int renderDistance = this.mc.options.renderDistance().get() + 2;
-        ChunkPos viewChunk = new ChunkPos(viewPos);
+        ChunkPos viewChunk = ChunkPos.containing(viewPos);
 
         this.displayListEntitiesDirty = this.displayListEntitiesDirty || !this.chunksToUpdate.isEmpty() ||
                 entityX != this.lastCameraX ||
@@ -497,8 +509,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             for (ChunkPos chunkPos : positions)
             {
                 //SubChunkPos subChunk = queuePositions.poll();
-                int cx = chunkPos.x;
-                int cz = chunkPos.z;
+                int cx = chunkPos.x();
+                int cz = chunkPos.z();
                 //LOGGER.warn("[WorldRenderer] setupTerrain() position[{}], chunkPos: {} // isLoaded: [{}]", count, chunkPos.toString(), this.world.getChunkProvider().hasChunk(chunkPos.x, chunkPos.z));
                 // Only render sub-chunks that are within the client's render distance, and that
                 // have been already properly loaded on the client
@@ -658,13 +670,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         RenderSystem.assertOnRenderThread();
         profiler.push("layer_multi_phase");
 
-	    ArrayList<DynamicUniforms.Transform> transformValues = new ArrayList<>();
-//        ArrayList<DynamicUniforms.ChunkSectionInfo> chunkValues = new ArrayList<>();
-        EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
+	    List<DynamicUniforms.Transform> transformValues = new ArrayList<>();
+        EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
 
         for (ChunkSectionLayer layer : ChunkSectionLayer.values())
         {
-            renderMap.put(layer, new ArrayList<>());
+            renderMap.put(layer, new Int2ObjectOpenHashMap<>());
         }
 
         profiler.popPush("layer_setup");
@@ -674,16 +685,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         int increment = 1;
         int indexCount = 0;
         int count = 0;
-
         boolean renderAsTranslucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
-//	    boolean renderAsTranslucent = false;
         boolean renderCollidingBlocks = Configs.Visuals.RENDER_COLLIDING_SCHEMATIC_BLOCKS.getBooleanValue();
         @SuppressWarnings("deprecation")
 	    GpuTextureView blockAtlas = this.mc.getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).getTextureView();
 		int atlasWidth = blockAtlas.getWidth(0);        // todo 2048
 	    int atlasHeight = blockAtlas.getHeight(0);      // todo 2048
         Vector4f colorMod = new Vector4f(1.0F, 1.0F, 1.0F, 1.0F);
-//	    Vector3f modelOffset = new Vector3f(0f, 0f, 0f);
 	    Matrix4f texMatrix = new Matrix4f();
 
         if (renderAsTranslucent)
@@ -699,23 +707,28 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         for (int i = startIndex; i != stopIndex; i += increment)
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
+            ChunkMeshDataSchematic data = renderer.getChunkRenderData();
+            BlockPos chunkOrigin = renderer.getOrigin();
+            long now = System.currentTimeMillis();
+            int uboIndex = -1;
 
             for (ChunkSectionLayer layer : ChunkSectionLayer.values())
             {
                 profiler.popPush("layer_"+ layer.label());
 
-                if (!renderer.getChunkRenderData().isBlockLayerEmpty(layer))
+                if (!data.isBlockLayerEmpty(layer))
                 {
-                    BlockPos chunkOrigin = renderer.getOrigin();
                     ChunkRenderBuffers buffers = renderer.getBlockBuffersByBlockLayer(layer);
+                    ChunkMeshDataSchematic.DrawState drawState = data.getDrawState(layer);
 
-                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getChunkMeshCache().hasBuiltBufferByBlockLayer(layer))
+                    if (buffers == null || buffers.isClosed() || drawState == null ||
+                        !data.getChunkMeshCache().hasMeshByBlockLayer(layer))
                     {
                         // LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
                         continue;
                     }
 
-                    GpuBuffer vertexBuffer;
+                    GpuBuffer indexBuffer;
                     VertexFormat.IndexType indexType;
 
                     if (buffers.getIndexBuffer() == null)
@@ -725,12 +738,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                             indexCount = buffers.getIndexCount();
                         }
 
-                        vertexBuffer = null;
+                        indexBuffer = null;
                         indexType = null;
                     }
                     else
                     {
-                        vertexBuffer = buffers.getIndexBuffer();
+                        indexBuffer = buffers.getIndexBuffer();
                         indexType = buffers.getIndexType();
                     }
 
@@ -746,28 +759,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     renderMap.get(layer)
                              .add(new RenderPass.Draw<>(
                                      0, buffers.getVertexBuffer(),
-                                     vertexBuffer, indexType,
+                                     indexBuffer, indexType,
                                      0, buffers.getIndexCount(),
                                      (slices, uploader) ->
                                              uploader.upload("DynamicTransforms", ((GpuBufferSlice[]) slices)[pos])
                              ));
-
-//                    int pos = chunkValues.size();
-
-//	                chunkValues.add(new DynamicUniforms.ChunkSectionInfo(
-//			                matrix4fc,
-//			                chunkOrigin.getX(), chunkOrigin.getY(), chunkOrigin.getZ(),
-//			                1.0f, atlasWidth, atlasHeight
-//	                ));
-//
-//	                renderMap.get(layer)
-//                            .add(new RenderPass.Draw<>(
-//                                    0, buffers.getVertexBuffer(),
-//                                    vertexBuffer, indexType,
-//                                    0, buffers.getIndexCount(),
-//                                    (slices, uploader) ->
-//                                            uploader.upload("ChunkSection", ((GpuBufferSlice[]) slices)[pos])
-//                            ));
 
                     startedDrawing = true;
                     ++count;
@@ -778,24 +774,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         if (startedDrawing)
         {
-//	        GpuBufferSlice transformSlice = null;
-
-//			if (renderAsTranslucent)
-//			{
-//				transformSlice = RenderSystem.getDynamicUniforms()
-//				                                            .writeTransform(
-//						                                            matrix4fc,
-//						                                            colorMod,
-//						                                            modelOffset,
-//						                                            texMatrix
-//				                                            );
-//			}
-
-//            GpuBufferSlice[] sectionSlices = RenderSystem.getDynamicUniforms()
-//                                                         .writeChunkSections(
-//																 chunkValues.toArray(new DynamicUniforms.ChunkSectionInfo[0])
-//                                                         );
-
             this.chunkFixUniform.fillBuffer(atlasWidth, atlasHeight, 1.0f);
             GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms()
                                                            .writeTransforms(
@@ -870,7 +848,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 		this.schematicRenderState.cameraState.initialized = camera.isInitialized();
 		this.schematicRenderState.cameraState.pos = camera.position();
 		this.schematicRenderState.cameraState.blockPos = camera.blockPosition();
-		this.schematicRenderState.cameraState.entityPos = camera.entity().getRopeHoldPosition(tickProgress);
+//		this.schematicRenderState.cameraState.blockPos = camera.entity().getRopeHoldPosition(tickProgress);
 		this.schematicRenderState.cameraState.orientation = new Quaternionf(camera.rotation());
 	}
 
@@ -967,7 +945,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     ChunkRenderBuffers buffers = renderer.getOverlayBuffersByType(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getChunkMeshCache().hasBuiltBufferByType(type))
+                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getChunkMeshCache().hasMeshByType(type))
                     {
                         // LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
@@ -985,7 +963,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public boolean renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, PoseStack matrixStack, BufferBuilder bufferBuilderIn)
+    public void renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output)
     {
         this.getProfiler().push("render_block");
         try
@@ -995,17 +973,18 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             if (renderType == RenderShape.INVISIBLE)
             {
                 this.getProfiler().pop();
-                return false;
+                return;
             }
             else
             {
                 boolean result;
 
-                this.blockModelRenderer.setSeed(state.getSeed(pos));
-                List<BlockModelPart> parts = this.getModelParts(pos, state, this.blockModelRenderer.getRandom());
+//                this.blockModelRenderer.setSeed(state.getSeed(pos));
+//                List<BlockStateModelPart> parts = this.getModelParts(pos, state, this.blockModelRenderer.getRandom());
+                BlockStateModel model = this.getModelForState(state);
 
                 result = renderType == RenderShape.MODEL &&
-                        this.blockModelRenderer.tessellateBlock(world, parts, state, pos, matrixStack, bufferBuilderIn, false, OverlayTexture.NO_OVERLAY);
+                        this.blockModelRenderer.tessellateBlock(world, state, pos, offset, model, state.getSeed(pos), output);
 
 //                System.out.printf("renderBlock(): result [%s]\n", result);
 
@@ -1018,7 +997,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                  */
 
                 this.getProfiler().pop();
-                return result;
+                return;
             }
         }
         catch (Throwable throwable)
@@ -1032,13 +1011,14 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, BufferBuilder bufferBuilderIn)
+    public void renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output)
     {
         this.getProfiler().push("render_fluid");
         // Sometimes this collides with FAPI
         try
         {
-            this.blockRenderManager.renderLiquid(pos, world, bufferBuilderIn, blockState, fluidState);
+//            this.blockRenderManager.renderLiquid(pos, world, bufferBuilderIn, blockState, fluidState);
+            this.fluidRenderer.tesselate(world, pos, output, blockState, fluidState);
         }
         catch (Exception ignored) { }
         this.getProfiler().pop();
@@ -1118,9 +1098,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public boolean hasQuadsForModel(List<BlockModelPart> modelParts, BlockState state, @Nullable Direction side)
+    public boolean hasQuadsForModel(List<BlockStateModelPart> modelParts, BlockState state, @Nullable Direction side)
     {
-        BlockModelPart part = modelParts.getFirst();
+        BlockStateModelPart part = modelParts.getFirst();
 
         if (side != null)
         {
@@ -1143,7 +1123,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public boolean hasQuadsForModelPart(BlockModelPart modelPart, BlockState state, @Nullable Direction side)
+    public boolean hasQuadsForModelPart(BlockStateModelPart modelPart, BlockState state, @Nullable Direction side)
     {
         if (side != null)
         {
@@ -1168,23 +1148,27 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public BlockStateModel getModelForState(BlockState state)
     {
-        return this.blockRenderManager.getBlockModelShaper().getBlockModel(state);
+        return BlockModelCacheSchematic.INSTANCE.fetchBlockStateModel(state);
     }
 
     @Override
-    public List<BlockModelPart> getModelParts(BlockPos pos, BlockState state, RandomSource rand)
+    public List<BlockStateModelPart> getModelParts(BlockPos pos, BlockState state, RandomSource rand)
     {
-        List<BlockModelPart> parts = this.getModelForState(state).collectParts(rand);
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        BlockStateModel model = this.getModelForState(state);
+        model.collectParts(rand, parts);
 
         if (parts.isEmpty())
         {
 			// Try Fallback Blocks first.
-	        parts = this.getModelForState(this.getFallbackState(state)).collectParts(rand);
+	        model = this.getModelForState(this.getFallbackState(state));
+            model.collectParts(rand, parts);
         }
 
 		if (parts.isEmpty())
 		{
-			parts = this.getModelForState(state.getBlock().defaultBlockState()).collectParts(rand);
+			model = this.getModelForState(state.getBlock().defaultBlockState());
+            model.collectParts(rand, parts);
 			LOGGER.warn("getModelParts: Invalid Block Model for block at [{}] with state [{}]; Attempting to reset to default.", pos.toShortString(), state.toString());
 		}
 
@@ -1226,10 +1210,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 BlockPos pos = chunkRenderer.getOrigin();
                 ChunkPos chunkPos = chunkRenderer.getChunkPos();
 //                ChunkPos chunkPos = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
-                ChunkSchematic chunk = this.world.getChunkSource().getChunkIfExists(chunkPos.x, chunkPos.z);
+                ChunkSchematic chunk = this.world.getChunkSource().getChunkIfExists(chunkPos.x(), chunkPos.z());
 
                 if (chunk == null || chunk.isEmpty() ||
-                    !DataManager.getSchematicPlacementManager().checkIfChunkShouldRender(chunkPos.x, chunkPos.z))
+                    !DataManager.getSchematicPlacementManager().checkIfChunkShouldRender(chunkPos.x(), chunkPos.z()))
                 {
                     continue;
                 }
@@ -1237,7 +1221,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //                List<Entity> list = chunk.getEntityList();
 //                AABB bb = chunkRenderer.getBoundingBox();
 //                List<Entity> list = this.world.getEntities((Entity) null, bb, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
-                ImmutableList<Entity> list = this.world.getEntitiesByChunk(chunkPos.x, chunkPos.z, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
+                ImmutableList<Entity> list = this.world.getEntitiesByChunk(chunkPos.x(), chunkPos.z(), fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
 
 //                LOGGER.error("[WorldRenderer] prepareEntities: Chunk: {}, EntityList [{}] // BB: [{}]", chunkPos.toString(), list.size(), bb.toString());
 //                LOGGER.warn("[WorldRenderer] prepareEntities: Chunk: [{}], TestList: [{}]", pos.toShortString(), list.size());
@@ -1360,27 +1344,26 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         double cameraY = camera.position().y;
         double cameraZ = camera.position().z;
 
-        this.blockEntityRenderManager.prepare(camera);
+        this.blockEntityRenderManager.prepare(camera.position());
         LayerRange layerRange = DataManager.getRenderLayerRange();
-
-		profiler.popPush("block_entities");
         this.profiler = profiler;
         this.schematicRenderState.tileEntityStates.clear();
 
-        profiler.popPush("render_be");
+        profiler.popPush("block_entities_iteration");
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
             ChunkMeshDataSchematic data = chunkRenderer.getChunkRenderData();
             List<BlockEntity> tiles = data.getBlockEntities();
+            List<BlockEntity> noCullTiles = data.getNoCullBlockEntities();
 
-            if (!tiles.isEmpty())
+            if (!tiles.isEmpty() && !noCullTiles.isEmpty())
             {
                 BlockPos chunkOrigin = chunkRenderer.getOrigin();
                 ChunkPos chunkPos = chunkRenderer.getChunkPos();
-                ChunkSchematic chunk = this.world.getChunkSource().getChunkForLighting(chunkPos.x, chunkPos.z);
+                ChunkSchematic chunk = this.world.getChunkSource().getChunkForLighting(chunkPos.x(), chunkPos.z());
 
                 if (chunk == null || chunk.isEmpty() ||
-                    !DataManager.getSchematicPlacementManager().checkIfChunkShouldRender(chunkPos.x, chunkPos.z))
+                    !DataManager.getSchematicPlacementManager().checkIfChunkShouldRender(chunkPos.x(), chunkPos.z()))
                 {
                     continue;
                 }
@@ -1411,36 +1394,59 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                             LOGGER.error("[Pass 1] Error rendering blockEntities; Exception: {}", err.getLocalizedMessage());
                         }
                     }
+
+                    for (BlockEntity te : noCullTiles)
+                    {
+                        BlockPos pos = te.getBlockPos();
+
+                        if (!layerRange.isPositionWithinRange(pos.getX(), pos.getY(), pos.getZ()))
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            matrices.pushPose();
+                            matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
+                            BlockEntityRenderState state = this.blockEntityRenderManager.tryExtractRenderState(te, tickProgress, null);
+                            this.schematicRenderState.tileEntityStates.add(state);
+                            matrices.popPose();
+                        }
+                        catch (Exception err)
+                        {
+                            LOGGER.error("[Pass 2] Error rendering blockEntities; Exception: {}", err.getLocalizedMessage());
+                        }
+                    }
                 }
             }
         }
 
-        profiler.popPush("render_be_no_cull");
-        synchronized (this.blockEntities)
-        {
-            for (BlockEntity te : this.blockEntities)
-            {
-                BlockPos pos = te.getBlockPos();
-
-                if (!layerRange.isPositionWithinRange(pos.getX(), pos.getY(), pos.getZ()))
-                {
-                    continue;
-                }
-
-                try
-                {
-                    matrices.pushPose();
-                    matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-					BlockEntityRenderState state = this.blockEntityRenderManager.tryExtractRenderState(te, tickProgress, null);
-					this.schematicRenderState.tileEntityStates.add(state);
-                    matrices.popPose();
-                }
-                catch (Exception err)
-                {
-                    LOGGER.error("[Pass 2] Error rendering blockEntities; Exception: {}", err.getLocalizedMessage());
-                }
-            }
-        }
+//        profiler.popPush("render_be_no_cull");
+//        synchronized (this.blockEntities)
+//        {
+//            for (BlockEntity te : this.blockEntities)
+//            {
+//                BlockPos pos = te.getBlockPos();
+//
+//                if (!layerRange.isPositionWithinRange(pos.getX(), pos.getY(), pos.getZ()))
+//                {
+//                    continue;
+//                }
+//
+//                try
+//                {
+//                    matrices.pushPose();
+//                    matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
+//					BlockEntityRenderState state = this.blockEntityRenderManager.tryExtractRenderState(te, tickProgress, null);
+//					this.schematicRenderState.tileEntityStates.add(state);
+//                    matrices.popPose();
+//                }
+//                catch (Exception err)
+//                {
+//                    LOGGER.error("[Pass 2] Error rendering blockEntities; Exception: {}", err.getLocalizedMessage());
+//                }
+//            }
+//        }
 
         profiler.pop();
     }
@@ -1476,18 +1482,18 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 		profiler.pop();
 	}
 
-    @Override
-    public void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd)
-    {
-        // LOGGER.warn("[WorldRenderer] updateBlockEntities()");
-//        int last = this.blockEntities.size();
-
-        synchronized (this.blockEntities)
-        {
-            this.blockEntities.removeAll(toRemove);
-            this.blockEntities.addAll(toAdd);
-        }
-    }
+//    @Override
+//    public void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd)
+//    {
+//        // LOGGER.warn("[WorldRenderer] updateBlockEntities()");
+////        int last = this.blockEntities.size();
+//
+//        synchronized (this.blockEntities)
+//        {
+//            this.blockEntities.removeAll(toRemove);
+//            this.blockEntities.addAll(toAdd);
+//        }
+//    }
 
     // `immediate` is only to be used with 'setBlockDirty()`
     @Override

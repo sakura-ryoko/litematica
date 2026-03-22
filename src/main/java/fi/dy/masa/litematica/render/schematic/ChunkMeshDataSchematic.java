@@ -6,13 +6,15 @@ import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 
 import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class ChunkMeshDataSchematic implements AutoCloseable
 {
-    public static final ChunkMeshDataSchematic EMPTY = new ChunkMeshDataSchematic() {
+    public static final ChunkMeshDataSchematic EMPTY = new ChunkMeshDataSchematic()
+    {
         @Override
         protected void setBlockLayerUsed(ChunkSectionLayer layer)
         {
@@ -59,6 +61,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
     private final Set<OverlayRenderType> overlayLayersUsed;
     private final Set<OverlayRenderType> overlayLayersStarted;
     private final ChunkMeshCache chunkMeshCache;
+    private final HashMap<ChunkSectionLayer, DrawState> drawStates;
     private final Map<ChunkSectionLayer, MeshData.SortState> blockSortingData;
     private final Map<RenderType, MeshData.SortState> layerSortingData;
     private final Map<OverlayRenderType, MeshData.SortState> overlaySortingData;
@@ -78,6 +81,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 		this.overlayLayersUsed = new ObjectArraySet<>();
 		this.overlayLayersStarted = new ObjectArraySet<>();
 		this.chunkMeshCache = new ChunkMeshCache();
+        this.drawStates = new HashMap<>();
 		this.blockSortingData = new HashMap<>();
 		this.layerSortingData = new HashMap<>();
 		this.overlaySortingData = new HashMap<>();
@@ -273,6 +277,27 @@ public class ChunkMeshDataSchematic implements AutoCloseable
         return this.overlaySortingData.get(type);
     }
 
+    protected void compileDrawStates()
+    {
+        this.drawStates.clear();
+
+        for (ChunkSectionLayer layer : this.blockLayersUsed)
+        {
+            MeshData mesh = this.chunkMeshCache.getMeshByBlockLayer(layer);
+
+            if (mesh != null)
+            {
+                this.drawStates.put(layer, new DrawState(mesh.drawState().indexCount(), mesh.drawState().indexType(), mesh.indexBuffer() != null));
+            }
+        }
+    }
+
+    @Nullable
+    public DrawState getDrawState(ChunkSectionLayer layer)
+    {
+        return this.drawStates.get(layer);
+    }
+
     public long getTimeBuilt()
     {
         return this.timeBuilt;
@@ -287,6 +312,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
     {
         this.closeChunkMeshCache();
         this.timeBuilt = 0;
+        this.drawStates.clear();
         this.overlaySortingData.clear();
         this.layerSortingData.clear();
         this.blockSortingData.clear();
@@ -308,4 +334,6 @@ public class ChunkMeshDataSchematic implements AutoCloseable
     {
         this.clearAll();
     }
+
+    public record DrawState(int indexCount, VertexFormat.IndexType indexType, boolean hasIndexBuffer) {}
 }

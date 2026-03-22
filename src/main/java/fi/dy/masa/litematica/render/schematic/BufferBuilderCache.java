@@ -14,12 +14,14 @@ public class BufferBuilderCache implements AutoCloseable
     private final ConcurrentHashMap<ChunkSectionLayer, BufferBuilder> blockBufferBuilders;
     private final ConcurrentHashMap<RenderType, BufferBuilder> layerBufferBuilders;
     private final ConcurrentHashMap<OverlayRenderType, BufferBuilder> overlayBufferBuilders;
+    private final ByteBufferBuilderCache allocators;
 
-    protected BufferBuilderCache()
+    protected BufferBuilderCache(ByteBufferBuilderCache allocators)
     {
 		this.blockBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
 		this.layerBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
 		this.overlayBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
+        this.allocators = allocators;
     }
 
     protected boolean hasBufferByBlockLayer(ChunkSectionLayer layer)
@@ -37,27 +39,27 @@ public class BufferBuilderCache implements AutoCloseable
         return this.overlayBufferBuilders.containsKey(type);
     }
 
-    protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull ByteBufferBuilderCache allocators)
+    protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer)
     {
         synchronized (this.blockBufferBuilders)
         {
-            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByBlockLayer(key), key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
+            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(this.allocators.getBufferByBlockLayer(key), key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
         }
     }
 
-    protected BufferBuilder getBufferByLayer(RenderType layer, @Nonnull ByteBufferBuilderCache allocators)
+    protected BufferBuilder getBufferByLayer(RenderType layer)
     {
         synchronized (this.layerBufferBuilders)
         {
-            return this.layerBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.mode(), key.format()));
+            return this.layerBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(this.allocators.getBufferByLayer(key), key.mode(), key.format()));
         }
     }
 
-    protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull ByteBufferBuilderCache allocators)
+    protected BufferBuilder getBufferByOverlay(OverlayRenderType type)
     {
         synchronized (this.overlayBufferBuilders)
         {
-            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
+            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(this.allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
         }
     }
 
@@ -94,6 +96,8 @@ public class BufferBuilderCache implements AutoCloseable
                 built.close();
             }
         }
+
+        this.allocators.clearAll();
     }
 
     @Override

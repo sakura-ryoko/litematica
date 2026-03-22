@@ -10,108 +10,108 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ChunkMeshCache implements AutoCloseable
 {
-    private final ConcurrentHashMap<ChunkSectionLayer, MeshData> blockBuffers;
-    private final ConcurrentHashMap<RenderType, MeshData> layerBuffers;
-    private final ConcurrentHashMap<OverlayRenderType, MeshData> overlayBuffers;
+    private final ConcurrentHashMap<ChunkSectionLayer, MeshData> blockMeshData;
+    private final ConcurrentHashMap<RenderType, MeshData> layerMeshData;
+    private final ConcurrentHashMap<OverlayRenderType, MeshData> overlayMeshData;
 
     protected ChunkMeshCache()
     {
-	    this.blockBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
-	    this.layerBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
-	    this.overlayBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
+	    this.blockMeshData = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
+	    this.layerMeshData = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
+	    this.overlayMeshData = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
     }
 
-    protected boolean hasBuiltBufferByBlockLayer(ChunkSectionLayer layer)
+    protected boolean hasMeshByBlockLayer(ChunkSectionLayer layer)
     {
-        return this.blockBuffers.containsKey(layer);
+        return this.blockMeshData.containsKey(layer);
     }
 
-    protected boolean hasBuiltBufferByLayer(RenderType layer)
+    protected boolean hasMeshByLayer(RenderType layer)
     {
-        return this.layerBuffers.containsKey(layer);
+        return this.layerMeshData.containsKey(layer);
     }
 
-    protected boolean hasBuiltBufferByType(OverlayRenderType type)
+    protected boolean hasMeshByType(OverlayRenderType type)
     {
-        return this.overlayBuffers.containsKey(type);
+        return this.overlayMeshData.containsKey(type);
     }
 
-    protected void storeBuiltBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull MeshData newBuffer)
+    protected void storeMeshByBlockLayer(ChunkSectionLayer layer, @Nonnull MeshData newBuffer)
     {
-        if (this.hasBuiltBufferByBlockLayer(layer))
+        if (this.hasMeshByBlockLayer(layer))
         {
-            this.blockBuffers.get(layer).close();
+            this.blockMeshData.get(layer).close();
         }
-        synchronized (this.blockBuffers)
+        synchronized (this.blockMeshData)
         {
-            this.blockBuffers.put(layer, newBuffer);
-        }
-    }
-
-    protected void storeBuiltBufferByLayer(RenderType layer, @Nonnull MeshData newBuffer)
-    {
-        if (this.hasBuiltBufferByLayer(layer))
-        {
-            this.layerBuffers.get(layer).close();
-        }
-        synchronized (this.layerBuffers)
-        {
-            this.layerBuffers.put(layer, newBuffer);
+            this.blockMeshData.put(layer, newBuffer);
         }
     }
 
-    protected void storeBuiltBufferByType(OverlayRenderType type, @Nonnull MeshData newBuffer)
+    protected void storeMeshByLayer(RenderType layer, @Nonnull MeshData newBuffer)
     {
-        if (this.hasBuiltBufferByType(type))
+        if (this.hasMeshByLayer(layer))
         {
-            this.overlayBuffers.get(type).close();
+            this.layerMeshData.get(layer).close();
         }
-        synchronized (this.overlayBuffers)
+        synchronized (this.layerMeshData)
         {
-            this.overlayBuffers.put(type, newBuffer);
+            this.layerMeshData.put(layer, newBuffer);
+        }
+    }
+
+    protected void storeMeshByType(OverlayRenderType type, @Nonnull MeshData newBuffer)
+    {
+        if (this.hasMeshByType(type))
+        {
+            this.overlayMeshData.get(type).close();
+        }
+        synchronized (this.overlayMeshData)
+        {
+            this.overlayMeshData.put(type, newBuffer);
         }
     }
 
     @Nullable
-    protected MeshData getBuiltBufferByBlockLayer(ChunkSectionLayer layer)
+    protected MeshData getMeshByBlockLayer(ChunkSectionLayer layer)
     {
-        return this.blockBuffers.get(layer);
+        return this.blockMeshData.get(layer);
     }
 
     @Nullable
-    protected MeshData getBuiltBufferByLayer(RenderType layer)
+    protected MeshData getMeshByLayer(RenderType layer)
     {
-        return this.layerBuffers.get(layer);
+        return this.layerMeshData.get(layer);
     }
 
     @Nullable
-    protected MeshData getBuiltBufferByType(OverlayRenderType type)
+    protected MeshData getMeshByType(OverlayRenderType type)
     {
-        return this.overlayBuffers.get(type);
+        return this.overlayMeshData.get(type);
     }
 
     protected void closeAll()
     {
-        ArrayList<MeshData> builtBuffers;
+        ArrayList<MeshData> list;
 
-        synchronized (this.blockBuffers)
+        synchronized (this.blockMeshData)
         {
-            builtBuffers = new ArrayList<>(this.blockBuffers.values());
-            this.blockBuffers.clear();
+            list = new ArrayList<>(this.blockMeshData.values());
+            this.blockMeshData.clear();
         }
-        synchronized (this.layerBuffers)
+        synchronized (this.layerMeshData)
         {
-            builtBuffers.addAll(this.layerBuffers.values());
-            this.layerBuffers.clear();
+            list.addAll(this.layerMeshData.values());
+            this.layerMeshData.clear();
         }
-        synchronized (this.overlayBuffers)
+        synchronized (this.overlayMeshData)
         {
-            builtBuffers.addAll(this.overlayBuffers.values());
-            this.overlayBuffers.clear();
+            list.addAll(this.overlayMeshData.values());
+            this.overlayMeshData.clear();
         }
         try
         {
-            builtBuffers.forEach(MeshData::close);
+            list.forEach(MeshData::close);
         }
         catch (Exception ignored) { }
     }
