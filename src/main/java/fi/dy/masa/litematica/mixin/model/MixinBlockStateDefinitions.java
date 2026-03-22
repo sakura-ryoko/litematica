@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.mixin.block;
+package fi.dy.masa.litematica.mixin.model;
 
 import java.util.Map;
 import net.minecraft.client.resources.model.BlockStateDefinitions;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.litematica.render.schematic.blocks.FallbackBlocks;
+import fi.dy.masa.litematica.render.schematic.FallbackBlocks;
 
 @Mixin(BlockStateDefinitions.class)
 public class MixinBlockStateDefinitions

@@ -169,7 +169,7 @@ public class ChunkRenderDispatcherSchematic
 
     protected Optional<ChunkRendererSchematicVbo> getOrCreateChunkRenderer(int chunkX, int chunkZ)
     {
-        long index = ChunkPos.asLong(chunkX, chunkZ);
+        long index = ChunkPos.pack(chunkX, chunkZ);
 
         try
         {

@@ -32,7 +32,7 @@ public class ChunkRenderDispatcherLitematica
     private final List<Thread> listWorkerThreads;
     private final List<ChunkRenderWorkerLitematica> listThreadedWorkers;
     private final PriorityBlockingQueue<ChunkRenderTaskSchematic> queueChunkUpdates;
-    private final BlockingQueue<BufferAllocatorCache> queueFreeRenderAllocators;
+    private final BlockingQueue<ByteBufferBuilderCache> queueFreeRenderAllocators;
     private final Queue<PendingUpload> queueChunkUploads;
 //    final Queue<Runnable> queueChunkUploads = Queues.newConcurrentLinkedQueue();
     private final ChunkRenderWorkerLitematica renderWorker;
@@ -113,10 +113,10 @@ public class ChunkRenderDispatcherLitematica
 
         for (int i = 0; i < this.countRenderAllocators; ++i)
         {
-            this.queueFreeRenderAllocators.add(new BufferAllocatorCache());
+            this.queueFreeRenderAllocators.add(new ByteBufferBuilderCache());
         }
 
-        this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferAllocatorCache(), profiler);
+        this.renderWorker = new ChunkRenderWorkerLitematica(this, new ByteBufferBuilderCache(), profiler);
     }
 
     protected void setCameraPosition(Vec3 cameraPos)
@@ -361,7 +361,7 @@ public class ChunkRenderDispatcherLitematica
         //LOGGER.warn("[Dispatch] stopChunkUpdates()");
         profiler.push("stop_chunk_updates");
         this.clearChunkUpdates();
-        List<BufferAllocatorCache> list = new ArrayList<>();
+        List<ByteBufferBuilderCache> list = new ArrayList<>();
 
         while (list.size() != this.countRenderAllocators)
         {
@@ -381,7 +381,7 @@ public class ChunkRenderDispatcherLitematica
         profiler.pop();
     }
 
-    public void freeRenderAllocators(BufferAllocatorCache allocatorCache)
+    public void freeRenderAllocators(ByteBufferBuilderCache allocatorCache)
     {
         if (allocatorCache != null)
         {
@@ -392,11 +392,11 @@ public class ChunkRenderDispatcherLitematica
             catch (Exception ignored) { }
         }
 
-        allocatorCache = new BufferAllocatorCache();
+        allocatorCache = new ByteBufferBuilderCache();
         this.queueFreeRenderAllocators.add(allocatorCache);
     }
 
-    public BufferAllocatorCache allocateRenderAllocators() throws InterruptedException
+    public ByteBufferBuilderCache allocateRenderAllocators() throws InterruptedException
     {
         return this.queueFreeRenderAllocators.take();
     }
@@ -475,7 +475,7 @@ public class ChunkRenderDispatcherLitematica
 //        }
 //    }
 
-    protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final BufferAllocatorCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
+    protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final ByteBufferBuilderCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkMeshDataSchematic chunkRenderData, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
         //LOGGER.warn("[Dispatch] uploadChunkBlocks layer [{}]", layer.name());
 
@@ -515,7 +515,7 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferAllocatorCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
+    protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ByteBufferBuilderCache allocators, final ChunkRendererSchematicVbo renderChunk, final ChunkMeshDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
         //LOGGER.warn("[Dispatch] uploadChunkOverlay type [{}]", type.name());
 
@@ -550,14 +550,14 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    private void uploadVertexBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull BufferAllocatorCache allocators, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull ChunkRenderDataSchematic compiledChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
+    private void uploadVertexBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull ByteBufferBuilderCache allocators, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull ChunkMeshDataSchematic compiledChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
         //LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", layer.label());
 
         profiler.push("upload_vbo_layer_"+layer.label());
         ByteBufferBuilder allocator = allocators.getBufferByBlockLayer(layer);
-        MeshData builtBuffer = compiledChunk.getBuiltBufferCache().getBuiltBufferByBlockLayer(layer);
+        MeshData builtBuffer = compiledChunk.getChunkMeshCache().getBuiltBufferByBlockLayer(layer);
 
         if (allocator == null)
         {
@@ -613,14 +613,14 @@ public class ChunkRenderDispatcherLitematica
         profiler.pop();
     }
 
-    private void uploadVertexBufferByType(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull ChunkRenderDataSchematic compiledChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
+    private void uploadVertexBufferByType(OverlayRenderType type, @Nonnull ByteBufferBuilderCache allocators, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull ChunkMeshDataSchematic compiledChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
         //LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
 
         profiler.push("upload_vbo_overlay_"+type.name());
         ByteBufferBuilder allocator = allocators.getBufferByOverlay(type);
-        MeshData builtBuffer = compiledChunk.getBuiltBufferCache().getBuiltBufferByType(type);
+        MeshData builtBuffer = compiledChunk.getChunkMeshCache().getBuiltBufferByType(type);
 
         if (allocator == null)
         {
@@ -719,7 +719,7 @@ public class ChunkRenderDispatcherLitematica
             }
         }
 
-        this.queueFreeRenderAllocators.forEach(BufferAllocatorCache::close);
+        this.queueFreeRenderAllocators.forEach(ByteBufferBuilderCache::close);
         this.queueFreeRenderAllocators.clear();
     }
 

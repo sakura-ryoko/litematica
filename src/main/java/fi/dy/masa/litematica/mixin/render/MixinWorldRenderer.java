@@ -21,7 +21,8 @@ import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.profiling.ActiveProfiler;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -40,13 +41,14 @@ import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
+import static com.ibm.icu.text.PluralRules.Operand.e;
+
 @Mixin(LevelRenderer.class)
 public abstract class MixinWorldRenderer
 {
     @Shadow private net.minecraft.client.multiplayer.ClientLevel level;
     @Shadow @Final private Minecraft minecraft;
 	@Shadow @Final private SubmitNodeStorage submitNodeStorage;
-    @Shadow private @Nullable Frustum capturedFrustum;
 	@Shadow private @Nullable GpuSampler chunkLayerSampler;
 	@Unique private ProfilerFiller profiler;
 
@@ -102,12 +104,12 @@ public abstract class MixinWorldRenderer
     }
 
     @Inject(method = "scheduleTranslucentSectionResort", at = @At("TAIL"))
-    private void litematica_onScheduleTranslucentSort(Vec3 vec3, CallbackInfo ci)
+    private void litematica_onScheduleTranslucentSort(Vec3 cameraPos, CallbackInfo ci)
     {
         if (!IrisCompat.hasSodium())
         {
 	        this.litematica$prepareProfiler();
-            LitematicaRenderer.getInstance().scheduleTranslucentSorting(vec3, this.profiler);
+            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
         }
     }
 
@@ -115,21 +117,20 @@ public abstract class MixinWorldRenderer
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/LevelRenderer;addMainPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/culling/Frustum;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;ZLnet/minecraft/client/renderer/state/LevelRenderState;Lnet/minecraft/client/DeltaTracker;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
                     shift = At.Shift.BEFORE))
-    private void litematica_onPreRenderMain(GraphicsResourceAllocator allocator, DeltaTracker tickCounter,
-                                            boolean renderBlockOutline, Camera camera, Matrix4f matrix4f,
-                                            Matrix4f projectionMatrix, Matrix4f matrix4f2,
-                                            GpuBufferSlice gpuBufferSlice, Vector4f vector4f, boolean bl,
-                                            CallbackInfo ci, @Local ProfilerFiller profiler)
+    private void litematica_onPreRenderMain(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker, boolean renderOutline,
+                                            CameraRenderState cameraState, Matrix4fc modelViewMatrix, GpuBufferSlice terrainFog, Vector4f fogColor,
+                                            boolean shouldRenderSky, ChunkSectionsToRender chunkSectionsToRender, CallbackInfo ci,
+                                            @Local ProfilerFiller profiler)
     {
         this.profiler = profiler;
-        LitematicaRenderer.getInstance().capturePreMainValues(camera, gpuBufferSlice, profiler);
+        LitematicaRenderer.getInstance().capturePreMainValues(cameraState, terrainFog, profiler);
     }
 
     @Inject(method = "prepareChunkRenders", at = @At("TAIL"))
-    private void litematica_onPrepareBlockLayers(Matrix4fc matrix4fc, double d, double e, double f, CallbackInfoReturnable<ChunkSectionsToRender> cir)
+    private void litematica_onPrepareBlockLayers(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(matrix4fc, d, e, f, this.profiler);
+        LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, d, e, f, this.profiler);
     }
 
 	// BYTECODE (Virtual Method) Mixin for Section Group rendering
@@ -170,46 +171,41 @@ public abstract class MixinWorldRenderer
 	}
 
 	@Inject(method = "extractVisibleEntities", at = @At(value = "RETURN"))
-    private void litematica_onPostPrepareEntities(Camera camera, Frustum frustum, DeltaTracker tickCounter,
-                                                  LevelRenderState renderStates, CallbackInfo ci)
+    private void litematica_onPostPrepareEntities(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState output, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, frustum, renderStates, tickCounter, this.profiler);
+        LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, frustum, renderStates, deltaTracker, this.profiler);
 
 		// Why Sodium?
 		if (IrisCompat.hasSodium())
 		{
-			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, frustum, renderStates, tickCounter.getGameTimeDeltaPartialTick(false), this.profiler);
+			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, frustum, renderStates, deltaTracker.getGameTimeDeltaPartialTick(false), this.profiler);
 		}
     }
 
 	@Inject(method = "submitEntities", at = @At("RETURN"))
-	private void litematica_onPostRenderEntities(PoseStack matrices, LevelRenderState worldRenderState,
-                                                 SubmitNodeCollector orderedRenderCommandQueue, CallbackInfo ci)
+	private void litematica_onPostRenderEntities(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeCollector output, CallbackInfo ci)
 	{
         this.litematica$prepareProfiler();
-		LitematicaRenderer.getInstance().piecewiseRenderEntities(matrices, worldRenderState, orderedRenderCommandQueue, this.profiler);
+		LitematicaRenderer.getInstance().piecewiseRenderEntities(poseStack, levelRenderState, output, this.profiler);
 	}
 
 	@Inject(method = "extractVisibleBlockEntities", at = @At(value = "RETURN"))
-    private void litematica_onPostPrepareBlockEntities(Camera camera, float tickProgress, LevelRenderState renderStates,
-                                                       CallbackInfo ci)
+    private void litematica_onPostPrepareBlockEntities(Camera camera, float deltaPartialTick, LevelRenderState levelRenderState, CallbackInfo ci)
     {
 		// Why Sodium?
 		if (!IrisCompat.hasSodium())
 		{
 			this.litematica$prepareProfiler();
-			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, this.capturedFrustum, renderStates, tickProgress, this.profiler);
+			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, this.capturedFrustum, levelRenderState, deltaPartialTick, this.profiler);
 		}
     }
 
     @Inject(method = "submitBlockEntities", at = @At(value = "RETURN"))
-    private void litematica_onPostRenderBlockEntities(PoseStack matrices, LevelRenderState worldRenderState,
-                                                      SubmitNodeStorage orderedRenderCommandQueueImpl,
-                                                      CallbackInfo ci)
+    private void litematica_onPostRenderBlockEntities(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeStorage submitNodeStorage, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewiseRenderBlockEntities(matrices, worldRenderState, this.submitNodeStorage, this.profiler);
+        LitematicaRenderer.getInstance().piecewiseRenderBlockEntities(poseStack, levelRenderState, this.submitNodeStorage, this.profiler);
     }
 
 	@Inject(method = "endFrame", at = @At("TAIL"))

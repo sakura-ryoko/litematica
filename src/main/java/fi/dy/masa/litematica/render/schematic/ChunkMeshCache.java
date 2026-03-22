@@ -8,17 +8,17 @@ import com.mojang.blaze3d.vertex.MeshData;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BuiltBufferCache implements AutoCloseable
+public class ChunkMeshCache implements AutoCloseable
 {
     private final ConcurrentHashMap<ChunkSectionLayer, MeshData> blockBuffers;
     private final ConcurrentHashMap<RenderType, MeshData> layerBuffers;
     private final ConcurrentHashMap<OverlayRenderType, MeshData> overlayBuffers;
 
-    protected BuiltBufferCache()
+    protected ChunkMeshCache()
     {
-	    this.blockBuffers = new ConcurrentHashMap<>(BufferAllocatorCache.BLOCK_LAYERS.size(), 0.9f, 1);
-	    this.layerBuffers = new ConcurrentHashMap<>(BufferAllocatorCache.RENDER_LAYERS.size(), 0.9f, 1);
-	    this.overlayBuffers = new ConcurrentHashMap<>(BufferAllocatorCache.TYPES.size(), 0.9f, 1);
+	    this.blockBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
+	    this.layerBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
+	    this.overlayBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
     }
 
     protected boolean hasBuiltBufferByBlockLayer(ChunkSectionLayer layer)

@@ -11,22 +11,20 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Brightness;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,7 +67,7 @@ public interface IWorldSchematicRenderer
 
 	void loadRenderers(@Nullable ProfilerFiller profiler);
 
-	void reloadBlockRenderManager(BlockRenderDispatcher dispatcher);
+	void reloadBlockRenderManager();
 
 	ChunkFixUniform getChunkFixUniform();
 
@@ -85,13 +83,13 @@ public interface IWorldSchematicRenderer
 
 	<T extends Comparable<T>> BlockState getFallbackState(BlockState origState);
 
-	boolean hasQuadsForModel(List<BlockModelPart> modelParts, BlockState state, @Nullable Direction side);
+	boolean hasQuadsForModel(List<BlockStateModelPart> modelParts, BlockState state, @Nullable Direction side);
 
-	boolean hasQuadsForModelPart(BlockModelPart modelPart, BlockState state, @Nullable Direction side);
+	boolean hasQuadsForModelPart(BlockStateModelPart modelPart, BlockState state, @Nullable Direction side);
 
 	BlockStateModel getModelForState(BlockState state);
 
-	List<BlockModelPart> getModelParts(BlockPos pos, BlockState state, RandomSource rand);
+	List<BlockStateModelPart> getModelParts(BlockPos pos, BlockState state, RandomSource rand);
 
 	boolean renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, PoseStack matrices, BufferBuilder bufferBuilderIn);
 
@@ -138,12 +136,12 @@ public interface IWorldSchematicRenderer
 		}
 
 		int light = getter.packedLight(world, pos);
-		int blockLight = LightTexture.block(light);
+		int blockLight = LightCoordsUtil.block(light);
 		int luminance = state.getLightEmission();
 
 		if (blockLight < luminance)
 		{
-			return LightTexture.pack(luminance, LightTexture.sky(light));
+			return LightCoordsUtil.withBlock(light, luminance);
 		}
 
 		return light;
@@ -153,7 +151,7 @@ public interface IWorldSchematicRenderer
 	interface LightGetter
 	{
 		LightGetter DEFAULT = (world, pos) ->
-				Brightness.pack(world.getBrightness(LightLayer.BLOCK, pos), world.getBrightness(LightLayer.SKY, pos));
+				LightCoordsUtil.pack(world.getBrightness(LightLayer.BLOCK, pos), world.getBrightness(LightLayer.SKY, pos));
 
 		int packedLight(BlockAndTintGetter world, BlockPos pos);
 	}

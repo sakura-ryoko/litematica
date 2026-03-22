@@ -788,7 +788,7 @@ public class OverlayRenderer
             else
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderBlockTargetingOverlaySimple(
-                        entity, pos, trace.getDirection(), color, null);
+                        entity, pos, trace.getDirection(), color);
             }
         }
 

@@ -1,17 +1,18 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+
+import com.mojang.blaze3d.vertex.MeshData;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import java.util.*;
-import com.mojang.blaze3d.vertex.MeshData;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 
-public class ChunkRenderDataSchematic implements AutoCloseable
+public class ChunkMeshDataSchematic implements AutoCloseable
 {
-    public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic() {
+    public static final ChunkMeshDataSchematic EMPTY = new ChunkMeshDataSchematic() {
         @Override
         protected void setBlockLayerUsed(ChunkSectionLayer layer)
         {
@@ -57,7 +58,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
     private final Set<RenderType> layersStarted;
     private final Set<OverlayRenderType> overlayLayersUsed;
     private final Set<OverlayRenderType> overlayLayersStarted;
-    private final BuiltBufferCache builtBufferCache;
+    private final ChunkMeshCache chunkMeshCache;
     private final Map<ChunkSectionLayer, MeshData.SortState> blockSortingData;
     private final Map<RenderType, MeshData.SortState> layerSortingData;
     private final Map<OverlayRenderType, MeshData.SortState> overlaySortingData;
@@ -66,7 +67,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
     private boolean overlayEmpty;
     private long timeBuilt;
 
-	public ChunkRenderDataSchematic()
+	public ChunkMeshDataSchematic()
 	{
 		this.blockEntities = new ArrayList<>();
 		this.noCullBlockEntities = new ArrayList<>();
@@ -76,7 +77,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		this.layersStarted = new ObjectArraySet<>();
 		this.overlayLayersUsed = new ObjectArraySet<>();
 		this.overlayLayersStarted = new ObjectArraySet<>();
-		this.builtBufferCache = new BuiltBufferCache();
+		this.chunkMeshCache = new ChunkMeshCache();
 		this.blockSortingData = new HashMap<>();
 		this.layerSortingData = new HashMap<>();
 		this.overlaySortingData = new HashMap<>();
@@ -216,14 +217,14 @@ public class ChunkRenderDataSchematic implements AutoCloseable
         this.noCullBlockEntities.add(be);
     }
 
-    protected BuiltBufferCache getBuiltBufferCache()
+    protected ChunkMeshCache getChunkMeshCache()
     {
-        return this.builtBufferCache;
+        return this.chunkMeshCache;
     }
 
-    protected void closeBuiltBufferCache()
+    protected void closeChunkMeshCache()
     {
-        this.builtBufferCache.closeAll();
+        this.chunkMeshCache.closeAll();
     }
 
     public boolean hasTransparentSortingDataForBlockLayer(ChunkSectionLayer layer)
@@ -284,7 +285,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
     protected void clearAll()
     {
-        this.closeBuiltBufferCache();
+        this.closeChunkMeshCache();
         this.timeBuilt = 0;
         this.overlaySortingData.clear();
         this.layerSortingData.clear();

@@ -1,6 +1,9 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "litematica:block/green_glass_fallback"
+    "all": {
+      "force_translucent": true,
+      "sprite": "litematica:block/green_glass_fallback"
+    }
   }
 }

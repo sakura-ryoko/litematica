@@ -17,9 +17,9 @@ public class BufferBuilderCache implements AutoCloseable
 
     protected BufferBuilderCache()
     {
-		this.blockBufferBuilders = new ConcurrentHashMap<>(BufferAllocatorCache.BLOCK_LAYERS.size(), 0.9f, 1);
-		this.layerBufferBuilders = new ConcurrentHashMap<>(BufferAllocatorCache.RENDER_LAYERS.size(), 0.9f, 1);
-		this.overlayBufferBuilders = new ConcurrentHashMap<>(BufferAllocatorCache.TYPES.size(), 0.9f, 1);
+		this.blockBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
+		this.layerBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
+		this.overlayBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
     }
 
     protected boolean hasBufferByBlockLayer(ChunkSectionLayer layer)
@@ -37,7 +37,7 @@ public class BufferBuilderCache implements AutoCloseable
         return this.overlayBufferBuilders.containsKey(type);
     }
 
-    protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull ByteBufferBuilderCache allocators)
     {
         synchronized (this.blockBufferBuilders)
         {
@@ -45,7 +45,7 @@ public class BufferBuilderCache implements AutoCloseable
         }
     }
 
-    protected BufferBuilder getBufferByLayer(RenderType layer, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBufferByLayer(RenderType layer, @Nonnull ByteBufferBuilderCache allocators)
     {
         synchronized (this.layerBufferBuilders)
         {
@@ -53,7 +53,7 @@ public class BufferBuilderCache implements AutoCloseable
         }
     }
 
-    protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull ByteBufferBuilderCache allocators)
     {
         synchronized (this.overlayBufferBuilders)
         {

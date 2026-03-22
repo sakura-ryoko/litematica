@@ -1,28 +1,47 @@
 package fi.dy.masa.litematica.render.schematic.ao;
 
-import fi.dy.masa.litematica.config.Configs;
+import com.mojang.blaze3d.vertex.QuadInstance;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class AOProcessor extends AOLightmap
-{
-	public static final Direction[] DIRECTIONS = Direction.values();
+import fi.dy.masa.litematica.config.Configs;
 
-    public static AOProcessor get()
+public abstract class AOProcessor
+{
+    protected final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
+    protected AOLightmap lightmap;
+    protected boolean cubic;
+    protected boolean hasNeighbors;
+
+    public static AOProcessor get(AOLightmap lightmap)
     {
         if (Configs.Visuals.RENDER_AO_MODERN_ENABLE.getBooleanValue())
         {
-            return new AOProcessorModern();
+            AOProcessor ao = new AOProcessorModern();
+            ao.lightmap = lightmap;
+            return ao;
         }
         else
         {
-            return new AOProcessorLegacy();
+            AOProcessor ao = new AOProcessorLegacy();
+            ao.lightmap = lightmap;
+            return ao;
         }
     }
 
-    public void apply(BlockAndTintGetter world, BlockState state, BlockPos pos, Direction face, boolean hasShade)
+    public int getLight(final BlockAndTintGetter world, final BlockState state, final BlockPos pos)
     {
+        return this.lightmap.brightnessCache.getLight(state, world, pos);
     }
+
+    public abstract void prepareSmooth(final BlockAndTintGetter world, final BlockState state, final BlockPos pos,
+                                       final BakedQuad quad, final QuadInstance instance);
+
+    public abstract void prepareFlat(final BlockAndTintGetter world, final BlockState state, final BlockPos pos,
+                                     final int light, final BakedQuad quad, final QuadInstance instance);
+
+    public abstract void prepareShape(final BlockAndTintGetter world, final BlockState state, final BlockPos pos,
+                                      final BakedQuad quad, final boolean useAO);
 }

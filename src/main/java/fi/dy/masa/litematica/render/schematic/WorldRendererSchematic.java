@@ -82,7 +82,6 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.mixin.render.IMixinGameRenderer;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
-import fi.dy.masa.litematica.render.schematic.blocks.FallbackBlocks;
 import fi.dy.masa.litematica.util.IAvatarInvoker;
 import fi.dy.masa.litematica.util.IEntityInvoker;
 import fi.dy.masa.litematica.util.IEntityRendererInvoker;
@@ -139,14 +138,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     {
         this.mc = mc;
         this.renderChunkFactory = ChunkRendererSchematicVbo::new;
-        this.blockRenderManager = Minecraft.getInstance().getBlockRenderer();
 	    this.blockEntities = new HashSet<>();
 	    this.renderInfos = new ArrayList<>(1024);
         this.renderedEntities = new HashMap<>();
         this.entityRenderManager = mc.getEntityRenderDispatcher();
         this.blockEntityRenderManager = mc.getBlockEntityRenderDispatcher();
-        this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors(), this.blockRenderManager);
-        this.blockModelRenderer.setBakedManager(mc.getModelManager());
+        this.blockModelRenderer = new BlockModelRendererSchematic();
         this.fogRenderer = ((IMixinGameRenderer) mc.gameRenderer).litematica_getFogRenderer();
 		this.schematicRenderState = new SchematicRenderState();
 	    this.chunksToUpdate = new LinkedHashSet<>();
@@ -207,9 +204,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         {
             // Threaded Code
             //ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
-            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
+            ChunkMeshDataSchematic data = chunkRenderer.chunkRenderData;
 
-            if (data != ChunkRenderDataSchematic.EMPTY && !data.isBlockLayerEmpty())
+            if (data != ChunkMeshDataSchematic.EMPTY && !data.isBlockLayerEmpty())
             {
                 ++count;
             }
@@ -710,9 +707,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 if (!renderer.getChunkRenderData().isBlockLayerEmpty(layer))
                 {
                     BlockPos chunkOrigin = renderer.getOrigin();
-                    ChunkRenderObjectBuffers buffers = renderer.getBlockBuffersByBlockLayer(layer);
+                    ChunkRenderBuffers buffers = renderer.getBlockBuffersByBlockLayer(layer);
 
-                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByBlockLayer(layer))
+                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getChunkMeshCache().hasBuiltBufferByBlockLayer(layer))
                     {
                         // LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
                         continue;
@@ -919,7 +916,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
             {
                 if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(ChunkSectionLayer.TRANSLUCENT) ||
-                    (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
+                    (chunkRenderer.getChunkRenderData() != ChunkMeshDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                 {
                     this.renderDispatcher.updateTransparencyLater(chunkRenderer, profiler);
                 }
@@ -961,16 +958,16 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
 
-            if (renderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && renderer.hasOverlay())
+            if (renderer.getChunkRenderData() != ChunkMeshDataSchematic.EMPTY && renderer.hasOverlay())
             {
-                ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
+                ChunkMeshDataSchematic compiledChunk = renderer.getChunkRenderData();
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-                    ChunkRenderObjectBuffers buffers = renderer.getOverlayBuffersByType(type);
+                    ChunkRenderBuffers buffers = renderer.getOverlayBuffersByType(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getBuiltBufferCache().hasBuiltBufferByType(type))
+                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getChunkMeshCache().hasBuiltBufferByType(type))
                     {
                         // LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
@@ -1008,7 +1005,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 List<BlockModelPart> parts = this.getModelParts(pos, state, this.blockModelRenderer.getRandom());
 
                 result = renderType == RenderShape.MODEL &&
-                        this.blockModelRenderer.renderModel(world, parts, state, pos, matrixStack, bufferBuilderIn, false, OverlayTexture.NO_OVERLAY);
+                        this.blockModelRenderer.tessellateBlock(world, parts, state, pos, matrixStack, bufferBuilderIn, false, OverlayTexture.NO_OVERLAY);
 
 //                System.out.printf("renderBlock(): result [%s]\n", result);
 
@@ -1049,7 +1046,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
     // Probably not the most efficient way; but it works.
     private void drawOverlayInternal(RenderPipeline pipeline,
-                                     ChunkRenderObjectBuffers buffers,
+                                     ChunkRenderBuffers buffers,
                                      int color, float[] offset,
                                      boolean useColor, boolean useOffset) throws RuntimeException
     {
@@ -1373,7 +1370,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         profiler.popPush("render_be");
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
+            ChunkMeshDataSchematic data = chunkRenderer.getChunkRenderData();
             List<BlockEntity> tiles = data.getBlockEntities();
 
             if (!tiles.isEmpty())
@@ -1527,9 +1524,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void reloadBlockRenderManager(BlockRenderDispatcher manager)
+    public void reloadBlockRenderManager()
 	{
-		this.blockRenderManager = manager;
-		this.blockModelRenderer.reload(manager);
+		this.blockModelRenderer.reload();
 	}
 }

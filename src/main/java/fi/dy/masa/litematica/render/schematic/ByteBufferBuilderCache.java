@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
 @Environment(EnvType.CLIENT)
-public class BufferAllocatorCache implements AutoCloseable
+public class ByteBufferBuilderCache implements AutoCloseable
 {
     protected static final List<ChunkSectionLayer> BLOCK_LAYERS = ChunkRenderLayers.BLOCK_RENDER_LAYERS;
     protected static final List<RenderType> RENDER_LAYERS = ChunkRenderLayers.RENDER_LAYERS;
@@ -21,7 +21,7 @@ public class BufferAllocatorCache implements AutoCloseable
     private final ConcurrentHashMap<OverlayRenderType, ByteBufferBuilder> overlayCache;
     private boolean clear;
 
-    protected BufferAllocatorCache()
+    protected ByteBufferBuilderCache()
     {
 	    this.blockCache = new ConcurrentHashMap<>(BLOCK_LAYERS.size(), 0.9f, 1);
 		this.layerCache = new ConcurrentHashMap<>(RENDER_LAYERS.size(), 0.9f, 1);

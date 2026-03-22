@@ -11,10 +11,9 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec3;
 
@@ -82,11 +81,11 @@ public class LitematicaRenderer
         this.getWorldRenderer().setWorldAndLoadRenderers(worldClient);
     }
 
-	public void onBlockModelRendererReload(BlockRenderDispatcher manager)
+	public void onResourcePackReload()
 	{
 		if (this.worldRenderer != null)
 		{
-			this.worldRenderer.reloadBlockRenderManager(manager);
+			this.worldRenderer.reloadBlockRenderManager();
 		}
 	}
 

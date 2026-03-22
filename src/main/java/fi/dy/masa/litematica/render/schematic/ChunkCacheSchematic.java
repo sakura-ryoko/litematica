@@ -5,9 +5,12 @@ import javax.annotation.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -124,20 +127,19 @@ public class ChunkCacheSchematic implements BlockAndTintGetter, LightChunkGetter
     @Override
     public @Nonnull LevelLightEngine getLightEngine()
     {
-        //return this.lightingProvider;
         return this.world.getLightEngine();
+    }
+
+    @Override
+    public @NonNull CardinalLighting cardinalLighting()
+    {
+        return this.worldClient.cardinalLighting();
     }
 
     @Override
     public int getBlockTint(@Nonnull BlockPos pos, ColorResolver colorResolver)
     {
         return colorResolver.getColor(this.worldClient.getBiome(pos).value(), pos.getX(), pos.getZ());
-    }
-
-    @Override
-    public float getShade(@Nonnull Direction direction, boolean bl)
-    {
-        return this.worldClient.getShade(direction, bl); // AO brightness on face
     }
 
     @Override

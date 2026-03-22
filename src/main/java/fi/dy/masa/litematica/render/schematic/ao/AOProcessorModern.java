@@ -1,8 +1,15 @@
 package fi.dy.masa.litematica.render.schematic.ao;
 
+import org.joml.Vector3fc;
+
+import com.mojang.blaze3d.vertex.QuadInstance;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -10,201 +17,271 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class AOProcessorModern extends AOProcessor
 {
-	public final float[] shapeCache = new float[AOOrientation.values().length];     // field_58158
+	public final float[] shape = new float[AOSizeModern.values().length];
 
-    @Override
-    public void apply(BlockAndTintGetter world, BlockState state, BlockPos pos, Direction face, boolean hasShade)
-    {
-        // 1.21.11-pre1
-        BlockPos blockPos = this.hasOffset ? pos.relative(face) : pos;
-        AONeighborInfo nd = AONeighborInfo.getNeighbourInfo(face);
-        BlockPos.MutableBlockPos mutable = this.pos;
-        mutable.setWithOffset(blockPos, nd.corners[0]);
+	@Override
+	public void prepareSmooth(BlockAndTintGetter world, BlockState state, BlockPos center, BakedQuad quad, QuadInstance instance)
+	{
+		this.prepareShape(world, state, center, quad, true);
+		Direction face = quad.direction();
+		BlockPos basePos = this.cubic ? center.relative(face) : center;
+		AONeighborInfoModern info = AONeighborInfoModern.getNeighbourInfo(face);
+		BlockPos.MutableBlockPos pos = this.scratchPos;
+		pos.setWithOffset(basePos, info.corners[0]);
+		BlockState state0 = world.getBlockState(pos);
+		int light0 = this.lightmap.brightnessCache.getLight(state0, world, pos);
+		float shade0 = this.lightmap.brightnessCache.getShade(state0, world, pos);
+		pos.setWithOffset(basePos, info.corners[1]);
+		BlockState state1 = world.getBlockState(pos);
+		int light1 = this.lightmap.brightnessCache.getLight(state1, world, pos);
+		float shade1 = this.lightmap.brightnessCache.getShade(state1, world, pos);
+		pos.setWithOffset(basePos, info.corners[2]);
+		BlockState state2 = world.getBlockState(pos);
+		int light2 = this.lightmap.brightnessCache.getLight(state2, world, pos);
+		float shade2 = this.lightmap.brightnessCache.getShade(state2, world, pos);
+		pos.setWithOffset(basePos, info.corners[3]);
+		BlockState state3 = world.getBlockState(pos);
+		int light3 = this.lightmap.brightnessCache.getLight(state3, world, pos);
+		float shade3 = this.lightmap.brightnessCache.getShade(state3, world, pos);
+		BlockState corner0 = world.getBlockState(pos.setWithOffset(basePos, info.corners[0]).move(face));
+		boolean translucent0 = !corner0.isViewBlocking(world, pos) || corner0.getLightDampening() == 0;
+		BlockState corner1 = world.getBlockState(pos.setWithOffset(basePos, info.corners[1]).move(face));
+		boolean translucent1 = !corner1.isViewBlocking(world, pos) || corner1.getLightDampening() == 0;
+		BlockState corner2 = world.getBlockState(pos.setWithOffset(basePos, info.corners[2]).move(face));
+		boolean translucent2 = !corner2.isViewBlocking(world, pos) || corner2.getLightDampening() == 0;
+		BlockState corner3 = world.getBlockState(pos.setWithOffset(basePos, info.corners[3]).move(face));
+		boolean translucent3 = !corner3.isViewBlocking(world, pos) || corner3.getLightDampening() == 0;
+		float shadeCorner02;
+		int lightCorner02;
 
-        BlockState bs1 = world.getBlockState(mutable);
-        int i = this.brightnessCache.getInt(bs1, world, mutable);
-        float f = this.brightnessCache.getFloat(bs1, world, mutable);
-        mutable.setWithOffset(blockPos, nd.corners[1]);
-        BlockState bs2 = world.getBlockState(mutable);
-        int j = this.brightnessCache.getInt(bs2, world, mutable);
-        float g = this.brightnessCache.getFloat(bs2, world, mutable);
-        mutable.setWithOffset(blockPos, nd.corners[2]);
-        BlockState bs3 = world.getBlockState(mutable);
-        int k = this.brightnessCache.getInt(bs3, world, mutable);
-        float h = this.brightnessCache.getFloat(bs3, world, mutable);
-        mutable.setWithOffset(blockPos, nd.corners[3]);
-        BlockState bs4 = world.getBlockState(mutable);
-        int l = this.brightnessCache.getInt(bs4, world, mutable);
-        float m = this.brightnessCache.getFloat(bs4, world, mutable);
-        BlockState bs5 = world.getBlockState(mutable.setWithOffset(blockPos, nd.corners[0]).move(face));
-        boolean bl2 = !bs5.isViewBlocking(world, mutable) || bs5.getLightBlock() == 0;
-        BlockState bs6 = world.getBlockState(mutable.setWithOffset(blockPos, nd.corners[1]).move(face));
-        boolean bl3 = !bs6.isViewBlocking(world, mutable) || bs6.getLightBlock() == 0;
-        BlockState bs7 = world.getBlockState(mutable.setWithOffset(blockPos, nd.corners[2]).move(face));
-        boolean bl4 = !bs7.isViewBlocking(world, mutable) || bs7.getLightBlock() == 0;
-        BlockState bs8 = world.getBlockState(mutable.setWithOffset(blockPos, nd.corners[3]).move(face));
-        boolean bl5 = !bs8.isViewBlocking(world, mutable) || bs8.getLightBlock() == 0;
+		if (!translucent2 && !translucent0)
+		{
+			shadeCorner02 = shade0;
+			lightCorner02 = light0;
+		}
+		else
+		{
+			pos.setWithOffset(basePos, info.corners[0]).move(info.corners[2]);
+			BlockState state02 = world.getBlockState(pos);
+			shadeCorner02 = this.lightmap.brightnessCache.getShade(state02, world, pos);
+			lightCorner02 = this.lightmap.brightnessCache.getLight(state02, world, pos);
+		}
 
-        float n;
-        int o;
-        BlockState bs9;
+		float shadeCorner03;
+		int lightCorner03;
 
-        if (!bl4 && !bl2)
-        {
-            n = f;
-            o = i;
-        }
-        else
-        {
-            mutable.setWithOffset(blockPos, nd.corners[0]).move(nd.corners[2]);
-            bs9 = world.getBlockState(mutable);
-            n = this.brightnessCache.getFloat(bs9, world, mutable);
-            o = this.brightnessCache.getInt(bs9, world, mutable);
-        }
+		if (!translucent3 && !translucent0)
+		{
+			shadeCorner03 = shade0;
+			lightCorner03 = light0;
+		}
+		else
+		{
+			pos.setWithOffset(basePos, info.corners[0]).move(info.corners[3]);
+			BlockState state03 = world.getBlockState(pos);
+			shadeCorner03 = this.lightmap.brightnessCache.getShade(state03, world, pos);
+			lightCorner03 = this.lightmap.brightnessCache.getLight(state03, world, pos);
+		}
 
-        float p;
-        int q;
-        if (!bl5 && !bl2)
-        {
-            p = f;
-            q = i;
-        }
-        else
-        {
-            mutable.setWithOffset(blockPos, nd.corners[0]).move(nd.corners[3]);
-            bs9 = world.getBlockState(mutable);
-            p = this.brightnessCache.getFloat(bs9, world, mutable);
-            q = this.brightnessCache.getInt(bs9, world, mutable);
-        }
+		float shadeCorner12;
+		int lightCorner12;
 
-        float r;
-        int s;
-        if (!bl4 && !bl3)
-        {
-            r = f;
-            s = i;
-        }
-        else
-        {
-            mutable.setWithOffset(blockPos, nd.corners[1]).move(nd.corners[2]);
-            bs9 = world.getBlockState(mutable);
-            r = this.brightnessCache.getFloat(bs9, world, mutable);
-            s = this.brightnessCache.getInt(bs9, world, mutable);
-        }
+		if (!translucent2 && !translucent1)
+		{
+			shadeCorner12 = shade0;
+			lightCorner12 = light0;
+		}
+		else
+		{
+			pos.setWithOffset(basePos, info.corners[1]).move(info.corners[2]);
+			BlockState state12 = world.getBlockState(pos);
+			shadeCorner12 = this.lightmap.brightnessCache.getShade(state12, world, pos);
+			lightCorner12 = this.lightmap.brightnessCache.getLight(state12, world, pos);
+		}
 
-        float t;
-        int u;
-        if (!bl5 && !bl3)
-        {
-            t = f;
-            u = i;
-        }
-        else
-        {
-            mutable.setWithOffset(blockPos, nd.corners[1]).move(nd.corners[3]);
-            bs9 = world.getBlockState(mutable);
-            t = this.brightnessCache.getFloat(bs9, world, mutable);
-            u = this.brightnessCache.getInt(bs9, world, mutable);
-        }
+		float shadeCorner13;
+		int lightCorner13;
 
-        int v = this.brightnessCache.getInt(state, world, pos);
-        mutable.setWithOffset(pos, face);
-        BlockState bs10 = world.getBlockState(mutable);
+		if (!translucent3 && !translucent1)
+		{
+			shadeCorner13 = shade0;
+			lightCorner13 = light0;
+		}
+		else
+		{
+			pos.setWithOffset(basePos, info.corners[1]).move(info.corners[3]);
+			BlockState state13 = world.getBlockState(pos);
+			shadeCorner13 = this.lightmap.brightnessCache.getShade(state13, world, pos);
+			lightCorner13 = this.lightmap.brightnessCache.getLight(state13, world, pos);
+		}
 
-        if (this.hasOffset || !bs10.isSolidRender())
-        {
-            v = this.brightnessCache.getInt(bs10, world, mutable);
-        }
+		int lightCenter = this.lightmap.brightnessCache.getLight(state, world, center);
+		pos.setWithOffset(center, face);
+		BlockState nextState = world.getBlockState(pos);
 
-        float w = this.hasOffset
-                  ? this.brightnessCache.getFloat(world.getBlockState(blockPos), world, blockPos)
-                  : this.brightnessCache.getFloat(world.getBlockState(pos), world, pos);
+		if (this.cubic || !nextState.isSolidRender())
+		{
+			lightCenter = this.lightmap.brightnessCache.getLight(nextState, world, pos);
+		}
 
-        AOTranslations translation = AOTranslations.getVertexTranslations(face);
+		float shadeCenter = this.cubic
+		                    ? this.lightmap.brightnessCache.getShade(world.getBlockState(basePos), world, basePos)
+		                    : this.lightmap.brightnessCache.getShade(world.getBlockState(center), world, center);
+		AOVertexMap remap = AOVertexMap.getVertexTranslations(face);
 
-        if (this.hasNeighbors && nd.doNonCubicWeight)
-        {
-	        float x = (m + f + p + w) * 0.25F;
-	        float y = (h + f + n + w) * 0.25F;
-	        float z = (h + g + r + w) * 0.25F;
-	        float aa = (m + g + t + w) * 0.25F;
-            float ab = this.shapeCache[nd.vert0Weights[0].shape] * this.shapeCache[nd.vert0Weights[1].shape];
-            float ac = this.shapeCache[nd.vert0Weights[2].shape] * this.shapeCache[nd.vert0Weights[3].shape];
-            float ad = this.shapeCache[nd.vert0Weights[4].shape] * this.shapeCache[nd.vert0Weights[5].shape];
-            float ae = this.shapeCache[nd.vert0Weights[6].shape] * this.shapeCache[nd.vert0Weights[7].shape];
-            float af = this.shapeCache[nd.vert1Weights[0].shape] * this.shapeCache[nd.vert1Weights[1].shape];
-            float ag = this.shapeCache[nd.vert1Weights[2].shape] * this.shapeCache[nd.vert1Weights[3].shape];
-            float ah = this.shapeCache[nd.vert1Weights[4].shape] * this.shapeCache[nd.vert1Weights[5].shape];
-            float ai = this.shapeCache[nd.vert1Weights[6].shape] * this.shapeCache[nd.vert1Weights[7].shape];
-            float aj = this.shapeCache[nd.vert2Weights[0].shape] * this.shapeCache[nd.vert2Weights[1].shape];
-            float ak = this.shapeCache[nd.vert2Weights[2].shape] * this.shapeCache[nd.vert2Weights[3].shape];
-            float al = this.shapeCache[nd.vert2Weights[4].shape] * this.shapeCache[nd.vert2Weights[5].shape];
-            float am = this.shapeCache[nd.vert2Weights[6].shape] * this.shapeCache[nd.vert2Weights[7].shape];
-            float an = this.shapeCache[nd.vert3Weights[0].shape] * this.shapeCache[nd.vert3Weights[1].shape];
-            float ao = this.shapeCache[nd.vert3Weights[2].shape] * this.shapeCache[nd.vert3Weights[3].shape];
-            float ap = this.shapeCache[nd.vert3Weights[4].shape] * this.shapeCache[nd.vert3Weights[5].shape];
-            float aq = this.shapeCache[nd.vert3Weights[6].shape] * this.shapeCache[nd.vert3Weights[7].shape];
-            this.fs[translation.vert0] = Math.clamp(x * ab + y * ac + z * ad + aa * ae, 0.0F, 1.0F);
-            this.fs[translation.vert1] = Math.clamp(x * af + y * ag + z * ah + aa * ai, 0.0F, 1.0F);
-            this.fs[translation.vert2] = Math.clamp(x * aj + y * ak + z * al + aa * am, 0.0F, 1.0F);
-            this.fs[translation.vert3] = Math.clamp(x * an + y * ao + z * ap + aa * aq, 0.0F, 1.0F);
-            int ar = this.getAoBrightness(l, i, q, v);
-            int as = this.getAoBrightness(k, i, o, v);
-            int at = this.getAoBrightness(k, j, s, v);
-            int au = this.getAoBrightness(l, j, u, v);
-            this.is[translation.vert0] = this.getVertexBrightness(ar, as, at, au, ab, ac, ad, ae);
-            this.is[translation.vert1] = this.getVertexBrightness(ar, as, at, au, af, ag, ah, ai);
-            this.is[translation.vert2] = this.getVertexBrightness(ar, as, at, au, aj, ak, al, am);
-            this.is[translation.vert3] = this.getVertexBrightness(ar, as, at, au, an, ao, ap, aq);
-        }
-        else
-        {
-	        float x = (m + f + p + w) * 0.25F;
-	        float y = (h + f + n + w) * 0.25F;
-	        float z = (h + g + r + w) * 0.25F;
-	        float aa = (m + g + t + w) * 0.25F;
-            this.is[translation.vert0] = this.getAoBrightness(l, i, q, v);
-            this.is[translation.vert1] = this.getAoBrightness(k, i, o, v);
-            this.is[translation.vert2] = this.getAoBrightness(k, j, s, v);
-            this.is[translation.vert3] = this.getAoBrightness(l, j, u, v);
-            this.fs[translation.vert0] = x;
-            this.fs[translation.vert1] = y;
-            this.fs[translation.vert2] = z;
-            this.fs[translation.vert3] = aa;
-        }
+		if (this.hasNeighbors && info.doNonCubicWeight)
+		{
+			float tempShade1 = (shade3 + shade0 + shadeCorner03 + shadeCenter) * 0.25F;
+			float tempShade2 = (shade2 + shade0 + shadeCorner02 + shadeCenter) * 0.25F;
+			float tempShade3 = (shade2 + shade1 + shadeCorner12 + shadeCenter) * 0.25F;
+			float tempShade4 = (shade3 + shade1 + shadeCorner13 + shadeCenter) * 0.25F;
+			float vert0weight01 = this.shape[info.vert0Weights[0].index] * this.shape[info.vert0Weights[1].index];
+			float vert0weight23 = this.shape[info.vert0Weights[2].index] * this.shape[info.vert0Weights[3].index];
+			float vert0weight45 = this.shape[info.vert0Weights[4].index] * this.shape[info.vert0Weights[5].index];
+			float vert0weight67 = this.shape[info.vert0Weights[6].index] * this.shape[info.vert0Weights[7].index];
+			float vert1weight01 = this.shape[info.vert1Weights[0].index] * this.shape[info.vert1Weights[1].index];
+			float vert1weight23 = this.shape[info.vert1Weights[2].index] * this.shape[info.vert1Weights[3].index];
+			float vert1weight45 = this.shape[info.vert1Weights[4].index] * this.shape[info.vert1Weights[5].index];
+			float vert1weight67 = this.shape[info.vert1Weights[6].index] * this.shape[info.vert1Weights[7].index];
+			float vert2weight01 = this.shape[info.vert2Weights[0].index] * this.shape[info.vert2Weights[1].index];
+			float vert2weight23 = this.shape[info.vert2Weights[2].index] * this.shape[info.vert2Weights[3].index];
+			float vert2weight45 = this.shape[info.vert2Weights[4].index] * this.shape[info.vert2Weights[5].index];
+			float vert2weight67 = this.shape[info.vert2Weights[6].index] * this.shape[info.vert2Weights[7].index];
+			float vert3weight01 = this.shape[info.vert3Weights[0].index] * this.shape[info.vert3Weights[1].index];
+			float vert3weight23 = this.shape[info.vert3Weights[2].index] * this.shape[info.vert3Weights[3].index];
+			float vert3weight45 = this.shape[info.vert3Weights[4].index] * this.shape[info.vert3Weights[5].index];
+			float vert3weight67 = this.shape[info.vert3Weights[6].index] * this.shape[info.vert3Weights[7].index];
+			instance.setColor(
+					remap.vert0,
+					ARGB.gray(Math.clamp(tempShade1 * vert0weight01 + tempShade2 * vert0weight23 + tempShade3 * vert0weight45 + tempShade4 * vert0weight67, 0.0F, 1.0F))
+			);
+			instance.setColor(
+					remap.vert1,
+					ARGB.gray(Math.clamp(tempShade1 * vert1weight01 + tempShade2 * vert1weight23 + tempShade3 * vert1weight45 + tempShade4 * vert1weight67, 0.0F, 1.0F))
+			);
+			instance.setColor(
+					remap.vert2,
+					ARGB.gray(Math.clamp(tempShade1 * vert2weight01 + tempShade2 * vert2weight23 + tempShade3 * vert2weight45 + tempShade4 * vert2weight67, 0.0F, 1.0F))
+			);
+			instance.setColor(
+					remap.vert3,
+					ARGB.gray(Math.clamp(tempShade1 * vert3weight01 + tempShade2 * vert3weight23 + tempShade3 * vert3weight45 + tempShade4 * vert3weight67, 0.0F, 1.0F))
+			);
 
-	    float x = world.getShade(face, hasShade);
+			int _tc1 = LightCoordsUtil.smoothBlend(light3, light0, lightCorner03, lightCenter);
+			int _tc2 = LightCoordsUtil.smoothBlend(light2, light0, lightCorner02, lightCenter);
+			int _tc3 = LightCoordsUtil.smoothBlend(light2, light1, lightCorner12, lightCenter);
+			int _tc4 = LightCoordsUtil.smoothBlend(light3, light1, lightCorner13, lightCenter);
+			instance.setLightCoords(
+					remap.vert0, LightCoordsUtil.smoothWeightedBlend(_tc1, _tc2, _tc3, _tc4, vert0weight01, vert0weight23, vert0weight45, vert0weight67)
+			);
+			instance.setLightCoords(
+					remap.vert1, LightCoordsUtil.smoothWeightedBlend(_tc1, _tc2, _tc3, _tc4, vert1weight01, vert1weight23, vert1weight45, vert1weight67)
+			);
+			instance.setLightCoords(
+					remap.vert2, LightCoordsUtil.smoothWeightedBlend(_tc1, _tc2, _tc3, _tc4, vert2weight01, vert2weight23, vert2weight45, vert2weight67)
+			);
+			instance.setLightCoords(
+					remap.vert3, LightCoordsUtil.smoothWeightedBlend(_tc1, _tc2, _tc3, _tc4, vert3weight01, vert3weight23, vert3weight45, vert3weight67)
+			);
+		}
+		else
+		{
+			float lightLevel1 = (shade3 + shade0 + shadeCorner03 + shadeCenter) * 0.25F;
+			float lightLevel2 = (shade2 + shade0 + shadeCorner02 + shadeCenter) * 0.25F;
+			float lightLevel3 = (shade2 + shade1 + shadeCorner12 + shadeCenter) * 0.25F;
+			float lightLevel4 = (shade3 + shade1 + shadeCorner13 + shadeCenter) * 0.25F;
+			instance.setLightCoords(remap.vert0, LightCoordsUtil.smoothBlend(light3, light0, lightCorner03, lightCenter));
+			instance.setLightCoords(remap.vert1, LightCoordsUtil.smoothBlend(light2, light0, lightCorner02, lightCenter));
+			instance.setLightCoords(remap.vert2, LightCoordsUtil.smoothBlend(light2, light1, lightCorner12, lightCenter));
+			instance.setLightCoords(remap.vert3, LightCoordsUtil.smoothBlend(light3, light1, lightCorner13, lightCenter));
+			instance.setColor(remap.vert0, ARGB.gray(lightLevel1));
+			instance.setColor(remap.vert1, ARGB.gray(lightLevel2));
+			instance.setColor(remap.vert2, ARGB.gray(lightLevel3));
+			instance.setColor(remap.vert3, ARGB.gray(lightLevel4));
+		}
 
-        for (int av = 0; av < this.fs.length; av++)
-        {
-            this.fs[av] *= x;
-        }
-    }
+		CardinalLighting lighting = world.cardinalLighting();
+		instance.scaleColor(quad.materialInfo().shade() ? lighting.byFace(face) : lighting.up());
+	}
 
-    private int getAoBrightness(int i, int j, int k, int l)
-    {
-        if (i == 0)
-        {
-            i = l;
-        }
+	@Override
+	public void prepareFlat(BlockAndTintGetter world, BlockState state, BlockPos pos, int light, BakedQuad quad, QuadInstance instance)
+	{
+		if (light == -1)
+		{
+			this.prepareShape(world, state, pos, quad, false);
+			BlockPos lightPos = this.cubic ? this.scratchPos.setWithOffset(pos, quad.direction()) : pos;
+			instance.setLightCoords(this.getLight(world, state, lightPos));
+		}
+		else
+		{
+			instance.setLightCoords(light);
+		}
 
-        if (j == 0)
-        {
-            j = l;
-        }
+		CardinalLighting lighting = world.cardinalLighting();
+		float directionalBrightness = quad.materialInfo().shade() ? lighting.byFace(quad.direction()) : lighting.up();
+		instance.setColor(ARGB.gray(directionalBrightness));
+	}
 
-        if (k == 0)
-        {
-            k = l;
-        }
+	@Override
+	public void prepareShape(BlockAndTintGetter world, BlockState state, BlockPos pos, BakedQuad quad, boolean useAO)
+	{
+		float minX = 32.0F;
+		float minY = 32.0F;
+		float minZ = 32.0F;
+		float maxX = -32.0F;
+		float maxY = -32.0F;
+		float maxZ = -32.0F;
 
-        return i + j + k + l >> 2 & 16711935;
-    }
+		for (int i = 0; i < 4; i++)
+		{
+			Vector3fc position = quad.position(i);
+			float x = position.x();
+			float y = position.y();
+			float z = position.z();
+			minX = Math.min(minX, x);
+			minY = Math.min(minY, y);
+			minZ = Math.min(minZ, z);
+			maxX = Math.max(maxX, x);
+			maxY = Math.max(maxY, y);
+			maxZ = Math.max(maxZ, z);
+		}
 
-    private int getVertexBrightness(int i, int j, int k, int l, float f, float g, float h, float m)
-    {
-        int n = (int) ((float) (i >> 16 & 255) * f + (float) (j >> 16 & 255) * g + (float) (k >> 16 & 255) * h + (float) (l >> 16 & 255) * m) & 255;
-        int o = (int) ((float) (i & 255) * f + (float) (j & 255) * g + (float) (k & 255) * h + (float) (l & 255) * m) & 255;
-        return n << 16 | o;
-    }
+		if (useAO)
+		{
+			this.shape[AOSizeModern.WEST.index] = minX;
+			this.shape[AOSizeModern.EAST.index] = maxX;
+			this.shape[AOSizeModern.DOWN.index] = minY;
+			this.shape[AOSizeModern.UP.index] = maxY;
+			this.shape[AOSizeModern.NORTH.index] = minZ;
+			this.shape[AOSizeModern.SOUTH.index] = maxZ;
+			this.shape[AOSizeModern.FLIP_WEST.index] = 1.0F - minX;
+			this.shape[AOSizeModern.FLIP_EAST.index] = 1.0F - maxX;
+			this.shape[AOSizeModern.FLIP_DOWN.index] = 1.0F - minY;
+			this.shape[AOSizeModern.FLIP_UP.index] = 1.0F - maxY;
+			this.shape[AOSizeModern.FLIP_NORTH.index] = 1.0F - minZ;
+			this.shape[AOSizeModern.FLIP_SOUTH.index] = 1.0F - maxZ;
+		}
+
+		float minEpsilon = 1.0E-4F;
+		float maxEpsilon = 0.9999F;
+
+		this.hasNeighbors = switch (quad.direction())
+		{
+			case DOWN, UP -> minX >= minEpsilon || minZ >= minEpsilon || maxX <= maxEpsilon || maxZ <= maxEpsilon;
+			case NORTH, SOUTH -> minX >= minEpsilon || minY >= minEpsilon || maxX <= maxEpsilon || maxY <= maxEpsilon;
+			case WEST, EAST -> minY >= minEpsilon || minZ >= minEpsilon || maxY <= maxEpsilon || maxZ <= maxEpsilon;
+		};
+
+		this.cubic = switch (quad.direction())
+		{
+			case DOWN -> minY == maxY && (minY < minEpsilon || state.isCollisionShapeFullBlock(world, pos));
+			case UP -> minY == maxY && (maxY > maxEpsilon || state.isCollisionShapeFullBlock(world, pos));
+			case NORTH -> minZ == maxZ && (minZ < minEpsilon || state.isCollisionShapeFullBlock(world, pos));
+			case SOUTH -> minZ == maxZ && (maxZ > maxEpsilon || state.isCollisionShapeFullBlock(world, pos));
+			case WEST -> minX == maxX && (minX < minEpsilon || state.isCollisionShapeFullBlock(world, pos));
+			case EAST -> minX == maxX && (maxX > maxEpsilon || state.isCollisionShapeFullBlock(world, pos));
+		};
+	}
 }

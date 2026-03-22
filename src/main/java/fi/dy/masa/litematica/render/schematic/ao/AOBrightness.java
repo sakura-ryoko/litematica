@@ -3,17 +3,18 @@ package fi.dy.masa.litematica.render.schematic.ao;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
 
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Util;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 
+// Cache
 public class AOBrightness
 {
 	private boolean enabled;
-	private final Long2IntLinkedOpenHashMap intCache = Util.make(() ->
+	private final Long2IntLinkedOpenHashMap colors = Util.make(() ->
 	                                                             {
 		                                                             Long2IntLinkedOpenHashMap long2IntLinkedOpenHashMap = new Long2IntLinkedOpenHashMap(100, 0.25F)
 		                                                             {
@@ -24,7 +25,7 @@ public class AOBrightness
 		                                                             long2IntLinkedOpenHashMap.defaultReturnValue(Integer.MAX_VALUE);
 		                                                             return long2IntLinkedOpenHashMap;
 	                                                             });
-	private final Long2FloatLinkedOpenHashMap floatCache = Util.make(() ->
+	private final Long2FloatLinkedOpenHashMap brightness = Util.make(() ->
 	                                                                 {
 		                                                                 Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = new Long2FloatLinkedOpenHashMap(100, 0.25F)
 		                                                                 {
@@ -37,25 +38,25 @@ public class AOBrightness
 	                                                                 });
 	private final IWorldSchematicRenderer.LightGetter lightGetter = (world, pos) ->
 	{
-		long l = pos.asLong();
-		int i = this.intCache.get(l);
+		long key = pos.asLong();
+		int color = this.colors.get(key);
 
-		if (i != Integer.MAX_VALUE)
+		if (color != Integer.MAX_VALUE)
 		{
-			return i;
+			return color;
 		}
 		else
 		{
-			int j = IWorldSchematicRenderer.LightGetter.DEFAULT.packedLight(world, pos);
+			int val = IWorldSchematicRenderer.LightGetter.DEFAULT.packedLight(world, pos);
 
-			if (this.intCache.size() == 100)
+			if (this.colors.size() == 100)
 			{
-				this.intCache.removeFirstInt();
+				this.colors.removeFirstInt();
 			}
 
-			this.intCache.put(l, j);
+			this.colors.put(key, val);
 
-			return j;
+			return val;
 		}
 	};
 
@@ -74,70 +75,43 @@ public class AOBrightness
 	public void disable()
 	{
 		this.enabled = false;
-		this.intCache.clear();
-		this.floatCache.clear();
+		this.colors.clear();
+		this.brightness.clear();
 	}
 
-	public int getInt(BlockState state, BlockAndTintGetter world, BlockPos pos)
+	public int getLight(BlockState state, BlockAndTintGetter world, BlockPos pos)
 	{
-//		long l = pos.asLong();
-//		int i;
-//
-//		if (this.enabled)
-//		{
-//			i = this.intCache.get(l);
-//
-//			if (i != Integer.MAX_VALUE)
-//			{
-//				return i;
-//			}
-//		}
-//
-//		i = WorldRendererSchematic.getLightmap(world, pos);
-//
-//		if (this.enabled)
-//		{
-//			if (this.intCache.size() == 100)
-//			{
-//				this.intCache.removeFirstInt();
-//			}
-//
-//			this.intCache.put(l, i);
-//		}
-//
-//		return i;
-
 		return IWorldSchematicRenderer.getLightmap(this.enabled
 		                                          ? this.lightGetter
 		                                          : IWorldSchematicRenderer.LightGetter.DEFAULT, world, state, pos);
 	}
 
-	public float getFloat(BlockState state, BlockAndTintGetter blockView, BlockPos pos)
+	public float getShade(BlockState state, BlockAndTintGetter blockView, BlockPos pos)
 	{
-		long l = pos.asLong();
+		long key = pos.asLong();
 
 		if (this.enabled)
 		{
-			float f = this.floatCache.get(l);
+			float bright = this.brightness.get(key);
 
-			if (!Float.isNaN(f))
+			if (!Float.isNaN(bright))
 			{
-				return f;
+				return bright;
 			}
 		}
 
-		float f = state.getShadeBrightness(blockView, pos);
+		float val = state.getShadeBrightness(blockView, pos);
 
 		if (this.enabled)
 		{
-			if (this.floatCache.size() == 100)
+			if (this.brightness.size() == 100)
 			{
-				this.floatCache.removeFirstFloat();
+				this.brightness.removeFirstFloat();
 			}
 
-			this.floatCache.put(l, f);
+			this.brightness.put(key, val);
 		}
 
-		return f;
+		return val;
 	}
 }

@@ -2,7 +2,7 @@ package fi.dy.masa.litematica.render.schematic.ao;
 
 import net.minecraft.core.Direction;
 
-public enum AOOrientation
+public enum AOSizeLegacy
 {
 	DOWN(Direction.DOWN, false),
 	UP(Direction.UP, false),
@@ -19,7 +19,7 @@ public enum AOOrientation
 
 	final int shape;
 
-	AOOrientation(final Direction face, final boolean flip)
+	AOSizeLegacy(final Direction face, final boolean flip)
 	{
 		this.shape = face.get3DDataValue() + (flip ? Direction.values().length : 0);
 	}

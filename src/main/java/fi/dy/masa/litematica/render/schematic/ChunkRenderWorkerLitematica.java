@@ -24,7 +24,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private static final Logger LOGGER = Litematica.LOGGER;
 
     private final ChunkRenderDispatcherLitematica chunkRenderDispatcher;
-    final private BufferAllocatorCache allocatorCache;
+    final private ByteBufferBuilderCache allocatorCache;
     private boolean shouldRun;
     private ProfilerFiller profiler;
 
@@ -33,7 +33,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
         this(chunkRenderDispatcherIn, null, profiler);
     }
 
-    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, @Nullable BufferAllocatorCache allocatorCache, ProfilerFiller profiler)
+    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, @Nullable ByteBufferBuilderCache allocatorCache, ProfilerFiller profiler)
     {
         this.shouldRun = true;
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
@@ -67,7 +67,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
             catch (Throwable throwable)
             {
                 CrashReport crashreport = CrashReport.forThrowable(throwable, "Batching chunks");
-                Minecraft.getInstance().delayCrashRaw(Minecraft.getInstance().fillReport(crashreport));
+                Minecraft.getInstance().delayCrash(Minecraft.getInstance().fillReport(crashreport));
                 return;
             }
         }
@@ -156,10 +156,10 @@ public class ChunkRenderWorkerLitematica implements Runnable
             }
 
             profiler.popPush("run_task_schedule_"+ taskType.name());
-            final ChunkRenderDataSchematic chunkRenderData = task.getChunkRenderData();
+            final ChunkMeshDataSchematic chunkRenderData = task.getChunkRenderData();
             ArrayList<ListenableFuture<Object>> futuresList = Lists.newArrayList();
             ChunkRendererSchematicVbo renderChunk = task.getRenderChunk();
-            BufferAllocatorCache allocators = task.getAllocatorCache();
+            ByteBufferBuilderCache allocators = task.getAllocatorCache();
 
             if (taskType == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK)
             {
@@ -261,7 +261,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
                     if ((throwable instanceof CancellationException) == false && (throwable instanceof InterruptedException) == false)
                     {
-                        Minecraft.getInstance().delayCrashRaw(CrashReport.forThrowable(throwable, "Rendering Litematica chunk"));
+                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Rendering Litematica chunk"));
                     }
                 }
             }, MoreExecutors.directExecutor());
@@ -271,7 +271,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     }
 
     @Nullable
-    private BufferAllocatorCache getRegionRenderAllocatorCache() throws InterruptedException
+    private ByteBufferBuilderCache getRegionRenderAllocatorCache() throws InterruptedException
     {
         return this.allocatorCache != null ? this.allocatorCache : this.chunkRenderDispatcher.allocateRenderAllocators();
     }
@@ -279,31 +279,31 @@ public class ChunkRenderWorkerLitematica implements Runnable
     // todo -- check
     private void clearRenderAllocators(ChunkRenderTaskSchematic generator)
     {
-        BufferAllocatorCache bufferAllocatorCache = generator.getAllocatorCache();
+        ByteBufferBuilderCache byteBufferBuilderCache = generator.getAllocatorCache();
 
-        if (bufferAllocatorCache != null && !bufferAllocatorCache.isClear())
+        if (byteBufferBuilderCache != null && !byteBufferBuilderCache.isClear())
         {
-            bufferAllocatorCache.clearAll();
+            byteBufferBuilderCache.clearAll();
         }
 
         if (this.allocatorCache == null)
         {
-            this.chunkRenderDispatcher.freeRenderAllocators(bufferAllocatorCache);
+            this.chunkRenderDispatcher.freeRenderAllocators(byteBufferBuilderCache);
         }
     }
 
     private void resetRenderAllocators(ChunkRenderTaskSchematic generator)
     {
-        BufferAllocatorCache bufferAllocatorCache = generator.getAllocatorCache();
+        ByteBufferBuilderCache byteBufferBuilderCache = generator.getAllocatorCache();
 
-        if (bufferAllocatorCache != null && !bufferAllocatorCache.isClear())
+        if (byteBufferBuilderCache != null && !byteBufferBuilderCache.isClear())
         {
-            bufferAllocatorCache.resetAll();
+            byteBufferBuilderCache.resetAll();
         }
 
         if (this.allocatorCache == null)
         {
-            this.chunkRenderDispatcher.freeRenderAllocators(bufferAllocatorCache);
+            this.chunkRenderDispatcher.freeRenderAllocators(byteBufferBuilderCache);
         }
     }
 

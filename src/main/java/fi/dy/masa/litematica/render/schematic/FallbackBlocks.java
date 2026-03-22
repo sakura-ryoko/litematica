@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.render.schematic.blocks;
+package fi.dy.masa.litematica.render.schematic;
 
 import java.util.HashMap;
 import net.minecraft.resources.Identifier;

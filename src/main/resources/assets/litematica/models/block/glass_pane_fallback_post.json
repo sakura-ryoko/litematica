@@ -1,7 +1,13 @@
 {
   "parent": "litematica:block/template_glass_pane_fallback_post",
   "textures": {
-    "edge": "litematica:block/glass_pane_fallback_top",
-    "pane": "litematica:block/glass_fallback"
+    "edge": {
+      "force_translucent": true,
+      "sprite": "litematica:block/glass_pane_fallback_top"
+    },
+    "pane": {
+      "force_translucent": true,
+      "sprite": "litematica:block/glass_fallback"
+    }
   }
 }
