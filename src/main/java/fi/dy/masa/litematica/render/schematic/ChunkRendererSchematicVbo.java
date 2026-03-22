@@ -96,7 +96,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     /*  THREADED CODE
     protected AtomicReference<ChunkRenderTaskSchematic> compileTask = new AtomicReference<>(null);
-    protected AtomicReference<ChunkRenderDataSchematic> chunkRenderData = new AtomicReference<>(ChunkRenderDataSchematic.EMPTY);
+    protected AtomicReference<ChunkMeshDataSchematic> chunkRenderData = new AtomicReference<>(ChunkMeshDataSchematic.EMPTY);
      */
     protected ChunkRenderTaskSchematic compileTask;
     protected ChunkMeshDataSchematic chunkRenderData;
@@ -344,7 +344,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.profiler = profiler;
         this.getProfiler().push("rebuild_chunk");
         ChunkMeshDataSchematic data = new ChunkMeshDataSchematic();
-        //task.setChunkRenderData(data);
         task.getLock().lock();
 
         try

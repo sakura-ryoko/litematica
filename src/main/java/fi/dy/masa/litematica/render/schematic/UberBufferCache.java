@@ -7,17 +7,21 @@ import javax.annotation.Nullable;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
+import fi.dy.masa.litematica.Litematica;
+
 public class UberBufferCache implements AutoCloseable
 {
     private final ConcurrentHashMap<ChunkSectionLayer, ChunkRenderUberBuffers> blockBuffers;
     private final ConcurrentHashMap<RenderType, ChunkRenderUberBuffers> layerBuffers;
     private final ConcurrentHashMap<OverlayRenderType, ChunkRenderUberBuffers> overlayBuffers;
+    private boolean clear;
 
     protected UberBufferCache()
     {
 	    this.blockBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
 	    this.layerBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
 	    this.overlayBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
+        this.clear = true;
     }
 
     protected boolean hasBuffersByBlockLayer(ChunkSectionLayer layer)
@@ -56,6 +60,8 @@ public class UberBufferCache implements AutoCloseable
         {
             this.blockBuffers.put(layer, newBuffer);
         }
+
+        this.clear = false;
     }
 
     protected void storeBuffersByLayer(RenderType layer, @Nonnull ChunkRenderUberBuffers newBuffer)
@@ -79,6 +85,8 @@ public class UberBufferCache implements AutoCloseable
         {
             this.layerBuffers.put(layer, newBuffer);
         }
+
+        this.clear = false;
     }
 
     protected void storeBuffersByType(OverlayRenderType type, @Nonnull ChunkRenderUberBuffers newBuffer)
@@ -102,29 +110,49 @@ public class UberBufferCache implements AutoCloseable
         {
             this.overlayBuffers.put(type, newBuffer);
         }
+
+
+        this.clear = false;
     }
 
     @Nullable
     protected ChunkRenderUberBuffers getBuffersByBlockLayer(ChunkSectionLayer layer)
     {
-        return this.blockBuffers.get(layer);
+        this.clear = false;
+
+        synchronized (this.blockBuffers)
+        {
+            return this.blockBuffers.get(layer);
+        }
     }
 
     @Nullable
     protected ChunkRenderUberBuffers getBuffersByLayer(RenderType layer)
     {
-        return this.layerBuffers.get(layer);
+        this.clear = false;
+
+        synchronized (this.layerBuffers)
+        {
+            return this.layerBuffers.get(layer);
+        }
     }
 
     @Nullable
     protected ChunkRenderUberBuffers getBuffersByType(OverlayRenderType type)
     {
-        return this.overlayBuffers.get(type);
+        this.clear = false;
+
+        synchronized (this.overlayBuffers)
+        {
+            return this.overlayBuffers.get(type);
+        }
     }
+
+    protected boolean isClear() { return this.clear; }
 
     protected void clearAll()
     {
-//        Litematica.LOGGER.warn("GpuBufferCache clearAll()");
+        Litematica.LOGGER.warn("UberBufferCache clearAll()");
 
         synchronized (this.blockBuffers)
         {
@@ -185,6 +213,8 @@ public class UberBufferCache implements AutoCloseable
 
             this.overlayBuffers.clear();
         }
+
+        this.clear = true;
     }
 
     @Override

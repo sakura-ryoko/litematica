@@ -8,6 +8,8 @@ import com.google.common.primitives.Doubles;
 
 import net.minecraft.world.phys.Vec3;
 
+import fi.dy.masa.litematica.Litematica;
+
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
     private final ChunkRendererSchematicVbo chunkRenderer;
@@ -16,7 +18,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ReentrantLock lock;
     private final Supplier<Vec3> cameraPosSupplier;
     private final double distanceSq;
-//    private ByteBufferBuilderCache allocatorCache;
+    private UberBufferCache uberCache;
     private ChunkMeshDataSchematic chunkRenderData;
     private ChunkRenderTaskSchematic.Status status;
     private boolean finished;
@@ -62,26 +64,26 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.chunkRenderData = chunkRenderData;
     }
 
-//    public ByteBufferBuilderCache getAllocatorCache()
-//    {
-//        return this.allocatorCache;
-//    }
+    public UberBufferCache getUberCache()
+    {
+        return this.uberCache;
+    }
 
-//    public boolean setRegionRenderCacheBuilder(ByteBufferBuilderCache allocatorCache)
-//    {
-//        if (allocatorCache == null)
-//        {
-//            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] allocatorCache is null");
-//            return false;
-//        }
-//        if (this.allocatorCache != null && !this.allocatorCache.isClear())
-//        {
-//            this.allocatorCache.closeAll();
-//        }
-//
-//        this.allocatorCache = allocatorCache;
-//        return true;
-//    }
+    public boolean setRegionRenderCacheBuilder(UberBufferCache uberCache)
+    {
+        if (uberCache == null)
+        {
+            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] uberCache is null");
+            return false;
+        }
+        if (this.uberCache != null && !this.uberCache.isClear())
+        {
+            this.uberCache.clearAll();
+        }
+
+        this.uberCache = uberCache;
+        return true;
+    }
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {

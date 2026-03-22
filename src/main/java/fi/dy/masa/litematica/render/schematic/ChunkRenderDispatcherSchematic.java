@@ -13,7 +13,6 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class ChunkRenderDispatcherSchematic
 {
-//    protected final Long2ObjectOpenHashMap<ChunkRendererSchematicVbo> chunkRenderers;
     protected final ConcurrentHashMap<Long, ChunkRendererSchematicVbo> chunkRenderers;
     protected final IWorldSchematicRenderer renderer;
     protected final IChunkRendererFactory chunkRendererFactory;
@@ -26,7 +25,6 @@ public class ChunkRenderDispatcherSchematic
                                              IChunkRendererFactory factory)
     {
         this.chunkRendererFactory = factory;
-//		this.chunkRenderers = new Long2ObjectOpenHashMap<>(4096);
         this.chunkRenderers = new ConcurrentHashMap<>(4096, 0.9f, 2);
         this.renderer = worldRenderer;
         this.world = world;

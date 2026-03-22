@@ -24,16 +24,18 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private static final Logger LOGGER = Litematica.LOGGER;
 
     private final ChunkRenderDispatcherLitematica chunkRenderDispatcher;
+    private UberBufferCache uberCache;
     private boolean shouldRun;
     private ProfilerFiller profiler;
 
-    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, ProfilerFiller profiler)
+    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, ProfilerFiller profiler, UberBufferCache uberCacheIn)
     {
         this.shouldRun = true;
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
         this.profiler = profiler;
+        this.uberCache = uberCacheIn;
 
-        //LOGGER.error("[LW] init() [Cache: {}]", allocatorCache != null);
+        //LOGGER.error("[LW] init() [Cache: {}]", uberCacheIn != null);
     }
 
     @Override
@@ -100,11 +102,11 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
         else
         {
-//            if (!task.setRegionRenderCacheBuilder(this.getRegionRenderAllocatorCache()))
-//            {
-//                profiler.pop();
-//                throw new InterruptedException("No free Allocator Cache found");
-//            }
+            if (!task.setRegionRenderCacheBuilder(this.getRegionRenderCache()))
+            {
+                profiler.pop();
+                throw new InterruptedException("No free Allocator Cache found");
+            }
 
             ChunkRenderTaskSchematic.Type taskType = task.getType();
 
@@ -136,7 +138,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         LOGGER.warn("Chunk render task was {} when I expected it to be compiling; aborting task", (Object) task.getStatus());
                     }
 
-//                    this.resetRenderAllocators(task);
+                    this.resetUberBuffers(task);
                     profiler.pop();
                     return;
                 }
@@ -218,7 +220,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
             {
                 public void onSuccess(@Nullable List<Object> list)
                 {
-//                    ChunkRenderWorkerLitematica.this.clearRenderAllocators(task);
+                    ChunkRenderWorkerLitematica.this.clearUberBuffers(task);
                     task.getLock().lock();
 
                     label49:
@@ -250,7 +252,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 @Override
                 public void onFailure(@NotNull Throwable throwable)
                 {
-//                    ChunkRenderWorkerLitematica.this.resetRenderAllocators(task);
+                    ChunkRenderWorkerLitematica.this.resetUberBuffers(task);
 
                     if ((throwable instanceof CancellationException) == false && (throwable instanceof InterruptedException) == false)
                     {
@@ -263,42 +265,42 @@ public class ChunkRenderWorkerLitematica implements Runnable
         profiler.pop();
     }
 
-//    @Nullable
-//    private ByteBufferBuilderCache getRegionRenderAllocatorCache() throws InterruptedException
-//    {
-//        return this.allocatorCache != null ? this.allocatorCache : this.chunkRenderDispatcher.allocateRenderAllocators();
-//    }
+    @Nullable
+    private UberBufferCache getRegionRenderCache() throws InterruptedException
+    {
+        return this.uberCache != null ? this.uberCache : this.chunkRenderDispatcher.allocateUberBuffers();
+    }
 
     // todo -- check
-//    private void clearRenderAllocators(ChunkRenderTaskSchematic generator)
-//    {
-//        ByteBufferBuilderCache byteBufferBuilderCache = generator.getAllocatorCache();
-//
-//        if (byteBufferBuilderCache != null && !byteBufferBuilderCache.isClear())
-//        {
-//            byteBufferBuilderCache.clearAll();
-//        }
-//
-//        if (this.allocatorCache == null)
-//        {
-//            this.chunkRenderDispatcher.freeRenderAllocators(byteBufferBuilderCache);
-//        }
-//    }
-//
-//    private void resetRenderAllocators(ChunkRenderTaskSchematic generator)
-//    {
-//        ByteBufferBuilderCache byteBufferBuilderCache = generator.getAllocatorCache();
-//
-//        if (byteBufferBuilderCache != null && !byteBufferBuilderCache.isClear())
-//        {
-//            byteBufferBuilderCache.resetAll();
-//        }
-//
-//        if (this.allocatorCache == null)
-//        {
-//            this.chunkRenderDispatcher.freeRenderAllocators(byteBufferBuilderCache);
-//        }
-//    }
+    private void clearUberBuffers(ChunkRenderTaskSchematic generator)
+    {
+        UberBufferCache uberCache = generator.getUberCache();
+
+        if (uberCache != null && !uberCache.isClear())
+        {
+            uberCache.clearAll();
+        }
+
+        if (this.uberCache == null)
+        {
+            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
+        }
+    }
+
+    private void resetUberBuffers(ChunkRenderTaskSchematic generator)
+    {
+        UberBufferCache uberCache = generator.getUberCache();
+
+        if (uberCache != null && !uberCache.isClear())
+        {
+            uberCache.clearAll();
+        }
+
+        if (this.uberCache == null)
+        {
+            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
+        }
+    }
 
     public void notifyToStop()
     {
