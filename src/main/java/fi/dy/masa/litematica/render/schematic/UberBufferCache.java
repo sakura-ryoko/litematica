@@ -48,7 +48,11 @@ public class UberBufferCache implements AutoCloseable
             try
             {
                 remove.vertexBuffer().close();
-                remove.indexBuffer().close();
+
+                if (remove.indexBuffer() != null)
+                {
+                    remove.indexBuffer().close();
+                }
             }
             catch (Exception err)
             {
@@ -73,7 +77,11 @@ public class UberBufferCache implements AutoCloseable
             try
             {
                 remove.vertexBuffer().close();
-                remove.indexBuffer().close();
+
+                if (remove.indexBuffer() != null)
+                {
+                    remove.indexBuffer().close();
+                }
             }
             catch (Exception err)
             {
@@ -98,7 +106,11 @@ public class UberBufferCache implements AutoCloseable
             try
             {
                 remove.vertexBuffer().close();
-                remove.indexBuffer().close();
+
+                if (remove.indexBuffer() != null)
+                {
+                    remove.indexBuffer().close();
+                }
             }
             catch (Exception err)
             {
@@ -162,7 +174,11 @@ public class UberBufferCache implements AutoCloseable
                         try
                         {
                             buffers.vertexBuffer().close();
-                            buffers.indexBuffer().close();
+
+                            if (buffers.indexBuffer() != null)
+                            {
+                                buffers.indexBuffer().close();
+                            }
                         }
                         catch (Exception err)
                         {
@@ -182,7 +198,11 @@ public class UberBufferCache implements AutoCloseable
                         try
                         {
                             buffers.vertexBuffer().close();
-                            buffers.indexBuffer().close();
+
+                            if (buffers.indexBuffer() != null)
+                            {
+                                buffers.indexBuffer().close();
+                            }
                         }
                         catch (Exception err)
                         {
@@ -202,7 +222,11 @@ public class UberBufferCache implements AutoCloseable
                         try
                         {
                             buffers.vertexBuffer().close();
-                            buffers.indexBuffer().close();
+
+                            if (buffers.indexBuffer() != null)
+                            {
+                                buffers.indexBuffer().close();
+                            }
                         }
                         catch (Exception err)
                         {
