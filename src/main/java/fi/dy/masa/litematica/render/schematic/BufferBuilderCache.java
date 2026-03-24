@@ -1,65 +1,51 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import javax.annotation.Nonnull;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+
 import fi.dy.masa.malilib.mixin.render.IMixinBufferBuilder;
 
 public class BufferBuilderCache implements AutoCloseable
 {
     private final ConcurrentHashMap<ChunkSectionLayer, BufferBuilder> blockBufferBuilders;
-    private final ConcurrentHashMap<RenderType, BufferBuilder> layerBufferBuilders;
     private final ConcurrentHashMap<OverlayRenderType, BufferBuilder> overlayBufferBuilders;
-    private final ByteBufferBuilderCache allocators;
 
-    protected BufferBuilderCache(ByteBufferBuilderCache allocators)
+    protected BufferBuilderCache()
     {
 		this.blockBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
-		this.layerBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
 		this.overlayBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
-        this.allocators = allocators;
     }
 
-    protected boolean hasBufferByBlockLayer(ChunkSectionLayer layer)
+    protected boolean hasBuilder(ChunkSectionLayer layer)
     {
         return this.blockBufferBuilders.containsKey(layer);
     }
 
-    protected boolean hasBufferByLayer(RenderType layer)
-    {
-        return this.layerBufferBuilders.containsKey(layer);
-    }
-
-    protected boolean hasBufferByOverlay(OverlayRenderType type)
+    protected boolean hasBuilder(OverlayRenderType type)
     {
         return this.overlayBufferBuilders.containsKey(type);
     }
 
-    protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer)
+    protected BufferBuilder getBuilder(ChunkSectionLayer layer, @Nonnull ByteBufferBuilder alloc)
     {
         synchronized (this.blockBufferBuilders)
         {
-            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(this.allocators.getBufferByBlockLayer(key), key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
+            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(alloc, key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
         }
     }
 
-    protected BufferBuilder getBufferByLayer(RenderType layer)
-    {
-        synchronized (this.layerBufferBuilders)
-        {
-            return this.layerBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(this.allocators.getBufferByLayer(key), key.mode(), key.format()));
-        }
-    }
-
-    protected BufferBuilder getBufferByOverlay(OverlayRenderType type)
+    protected BufferBuilder getBuilder(OverlayRenderType type, @Nonnull ByteBufferBuilder alloc)
     {
         synchronized (this.overlayBufferBuilders)
         {
-            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(this.allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
+            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(alloc, key.getDrawMode(), key.getVertexFormat()));
         }
     }
 
@@ -71,11 +57,6 @@ public class BufferBuilderCache implements AutoCloseable
         {
             buffers = new ArrayList<>(this.blockBufferBuilders.values());
             this.blockBufferBuilders.clear();
-        }
-        synchronized (this.layerBufferBuilders)
-        {
-            buffers.addAll(this.layerBufferBuilders.values());
-            this.layerBufferBuilders.clear();
         }
         synchronized (this.overlayBufferBuilders)
         {
@@ -96,8 +77,6 @@ public class BufferBuilderCache implements AutoCloseable
                 built.close();
             }
         }
-
-        this.allocators.clearAll();
     }
 
     @Override

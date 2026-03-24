@@ -24,7 +24,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private static final Logger LOGGER = Litematica.LOGGER;
 
     private final ChunkRenderDispatcherLitematica chunkRenderDispatcher;
-    private UberBufferCache uberCache;
+//    private UberBufferCache uberCache;
     private boolean shouldRun;
     private ProfilerFiller profiler;
 
@@ -33,7 +33,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
         this.shouldRun = true;
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
         this.profiler = profiler;
-        this.uberCache = uberCacheIn;
+//        this.uberCache = uberCacheIn;
 
         //LOGGER.error("[LW] init() [Cache: {}]", uberCacheIn != null);
     }
@@ -102,11 +102,11 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
         else
         {
-            if (!task.setRegionRenderCacheBuilder(this.getRegionRenderCache()))
-            {
-                profiler.pop();
-                throw new InterruptedException("No free Allocator Cache found");
-            }
+//            if (!task.setRegionRenderCacheBuilder(this.getRegionRenderCache()))
+//            {
+//                profiler.pop();
+//                throw new InterruptedException("No free Allocator Cache found");
+//            }
 
             ChunkRenderTaskSchematic.Type taskType = task.getType();
 
@@ -138,7 +138,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         LOGGER.warn("Chunk render task was {} when I expected it to be compiling; aborting task", (Object) task.getStatus());
                     }
 
-                    this.resetUberBuffers(task);
+//                    this.resetUberBuffers(task);
                     profiler.pop();
                     return;
                 }
@@ -151,7 +151,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
             }
 
             profiler.popPush("run_task_schedule_"+ taskType.name());
-            final ChunkMeshDataSchematic chunkRenderData = task.getChunkRenderData();
+            final ChunkRenderDataSchematic chunkRenderData = task.getChunkRenderData();
             ArrayList<ListenableFuture<Object>> futuresList = Lists.newArrayList();
             ChunkRendererSchematicVbo renderChunk = task.getRenderChunk();
 //            ByteBufferBuilderCache allocators = task.getAllocatorCache();
@@ -167,7 +167,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks()\n");
                         //LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkBlocks({})", layer.label());
-                        futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, chunkRenderData, task.getDistanceSq(), false, profiler));
+                        futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, task.getDistanceSq(), false, profiler));
                     }
                 }
 
@@ -177,7 +177,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay()\n");
                         //LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkOverlay({})", type.name());
-                        futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, renderChunk, chunkRenderData, task.getDistanceSq(), false, profiler));
+                        futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, renderChunk, task.getDistanceSq(), false, profiler));
                     }
                 }
             }
@@ -190,14 +190,14 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 {
                     //System.out.printf("RESORT_TRANSPARENCY pre uploadChunkBlocks(%s)\n", layer.toString());
                     //LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkBlocks({})", layer.label());
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, chunkRenderData, task.getDistanceSq(), true, profiler));
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, task.getDistanceSq(), true, profiler));
                 }
 
                 if (chunkRenderData.isOverlayTypeEmpty(OverlayRenderType.QUAD) == false)
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("RESORT_TRANSPARENCY pre uploadChunkOverlay()\n");
                     //LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkOverlay({})", OverlayRenderType.QUAD.name());
-                    futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, renderChunk, chunkRenderData, task.getDistanceSq(), true, profiler));
+                    futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, renderChunk, task.getDistanceSq(), true, profiler));
                 }
             }
 
@@ -220,8 +220,9 @@ public class ChunkRenderWorkerLitematica implements Runnable
             {
                 public void onSuccess(@Nullable List<Object> list)
                 {
-                    ChunkRenderWorkerLitematica.this.clearUberBuffers(task);
+//                    ChunkRenderWorkerLitematica.this.clearUberBuffers(task);
                     task.getLock().lock();
+                    final ChunkRenderDataSchematic chunkRenderData = task.getChunkRenderData();
 
                     label49:
                     {
@@ -252,7 +253,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 @Override
                 public void onFailure(@NotNull Throwable throwable)
                 {
-                    ChunkRenderWorkerLitematica.this.resetUberBuffers(task);
+//                    ChunkRenderWorkerLitematica.this.resetUberBuffers(task);
 
                     if ((throwable instanceof CancellationException) == false && (throwable instanceof InterruptedException) == false)
                     {
@@ -265,42 +266,42 @@ public class ChunkRenderWorkerLitematica implements Runnable
         profiler.pop();
     }
 
-    @Nullable
-    private UberBufferCache getRegionRenderCache() throws InterruptedException
-    {
-        return this.uberCache != null ? this.uberCache : this.chunkRenderDispatcher.allocateUberBuffers();
-    }
-
-    // todo -- check
-    private void clearUberBuffers(ChunkRenderTaskSchematic generator)
-    {
-        UberBufferCache uberCache = generator.getUberCache();
-
-        if (uberCache != null && !uberCache.isClear())
-        {
-            uberCache.clearAll();
-        }
-
-        if (this.uberCache == null)
-        {
-            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
-        }
-    }
-
-    private void resetUberBuffers(ChunkRenderTaskSchematic generator)
-    {
-        UberBufferCache uberCache = generator.getUberCache();
-
-        if (uberCache != null && !uberCache.isClear())
-        {
-            uberCache.clearAll();
-        }
-
-        if (this.uberCache == null)
-        {
-            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
-        }
-    }
+//    @Nullable
+//    private UberBufferCache getRegionRenderCache() throws InterruptedException
+//    {
+//        return this.uberCache != null ? this.uberCache : this.chunkRenderDispatcher.allocateUberBuffers();
+//    }
+//
+//    // todo -- check
+//    private void clearUberBuffers(ChunkRenderTaskSchematic generator)
+//    {
+//        UberBufferCache uberCache = generator.getUberCache();
+//
+//        if (uberCache != null && !uberCache.isClear())
+//        {
+//            uberCache.clearAll();
+//        }
+//
+//        if (this.uberCache == null)
+//        {
+//            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
+//        }
+//    }
+//
+//    private void resetUberBuffers(ChunkRenderTaskSchematic generator)
+//    {
+//        UberBufferCache uberCache = generator.getUberCache();
+//
+//        if (uberCache != null && !uberCache.isClear())
+//        {
+//            uberCache.clearAll();
+//        }
+//
+//        if (this.uberCache == null)
+//        {
+//            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
+//        }
+//    }
 
     public void notifyToStop()
     {

@@ -1,249 +1,172 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Map;
 import javax.annotation.Nullable;
 
+import com.mojang.blaze3d.GraphicsWorkarounds;
+import com.mojang.blaze3d.systems.GpuDevice;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.UberGpuBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.util.Util;
 
 import fi.dy.masa.litematica.Litematica;
 
 public class UberBufferCache implements AutoCloseable
 {
-    private final ConcurrentHashMap<ChunkSectionLayer, ChunkRenderUberBuffers> blockBuffers;
-    private final ConcurrentHashMap<RenderType, ChunkRenderUberBuffers> layerBuffers;
-    private final ConcurrentHashMap<OverlayRenderType, ChunkRenderUberBuffers> overlayBuffers;
-    private boolean clear;
+	private final Map<ChunkSectionLayer, ChunkRenderUberBuffers> blockBuffers;
+	private final Map<OverlayRenderType, ChunkRenderUberBuffers> overlayBuffers;
+	private boolean clear;
 
-    protected UberBufferCache()
-    {
-	    this.blockBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
-	    this.layerBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.RENDER_LAYERS.size(), 0.9f, 1);
-	    this.overlayBuffers = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
-        this.clear = true;
-    }
+	protected UberBufferCache()
+	{
+		int vboHeapSize = 134217728;
+		int iboHeapSize = 33554432;
+		int vboStageSize = 33554432;
+		int iboStageSize = 2097152;
+		GpuDevice gpuDevice = RenderSystem.getDevice();
+		GraphicsWorkarounds workarounds = GraphicsWorkarounds.get(gpuDevice);
+		this.blockBuffers = Util.makeEnumMap(
+				ChunkSectionLayer.class,
+				layer ->
+				{
+					VertexFormat vertexFormat = layer.pipeline().getVertexFormat();
+					UberGpuBuffer<ChunkMeshDataSchematic> vertexUberBuffer = new UberGpuBuffer<>(
+							layer.label(), 32, vboHeapSize, vertexFormat.getVertexSize(), gpuDevice, vboStageSize, workarounds
+					);
+					UberGpuBuffer<ChunkMeshDataSchematic> indexUberBuffer = layer == ChunkSectionLayer.TRANSLUCENT
+					                                                        ? new UberGpuBuffer<>(layer.label(), 64, iboHeapSize, 8, gpuDevice, iboStageSize, workarounds)
+					                                                        : null;
+					return new ChunkRenderUberBuffers(vertexUberBuffer, indexUberBuffer);
+				}
+		);
+		this.overlayBuffers = Util.makeEnumMap(
+				OverlayRenderType.class,
+				type ->
+				{
+					VertexFormat vertexFormat = type.getPipeline().getVertexFormat();
+					UberGpuBuffer<ChunkMeshDataSchematic> vertexUberBuffer = new UberGpuBuffer<>(
+							type.name(), 32, vboHeapSize, vertexFormat.getVertexSize(), gpuDevice, vboStageSize, workarounds
+					);
+					UberGpuBuffer<ChunkMeshDataSchematic> indexUberBuffer = type.isTranslucent()
+					                                                        ? new UberGpuBuffer<>(type.name(), 64, iboHeapSize, 8, gpuDevice, iboStageSize, workarounds)
+					                                                        : null;
+					return new ChunkRenderUberBuffers(vertexUberBuffer, indexUberBuffer);
+				}
+		);
+		this.clear = true;
+	}
 
-    protected boolean hasBuffersByBlockLayer(ChunkSectionLayer layer)
-    {
-        return this.blockBuffers.containsKey(layer);
-    }
+	protected boolean hasUberBuffers(ChunkSectionLayer layer)
+	{
+		return this.blockBuffers.containsKey(layer);
+	}
 
-    protected boolean hasBuffersByLayer(RenderType layer)
-    {
-        return this.layerBuffers.containsKey(layer);
-    }
+	protected boolean hasUberBuffers(OverlayRenderType type)
+	{
+		return this.overlayBuffers.containsKey(type);
+	}
 
-    protected boolean hasBuffersByType(OverlayRenderType type)
-    {
-        return this.overlayBuffers.containsKey(type);
-    }
+	@Nullable
+	protected ChunkRenderUberBuffers getUberBuffersOrNull(ChunkSectionLayer layer)
+	{
+		this.clear = false;
 
-    protected void storeBuffersByBlockLayer(ChunkSectionLayer layer, @Nonnull ChunkRenderUberBuffers newBuffer)
-    {
-        if (this.hasBuffersByBlockLayer(layer))
-        {
-            ChunkRenderUberBuffers remove = this.blockBuffers.remove(layer);
+		synchronized (this.blockBuffers)
+		{
+			return this.blockBuffers.get(layer);
+		}
+	}
 
-            try
-            {
-                remove.vertexBuffer().close();
+	@Nullable
+	protected ChunkRenderUberBuffers getUberBuffersOrNull(OverlayRenderType type)
+	{
+		this.clear = false;
 
-                if (remove.indexBuffer() != null)
-                {
-                    remove.indexBuffer().close();
-                }
-            }
-            catch (Exception err)
-            {
-                throw new RuntimeException("Exception closing Block Layer "+layer.label()+" Buffers; "+ err.getMessage());
-            }
-        }
+		synchronized (this.overlayBuffers)
+		{
+			return this.overlayBuffers.get(type);
+		}
+	}
 
-        synchronized (this.blockBuffers)
-        {
-            this.blockBuffers.put(layer, newBuffer);
-        }
+	protected Collection<ChunkRenderUberBuffers> getBlockValues()
+	{
+		synchronized (this.blockBuffers)
+		{
+			return this.blockBuffers.values();
+		}
+	}
 
-        this.clear = false;
-    }
+	protected Collection<ChunkRenderUberBuffers> getOverlayValues()
+	{
+		synchronized (this.overlayBuffers)
+		{
+			return this.overlayBuffers.values();
+		}
+	}
 
-    protected void storeBuffersByLayer(RenderType layer, @Nonnull ChunkRenderUberBuffers newBuffer)
-    {
-        if (this.hasBuffersByLayer(layer))
-        {
-            ChunkRenderUberBuffers remove = this.layerBuffers.remove(layer);
+	protected boolean isClear() {return this.clear;}
 
-            try
-            {
-                remove.vertexBuffer().close();
+	protected void clearAll()
+	{
+		Litematica.LOGGER.warn("UberBufferCache clearAll()");
 
-                if (remove.indexBuffer() != null)
-                {
-                    remove.indexBuffer().close();
-                }
-            }
-            catch (Exception err)
-            {
-                throw new RuntimeException("Exception closing Layer "+ ChunkRenderLayers.getFriendlyName(layer)+" Buffers; "+ err.getMessage());
-            }
-        }
+		synchronized (this.blockBuffers)
+		{
+			this.blockBuffers.forEach(
+					(layer, buffers) ->
+					{
+						try
+						{
+							buffers.vertexBuffer().close();
 
-        synchronized (this.layerBuffers)
-        {
-            this.layerBuffers.put(layer, newBuffer);
-        }
+							if (buffers.indexBuffer() != null)
+							{
+								buffers.indexBuffer().close();
+							}
+						}
+						catch (Exception err)
+						{
+							throw new RuntimeException("Exception closing Block Layer " + layer.label() + " Buffers; " + err.getMessage());
+						}
+					}
+			);
 
-        this.clear = false;
-    }
+			this.blockBuffers.clear();
+		}
 
-    protected void storeBuffersByType(OverlayRenderType type, @Nonnull ChunkRenderUberBuffers newBuffer)
-    {
-        if (this.hasBuffersByType(type))
-        {
-            ChunkRenderUberBuffers remove = this.overlayBuffers.remove(type);
+		synchronized (this.overlayBuffers)
+		{
+			this.overlayBuffers.forEach(
+					(type, buffers) ->
+					{
+						try
+						{
+							buffers.vertexBuffer().close();
 
-            try
-            {
-                remove.vertexBuffer().close();
+							if (buffers.indexBuffer() != null)
+							{
+								buffers.indexBuffer().close();
+							}
+						}
+						catch (Exception err)
+						{
+							throw new RuntimeException("Exception closing Overlay Type " + type.name() + " Buffers; " + err.getMessage());
+						}
+					}
+			);
 
-                if (remove.indexBuffer() != null)
-                {
-                    remove.indexBuffer().close();
-                }
-            }
-            catch (Exception err)
-            {
-                throw new RuntimeException("Exception closing Overlay Type "+type.name()+" Buffers; "+ err.getMessage());
-            }
-        }
+			this.overlayBuffers.clear();
+		}
 
-        synchronized (this.overlayBuffers)
-        {
-            this.overlayBuffers.put(type, newBuffer);
-        }
+		this.clear = true;
+	}
 
-
-        this.clear = false;
-    }
-
-    @Nullable
-    protected ChunkRenderUberBuffers getBuffersByBlockLayer(ChunkSectionLayer layer)
-    {
-        this.clear = false;
-
-        synchronized (this.blockBuffers)
-        {
-            return this.blockBuffers.get(layer);
-        }
-    }
-
-    @Nullable
-    protected ChunkRenderUberBuffers getBuffersByLayer(RenderType layer)
-    {
-        this.clear = false;
-
-        synchronized (this.layerBuffers)
-        {
-            return this.layerBuffers.get(layer);
-        }
-    }
-
-    @Nullable
-    protected ChunkRenderUberBuffers getBuffersByType(OverlayRenderType type)
-    {
-        this.clear = false;
-
-        synchronized (this.overlayBuffers)
-        {
-            return this.overlayBuffers.get(type);
-        }
-    }
-
-    protected boolean isClear() { return this.clear; }
-
-    protected void clearAll()
-    {
-        Litematica.LOGGER.warn("UberBufferCache clearAll()");
-
-        synchronized (this.blockBuffers)
-        {
-            this.blockBuffers.forEach(
-                    (layer, buffers) ->
-                    {
-                        try
-                        {
-                            buffers.vertexBuffer().close();
-
-                            if (buffers.indexBuffer() != null)
-                            {
-                                buffers.indexBuffer().close();
-                            }
-                        }
-                        catch (Exception err)
-                        {
-                            throw new RuntimeException("Exception closing Block Layer "+layer.label()+" Buffers; "+ err.getMessage());
-                        }
-                    }
-            );
-
-            this.blockBuffers.clear();
-        }
-
-        synchronized (this.layerBuffers)
-        {
-            this.layerBuffers.forEach(
-                    (layer, buffers) ->
-                    {
-                        try
-                        {
-                            buffers.vertexBuffer().close();
-
-                            if (buffers.indexBuffer() != null)
-                            {
-                                buffers.indexBuffer().close();
-                            }
-                        }
-                        catch (Exception err)
-                        {
-                            throw new RuntimeException("Exception closing Layer "+ChunkRenderLayers.getFriendlyName(layer)+" Buffers; "+ err.getMessage());
-                        }
-                    }
-            );
-
-            this.layerBuffers.clear();
-        }
-
-        synchronized (this.overlayBuffers)
-        {
-            this.overlayBuffers.forEach(
-                    (type, buffers) ->
-                    {
-                        try
-                        {
-                            buffers.vertexBuffer().close();
-
-                            if (buffers.indexBuffer() != null)
-                            {
-                                buffers.indexBuffer().close();
-                            }
-                        }
-                        catch (Exception err)
-                        {
-                            throw new RuntimeException("Exception closing Overlay Type "+type.name()+" Buffers; "+ err.getMessage());
-                        }
-                    }
-            );
-
-            this.overlayBuffers.clear();
-        }
-
-        this.clear = true;
-    }
-
-    @Override
-    public void close() throws Exception
-    {
-        this.clearAll();
-    }
+	@Override
+	public void close() throws Exception
+	{
+		this.clearAll();
+	}
 }

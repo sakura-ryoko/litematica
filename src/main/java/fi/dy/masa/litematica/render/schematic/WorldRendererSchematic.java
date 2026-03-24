@@ -202,11 +202,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            // Threaded Code
-            //ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
-            ChunkMeshDataSchematic data = chunkRenderer.chunkRenderData;
+            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
 
-            if (data != ChunkMeshDataSchematic.EMPTY && !data.isBlockLayerEmpty())
+            if (data != ChunkRenderDataSchematic.EMPTY && !data.isBlockLayerEmpty())
             {
                 ++count;
             }
@@ -707,7 +705,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         for (int i = startIndex; i != stopIndex; i += increment)
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
-            ChunkMeshDataSchematic data = renderer.getChunkRenderData();
+            ChunkRenderDataSchematic data = renderer.getChunkRenderData();
+            ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
             BlockPos chunkOrigin = renderer.getOrigin();
             long now = System.currentTimeMillis();
             int uboIndex = -1;
@@ -718,11 +717,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!data.isBlockLayerEmpty(layer))
                 {
-                    ChunkRenderBuffers buffers = renderer.getBlockBuffersByBlockLayer(layer);
-                    ChunkMeshDataSchematic.DrawState drawState = data.getDrawState(layer);
+                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
+                    ChunkMeshDataSchematic.DrawState drawState = chunkMeshData.getDrawState(layer);
 
                     if (buffers == null || buffers.isClosed() || drawState == null ||
-                        !data.getChunkMeshCache().hasMeshByBlockLayer(layer))
+                        !chunkMeshData.hasMeshData(layer))
                     {
                         // LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
                         continue;
@@ -894,7 +893,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
             {
                 if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(ChunkSectionLayer.TRANSLUCENT) ||
-                    (chunkRenderer.getChunkRenderData() != ChunkMeshDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
+                    (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                 {
                     this.renderDispatcher.updateTransparencyLater(chunkRenderer, profiler);
                 }
@@ -936,16 +935,17 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         {
             ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
 
-            if (renderer.getChunkRenderData() != ChunkMeshDataSchematic.EMPTY && renderer.hasOverlay())
+            if (renderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && renderer.hasOverlay())
             {
-                ChunkMeshDataSchematic compiledChunk = renderer.getChunkRenderData();
+                ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
+                ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-                    ChunkRenderBuffers buffers = renderer.getOverlayBuffersByType(type);
+                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    if (buffers == null || buffers.isClosed() || !renderer.getChunkRenderData().getChunkMeshCache().hasMeshByType(type))
+                    if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
                     {
                         // LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
@@ -1352,9 +1352,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         profiler.popPush("block_entities_iteration");
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkMeshDataSchematic data = chunkRenderer.getChunkRenderData();
-            List<BlockEntity> tiles = data.getBlockEntities();
-            List<BlockEntity> noCullTiles = data.getNoCullBlockEntities();
+            ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
+            ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
+            List<BlockEntity> tiles = chunkMeshData.getBlockEntities();
+            List<BlockEntity> noCullTiles = chunkMeshData.getNoCullBlockEntities();
 
             if (!tiles.isEmpty() && !noCullTiles.isEmpty())
             {

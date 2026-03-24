@@ -1,31 +1,32 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 import net.minecraft.world.phys.Vec3;
 
-import fi.dy.masa.litematica.Litematica;
-
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
-    private final ChunkRendererSchematicVbo chunkRenderer;
+    private final AtomicReference<ChunkRendererSchematicVbo> chunkRenderer;
+    private final AtomicReference<ChunkRenderDataSchematic> chunkRenderData;
     private final ChunkRenderTaskSchematic.Type type;
     private final List<Runnable> listFinishRunnables;
     private final ReentrantLock lock;
     private final Supplier<Vec3> cameraPosSupplier;
     private final double distanceSq;
-    private UberBufferCache uberCache;
-    private ChunkMeshDataSchematic chunkRenderData;
+//    private UberBufferCache uberCache;
     private ChunkRenderTaskSchematic.Status status;
     private boolean finished;
 
-    public ChunkRenderTaskSchematic(ChunkRendererSchematicVbo renderChunkIn, ChunkRenderTaskSchematic.Type typeIn, Supplier<Vec3> cameraPosSupplier, double distanceSqIn)
+    public ChunkRenderTaskSchematic(@Nonnull ChunkRendererSchematicVbo renderChunkIn, ChunkRenderTaskSchematic.Type typeIn, Supplier<Vec3> cameraPosSupplier, double distanceSqIn)
     {
-        this.chunkRenderer = renderChunkIn;
+        this.chunkRenderer = new AtomicReference<>(renderChunkIn);
+        this.chunkRenderData = new AtomicReference<>(renderChunkIn.getChunkRenderData());
         this.type = typeIn;
 		this.listFinishRunnables = Lists.newArrayList();
 	    this.lock = new ReentrantLock();
@@ -46,44 +47,50 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected ChunkRendererSchematicVbo getRenderChunk()
     {
-        return this.chunkRenderer;
+        return this.chunkRenderer.get();
     }
 
-    protected ChunkMeshDataSchematic getChunkRenderData()
+    protected ChunkRenderDataSchematic getChunkRenderData()
     {
-        return this.chunkRenderData;
+        return this.chunkRenderData.get();
     }
 
-    protected void setChunkRenderData(ChunkMeshDataSchematic chunkRenderData)
+    protected void setChunkRenderData(ChunkRenderDataSchematic data)
     {
-        if (this.chunkRenderData != null)
+//        if (this.chunkRenderData != null)
+//        {
+//            this.chunkRenderData.clearAll();
+//        }
+//
+//        this.chunkRenderData = chunkRenderData;
+        ChunkRenderDataSchematic oldData = this.chunkRenderData.getAndSet(data);
+
+        if (oldData != null)
         {
-            this.chunkRenderData.clearAll();
+            oldData.clearAll();
         }
-
-        this.chunkRenderData = chunkRenderData;
     }
 
-    public UberBufferCache getUberCache()
-    {
-        return this.uberCache;
-    }
-
-    public boolean setRegionRenderCacheBuilder(UberBufferCache uberCache)
-    {
-        if (uberCache == null)
-        {
-            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] uberCache is null");
-            return false;
-        }
-        if (this.uberCache != null && !this.uberCache.isClear())
-        {
-            this.uberCache.clearAll();
-        }
-
-        this.uberCache = uberCache;
-        return true;
-    }
+//    public UberBufferCache getUberCache()
+//    {
+//        return this.uberCache;
+//    }
+//
+//    public boolean setRegionRenderCacheBuilder(UberBufferCache uberCache)
+//    {
+//        if (uberCache == null)
+//        {
+//            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] uberCache is null");
+//            return false;
+//        }
+//        if (this.uberCache != null && !this.uberCache.isClear())
+//        {
+//            this.uberCache.clearAll();
+//        }
+//
+//        this.uberCache = uberCache;
+//        return true;
+//    }
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {
@@ -107,7 +114,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         {
             if (this.type == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK && this.status != ChunkRenderTaskSchematic.Status.DONE)
             {
-                this.chunkRenderer.setNeedsUpdate(false);
+                this.chunkRenderer.get().setNeedsUpdate(false);
             }
 
             this.finished = true;

@@ -9,14 +9,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 
 import fi.dy.masa.malilib.render.MaLiLibPipelines;
 
 public record ChunkRenderLayers()
 {
     public static final List<ChunkSectionLayer> BLOCK_RENDER_LAYERS = getBlockRenderLayers();
-    public static final List<RenderType> RENDER_LAYERS = getRenderLayers();
+//    public static final List<RenderType> RENDER_LAYERS = getRenderLayers();
     public static final List<OverlayRenderType> TYPES = getTypes();
     public static final HashMap<ChunkSectionLayer, Pair<RenderPipeline, RenderPipeline>> PIPELINE_MAP = getBlockRenderPipelineMap();
 
@@ -43,22 +42,22 @@ public record ChunkRenderLayers()
         return map;
     }
 
-    private static List<RenderType> getRenderLayers()
-    {
-        List<RenderType> list = new ArrayList<>();
-
-		// Blocks?
-	    list.add(RenderTypes.solidMovingBlock());
-	    list.add(RenderTypes.cutoutMovingBlock());
-	    list.add(RenderTypes.translucentMovingBlock());
-	    list.add(RenderTypes.endPortal());
-	    list.add(RenderTypes.endGateway());
-
-        // Water Rendering
-        list.add(RenderTypes.waterMask());
-
-        return list;
-    }
+//    private static List<RenderType> getRenderLayers()
+//    {
+//        List<RenderType> list = new ArrayList<>();
+//
+//		// Blocks?
+//	    list.add(RenderTypes.solidMovingBlock());
+//	    list.add(RenderTypes.cutoutMovingBlock());
+//	    list.add(RenderTypes.translucentMovingBlock());
+//	    list.add(RenderTypes.endPortal());
+//	    list.add(RenderTypes.endGateway());
+//
+//        // Water Rendering
+//        list.add(RenderTypes.waterMask());
+//
+//        return list;
+//    }
 
     private static List<OverlayRenderType> getTypes()
     {
