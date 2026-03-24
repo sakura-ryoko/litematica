@@ -1,6 +1,8 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4fc;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -212,7 +214,7 @@ public class LitematicaRenderer
         }
     }
 
-    public void capturePreMainValues(Camera camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler)
+    public void capturePreMainValues(CameraRenderState camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler)
     {
         if (this.renderPiecewiseBlocks)
         {
@@ -222,11 +224,31 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewisePrepareBlockLayers(Matrix4fc matrix4fc, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler)
+    public void uploadRemainingBuffers(Matrix4fc matrix4fc, ProfilerFiller profiler)
+    {
+        if (this.renderPiecewiseBlocks)
+        {
+            profiler.push(Reference.MOD_ID + "_upload_block_layers");
+            Camera camera = this.getCamera();
+            Vec3 position = camera.position();
+            double cameraX = position.x();
+            double cameraY = position.y();
+            double cameraZ = position.z();
+            this.getWorldRenderer().uploadRemainingBuffers(this.finishTimeNano, matrix4fc, cameraX, cameraY, cameraZ, profiler);
+            profiler.pop();
+        }
+    }
+
+    public void piecewisePrepareBlockLayers(Matrix4fc matrix4fc, ProfilerFiller profiler)
     {
         if (this.renderPiecewiseBlocks)
         {
             profiler.push(Reference.MOD_ID + "_prepare_block_layers");
+            Camera camera = this.getCamera();
+            Vec3 position = camera.position();
+            double cameraX = position.x();
+            double cameraY = position.y();
+            double cameraZ = position.z();
             this.getWorldRenderer().prepareBlockLayers(matrix4fc, cameraX, cameraY, cameraZ, profiler);
             profiler.pop();
         }

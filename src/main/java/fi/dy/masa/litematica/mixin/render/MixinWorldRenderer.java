@@ -126,11 +126,19 @@ public abstract class MixinWorldRenderer
         LitematicaRenderer.getInstance().capturePreMainValues(cameraState, terrainFog, profiler);
     }
 
-    @Inject(method = "prepareChunkRenders", at = @At("TAIL"))
-    private void litematica_onPrepareBlockLayers(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir)
+	@Inject(method = "extractLevel", at = @At("HEAD"))
+	private void litematica_onPrepareBlockLayersPre(DeltaTracker deltaTracker, Camera camera, float deltaPartialTick,
+													CallbackInfo ci)
+	{
+		this.litematica$prepareProfiler();
+		LitematicaRenderer.getInstance().uploadRemainingBuffers(camera, deltaTracker, this.profiler);
+	}
+
+	@Inject(method = "prepareChunkRenders", at = @At("TAIL"))
+    private void litematica_onPrepareBlockLayersPost(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
         this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, d, e, f, this.profiler);
+        LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
     }
 
 	// BYTECODE (Virtual Method) Mixin for Section Group rendering
@@ -158,17 +166,17 @@ public abstract class MixinWorldRenderer
 		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT, this.chunkLayerSampler);
 	}
 
-	@Inject(method = "method_62214(Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lnet/minecraft/client/renderer/state/LevelRenderState;Lnet/minecraft/util/profiling/ProfilerFiller;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;ZLcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;)V",
-			at = @At(value = "INVOKE",
-					 target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
-					 ordinal = 2,
-					 shift = At.Shift.AFTER))
-	private void litematica_renderMainSection_Tripwire(GpuBufferSlice gpuBufferSlice, LevelRenderState worldRenderState, ProfilerFiller profiler,
-	                                                   Matrix4f matrix4f, ResourceHandle<RenderTarget> handle, ResourceHandle<RenderTarget> handle2, boolean bl,
-	                                                   ResourceHandle<RenderTarget> handle3, ResourceHandle<RenderTarget> handle4, CallbackInfo ci)
-	{
-		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRIPWIRE, this.chunkLayerSampler);
-	}
+//	@Inject(method = "method_62214(Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lnet/minecraft/client/renderer/state/LevelRenderState;Lnet/minecraft/util/profiling/ProfilerFiller;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;ZLcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;)V",
+//			at = @At(value = "INVOKE",
+//					 target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
+//					 ordinal = 2,
+//					 shift = At.Shift.AFTER))
+//	private void litematica_renderMainSection_Tripwire(GpuBufferSlice gpuBufferSlice, LevelRenderState worldRenderState, ProfilerFiller profiler,
+//	                                                   Matrix4f matrix4f, ResourceHandle<RenderTarget> handle, ResourceHandle<RenderTarget> handle2, boolean bl,
+//	                                                   ResourceHandle<RenderTarget> handle3, ResourceHandle<RenderTarget> handle4, CallbackInfo ci)
+//	{
+//		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRIPWIRE, this.chunkLayerSampler);
+//	}
 
 	@Inject(method = "extractVisibleEntities", at = @At(value = "RETURN"))
     private void litematica_onPostPrepareEntities(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState output, CallbackInfo ci)

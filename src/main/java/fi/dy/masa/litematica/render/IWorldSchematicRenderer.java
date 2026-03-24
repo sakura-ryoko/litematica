@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.render;
 
 import java.util.Collection;
 import java.util.List;
+
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
@@ -84,7 +86,9 @@ public interface IWorldSchematicRenderer
 
 	void updateChunks(long finishTimeNano, ProfilerFiller profiler);
 
-	void capturePreMainValues(Camera camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler);
+	void capturePreMainValues(CameraRenderState camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler);
+
+	void uploadRemainingBuffers(long finishTimeNano, Matrix4fc matrix4fc, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
 
 	int prepareBlockLayers(Matrix4fc matrix4fc, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
 

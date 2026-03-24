@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
 
@@ -593,7 +594,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     {
         //LOGGER.warn("[WorldRenderer] updateChunks()");
         this.profiler = profiler;
-        profiler.push("run_chunk_updates");
+        profiler.push("run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
 
         if (this.profiler == null)
@@ -601,7 +602,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             this.profiler = profiler;
         }
 
-        profiler.popPush("check_update");
+        profiler.popPush("check_updates");
 
         if (!this.chunksToUpdate.isEmpty())
         {
@@ -651,11 +652,26 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void capturePreMainValues(Camera camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler)
+    public void capturePreMainValues(CameraRenderState camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler)
     {
         // LOGGER.warn("capturePreMainValues()");
         this.vanillaFogBuffer = fogBuffer;
         this.profiler = profiler;
+    }
+
+    @Override
+    public void uploadRemainingBuffers(long finishTimeNano, Matrix4fc matrix4fc,
+                                       double cameraX, double cameraY, double cameraZ,
+                                       ProfilerFiller profiler)
+    {
+//        LOGGER.warn("[WorldRenderer] uploadRemainingBuffers()");
+        this.profiler = profiler;
+        if (RenderSystem.isOnRenderThread())
+        {
+            profiler.push("upload_remaining_buffers");
+            this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
+            profiler.pop();
+        }
     }
 
     @Override
