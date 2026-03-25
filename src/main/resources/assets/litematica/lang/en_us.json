@@ -282,7 +282,7 @@
     "litematica.config.hotkeys.comment.selectionGrabModifier": "The modifier key to hold to \"grab\" a selection\nbox or corner for cursor moving.",
     "litematica.config.hotkeys.comment.selectionGrow": "The action hotkey to auto-grow the selection box around\nany adjacent/diagonally connected blocks",
     "litematica.config.hotkeys.comment.selectionGrowModifier": "The modifier key to hold to grow or shrink\na selection box while scrolling",
-    "litematica.config.hotkeys.comment.selectionModeCycle": "Change the corner mode between Corners and Expand\nin the Area Selection mode",
+    "litematica.config.hotkeys.comment.selectionModeCycle": "Change the corner mode between Corners and Expand\nin the Area Selection mode;\nChange the replace blocks mode\nbetween All, None and With non-air\nin the Paste mode;\nChange the delete target mode between\nCurrent Area and Current Placement\nin the Delete mode.",
     "litematica.config.hotkeys.comment.selectionNudgeModifier": "The modifier key to hold while scrolling\nto nudge the selected area or corner",
     "litematica.config.hotkeys.comment.selectionShrink": "The action hotkey to shrink the selection box so that there\nisn't any empty space (empty layers) on any side",
     "litematica.config.hotkeys.comment.setAreaOrigin": "Set/move the origin point of the current\narea selection to the player's position",

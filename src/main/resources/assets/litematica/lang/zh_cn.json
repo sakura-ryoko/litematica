@@ -282,7 +282,7 @@
     "litematica.config.hotkeys.comment.selectionGrabModifier": "选区抓取修改键\n用于移动选区框或控制点",
     "litematica.config.hotkeys.comment.selectionGrow": "自动扩展选区框至相邻方块",
     "litematica.config.hotkeys.comment.selectionGrowModifier": "选区尺寸调节键\n滚动时调整选区大小",
-    "litematica.config.hotkeys.comment.selectionModeCycle": "切换选区模式（角点模式↔扩展模式）",
+    "litematica.config.hotkeys.comment.selectionModeCycle": "选区模式下，切换角落模式（角点模式↔扩展模式）\n粘贴模式下，切换方块替换方式（全部放置↔仅在空气放置↔放置非空气方块）\n删除模式下，切换方块删除目标模式（当前区域↔当前放置）",
     "litematica.config.hotkeys.comment.selectionNudgeModifier": "选区微调辅助键\n滚动鼠标时平移选区或定位点",
     "litematica.config.hotkeys.comment.selectionShrink": "收缩选区框移除各面空层",
     "litematica.config.hotkeys.comment.setAreaOrigin": "将当前选区原点设为玩家当前位置",
