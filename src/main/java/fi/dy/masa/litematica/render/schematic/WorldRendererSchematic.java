@@ -4,9 +4,6 @@ import java.lang.Math;
 import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
-import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
 
@@ -41,6 +38,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -200,7 +198,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData.get();
+            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
 
             if (data != ChunkRenderDataSchematic.EMPTY && !data.isBlockLayerEmpty())
             {
@@ -682,11 +680,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         profiler.push("layer_multi_phase");
 
 	    List<DynamicUniforms.Transform> transformValues = new ArrayList<>();
-        EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
+//        EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
+        EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
 
         for (ChunkSectionLayer layer : ChunkSectionLayer.values())
         {
-            renderMap.put(layer, new Int2ObjectOpenHashMap<>());
+            renderMap.put(layer, new ArrayList<>());
         }
 
         profiler.popPush("layer_setup");
@@ -721,8 +720,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             ChunkRenderDataSchematic data = renderer.getChunkRenderData();
             ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
             BlockPos chunkOrigin = renderer.getOrigin();
-            long now = System.currentTimeMillis();
-            int uboIndex = -1;
+//            long now = System.currentTimeMillis();
+//            int uboIndex = -1;
 
             for (ChunkSectionLayer layer : ChunkSectionLayer.values())
             {
@@ -731,121 +730,130 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 if (!data.isBlockLayerEmpty(layer))
                 {
                     // New
-                    ChunkMeshDataSchematic.DrawState drawState = chunkMeshData.getDrawState(layer);
-                    ChunkRenderBufferSlice slice = renderer.getUberSlice(chunkMeshData, layer);
+//                    ChunkMeshDataSchematic.DrawState drawState = chunkMeshData.getDrawState(layer);
+//                    ChunkRenderBufferSlice slice = renderer.getUberSlice(chunkMeshData, layer);
 
                     // Old
-//                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
-//
-//                    if (buffers == null || buffers.isClosed() || drawState == null ||
-//                        !chunkMeshData.hasMeshData(layer))
-//                    {
-//                        // LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
-//                        continue;
-//                    }
-//
-//                    GpuBuffer indexBuffer;
-//                    VertexFormat.IndexType indexType;
-//
-//                    if (buffers.getIndexBuffer() == null)
-//                    {
-//                        if (buffers.getIndexCount() > indexCount)
-//                        {
-//                            indexCount = buffers.getIndexCount();
-//                        }
-//
-//                        indexBuffer = null;
-//                        indexType = null;
-//                    }
-//                    else
-//                    {
-//                        indexBuffer = buffers.getIndexBuffer();
-//                        indexType = buffers.getIndexType();
-//                    }
+                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
 
-                    // New
-                    if (slice != null && drawState != null &&
-                        (!drawState.hasIndexBuffer() || slice.indexBuffer() != null))
+                    if (buffers == null || buffers.isClosed() ||
+                        !chunkMeshData.hasMeshData(layer))
                     {
-                        if (uboIndex == -1)
-                        {
-                            uboIndex = transformValues.size();
-                            transformValues.add(new DynamicUniforms.Transform(
-                                    matrix4fc,
-                                    colorMod,
-                                    new Vector3f((float) (chunkOrigin.getX() - cameraX), (float) (chunkOrigin.getY() - cameraY), (float) (chunkOrigin.getZ() - cameraZ)),
-                                    texMatrix
-                            ));
-                        }
-                    }
-
-                    if (slice == null || drawState == null)
-                    {
+                        LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
                         continue;
                     }
 
-                    // Old
-//                    int pos = transformValues.size();
-                    int hash = 173;
-                    VertexFormat vf = layer.pipeline().getVertexFormat();
-                    GpuBuffer vbo = slice.vertexBuffer();
-
-                    if (layer != ChunkSectionLayer.TRANSLUCENT)
-                    {
-                        hash = 31 * hash + vbo.hashCode();
-                    }
-
-                    int index = 0;
-                    GpuBuffer ibo;
+                    GpuBuffer indexBuffer;
                     VertexFormat.IndexType indexType;
 
-                    if (!drawState.hasIndexBuffer())
+                    if (buffers.getIndexBuffer() == null)
                     {
-                        if (drawState.indexCount() > indexCount)
+                        if (buffers.getIndexCount() > indexCount)
                         {
-                            indexCount = drawState.indexCount();
+                            indexCount = buffers.getIndexCount();
                         }
 
-                        ibo = null;
+                        indexBuffer = null;
                         indexType = null;
                     }
                     else
                     {
-                        ibo = slice.indexBuffer();
-                        indexType = drawState.indexType();
-
-                        if (layer != ChunkSectionLayer.TRANSLUCENT)
-                        {
-                            hash = 31 * hash + ibo.hashCode();
-                            hash = 31 * hash + indexType.hashCode();
-                        }
-
-                        index = (int) (slice.indexBufferOffset() / indexType.bytes);
+                        indexBuffer = buffers.getIndexBuffer();
+                        indexType = buffers.getIndexType();
                     }
 
-                    int finalIdx = uboIndex;
-                    int vertex = (int) (slice.vertexBufferOffset() / vf.getVertexSize());
+                    // New
+//                    if (slice != null && drawState != null &&
+//                        (!drawState.hasIndexBuffer() || slice.indexBuffer() != null))
+//                    {
+//                        if (uboIndex == -1)
+//                        {
+//                            uboIndex = transformValues.size();
+//                            transformValues.add(new DynamicUniforms.Transform(
+//                                    matrix4fc,
+//                                    colorMod,
+//                                    new Vector3f((float) (chunkOrigin.getX() - cameraX), (float) (chunkOrigin.getY() - cameraY), (float) (chunkOrigin.getZ() - cameraZ)),
+//                                    texMatrix
+//                            ));
+//                        }
+//                    }
+//
+//                    if (slice == null || drawState == null)
+//                    {
+//                        continue;
+//                    }
+//
+//                    // Old
+                    int pos = transformValues.size();
 
-                    List<RenderPass.Draw<GpuBufferSlice[]>> slices = renderMap.get(layer)
-                            .computeIfAbsent(hash,
-                                             (Int2ObjectFunction<? extends List<RenderPass.Draw<GpuBufferSlice[]>>>)(var0 -> new ArrayList<>())
-                            );
+//                    int hash = 173;
+                    VertexFormat vf = layer.pipeline().getVertexFormat();
+//                    GpuBuffer vbo = slice.vertexBuffer();
+//
+//                    if (layer != ChunkSectionLayer.TRANSLUCENT)
+//                    {
+//                        hash = 31 * hash + vbo.hashCode();
+//                    }
+//
+//                    int index = 0;
+//                    GpuBuffer ibo;
+//                    VertexFormat.IndexType indexType;
+//
+//                    if (!drawState.hasIndexBuffer())
+//                    {
+//                        if (drawState.indexCount() > indexCount)
+//                        {
+//                            indexCount = drawState.indexCount();
+//                        }
+//
+//                        ibo = null;
+//                        indexType = null;
+//                    }
+//                    else
+//                    {
+//                        ibo = slice.indexBuffer();
+//                        indexType = drawState.indexType();
+//
+//                        if (layer != ChunkSectionLayer.TRANSLUCENT)
+//                        {
+//                            hash = 31 * hash + ibo.hashCode();
+//                            hash = 31 * hash + indexType.hashCode();
+//                        }
+//
+//                        index = (int) (slice.indexBufferOffset() / indexType.bytes);
+//                    }
+//
+//                    int finalIdx = uboIndex;
+//                    int vertex = (int) (slice.vertexBufferOffset() / vf.getVertexSize());
+//
+                    transformValues.add(new DynamicUniforms.Transform(
+                            matrix4fc,
+                            colorMod,
+                            new Vector3f((float) (chunkOrigin.getX() - cameraX), (float) (chunkOrigin.getY() - cameraY), (float) (chunkOrigin.getZ() - cameraZ)),
+                            texMatrix
+                    ));
 
-                    slices.add(
+                    // New
+//                    List<RenderPass.Draw<GpuBufferSlice[]>> drawSlices = renderMap.get(layer)
+//                            .computeIfAbsent(hash,
+//                                             (Int2ObjectFunction<? extends List<RenderPass.Draw<GpuBufferSlice[]>>>)(var0 -> new ArrayList<>())
+//                            );
+
+                    renderMap.get(layer).add(
                             new RenderPass.Draw<>(
                                      0,
     // OLD
-//                                     buffers.getVertexBuffer(),
-//                                     indexBuffer,
-//                                     indexType,
-//                                     0,
-//                                     buffers.getIndexCount(),
-//                                     (slices, uploader) ->
-//                                             uploader.upload("DynamicTransforms", ((GpuBufferSlice[]) slices)[pos])
-                                     vbo, ibo,
-                                     indexType, index,
-                                     drawState.indexCount(), vertex,
-                                     (ubos, uploader) -> uploader.upload("DynamicTransforms", ubos[finalIdx])
+                                     buffers.getVertexBuffer(),
+                                     indexBuffer, indexType,
+                                     0,
+                                     buffers.getIndexCount(),
+                                     0,
+                                     (slices, uploader) ->
+                                             uploader.upload("DynamicTransforms", ((GpuBufferSlice[]) slices)[pos])
+//                                     vbo, ibo,
+//                                     indexType, index,
+//                                     drawState.indexCount(), vertex,
+//                                     (ubos, uploader) -> uploader.upload("DynamicTransforms", ubos[finalIdx])
                              ));
 
                     startedDrawing = true;

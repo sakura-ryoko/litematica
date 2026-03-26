@@ -581,6 +581,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (resortOnly == false)
         {
+            LOGGER.error("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> UPLOAD", layer.label());
             renderChunk.uploadBuffersByLayer(layer, meshData);
         }
 
@@ -648,7 +649,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (resortOnly == false)
         {
-            LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> UPLOAD VERTEX", type.name());
+            LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> UPLOAD", type.name());
             renderChunk.uploadBuffersByType(type, meshData);
         }
 

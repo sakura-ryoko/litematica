@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -35,7 +34,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		}
 	};
 
-	private final AtomicReference<ChunkMeshDataSchematic> meshDataCache;
+	private volatile ChunkMeshDataSchematic meshDataCache;
 	private final Set<ChunkSectionLayer> blockLayersUsed;
 	private final Set<ChunkSectionLayer> blockLayersStarted;
 	private final Set<OverlayRenderType> overlayLayersUsed;
@@ -46,7 +45,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
 	public ChunkRenderDataSchematic()
 	{
-		this.meshDataCache = new AtomicReference<>(ChunkMeshDataSchematic.EMPTY);
+		this.meshDataCache = ChunkMeshDataSchematic.EMPTY;
 		this.blockLayersUsed = new ObjectArraySet<>();
 		this.blockLayersStarted = new ObjectArraySet<>();
 		this.overlayLayersUsed = new ObjectArraySet<>();
@@ -57,17 +56,17 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
 	public ChunkMeshDataSchematic getMeshDataCache()
 	{
-		return this.meshDataCache.get();
+		return this.meshDataCache;
 	}
 
 	protected void updateMeshDataCache(ChunkMeshDataSchematic meshData)
 	{
-		ChunkMeshDataSchematic oldMesh = this.meshDataCache.getAndSet(meshData);
-
-		if (oldMesh != null)
+		if (this.meshDataCache != null && !this.meshDataCache.equals(meshData))
 		{
-			oldMesh.clearAll();
+			this.meshDataCache.clearAll();
 		}
+
+		this.meshDataCache = meshData;
 	}
 
 	public boolean isBlockLayerEmpty()
@@ -169,6 +168,33 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		this.overlayLayersStarted.clear();
 		this.overlayEmpty = true;
 		this.blocksEmpty = true;
+	}
+
+	protected void dumpRenderDataDebug()
+	{
+		if (this.equals(ChunkRenderDataSchematic.EMPTY))
+		{
+			System.out.print("[RD] ChunkRenderDataSchematic --> EMPTY\n");
+		}
+		else
+		{
+			System.out.printf("[RD] ChunkRenderDataSchematic; timeBuilt: [%d]\n", this.getTimeBuilt());
+		}
+
+		if (this.meshDataCache != null && this.meshDataCache.equals(ChunkMeshDataSchematic.EMPTY))
+		{
+			System.out.print("[RD] ChunkMeshDataCache --> EMPTY\n");
+		}
+		else
+		{
+			System.out.print("[RD] ChunkMeshDataCache --> NOT EMPTY\n");
+			this.meshDataCache.dumpMeshDataDebug();
+		}
+
+		System.out.printf("  LAYERS_STARTED  : [%s]\n", this.blockLayersStarted.toString());
+		System.out.printf("  LAYERS_USED     : [%s]\n", this.blockLayersUsed.toString());
+		System.out.printf("  OVERLAYS_STARTED: [%s]\n", this.overlayLayersStarted.toString());
+		System.out.printf("  OVERLAYS_USED   : [%s]\n", this.overlayLayersUsed.toString());
 	}
 
 	@Override

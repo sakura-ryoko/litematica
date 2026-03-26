@@ -4,13 +4,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
-import net.minecraft.util.profiling.ProfilerFiller;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -20,12 +14,18 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 import fi.dy.masa.malilib.render.MaLiLibPipelines;
 
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
-		EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> drawData,
+//		EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> drawData,
+		EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> drawData,
         boolean renderCollidingBlocks,
 		boolean renderTranslucent,
         int maxIndicesRequired,
@@ -67,16 +67,17 @@ public record ChunkRenderBatchDraw(
 
 			for (ChunkSectionLayer layer : layers)
 			{
-				Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>> draws = this.drawData().get(layer);
+//				Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>> draws = this.drawData().get(layer);
+				List<RenderPass.Draw<GpuBufferSlice[]>> draws = this.drawData().get(layer);
 
 				profiler.popPush("draw_group_" + layer.label());
 				if (!draws.isEmpty())
 				{
-					for (List<RenderPass.Draw<GpuBufferSlice[]>> list : draws.values())
-					{
+//					for (List<RenderPass.Draw<GpuBufferSlice[]>> list : draws.values())
+//					{
 						if (layer == ChunkSectionLayer.TRANSLUCENT)
 						{
-							list = list.reversed();
+							draws = draws.reversed();
 						}
 
 						if (wf)
@@ -101,10 +102,10 @@ public record ChunkRenderBatchDraw(
 								                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
 								);
 							}
-						}
+//						}
 
 //					pass.drawMultipleIndexed(list, gpuBuffer, indexType, List.of("ChunkSection"), this.chunkSections());
-						pass.drawMultipleIndexed(list, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
+						pass.drawMultipleIndexed(draws, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
 					}
 				}
 			}

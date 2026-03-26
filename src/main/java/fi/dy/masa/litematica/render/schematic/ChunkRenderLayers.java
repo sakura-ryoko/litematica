@@ -21,14 +21,8 @@ public record ChunkRenderLayers()
 
     private static List<ChunkSectionLayer> getBlockRenderLayers()
     {
-        List<ChunkSectionLayer> list = new ArrayList<>();
-
-        // I know that there is the BlockRenderLayer.values(), but this is to customize this.
-        list.add(ChunkSectionLayer.SOLID);
-        list.add(ChunkSectionLayer.CUTOUT);
-        list.add(ChunkSectionLayer.TRANSLUCENT);
-
-        return list;
+	    // I know that there is the BlockRenderLayer.values(), but this is to customize this.
+	    return new ArrayList<>(List.of(ChunkSectionLayer.values()));
     }
 
     private static HashMap<ChunkSectionLayer, Pair<RenderPipeline, RenderPipeline>> getBlockRenderPipelineMap()

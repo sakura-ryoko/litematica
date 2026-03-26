@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
     private final AtomicReference<ChunkRendererSchematicVbo> chunkRenderer;
-    private final AtomicReference<ChunkRenderDataSchematic> chunkRenderData;
+    private ChunkRenderDataSchematic chunkRenderData;
     private final ChunkRenderTaskSchematic.Type type;
     private final List<Runnable> listFinishRunnables;
     private final ReentrantLock lock;
@@ -25,14 +25,14 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     public ChunkRenderTaskSchematic(@Nonnull ChunkRendererSchematicVbo renderChunkIn, ChunkRenderTaskSchematic.Type typeIn, Supplier<Vec3> cameraPosSupplier, double distanceSqIn)
     {
-        this.chunkRenderer = new AtomicReference<>(renderChunkIn);
-        this.chunkRenderData = new AtomicReference<>(renderChunkIn.getChunkRenderData());
         this.type = typeIn;
 		this.listFinishRunnables = Lists.newArrayList();
 	    this.lock = new ReentrantLock();
         this.cameraPosSupplier = cameraPosSupplier;
         this.distanceSq = distanceSqIn;
 	    this.status = ChunkRenderTaskSchematic.Status.PENDING;
+        this.chunkRenderer = new AtomicReference<>(renderChunkIn);
+        this.setChunkRenderData(renderChunkIn.getChunkRenderData());
     }
 
     public Supplier<Vec3> getCameraPosSupplier()
@@ -52,23 +52,31 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected ChunkRenderDataSchematic getChunkRenderData()
     {
-        return this.chunkRenderData.get();
+        return this.chunkRenderData;
     }
 
     protected void setChunkRenderData(ChunkRenderDataSchematic data)
     {
-//        if (this.chunkRenderData != null)
-//        {
-//            this.chunkRenderData.clearAll();
-//        }
-//
-//        this.chunkRenderData = chunkRenderData;
-        ChunkRenderDataSchematic oldData = this.chunkRenderData.getAndSet(data);
-
-        if (oldData != null)
+        this.lock.lock();
+        try
         {
-            oldData.clearAll();
+            if (this.chunkRenderData != null)
+            {
+                this.chunkRenderData.clearAll();
+            }
+
+            this.chunkRenderData = data;
         }
+        finally
+        {
+            this.lock.unlock();
+        }
+//        ChunkRenderDataSchematic oldData = this.chunkRenderData.getAndSet(data);
+//
+//        if (oldData != null)
+//        {
+//            oldData.clearAll();
+//        }
     }
 
 //    public UberBufferCache getUberCache()

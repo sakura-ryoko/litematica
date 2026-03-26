@@ -14,6 +14,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import fi.dy.masa.litematica.Litematica;
+
 public class ChunkMeshDataSchematic implements AutoCloseable
 {
 	public static final ChunkMeshDataSchematic UNCOMPILED = new ChunkMeshDataSchematic()
@@ -74,11 +76,13 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 	protected void saveMeshData(ChunkSectionLayer layer, @Nonnull MeshData meshData)
 	{
 		this.chunkMeshCache.saveMeshData(layer, meshData);
+		Litematica.LOGGER.warn("[Mesh] saveMeshData(): layer: [{}] --> VBO-POS: [{}]", layer.label(), meshData.vertexBuffer().position());
 	}
 
 	protected void saveMeshData(OverlayRenderType type, @Nonnull MeshData meshData)
 	{
 		this.chunkMeshCache.saveMeshData(type, meshData);
+		Litematica.LOGGER.warn("[Mesh] saveMeshData(): type: [{}] --> VBO-POS: [{}]", type.name(), meshData.vertexBuffer().position());
 	}
 
 	protected boolean hasMeshData(ChunkSectionLayer layer)
@@ -171,6 +175,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	protected void compileLayerDrawStates(Set<ChunkSectionLayer> blockLayersUsed)
 	{
+		Litematica.LOGGER.warn("[Mesh] compileLayerDrawStates() --> {}", blockLayersUsed.toString());
 		this.blockDrawStates.clear();
 
 		for (ChunkSectionLayer layer : blockLayersUsed)
@@ -179,6 +184,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 			if (meshData != null)
 			{
+				Litematica.LOGGER.warn("[Mesh] compileLayerDrawStates(): layer: [{}] --> STORE", layer.label());
 				this.blockDrawStates.put(layer, new ChunkMeshDataSchematic.DrawState(meshData.drawState().indexCount(), meshData.drawState().indexType(), meshData.indexBuffer() != null));
 			}
 		}
@@ -186,6 +192,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	protected void compileOverlayDrawStates(Set<OverlayRenderType> overlaysUsed)
 	{
+		Litematica.LOGGER.warn("[Mesh] compileOverlayDrawStates() --> {}", overlaysUsed.toString());
 		this.overlayDrawStates.clear();
 
 		for (OverlayRenderType type : overlaysUsed)
@@ -194,6 +201,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 			if (meshData != null)
 			{
+				Litematica.LOGGER.warn("[Mesh] compileLayerDrawStates(): type: [{}] --> STORE", type.name());
 				this.overlayDrawStates.put(type, new ChunkMeshDataSchematic.DrawState(meshData.drawState().indexCount(), meshData.drawState().indexType(), meshData.indexBuffer() != null));
 			}
 		}
@@ -287,6 +295,15 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 		this.blockEntities.clear();
 		this.noCullBlockEntities.clear();
+	}
+
+	protected void dumpMeshDataDebug()
+	{
+		System.out.print("[Mesh] MeshData()\n");
+		System.out.printf("  [BLOCK_STATES]  : %d\n", this.blockDrawStates.size());
+		System.out.printf("  [OVERLAY_STATES]: %d\n", this.overlayDrawStates.size());
+		System.out.printf("  [TILE_COUNT]   : %d\n", this.blockEntities.size());
+		System.out.printf("  [TILES_NO_CULL]: %d\n", this.noCullBlockEntities.size());
 	}
 
 	@Override

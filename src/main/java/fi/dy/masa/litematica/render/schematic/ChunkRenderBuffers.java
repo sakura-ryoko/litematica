@@ -9,12 +9,16 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 public class ChunkRenderBuffers implements AutoCloseable
 {
     private final Supplier<String> name;
-    GpuBuffer vertexBuffer;
-    @Nullable GpuBuffer indexBuffer;
+    protected GpuBuffer vertexBuffer;
+    @Nullable
+    protected GpuBuffer indexBuffer;
     private int indexCount;
     private VertexFormat.IndexType indexType;
 
-    protected ChunkRenderBuffers(Supplier<String> name, GpuBuffer vertexBuffer, @Nullable GpuBuffer indexBuffer, int indexCount, VertexFormat.IndexType indexType)
+    protected ChunkRenderBuffers(Supplier<String> name,
+                                 GpuBuffer vertexBuffer,
+                                 @Nullable GpuBuffer indexBuffer,
+                                 int indexCount, VertexFormat.IndexType indexType)
     {
         this.name = name;
         this.vertexBuffer = vertexBuffer;

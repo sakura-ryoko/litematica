@@ -151,17 +151,20 @@ public class ChunkRenderWorkerLitematica implements Runnable
             }
 
             profiler.popPush("run_task_schedule_"+ taskType.name());
-            final ChunkRenderDataSchematic chunkRenderData = task.getChunkRenderData();
+            ChunkRenderDataSchematic chunkRenderData = task.getChunkRenderData();
             ArrayList<ListenableFuture<Object>> futuresList = Lists.newArrayList();
             ChunkRendererSchematicVbo renderChunk = task.getRenderChunk();
 //            ByteBufferBuilderCache allocators = task.getAllocatorCache();
+
+            chunkRenderData.dumpRenderDataDebug();
+            renderChunk.getChunkRenderData().dumpRenderDataDebug();
+            renderChunk.updateChunkRenderData(chunkRenderData);
 
             if (taskType == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK)
             {
                 LOGGER.warn("[LW] (REBUILD_CHUNK) --> Run Uploads");
 
                 //if (GuiBase.isCtrlDown()) System.out.printf("pre uploadChunk()\n");
-                // TODO
                 for (ChunkSectionLayer layer : ChunkRenderLayers.BLOCK_RENDER_LAYERS)
                 {
                     if (chunkRenderData.isBlockLayerEmpty(layer) == false)
@@ -203,8 +206,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
             }
 
             profiler.popPush("run_task_later_" + taskType.name());
-
-            LOGGER.warn("[LW] (TASK COMBINE) --> futuresList size [{}]", futuresList.size());
+            LOGGER.warn("[LW] (TASK_COMBINE) --> futuresList size [{}]", futuresList.size());
 
             final ListenableFuture<List<Object>> listenablefuture = Futures.allAsList(futuresList);
 
