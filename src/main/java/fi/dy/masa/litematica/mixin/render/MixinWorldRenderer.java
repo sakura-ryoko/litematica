@@ -126,8 +126,8 @@ public abstract class MixinWorldRenderer
 	private void litematica_onPrepareBlockLayersPre(DeltaTracker deltaTracker, Camera camera, float deltaPartialTick,
 													CallbackInfo ci)
 	{
-		this.litematica$prepareProfiler();
-		LitematicaRenderer.getInstance().uploadRemainingBuffers(camera, deltaTracker, this.profiler);
+//		this.litematica$prepareProfiler();
+//		LitematicaRenderer.getInstance().uploadRemainingBuffers(camera, deltaTracker, this.profiler);
 	}
 
 	@Inject(method = "prepareChunkRenders", at = @At("TAIL"))

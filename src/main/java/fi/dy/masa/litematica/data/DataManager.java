@@ -51,7 +51,7 @@ public class DataManager implements IDirectoryCache
     private static final ArrayList<ToBooleanFunction<Component>> CHAT_LISTENERS = new ArrayList<>();
     public static final Identifier CARPET_HELLO = Identifier.fromNamespaceAndPath("carpet", "hello");
 
-    private static ItemStack toolItem = new ItemStack(Items.STICK);
+    private static ItemStack toolItem;
     private ItemStack toolItemComponents = null;
     private static ConfigGuiTab configGuiTab = ConfigGuiTab.GENERIC;
     private static boolean createPlacementOnLoad = true;
@@ -117,6 +117,11 @@ public class DataManager implements IDirectoryCache
 
     public static ItemStack getToolItem()
     {
+        if (toolItem == null)
+        {
+             toolItem = new ItemStack(Items.STICK);
+        }
+
         return toolItem;
     }
 

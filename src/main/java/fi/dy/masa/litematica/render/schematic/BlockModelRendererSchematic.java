@@ -8,7 +8,6 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.client.renderer.block.BlockQuadOutput;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -43,6 +42,7 @@ public class BlockModelRendererSchematic
 		this.quadInst = new QuadInstance();
 		this.tintCache = new BlockTintCache();
 		this.useAmbientOcclusion = false;
+	    this.processor = AOProcessor.get(this.lightmap);
 		BlockModelCacheSchematic.INSTANCE.register();
     }
 

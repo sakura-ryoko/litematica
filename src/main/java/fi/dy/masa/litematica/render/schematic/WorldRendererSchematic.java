@@ -68,6 +68,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.render.RenderUtils;
@@ -96,7 +97,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private final Minecraft mc;
     private final BlockModelRendererSchematic blockModelRenderer;
     private final BlockEntityRenderDispatcher blockEntityRenderManager;
-    private final FluidRenderer fluidRenderer;
     private final EntityRenderDispatcher entityRenderManager;
 //    private final Set<BlockEntity> blockEntities;
     private final List<ChunkRendererSchematicVbo> renderInfos;
@@ -104,6 +104,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private Set<ChunkRendererSchematicVbo> chunksToUpdate;
     private WorldSchematic world;
     private ChunkRenderDispatcherSchematic chunkRendererDispatcher;
+    private FluidRenderer fluidRenderer;
     private FogRenderer fogRenderer;
     private GpuBufferSlice vanillaFogBuffer;
     private ProfilerFiller profiler;
@@ -143,7 +144,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         this.blockModelRenderer = new BlockModelRendererSchematic();
         this.blockEntityRenderManager = mc.getBlockEntityRenderDispatcher();
         this.entityRenderManager = mc.getEntityRenderDispatcher();
-        this.fluidRenderer = new FluidRenderer(BlockModelCacheSchematic.INSTANCE.fluidStateModelSet());
         this.fogRenderer = ((IMixinGameRenderer) mc.gameRenderer).litematica_getFogRenderer();
 		this.schematicRenderState = new SchematicRenderState();
 	    this.chunksToUpdate = new LinkedHashSet<>();
@@ -257,7 +257,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 		{
 			Identifier id = FallbackBlocks.BLOCK_TO_ID.get(block);
 
-//			LOGGER.warn("getFallbackState: Invalid Block State/Block Model for block [{}]; but we found a matching Litematica fallback block state that you can use.  Perhaps you have the Fusion mod installed?", origState.getBlock().getName().getString());
+			LOGGER.warn("getFallbackState: Invalid Block State/Block Model for block [{}]; but we found a matching Litematica fallback block state that you can use.  Perhaps you have the Fusion mod installed?", origState.getBlock().getName().getString());
 			BlockState newState = FallbackBlocks.ID_TO_STATE_MANAGER.get(id).any();
 
 			for (Property<?> entry : props)
@@ -276,7 +276,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 				}
 			}
 
-//			Litematica.debugLog("Fallback Block State -- OLD: [{}] --> NEW: [{}]", origState.toString(), newState.toString());
+			Litematica.debugLog("Fallback Block State -- OLD: [{}] --> NEW: [{}]", origState.toString(), newState.toString());
 			return newState;
 		}
 
@@ -296,7 +296,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void setWorldAndLoadRenderers(@Nullable WorldSchematic worldSchematic)
     {
-        //LOGGER.error("[WorldRenderer] setWorldAndLoadRenderers()");
+        LOGGER.error("[WorldRenderer] setWorldAndLoadRenderers()");
         this.lastCameraChunkUpdateX = Double.MIN_VALUE;
         this.lastCameraChunkUpdateY = Double.MIN_VALUE;
         this.lastCameraChunkUpdateZ = Double.MIN_VALUE;
@@ -348,7 +348,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     {
         if (this.hasWorld())
         {
-            //LOGGER.warn("[WorldRenderer] loadRenderers()");
+            LOGGER.warn("[WorldRenderer] loadRenderers()");
             if (profiler == null)
             {
                 profiler = Profiler.get();
@@ -379,6 +379,16 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //                this.blockEntities.clear();
 //            }
 
+            if (BlockModelCacheSchematic.INSTANCE.modelManager() == null)
+            {
+                BlockModelCacheSchematic.INSTANCE.onReloadResources();
+            }
+
+            if (this.fluidRenderer == null)
+            {
+                this.fluidRenderer = new FluidRenderer(BlockModelCacheSchematic.INSTANCE.fluidStateModelSet());
+            }
+
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
             this.renderEntitiesStartupCounter = 2;
 
@@ -388,7 +398,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
     protected void stopChunkUpdates(ProfilerFiller profiler)
     {
-        //LOGGER.warn("[WorldRenderer] stopChunkUpdates()");
+        LOGGER.warn("[WorldRenderer] stopChunkUpdates()");
         if (!this.chunksToUpdate.isEmpty())
         {
             this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
@@ -404,7 +414,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator, ProfilerFiller profiler)
     {
-        //LOGGER.warn("[WorldRenderer] setupTerrain()");
+        LOGGER.warn("[WorldRenderer] setupTerrain()");
         this.profiler = profiler;
         profiler.push("setup_terrain");
 
@@ -488,7 +498,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             //queuePositions.addAll(set);
 
             //if (GuiBase.isCtrlDown()) System.out.printf("sorted positions: %d\n", positions.size());
-//            Litematica.LOGGER.warn("setupTerrain(): positions: {}", positions.size());
+            Litematica.LOGGER.warn("setupTerrain(): positions: {}", positions.size());
 
             profiler.popPush("update_iteration");
 
@@ -498,7 +508,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 //SubChunkPos subChunk = queuePositions.poll();
                 int cx = chunkPos.x();
                 int cz = chunkPos.z();
-                //LOGGER.warn("[WorldRenderer] setupTerrain() position[{}], chunkPos: {} // isLoaded: [{}]", count, chunkPos.toString(), this.world.getChunkProvider().hasChunk(chunkPos.x, chunkPos.z));
+                LOGGER.warn("[WorldRenderer] setupTerrain() position[{}], chunkPos: {} // isLoaded: [{}]", count, chunkPos.toString(), this.world.getChunkSource().hasChunk(chunkPos.x(), chunkPos.z()));
                 // Only render sub-chunks that are within the client's render distance, and that
                 // have been already properly loaded on the client
                 if (Math.abs(cx - centerChunkX) <= renderDistance &&
@@ -545,13 +555,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!chunkRendererTmp.needsImmediateUpdate() && !isNear)
                 {
-//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Later @ cp: {}", chunkRendererTmp.getChunkPos().toString());
+                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Later @ cp: {}", chunkRendererTmp.getChunkPos().toString());
                     this.chunksToUpdate.add(chunkRendererTmp);
                 }
                 else
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("====== update now\n");
-//                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Now @ cp: {}", chunkRendererTmp.getChunkPos().toString());
+                    LOGGER.warn("[WorldRenderer] setupTerrain --> Update Now @ cp: {}", chunkRendererTmp.getChunkPos().toString());
                     profiler.push("update_now");
                     this.profiler = profiler;
 
@@ -565,10 +575,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         this.chunksToUpdate.addAll(set);
 
-//        if (Reference.DEBUG_MODE && !this.chunksToUpdate.isEmpty())
-//        {
-//            Litematica.LOGGER.warn("[WorldRenderer] setupTerrain // chunksToUpdate: {}", this.chunksToUpdate.size());
-//        }
+        if (Reference.DEBUG_MODE && !this.chunksToUpdate.isEmpty())
+        {
+            Litematica.LOGGER.warn("[WorldRenderer] setupTerrain // chunksToUpdate: {}", this.chunksToUpdate.size());
+        }
 
 		this.clearWorldRenderStates();
 
@@ -579,7 +589,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void updateChunks(long finishTimeNano, ProfilerFiller profiler)
     {
-        //LOGGER.warn("[WorldRenderer] updateChunks()");
+        LOGGER.warn("[WorldRenderer] updateChunks()");
         this.profiler = profiler;
         profiler.push("run_chunk_uploads");
         this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
@@ -641,7 +651,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void capturePreMainValues(CameraRenderState camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler)
     {
-        // LOGGER.warn("capturePreMainValues()");
+        LOGGER.warn("[WorldRenderer] capturePreMainValues()");
         this.vanillaFogBuffer = fogBuffer;
         this.profiler = profiler;
     }
@@ -651,7 +661,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                                        double cameraX, double cameraY, double cameraZ,
                                        ProfilerFiller profiler)
     {
-//        LOGGER.warn("[WorldRenderer] uploadRemainingBuffers()");
+        LOGGER.warn("[WorldRenderer] uploadRemainingBuffers()");
         this.profiler = profiler;
         if (RenderSystem.isOnRenderThread())
         {
@@ -666,9 +676,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                                    double cameraX, double cameraY, double cameraZ,
                                    ProfilerFiller profiler)
     {
-//        LOGGER.warn("[WorldRenderer] prepareBlockLayers()");
+        LOGGER.warn("[WorldRenderer] prepareBlockLayers()");
         this.profiler = profiler;
-        RenderSystem.assertOnRenderThread();
+//        RenderSystem.assertOnRenderThread();
         profiler.push("layer_multi_phase");
 
 	    List<DynamicUniforms.Transform> transformValues = new ArrayList<>();
@@ -868,7 +878,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void drawBlockLayerGroup(ChunkSectionLayerGroup group, @Nullable GpuSampler sampler)
     {
-//        LOGGER.warn("[WorldRenderer] drawBlockLayerGroup() [{}]", group.name());
+        LOGGER.warn("[WorldRenderer] drawBlockLayerGroup() [{}]", group.label());
         if (this.schematicRenderState.hasBatchDraw() && this.shouldDraw)
         {
             this.profiler.push(Reference.MOD_ID + "_batch_draw_" + group.label());
@@ -923,7 +933,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void scheduleTranslucentSorting(Vec3 cameraPos, ProfilerFiller profiler)
     {
-        //LOGGER.warn("[WorldRenderer] scheduleTranslucentSorting()");
+        LOGGER.warn("[WorldRenderer] scheduleTranslucentSorting()");
         double x = cameraPos.x();
         double y = cameraPos.y();
         double z = cameraPos.z();
@@ -954,7 +964,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void renderBlockOverlays(Camera camera, float lineWidth, ProfilerFiller profiler)
     {
-        //LOGGER.warn("[WorldRenderer] renderBlockOverlays()");
+        LOGGER.warn("[WorldRenderer] renderBlockOverlays()");
         this.profiler = profiler;
         this.renderBlockOverlay(OverlayRenderType.OUTLINE, camera, lineWidth, profiler);
         this.renderBlockOverlay(OverlayRenderType.QUAD, camera, lineWidth, profiler);
@@ -962,7 +972,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
     protected void renderBlockOverlay(OverlayRenderType type, Camera camera, float lineWidth, ProfilerFiller profiler)
     {
-        //LOGGER.warn("[WorldRenderer] renderBlockOverlay() [{}]", type.name());
+        LOGGER.warn("[WorldRenderer] renderBlockOverlay() [{}]", type.name());
         profiler.push("overlay_" + type.name());
         this.profiler = profiler;
 
@@ -997,7 +1007,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
                     {
-                        // LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
+                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
                     }
 
@@ -1029,8 +1039,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 BlockStateModel model = this.getModelForState(state);
 
                 result = this.blockModelRenderer.tessellateBlock(world, state, pos, offset, model, state.getSeed(pos), output);
-
-//                System.out.printf("renderBlock(): result [%s]\n", result);
+                System.out.printf("renderBlock(): result [%s]\n", result);
 
                 // TODO --> For testing the Vanilla Block Model Renderer
                 /*
@@ -1221,7 +1230,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void prepareEntities(Camera camera, Frustum frustum, LevelRenderState renderStates, DeltaTracker tickCounter, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[WorldRenderer] prepareEntities()");
+        LOGGER.warn("[WorldRenderer] prepareEntities()");
         this.profiler = profiler;
 
         if (this.renderEntitiesStartupCounter > 0)
@@ -1262,12 +1271,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 }
 
 //                List<Entity> list = chunk.getEntityList();
-//                AABB bb = chunkRenderer.getBoundingBox();
+                AABB bb = chunkRenderer.getBoundingBox();
 //                List<Entity> list = this.world.getEntities((Entity) null, bb, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
                 ImmutableList<Entity> list = this.world.getEntitiesByChunk(chunkPos.x(), chunkPos.z(), fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
 
-//                LOGGER.error("[WorldRenderer] prepareEntities: Chunk: {}, EntityList [{}] // BB: [{}]", chunkPos.toString(), list.size(), bb.toString());
-//                LOGGER.warn("[WorldRenderer] prepareEntities: Chunk: [{}], TestList: [{}]", pos.toShortString(), list.size());
+                LOGGER.error("[WorldRenderer] prepareEntities: Chunk: {}, EntityList [{}] // BB: [{}]", chunkPos.toString(), list.size(), bb.toString());
+                LOGGER.warn("[WorldRenderer] prepareEntities: Chunk: [{}], TestList: [{}]", pos.toShortString(), list.size());
 
                 for (Entity entityTmp : list)
                 {
@@ -1312,9 +1321,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     if (shouldRender)
                     {
-//                        LOGGER.warn("[WorldRenderer] prepareEntities/shouldRender: Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]",
-//                                    pos.toShortString(), entityTmp.position().toString(),
-//                                    entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
+                        LOGGER.warn("[WorldRenderer] prepareEntities/shouldRender: Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]",
+                                    pos.toShortString(), entityTmp.position().toString(),
+                                    entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
 
                         // Check for Salmon / Cod 'inWater' fix
                         // Because the entities might be following the ClientWorld State
@@ -1338,10 +1347,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                         this.renderedEntities.put(entityTmp.position(), entityTmp.getUUID());
                         ++this.countEntitiesRendered;
                     }
-//                    else
-//                    {
-//                        LOGGER.warn("Skipping Entity at pos X: [{}], Y: [{}], Z: [{}] (Should Render = False)", entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
-//                    }
+                    else
+                    {
+                        LOGGER.warn("Skipping Entity at pos X: [{}], Y: [{}], Z: [{}] (Should Render = False)", entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
+                    }
                 }
             }
 
@@ -1352,7 +1361,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
 	public void renderEntities(Camera camera, Frustum frustum, PoseStack matrices, LevelRenderState renderStates, SubmitNodeCollector queue, ProfilerFiller profiler)
 	{
-//        LOGGER.warn("[WorldRenderer] renderEntities()");
+        LOGGER.warn("[WorldRenderer] renderEntities()");
         if (this.schematicRenderState.entityStates.isEmpty())
         {
             return;
@@ -1379,7 +1388,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
 	public void prepareBlockEntities(Camera camera, Frustum frustum, LevelRenderState renderStates, PoseStack matrices, float tickProgress, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[WorldRenderer] prepareBlockEntities()");
+        LOGGER.warn("[WorldRenderer] prepareBlockEntities()");
         this.profiler = profiler;
         profiler.push("block_entities_prepare");
 
@@ -1498,7 +1507,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
 	public void renderBlockEntities(Camera camera, Frustum frustum, PoseStack matrices, LevelRenderState renderStates, SubmitNodeCollector queue, ProfilerFiller profiler)
 	{
-//        LOGGER.warn("[WorldRenderer] renderBlockEntities()");
+        LOGGER.warn("[WorldRenderer] renderBlockEntities()");
         if (this.schematicRenderState.tileEntityStates.isEmpty())
         {
             return;
@@ -1543,7 +1552,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void scheduleChunkRenders(int chunkX, int chunkZ, boolean immediate)
     {
-        // LOGGER.warn("[WorldRenderer] scheduleChunkRenders()");
+         LOGGER.warn("[WorldRenderer] scheduleChunkRenders()");
 //        this.getProfiler().push("schedule_render");
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
             Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue())

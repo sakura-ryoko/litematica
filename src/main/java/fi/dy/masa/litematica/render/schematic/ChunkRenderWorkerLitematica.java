@@ -28,20 +28,20 @@ public class ChunkRenderWorkerLitematica implements Runnable
     private boolean shouldRun;
     private ProfilerFiller profiler;
 
-    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, ProfilerFiller profiler, UberBufferCache uberCacheIn)
+    public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn, ProfilerFiller profiler)
     {
         this.shouldRun = true;
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
         this.profiler = profiler;
 //        this.uberCache = uberCacheIn;
 
-        //LOGGER.error("[LW] init() [Cache: {}]", uberCacheIn != null);
+        LOGGER.error("[LW] init()");
     }
 
     @Override
     public void run()
     {
-        //LOGGER.warn("[LW] run()");
+        LOGGER.warn("[LW] run()");
 
         if (this.profiler == null)
         {
@@ -73,7 +73,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
         profiler.push("process_task");
         task.getLock().lock();
 
-        //LOGGER.warn("[LW] processTask() task [{}] / [{}]", task.getType().name(), task.getStatus().name());
+        LOGGER.warn("[LW] processTask() task [{}] / [{}]", task.getType().name(), task.getStatus().name());
         try
         {
             if (task.getStatus() != ChunkRenderTaskSchematic.Status.PENDING)
@@ -113,7 +113,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
             profiler.popPush("run_task_now_" + taskType.name());
             if (taskType == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK)
             {
-                //LOGGER.warn("[LW] (REBUILD_CHUNK) --> [VBO]");
+                LOGGER.warn("[LW] (REBUILD_CHUNK) --> [VBO]");
                 task.getRenderChunk().rebuildChunk(task, profiler);
             }
 //            else if (taskType == ChunkRenderTaskSchematic.Type.UPLOAD_CHUNK)
@@ -123,7 +123,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 //            }
             else if (taskType == ChunkRenderTaskSchematic.Type.RESORT_TRANSPARENCY)
             {
-                //LOGGER.warn("[LW] (RESORT_TRANSPARENCY) --> [VBO]");
+                LOGGER.warn("[LW] (RESORT_TRANSPARENCY) --> [VBO]");
                 task.getRenderChunk().resortTransparency(task, profiler);
             }
 
@@ -158,7 +158,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
             if (taskType == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK)
             {
-                //LOGGER.warn("[LW] (REBUILD_CHUNK) --> Run Uploads");
+                LOGGER.warn("[LW] (REBUILD_CHUNK) --> Run Uploads");
 
                 //if (GuiBase.isCtrlDown()) System.out.printf("pre uploadChunk()\n");
                 // TODO
@@ -167,7 +167,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (chunkRenderData.isBlockLayerEmpty(layer) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks()\n");
-                        //LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkBlocks({})", layer.label());
+                        LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkBlocks({})", layer.label());
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, task.getDistanceSq(), false, profiler));
                     }
                 }
@@ -177,34 +177,34 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (chunkRenderData.isOverlayTypeEmpty(type) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay()\n");
-                        //LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkOverlay({})", type.name());
+                        LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkOverlay({})", type.name());
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, renderChunk, task.getDistanceSq(), false, profiler));
                     }
                 }
             }
             else if (taskType == ChunkRenderTaskSchematic.Type.RESORT_TRANSPARENCY)
             {
-                //LOGGER.warn("[LW] (RESORT_TRANSPARENCY) --> Schedule Uploads");
+                LOGGER.warn("[LW] (RESORT_TRANSPARENCY) --> Schedule Uploads");
                 ChunkSectionLayer layer = ChunkSectionLayer.TRANSLUCENT;
 
                 if (chunkRenderData.isBlockLayerEmpty(layer) == false)
                 {
                     //System.out.printf("RESORT_TRANSPARENCY pre uploadChunkBlocks(%s)\n", layer.toString());
-                    //LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkBlocks({})", layer.label());
+                    LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkBlocks({})", layer.label());
                     futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, task.getDistanceSq(), true, profiler));
                 }
 
                 if (chunkRenderData.isOverlayTypeEmpty(OverlayRenderType.QUAD) == false)
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("RESORT_TRANSPARENCY pre uploadChunkOverlay()\n");
-                    //LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkOverlay({})", OverlayRenderType.QUAD.name());
+                    LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkOverlay({})", OverlayRenderType.QUAD.name());
                     futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, renderChunk, task.getDistanceSq(), true, profiler));
                 }
             }
 
             profiler.popPush("run_task_later_" + taskType.name());
 
-            //LOGGER.warn("[LW] (TASK COMBINE) --> futuresList size [{}]", futuresList.size());
+            LOGGER.warn("[LW] (TASK COMBINE) --> futuresList size [{}]", futuresList.size());
 
             final ListenableFuture<List<Object>> listenablefuture = Futures.allAsList(futuresList);
 
@@ -306,7 +306,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
     public void notifyToStop()
     {
-        //LOGGER.warn("[LW] stop()");
+        LOGGER.warn("[LW] stop()");
         this.shouldRun = false;
     }
 }

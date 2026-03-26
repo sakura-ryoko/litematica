@@ -106,6 +106,9 @@ public class LitematicaRenderer
 
     public void onEndFrame()
     {
+        // Don't initialize early.
+        if (this.worldRenderer == null) { return; }
+        if (this.getWorldRenderer().getChunkFixUniform() == null) { return; }
         this.getWorldRenderer().getChunkFixUniform().endFrame();
     }
 

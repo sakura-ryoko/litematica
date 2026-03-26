@@ -50,12 +50,15 @@ public class BlockModelCacheSchematic
 	{
 		this.blockStateModelCache = new ConcurrentHashMap<>(256, 0.9f, 1);
 		this.blockModelCache = new ConcurrentHashMap<>(256, 0.9f, 1);
-		this.refresh();
 	}
 
 	protected void register()
 	{
 		// Init / Registered
+		if (this.modelManager == null)
+		{
+			this.refresh();
+		}
 	}
 
 	protected RandomSource rand()

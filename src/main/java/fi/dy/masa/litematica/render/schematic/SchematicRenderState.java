@@ -49,6 +49,6 @@ public class SchematicRenderState
 			this.chunkFixUniform.close();
 		}
 		catch (Exception _) {}
-		this.chunkFixUniform = null;
+		this.chunkFixUniform = new ChunkFixUniform();
 	}
 }
