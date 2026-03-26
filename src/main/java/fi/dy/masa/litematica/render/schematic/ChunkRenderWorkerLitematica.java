@@ -161,6 +161,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 //LOGGER.warn("[LW] (REBUILD_CHUNK) --> Run Uploads");
 
                 //if (GuiBase.isCtrlDown()) System.out.printf("pre uploadChunk()\n");
+                // TODO
                 for (ChunkSectionLayer layer : ChunkRenderLayers.BLOCK_RENDER_LAYERS)
                 {
                     if (chunkRenderData.isBlockLayerEmpty(layer) == false)
@@ -247,7 +248,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         return;
                     }
 
-                    task.getRenderChunk().setChunkRenderData(chunkRenderData);
+                    task.getRenderChunk().updateChunkRenderData(chunkRenderData);
                 }
 
                 @Override

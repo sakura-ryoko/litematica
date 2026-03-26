@@ -4,6 +4,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
@@ -18,26 +21,28 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
+import fi.dy.masa.malilib.render.MaLiLibPipelines;
+
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
-        EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> drawData,
+		EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> drawData,
         boolean renderCollidingBlocks,
 		boolean renderTranslucent,
         int maxIndicesRequired,
 		GpuBufferSlice[] dynamicTransforms,
 		GpuBuffer chunkFixUBO)
 {
-    public void draw(ChunkSectionLayerGroup group, GpuSampler sampler, ProfilerFiller profiler)
+    public void draw(final ChunkSectionLayerGroup group, final GpuSampler sampler, ProfilerFiller profiler)
     {
-        RenderSystem.AutoStorageIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
-        GpuBuffer gpuBuffer = this.maxIndicesRequired() == 0 ? null : shapeIndexBuffer.getBuffer(this.maxIndicesRequired());
-        VertexFormat.IndexType indexType = this.maxIndicesRequired() == 0 ? null : shapeIndexBuffer.type();
+        RenderSystem.AutoStorageIndexBuffer defaultIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        GpuBuffer defaultIBO = this.maxIndicesRequired() == 0 ? null : defaultIndices.getBuffer(this.maxIndicesRequired());
+        VertexFormat.IndexType indexType = this.maxIndicesRequired() == 0 ? null : defaultIndices.type();
         ChunkSectionLayer[] layers = group.layers();
         Minecraft mc = Minecraft.getInstance();
+	    boolean wf = SharedConstants.DEBUG_HOTKEYS && mc.wireframe;
         RenderTarget fb = group.outputTarget();
 
         profiler.push("draw_group");
-
 		try (RenderPass pass = RenderSystem.getDevice()
 		                                   .createCommandEncoder()
 		                                   .createRenderPass(
@@ -56,41 +61,51 @@ public record ChunkRenderBatchDraw(
 //			}
 
 			pass.setUniform("ChunkFix", this.chunkFixUBO);
-			pass.bindTexture("Sampler2",
-			                 mc.gameRenderer.lightTexture().getTextureView(),
-			                 RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR)
-			);
+			pass.bindTexture("Sampler0", this.atlasTexture, sampler);
+			pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(),
+			                 RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
 
 			for (ChunkSectionLayer layer : layers)
 			{
-				List<RenderPass.Draw<GpuBufferSlice[]>> list = this.drawData().get(layer);
+				Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>> draws = this.drawData().get(layer);
 
 				profiler.popPush("draw_group_" + layer.label());
-				if (!list.isEmpty())
+				if (!draws.isEmpty())
 				{
-					if (layer == ChunkSectionLayer.TRANSLUCENT)
+					for (List<RenderPass.Draw<GpuBufferSlice[]>> list : draws.values())
 					{
-						list = list.reversed();
-					}
+						if (layer == ChunkSectionLayer.TRANSLUCENT)
+						{
+							list = list.reversed();
+						}
 
-					if (this.renderTranslucent())
-					{
-						pass.setPipeline(this.renderCollidingBlocks()
-						                 ? ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getRight()
-						                 : ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getLeft()
-						);
-					}
-					else
-					{
-						pass.setPipeline(this.renderCollidingBlocks()
-						                 ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
-						                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
-						);
-					}
+						if (wf)
+						{
+							pass.setPipeline(this.renderCollidingBlocks()
+							                 ? MaLiLibPipelines.LEGACY_WIREFRAME_MASA
+							                 : MaLiLibPipelines.LEGACY_WIREFRAME_MASA_OFFSET);
+						}
+						else
+						{
+							if (this.renderTranslucent())
+							{
+								pass.setPipeline(this.renderCollidingBlocks()
+								                 ? ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getRight()
+								                 : ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getLeft()
+								);
+							}
+							else
+							{
+								pass.setPipeline(this.renderCollidingBlocks()
+								                 ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
+								                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
+								);
+							}
+						}
 
-					pass.bindTexture("Sampler0", this.atlasTexture(), sampler);
 //					pass.drawMultipleIndexed(list, gpuBuffer, indexType, List.of("ChunkSection"), this.chunkSections());
-					pass.drawMultipleIndexed(list, gpuBuffer, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
+						pass.drawMultipleIndexed(list, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
+					}
 				}
 			}
 		}

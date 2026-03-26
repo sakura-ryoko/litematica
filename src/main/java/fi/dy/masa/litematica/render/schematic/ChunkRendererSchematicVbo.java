@@ -382,6 +382,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
+    @Nullable
     protected ChunkRenderBufferSlice getUberSlice(ChunkMeshDataSchematic meshData, ChunkSectionLayer layer)
     {
         ChunkRenderUberBuffers uberBuffer = this.getUberBuffersOrNull(layer);
@@ -405,12 +406,16 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
+    @Nullable
     protected ChunkRenderBufferSlice getUberSlice(ChunkMeshDataSchematic meshData, OverlayRenderType type)
     {
         ChunkRenderUberBuffers uberBuffer = this.getUberBuffersOrNull(type);
         TlsfAllocator.Allocation vboSlice = uberBuffer.indexBuffer().getAllocation(meshData);
 
-        if (vboSlice == null) { return null; }
+        if (vboSlice == null)
+        {
+            return null;
+        }
         else
         {
             long vboOffset = vboSlice.getOffsetFromHeap();
@@ -428,7 +433,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
-    protected void setChunkRenderData(ChunkRenderDataSchematic data)
+    protected void updateChunkRenderData(ChunkRenderDataSchematic data)
     {
         this.chunkRenderDataLock.lock();
 
@@ -1454,7 +1459,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     {
         this.existingOverlays.add(type);
         this.hasOverlay = true;
-
         return this.builder(type);
     }
 

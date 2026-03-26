@@ -290,7 +290,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     break;
 
                 case WRITE_TO_FILE:
-                    Path dir = FileUtils.getConfigDirectoryAsPath().resolve(Reference.MOD_ID);
+                    Path dir = FileUtils.getConfigDirectory().resolve(Reference.MOD_ID);
                     boolean csv = GuiBase.isShiftDown();
                     boolean json = GuiBase.isAltDown();
                     Path file;
@@ -327,7 +327,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
                 case WRITE_TO_JSON:
                     Minecraft mc = Minecraft.getInstance();
-                    Path jsonDir = FileUtils.getConfigDirectoryAsPath().resolve(Reference.MOD_ID);
+                    Path jsonDir = FileUtils.getConfigDirectory().resolve(Reference.MOD_ID);
                     boolean missingOnly = GuiBase.isShiftDown();
                     boolean craftingOnly = GuiBase.isAltDown();
                     final String dateExt = "_" + TimeFormat.REGULAR.formatNow();

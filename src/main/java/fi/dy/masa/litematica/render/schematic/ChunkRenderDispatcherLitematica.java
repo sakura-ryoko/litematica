@@ -582,7 +582,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (resortOnly == false)
         {
-            renderChunk.uploadBuffersByLayer(layer, meshData);
+//            renderChunk.uploadBuffersByLayer(layer, meshData);
         }
 
         if (layer == ChunkSectionLayer.TRANSLUCENT && Configs.Visuals.RENDER_ENABLE_TRANSLUCENT_RESORTING.getBooleanValue())
@@ -615,7 +615,7 @@ public class ChunkRenderDispatcherLitematica
 
         //LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> DONE", layer.label());
         compiledChunk.updateMeshDataCache(chunkMeshData);
-        renderChunk.setChunkRenderData(compiledChunk);
+        renderChunk.updateChunkRenderData(compiledChunk);
         profiler.pop();
     }
 
@@ -683,7 +683,7 @@ public class ChunkRenderDispatcherLitematica
 
         //LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> DONE", type.name());
         compiledChunk.updateMeshDataCache(chunkMeshData);
-        renderChunk.setChunkRenderData(compiledChunk);
+        renderChunk.updateChunkRenderData(compiledChunk);
         profiler.pop();
     }
 

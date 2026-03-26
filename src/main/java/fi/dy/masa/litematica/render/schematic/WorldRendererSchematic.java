@@ -4,6 +4,7 @@ import java.lang.Math;
 import java.util.*;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.apache.logging.log4j.Logger;
@@ -104,8 +105,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private WorldSchematic world;
     private ChunkRenderDispatcherSchematic chunkRendererDispatcher;
     private FogRenderer fogRenderer;
-    private ChunkFixUniform chunkFixUniform;
-    private ChunkRenderBatchDraw batchDraw;
     private GpuBufferSlice vanillaFogBuffer;
     private ProfilerFiller profiler;
     private double lastCameraChunkUpdateX;
@@ -150,8 +149,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 	    this.chunksToUpdate = new LinkedHashSet<>();
         this.profiler = null;
         this.vanillaFogBuffer = null;
-        this.batchDraw = null;
-        this.chunkFixUniform = new ChunkFixUniform();
         this.shouldDraw = false;
 	    this.lastCameraChunkUpdateX = Double.MIN_VALUE;
 	    this.lastCameraChunkUpdateY = Double.MIN_VALUE;
@@ -297,12 +294,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public ChunkFixUniform getChunkFixUniform()
-    {
-        return this.chunkFixUniform;
-    }
-
-    @Override
     public void setWorldAndLoadRenderers(@Nullable WorldSchematic worldSchematic)
     {
         //LOGGER.error("[WorldRenderer] setWorldAndLoadRenderers()");
@@ -337,9 +328,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             this.renderDispatcher = null;
             this.profiler = null;
 
-            this.clearBlockBatchDraw();
 			this.clearWorldRenderStates();
-            this.clearChunkFixUniform();
+            this.schematicRenderState.clearChunkFixUniform();
 
             if (this.vanillaFogBuffer != null)
             {
@@ -382,7 +372,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             }
 
             this.stopChunkUpdates(profiler);
-            this.clearBlockBatchDraw();
 			this.clearWorldRenderStates();
 
 //            synchronized (this.blockEntities)
@@ -408,7 +397,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         this.chunksToUpdate.clear();
         this.renderDispatcher.stopChunkUpdates(profiler);
         this.profiler = null;
-        this.clearBlockBatchDraw();
 		this.clearWorldRenderStates();
         this.vanillaFogBuffer = null;
     }
@@ -482,7 +470,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         this.lastCameraYaw = camera.yRot();
 
         profiler.popPush("update");
-        List<ChunkPos> updatePositions = new ArrayList<>();
+//        List<ChunkPos> updatePositions = new ArrayList<>();
 
         if (this.displayListEntitiesDirty)
         {
@@ -536,7 +524,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     }
                 }
 
-                updatePositions.add(chunkPos);
+//                updatePositions.add(chunkPos);
                 count++;
             }
 
@@ -582,7 +570,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //            Litematica.LOGGER.warn("[WorldRenderer] setupTerrain // chunksToUpdate: {}", this.chunksToUpdate.size());
 //        }
 
-        this.clearBlockBatchDraw();
 		this.clearWorldRenderStates();
 
         //profiler.pop();
@@ -660,7 +647,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void uploadRemainingBuffers(long finishTimeNano, Matrix4fc matrix4fc,
+    public void uploadRemainingBuffers(long finishTimeNano, DeltaTracker deltaTracker,
                                        double cameraX, double cameraY, double cameraZ,
                                        ProfilerFiller profiler)
     {
@@ -733,72 +720,142 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!data.isBlockLayerEmpty(layer))
                 {
-                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
+                    // New
                     ChunkMeshDataSchematic.DrawState drawState = chunkMeshData.getDrawState(layer);
+                    ChunkRenderBufferSlice slice = renderer.getUberSlice(chunkMeshData, layer);
 
-                    if (buffers == null || buffers.isClosed() || drawState == null ||
-                        !chunkMeshData.hasMeshData(layer))
+                    // Old
+//                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
+//
+//                    if (buffers == null || buffers.isClosed() || drawState == null ||
+//                        !chunkMeshData.hasMeshData(layer))
+//                    {
+//                        // LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
+//                        continue;
+//                    }
+//
+//                    GpuBuffer indexBuffer;
+//                    VertexFormat.IndexType indexType;
+//
+//                    if (buffers.getIndexBuffer() == null)
+//                    {
+//                        if (buffers.getIndexCount() > indexCount)
+//                        {
+//                            indexCount = buffers.getIndexCount();
+//                        }
+//
+//                        indexBuffer = null;
+//                        indexType = null;
+//                    }
+//                    else
+//                    {
+//                        indexBuffer = buffers.getIndexBuffer();
+//                        indexType = buffers.getIndexType();
+//                    }
+
+                    // New
+                    if (slice != null && drawState != null &&
+                        (!drawState.hasIndexBuffer() || slice.indexBuffer() != null))
                     {
-                        // LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
+                        if (uboIndex == -1)
+                        {
+                            uboIndex = transformValues.size();
+                            transformValues.add(new DynamicUniforms.Transform(
+                                    matrix4fc,
+                                    colorMod,
+                                    new Vector3f((float) (chunkOrigin.getX() - cameraX), (float) (chunkOrigin.getY() - cameraY), (float) (chunkOrigin.getZ() - cameraZ)),
+                                    texMatrix
+                            ));
+                        }
+                    }
+
+                    if (slice == null || drawState == null)
+                    {
                         continue;
                     }
 
-                    GpuBuffer indexBuffer;
+                    // Old
+//                    int pos = transformValues.size();
+                    int hash = 173;
+                    VertexFormat vf = layer.pipeline().getVertexFormat();
+                    GpuBuffer vbo = slice.vertexBuffer();
+
+                    if (layer != ChunkSectionLayer.TRANSLUCENT)
+                    {
+                        hash = 31 * hash + vbo.hashCode();
+                    }
+
+                    int index = 0;
+                    GpuBuffer ibo;
                     VertexFormat.IndexType indexType;
 
-                    if (buffers.getIndexBuffer() == null)
+                    if (!drawState.hasIndexBuffer())
                     {
-                        if (buffers.getIndexCount() > indexCount)
+                        if (drawState.indexCount() > indexCount)
                         {
-                            indexCount = buffers.getIndexCount();
+                            indexCount = drawState.indexCount();
                         }
 
-                        indexBuffer = null;
+                        ibo = null;
                         indexType = null;
                     }
                     else
                     {
-                        indexBuffer = buffers.getIndexBuffer();
-                        indexType = buffers.getIndexType();
+                        ibo = slice.indexBuffer();
+                        indexType = drawState.indexType();
+
+                        if (layer != ChunkSectionLayer.TRANSLUCENT)
+                        {
+                            hash = 31 * hash + ibo.hashCode();
+                            hash = 31 * hash + indexType.hashCode();
+                        }
+
+                        index = (int) (slice.indexBufferOffset() / indexType.bytes);
                     }
 
-                    int pos = transformValues.size();
+                    int finalIdx = uboIndex;
+                    int vertex = (int) (slice.vertexBufferOffset() / vf.getVertexSize());
 
-                    transformValues.add(new DynamicUniforms.Transform(
-                            matrix4fc,
-                            colorMod,
-                            new Vector3f((float) (chunkOrigin.getX() - cameraX), (float) (chunkOrigin.getY() - cameraY), (float) (chunkOrigin.getZ() - cameraZ)),
-                            texMatrix
-                    ));
+                    List<RenderPass.Draw<GpuBufferSlice[]>> slices = renderMap.get(layer)
+                            .computeIfAbsent(hash,
+                                             (Int2ObjectFunction<? extends List<RenderPass.Draw<GpuBufferSlice[]>>>)(var0 -> new ArrayList<>())
+                            );
 
-                    renderMap.get(layer)
-                             .add(new RenderPass.Draw<>(
-                                     0, buffers.getVertexBuffer(),
-                                     indexBuffer, indexType,
-                                     0, buffers.getIndexCount(),
-                                     (slices, uploader) ->
-                                             uploader.upload("DynamicTransforms", ((GpuBufferSlice[]) slices)[pos])
+                    slices.add(
+                            new RenderPass.Draw<>(
+                                     0,
+    // OLD
+//                                     buffers.getVertexBuffer(),
+//                                     indexBuffer,
+//                                     indexType,
+//                                     0,
+//                                     buffers.getIndexCount(),
+//                                     (slices, uploader) ->
+//                                             uploader.upload("DynamicTransforms", ((GpuBufferSlice[]) slices)[pos])
+                                     vbo, ibo,
+                                     indexType, index,
+                                     drawState.indexCount(), vertex,
+                                     (ubos, uploader) -> uploader.upload("DynamicTransforms", ubos[finalIdx])
                              ));
 
                     startedDrawing = true;
                     ++count;
-
                 }
             }
         }
 
         if (startedDrawing)
         {
-            this.chunkFixUniform.fillBuffer(atlasWidth, atlasHeight, 1.0f);
+            this.schematicRenderState.chunkFixUniform.fillBuffer(atlasWidth, atlasHeight, 1.0f);
             GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms()
                                                            .writeTransforms(
                                                                    transformValues.toArray(new DynamicUniforms.Transform[0])
                                                            );
 
-            this.batchDraw = new ChunkRenderBatchDraw(blockAtlas, renderMap,
+            this.schematicRenderState.batchDraw = new ChunkRenderBatchDraw(blockAtlas, renderMap,
                                                       renderCollidingBlocks, renderAsTranslucent, indexCount,
                                                       transformSlices,
-                                                      this.chunkFixUniform.getCurrentBuffer()
+                                                      this.schematicRenderState.chunkFixUniform.getCurrentBuffer()
             );
             this.shouldDraw = true;
         }
@@ -812,13 +869,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     public void drawBlockLayerGroup(ChunkSectionLayerGroup group, @Nullable GpuSampler sampler)
     {
 //        LOGGER.warn("[WorldRenderer] drawBlockLayerGroup() [{}]", group.name());
-        if (this.batchDraw != null && this.shouldDraw)
+        if (this.schematicRenderState.hasBatchDraw() && this.shouldDraw)
         {
             this.profiler.push(Reference.MOD_ID + "_batch_draw_" + group.label());
 
             // Disable fog in the Schematic World
             RenderSystem.setShaderFog(this.getEmptyFogBuffer());
-            this.batchDraw.draw(group, sampler, this.profiler);
+            this.schematicRenderState.getBatchDraw().draw(group, sampler, this.profiler);
             RenderSystem.setShaderFog(this.vanillaFogBuffer);
 
             this.profiler.pop();
@@ -826,29 +883,15 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void clearBlockBatchDraw()
+    public ChunkFixUniform getChunkFixUniform()
     {
-        if (this.batchDraw != null)
-        {
-            this.batchDraw = null;
-        }
-
-        this.shouldDraw = false;
+        return this.schematicRenderState.chunkFixUniform;
     }
 
     @Override
     public void clearChunkFixUniform()
     {
-        if (this.chunkFixUniform != null)
-        {
-            try
-            {
-                this.chunkFixUniform.close();
-            }
-            catch (Exception ignored) { }
-        }
-
-        this.chunkFixUniform = new ChunkFixUniform();
+        this.schematicRenderState.clearChunkFixUniform();
     }
 
     @Override
@@ -858,33 +901,24 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 	}
 
     @Override
-	public void updateCameraState(Camera camera, float tickProgress)
+	public void updateCameraState(Camera camera, float tickProgress, CameraRenderState cameraState)
 	{
-		this.schematicRenderState.cameraState.initialized = camera.isInitialized();
-		this.schematicRenderState.cameraState.pos = camera.position();
-		this.schematicRenderState.cameraState.blockPos = camera.blockPosition();
-//		this.schematicRenderState.cameraState.blockPos = camera.entity().getRopeHoldPosition(tickProgress);
-		this.schematicRenderState.cameraState.orientation = new Quaternionf(camera.rotation());
+        this.schematicRenderState.cameraState.initialized = cameraState.initialized;
+        this.schematicRenderState.cameraState.blockPos = cameraState.blockPos;
+        this.schematicRenderState.cameraState.pos = cameraState.pos;
+        this.schematicRenderState.cameraState.xRot = cameraState.xRot;
+        this.schematicRenderState.cameraState.yRot = cameraState.yRot;
+        this.schematicRenderState.cameraState.orientation = cameraState.orientation;
+        this.schematicRenderState.cameraState.isPanoramicMode = cameraState.isPanoramicMode;
+        this.schematicRenderState.cameraState.cullFrustum = cameraState.cullFrustum;
+        this.schematicRenderState.cameraState.fogType = cameraState.fogType;
+        this.schematicRenderState.cameraState.fogData = cameraState.fogData;
+        this.schematicRenderState.cameraState.hudFov = cameraState.hudFov;
+        this.schematicRenderState.cameraState.depthFar = cameraState.depthFar;
+        this.schematicRenderState.cameraState.projectionMatrix = cameraState.projectionMatrix;
+        this.schematicRenderState.cameraState.viewRotationMatrix = cameraState.viewRotationMatrix;
+        this.schematicRenderState.cameraState.entityRenderState = cameraState.entityRenderState;
 	}
-
-//    public void scheduleChunkUploads(Vec3 cameraPos, ProfilerFiller profiler)
-//    {
-//        LOGGER.warn("scheduleChunkUploads()");
-//        double x = cameraPos.x();
-//        double y = cameraPos.y();
-//        double z = cameraPos.z();
-//
-//        this.profiler = profiler;
-//
-//        for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
-//        {
-//            if ((!chunkRenderer.getChunkRenderData().isBlockLayerEmpty() ||
-//                (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())))
-//            {
-//                this.renderDispatcher.uploadChunkLater(chunkRenderer, profiler);
-//            }
-//        }
-//    }
 
     @Override
     public void scheduleTranslucentSorting(Vec3 cameraPos, ProfilerFiller profiler)
@@ -986,12 +1020,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         {
             RenderShape renderType = state.getRenderShape();
 
-            if (renderType == RenderShape.INVISIBLE)
-            {
-                this.getProfiler().pop();
-                return;
-            }
-            else
+            if (renderType == RenderShape.MODEL)
             {
                 boolean result;
 
@@ -999,8 +1028,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //                List<BlockStateModelPart> parts = this.getModelParts(pos, state, this.blockModelRenderer.getRandom());
                 BlockStateModel model = this.getModelForState(state);
 
-                result = renderType == RenderShape.MODEL &&
-                        this.blockModelRenderer.tessellateBlock(world, state, pos, offset, model, state.getSeed(pos), output);
+                result = this.blockModelRenderer.tessellateBlock(world, state, pos, offset, model, state.getSeed(pos), output);
 
 //                System.out.printf("renderBlock(): result [%s]\n", result);
 
@@ -1013,7 +1041,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                  */
 
                 this.getProfiler().pop();
-                return;
             }
         }
         catch (Throwable throwable)

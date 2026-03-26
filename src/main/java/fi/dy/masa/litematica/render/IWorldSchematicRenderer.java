@@ -1,15 +1,11 @@
 package fi.dy.masa.litematica.render;
 
-import java.util.Collection;
 import java.util.List;
-
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.textures.GpuSampler;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -22,6 +18,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,7 +26,6 @@ import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
@@ -78,9 +74,7 @@ public interface IWorldSchematicRenderer
 
 	void reloadBlockRenderManager();
 
-	ChunkFixUniform getChunkFixUniform();
-
-	void updateCameraState(Camera camera, float tickProgress);
+	void updateCameraState(Camera camera, float tickProgress, CameraRenderState cameraState);
 
 	void setupTerrain(Camera camera, Frustum frustum, int frameCount, boolean playerSpectator, ProfilerFiller profiler);
 
@@ -88,7 +82,7 @@ public interface IWorldSchematicRenderer
 
 	void capturePreMainValues(CameraRenderState camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler);
 
-	void uploadRemainingBuffers(long finishTimeNano, Matrix4fc matrix4fc, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
+	void uploadRemainingBuffers(long finishTimeNano, DeltaTracker deltaTracker, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
 
 	int prepareBlockLayers(Matrix4fc matrix4fc, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
 
@@ -128,7 +122,7 @@ public interface IWorldSchematicRenderer
 
 	void setChunkSchematicState(int chunkX, int chunkZ, ChunkSchematicState state);
 
-	void clearBlockBatchDraw();
+	ChunkFixUniform getChunkFixUniform();
 
 	void clearChunkFixUniform();
 

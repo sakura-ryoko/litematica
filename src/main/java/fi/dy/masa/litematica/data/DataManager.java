@@ -508,12 +508,12 @@ public class DataManager implements IDirectoryCache
 
     public static Path getDefaultBaseSchematicDirectory()
     {
-        return FileUtils.getRealPathIfPossible(FileUtils.getMinecraftDirectoryAsPath().resolve("schematics"));
+        return FileUtils.getRealPathIfPossible(FileUtils.getMinecraftDirectory().resolve("schematics"));
     }
 
     public static Path getCurrentConfigDirectory()
     {
-        return FileUtils.getConfigDirectoryAsPath().resolve(Reference.MOD_ID);
+        return FileUtils.getConfigDirectory().resolve(Reference.MOD_ID);
     }
 
     public static Path getSchematicsBaseDirectory()
