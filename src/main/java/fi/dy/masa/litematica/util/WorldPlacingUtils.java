@@ -104,6 +104,7 @@ public class WorldPlacingUtils
                                                               SchematicPlacement schematicPlacement,
                                                               SubRegionPlacement placement)
     {
+        ReplaceBehavior replace = (ReplaceBehavior) Configs.Generic.PLACEMENT_REPLACE_BEHAVIOR.getOptionListValue();
         IntBoundingBox bounds = schematicPlacement.getBoxWithinChunkForRegion(regionName, chunkPos.x, chunkPos.z);
         Vec3i regionSize = schematicPlacement.getSchematic().getAreaSizeAsVec3i(regionName);
 
@@ -204,7 +205,13 @@ public class WorldPlacingUtils
                     pos = pos.offset(totalRegionPosTransformed);
 
 //                    BlockState stateOld = world.getBlockState(pos);
-//                    BlockState stateOld = chunk.getBlockState(pos);
+                    BlockState stateOld = chunk.getBlockState(pos);
+
+                    if ((replace == ReplaceBehavior.NONE && stateOld.isAir() == false) ||
+                        (replace == ReplaceBehavior.WITH_NON_AIR && state.isAir() == true))
+                    {
+                        continue;
+                    }
 
                     // Fix inventory of adjacent chest sides when mirrored
                     if (state.hasBlockEntity() && state.is(Blocks.CHEST) &&
