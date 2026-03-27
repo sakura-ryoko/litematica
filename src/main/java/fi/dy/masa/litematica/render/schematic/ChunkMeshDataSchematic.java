@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.logging.log4j.Logger;
+
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -18,6 +20,8 @@ import fi.dy.masa.litematica.Litematica;
 
 public class ChunkMeshDataSchematic implements AutoCloseable
 {
+	private static final Logger LOGGER = Litematica.LOGGER;
+	public static final Comparator<ChunkMeshDataSchematic> COMPARATOR = new MeshDataComparator();
 	public static final ChunkMeshDataSchematic UNCOMPILED = new ChunkMeshDataSchematic()
 	{
 		@Override
@@ -48,9 +52,11 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 	private final List<BlockEntity> noCullBlockEntities;
 	private VisibilitySet visibility;
 //    private TranslucencyPointOfView translucentPov;
+	private long timeBuilt;
 
 	protected ChunkMeshDataSchematic()
 	{
+		this.timeBuilt = 0L;
 		this.chunkMeshCache = new ChunkMeshCache();
 		this.blockEntities = new ArrayList<>();
 		this.noCullBlockEntities = new ArrayList<>();
@@ -76,13 +82,13 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 	protected void saveMeshData(ChunkSectionLayer layer, @Nonnull MeshData meshData)
 	{
 		this.chunkMeshCache.saveMeshData(layer, meshData);
-		Litematica.LOGGER.warn("[Mesh] saveMeshData(): layer: [{}] --> VBO-POS: [{}]", layer.label(), meshData.vertexBuffer().position());
+		LOGGER.warn("[Mesh] saveMeshData(): layer: [{}] --> VBO-POS: [{}]", layer.label(), meshData.vertexBuffer().position());
 	}
 
 	protected void saveMeshData(OverlayRenderType type, @Nonnull MeshData meshData)
 	{
 		this.chunkMeshCache.saveMeshData(type, meshData);
-		Litematica.LOGGER.warn("[Mesh] saveMeshData(): type: [{}] --> VBO-POS: [{}]", type.name(), meshData.vertexBuffer().position());
+		LOGGER.warn("[Mesh] saveMeshData(): type: [{}] --> VBO-POS: [{}]", type.name(), meshData.vertexBuffer().position());
 	}
 
 	protected boolean hasMeshData(ChunkSectionLayer layer)
@@ -175,7 +181,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	protected void compileLayerDrawStates(Set<ChunkSectionLayer> blockLayersUsed)
 	{
-		Litematica.LOGGER.warn("[Mesh] compileLayerDrawStates() --> {}", blockLayersUsed.toString());
+		LOGGER.warn("[Mesh] compileLayerDrawStates() --> {}", blockLayersUsed.toString());
 		this.blockDrawStates.clear();
 
 		for (ChunkSectionLayer layer : blockLayersUsed)
@@ -184,7 +190,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 			if (meshData != null)
 			{
-				Litematica.LOGGER.warn("[Mesh] compileLayerDrawStates(): layer: [{}] --> STORE", layer.label());
+				LOGGER.warn("[Mesh] compileLayerDrawStates(): layer: [{}] --> STORE", layer.label());
 				this.blockDrawStates.put(layer, new ChunkMeshDataSchematic.DrawState(meshData.drawState().indexCount(), meshData.drawState().indexType(), meshData.indexBuffer() != null));
 			}
 		}
@@ -192,7 +198,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	protected void compileOverlayDrawStates(Set<OverlayRenderType> overlaysUsed)
 	{
-		Litematica.LOGGER.warn("[Mesh] compileOverlayDrawStates() --> {}", overlaysUsed.toString());
+		LOGGER.warn("[Mesh] compileOverlayDrawStates() --> {}", overlaysUsed.toString());
 		this.overlayDrawStates.clear();
 
 		for (OverlayRenderType type : overlaysUsed)
@@ -201,7 +207,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 			if (meshData != null)
 			{
-				Litematica.LOGGER.warn("[Mesh] compileLayerDrawStates(): type: [{}] --> STORE", type.name());
+				LOGGER.warn("[Mesh] compileLayerDrawStates(): type: [{}] --> STORE", type.name());
 				this.overlayDrawStates.put(type, new ChunkMeshDataSchematic.DrawState(meshData.drawState().indexCount(), meshData.drawState().indexType(), meshData.indexBuffer() != null));
 			}
 		}
@@ -279,6 +285,16 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 //        this.translucentPov = pov;
 //    }
 
+	protected void setTimeBuilt(long time)
+	{
+		this.timeBuilt = time;
+	}
+
+	public long getTimeBuilt()
+	{
+		return this.timeBuilt;
+	}
+
 	protected void clearAll()
 	{
 		this.closeChunkMeshCache();
@@ -295,11 +311,20 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 		this.blockEntities.clear();
 		this.noCullBlockEntities.clear();
+		this.timeBuilt = 0L;
 	}
 
 	protected void dumpMeshDataDebug()
 	{
-		System.out.print("[Mesh] MeshData()\n");
+		if (this.equals(EMPTY))
+		{
+			System.out.print("[Mesh] ChunkMeshDataSchematic --> EMPTY\n");
+		}
+		else
+		{
+			System.out.printf("[Mesh] ChunkMeshDataSchematic; timeBuilt: [%d]\n", this.getTimeBuilt());
+		}
+
 		System.out.printf("  [BLOCK_STATES]  : %d\n", this.blockDrawStates.size());
 		System.out.printf("  [OVERLAY_STATES]: %d\n", this.overlayDrawStates.size());
 		System.out.printf("  [TILE_COUNT]   : %d\n", this.blockEntities.size());
@@ -314,5 +339,40 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	public record DrawState(int indexCount, VertexFormat.IndexType indexType, boolean hasIndexBuffer)
 	{
+	}
+
+	public static class MeshDataComparator implements Comparator<ChunkMeshDataSchematic>
+	{
+		@Override
+		public int compare(ChunkMeshDataSchematic o1, ChunkMeshDataSchematic o2)
+		{
+			if (o1.equals(EMPTY)) { return 1; }
+			if (o2.equals(EMPTY)) { return -1; }
+			final int timeCompare = Long.compare(o1.timeBuilt, o2.timeBuilt);
+			System.out.printf("[Mesh] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
+
+			if (timeCompare != 0)
+			{
+				return -timeCompare;
+			}
+
+			final int blockStates = Integer.compare(o1.blockDrawStates.size(), o2.blockDrawStates.size());
+			final int overlayStates = Integer.compare(o1.overlayDrawStates.size(), o2.overlayDrawStates.size());
+
+			if (blockStates != 0 || overlayStates != 0)
+			{
+				return blockStates > 0 ? 1 : overlayStates;
+			}
+
+			final int tileEntities = Integer.compare(o1.blockEntities.size(), o2.blockEntities.size());
+			final int noCullBlocks = Integer.compare(o1.noCullBlockEntities.size(), o2.noCullBlockEntities.size());
+
+			if (tileEntities != 0 || noCullBlocks != 0)
+			{
+				return tileEntities > 0 ? 1 : noCullBlocks;
+			}
+
+			return 0;
+		}
 	}
 }

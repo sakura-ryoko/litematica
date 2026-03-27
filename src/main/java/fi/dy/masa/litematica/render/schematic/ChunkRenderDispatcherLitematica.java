@@ -476,7 +476,7 @@ public class ChunkRenderDispatcherLitematica
 //        }
 //    }
 
-    protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final ChunkRendererSchematicVbo renderChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
+    protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
         LOGGER.warn("[Dispatch] uploadChunkBlocks layer [{}]", layer.label());
 
@@ -485,7 +485,7 @@ public class ChunkRenderDispatcherLitematica
         {
             try
             {
-                this.uploadVertexBufferByBlockLayer(layer, renderChunk, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly, profiler);
+                this.uploadVertexBufferByBlockLayer(layer, renderChunk, compiledChunk, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly, profiler);
             }
             catch (Exception e)
             {
@@ -505,7 +505,7 @@ public class ChunkRenderDispatcherLitematica
                     null);
              */
 
-            ListenableFutureTask<Object> futureTask = ListenableFutureTask.create(() -> ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, renderChunk, distanceSq, resortOnly, profiler), null);
+            ListenableFutureTask<Object> futureTask = ListenableFutureTask.create(() -> ChunkRenderDispatcherLitematica.this.uploadChunkBlocks(layer, renderChunk, compiledChunk, distanceSq, resortOnly, profiler), null);
 
             synchronized (this.queueChunkUploads)
             {
@@ -516,7 +516,7 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
+    protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
         LOGGER.warn("[Dispatch] uploadChunkOverlay type [{}]", type.name());
 
@@ -525,7 +525,7 @@ public class ChunkRenderDispatcherLitematica
         {
             try
             {
-                this.uploadVertexBufferByType(type, renderChunk, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly, profiler);
+                this.uploadVertexBufferByType(type, renderChunk, compiledChunk, renderChunk.createVertexSorter(this.getCameraPos(), renderChunk.getOrigin()), resortOnly, profiler);
             }
             catch (Exception e)
             {
@@ -540,7 +540,7 @@ public class ChunkRenderDispatcherLitematica
         else
         {
             profiler.popPush("upload_chunk_overlay_later");
-            ListenableFutureTask<Object> futureTask = ListenableFutureTask.<Object>create(() -> ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, renderChunk, distanceSq, resortOnly, profiler), null);
+            ListenableFutureTask<Object> futureTask = ListenableFutureTask.<Object>create(() -> ChunkRenderDispatcherLitematica.this.uploadChunkOverlay(type, renderChunk, compiledChunk, distanceSq, resortOnly, profiler), null);
 
             synchronized (this.queueChunkUploads)
             {
@@ -551,15 +551,14 @@ public class ChunkRenderDispatcherLitematica
         }
     }
 
-    private void uploadVertexBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
+    private void uploadVertexBufferByBlockLayer(final ChunkSectionLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
         LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", layer.label());
 
         profiler.push("upload_vbo_layer_"+layer.label());
         ByteBufferBuilder allocator = renderChunk.alloc(layer);
-        ChunkRenderDataSchematic compiledChunk = renderChunk.getChunkRenderData();
-        ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
+        final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
         MeshData meshData = chunkMeshData.getMeshDataOrNull(layer);
 
         if (allocator == null)
@@ -614,20 +613,19 @@ public class ChunkRenderDispatcherLitematica
         }
 
         LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> DONE", layer.label());
-        compiledChunk.updateMeshDataCache(chunkMeshData);
-        renderChunk.updateChunkRenderData(compiledChunk);
+//        compiledChunk.updateMeshDataCache(chunkMeshData);
+//        renderChunk.updateChunkRenderData(compiledChunk);
         profiler.pop();
     }
 
-    private void uploadVertexBufferByType(OverlayRenderType type, @Nonnull ChunkRendererSchematicVbo renderChunk, @Nonnull VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
+    private void uploadVertexBufferByType(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
         LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
 
         profiler.push("upload_vbo_overlay_"+type.name());
         ByteBufferBuilder allocator = renderChunk.alloc(type);
-        ChunkRenderDataSchematic compiledChunk = renderChunk.getChunkRenderData();
-        ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
+        final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
         MeshData meshData = chunkMeshData.getMeshDataOrNull(type);
 
         if (allocator == null)
@@ -682,8 +680,8 @@ public class ChunkRenderDispatcherLitematica
 //        }
 
         LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> DONE", type.name());
-        compiledChunk.updateMeshDataCache(chunkMeshData);
-        renderChunk.updateChunkRenderData(compiledChunk);
+//        compiledChunk.updateMeshDataCache(chunkMeshData);
+//        renderChunk.updateChunkRenderData(compiledChunk);
         profiler.pop();
     }
 

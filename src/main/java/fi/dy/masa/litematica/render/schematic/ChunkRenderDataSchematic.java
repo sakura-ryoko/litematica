@@ -1,12 +1,18 @@
 package fi.dy.masa.litematica.render.schematic;
 
+import java.util.Comparator;
 import java.util.Set;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
+import fi.dy.masa.litematica.Litematica;
+
 public class ChunkRenderDataSchematic implements AutoCloseable
 {
+	private static final Logger LOGGER = Litematica.LOGGER;
+	public static final Comparator<ChunkRenderDataSchematic> COMPARATOR = new RenderDataComparator();
 	public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic()
 	{
 		@Override
@@ -61,12 +67,33 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
 	protected void updateMeshDataCache(ChunkMeshDataSchematic meshData)
 	{
-		if (this.meshDataCache != null && !this.meshDataCache.equals(meshData))
+		LOGGER.warn("[RD] updateMeshDataCache()");
+		if (this.meshDataCache != null || !this.meshDataCache.equals(ChunkMeshDataSchematic.EMPTY))
 		{
-			this.meshDataCache.clearAll();
+			int comparator = ChunkMeshDataSchematic.COMPARATOR.compare(this.meshDataCache, meshData);
+			LOGGER.error("[RD] updateMeshDataCache() compare: [{}] // oldData DUMP -->", comparator);
+//			this.meshDataCache.dumpMeshDataDebug();
+
+			if (comparator > 0)
+			{
+				LOGGER.error("[RD] updateMeshDataCache() oldData CLEAR");
+				this.meshDataCache.clearAll();
+				this.meshDataCache = meshData;
+			}
+			else
+			{
+				// Don't update
+				LOGGER.error("[RD] updateMeshDataCache() oldData SAVE");
+			}
+		}
+		else
+		{
+			LOGGER.error("[RD] updateMeshDataCache() oldData EMPTY/NULL --> newData");
+			this.meshDataCache = meshData;
 		}
 
-		this.meshDataCache = meshData;
+		LOGGER.error("[RD] updateMeshDataCache() newData DUMP -->");
+//		this.meshDataCache.dumpMeshDataDebug();
 	}
 
 	public boolean isBlockLayerEmpty()
@@ -181,14 +208,13 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 			System.out.printf("[RD] ChunkRenderDataSchematic; timeBuilt: [%d]\n", this.getTimeBuilt());
 		}
 
-		if (this.meshDataCache != null && this.meshDataCache.equals(ChunkMeshDataSchematic.EMPTY))
+		if (this.meshDataCache != null)
 		{
-			System.out.print("[RD] ChunkMeshDataCache --> EMPTY\n");
+			this.meshDataCache.dumpMeshDataDebug();
 		}
 		else
 		{
-			System.out.print("[RD] ChunkMeshDataCache --> NOT EMPTY\n");
-			this.meshDataCache.dumpMeshDataDebug();
+			System.out.print("[RD] ChunkRenderDataSchematic // ChunkMeshDataSchematic --> NULL\n");
 		}
 
 		System.out.printf("  LAYERS_STARTED  : [%s]\n", this.blockLayersStarted.toString());
@@ -201,5 +227,40 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 	public void close() throws Exception
 	{
 		this.clearAll();
+	}
+
+	public static class RenderDataComparator implements Comparator<ChunkRenderDataSchematic>
+	{
+		@Override
+		public int compare(ChunkRenderDataSchematic o1, ChunkRenderDataSchematic o2)
+		{
+			if (o1.equals(EMPTY)) { return 1; }
+			else if (o2.equals(EMPTY)) { return -1; }
+			final int timeCompare = Long.compare(o1.timeBuilt, o2.timeBuilt);
+			System.out.printf("[RDC] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
+
+			if (timeCompare != 0)
+			{
+				return -timeCompare;
+			}
+
+			final int layersStartedCompare = Integer.compare(o1.blockLayersStarted.size(), o2.blockLayersStarted.size());
+			final int overlaysStartedCompare = Integer.compare(o1.overlayLayersStarted.size(), o2.overlayLayersStarted.size());
+
+			if (layersStartedCompare != 0 || overlaysStartedCompare != 0)
+			{
+				return layersStartedCompare > 0 ? 1 : overlaysStartedCompare;
+			}
+
+			final int layersUsedCompare = Integer.compare(o1.blockLayersUsed.size(), o2.blockLayersUsed.size());
+			final int overlaysUsedCompare = Integer.compare(o1.overlayLayersUsed.size(), o2.overlayLayersUsed.size());
+
+			if (layersUsedCompare != 0 || overlaysUsedCompare != 0)
+			{
+				return layersUsedCompare > 0 ? 1 : overlaysUsedCompare;
+			}
+
+			return ChunkMeshDataSchematic.COMPARATOR.compare(o1.meshDataCache, o2.meshDataCache);
+		}
 	}
 }

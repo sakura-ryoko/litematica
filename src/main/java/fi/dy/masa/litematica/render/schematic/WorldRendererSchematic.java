@@ -198,7 +198,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
+            final ChunkRenderDataSchematic data = chunkRenderer.chunkRenderData;
 
             if (data != ChunkRenderDataSchematic.EMPTY && !data.isBlockLayerEmpty())
             {
@@ -716,10 +716,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         for (int i = startIndex; i != stopIndex; i += increment)
         {
-            ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
-            ChunkRenderDataSchematic data = renderer.getChunkRenderData();
-            ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
-            BlockPos chunkOrigin = renderer.getOrigin();
+            final ChunkRendererSchematicVbo renderer = this.renderInfos.get(i);
+            final ChunkRenderDataSchematic data = renderer.getChunkRenderData();
+            final ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
+            final BlockPos chunkOrigin = renderer.getOrigin();
 //            long now = System.currentTimeMillis();
 //            int uboIndex = -1;
 
@@ -1005,8 +1005,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
             if (renderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && renderer.hasOverlay())
             {
-                ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
-                ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
+                final ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
+                final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
@@ -1412,15 +1412,15 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         profiler.popPush("block_entities_iteration");
         for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos)
         {
-            ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
-            ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
+            final ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();
+            final ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
             List<BlockEntity> tiles = chunkMeshData.getBlockEntities();
             List<BlockEntity> noCullTiles = chunkMeshData.getNoCullBlockEntities();
 
             if (!tiles.isEmpty() && !noCullTiles.isEmpty())
             {
-                BlockPos chunkOrigin = chunkRenderer.getOrigin();
-                ChunkPos chunkPos = chunkRenderer.getChunkPos();
+//                final BlockPos chunkOrigin = chunkRenderer.getOrigin();
+                final ChunkPos chunkPos = chunkRenderer.getChunkPos();
                 ChunkSchematic chunk = this.world.getChunkSource().getChunkForLighting(chunkPos.x(), chunkPos.z());
 
                 if (chunk == null || chunk.isEmpty() ||

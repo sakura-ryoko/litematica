@@ -7,13 +7,17 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.world.phys.Vec3;
 
+import fi.dy.masa.litematica.Litematica;
+
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
+    private final Logger LOGGER = Litematica.LOGGER;
     private final AtomicReference<ChunkRendererSchematicVbo> chunkRenderer;
-    private ChunkRenderDataSchematic chunkRenderData;
+    private final AtomicReference<ChunkRenderDataSchematic> chunkRenderData;
     private final ChunkRenderTaskSchematic.Type type;
     private final List<Runnable> listFinishRunnables;
     private final ReentrantLock lock;
@@ -32,7 +36,8 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         this.distanceSq = distanceSqIn;
 	    this.status = ChunkRenderTaskSchematic.Status.PENDING;
         this.chunkRenderer = new AtomicReference<>(renderChunkIn);
-        this.setChunkRenderData(renderChunkIn.getChunkRenderData());
+        this.chunkRenderData = new AtomicReference<>(ChunkRenderDataSchematic.EMPTY);
+        LOGGER.warn("[Task] init() type: [{}]", this.type.name());
     }
 
     public Supplier<Vec3> getCameraPosSupplier()
@@ -52,31 +57,38 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected ChunkRenderDataSchematic getChunkRenderData()
     {
-        return this.chunkRenderData;
+        return this.chunkRenderData.get();
     }
 
-    protected void setChunkRenderData(ChunkRenderDataSchematic data)
+    protected void updateChunkRenderData(ChunkRenderDataSchematic data)
     {
+        LOGGER.warn("[Task] updateChunkRenderData() type: [{}]", this.type.name());
         this.lock.lock();
+
         try
         {
-            if (this.chunkRenderData != null)
+//            if (this.chunkRenderData != null)
+//            {
+//                this.chunkRenderData.clearAll();
+//            }
+//
+//            this.chunkRenderData = data;
+            ChunkRenderDataSchematic oldData = this.chunkRenderData.getAndSet(data);
+
+            if (oldData != null)
             {
-                this.chunkRenderData.clearAll();
+//                LOGGER.error("[Task] updateChunkRenderData() type: [{}] // oldData DUMP -->", this.type.name());
+//                oldData.dumpRenderDataDebug();
+                oldData.clearAll();
             }
 
-            this.chunkRenderData = data;
+//            LOGGER.error("[Task] updateChunkRenderData() type: [{}] // newData DUMP -->", this.type.name());
+//            data.dumpRenderDataDebug();
         }
         finally
         {
             this.lock.unlock();
         }
-//        ChunkRenderDataSchematic oldData = this.chunkRenderData.getAndSet(data);
-//
-//        if (oldData != null)
-//        {
-//            oldData.clearAll();
-//        }
     }
 
 //    public UberBufferCache getUberCache()
@@ -102,6 +114,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {
+        LOGGER.warn("[Task] setStatus() type: [{}]", this.type.name());
         this.lock.lock();
 
         try
@@ -116,6 +129,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void finish()
     {
+        LOGGER.warn("[Task] finish() type: [{}]", this.type.name());
         this.lock.lock();
 
         try
@@ -141,6 +155,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void addFinishRunnable(Runnable runnable)
     {
+        LOGGER.warn("[Task] addFinishRunnable() type: [{}]", this.type.name());
         this.lock.lock();
 
         try

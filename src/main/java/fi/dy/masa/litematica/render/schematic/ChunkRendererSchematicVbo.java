@@ -1,8 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -97,8 +95,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     protected AtomicReference<ChunkRenderTaskSchematic> compileTask = new AtomicReference<>(null);
     protected AtomicReference<ChunkMeshDataSchematic> chunkRenderData = new AtomicReference<>(ChunkMeshDataSchematic.EMPTY);
      */
-    protected ChunkRenderTaskSchematic compileTask;
-    protected ChunkRenderDataSchematic chunkRenderData;
+    protected volatile ChunkRenderTaskSchematic compileTask;
+    protected volatile ChunkRenderDataSchematic chunkRenderData;
 
     private boolean needsUpdate;
     private boolean needsImmediateUpdate;
@@ -442,22 +440,42 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         try
         {
-            if (this.chunkRenderData != null && !this.chunkRenderData.equals(data))
+            if (this.chunkRenderData != null || !this.chunkRenderData.equals(ChunkRenderDataSchematic.EMPTY))
             {
-//                this.clearUberAllocation(this.chunkRenderData);
+                final int comparator = ChunkRenderDataSchematic.COMPARATOR.compare(this.chunkRenderData, data);
+                ChunkMeshDataSchematic oldMeshDataCache = this.chunkRenderData.getMeshDataCache();
+//                LOGGER.error("[VBO] updateChunkRenderData() compare: [{}] // oldData DUMP -->", comparator);
+//                this.chunkRenderData.dumpRenderDataDebug();
 
-                this.chunkRenderData.dumpRenderDataDebug();
-                this.chunkRenderData.clearAll();
+                if (comparator > 0)
+                {
+//                    LOGGER.error("[VBO] updateChunkRenderData() oldData CLEAR");
+//                    this.clearUberAllocation(this.chunkRenderData);
+                    this.chunkRenderData.clearAll();
+                    this.chunkRenderData = data;
+                }
+//                else
+//                {
+//                    // Don't update
+//                    LOGGER.error("[VBO] updateChunkRenderData() oldData SAVE");
+//                }
+
+                // Check if Mesh needs saving
+                this.chunkRenderData.updateMeshDataCache(oldMeshDataCache);
             }
-
-            this.chunkRenderData = data;
+            else
+            {
+//                LOGGER.error("[VBO] updateChunkRenderData() oldData EMPTY/NULL --> newData");
+                this.chunkRenderData = data;
+            }
         }
         finally
         {
             this.chunkRenderDataLock.unlock();
         }
 
-        this.chunkRenderData.dumpRenderDataDebug();
+//        LOGGER.error("[VBO] updateChunkRenderData() // newData DUMP -->");
+//        this.chunkRenderData.dumpRenderDataDebug();
     }
 
 //    protected void clearUberAllocation(ChunkRenderDataSchematic oldData)
@@ -649,7 +667,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 				task.getChunkRenderData().clearAll();
 			}
 
-            task.setChunkRenderData(data);
+            task.updateChunkRenderData(data);
         }
         finally
         {
@@ -798,6 +816,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 chunkMeshData.updateVisibility(visGraph);
                 chunkMeshData.compileLayerDrawStates(usedBlockLayers);
                 chunkMeshData.compileOverlayDrawStates(this.existingOverlays);
+                chunkMeshData.setTimeBuilt(this.world.getGameTime());
                 data.updateMeshDataCache(chunkMeshData);
             }
         }
@@ -840,6 +859,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             this.worldRenderer.setChunkSchematicState(this.chunkPosition.x(), this.chunkPosition.z(), ChunkSchematicState.RENDERED);
         }
 
+
         data.setTimeBuilt(this.world.getGameTime());
 //        task.getLock().lock();
 //
@@ -858,7 +878,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                           @Nonnull ChunkRenderDataSchematic data,
                                           @Nonnull ChunkMeshDataSchematic chunkMeshData,
                                           IBlockOutputSchematic blockOutput,
-//                                          Set<ChunkSectionLayer> usedBlockLayers,
                                           Vec3 offset, VisGraph visGraph)
     {
         BlockState stateSchematic = this.schematicWorldView.getBlockState(pos);
@@ -2076,7 +2095,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 }
 
                 this.compileTask = new ChunkRenderTaskSchematic(this, ChunkRenderTaskSchematic.Type.RESORT_TRANSPARENCY, cameraPosSupplier, this.getDistanceSq());
-                this.compileTask.setChunkRenderData(this.chunkRenderData);
+                this.compileTask.updateChunkRenderData(this.chunkRenderData);
 
                 return this.compileTask;
             }
