@@ -35,8 +35,6 @@ public class ChunkCacheSchematic implements BlockAndTintGetter, LightChunkGetter
     public ChunkCacheSchematic(@Nonnull Level worldIn, @Nonnull ClientLevel clientWorld, @Nonnull BlockPos pos, int expand)
     {
         this.world = worldIn;
-        //this.lightingProvider = new FakeLightingProvider(this);
-
         this.worldClient = clientWorld;
         int chunkX = pos.getX() >> 4;
         int chunkZ = pos.getZ() >> 4;

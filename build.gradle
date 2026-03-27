@@ -4,18 +4,19 @@ plugins {
 }
 
 repositories {
-	maven {url = "https://masa.dy.fi/maven/sakura-ryoko"
+	maven { url = "https://masa.dy.fi/maven/sakura-ryoko"
 		content {includeGroupAndSubgroups("fi.dy.masa")}
 	}
-	maven {url = 'https://maven.fallenbreath.me/releases'
+	maven { url = 'https://maven.fallenbreath.me/releases'
 		content {includeGroupAndSubgroups("me.fallenbreath")}
 	}
-	maven {url = 'https://maven.terraformersmc.com/releases/'
+	maven { url = 'https://maven.terraformersmc.com/releases/'
 		content { includeGroupAndSubgroups("com.terraformersmc")}
 	}
 	maven { url = 'https://jitpack.io'
 		content { includeGroupAndSubgroups("com.github")}
 	}
+	maven { url = 'https://api.modrinth.com/maven' }
 }
 
 dependencies {
@@ -35,6 +36,7 @@ dependencies {
 	include(implementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
 
 	compileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	compileOnly "maven.modrinth:iris:${project.iris_version}+${project.iris_mc_version}-fabric"
 	runtimeOnly 'me.fallenbreath:mixin-auditor:0.2.0-u'
 }
 

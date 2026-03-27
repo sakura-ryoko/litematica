@@ -10,7 +10,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
-import fi.dy.masa.malilib.render.MaLiLibPipelines;
+import fi.dy.masa.litematica.render.LitematicaPipelines;
 
 public record ChunkRenderLayers()
 {
@@ -29,11 +29,16 @@ public record ChunkRenderLayers()
     {
         HashMap<ChunkSectionLayer, Pair<RenderPipeline, RenderPipeline>> map = new HashMap<>();
 
-        map.put(ChunkSectionLayer.SOLID,         Pair.of(MaLiLibPipelines.LEGACY_SOLID_TERRAIN_MASA,       MaLiLibPipelines.LEGACY_SOLID_TERRAIN_MASA_OFFSET));
-        map.put(ChunkSectionLayer.CUTOUT,        Pair.of(MaLiLibPipelines.LEGACY_CUTOUT_TERRAIN_MASA,      MaLiLibPipelines.LEGACY_CUTOUT_TERRAIN_MASA_OFFSET));
-        map.put(ChunkSectionLayer.TRANSLUCENT,   Pair.of(MaLiLibPipelines.LEGACY_TRANSLUCENT_MASA,         MaLiLibPipelines.LEGACY_TRANSLUCENT_MASA_OFFSET));
+        map.put(ChunkSectionLayer.SOLID,         Pair.of(LitematicaPipelines.LEGACY_SOLID_TERRAIN,         LitematicaPipelines.LEGACY_SOLID_TERRAIN_OFFSET));
+        map.put(ChunkSectionLayer.CUTOUT,        Pair.of(LitematicaPipelines.LEGACY_CUTOUT_TERRAIN,        LitematicaPipelines.LEGACY_CUTOUT_TERRAIN_OFFSET));
+        map.put(ChunkSectionLayer.TRANSLUCENT,   Pair.of(LitematicaPipelines.LEGACY_TRANSLUCENT,           LitematicaPipelines.LEGACY_TRANSLUCENT_OFFSET));
 
         return map;
+    }
+
+    public static Pair<RenderPipeline, RenderPipeline> getWireframe()
+    {
+        return Pair.of(LitematicaPipelines.WIREFRAME, LitematicaPipelines.WIREFRAME_OFFSET);
     }
 
 //    private static List<RenderType> getRenderLayers()

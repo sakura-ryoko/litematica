@@ -14,6 +14,10 @@ import net.minecraft.util.Util;
 
 import fi.dy.masa.litematica.Litematica;
 
+/**
+ * @deprecated -- sort of new thing that Mojang uses; but we're not.
+ */
+@Deprecated
 public class UberBufferCache implements AutoCloseable
 {
 	private final Map<ChunkSectionLayer, ChunkRenderUberBuffers> blockBuffers;

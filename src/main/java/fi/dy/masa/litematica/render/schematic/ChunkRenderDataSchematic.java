@@ -71,28 +71,28 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		if (this.meshDataCache != null || !this.meshDataCache.equals(ChunkMeshDataSchematic.EMPTY))
 		{
 			int comparator = ChunkMeshDataSchematic.COMPARATOR.compare(this.meshDataCache, meshData);
-			LOGGER.error("[RD] updateMeshDataCache() compare: [{}] // oldData DUMP -->", comparator);
+//			LOGGER.error("[RD] updateMeshDataCache() compare: [{}] // oldData DUMP -->", comparator);
 //			this.meshDataCache.dumpMeshDataDebug();
 
 			if (comparator > 0)
 			{
-				LOGGER.error("[RD] updateMeshDataCache() oldData CLEAR");
+//				LOGGER.error("[RD] updateMeshDataCache() oldData CLEAR");
 				this.meshDataCache.clearAll();
 				this.meshDataCache = meshData;
 			}
-			else
-			{
-				// Don't update
-				LOGGER.error("[RD] updateMeshDataCache() oldData SAVE");
-			}
+//			else
+//			{
+//				// Don't update
+//				LOGGER.error("[RD] updateMeshDataCache() oldData SAVE");
+//			}
 		}
 		else
 		{
-			LOGGER.error("[RD] updateMeshDataCache() oldData EMPTY/NULL --> newData");
+//			LOGGER.error("[RD] updateMeshDataCache() oldData EMPTY/NULL --> newData");
 			this.meshDataCache = meshData;
 		}
 
-		LOGGER.error("[RD] updateMeshDataCache() newData DUMP -->");
+//		LOGGER.error("[RD] updateMeshDataCache() newData DUMP -->");
 //		this.meshDataCache.dumpMeshDataDebug();
 	}
 
@@ -237,7 +237,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 			if (o1.equals(EMPTY)) { return 1; }
 			else if (o2.equals(EMPTY)) { return -1; }
 			final int timeCompare = Long.compare(o1.timeBuilt, o2.timeBuilt);
-			System.out.printf("[RDC] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
+//			System.out.printf("[RDC] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
 
 			if (timeCompare != 0)
 			{

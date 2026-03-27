@@ -37,7 +37,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 	    this.status = ChunkRenderTaskSchematic.Status.PENDING;
         this.chunkRenderer = new AtomicReference<>(renderChunkIn);
         this.chunkRenderData = new AtomicReference<>(ChunkRenderDataSchematic.EMPTY);
-        LOGGER.warn("[Task] init() type: [{}]", this.type.name());
+//        LOGGER.warn("[Task] init() type: [{}]", this.type.name());
     }
 
     public Supplier<Vec3> getCameraPosSupplier()
@@ -114,7 +114,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {
-        LOGGER.warn("[Task] setStatus() type: [{}]", this.type.name());
+//        LOGGER.warn("[Task] setStatus() type: [{}]", this.type.name());
         this.lock.lock();
 
         try

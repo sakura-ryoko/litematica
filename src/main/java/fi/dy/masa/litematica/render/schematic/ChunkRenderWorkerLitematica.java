@@ -33,15 +33,13 @@ public class ChunkRenderWorkerLitematica implements Runnable
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
         this.profiler = profiler;
 //        this.uberCache = uberCacheIn;
-
-        LOGGER.error("[LW] init()");
+//        LOGGER.error("[LW] init()");
     }
 
     @Override
     public void run()
     {
-        LOGGER.warn("[LW] run()");
-
+//        LOGGER.warn("[LW] run()");
         if (this.profiler == null)
         {
             this.profiler = Profiler.get();
@@ -170,7 +168,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (compiledChunk.isBlockLayerEmpty(layer) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkBlocks()\n");
-                        LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkBlocks({})", layer.label());
+//                        LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkBlocks({})", layer.label());
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, compiledChunk, task.getDistanceSq(), false, profiler));
                     }
                 }
@@ -180,7 +178,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                     if (compiledChunk.isOverlayTypeEmpty(type) == false)
                     {
                         //if (GuiBase.isCtrlDown()) System.out.printf("REBUILD_CHUNK pre uploadChunkOverlay()\n");
-                        LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkOverlay({})", type.name());
+//                        LOGGER.warn("[LW] REBUILD_CHUNK pre uploadChunkOverlay({})", type.name());
                         futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(type, renderChunk, compiledChunk, task.getDistanceSq(), false, profiler));
                     }
                 }
@@ -193,14 +191,14 @@ public class ChunkRenderWorkerLitematica implements Runnable
                 if (compiledChunk.isBlockLayerEmpty(layer) == false)
                 {
                     //System.out.printf("RESORT_TRANSPARENCY pre uploadChunkBlocks(%s)\n", layer.toString());
-                    LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkBlocks({})", layer.label());
+//                    LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkBlocks({})", layer.label());
                     futuresList.add(this.chunkRenderDispatcher.uploadChunkBlocks(layer, renderChunk, compiledChunk, task.getDistanceSq(), true, profiler));
                 }
 
                 if (compiledChunk.isOverlayTypeEmpty(OverlayRenderType.QUAD) == false)
                 {
                     //if (GuiBase.isCtrlDown()) System.out.printf("RESORT_TRANSPARENCY pre uploadChunkOverlay()\n");
-                    LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkOverlay({})", OverlayRenderType.QUAD.name());
+//                    LOGGER.warn("[LW] RESORT_TRANSPARENCY pre uploadChunkOverlay({})", OverlayRenderType.QUAD.name());
                     futuresList.add(this.chunkRenderDispatcher.uploadChunkOverlay(OverlayRenderType.QUAD, renderChunk, compiledChunk, task.getDistanceSq(), true, profiler));
                 }
             }
@@ -254,7 +252,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         return;
                     }
 
-//                    LOGGER.warn("[LW] procesTask() --> futureCallback onSuccess() --> UPDATE");
+                    LOGGER.warn("[LW] procesTask() --> futureCallback onSuccess() --> UPDATE");
 //                    compiledChunk.dumpRenderDataDebug();
                     task.getRenderChunk().updateChunkRenderData(compiledChunk);
                 }
@@ -281,7 +279,6 @@ public class ChunkRenderWorkerLitematica implements Runnable
 //        return this.uberCache != null ? this.uberCache : this.chunkRenderDispatcher.allocateUberBuffers();
 //    }
 //
-//    // todo -- check
 //    private void clearUberBuffers(ChunkRenderTaskSchematic generator)
 //    {
 //        UberBufferCache uberCache = generator.getUberCache();
@@ -314,7 +311,7 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
     public void notifyToStop()
     {
-        LOGGER.warn("[LW] stop()");
+//        LOGGER.warn("[LW] stop()");
         this.shouldRun = false;
     }
 }

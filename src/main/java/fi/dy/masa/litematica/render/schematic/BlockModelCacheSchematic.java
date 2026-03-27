@@ -11,10 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.PlayerSkinRenderCache;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
-import net.minecraft.client.renderer.block.BlockModelSet;
-import net.minecraft.client.renderer.block.BlockStateModelSet;
-import net.minecraft.client.renderer.block.FluidStateModelSet;
+import net.minecraft.client.renderer.block.*;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
@@ -29,9 +26,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 import fi.dy.masa.litematica.mixin.model.IMixinBlockModelSet;
 import fi.dy.masa.litematica.mixin.model.IMixinBlockStateModelSet;
+import fi.dy.masa.litematica.mixin.model.IMixinFluidStateModelSet;
 import fi.dy.masa.litematica.mixin.model.IMixinModelManager;
 
 public class BlockModelCacheSchematic
@@ -41,8 +41,10 @@ public class BlockModelCacheSchematic
 	private static final Matrix4fc MATRIX = new Matrix4f();
 	private final ConcurrentHashMap<BlockState, BlockStateModel> blockStateModelCache;
 	private final ConcurrentHashMap<BlockState, BlockModel> blockModelCache;
+	private final ConcurrentHashMap<Fluid, FluidModel> fluidModelCache;
 	private ModelManager modelManager;
 	private BlockStateModelSet blockStateModelSet;
+	private FluidStateModelSet fluidStateModelSet;
 	private BlockModelSet blockModelSet;
 	private BlockColors blockColors;
 
@@ -50,6 +52,7 @@ public class BlockModelCacheSchematic
 	{
 		this.blockStateModelCache = new ConcurrentHashMap<>(256, 0.9f, 1);
 		this.blockModelCache = new ConcurrentHashMap<>(256, 0.9f, 1);
+		this.fluidModelCache = new ConcurrentHashMap<>(32, 0.9f, 1);
 	}
 
 	protected void register()
@@ -88,7 +91,7 @@ public class BlockModelCacheSchematic
 
 	protected FluidStateModelSet fluidStateModelSet()
 	{
-		return this.modelManager.getFluidStateModelSet();
+		return this.fluidStateModelSet;
 	}
 
 	protected EntityModelSet entityModelSet()
@@ -103,6 +106,7 @@ public class BlockModelCacheSchematic
 		this.modelManager = mc.getModelManager();
 		this.blockStateModelSet = this.modelManager.getBlockStateModelSet();
 		this.blockModelSet = this.modelManager.getBlockModelSet();
+		this.fluidStateModelSet = this.modelManager.getFluidStateModelSet();
 		this.blockColors = ((IMixinBlockModelSet) this.blockModelSet).litematica_getBlockColors();
 
 		synchronized (this.blockStateModelCache)
@@ -115,6 +119,12 @@ public class BlockModelCacheSchematic
 		{
 			this.blockModelCache.clear();
 			this.blockModelCache.putAll(((IMixinBlockModelSet) this.blockModelSet).litematica_getBlockModelCache());
+		}
+
+		synchronized (this.fluidModelCache)
+		{
+			this.fluidModelCache.clear();
+			this.fluidModelCache.putAll(((IMixinFluidStateModelSet) this.fluidStateModelSet).litematica_getModelByFluid());
 		}
 	}
 
@@ -231,5 +241,35 @@ public class BlockModelCacheSchematic
 	public void updateItemFrameRenderState(final BlockModelRenderState renderState, final boolean glowing, boolean map)
 	{
 		this.updateBlockRenderState(renderState, BlockStateDefinitions.getItemFrameFakeState(glowing, map), ItemFrameRenderer.BLOCK_DISPLAY_CONTEXT);
+	}
+
+	public FluidModel fetchFluidModel(FluidState state)
+	{
+		FluidModel model;
+		final Fluid fluid = state.getType();
+
+		if (this.fluidModelCache.containsKey(fluid))
+		{
+			synchronized (this.fluidModelCache)
+			{
+				model = this.fluidModelCache.get(fluid);
+			}
+		}
+		else
+		{
+			model = this.fluidStateModelSet.get(state);
+
+			synchronized (this.fluidModelCache)
+			{
+				this.fluidModelCache.put(fluid, model);
+			}
+		}
+
+		if (model != null)
+		{
+			return model;
+		}
+
+		return ((IMixinFluidStateModelSet) this.fluidStateModelSet).litematica_getMissingModel();
 	}
 }

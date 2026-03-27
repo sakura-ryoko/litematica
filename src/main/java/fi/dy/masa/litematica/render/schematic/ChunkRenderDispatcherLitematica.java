@@ -142,8 +142,7 @@ public class ChunkRenderDispatcherLitematica
     protected boolean runChunkUploads(long finishTimeNano, ProfilerFiller profiler)
     {
         boolean ranTasks = false;
-        LOGGER.warn("[Dispatch] runChunkUploads() - queueChunkUpdates({}) // queueChunkUploads({})", this.queueChunkUpdates.size(), this.queueChunkUploads.size());
-
+//        LOGGER.warn("[Dispatch] runChunkUploads() - queueChunkUpdates({}) // queueChunkUploads({})", this.queueChunkUpdates.size(), this.queueChunkUploads.size());
         profiler.push("run_chunk_uploads");
         while (true)
         {
@@ -206,7 +205,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected boolean updateChunkLater(ChunkRendererSchematicVbo renderChunk, ProfilerFiller profiler)
     {
-        LOGGER.warn("[Dispatch] updateChunkLater()");
+//        LOGGER.warn("[Dispatch] updateChunkLater()");
         profiler.push("update_chunk_later");
         /* Threaded Code
         final ChunkRenderTaskSchematic generator = renderChunk.makeCompileTaskChunkSchematic(this::getCameraPos);
@@ -250,8 +249,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected boolean updateChunkNow(ChunkRendererSchematicVbo chunkRenderer, ProfilerFiller profiler)
     {
-        LOGGER.warn("[Dispatch] updateChunkNow()");
-
+//        LOGGER.warn("[Dispatch] updateChunkNow()");
         profiler.push("update_chunk_now");
         /* Threaded Code
         try
@@ -290,76 +288,9 @@ public class ChunkRenderDispatcherLitematica
         return flag;
     }
 
-//    protected boolean uploadChunkNow(ChunkRendererSchematicVbo renderChunk, ProfilerFiller profiler)
-//    {
-//        LOGGER.warn("[Dispatch] uploadChunkNow()");
-//        profiler.push("upload_chunks_now");
-//        renderChunk.getLockCompileTask().lock();
-//        boolean flag = false;
-//
-//        try
-//        {
-//            final ChunkRenderTaskSchematic generator = renderChunk.makeUploadTaskChunkSchematic(this::getCameraPos);
-//
-//            if (generator == null)
-//            {
-//                LOGGER.error("[Dispatch] uploadChunkNow() -- Make Task returned null");
-//                flag = false;
-//                profiler.pop();
-//                return flag;
-//            }
-//
-//            try
-//            {
-//                this.renderWorker.processTask(generator, profiler);
-//            }
-//            catch (InterruptedException ignored) {}
-//
-//            flag = true;
-//        }
-//        finally
-//        {
-//            renderChunk.getLockCompileTask().unlock();
-//        }
-//
-//        profiler.pop();
-//        return flag;
-//    }
-//
-//    protected boolean uploadChunkLater(ChunkRendererSchematicVbo renderChunk, ProfilerFiller profiler)
-//    {
-//        LOGGER.warn("[Dispatch] uploadChunkLater()");
-//        profiler.push("upload_chunks_later");
-//        renderChunk.getLockCompileTask().lock();
-//        boolean flag;
-//
-//        try
-//        {
-//            final ChunkRenderTaskSchematic generator = renderChunk.makeUploadTaskChunkSchematic(this::getCameraPos);
-//
-//            if (generator == null)
-//            {
-//                flag = true;
-//                profiler.pop();
-//                return flag;
-//            }
-//
-//            generator.addFinishRunnable(() -> ChunkRenderDispatcherLitematica.this.queueChunkUpdates.remove(generator));
-//
-//            flag = this.queueChunkUpdates.offer(generator);
-//        }
-//        finally
-//        {
-//            renderChunk.getLockCompileTask().unlock();
-//        }
-//
-//        profiler.pop();
-//        return flag;
-//    }
-
     protected void stopChunkUpdates(ProfilerFiller profiler)
     {
-        LOGGER.warn("[Dispatch] stopChunkUpdates()");
+//        LOGGER.warn("[Dispatch] stopChunkUpdates()");
         profiler.push("stop_chunk_updates");
         this.clearChunkUpdates();
 //        List<UberBufferCache> list = new ArrayList<>();
@@ -478,8 +409,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
-        LOGGER.warn("[Dispatch] uploadChunkBlocks layer [{}]", layer.label());
-
+//        LOGGER.warn("[Dispatch] uploadChunkBlocks layer [{}]", layer.label());
         profiler.push("upload_chunk_blocks");
         if (Minecraft.getInstance().isSameThread())
         {
@@ -518,8 +448,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly, ProfilerFiller profiler)
     {
-        LOGGER.warn("[Dispatch] uploadChunkOverlay type [{}]", type.name());
-
+//        LOGGER.warn("[Dispatch] uploadChunkOverlay type [{}]", type.name());
         profiler.push("upload_chunk_overlay");
         if (Minecraft.getInstance().isSameThread())
         {
@@ -555,7 +484,6 @@ public class ChunkRenderDispatcherLitematica
             throws InterruptedException
     {
         LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", layer.label());
-
         profiler.push("upload_vbo_layer_"+layer.label());
         ByteBufferBuilder allocator = renderChunk.alloc(layer);
         final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
@@ -622,7 +550,6 @@ public class ChunkRenderDispatcherLitematica
             throws InterruptedException
     {
         LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
-
         profiler.push("upload_vbo_overlay_"+type.name());
         ByteBufferBuilder allocator = renderChunk.alloc(type);
         final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
@@ -705,8 +632,7 @@ public class ChunkRenderDispatcherLitematica
 
     protected void stopWorkerThreads()
     {
-        LOGGER.warn("[Dispatch] stopWorkerThreads()");
-
+//        LOGGER.warn("[Dispatch] stopWorkerThreads()");
         this.clearChunkUpdates();
 
         for (ChunkRenderWorkerLitematica worker : this.listThreadedWorkers)

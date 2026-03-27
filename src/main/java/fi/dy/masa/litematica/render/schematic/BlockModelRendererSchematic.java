@@ -41,7 +41,7 @@ public class BlockModelRendererSchematic
 		this.mutableBlockPos = new BlockPos.MutableBlockPos();
 		this.quadInst = new QuadInstance();
 		this.tintCache = new BlockTintCache();
-		this.useAmbientOcclusion = false;
+		this.useAmbientOcclusion = true;
 	    this.processor = AOProcessor.get(this.lightmap);
 		BlockModelCacheSchematic.INSTANCE.register();
     }
@@ -92,8 +92,7 @@ public class BlockModelRendererSchematic
 
 		if (!this.parts.isEmpty())
 		{
-			boolean ao = this.useAmbientOcclusion && stateIn.getLightEmission() == 0 && this.parts.getFirst().useAmbientOcclusion();
-
+			final boolean ao = this.useAmbientOcclusion && stateIn.getLightEmission() == 0 && this.parts.getFirst().useAmbientOcclusion();
 			final Vec3 offset = stateIn.getOffset(posIn);
 			final Vec3f v3 = new Vec3f(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 
@@ -101,18 +100,15 @@ public class BlockModelRendererSchematic
 			{
 				if (ao)
 				{
-//                System.out.printf("renderModelSmooth(): pos [%s] / state [%s] / parts? [%d]\n", posIn.toShortString(), stateIn, modelParts.size());
 					return this.tessellateModelSmooth(worldIn, this.parts, stateIn, posIn, v3, output);
 				}
 				else
 				{
-//                System.out.printf("renderModelFlat(): pos [%s] / state [%s] / parts? [%d]\n", posIn.toShortString(), stateIn, modelParts.size());
 					return this.tessellateModelFlat(worldIn, this.parts, stateIn, posIn, v3, output);
 				}
 			}
 			catch (Throwable throwable)
 			{
-				//Litematica.logger.error("renderModel: Crash caught: [{}]", !throwable.getMessage().isEmpty() ? throwable.getMessage() : "<EMPTY>");
 				CrashReport crashreport = CrashReport.forThrowable(throwable, "Tesselating block model");
 				CrashReportCategory crashreportcategory = crashreport.addCategory("Block model being tesselated");
 				CrashReportCategory.populateBlockDetails(crashreportcategory, worldIn, posIn, stateIn);

@@ -82,13 +82,13 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 	protected void saveMeshData(ChunkSectionLayer layer, @Nonnull MeshData meshData)
 	{
 		this.chunkMeshCache.saveMeshData(layer, meshData);
-		LOGGER.warn("[Mesh] saveMeshData(): layer: [{}] --> VBO-POS: [{}]", layer.label(), meshData.vertexBuffer().position());
+//		LOGGER.warn("[Mesh] saveMeshData(): layer: [{}] --> VBO-POS: [{}]", layer.label(), meshData.vertexBuffer().position());
 	}
 
 	protected void saveMeshData(OverlayRenderType type, @Nonnull MeshData meshData)
 	{
 		this.chunkMeshCache.saveMeshData(type, meshData);
-		LOGGER.warn("[Mesh] saveMeshData(): type: [{}] --> VBO-POS: [{}]", type.name(), meshData.vertexBuffer().position());
+//		LOGGER.warn("[Mesh] saveMeshData(): type: [{}] --> VBO-POS: [{}]", type.name(), meshData.vertexBuffer().position());
 	}
 
 	protected boolean hasMeshData(ChunkSectionLayer layer)
@@ -349,7 +349,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 			if (o1.equals(EMPTY)) { return 1; }
 			if (o2.equals(EMPTY)) { return -1; }
 			final int timeCompare = Long.compare(o1.timeBuilt, o2.timeBuilt);
-			System.out.printf("[Mesh] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
+//			System.out.printf("[Mesh] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
 
 			if (timeCompare != 0)
 			{

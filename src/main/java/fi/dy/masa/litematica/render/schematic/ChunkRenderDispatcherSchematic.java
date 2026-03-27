@@ -127,10 +127,10 @@ public class ChunkRenderDispatcherSchematic
                             }
                             catch (Exception e)
                             {
-//                                if (Reference.DEBUG_MODE)
-//                                {
+                                if (Reference.DEBUG_MODE)
+                                {
                                     Litematica.debugLogError("removeOutOfRangeRenderers: mapRemove() threw an exception; {}", e.getLocalizedMessage());
-//                                }
+                                }
                             }
                         }
                     }
@@ -138,10 +138,10 @@ public class ChunkRenderDispatcherSchematic
             }
             catch (Exception e)
             {
-//                if (Reference.DEBUG_MODE)
-//                {
+                if (Reference.DEBUG_MODE)
+                {
                     Litematica.debugLogError("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getLocalizedMessage());
-//                }
+                }
             }
 
             if (Reference.DEBUG_MODE && prevCount != this.chunkRenderers.size())
@@ -189,10 +189,10 @@ public class ChunkRenderDispatcherSchematic
         }
         catch (Exception e)
         {
-//            if (Reference.DEBUG_MODE)
-//            {
+            if (Reference.DEBUG_MODE)
+            {
                 Litematica.debugLogError("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getLocalizedMessage());
-//            }
+            }
         }
 
         return Optional.empty();

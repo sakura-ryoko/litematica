@@ -27,6 +27,7 @@ import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -85,6 +86,7 @@ import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 import fi.dy.masa.litematica.util.IAvatarInvoker;
 import fi.dy.masa.litematica.util.IEntityInvoker;
 import fi.dy.masa.litematica.util.IEntityRendererInvoker;
+import fi.dy.masa.litematica.util.IFluidRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -323,6 +325,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 this.renderDispatcher.stopWorkerThreads();
             }
 
+            this.fluidRenderer = null;
             this.renderDispatcher = null;
             this.profiler = null;
 
@@ -864,12 +867,14 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         if (startedDrawing)
         {
+            profiler.popPush("fill_uniforms");
             this.schematicRenderState.chunkFixUniform.fillBuffer(atlasWidth, atlasHeight, 1.0f);
             GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms()
                                                            .writeTransforms(
                                                                    transformValues.toArray(new DynamicUniforms.Transform[0])
                                                            );
 
+            profiler.popPush("fill_batch_draw");
             this.schematicRenderState.batchDraw = new ChunkRenderBatchDraw(blockAtlas, renderMap,
                                                       renderCollidingBlocks, renderAsTranslucent, indexCount,
                                                       transformSlices,
@@ -1071,16 +1076,34 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output)
+    public void renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY)
     {
         this.getProfiler().push("render_fluid");
-        // Sometimes this collides with FAPI
         try
         {
-//            this.blockRenderManager.renderLiquid(pos, world, bufferBuilderIn, blockState, fluidState);
-            this.fluidRenderer.tesselate(world, pos, output, blockState, fluidState);
+            // Pre-fetch
+            FluidModel model = BlockModelCacheSchematic.INSTANCE.fetchFluidModel(fluidState);
+
+            if (this.fluidRenderer == null)
+            {
+                this.fluidRenderer = new FluidRenderer(BlockModelCacheSchematic.INSTANCE.fluidStateModelSet());
+            }
+
+            if (offsetY != 0.0f)
+            {
+                IFluidRendererInvoker invoker = (IFluidRendererInvoker) this.fluidRenderer;
+                invoker.litematica$setOffsetY(offsetY);
+                invoker.litematica$tesselate(world, pos, output, blockState, fluidState);
+            }
+            else
+            {
+                this.fluidRenderer.tesselate(world, pos, output, blockState, fluidState);
+            }
         }
-        catch (Exception ignored) { }
+        catch (Exception e)
+        {
+            LOGGER.error("renderFluid(): Exception rendering fluid at pos {} [{}]; {}", pos.toShortString(), fluidState.toString(), e.getLocalizedMessage());
+        }
         this.getProfiler().pop();
     }
 
@@ -1283,8 +1306,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //                List<Entity> list = this.world.getEntities((Entity) null, bb, fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
                 ImmutableList<Entity> list = this.world.getEntitiesByChunk(chunkPos.x(), chunkPos.z(), fi.dy.masa.litematica.util.EntityUtils.NOT_PLAYER);
 
-                LOGGER.error("[WorldRenderer] prepareEntities: Chunk: {}, EntityList [{}] // BB: [{}]", chunkPos.toString(), list.size(), bb.toString());
-                LOGGER.warn("[WorldRenderer] prepareEntities: Chunk: [{}], TestList: [{}]", pos.toShortString(), list.size());
+//                LOGGER.error("[WorldRenderer] prepareEntities: Chunk: {}, EntityList [{}] // BB: [{}]", chunkPos.toString(), list.size(), bb.toString());
+//                LOGGER.warn("[WorldRenderer] prepareEntities: Chunk: [{}], TestList: [{}]", pos.toShortString(), list.size());
 
                 for (Entity entityTmp : list)
                 {
@@ -1329,9 +1352,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     if (shouldRender)
                     {
-                        LOGGER.warn("[WorldRenderer] prepareEntities/shouldRender: Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]",
-                                    pos.toShortString(), entityTmp.position().toString(),
-                                    entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
+//                        LOGGER.warn("[WorldRenderer] prepareEntities/shouldRender: Chunk: [{}], EntityPos [{}] // Adj. Pos: X [{}], Y [{}], Z [{}]",
+//                                    pos.toShortString(), entityTmp.position().toString(),
+//                                    entityTmp.getX(), entityTmp.getY(), entityTmp.getZ());
 
                         // Check for Salmon / Cod 'inWater' fix
                         // Because the entities might be following the ClientWorld State
