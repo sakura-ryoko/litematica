@@ -25,7 +25,6 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 @ApiStatus.Experimental
 public class PickBlockUtils
 {
-	// FIXME DO NOT USE
     @Nullable
     public static InteractionHand doPickBlockForStack(ItemStack stack)
     {
@@ -35,18 +34,13 @@ public class PickBlockUtils
         {
             return null;
         }
-//        boolean ignoreNbt = Configs.Generic.PICK_BLOCK_IGNORE_NBT.getBooleanValue();
         boolean ignoreNbt = false;
         InteractionHand hand = EntityUtils.getUsedHandForItem(player, stack, ignoreNbt);
 
         if (stack.isEmpty() == false && hand == null)
         {
-            //switchItemToHand(stack, ignoreNbt);
-            //hand = EntityWrap.getUsedHandForItem(player, stack, ignoreNbt);
-
-//            fi.dy.masa.malilib.util.InventoryUtils.swapItemToMainHand(stack, mc);
-//            hand = Hand.MAIN_HAND;
-			return null;
+            fi.dy.masa.malilib.util.InventoryUtils.swapItemToMainHand(stack, mc);
+            hand = InteractionHand.MAIN_HAND;
         }
 
         if (hand != null)
@@ -57,8 +51,7 @@ public class PickBlockUtils
         return hand;
     }
 
-    // FIXME DO NOT USE
-	@Nullable
+    @Nullable
     public static InteractionHand pickBlockLast()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -90,7 +83,6 @@ public class PickBlockUtils
         return null;
     }
 
-	// FIXME DO NOT USE
     @Nullable
     private static InteractionHand doPickBlockForPosition(BlockPos pos)
     {
@@ -108,9 +100,7 @@ public class PickBlockUtils
             return null;
         }
         BlockState state = world.getBlockState(pos);
-//        ItemStack stack = MaterialCache.getInstance().getRequiredBuildItemForState(state, world, pos);
-        ItemStack stack = state.getBlock().asItem().getDefaultInstance();
-//        boolean ignoreNbt = Configs.Generic.PICK_BLOCK_IGNORE_NBT.getBooleanValue();
+        ItemStack stack = fi.dy.masa.litematica.materials.MaterialCache.getInstance().getRequiredBuildItemForState(state, world, pos);
         boolean ignoreNbt = false;
 
         if (stack.isEmpty() == false)

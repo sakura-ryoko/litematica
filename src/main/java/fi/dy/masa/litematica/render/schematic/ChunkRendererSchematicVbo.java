@@ -650,7 +650,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void rebuildChunk(ChunkRenderTaskSchematic task, ProfilerFiller profiler)
     {
-        LOGGER.warn("[VBO] rebuildChunk() pos [{}]", this.position.toShortString());
+        LOGGER.debug("[VBO] rebuildChunk() pos [{}]", this.position.toShortString());
         this.profiler = profiler;
         this.getProfiler().push("rebuild_chunk");
         ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
@@ -889,7 +889,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             return;
         }
 
-        LOGGER.warn("[VBO] renderBlocksAndOverlay() pos [{}], stateSchematic: [{}]", pos.toShortString(), stateSchematic.toString());
+        LOGGER.debug("[VBO] renderBlocksAndOverlay() pos [{}], stateSchematic: [{}]", pos.toShortString(), stateSchematic.toString());
         this.getProfiler().push("render_build");
         this.overlayColor = null;
 
@@ -903,7 +903,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
             if (stateSchematic.hasBlockEntity())
             {
-                LOGGER.warn("[VBO] addBlockEntity - state [{}]", stateSchematic.toString());
+                LOGGER.debug("[VBO] addBlockEntity - state [{}]", stateSchematic.toString());
                 this.addBlockEntity(pos, chunkMeshData);
             }
 
@@ -1078,7 +1078,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         else if (type.getRenderPriority() > typeAdj.getRenderPriority())
                         {
                             this.getProfiler().popPush("cull_render_default");
-                            LOGGER.warn("renderOverlay: Batched Block Side Quads [{}] -->", side.name());
+                            LOGGER.debug("renderOverlay: Batched Block Side Quads [{}] -->", side.name());
                             RenderUtils.drawBlockBoxSideBatchedQuads(relPos, side, this.overlayColor, 0, bufferOverlayQuads);
                         }
                         else { useDefault = true; }
@@ -1119,7 +1119,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 //                    LOGGER.warn("renderOverlay: Batched Default Quads B -->");
                     RenderUtils.drawBlockBoxBatchedQuads(relPos, this.overlayColor, 0, bufferOverlayQuads);
                 }
-                catch (Exception ignored) { }
+                catch (Exception e) { Litematica.LOGGER.error("Error rendering batched overlay quads", e); }
             }
 
             this.getProfiler().pop();
@@ -1242,7 +1242,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     RenderUtils.drawBlockBoundingBoxOutlinesBatchedDebugLines(relPos, overlayColor, 0, lineWidth, bufferOverlayOutlines);
                 }
 
-                catch (Exception ignored) { }
+                catch (Exception e) { Litematica.LOGGER.error("Error rendering batched overlay outlines", e); }
             }
 
             this.getProfiler().pop();
@@ -1496,7 +1496,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void uploadBuffersByLayer(ChunkSectionLayer layer, @Nonnull MeshData meshData)
     {
-        LOGGER.warn("[VBO] uploadBuffersByLayer() Layer [{}], IndexCount [{}]", layer.label(), meshData.drawState().indexCount());
+        LOGGER.debug("[VBO] uploadBuffersByLayer() Layer [{}], IndexCount [{}]", layer.label(), meshData.drawState().indexCount());
         ChunkRenderBuffers gpuBuffers = this.getBuffersOrNull(layer);
         boolean useResorting = Configs.Visuals.RENDER_ENABLE_TRANSLUCENT_RESORTING.getBooleanValue();
 
@@ -1601,7 +1601,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void uploadBuffersByType(OverlayRenderType type, @Nonnull MeshData meshData)
     {
-        LOGGER.warn("[VBO] uploadBuffersByType() Overlay [{}], IndexCount [{}]", type.name(), meshData.drawState().indexCount());
+        LOGGER.debug("[VBO] uploadBuffersByType() Overlay [{}], IndexCount [{}]", type.name(), meshData.drawState().indexCount());
         ChunkRenderBuffers gpuBuffers = this.getBuffersOrNull(type);
 //        boolean useResorting = Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_RESORTING.getBooleanValue();
 
@@ -1707,7 +1707,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void uploadIndexByBlockLayer(ChunkSectionLayer layer, @Nonnull ByteBufferBuilder.Result buffer)
     {
-        LOGGER.warn("[VBO] uploadIndexByLayer() Layer [{}] --> BEGIN", layer.label());
+        LOGGER.debug("[VBO] uploadIndexByLayer() Layer [{}] --> BEGIN", layer.label());
         if (this.hasBuffers(layer))
         {
             ChunkRenderBuffers gpuBuffers = this.getBuffersOrNull(layer);
@@ -1740,7 +1740,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void uploadIndexByType(OverlayRenderType type, @Nonnull ByteBufferBuilder.Result buffer)
     {
-        LOGGER.warn("[VBO] uploadIndexByType() Overlay [{}] --> BEGIN", type.name());
+        LOGGER.debug("[VBO] uploadIndexByType() Overlay [{}] --> BEGIN", type.name());
         if (this.hasBuffers(type))
         {
             ChunkRenderBuffers gpuBuffers = this.getBuffersOrNull(type);
@@ -1776,7 +1776,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                   @Nonnull ChunkMeshDataSchematic chunkMeshData)
             throws RuntimeException
     {
-        LOGGER.warn("[VBO] postRenderBlocks(): layer: [{}]", layer.label());
+        LOGGER.debug("[VBO] postRenderBlocks(): layer: [{}]", layer.label());
 
         if (!chunkRenderData.isBlockLayerEmpty(layer))
         {
@@ -1838,7 +1838,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                    @Nonnull ChunkMeshDataSchematic chunkMeshData)
             throws RuntimeException
     {
-        LOGGER.warn("[VBO] postRenderOverlay(): overlay type: [{}]", type.name());
+        LOGGER.debug("[VBO] postRenderOverlay(): overlay type: [{}]", type.name());
 
         if (!chunkRenderData.isOverlayTypeEmpty(type))
         {
@@ -1914,7 +1914,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                     @Nonnull ChunkMeshDataSchematic chunkMeshData)
             throws InterruptedException
     {
-        LOGGER.warn("[VBO] resortRenderBlocks() layer [{}]", layer.label());
+        LOGGER.debug("[VBO] resortRenderBlocks() layer [{}]", layer.label());
 
         if (!chunkRenderData.isBlockLayerEmpty(layer))
         {
@@ -1974,7 +1974,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                                      @Nonnull ChunkMeshDataSchematic chunkMeshData)
 //            throws InterruptedException
     {
-        LOGGER.warn("[VBO] resortRenderOverlay() overlay type [{}]", type.name());
+        LOGGER.debug("[VBO] resortRenderOverlay() overlay type [{}]", type.name());
 
         if (!chunkRenderData.isOverlayTypeEmpty(type))
         {
@@ -2031,7 +2031,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected ChunkRenderTaskSchematic makeCompileTaskChunkSchematic(Supplier<Vec3> cameraPosSupplier)
     {
-        LOGGER.warn("[VBO] makeCompileTaskChunkSchematic()");
+        LOGGER.debug("[VBO] makeCompileTaskChunkSchematic()");
         /*  Threaded Code
 
         ChunkRenderTaskSchematic generator = new ChunkRenderTaskSchematic(this, ChunkRenderTaskSchematic.Type.REBUILD_CHUNK, cameraPosSupplier, this.getDistanceSq());
@@ -2063,7 +2063,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     @Nullable
     protected ChunkRenderTaskSchematic makeCompileTaskTransparencySchematic(Supplier<Vec3> cameraPosSupplier)
     {
-        LOGGER.warn("[VBO] makeCompileTaskTransparencySchematic()");
+        LOGGER.debug("[VBO] makeCompileTaskTransparencySchematic()");
 
         /* Threaded Code
 

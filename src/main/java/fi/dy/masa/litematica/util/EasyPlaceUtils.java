@@ -95,10 +95,9 @@ public class EasyPlaceUtils
         {
             try
             {
-                // TODO FIXME cross-MC-version fragile
-                String name = Block.class.getSimpleName().equals("Block") ? "useWithoutItem": "a";
-                Method method = block.getClass().getMethod(name, BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
-                Method baseMethod = Block.class.getMethod(name, BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
+                // MC 26.1 is unobfuscated, method name is always useWithoutItem
+                Method method = block.getClass().getMethod("useWithoutItem", BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
+                Method baseMethod = Block.class.getMethod("useWithoutItem", BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
                 val = method.equals(baseMethod) == false;
             }
             catch (Exception e)

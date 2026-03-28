@@ -90,7 +90,7 @@ public class ChunkRenderDispatcherLitematica
                         BufferAllocatorCache r = this.queueFreeRenderAllocators.take();
                         r.close();
                     }
-                    catch (Exception ignored) { }
+                    catch (Exception e) { Litematica.LOGGER.error("Error closing free render allocator", e); }
 
                     maxCache = adjusted;
                 }
@@ -483,7 +483,7 @@ public class ChunkRenderDispatcherLitematica
     private void uploadVertexBufferByBlockLayer(final ChunkSectionLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
-        LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", layer.label());
+        LOGGER.debug("[Dispatch] uploadVertexBufferByBlockLayer layer [{}]", layer.label());
         profiler.push("upload_vbo_layer_"+layer.label());
         ByteBufferBuilder allocator = renderChunk.alloc(layer);
         final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
@@ -534,13 +534,13 @@ public class ChunkRenderDispatcherLitematica
 
             if (result != null)
             {
-                LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> UPLOAD INDEX", layer.label());
+                LOGGER.debug("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> UPLOAD INDEX", layer.label());
                 renderChunk.uploadIndexByBlockLayer(layer, result);
                 result.close();
             }
         }
 
-        LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> DONE", layer.label());
+        LOGGER.debug("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> DONE", layer.label());
 //        compiledChunk.updateMeshDataCache(chunkMeshData);
 //        renderChunk.updateChunkRenderData(compiledChunk);
         profiler.pop();
@@ -549,7 +549,7 @@ public class ChunkRenderDispatcherLitematica
     private void uploadVertexBufferByType(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final VertexSorting sorter, boolean resortOnly, ProfilerFiller profiler)
             throws InterruptedException
     {
-        LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
+        LOGGER.debug("[Dispatch] uploadVertexBufferByType type [{}]", type.name());
         profiler.push("upload_vbo_overlay_"+type.name());
         ByteBufferBuilder allocator = renderChunk.alloc(type);
         final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
@@ -574,7 +574,7 @@ public class ChunkRenderDispatcherLitematica
 
         if (resortOnly == false)
         {
-            LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> UPLOAD", type.name());
+            LOGGER.debug("[Dispatch] uploadVertexBufferByType type [{}] --> UPLOAD", type.name());
             renderChunk.uploadBuffersByType(type, meshData);
         }
 
@@ -606,7 +606,7 @@ public class ChunkRenderDispatcherLitematica
 //            }
 //        }
 
-        LOGGER.warn("[Dispatch] uploadVertexBufferByType type [{}] --> DONE", type.name());
+        LOGGER.debug("[Dispatch] uploadVertexBufferByType type [{}] --> DONE", type.name());
 //        compiledChunk.updateMeshDataCache(chunkMeshData);
 //        renderChunk.updateChunkRenderData(compiledChunk);
         profiler.pop();

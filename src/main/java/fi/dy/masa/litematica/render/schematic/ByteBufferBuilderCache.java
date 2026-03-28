@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -95,7 +96,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
                 this.blockCache.remove(layer).close();
             }
         }
-        catch (Exception ignored) { }
+        catch (Exception e) { Litematica.LOGGER.error("Error closing block buffer builder cache by layer", e); }
     }
 
     protected void closeByType(OverlayRenderType type)
@@ -107,7 +108,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
                 this.overlayCache.remove(type).close();
             }
         }
-        catch (Exception ignored) { }
+        catch (Exception e) { Litematica.LOGGER.error("Error closing overlay buffer builder cache by type", e); }
     }
 
     protected boolean isClear() { return this.clear; }
@@ -119,7 +120,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
             this.blockCache.values().forEach(ByteBufferBuilder::discard);
             this.overlayCache.values().forEach(ByteBufferBuilder::discard);
         }
-        catch (Exception ignored) { }
+        catch (Exception e) { Litematica.LOGGER.error("Error resetting buffer builder cache", e); }
 
         this.clear = true;
     }
@@ -131,7 +132,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
             this.blockCache.values().forEach(ByteBufferBuilder::clear);
             this.overlayCache.values().forEach(ByteBufferBuilder::clear);
         }
-        catch (Exception ignored) { }
+        catch (Exception e) { Litematica.LOGGER.error("Error clearing buffer builder cache", e); }
 
         this.clear = true;
     }

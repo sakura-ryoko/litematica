@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -427,7 +428,7 @@ public class OverlayRenderer
 
                 ctx.reset();
             }
-            catch (Exception ignored) { }
+            catch (Exception e) { Litematica.LOGGER.error("Error during overlay mismatch rendering", e); }
 
             profiler.popPush("outlines");
 	        lineWidth = 6f;
@@ -448,7 +449,7 @@ public class OverlayRenderer
 
             ctx.reset();
         }
-        catch (Exception ignored) { }
+        catch (Exception e) { Litematica.LOGGER.error("Error during overlay outline rendering", e); }
 
         profiler.popPush("sides");
         if (Configs.Visuals.RENDER_ERROR_MARKER_SIDES.getBooleanValue())
@@ -476,7 +477,7 @@ public class OverlayRenderer
 
                 ctx.close();
             }
-            catch (Exception ignored) { }
+            catch (Exception e) { Litematica.LOGGER.error("Error during overlay side rendering", e); }
         }
 
         profiler.pop();
