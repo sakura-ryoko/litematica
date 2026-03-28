@@ -67,7 +67,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
 	protected void updateMeshDataCache(ChunkMeshDataSchematic meshData)
 	{
-		LOGGER.warn("[RD] updateMeshDataCache()");
+		LOGGER.debug("[RD] updateMeshDataCache()");
 		if (this.meshDataCache != null || !this.meshDataCache.equals(ChunkMeshDataSchematic.EMPTY))
 		{
 			int comparator = ChunkMeshDataSchematic.COMPARATOR.compare(this.meshDataCache, meshData);

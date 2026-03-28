@@ -19,6 +19,8 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.util.profiling.ProfilerFiller;
 
+import fi.dy.masa.litematica.Litematica;
+
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
 //		EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> drawData,
@@ -107,7 +109,7 @@ public record ChunkRenderBatchDraw(
 				}
 			}
 		}
-		catch (Exception ignored) { }
+		catch (Exception e) { Litematica.LOGGER.error("Error during schematic chunk batch draw", e); }
 
         profiler.pop();
     }

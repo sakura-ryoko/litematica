@@ -62,7 +62,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void updateChunkRenderData(ChunkRenderDataSchematic data)
     {
-        LOGGER.warn("[Task] updateChunkRenderData() type: [{}]", this.type.name());
+        LOGGER.debug("[Task] updateChunkRenderData() type: [{}]", this.type.name());
         this.lock.lock();
 
         try
@@ -129,7 +129,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void finish()
     {
-        LOGGER.warn("[Task] finish() type: [{}]", this.type.name());
+        LOGGER.debug("[Task] finish() type: [{}]", this.type.name());
         this.lock.lock();
 
         try
@@ -155,7 +155,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected void addFinishRunnable(Runnable runnable)
     {
-        LOGGER.warn("[Task] addFinishRunnable() type: [{}]", this.type.name());
+        LOGGER.debug("[Task] addFinishRunnable() type: [{}]", this.type.name());
         this.lock.lock();
 
         try

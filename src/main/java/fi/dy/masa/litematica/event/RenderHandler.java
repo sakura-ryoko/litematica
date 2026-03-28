@@ -32,7 +32,10 @@ public class RenderHandler implements IRenderer
     @Override
     public void onExtractWorldLast(DeltaTracker deltaTracker, Camera camera, float ticks, ProfilerFiller profiler)
     {
-        // TODO
+        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && Minecraft.getInstance().player != null)
+        {
+            LitematicaRenderer.getInstance().uploadRemainingBuffers(camera, deltaTracker, profiler);
+        }
     }
 
     @Override

@@ -181,7 +181,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	protected void compileLayerDrawStates(Set<ChunkSectionLayer> blockLayersUsed)
 	{
-		LOGGER.warn("[Mesh] compileLayerDrawStates() --> {}", blockLayersUsed.toString());
+		LOGGER.debug("[Mesh] compileLayerDrawStates() --> {}", blockLayersUsed.toString());
 		this.blockDrawStates.clear();
 
 		for (ChunkSectionLayer layer : blockLayersUsed)
@@ -190,7 +190,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 			if (meshData != null)
 			{
-				LOGGER.warn("[Mesh] compileLayerDrawStates(): layer: [{}] --> STORE", layer.label());
+				LOGGER.debug("[Mesh] compileLayerDrawStates(): layer: [{}] --> STORE", layer.label());
 				this.blockDrawStates.put(layer, new ChunkMeshDataSchematic.DrawState(meshData.drawState().indexCount(), meshData.drawState().indexType(), meshData.indexBuffer() != null));
 			}
 		}
@@ -198,7 +198,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 	protected void compileOverlayDrawStates(Set<OverlayRenderType> overlaysUsed)
 	{
-		LOGGER.warn("[Mesh] compileOverlayDrawStates() --> {}", overlaysUsed.toString());
+		LOGGER.debug("[Mesh] compileOverlayDrawStates() --> {}", overlaysUsed.toString());
 		this.overlayDrawStates.clear();
 
 		for (OverlayRenderType type : overlaysUsed)
@@ -207,7 +207,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 
 			if (meshData != null)
 			{
-				LOGGER.warn("[Mesh] compileLayerDrawStates(): type: [{}] --> STORE", type.name());
+				LOGGER.debug("[Mesh] compileLayerDrawStates(): type: [{}] --> STORE", type.name());
 				this.overlayDrawStates.put(type, new ChunkMeshDataSchematic.DrawState(meshData.drawState().indexCount(), meshData.drawState().indexType(), meshData.indexBuffer() != null));
 			}
 		}

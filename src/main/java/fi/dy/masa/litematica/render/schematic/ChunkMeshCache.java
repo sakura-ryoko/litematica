@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.MeshData;
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public class ChunkMeshCache implements AutoCloseable
@@ -83,7 +84,7 @@ public class ChunkMeshCache implements AutoCloseable
         {
             list.forEach(MeshData::close);
         }
-        catch (Exception ignored) { }
+        catch (Exception e) { Litematica.LOGGER.error("Error closing chunk mesh cache", e); }
     }
 
     @Override
