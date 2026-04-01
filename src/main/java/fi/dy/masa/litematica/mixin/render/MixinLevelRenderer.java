@@ -41,8 +41,8 @@ import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
-@Mixin(LevelRenderer.class)
-public abstract class MixinWorldRenderer
+@Mixin(value = LevelRenderer.class, priority = 900)
+public abstract class MixinLevelRenderer
 {
     @Shadow private ClientLevel level;
     @Shadow @Final private Minecraft minecraft;

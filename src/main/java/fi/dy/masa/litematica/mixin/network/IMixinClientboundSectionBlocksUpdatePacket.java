@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientboundSectionBlocksUpdatePacket.class)
-public interface IMixinChunkDeltaUpdateS2CPacket
+public interface IMixinClientboundSectionBlocksUpdatePacket
 {
     @Accessor("sectionPos")
     SectionPos litematica_getSection();

@@ -35,7 +35,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
-import fi.dy.masa.litematica.mixin.world.IMixinWorld;
+import fi.dy.masa.litematica.mixin.world.IMixinLevel;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
 
@@ -475,7 +475,7 @@ public class EntityUtils
             leashable.getLeashData().delayedLeashInfo
                     .ifLeft(uuid ->
                             // We MUST use client-side world here.
-                            leashable.setLeashedTo(((IMixinWorld) mc.level).litematica_getEntityLookup().get(uuid), false))
+                            leashable.setLeashedTo(((IMixinLevel) mc.level).litematica_getEntityLookup().get(uuid), false))
                     .ifRight(pos ->
                             leashable.setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(mc.level, pos), false));
         }

@@ -7,7 +7,7 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.LevelTicks;
 
 @Mixin(LevelTicks.class)
-public interface IMixinWorldTickScheduler<T>
+public interface IMixinLevelTicks<T>
 {
     @Accessor("allContainers")
     Long2ObjectMap<LevelChunkTicks<T>> litematica_getChunkTickSchedulers();

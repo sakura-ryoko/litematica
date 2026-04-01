@@ -53,7 +53,7 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
-import fi.dy.masa.litematica.mixin.world.IMixinWorldTickScheduler;
+import fi.dy.masa.litematica.mixin.world.IMixinLevelTicks;
 import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkDirect;
@@ -74,9 +74,7 @@ import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
-import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
-import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class LitematicaSchematic
 {
@@ -897,10 +895,10 @@ public class LitematicaSchematic
                         startX + sizeX, startY + sizeY, startZ + sizeZ);
                 long currentTick = world.getGameTime();
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Block>) serverWorld.getBlockTicks()).litematica_getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinLevelTicks<Block>) serverWorld.getBlockTicks()).litematica_getChunkTickSchedulers(),
                                            blockTickMap, tickBox, minCorner, currentTick);
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Fluid>) serverWorld.getFluidTicks()).litematica_getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinLevelTicks<Fluid>) serverWorld.getFluidTicks()).litematica_getChunkTickSchedulers(),
                                            fluidTickMap, tickBox, minCorner, currentTick);
             }
 
@@ -1155,10 +1153,10 @@ public class LitematicaSchematic
 
                 long currentTick = world.getGameTime();
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Block>) serverWorld.getBlockTicks()).litematica_getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinLevelTicks<Block>) serverWorld.getBlockTicks()).litematica_getChunkTickSchedulers(),
                                            blockTickMap, tickBox, minCorner, currentTick);
 
-                this.getTicksFromScheduler(((IMixinWorldTickScheduler<Fluid>) serverWorld.getFluidTicks()).litematica_getChunkTickSchedulers(),
+                this.getTicksFromScheduler(((IMixinLevelTicks<Fluid>) serverWorld.getFluidTicks()).litematica_getChunkTickSchedulers(),
                                            fluidTickMap, tickBox, minCorner, currentTick);
             }
         }
