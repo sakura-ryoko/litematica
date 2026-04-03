@@ -1936,6 +1936,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
     protected void clear()
     {
+        this.chunkRenderLock.lock();
+
         try
         {
             this.finishCompileTask();
@@ -1950,16 +1952,27 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
             //LOGGER.warn("[VBO] clear() pos [{}]", this.position.toShortString());
 
-            if (this.chunkRenderData != null && !this.chunkRenderData.equals(ChunkRenderDataSchematic.EMPTY))
+            this.chunkRenderDataLock.lock();
+
+            try
             {
-                this.chunkRenderData.clearAll();
+                if (this.chunkRenderData != null && !this.chunkRenderData.equals(ChunkRenderDataSchematic.EMPTY))
+                {
+                    this.chunkRenderData.clearAll();
+                }
+            }
+            finally
+            {
+                this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
+                this.chunkRenderDataLock.unlock();
             }
 
-            this.builderCache.clearAll();
             this.gpuBufferCache.clearAll();
-            this.chunkRenderData = ChunkRenderDataSchematic.EMPTY;
+            this.builderCache.clearAll();
             this.existingOverlays.clear();
             this.hasOverlay = false;
+
+            this.chunkRenderLock.unlock();
         }
     }
 
