@@ -1,5 +1,9 @@
 package fi.dy.masa.litematica.compat.iris;
 
+import com.google.common.annotations.VisibleForTesting;
+
+@VisibleForTesting
+@Deprecated
 public class IrisCompat
 {
 //	private static boolean isSodiumLoaded = false;

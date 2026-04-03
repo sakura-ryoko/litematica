@@ -14,6 +14,7 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
@@ -36,7 +37,7 @@ public record ChunkRenderBatchDraw(
         VertexFormat.IndexType indexType = this.maxIndicesRequired() == 0 ? null : defaultIndices.type();
         ChunkSectionLayer[] layers = group.layers();
         Minecraft mc = Minecraft.getInstance();
-//	    boolean wf = SharedConstants.DEBUG_HOTKEYS && mc.wireframe;
+	    boolean wf = SharedConstants.DEBUG_HOTKEYS && mc.wireframe;
         RenderTarget fb = group.outputTarget();
 
         profiler.push("draw_group");
@@ -77,14 +78,14 @@ public record ChunkRenderBatchDraw(
 							draws = draws.reversed();
 						}
 
-//						if (wf)
-//						{
-//							pass.setPipeline(this.renderCollidingBlocks()
-//							                 ? ChunkRenderLayers.getWireframe().getRight()
-//							                 : ChunkRenderLayers.getWireframe().getLeft());
-//						}
-//						else
-//						{
+						if (wf)
+						{
+							pass.setPipeline(this.renderCollidingBlocks()
+							                 ? ChunkRenderLayers.getWireframe().getRight()
+							                 : ChunkRenderLayers.getWireframe().getLeft());
+						}
+						else
+						{
 							if (this.renderTranslucent())
 							{
 								pass.setPipeline(this.renderCollidingBlocks()
@@ -98,7 +99,7 @@ public record ChunkRenderBatchDraw(
 								                 ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
 								                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
 								);
-//							}
+							}
 //						}
 
 //					pass.drawMultipleIndexed(list, gpuBuffer, indexType, List.of("ChunkSection"), this.chunkSections());

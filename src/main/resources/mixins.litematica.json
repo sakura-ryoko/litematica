@@ -31,6 +31,7 @@
     ],
     "client": [
         "client.MixinMinecraft",
+        "client.MixinOptions",
         "easyplace.MixinClientPlayerInteractionManager_easyPlace",
         "easyplace.MixinMinecraft_easyPlace",
         "entity.MixinAbstractSignEditScreen",
@@ -54,6 +55,7 @@
         "render.MixinLevelRenderer",
         "screen.IMixinAbstractContainerScreen",
         "screen.MixinAbstractContainerScreen",
+        "screen.MixinVideoSettingsScreen",
         "world.MixinClientLevel"
     ],
     "server": [],

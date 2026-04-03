@@ -15,12 +15,14 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.VisGraph;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -723,7 +725,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 this.getProfiler().popPush("rebuild_chunk_boxes");
                 IBlockOutputSchematic blockOutput = (bx, by, bz, quad, inst) ->
                 {
-                    ChunkSectionLayer layer = quad.materialInfo().layer();
+                    boolean translucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
+                    ChunkSectionLayer layer = translucent ? ChunkSectionLayer.TRANSLUCENT : quad.materialInfo().layer();
                     BufferBuilder builder = this.preRenderBlocks(layer);
 
                     if (!data.isBlockLayerStarted(layer))
@@ -731,7 +734,23 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         data.setBlockLayerStarted(layer);
                     }
 
-//                    usedBlockLayers.add(layer);
+//                    if (translucent)
+//                    {
+//                        // Force as Translucent.
+//                        final BakedQuad.MaterialInfo mat = quad.materialInfo();
+//                        final BakedQuad.MaterialInfo newMat = new BakedQuad.MaterialInfo(mat.sprite(), layer, Sheets.translucentBlockItemSheet(), mat.tintIndex(), mat.shade(), mat.lightEmission());
+//                        final BakedQuad newQuad = new BakedQuad(
+//                                quad.position0(), quad.position1(), quad.position2(), quad.position3(),
+//                                quad.packedUV0(), quad.packedUV1(), quad.packedUV2(), quad.packedUV3(),
+//                                quad.direction(), newMat);
+//
+//                        builder.putBlockBakedQuad(bx, by, bz, newQuad, inst);
+//                    }
+//                    else
+//                    {
+//                        builder.putBlockBakedQuad(bx, by, bz, quad, inst);
+//                    }
+
                     builder.putBlockBakedQuad(bx, by, bz, quad, inst);
                 };
                 VisGraph visGraph = new VisGraph();
@@ -870,7 +889,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 this.addBlockEntity(pos, chunkMeshData);
             }
 
-            boolean translucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
             // TODO change when the fluids become separate
             FluidState fluidState = stateSchematic.getFluidState();
 

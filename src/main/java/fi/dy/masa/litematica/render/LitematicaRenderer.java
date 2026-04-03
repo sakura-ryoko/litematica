@@ -79,6 +79,11 @@ public class LitematicaRenderer
     public void onSchematicWorldChanged(@Nullable WorldSchematic worldClient)
     {
         this.getWorldRenderer().setWorldAndLoadRenderers(worldClient);
+
+        if (worldClient != null)
+        {
+            this.onResourcePackReload();
+        }
     }
 
 	public void onResourcePackReload()

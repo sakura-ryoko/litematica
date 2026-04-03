@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 
 @Mixin(value = Minecraft.class)
@@ -22,6 +23,12 @@ public abstract class MixinMinecraft extends ReentrantBlockableEventLoop<Runnabl
     private void litematica_onRunTickStart(CallbackInfo ci)
     {
         DataManager.onClientTickStart();
+    }
+
+    @Inject(method = "onResourceLoadFinished", at = @At("TAIL"))
+    private void litematica_onResourceLoadFinished(CallbackInfo ci)
+    {
+        LitematicaRenderer.getInstance().onResourcePackReload();
     }
 
     @Inject(method = "stop", at = @At("HEAD"))

@@ -24,10 +24,10 @@ public abstract class MixinRenderPipelines
 //	@Unique private static final BlendFunction MASA_BLEND_SIMPLE = new BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 //
 //	@Shadow
-//	private static RenderPipeline register(RenderPipeline renderPipeline)
+//	private static RenderPipeline register(RenderPipeline pipeline)
 //	{
-//		PIPELINES_BY_LOCATION.put(renderPipeline.getLocation(), renderPipeline);
-//		return renderPipeline;
+//		PIPELINES_BY_LOCATION.put(pipeline.getLocation(), pipeline);
+//		return pipeline;
 //	}
 //
 //	@Unique
@@ -53,18 +53,21 @@ public abstract class MixinRenderPipelines
 //		LitematicaPipelines.SOLID_TERRAIN =
 //				register(RenderPipeline.builder(LitematicaPipelines.TERRAIN_STAGE)
 //				                       .withLocation(getId("pipeline/solid_terrain"))
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		LitematicaPipelines.WIREFRAME =
 //				register(RenderPipeline.builder(LitematicaPipelines.TERRAIN_STAGE)
 //				                       .withLocation(getId("pipeline/wireframe"))
 //				                       .withPolygonMode(PolygonMode.WIREFRAME)
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		LitematicaPipelines.CUTOUT_TERRAIN =
 //				register(RenderPipeline.builder(LitematicaPipelines.TERRAIN_STAGE)
 //				                       .withLocation(getId("pipeline/cutout_terrain"))
 //				                       .withShaderDefine("ALPHA_CUTOUT", 0.5F)
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		// todo TERRAIN_OFFSET --> PRE-REGISTER
@@ -105,6 +108,7 @@ public abstract class MixinRenderPipelines
 //				register(RenderPipeline.builder(LitematicaPipelines.TERRAIN_TRANSLUCENT_STAGE)
 //				                       .withLocation(getId("pipeline/translucent"))
 //				                       .withShaderDefine("ALPHA_CUTOUT", 0.01F)
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		LitematicaPipelines.TRANSLUCENT_OFFSET =
@@ -126,12 +130,14 @@ public abstract class MixinRenderPipelines
 //		LitematicaPipelines.SOLID_BLOCK =
 //				register(RenderPipeline.builder(LitematicaPipelines.BLOCK_STAGE)
 //				                       .withLocation(getId("pipeline/solid_block/masa"))
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		LitematicaPipelines.CUTOUT_BLOCK =
 //				register(RenderPipeline.builder(LitematicaPipelines.BLOCK_STAGE)
 //				                       .withLocation(getId("pipeline/cutout_block/masa"))
 //				                       .withShaderDefine("ALPHA_CUTOUT", 0.5F)
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		// todo BLOCK_OFFSET
@@ -159,7 +165,7 @@ public abstract class MixinRenderPipelines
 //				register(RenderPipeline.builder(LitematicaPipelines.BLOCK_TRANSLUCENT_STAGE)
 //				                       .withLocation(getId("pipeline/translucent_block"))
 //				                       .withShaderDefine("ALPHA_CUTOUT", 0.01F)
-//				                       .withDepthStencilState(DepthStencilState.DEFAULT)
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		LitematicaPipelines.TRANSLUCENT_BLOCK_OFFSET =
@@ -178,7 +184,7 @@ public abstract class MixinRenderPipelines
 //				              .withSampler("Sampler2")
 //				              .withUniform("ChunkFix", UniformType.UNIFORM_BUFFER)
 //				              .withVertexFormat(DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS)
-//				              .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN, true))
+//				              .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				              .buildSnippet();
 //
 //		// todo LEGACY_TERRAIN
@@ -224,7 +230,6 @@ public abstract class MixinRenderPipelines
 //		LitematicaPipelines.LEGACY_TERRAIN_TRANSLUCENT_STAGE =
 //				RenderPipeline.builder(LitematicaPipelines.LEGACY_TERRAIN_STAGE)
 //				              .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-//				              .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				              .buildSnippet();
 //
 //		// todo LEGACY_TERRAIN_TRANSLUCENT
@@ -232,6 +237,7 @@ public abstract class MixinRenderPipelines
 //				register(RenderPipeline.builder(LitematicaPipelines.LEGACY_TERRAIN_TRANSLUCENT_STAGE)
 //				                       .withLocation(getId("pipeline/legacy/translucent"))
 //				                       .withShaderDefine("ALPHA_CUTOUT", 0.01F)
+//				                       .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
 //				                       .build());
 //
 //		LitematicaPipelines.LEGACY_TRANSLUCENT_OFFSET =
@@ -243,6 +249,6 @@ public abstract class MixinRenderPipelines
 //
 //
 //		// todo -- Try registering with Iris.
-//		IrisCompat.registerPipelines();
+////		IrisCompat.registerPipelines();
 //	}
 }

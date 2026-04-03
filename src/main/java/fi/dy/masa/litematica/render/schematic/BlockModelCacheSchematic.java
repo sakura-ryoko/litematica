@@ -185,6 +185,7 @@ public class BlockModelCacheSchematic
 
 	private void refresh()
 	{
+		Litematica.LOGGER.info("BlockModelCacheSchematic: refreshing model cache");
 		this.modelManager = this.mc.getModelManager();
 		this.blockModelResolver = ((IMixinMinecraft) this.mc).litematica_getBlockModelResolver();
 		this.itemModelResolver = ((IMixinMinecraft) this.mc).litematica_getItemModelResolver();
@@ -195,7 +196,11 @@ public class BlockModelCacheSchematic
 		this.entityModelSet = this.modelManager.entityModels().get();
 		this.spriteGetter = ((IMixinModelManager) this.modelManager).litematica_getAtlasManager();
 		this.skinCache = ((IMixinModelManager) this.modelManager).litematica_getPlayerSkinRenderCache();
+		this.rebuildCache();
+	}
 
+	private void rebuildCache()
+	{
 		synchronized (this.blockStateModelCache)
 		{
 			this.blockStateModelCache.clear();
