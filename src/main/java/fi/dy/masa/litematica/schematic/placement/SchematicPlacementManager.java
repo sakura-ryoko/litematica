@@ -363,7 +363,7 @@ public class SchematicPlacementManager
     public void onClientChunkLoad(int chunkX, int chunkZ)
     {
         // Don't run tasks if there is nothing to do; let the thread sleep.
-        if (this.checkIfAnyPlacementsShouldRender())
+        if (this.schematicsTouchingChunk.containsKey(new ChunkPos(chunkX, chunkZ)))
         {
             this.markChunkForRebuild(chunkX, chunkZ);
         }
@@ -379,7 +379,7 @@ public class SchematicPlacementManager
                 return;
             }
 
-            this.markChunkForUnload(chunkX, chunkZ);
+            this.unloadSchematicChunk(this.worldSupplier.get(), chunkX, chunkZ);
         }
     }
 
@@ -447,16 +447,16 @@ public class SchematicPlacementManager
         return false;
     }
 
-    @Deprecated(forRemoval = true)
-    protected void unloadSchematicChunk(WorldSchematic worldSchematic, int chunkX, int chunkZ)
+    private void unloadSchematicChunk(WorldSchematic worldSchematic, int chunkX, int chunkZ)
     {
         if (worldSchematic.getChunkSource().hasChunk(chunkX, chunkZ))
         {
             //System.out.printf("unloading chunk at %d, %d\n", chunkX, chunkZ);
+            PlacementManagerDaemonHandler.INSTANCE.removeAllTasksFor(chunkX, chunkZ);
             worldSchematic.unloadEntitiesByChunk(chunkX, chunkZ);
             worldSchematic.getChunkSource().unloadChunk(chunkX, chunkZ);
-            worldSchematic.scheduleChunkRenders(chunkX, chunkZ);
-            this.visibleChunksNeedsUpdate = true;
+//            worldSchematic.scheduleChunkRenders(chunkX, chunkZ, true);
+            this.setVisibleSubChunksNeedsUpdate();
         }
     }
 

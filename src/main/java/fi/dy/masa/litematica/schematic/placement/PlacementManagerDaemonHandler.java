@@ -187,13 +187,13 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return null;
 	}
 
-	protected int getTaskCount()
+	protected synchronized int getTaskCount()
 	{
 		return this.queueRebuild.size() + this.queueUnload.size() + this.queueOther.size() + this.deferredQueue.size();
 	}
 
 	@Override
-	public boolean hasTasks()
+	public synchronized boolean hasTasks()
 	{
 		return !this.queueUnload.isEmpty() || !this.queueRebuild.isEmpty() || !this.queueOther.isEmpty() || !this.deferredQueue.isEmpty();
 	}
@@ -256,7 +256,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			{
 				if (this.processing && this.allDone())
 				{
-//					Litematica.LOGGER.warn("PlacementManagerDaemonHandler:  All tasks complete");
+					Litematica.LOGGER.warn("PlacementManagerDaemonHandler:  All tasks complete");
 //					DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
 					LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
 					this.processing = false;
@@ -272,8 +272,10 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	private void ensureThreadsAreAlive()
 	{
-		if (this.hasTasks())
+		final int count = this.getTaskCount();
+		if (count > 0)
 		{
+			Litematica.LOGGER.error("PlacementManagerDaemonHandler: {} tasks detected --> checking Thread states", count);
 			Set<String> keySet = this.threadMap.keySet();
 
 			for (String key : keySet)

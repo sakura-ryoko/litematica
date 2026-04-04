@@ -17,7 +17,6 @@ repositories {
 		content { includeGroupAndSubgroups("com.github")}
 	}
 //	maven { url = 'https://api.modrinth.com/maven' }
-//	mavenLocal()
 }
 
 dependencies {
