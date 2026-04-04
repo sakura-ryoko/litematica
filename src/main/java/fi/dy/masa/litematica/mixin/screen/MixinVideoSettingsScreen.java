@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
-import fi.dy.masa.litematica.render.LitematicaRenderer;
+import fi.dy.masa.litematica.render.schematic.BlockModelCacheSchematic;
 
 @Mixin(VideoSettingsScreen.class)
 public abstract class MixinVideoSettingsScreen
@@ -17,7 +17,7 @@ public abstract class MixinVideoSettingsScreen
 	{
 		if (!IrisCompat.hasSodium())
 		{
-			LitematicaRenderer.getInstance().onResourcePackReload();
+			BlockModelCacheSchematic.INSTANCE.onReloadResources();
 		}
 	}
 }

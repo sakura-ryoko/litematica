@@ -239,7 +239,7 @@ public class BlockModelCacheSchematic
 		this.refreshRenderers();
 	}
 
-	protected void onReloadResources()
+	public void onReloadResources()
 	{
 		this.refresh();
 	}
