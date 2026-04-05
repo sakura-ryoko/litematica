@@ -1,2 +1,2 @@
 accessWidener v2 named
-accessible field net/minecraft/client/renderer/block/BlockModelShaper modelByStateCache Ljava/util/Map;
+#accessible field net/minecraft/client/renderer/block/BlockModelShaper modelByStateCache Ljava/util/Map;

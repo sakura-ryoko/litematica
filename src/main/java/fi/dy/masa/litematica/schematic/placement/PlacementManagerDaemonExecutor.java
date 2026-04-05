@@ -12,17 +12,21 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	private final AtomicBoolean paused = new AtomicBoolean(false);
 	private final long sleepTime;
 	private final float sleepDelay;
+	private final long maxTicks;
 	private long lastTaskTime;
+	private long ticks;
 
 	public PlacementManagerDaemonExecutor()
 	{
-		this(600000L);  // 10 min
+		this(60000L);  // 10 min
 	}
 
 	public PlacementManagerDaemonExecutor(long sleepTime)
 	{
 		this.sleepTime = MathUtils.clamp(sleepTime, 60000L, Long.MAX_VALUE); // 1 min
 		this.sleepDelay = 0.75F;     // <1-second sleep delay (Must not be < 1/2 the tick rate)
+		this.maxTicks = 128L;         // Cap how many ticks per an interrupt cycle without tasks to do
+		this.ticks = 0L;
 	}
 
 	@Override
@@ -123,6 +127,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		if (!this.isCorrectThread()) { return; }
 		this.lastTaskTime = System.currentTimeMillis();
+		this.ticks = 0L;
 		Litematica.debugLogError("Executor: Running: [{}/{}]", this.isRunning(), this.isPaused());
 
 		while (this.isRunning())
@@ -143,6 +148,8 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public boolean loopSafe()
 	{
+		this.ticks++;
+
 		try
 		{
 			PlacementManagerTask task = this.takeNextTask();
@@ -170,6 +177,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	public boolean shouldPause()
 	{
 		if (this.hasTasks()) { return false; }
+		if (this.ticks > this.maxTicks) { return true; }
 		return (System.currentTimeMillis() - this.lastTaskTime) > (this.sleepDelay * 1000L);
 	}
 
