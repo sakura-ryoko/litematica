@@ -20,10 +20,11 @@ import fi.dy.masa.litematica.render.LitematicaRenderer;
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
-	private static final int MAX_PLATFORM_THREADS = 2;
+	private static final int MAX_PLATFORM_THREADS = 2;          // The hard limit of usable Threads
+	private static final float TASK_INTERVAL = 1.50F;           // The amount of time in between task check updates
+	private static final int MAX_DEFERRED_CAP = 850;            // The approx amount of tasks that can be queued before they are deferred for each task interval
 	private boolean useVirtual = false;
 	private final String namePrefix = Reference.MOD_NAME+" Placement Manager";
-	private static final float TASK_INTERVAL = 1.50F;
 	private final int threadCount = this.calculateMaxThreads();
 	private final ConcurrentHashMap<String, Thread> threadMap = this.builder();
 	private final LinkedBlockingQueue<PlacementManagerTask> queueUnload = new LinkedBlockingQueue<>();
@@ -208,7 +209,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	{
 		final int threadCount = this.threadMap.size();
 		final int total = this.queueUnload.size() + this.queueRebuild.size() + this.queueOther.size();
-		final int calc = MathUtils.clamp((threadCount / 2), 1, threadCount) * 650;
+		final int calc = MathUtils.clamp((threadCount / 2), 1, threadCount) * MAX_DEFERRED_CAP;
 		return total >= calc && total > 0;
 	}
 
@@ -276,10 +277,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 		if (count > 0)
 		{
-			if (Reference.DEBUG_MODE)
-			{
-				Litematica.LOGGER.error("PlacementManagerDaemonHandler: {} tasks detected --> checking Thread states", count);
-			}
+			Litematica.debugLogError("PlacementManagerDaemonHandler: {} tasks detected --> checking Thread states", count);
 			Set<String> keySet = this.threadMap.keySet();
 
 			for (String key : keySet)
