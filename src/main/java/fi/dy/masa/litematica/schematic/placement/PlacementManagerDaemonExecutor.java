@@ -18,7 +18,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 
 	public PlacementManagerDaemonExecutor()
 	{
-		this(60000L);  // 10 min
+		this(1200000L);  // 20 min
 	}
 
 	public PlacementManagerDaemonExecutor(long sleepTime)
