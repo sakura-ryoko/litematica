@@ -119,7 +119,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private double lastTranslucentSortX;
     private double lastTranslucentSortY;
     private double lastTranslucentSortZ;
-    private boolean displayListEntitiesDirty;
+    private boolean needsUpdate;
     private boolean shouldDraw;
 
     public WorldRendererSchematic(Minecraft mc)
@@ -144,13 +144,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 	    this.lastCameraYaw = Float.MIN_VALUE;
 	    this.renderDistanceChunks = -1;
 	    this.renderEntitiesStartupCounter = 2;
-	    this.displayListEntitiesDirty = true;
+	    this.needsUpdate = true;
     }
 
     @Override
     public void markNeedsUpdate()
     {
-        this.displayListEntitiesDirty = true;
+        this.needsUpdate = true;
     }
 
     @Override
@@ -359,7 +359,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 this.renderDispatcher = new ChunkRenderDispatcherLitematica(profiler);
             }
 
-            this.displayListEntitiesDirty = true;
+            this.needsUpdate = true;
             this.renderDistanceChunks = this.mc.options.renderDistance().get() + 2;
 
             if (this.chunkRendererDispatcher != null)
@@ -453,7 +453,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         final int renderDistance = this.mc.options.renderDistance().get() + 2;
         ChunkPos viewChunk = ChunkPos.containing(viewPos);
 
-        this.displayListEntitiesDirty = this.displayListEntitiesDirty || !this.chunksToUpdate.isEmpty() ||
+        this.needsUpdate = this.needsUpdate || !this.chunksToUpdate.isEmpty() ||
                 entityX != this.lastCameraX ||
                 entityY != this.lastCameraY ||
                 entityZ != this.lastCameraZ ||
@@ -468,11 +468,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         profiler.popPush("update");
 //        List<ChunkPos> updatePositions = new ArrayList<>();
 
-        if (this.displayListEntitiesDirty)
+        if (this.needsUpdate)
         {
             //profiler.push("fetch");
 
-            this.displayListEntitiesDirty = false;
+            this.needsUpdate = false;
             this.renderInfos.clear();
 
             profiler.push("update_sort");
@@ -535,7 +535,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         {
             if (chunkRendererTmp.needsUpdate() || set.contains(chunkRendererTmp))
             {
-                this.displayListEntitiesDirty = true;
+                this.needsUpdate = true;
                 BlockPos pos = chunkRendererTmp.getOrigin().offset(8, 8, 8);
                 boolean isNear = pos.distSqr(viewPos) < 1024.0D;
 
@@ -578,7 +578,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //        LOGGER.warn("[WorldRenderer] updateChunks()");
         this.profiler = profiler;
         profiler.push("run_chunk_uploads");
-        this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
+        this.needsUpdate |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
 
         if (this.profiler == null)
         {
@@ -652,7 +652,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         if (RenderSystem.isOnRenderThread())
         {
             profiler.push("upload_remaining_buffers");
-            this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
+            this.needsUpdate |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
             profiler.pop();
         }
     }
