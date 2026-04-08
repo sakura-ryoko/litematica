@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.event;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.gui.GuiAreaSelectionManager;
 import fi.dy.masa.litematica.gui.GuiConfigs;
 import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
@@ -51,6 +52,7 @@ public class KeyCallbacks
         ValueChangeCallback valueChangeCallback = new ValueChangeCallback();
 
         Configs.Generic.PICK_BLOCKABLE_SLOTS.setValueChangeCallback(valueChangeCallback);
+        Configs.Generic.ENTITY_DATA_SYNC.setValueChangeCallback((config) -> EntitiesDataStorage.getInstance().onEntityDataSyncToggled(config));
 
         Hotkeys.CLONE_SELECTION.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().setCallback(callbackHotkeys);

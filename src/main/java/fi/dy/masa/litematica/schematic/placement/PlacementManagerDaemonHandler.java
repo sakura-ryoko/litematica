@@ -257,7 +257,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			{
 				if (this.processing && this.allDone())
 				{
-					Litematica.LOGGER.warn("PlacementManagerDaemonHandler:  All tasks complete");
+					Litematica.debugLog("PlacementManagerDaemonHandler:  All tasks complete");
 //					DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
 					LitematicaRenderer.getInstance().getWorldRenderer().markNeedsUpdate();
 					this.processing = false;
@@ -274,9 +274,10 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private void ensureThreadsAreAlive()
 	{
 		final int count = this.getTaskCount();
+
 		if (count > 0)
 		{
-			Litematica.debugLogError("PlacementManagerDaemonHandler: {} tasks detected --> checking Thread states", count);
+			Litematica.debugLog("PlacementManagerDaemonHandler: {} tasks detected --> checking Thread states", count);
 			Set<String> keySet = this.threadMap.keySet();
 
 			for (String key : keySet)
@@ -300,22 +301,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			}
 		}
 	}
-
-//	@Override
-//	public void safeStart(Thread t) throws RuntimeException
-//	{
-//		if (t == null) { throw new RuntimeException(); }
-//		Litematica.debugLogError("PlacementManagerDaemonHandler#safeStart: '{}' [State: {}]", t.getName(), t.getState().name());
-//
-//		switch (t.getState())
-//		{
-//			case NEW -> t.start();
-//			case TIMED_WAITING, WAITING -> t.interrupt();
-//			case RUNNABLE -> throw new RuntimeException();
-//			case BLOCKED -> throw new ConcurrentModificationException();
-//			case TERMINATED -> throw new IllegalStateException();
-//		}
-//	}
 
 	protected void removeUnloadTasksFor(int x, int z)
 	{

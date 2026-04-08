@@ -18,14 +18,14 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 
 	public PlacementManagerDaemonExecutor()
 	{
-		this(1200000L);  // 20 min
+		this(1800000L);  // 30 min
 	}
 
 	public PlacementManagerDaemonExecutor(long sleepTime)
 	{
 		this.sleepTime = MathUtils.clamp(sleepTime, 60000L, Long.MAX_VALUE); // 1 min
-		this.sleepDelay = 0.75F;     // <1-second sleep delay (Must not be < 1/2 the tick rate)
-		this.maxTicks = 128L;         // Cap how many ticks per an interrupt cycle without tasks to do
+		this.sleepDelay = 0.75F;        // <1-second sleep delay (Must not be < 1/2 the tick rate)
+		this.maxTicks = 128L;           // Cap how many ticks per an interrupt cycle without tasks to do
 		this.ticks = 0L;
 	}
 

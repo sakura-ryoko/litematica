@@ -25,6 +25,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.nautilus.AbstractNautilus;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -43,14 +44,17 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.interfaces.IDataSyncer;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractHorseEntity;
+import fi.dy.masa.malilib.mixin.entity.IMixinAbstractNautilus;
 import fi.dy.masa.malilib.mixin.entity.IMixinPiglinEntity;
 import fi.dy.masa.malilib.mixin.network.IMixinDataQueryHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.data.DataEntityUtils;
 import fi.dy.masa.malilib.util.data.tag.CompoundData;
@@ -72,19 +76,18 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 {
     private static final EntitiesDataStorage INSTANCE = new EntitiesDataStorage();
-
     public static EntitiesDataStorage getInstance()
     {
         return INSTANCE;
     }
 
     private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> HANDLER = ServuxLitematicaHandler.getInstance();
+    private final static long LONG_CACHE_TIMEOUT = 30L;
+    private final static long CHUNK_TIMEOUT_MS = 5000L;
     private final Minecraft mc;
-    //private int uptimeTicks = 0;
     private boolean servuxServer = false;
     private boolean hasInValidServux = false;
     private String servuxVersion;
-    private final long chunkTimeoutMs = 5000;
     // Wait 5 seconds for loaded Client Chunks to receive Entity Data
     private boolean checkOpStatus = true;
     private boolean hasOpStatus = false;
@@ -93,8 +96,6 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     // Data Cache
     private final ConcurrentHashMap<BlockPos, Pair<Long, Pair<BlockEntity, CompoundData>>> blockEntityCache = new ConcurrentHashMap<>(16, 0.9f, 1);
     private final ConcurrentHashMap<Integer,  Pair<Long, Pair<Entity,      CompoundData>>> entityCache      = new ConcurrentHashMap<>(16, 0.9f, 1);
-    private final long cacheTimeout = 4;
-    private final long longCacheTimeout = 30;
     private boolean shouldUseLongTimeout = false;
     // Needs a long cache timeout for saving schematics
     private long serverTickTime = 0;
@@ -118,7 +119,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     @Nullable
     public Level getWorld()
     {
-        return fi.dy.masa.malilib.util.WorldUtils.getBestWorld(mc);
+        return fi.dy.masa.malilib.util.WorldUtils.getBestWorld(this.mc);
     }
 
     @Override
@@ -140,10 +141,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     @Override
     public void onClientTick(Minecraft mc)
     {
-        long now = System.currentTimeMillis();
-        //this.uptimeTicks++;
+        final long now = System.currentTimeMillis();
 
-        if (now - this.serverTickTime > 50)
+        if ((now - this.serverTickTime) > 50)
         {
             // In this block, we do something every server tick
             if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() == false)
@@ -169,7 +169,6 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                         this.pendingEntitiesQueue.clear();
                     }
 
-//                    this.tickCache(now);
                     return;
                 }
             }
@@ -210,6 +209,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                     var iter = this.pendingEntitiesQueue.iterator();
                     int entityId = iter.next();
                     iter.remove();
+
                     if (this.hasServuxServer())
                     {
                         requestServuxEntityData(entityId);
@@ -221,7 +221,8 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                     }
                 }
             }
-            this.serverTickTime = System.currentTimeMillis();
+
+            this.serverTickTime = now;
         }
     }
 
@@ -289,25 +290,14 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
     private boolean shouldUseQuery()
     {
-        if (this.hasOpStatus)
-        {
-//            System.out.printf("shouldUseQuery: HAS OP\n");
-            return true;
-        }
-
+        if (this.hasOpStatus) { return true; }
         if (this.checkOpStatus)
         {
             // Check for 15 minutes after login, or changing dimensions
-            if ((System.currentTimeMillis() - this.lastOpCheck) < 900000L)
-            {
-//                System.out.printf("shouldUseQuery: CHECK OP\n");
-                return true;
-            }
-
+            if ((System.currentTimeMillis() - this.lastOpCheck) < 900000L) { return true; }
             this.checkOpStatus = false;
         }
 
-//        System.out.printf("shouldUseQuery: NOT-OP\n");
         return false;
     }
 
@@ -318,21 +308,30 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         this.lastOpCheck = System.currentTimeMillis();
     }
 
+    private long getCacheRefresh()
+    {
+//        long result = (long) (MathUtils.clamp(Configs.Generic.ENTITY_DATA_SYNC_CACHE_REFRESH.getFloatValue(), 0.05f, 1.0f) * 1000L);
+//        long clamp = (this.getCacheTimeout() / 2);
+//
+//        return MathUtils.min(result, clamp);
+        return (this.getCacheTimeout() / 4);
+    }
+
     private long getCacheTimeout()
     {
         // Increase cache timeout when in Backup Mode.
         int modifier = Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() ? 5 : 1;
-        return (long) (Mth.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier), 1.0f, 500.0f) * 1000L);
+        return (long) (MathUtils.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier), 1.0f, 500.0f) * 1000L);
     }
 
     private long getCacheTimeoutLong()
     {
         // Increase cache timeout when in Backup Mode.
         int modifier = Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() ? 5 : 1;
-        return (long) (Mth.clamp(((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier) * this.longCacheTimeout), 120.0f, (300.0f * modifier)) * 1000L);
+        return (long) (MathUtils.clamp(((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier) * this.LONG_CACHE_TIMEOUT), 120.0f, (300.0f * modifier)) * 1000L);
     }
 
-    private void tickCache(long nowTime)
+    private void tickCache(final long nowTime)
     {
         long blockTimeout = this.getCacheTimeout();
         long entityTimeout = this.getCacheTimeout();
@@ -395,7 +394,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 {
                     if (nowTime - pair.getLeft() > entityTimeout || pair.getLeft() > nowTime)
                     {
-                        Litematica.debugLog("litematicEntityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
+//                        Litematica.debugLog("litematicEntityCache: entity Id [{}] has timed out by [{}] ms", entityId, entityTimeout);
                         this.entityCache.remove(entityId);
                     }
                     else
@@ -419,7 +418,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     }
 
     @Override
-    public @Nullable CompoundData getFromBlockEntityCacheData(BlockPos pos)
+    public synchronized @Nullable CompoundData getFromBlockEntityCacheData(BlockPos pos)
     {
         if (this.blockEntityCache.containsKey(pos))
         {
@@ -430,20 +429,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     }
 
 	@Override
-	public @Nullable CompoundTag getFromBlockEntityCacheNbt(BlockPos pos)
-	{
-        CompoundData data =this.getFromBlockEntityCacheData(pos);
-
-        if (data != null)
-        {
-            return DataConverterNbt.toVanillaCompound(data);
-        }
-
-        return null;
-	}
-
-	@Override
-    public @Nullable BlockEntity getFromBlockEntityCache(BlockPos pos)
+    public synchronized @Nullable BlockEntity getFromBlockEntityCache(BlockPos pos)
     {
         if (this.blockEntityCache.containsKey(pos))
         {
@@ -454,7 +440,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     }
 
 	@Override
-    public @Nullable CompoundData getFromEntityCacheData(int entityId)
+    public synchronized @Nullable CompoundData getFromEntityCacheData(int entityId)
     {
         if (this.entityCache.containsKey(entityId))
         {
@@ -464,7 +450,20 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         return null;
     }
 
-	@Override
+    @Override
+    public @Nullable CompoundTag getFromBlockEntityCacheNbt(BlockPos pos)
+    {
+        CompoundData data =this.getFromBlockEntityCacheData(pos);
+
+        if (data != null)
+        {
+            return DataConverterNbt.toVanillaCompound(data);
+        }
+
+        return null;
+    }
+
+    @Override
 	public @Nullable CompoundTag getFromEntityCacheNbt(int entityId)
 	{
         CompoundData data = this.getFromEntityCacheData(entityId);
@@ -478,7 +477,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 	}
 
 	@Override
-    public @Nullable Entity getFromEntityCache(int entityId)
+    public synchronized @Nullable Entity getFromEntityCache(int entityId)
     {
         if (this.entityCache.containsKey(entityId))
         {
@@ -502,6 +501,11 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     public boolean hasBackupStatus()
     {
         return Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() && this.hasOpStatus;
+    }
+
+    public boolean hasOperatorStatus()
+    {
+        return this.hasOpStatus;
     }
 
     public void setServuxVersion(String ver)
@@ -616,6 +620,16 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         this.hasInValidServux = true;
     }
 
+    public void onEntityDataSyncToggled(ConfigBoolean config)
+    {
+        if (this.hasInValidServux)
+        {
+            this.reset(true);
+        }
+
+        // Do something?
+    }
+
     @Override
     public @Nullable Pair<BlockEntity, CompoundTag> requestBlockEntityNbt(Level world, BlockPos pos)
     {
@@ -644,16 +658,17 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() ||
                  Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue()))
             {
-                if (System.currentTimeMillis() - this.blockEntityCache.get(pos).getLeft() > (this.getCacheTimeout() / 4))
+                if (System.currentTimeMillis() - this.blockEntityCache.get(pos).getLeft() > this.getCacheRefresh())
                 {
-//                    Litematica.debugLog("requestBlockEntity: be at pos [{}] requeue at [{}] ms", pos.toShortString(), this.getCacheTimeout() / 4);
+//                    Litematica.debugLog("requestBlockEntity: be at pos [{}] requeue at [{}] ms", pos.toShortString(), this.getCacheRefresh());
                     this.pendingBlockEntitiesQueue.add(pos);
                 }
             }
 
             if (world instanceof ServerLevel)
             {
-                return this.refreshBlockEntityFromWorld(world, pos);
+//                return this.refreshBlockEntityFromWorld(world, pos);
+                this.requestBlockEntityFromLocalServer(this.mc, world, pos);
             }
 
             return this.blockEntityCache.get(pos).getRight();
@@ -664,7 +679,6 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() ||
                  Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue()))
             {
-//                Litematica.debugLog("requestBlockEntity: be at pos [{}] queue at [{}] ms", pos.toShortString(), this.getCacheTimeout() / 4);
                 this.pendingBlockEntitiesQueue.add(pos);
             }
 
@@ -728,9 +742,9 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() ||
                  Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue()))
             {
-                if (System.currentTimeMillis() - this.entityCache.get(entityId).getLeft() > (this.getCacheTimeout() / 4))
+                if (System.currentTimeMillis() - this.entityCache.get(entityId).getLeft() > this.getCacheRefresh())
                 {
-                    //Litematica.debugLog("requestEntity: entity Id [{}] requeue at [{}] ms", entityId, this.getCacheTimeout() / 4);
+                    //Litematica.debugLog("requestEntity: entity Id [{}] requeue at [{}] ms", entityId, this.getCacheRefresh());
                     this.pendingEntitiesQueue.add(entityId);
                 }
             }
@@ -738,7 +752,8 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             // Refresh from Server World
             if (world instanceof ServerLevel)
             {
-                return this.refreshEntityFromWorld(world, entityId);
+//                return this.refreshEntityFromWorld(world, entityId);
+                this.requestEntityFromLocalServer(this.mc, world, entityId);
             }
 
             return this.entityCache.get(entityId).getRight();
@@ -891,8 +906,52 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     @Nullable
     public Container getEntityInventory(Level world, int entityId, boolean useNbt)
     {
-        if (world instanceof WorldSchematic)
+        if (world instanceof WorldSchematic ws)
         {
+            Container inv = null;
+            Entity entity = ws.getEntity(entityId);
+
+            if (entity != null)
+            {
+                if (useNbt)
+                {
+                    CompoundData data = DataEntityUtils.invokeEntityDataTagNoPassengers(entity, entityId);
+                    inv = InventoryUtils.getDataInventory(data, -1, ws.registryAccess());
+                }
+                else
+                {
+                    if (entity instanceof Container)
+                    {
+                        inv = (Container) entity;
+                    }
+                    else if (entity instanceof Player player && player != null)
+                    {
+                        inv = new SimpleContainer(player.getInventory().getNonEquipmentItems().toArray(new ItemStack[36]));
+                    }
+                    else if (entity instanceof Villager)
+                    {
+                        inv = ((Villager) entity).getInventory();
+                    }
+                    else if (entity instanceof AbstractHorse)
+                    {
+                        inv = ((IMixinAbstractHorseEntity) entity).malilib_getHorseInventory();
+                    }
+                    else if (entity instanceof AbstractNautilus)
+                    {
+                        inv = ((IMixinAbstractNautilus) entity).malilib_getNautilusInventory();
+                    }
+                    else if (entity instanceof Piglin)
+                    {
+                        inv = ((IMixinPiglinEntity) entity).malilib_getInventory();
+                    }
+                }
+
+                if (inv != null)
+                {
+                    return inv;
+                }
+            }
+
             return null;
         }
 
@@ -924,6 +983,10 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 {
                     inv = ((IMixinAbstractHorseEntity) entity).malilib_getHorseInventory();
                 }
+                else if (entity instanceof AbstractNautilus)
+                {
+                    inv = ((IMixinAbstractNautilus) entity).malilib_getNautilusInventory();
+                }
                 else if (entity instanceof Piglin)
                 {
                     inv = ((IMixinPiglinEntity) entity).malilib_getInventory();
@@ -945,19 +1008,6 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         return null;
     }
 
-	@Override
-	public BlockEntity handleBlockEntityData(BlockPos pos, CompoundTag nbt,
-											 @Nullable Identifier type)
-	{
-		return this.handleBlockEntityData(pos, DataConverterNbt.fromVanillaCompound(nbt), type);
-	}
-
-	@Override
-	public Entity handleEntityData(int entityId, CompoundTag nbt)
-	{
-		return this.handleEntityData(entityId, DataConverterNbt.fromVanillaCompound(nbt));
-	}
-
 	private void requestQueryBlockEntity(BlockPos pos)
     {
         if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() == false)
@@ -970,10 +1020,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         if (handler != null)
         {
             this.sentBackupPackets = true;
-            handler.getDebugQueryHandler().queryBlockEntityTag(pos, nbtCompound ->
-            {
-                this.handleBlockEntityData(pos, nbtCompound, null);
-            });
+            handler.getDebugQueryHandler().queryBlockEntityTag(pos, nbtCompound -> this.handleBlockEntityData(pos, nbtCompound, null));
             this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.left(pos));
         }
     }
@@ -990,10 +1037,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         if (handler != null)
         {
             this.sentBackupPackets = true;
-            handler.getDebugQueryHandler().queryEntityTag(entityId, nbtCompound ->
-            {
-                this.handleEntityData(entityId, nbtCompound);
-            });
+            handler.getDebugQueryHandler().queryEntityTag(entityId, nbtCompound -> this.handleEntityData(entityId, nbtCompound));
             this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.right(entityId));
         }
     }
@@ -1187,6 +1231,18 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     }
 
     @Override
+    public BlockEntity handleBlockEntityData(BlockPos pos, CompoundTag nbt, @Nullable Identifier type)
+    {
+        return this.handleBlockEntityData(pos, DataConverterNbt.fromVanillaCompound(nbt), type);
+    }
+
+    @Override
+    public Entity handleEntityData(int entityId, CompoundTag nbt)
+    {
+        return this.handleEntityData(entityId, DataConverterNbt.fromVanillaCompound(nbt));
+    }
+
+    @Override
     @Nullable
     public BlockEntity handleBlockEntityData(BlockPos pos, CompoundData data, @Nullable Identifier type)
     {
@@ -1224,6 +1280,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             return blockEntity;
         }
 
+        if (type == null) { return null; }
         Optional<Holder.Reference<BlockEntityType<?>>> opt = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(type);
 
         if (opt.isPresent())
@@ -1250,17 +1307,17 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                         this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity2, data)));
                     }
 
-                    if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())
-                    {
-                        NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
-                        blockEntity2.loadWithComponents(view.getReader());
-                        this.getClientWorld().setBlockEntity(blockEntity2);
-                    }
-
                     ChunkPos chunkPos = new ChunkPos(pos);
 
                     if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
                     {
+                        if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())
+                        {
+                            NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
+                            blockEntity2.loadWithComponents(view.getReader());
+                            this.getClientWorld().setBlockEntity(blockEntity2);
+                        }
+
                         this.markBackupBlockEntityComplete(chunkPos, pos);
                     }
 
@@ -1296,13 +1353,13 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 this.entityCache.put(entityId, Pair.of(System.currentTimeMillis(), Pair.of(entity, data)));
             }
 
-            if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())
-            {
-                EntityUtils.loadNbtIntoEntity(entity, DataConverterNbt.toVanillaCompound(data));
-            }
-
             if (this.hasPendingChunk(entity.chunkPosition()) && this.hasServuxServer() == false)
             {
+                if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())
+                {
+                    EntityUtils.loadNbtIntoEntity(entity, DataConverterNbt.toVanillaCompound(data));
+                }
+
                 this.markBackupEntityComplete(entity.chunkPosition(), entityId);
             }
         }
@@ -1428,11 +1485,11 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
     {
         if (this.hasServuxServer())
         {
-            return this.chunkTimeoutMs;
+            return this.CHUNK_TIMEOUT_MS;
         }
         else if (this.getIfReceivedBackupPackets())
         {
-            return this.chunkTimeoutMs + 3000L;
+            return this.CHUNK_TIMEOUT_MS + 3000L;
         }
 
         return 1000L;
