@@ -46,7 +46,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		if (!this.isRunning())
 		{
-			Litematica.debugLogError("Executor: Starting");
+			Litematica.debugLog("Executor: Starting");
 			if (this.isPaused())
 			{
 				this.paused.set(false);
@@ -61,7 +61,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public void interrupt(InterruptedException interrupt)
 	{
-		Litematica.debugLogError("Executor: Interrupt Signal: {}",
+		Litematica.debugLog("Executor: Interrupt Signal: {}",
 		                        interrupt.getLocalizedMessage() != null
 		                        ? interrupt.getLocalizedMessage()  // This is null sometimes?
 		                        : "received interrupt signal");
@@ -74,7 +74,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public void pause()
 	{
-		Litematica.debugLogError("Executor: Pausing");
+		Litematica.debugLog("Executor: Pausing");
 		this.paused.set(true);
 	}
 
@@ -83,7 +83,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		if (this.isPaused())
 		{
-			Litematica.debugLogError("Executor: Resuming");
+			Litematica.debugLog("Executor: Resuming");
 			this.paused.set(false);
 		}
 
@@ -93,7 +93,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public void stop()
 	{
-		Litematica.debugLogError("Executor: Stopping");
+		Litematica.debugLog("Executor: Stopping");
 		if (!this.isPaused())
 		{
 			this.paused.set(true);
@@ -128,7 +128,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 		if (!this.isCorrectThread()) { return; }
 		this.lastTaskTime = System.currentTimeMillis();
 		this.ticks = 0L;
-		Litematica.debugLogError("Executor: Running: [{}/{}]", this.isRunning(), this.isPaused());
+		Litematica.debugLog("Executor: Running: [{}/{}]", this.isRunning(), this.isPaused());
 
 		while (this.isRunning())
 		{
@@ -167,7 +167,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 		}
 		catch (Exception err)
 		{
-			Litematica.debugLogError("PlacementManagerDaemonExecutor#loopSafe: Exception: {}", err.getLocalizedMessage());
+			Litematica.debugLog("PlacementManagerDaemonExecutor#loopSafe: Exception: {}", err.getLocalizedMessage());
 		}
 
 		return this.shouldPause();

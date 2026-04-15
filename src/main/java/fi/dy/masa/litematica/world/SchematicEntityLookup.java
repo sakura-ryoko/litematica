@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -41,13 +42,13 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         );
     }
 
-    protected synchronized void put(T entity, ChunkPos pos)
+    protected synchronized void put(T entity, ChunkPos pos, @Nonnull WorldSchematic world)
     {
         T tmp = this.get(entity.getUUID());
 
         if (tmp != null)
         {
-            this.remove(entity.getUUID());
+            this.remove(entity.getUUID(), world);
         }
 
         synchronized (this.chunkMap)
@@ -67,6 +68,8 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         {
             this.entityMap.put(entity.getId(), entity);
         }
+
+        world.onTrackingStart((Entity) entity);
     }
 
     protected synchronized int size()
@@ -74,7 +77,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         return this.entityMap.size();
     }
 
-    protected synchronized boolean remove(UUID uuid)
+    protected synchronized boolean remove(UUID uuid, @Nonnull WorldSchematic world)
     {
         Integer key = this.uuidMap.get(uuid);
 
@@ -111,6 +114,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
                 if (e != null)
                 {
+                    world.onTrackingStop((Entity) e);
                     return true;
                 }
             }
@@ -126,6 +130,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
                     if (e.getUUID().equals(uuid))
                     {
                         this.entityMap.remove(id);
+                        world.onTrackingStop((Entity) e);
                         return true;
                     }
                 }
@@ -135,7 +140,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
         return false;
     }
 
-    protected synchronized int removeByChunk(ChunkPos pos)
+    protected synchronized int removeByChunk(ChunkPos pos, @Nonnull WorldSchematic world)
     {
         final Long longPos = pos.pack();
         int count = 0;
@@ -162,7 +167,8 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
                 {
                     synchronized (this.entityMap)
                     {
-                        this.entityMap.remove(key);
+                        T entry = this.entityMap.remove(key);
+                        world.onTrackingStop((Entity) entry);
                         count++;
                     }
                 }
@@ -177,6 +183,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
                             if (e.getUUID().equals(uuid))
                             {
                                 this.entityMap.remove(id);
+                                world.onTrackingStop((Entity) e);
                                 count++;
                             }
                         }

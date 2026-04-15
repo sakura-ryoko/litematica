@@ -111,7 +111,7 @@ public class ChunkRenderDispatcherSchematic
                             {
                                 if (Reference.DEBUG_MODE)
                                 {
-                                    Litematica.debugLogError("removeOutOfRangeRenderers: mapRemove() threw an exception; {}", e.getLocalizedMessage());
+                                    Litematica.debugLog("removeOutOfRangeRenderers: mapRemove() threw an exception; {}", e.getLocalizedMessage());
                                 }
                             }
                         }
@@ -126,7 +126,7 @@ public class ChunkRenderDispatcherSchematic
             {
                 if (Reference.DEBUG_MODE)
                 {
-                    Litematica.debugLogError("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getLocalizedMessage());
+                    Litematica.debugLog("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getLocalizedMessage());
                 }
             }
 
@@ -226,7 +226,7 @@ public class ChunkRenderDispatcherSchematic
         {
             if (Reference.DEBUG_MODE)
             {
-                Litematica.debugLogError("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getLocalizedMessage());
+                Litematica.debugLog("getOrCreateChunkRenderer: Exception obtaining a Chunk Renderer; {}", e.getLocalizedMessage());
             }
         }
 
