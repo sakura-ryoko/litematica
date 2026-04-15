@@ -426,7 +426,7 @@ public class Configs implements IConfigHandler
                 ConfigUtils.readConfigBase(root, "InfoOverlays", InfoOverlays.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Visuals", Visuals.OPTIONS);
 
-                Litematica.debugLogError("loadFromFile(): Successfully loaded config file '{}'.", configFile.toAbsolutePath());
+                Litematica.debugLog("loadFromFile(): Successfully loaded config file '{}'.", configFile.toAbsolutePath());
             }
             else
             {
@@ -452,7 +452,7 @@ public class Configs implements IConfigHandler
         if (!Files.exists(dir))
         {
             FileUtils.createDirectoriesIfMissing(dir);
-            Litematica.debugLogError("saveToFile(): Creating directory '{}'.", dir.toAbsolutePath());
+            Litematica.debugLog("saveToFile(): Creating directory '{}'.", dir.toAbsolutePath());
         }
 
         if (Files.isDirectory(dir))
