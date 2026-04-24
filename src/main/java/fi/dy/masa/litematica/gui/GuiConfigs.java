@@ -70,11 +70,15 @@ public class GuiConfigs extends GuiConfigsBase implements IConfigGuiAllTab
     {
         ConfigGuiTab tab = DataManager.getConfigGuiTab();
 
-        if (tab == ConfigGuiTab.GENERIC || tab == ConfigGuiTab.INFO_OVERLAYS || tab == ConfigGuiTab.VISUALS)
+        if (tab == ConfigGuiTab.INFO_OVERLAYS)
         {
             return 140;
         }
-        if (tab == ConfigGuiTab.COLORS)
+        else if (tab == ConfigGuiTab.GENERIC || tab == ConfigGuiTab.VISUALS)
+        {
+            return 180;
+        }
+        else if (tab == ConfigGuiTab.COLORS)
         {
             return 100;
         }
@@ -89,6 +93,7 @@ public class GuiConfigs extends GuiConfigsBase implements IConfigGuiAllTab
 
         return  tab == ConfigGuiTab.ALL ||
                 tab == ConfigGuiTab.GENERIC ||
+                tab == ConfigGuiTab.VISUALS ||
                 tab == ConfigGuiTab.HOTKEYS;
     }
 

@@ -17,7 +17,12 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientMannequin;
@@ -43,6 +48,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.debug.DebugValueAccess;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Avatar;
@@ -77,6 +83,7 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 import fi.dy.masa.litematica.util.IAvatarInvoker;
+import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.util.IEntityInvoker;
 import fi.dy.masa.litematica.util.IEntityRendererInvoker;
 import fi.dy.masa.litematica.util.IFluidRendererInvoker;
@@ -906,6 +913,29 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 	{
 		this.getSchematicRenderState().clear();
 	}
+
+    @Override
+    public void renderEntityDebugHitboxes(IEntityHitboxDebugRendererInvoker invoker, double cameraX, double cameraY, double cameraZ, DebugValueAccess debugValueAccess, Frustum frustum, float ticks)
+    {
+        if (this.hasWorld())
+        {
+            for (Entity e : this.world.getEntities().getAll())
+            {
+                if (!e.isInvisible() &&
+                    frustum.isVisible(e.getBoundingBox()) &&
+                    (e != this.mc.getCameraEntity() || this.mc.options.getCameraType() != CameraType.FIRST_PERSON))
+                {
+	                invoker.litematica$addEntityHitbox(e, ticks, false);
+
+                    if (SharedConstants.DEBUG_SHOW_LOCAL_SERVER_ENTITY_HIT_BOXES)
+                    {
+                        // Shrug; because the schem world is basically the "server-side" also.
+                        invoker.litematica$addEntityHitbox(e, ticks, true);
+                    }
+                }
+            }
+        }
+    }
 
     @Override
 	public void updateCameraState(Camera camera, float tickProgress, CameraRenderState cameraState)

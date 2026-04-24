@@ -47,6 +47,11 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
         {
             manager.addKeybindToMap(hotkey.getKeybind());
         }
+
+        for (IHotkey hotkey : Configs.Visuals.HOTKEY_LIST)
+        {
+            manager.addKeybindToMap(hotkey.getKeybind());
+        }
     }
 
     @Override
@@ -54,6 +59,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     {
         manager.addHotkeysForCategory(Reference.MOD_NAME, Reference.MOD_ID+ ".hotkeys.category.generic_hotkeys", Hotkeys.HOTKEY_LIST);
         manager.addHotkeysForCategory(Reference.MOD_NAME, Reference.MOD_ID+ ".hotkeys.category.config_generic_hotkeys", Configs.Generic.HOTKEY_LIST);
+        manager.addHotkeysForCategory(Reference.MOD_NAME, Reference.MOD_ID+ ".hotkeys.category.config_visuals_hotkeys", Configs.Visuals.HOTKEY_LIST);
     }
 
     @Override

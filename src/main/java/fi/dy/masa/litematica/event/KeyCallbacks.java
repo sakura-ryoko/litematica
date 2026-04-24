@@ -1,20 +1,26 @@
 package fi.dy.masa.litematica.event;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+
+import fi.dy.masa.malilib.config.IConfigBoolean;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
+import fi.dy.masa.malilib.config.options.ConfigString;
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.Message.MessageType;
+import fi.dy.masa.malilib.hotkeys.*;
+import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.LayerMode;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
-import fi.dy.masa.litematica.gui.GuiAreaSelectionManager;
-import fi.dy.masa.litematica.gui.GuiConfigs;
+import fi.dy.masa.litematica.gui.*;
 import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
-import fi.dy.masa.litematica.gui.GuiMainMenu;
-import fi.dy.masa.litematica.gui.GuiMaterialList;
-import fi.dy.masa.litematica.gui.GuiPlacementConfiguration;
-import fi.dy.masa.litematica.gui.GuiRenderLayer;
-import fi.dy.masa.litematica.gui.GuiSchematicLoadedList;
-import fi.dy.masa.litematica.gui.GuiSchematicPlacementsList;
-import fi.dy.masa.litematica.gui.GuiSchematicVerifier;
-import fi.dy.masa.litematica.gui.GuiSubRegionConfiguration;
 import fi.dy.masa.litematica.materials.MaterialListBase;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
@@ -25,23 +31,6 @@ import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.tool.ToolModeData;
 import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.PositionUtils.Corner;
-import fi.dy.masa.malilib.config.IConfigBoolean;
-import fi.dy.masa.malilib.config.options.ConfigString;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
-import fi.dy.masa.malilib.hotkeys.IKeybind;
-import fi.dy.masa.malilib.hotkeys.KeyAction;
-import fi.dy.masa.malilib.hotkeys.KeyCallbackToggleBooleanConfigWithMessage;
-import fi.dy.masa.malilib.hotkeys.KeybindMulti;
-import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
-import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.LayerMode;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 
 public class KeyCallbacks
 {
@@ -50,9 +39,38 @@ public class KeyCallbacks
         IHotkeyCallback callbackHotkeys = new KeyCallbackHotkeys(mc);
         IHotkeyCallback callbackMessage = new KeyCallbackToggleMessage(mc);
         ValueChangeCallback valueChangeCallback = new ValueChangeCallback();
+        RenderChangeCallback renderChangeCallback = new RenderChangeCallback();
 
         Configs.Generic.PICK_BLOCKABLE_SLOTS.setValueChangeCallback(valueChangeCallback);
         Configs.Generic.ENTITY_DATA_SYNC.setValueChangeCallback((config) -> EntitiesDataStorage.getInstance().onEntityDataSyncToggled(config));
+
+        Configs.Visuals.ENABLE_AREA_SELECTION_RENDERING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_PLACEMENT_BOXES_RENDERING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_RENDERING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_SCHEMATIC_BLOCKS.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_SCHEMATIC_FLUIDS.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY_CULLING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.setValueChangeCallback(renderChangeCallback);
+//        Configs.Visuals.ENABLE_SCHEMATIC_ENTITY_HITBOXES.setValueChangeCallback(renderChangeCallback); // Not needed
+        Configs.Visuals.ENABLE_SCHEMATIC_FAKE_LIGHTING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.RENDER_AO_MODERN_ENABLE.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.RENDER_COLLIDING_SCHEMATIC_BLOCKS.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.RENDER_SCHEMATIC_ENTITIES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.RENDER_SCHEMATIC_TILE_ENTITIES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.RENDER_TRANSLUCENT_INNER_SIDES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_OUTLINES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_SIDES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_DIFF_BLOCK.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_EXTRA.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_MISSING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_WRONG_BLOCK.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_WRONG_STATE.setValueChangeCallback(renderChangeCallback);
 
         Hotkeys.CLONE_SELECTION.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().setCallback(callbackHotkeys);
@@ -128,6 +146,15 @@ public class KeyCallbacks
             {
                 InventoryUtils.setPickBlockableSlots(Configs.Generic.PICK_BLOCKABLE_SLOTS.getStringValue());
             }
+        }
+    }
+
+    private static class RenderChangeCallback implements IValueChangeCallback<ConfigBoolean>
+    {
+        @Override
+        public void onValueChanged(ConfigBoolean config)
+        {
+            SchematicWorldRefresher.INSTANCE.updateAll();
         }
     }
 

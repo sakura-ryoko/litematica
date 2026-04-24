@@ -64,6 +64,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       DEBUG_HUD_PM_THREADS        = new ConfigBoolean("debugHudPMThreads", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       DEBUG_HUD_WORLD             = new ConfigBoolean("debugHudWorld", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       DEBUG_LOGGING               = new ConfigBoolean("debugLogging", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       DEDUPLICATE_SCHEMATIC_ENTITIES= new ConfigBoolean("deduplicateSchematicEntities", false).apply(GENERIC_KEY);
         public static final ConfigOptionList    DATAFIXER_MODE              = new ConfigOptionList("datafixerMode", DataFixerMode.ALWAYS).apply(GENERIC_KEY);
         public static final ConfigInteger       DATAFIXER_DEFAULT_SCHEMA    = new ConfigInteger("datafixerDefaultSchema", 1139, 99, 2724, true).apply(GENERIC_KEY);
 		public static final ConfigBoolean       DISPLAY_FILE_OPS_FEEDBACK   = new ConfigBoolean("displayFileOpsFeedback", false).apply(GENERIC_KEY);
@@ -137,6 +138,7 @@ public class Configs implements IConfigHandler
 				DISPLAY_FILE_OPS_FEEDBACK,
                 DATAFIXER_MODE,
                 DATAFIXER_DEFAULT_SCHEMA,
+                DEDUPLICATE_SCHEMATIC_ENTITIES,
                 EASY_PLACE_CLICK_ADJACENT,
                 EASY_PLACE_FIRST,
                 EASY_PLACE_HOLD_ENABLED,
@@ -217,60 +219,60 @@ public class Configs implements IConfigHandler
     private static final String VISUALS_KEY = Reference.MOD_ID+".config.visuals";
     public static class Visuals
     {
-        public static final ConfigBoolean       ENABLE_AREA_SELECTION_RENDERING     = new ConfigBoolean("enableAreaSelectionBoxesRendering", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_PLACEMENT_BOXES_RENDERING    = new ConfigBoolean("enablePlacementBoxesRendering", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_RENDERING                    = new ConfigBoolean("enableRendering", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_SCHEMATIC_BLOCKS             = new ConfigBoolean("enableSchematicBlocksRendering",  true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_SCHEMATIC_FLUIDS             = new ConfigBoolean("enableSchematicFluidRendering", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_SCHEMATIC_OVERLAY            = new ConfigBoolean("enableSchematicOverlay",  true).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_AREA_SELECTION_RENDERING   = new ConfigBooleanHotkeyed("enableAreaSelectionBoxesRendering", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_PLACEMENT_BOXES_RENDERING  = new ConfigBooleanHotkeyed("enablePlacementBoxesRendering", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_RENDERING                  = new ConfigBooleanHotkeyed("enableRendering", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_BLOCKS           = new ConfigBooleanHotkeyed("enableSchematicBlocksRendering",  true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_FLUIDS           = new ConfigBooleanHotkeyed("enableSchematicFluidRendering", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_OVERLAY          = new ConfigBooleanHotkeyed("enableSchematicOverlay",  true, "").apply(VISUALS_KEY);
         public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_OVERLAY_CULLING  = new ConfigBooleanHotkeyed("enableSchematicOverlayCulling", true, "").apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_SCHEMATIC_RENDERING          = new ConfigBoolean("enableSchematicRendering", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       ENABLE_SCHEMATIC_FAKE_LIGHTING      = new ConfigBoolean("enableSchematicFakeLighting", true).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_RENDERING        = new ConfigBooleanHotkeyed("enableSchematicRendering", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_ENTITY_HITBOXES  = new ConfigBooleanHotkeyed("enableSchematicEntityHitboxes", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed ENABLE_SCHEMATIC_FAKE_LIGHTING    = new ConfigBooleanHotkeyed("enableSchematicFakeLighting", true, "").apply(VISUALS_KEY);
         //public static final ConfigInteger       RENDER_SCHEMATIC_MAX_THREADS        = new ConfigInteger("renderSchematicMaxThreads", 4, 1, 16).apply(VISUALS_KEY);
         public static final ConfigDouble        GHOST_BLOCK_ALPHA                   = new ConfigDouble( "ghostBlockAlpha", 0.5, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBoolean       IGNORE_EXISTING_FLUIDS              = new ConfigBoolean("ignoreExistingFluids", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       IGNORE_EXISTING_BLOCKS              = new ConfigBoolean("ignoreExistingBlocks", false).apply(VISUALS_KEY);
         public static final ConfigStringList    IGNORABLE_EXISTING_BLOCKS           = new ConfigStringList("ignorableExistingBlocks", ImmutableList.of()).apply(VISUALS_KEY);
-        public static final ConfigBoolean       OVERLAY_REDUCED_INNER_SIDES         = new ConfigBoolean("overlayReducedInnerSides", false).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed OVERLAY_REDUCED_INNER_SIDES       = new ConfigBooleanHotkeyed("overlayReducedInnerSides", false, "").apply(VISUALS_KEY);
         public static final ConfigDouble        PLACEMENT_BOX_SIDE_ALPHA            = new ConfigDouble( "placementBoxSideAlpha", 0.2, 0, 1).apply(VISUALS_KEY);
-        public static final ConfigBoolean       RENDER_AO_MODERN_ENABLE             = new ConfigBoolean("renderAOModernEnable", false).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed RENDER_AO_MODERN_ENABLE           = new ConfigBooleanHotkeyed("renderAOModernEnable", false, "").apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_AREA_SELECTION_BOX_SIDES     = new ConfigBoolean("renderAreaSelectionBoxSides", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       RENDER_BLOCKS_AS_TRANSLUCENT        = new ConfigBoolean("renderBlocksAsTranslucent", false).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed RENDER_BLOCKS_AS_TRANSLUCENT      = new ConfigBooleanHotkeyed("renderBlocksAsTranslucent", false, "").apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_ENABLE_TRANSLUCENT_RESORTING = new ConfigBoolean("renderEnableTranslucentResorting",  true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       RENDER_COLLIDING_SCHEMATIC_BLOCKS   = new ConfigBoolean("renderCollidingSchematicBlocks", false).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed RENDER_COLLIDING_SCHEMATIC_BLOCKS = new ConfigBooleanHotkeyed("renderCollidingSchematicBlocks", false, "").apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_ERROR_MARKER_CONNECTIONS     = new ConfigBoolean("renderErrorMarkerConnections", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_ERROR_MARKER_SIDES           = new ConfigBoolean("renderErrorMarkerSides", true).apply(VISUALS_KEY);
         public static final ConfigInteger       RENDER_FAKE_LIGHTING_LEVEL          = new ConfigInteger("renderFakeLightingLevel", 15, 0, 15).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_PLACEMENT_BOX_SIDES          = new ConfigBoolean("renderPlacementBoxSides", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_PLACEMENT_ENCLOSING_BOX      = new ConfigBoolean("renderPlacementEnclosingBox", true).apply(VISUALS_KEY);
         public static final ConfigBoolean       RENDER_PLACEMENT_ENCLOSING_BOX_SIDES= new ConfigBoolean("renderPlacementEnclosingBoxSides", false).apply(VISUALS_KEY);
-        public static final ConfigBoolean       RENDER_SCHEMATIC_ENTITIES           = new ConfigBoolean("renderSchematicEntities", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       RENDER_SCHEMATIC_TILE_ENTITIES      = new ConfigBoolean("renderSchematicTileEntities", true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       RENDER_TRANSLUCENT_INNER_SIDES      = new ConfigBoolean("renderTranslucentBlockInnerSides", false).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_OUTLINES   = new ConfigBoolean("schematicOverlayEnableOutlines",  true).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed RENDER_SCHEMATIC_ENTITIES         = new ConfigBooleanHotkeyed("renderSchematicEntities", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed RENDER_SCHEMATIC_TILE_ENTITIES    = new ConfigBooleanHotkeyed("renderSchematicTileEntities", true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed RENDER_TRANSLUCENT_INNER_SIDES      = new ConfigBooleanHotkeyed("renderTranslucentBlockInnerSides", false, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_ENABLE_OUTLINES   = new ConfigBooleanHotkeyed("schematicOverlayEnableOutlines",  true, "").apply(VISUALS_KEY);
 //        public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_RESORTING  = new ConfigBoolean("schematicOverlayEnableResorting",  false).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_ENABLE_SIDES      = new ConfigBoolean("schematicOverlayEnableSides",     true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_MODEL_OUTLINE     = new ConfigBoolean("schematicOverlayModelOutline",    true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_MODEL_SIDES       = new ConfigBoolean("schematicOverlayModelSides",      true).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_ENABLE_SIDES      = new ConfigBooleanHotkeyed("schematicOverlayEnableSides",     true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_MODEL_OUTLINE     = new ConfigBooleanHotkeyed("schematicOverlayModelOutline",    true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_MODEL_SIDES       = new ConfigBooleanHotkeyed("schematicOverlayModelSides",      true, "").apply(VISUALS_KEY);
         public static final ConfigDouble        SCHEMATIC_OVERLAY_OUTLINE_WIDTH     = new ConfigDouble( "schematicOverlayOutlineWidth",  1.0, 0, 64).apply(VISUALS_KEY);
         public static final ConfigDouble        SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH = new ConfigDouble("schematicOverlayOutlineWidthThrough",  3.0, 0, 64).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_RENDER_THROUGH    = new ConfigBoolean("schematicOverlayRenderThroughBlocks", false).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_TYPE_DIFF_BLOCK   = new ConfigBoolean("schematicOverlayTypeDiffBlock",   true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_TYPE_EXTRA        = new ConfigBoolean("schematicOverlayTypeExtra",       true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_TYPE_MISSING      = new ConfigBoolean("schematicOverlayTypeMissing",     true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_TYPE_WRONG_BLOCK  = new ConfigBoolean("schematicOverlayTypeWrongBlock",  true).apply(VISUALS_KEY);
-        public static final ConfigBoolean       SCHEMATIC_OVERLAY_TYPE_WRONG_STATE  = new ConfigBoolean("schematicOverlayTypeWrongState",  true).apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_RENDER_THROUGH    = new ConfigBooleanHotkeyed("schematicOverlayRenderThroughBlocks", false, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_TYPE_DIFF_BLOCK   = new ConfigBooleanHotkeyed("schematicOverlayTypeDiffBlock",   true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_TYPE_EXTRA        = new ConfigBooleanHotkeyed("schematicOverlayTypeExtra",       true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_TYPE_MISSING      = new ConfigBooleanHotkeyed("schematicOverlayTypeMissing",     true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_TYPE_WRONG_BLOCK  = new ConfigBooleanHotkeyed("schematicOverlayTypeWrongBlock",  true, "").apply(VISUALS_KEY);
+        public static final ConfigBooleanHotkeyed SCHEMATIC_OVERLAY_TYPE_WRONG_STATE  = new ConfigBooleanHotkeyed("schematicOverlayTypeWrongState",  true, "").apply(VISUALS_KEY);
 //        public static final ConfigBoolean       SCHEMATIC_VERIFIER_BLOCK_MODELS     = new ConfigBoolean("schematicVerifierUseBlockModels", false).apply(VISUALS_KEY);
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 ENABLE_RENDERING,
                 ENABLE_SCHEMATIC_RENDERING,
-                //RENDER_SCHEMATIC_MAX_THREADS,
-
                 ENABLE_AREA_SELECTION_RENDERING,
                 ENABLE_PLACEMENT_BOXES_RENDERING,
                 ENABLE_SCHEMATIC_BLOCKS,
                 ENABLE_SCHEMATIC_FLUIDS,
+                ENABLE_SCHEMATIC_ENTITY_HITBOXES,
                 ENABLE_SCHEMATIC_FAKE_LIGHTING,
                 ENABLE_SCHEMATIC_OVERLAY,
                 ENABLE_SCHEMATIC_OVERLAY_CULLING,
@@ -309,6 +311,36 @@ public class Configs implements IConfigHandler
                 PLACEMENT_BOX_SIDE_ALPHA,
                 SCHEMATIC_OVERLAY_OUTLINE_WIDTH,
                 SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH
+        );
+
+        public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
+                ENABLE_RENDERING,
+                ENABLE_SCHEMATIC_RENDERING,
+                ENABLE_AREA_SELECTION_RENDERING,
+                ENABLE_PLACEMENT_BOXES_RENDERING,
+                ENABLE_SCHEMATIC_BLOCKS,
+                ENABLE_SCHEMATIC_FLUIDS,
+                ENABLE_SCHEMATIC_ENTITY_HITBOXES,
+                ENABLE_SCHEMATIC_FAKE_LIGHTING,
+                ENABLE_SCHEMATIC_OVERLAY,
+                ENABLE_SCHEMATIC_OVERLAY_CULLING,
+                OVERLAY_REDUCED_INNER_SIDES,
+                RENDER_AO_MODERN_ENABLE,
+                RENDER_BLOCKS_AS_TRANSLUCENT,
+                RENDER_COLLIDING_SCHEMATIC_BLOCKS,
+                RENDER_SCHEMATIC_ENTITIES,
+                RENDER_SCHEMATIC_TILE_ENTITIES,
+                RENDER_TRANSLUCENT_INNER_SIDES,
+                SCHEMATIC_OVERLAY_ENABLE_OUTLINES,
+                SCHEMATIC_OVERLAY_ENABLE_SIDES,
+                SCHEMATIC_OVERLAY_MODEL_OUTLINE,
+                SCHEMATIC_OVERLAY_MODEL_SIDES,
+                SCHEMATIC_OVERLAY_RENDER_THROUGH,
+                SCHEMATIC_OVERLAY_TYPE_DIFF_BLOCK,
+                SCHEMATIC_OVERLAY_TYPE_EXTRA,
+                SCHEMATIC_OVERLAY_TYPE_MISSING,
+                SCHEMATIC_OVERLAY_TYPE_WRONG_BLOCK,
+                SCHEMATIC_OVERLAY_TYPE_WRONG_STATE
         );
     }
 
