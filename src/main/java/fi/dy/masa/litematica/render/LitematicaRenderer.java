@@ -114,15 +114,30 @@ public class LitematicaRenderer
 
     public void onEndFrame()
     {
+//        Litematica.LOGGER.error("LitematicaRenderer.onEndFrame()");
         // Don't initialize early.
         if (this.worldRenderer == null) { return; }
         if (this.getWorldRenderer().getChunkFixUniform() == null) { return; }
         this.getWorldRenderer().getChunkFixUniform().endFrame();
+
+        // Why Iris?
+        if (IrisCompat.isShaderActive())
+        {
+            this.getWorldRenderer().getFogRenderer().endFrame();        // (This is fixing the Vanilla Fog Renderer, btw)
+        }
     }
 
     public void onClose()
     {
+//        Litematica.LOGGER.error("LitematicaRenderer.onClose()");
         this.getWorldRenderer().clearChunkFixUniform();
+        this.getWorldRenderer().closeGpuSampler();
+
+        // Why Iris?
+        if (IrisCompat.isShaderActive())
+        {
+            this.getWorldRenderer().getFogRenderer().close();           // (This is fixing the Vanilla Fog Renderer, btw)
+        }
     }
 
     public void renderSchematicOverlays(Camera camera, ProfilerFiller profiler)
@@ -187,6 +202,15 @@ public class LitematicaRenderer
 
 //                profiler.popPush(Reference.MOD_ID+"_update_chunks");
 //                worldRenderer.updateChunks(this.finishTimeNano, profiler);
+
+                // Why Iris?
+                if (IrisCompat.isShaderActive())
+                {
+                    profiler.popPush(Reference.MOD_ID+"_update_chunks");
+                    worldRenderer.updateChunks(this.finishTimeNano, profiler);
+                    profiler.popPush(Reference.MOD_ID + "_schedule_translucent_sorting");
+                    worldRenderer.scheduleTranslucentSorting(this.getCamera().position(),  profiler);
+                }
 
                 profiler.pop();
 

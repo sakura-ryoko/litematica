@@ -20,6 +20,8 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.util.profiling.ProfilerFiller;
 
+import fi.dy.masa.malilib.compat.iris.IrisCompat;
+
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
 //		EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> drawData,
@@ -59,6 +61,12 @@ public record ChunkRenderBatchDraw(
 //			}
 
 			pass.setUniform("ChunkFix", this.chunkFixUBO);
+
+			if (IrisCompat.isShaderActive())
+			{
+
+			}
+
 			pass.bindTexture("Sampler0", this.atlasTexture, sampler);
 			pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(),
 			                 RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));

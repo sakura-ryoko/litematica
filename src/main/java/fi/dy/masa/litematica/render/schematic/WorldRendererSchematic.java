@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.lang.Math;
 import java.util.*;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +14,8 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.AddressMode;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -95,6 +98,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private WorldSchematic world;
     private ChunkRenderDispatcherSchematic chunkRendererDispatcher;
     private GpuBufferSlice vanillaFogBuffer;
+    private GpuSampler gpuSampler;
     private ProfilerFiller profiler;
     private double lastCameraChunkUpdateX;
     private double lastCameraChunkUpdateY;
@@ -133,6 +137,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 	    this.chunksToUpdate = new LinkedHashSet<>();
         this.profiler = null;
         this.vanillaFogBuffer = null;
+        this.gpuSampler = null;
         this.shouldDraw = false;
 	    this.lastCameraChunkUpdateX = Double.MIN_VALUE;
 	    this.lastCameraChunkUpdateY = Double.MIN_VALUE;
@@ -331,6 +336,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             {
                 this.vanillaFogBuffer = null;
             }
+
+            this.closeGpuSampler();
 
 //            synchronized (this.blockEntities)
 //            {
@@ -687,10 +694,15 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         boolean renderCollidingBlocks = Configs.Visuals.RENDER_COLLIDING_SCHEMATIC_BLOCKS.getBooleanValue();
         @SuppressWarnings("deprecation")
 	    GpuTextureView blockAtlas = this.mc.getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).getTextureView();
-		int atlasWidth = blockAtlas.getWidth(0);        // todo 2048
+		int atlasWidth = blockAtlas.getWidth(0);        // todo 4096
 	    int atlasHeight = blockAtlas.getHeight(0);      // todo 2048
         Vector4f colorMod = new Vector4f(1.0F, 1.0F, 1.0F, 1.0F);
 	    Matrix4f texMatrix = new Matrix4f();
+
+//        if (IrisCompat.isShaderActive())
+//        {
+//            Litematica.LOGGER.error("[WorldRenderer] prepareBlockLayers() -- atlasWidth: [{}], atlasHeight: [{}]", atlasWidth, atlasHeight);
+//        }
 
         if (renderAsTranslucent)
         {
@@ -882,12 +894,42 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
             // Disable fog in the Schematic World
             RenderSystem.setShaderFog(this.getEmptyFogBuffer());
+
+            if (sampler != null && this.gpuSampler == null)
+            {
+                this.setGpuSampler(sampler);
+            }
+
+            if (sampler == null)
+            {
+                sampler = this.getGpuSampler();
+            }
+
             this.getSchematicRenderState().getBatchDraw().draw(group, sampler, this.profiler);
             RenderSystem.setShaderFog(this.vanillaFogBuffer);
 
             this.profiler.pop();
         }
     }
+
+//    private void dumpSampler(@Nullable GpuSampler sampler)
+//    {
+//        System.out.print ("GpuSampler Dump -->\n");
+//        if (sampler == null)
+//        {
+//            System.out.print ("  NULL!!!\n");
+//            System.out.print ("GpuSampler END\n");
+//            return;
+//        }
+//
+//        System.out.printf("  AddressModeU: [%s]\n", sampler.getAddressModeU().name());
+//        System.out.printf("  AddressModeV: [%s]\n", sampler.getAddressModeV().name());
+//        System.out.printf("  FilterMode-Min: [%s]\n", sampler.getMinFilter().name());
+//        System.out.printf("  FilterMode-Mag: [%s]\n", sampler.getMagFilter().name());
+//        System.out.printf("  MaxAnisotropy: [%d]\n", sampler.getMaxAnisotropy());
+//        System.out.printf("  MaxLod: [%f]\n", sampler.getMaxLod().orElse(-1.0F));
+//        System.out.print ("GpuSampler END\n");
+//    }
 
     @Override
     public ChunkFixUniform getChunkFixUniform()
@@ -906,6 +948,42 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 	{
 		this.getSchematicRenderState().clear();
 	}
+
+    @Override
+    @Nullable
+    public GpuSampler getGpuSampler()
+    {
+        if (this.gpuSampler == null && RenderSystem.isOnRenderThread())
+        {
+            this.gpuSampler = RenderSystem.getDevice()
+                                          .createSampler(AddressMode.CLAMP_TO_EDGE,
+                                                         AddressMode.CLAMP_TO_EDGE,
+                                                         FilterMode.LINEAR,
+                                                         FilterMode.LINEAR,
+                                                         4, OptionalDouble.empty()
+                                          );
+        }
+
+        return this.gpuSampler;
+    }
+
+    @Override
+    public void setGpuSampler(@Nonnull GpuSampler gpuSampler)
+    {
+        this.closeGpuSampler();
+        this.gpuSampler = gpuSampler;
+    }
+
+    @Override
+    public void closeGpuSampler()
+    {
+        if (this.gpuSampler != null)
+        {
+            this.gpuSampler.close();
+        }
+
+        this.gpuSampler = null;
+    }
 
     @Override
     public void renderEntityDebugHitboxes(IEntityHitboxDebugRendererInvoker invoker, double cameraX, double cameraY, double cameraZ, DebugValueAccess debugValueAccess, Frustum frustum, float ticks)

@@ -37,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
+import fi.dy.masa.litematica.compat.iris.IrisRenderingFix;
 import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
@@ -48,6 +49,7 @@ public abstract class MixinLevelRenderer
     @Shadow @Final private Minecraft minecraft;
 	@Shadow @Final private SubmitNodeStorage submitNodeStorage;
 	@Shadow private @Nullable GpuSampler chunkLayerSampler;
+	@Shadow @Final private LevelRenderState levelRenderState;
 	@Unique private ProfilerFiller profiler;
 
     @Unique
@@ -77,10 +79,17 @@ public abstract class MixinLevelRenderer
 
     @Inject(method = "cullTerrain", at = @At("TAIL"))
     private void litematica_onPostSetupTerrain(
-            Camera camera, Frustum frustum, boolean bl, CallbackInfo ci)
+		    Camera camera, Frustum frustum, boolean spectator, CallbackInfo ci)
     {
         this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewisePrepare(frustum, this.profiler);
+
+	    // Why Iris?
+	    if (IrisCompat.isShaderActive())
+	    {
+		    IrisRenderingFix.INSTANCE.setCamera(camera);
+		    IrisRenderingFix.INSTANCE.extractAndCompileSectionsWithShadersOn();
+	    }
     }
 
     @Inject(method = "compileSections",
@@ -90,6 +99,7 @@ public abstract class MixinLevelRenderer
     )
     private void litematica_onPostUpdateChunks(Camera camera, CallbackInfo ci)
     {
+		if (IrisCompat.isShaderActive()) { return; }
         this.litematica$prepareProfiler();
 	    LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
 
@@ -119,6 +129,7 @@ public abstract class MixinLevelRenderer
                                             @Local(name = "profiler") ProfilerFiller profiler)
     {
         this.profiler = profiler;
+		if (IrisCompat.isShaderActive()) { return; }
         LitematicaRenderer.getInstance().capturePreMainValues(cameraState, terrainFog, profiler);
     }
 
@@ -126,15 +137,19 @@ public abstract class MixinLevelRenderer
 	private void litematica_onPrepareBlockLayersPre(DeltaTracker deltaTracker, Camera camera, float deltaPartialTick,
 													CallbackInfo ci)
 	{
-//		this.litematica$prepareProfiler();
+		// TODO -- NO extractLevel() are called while shader's are active
 //		LitematicaRenderer.getInstance().uploadRemainingBuffers(camera, deltaTracker, this.profiler);
 	}
 
 	@Inject(method = "prepareChunkRenders", at = @At("TAIL"))
     private void litematica_onPrepareBlockLayersPost(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
-        this.litematica$prepareProfiler();
-        LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
+	    // Why Iris?
+	    if (!IrisCompat.isShaderActive())
+	    {
+		    this.litematica$prepareProfiler();
+		    LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
+	    }
     }
 
 	// BYTECODE (Virtual Method) Mixin for Section Group rendering
@@ -181,13 +196,15 @@ public abstract class MixinLevelRenderer
 	@Inject(method = "extractVisibleEntities", at = @At(value = "RETURN"))
     private void litematica_onPostPrepareEntities(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState output, CallbackInfo ci)
     {
-        this.litematica$prepareProfiler();
+	    // Why Iris?
+	    if (IrisCompat.isShaderActive()) { return; }
+	    this.litematica$prepareProfiler();
         LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, frustum, output, deltaTracker, this.profiler);
 
 		// Why Sodium?
 		if (IrisCompat.hasSodium())
 		{
-			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, output, deltaTracker.getGameTimeDeltaPartialTick(false), this.profiler);
+			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, output, deltaTracker.getGameTimeDeltaPartialTick(true), this.profiler);
 		}
     }
 
