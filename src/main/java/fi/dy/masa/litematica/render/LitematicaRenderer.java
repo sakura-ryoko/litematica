@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.util.debug.DebugValueAccess;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec3;
 
@@ -24,6 +25,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
+import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class LitematicaRenderer
@@ -41,6 +43,7 @@ public class LitematicaRenderer
     private boolean renderPiecewiseBlocks;
     private boolean renderPiecewiseEntities;
     private boolean renderPiecewiseTileEntities;
+    private boolean renderEntityDebugHitboxes;
 
     public static LitematicaRenderer getInstance()
     {
@@ -162,6 +165,7 @@ public class LitematicaRenderer
 //            this.renderCollidingSchematicBlocks = Configs.Visuals.RENDER_COLLIDING_SCHEMATIC_BLOCKS.getBooleanValue();
             this.renderPiecewiseEntities = this.renderPiecewiseSchematic && Configs.Visuals.RENDER_SCHEMATIC_ENTITIES.getBooleanValue();
             this.renderPiecewiseTileEntities = this.renderPiecewiseSchematic && Configs.Visuals.RENDER_SCHEMATIC_TILE_ENTITIES.getBooleanValue();
+            this.renderEntityDebugHitboxes = this.renderPiecewiseEntities && Configs.Visuals.ENABLE_SCHEMATIC_ENTITY_HITBOXES.getBooleanValue();
 
             if (this.renderPiecewiseSchematic)
             {
@@ -205,7 +209,6 @@ public class LitematicaRenderer
     public void scheduleTranslucentSorting(Vec3 camera, ProfilerFiller profiler)
     {
         //LOGGER.error("[LR] scheduleTranslucentSorting()");
-
         if (this.renderPiecewiseBlocks)
         {
             profiler.push(Reference.MOD_ID + "_schedule_translucent_sorting");
@@ -298,6 +301,16 @@ public class LitematicaRenderer
         this.cleanup();
     }
 
+    public void renderEntityDebugHitboxes(IEntityHitboxDebugRendererInvoker invoker, double cameraX, double cameraY, double cameraZ, DebugValueAccess debugValueAccess, Frustum frustum, float ticks, ProfilerFiller profiler)
+    {
+        if (this.renderEntityDebugHitboxes)
+        {
+            profiler.push(Reference.MOD_ID+"_render_entity_hitboxes");
+            this.getWorldRenderer().renderEntityDebugHitboxes(invoker, cameraX, cameraY, cameraZ, debugValueAccess, frustum, ticks);
+            profiler.pop();
+        }
+    }
+
     private Camera getCamera()
     {
         return this.mc.gameRenderer.getMainCamera();
@@ -309,5 +322,6 @@ public class LitematicaRenderer
         this.renderPiecewiseBlocks = false;
         this.renderPiecewiseEntities = false;
         this.renderPiecewiseTileEntities = false;
+        this.renderEntityDebugHitboxes = false;
     }
 }

@@ -44,6 +44,7 @@
         "render.IMixinGameRenderer",
         "render.MixinBlockRenderDispatcher",
         "render.MixinBufferBuilder",
+        "render.MixinEntityHitboxDebugRenderer",
         "render.MixinEntityRenderDispatcher",
         "render.MixinGameRenderer",
         "render.MixinWorldRenderer",

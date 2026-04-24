@@ -25,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Brightness;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.debug.DebugValueAccess;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.LightLayer;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
+import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -124,6 +126,8 @@ public interface IWorldSchematicRenderer
 	void clearChunkFixUniform();
 
 	void clearWorldRenderStates();
+
+	void renderEntityDebugHitboxes(IEntityHitboxDebugRendererInvoker invoker, double cameraX, double cameraY, double cameraZ, DebugValueAccess debugValueAccess, Frustum frustum, float ticks);
 
 	static int getLightmap(BlockAndTintGetter world, BlockPos pos)
 	{

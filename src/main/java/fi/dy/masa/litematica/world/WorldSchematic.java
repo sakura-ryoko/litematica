@@ -67,6 +67,7 @@ import net.minecraft.world.ticks.LevelTickAccess;
 
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 
 public class WorldSchematic extends Level
@@ -246,29 +247,38 @@ public class WorldSchematic extends Level
 
         if (this.entityLookup.contains(entity.getUUID()))
         {
-            Entity e = this.entityLookup.get(entity.getUUID());
-
-            if (e != null && e.getType().equals(entity.getType()))
+            if (Configs.Generic.DEDUPLICATE_SCHEMATIC_ENTITIES.getBooleanValue())
             {
-                if (e.position().equals(entity.position()))
+                Entity e = this.entityLookup.get(entity.getUUID());
+
+                if (e != null && e.getType().equals(entity.getType()))
+                {
+                    if (e.position().equals(entity.position()))
+                    {
+                        return false;
+                    }
+
+                    this.entityLookup.remove(entity.getUUID(), this);
+                }
+                else
                 {
                     return false;
                 }
-
-                this.entityLookup.remove(entity.getUUID(), this);
             }
             else
             {
-                return false;
+                // Entity UUID's *MUST* be unique
+                entity.setUUID(UUID.randomUUID());
+                return this.addFreshEntity(entity);
             }
         }
 
         ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
 
-        if (this.entityLookup.contains(entity.getId()) ||
-            entity.getId() < 0)
+        if (this.entityLookup.contains(entity.getId()) || entity.getId() < 0)
         {
             entity.setId(this.nextEntityId++);
+            return this.addFreshEntity(entity);
         }
 
         this.entityLookup.put(entity, chunkPos, this);
@@ -360,7 +370,8 @@ public class WorldSchematic extends Level
     }
 
     @Override
-    protected @Nonnull LevelEntityGetter<Entity> getEntities()
+    @Nonnull
+    public LevelEntityGetter<Entity> getEntities()
     {
         return this.entityLookup;
     }
