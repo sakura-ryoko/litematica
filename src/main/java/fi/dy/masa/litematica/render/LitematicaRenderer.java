@@ -361,7 +361,7 @@ public class LitematicaRenderer
 
     public void renderEntityDebugHitboxes(IEntityHitboxDebugRendererInvoker invoker, double cameraX, double cameraY, double cameraZ, DebugValueAccess debugValueAccess, Frustum frustum, float ticks, ProfilerFiller profiler)
     {
-        if (this.renderEntityDebugHitboxes)
+        if (this.renderEntityDebugHitboxes || Configs.Visuals.ENABLE_SCHEMATIC_ENTITY_HITBOXES.getBooleanValue())
         {
             profiler.push(Reference.MOD_ID+"_render_entity_hitboxes");
             this.getWorldRenderer().renderEntityDebugHitboxes(invoker, cameraX, cameraY, cameraZ, debugValueAccess, frustum, ticks);
