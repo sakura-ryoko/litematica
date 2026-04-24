@@ -20,12 +20,12 @@ import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
 @Mixin(EntityHitboxDebugRenderer.class)
 public abstract class MixinEntityHitboxDebugRenderer implements IEntityHitboxDebugRendererInvoker
 {
-	@Shadow protected abstract void showHitboxes(Entity entity, float f, boolean bl);
+	@Shadow protected abstract void showHitboxes(Entity entity, float partialTicks, boolean isServerEntity);
 
 	@Inject(method = "emitGizmos", at = @At("TAIL"))
-	private void litematica_renderEntityHitboxes(double d, double e, double f,
-	                                             DebugValueAccess debugValueAccess,
-	                                             Frustum frustum, float g,
+	private void litematica_renderEntityHitboxes(double camX, double camY, double camZ,
+	                                             DebugValueAccess debugValues,
+	                                             Frustum frustum, float partialTicks,
 	                                             CallbackInfo ci)
 	{
 		ProfilerFiller profiler = Profiler.get();
@@ -35,7 +35,7 @@ public abstract class MixinEntityHitboxDebugRenderer implements IEntityHitboxDeb
 			profiler.startTick();
 		}
 
-		LitematicaRenderer.getInstance().renderEntityDebugHitboxes((IEntityHitboxDebugRendererInvoker) this, d, e, f, debugValueAccess, frustum, g, profiler);
+		LitematicaRenderer.getInstance().renderEntityDebugHitboxes((IEntityHitboxDebugRendererInvoker) this, camX, camY, camZ, debugValues, frustum, partialTicks, profiler);
 	}
 
 	@Override
