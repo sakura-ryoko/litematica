@@ -49,8 +49,6 @@
         "network.MixinClientCommonPacketListenerImpl",
         "network.MixinClientPacketListener",
         "render.IMixinGameRenderer",
-        "render.MixinBlockRenderDispatcher",
-        "render.MixinBufferBuilder",
         "render.MixinEntityHitboxDebugRenderer",
         "render.MixinEntityRenderDispatcher",
         "render.MixinFluidRenderer",

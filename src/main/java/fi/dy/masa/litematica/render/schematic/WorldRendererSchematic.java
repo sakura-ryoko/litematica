@@ -17,9 +17,6 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
@@ -82,11 +79,7 @@ import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
-import fi.dy.masa.litematica.util.IAvatarInvoker;
-import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
-import fi.dy.masa.litematica.util.IEntityInvoker;
-import fi.dy.masa.litematica.util.IEntityRendererInvoker;
-import fi.dy.masa.litematica.util.IFluidRendererInvoker;
+import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -925,12 +918,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     frustum.isVisible(e.getBoundingBox()) &&
                     (e != this.mc.getCameraEntity() || this.mc.options.getCameraType() != CameraType.FIRST_PERSON))
                 {
-	                invoker.litematica$addEntityHitbox(e, ticks, false);
+                    float entityTicks = this.mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+	                invoker.litematica$addEntityHitbox(e, entityTicks, false);
 
                     if (SharedConstants.DEBUG_SHOW_LOCAL_SERVER_ENTITY_HIT_BOXES)
                     {
                         // Shrug; because the schem world is basically the "server-side" also.
-                        invoker.litematica$addEntityHitbox(e, ticks, true);
+                        invoker.litematica$addEntityHitbox(e, entityTicks, true);
                     }
                 }
             }

@@ -160,7 +160,7 @@ public class BlockModelRendererSchematic
 
 						if (!valid)
 						{
-							shouldRender = shouldRenderModelSide(worldIn, stateIn, posIn, side, relPos);
+							shouldRender = this.shouldRenderModelSide(worldIn, stateIn, posIn, side, relPos);
 							isValid |= mask;
 
 							if (shouldRender)
@@ -218,7 +218,7 @@ public class BlockModelRendererSchematic
 
 						if (!valid)
 						{
-							shouldRender = shouldRenderModelSide(worldIn, stateIn, posIn, side, relPos);
+							shouldRender = this.shouldRenderModelSide(worldIn, stateIn, posIn, side, relPos);
 							isValid |= mask;
 
 							if (shouldRender)
