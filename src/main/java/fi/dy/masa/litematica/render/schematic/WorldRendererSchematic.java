@@ -1312,7 +1312,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                                     if (shouldRender)
                                     {
-                                        this.getSchematicRenderState().entityStates.add(state);
+                                        this.schematicRenderState.entityStates.add(state);
                                         this.renderedEntities.put(cm.position(), cm.getUUID());
                                         ++this.countEntitiesRendered;
                                     }
@@ -1336,7 +1336,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                                     if (shouldRender)
                                     {
-                                        this.getSchematicRenderState().entityStates.add(state);
+                                        this.schematicRenderState.entityStates.add(state);
                                         this.renderedEntities.put(acp.position(), acp.getUUID());
                                         ++this.countEntitiesRendered;
                                     }
