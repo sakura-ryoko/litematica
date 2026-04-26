@@ -27,6 +27,7 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientMannequin;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -54,6 +55,7 @@ import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.AgeableWaterCreature;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.fish.Cod;
@@ -61,6 +63,8 @@ import net.minecraft.world.entity.animal.fish.Salmon;
 import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.entity.animal.frog.Tadpole;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -1290,28 +1294,72 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     }
 
 	                float tickProgress = tickCounter.getGameTimeDeltaPartialTick(false);
+                    boolean shouldRender;
 
-					if (entityTmp instanceof Avatar ple)
-					{
-                        if (ple instanceof ClientMannequin)
+                    if (entityTmp instanceof Avatar avatar)
+                    {
+                        if (avatar.getType().equals(EntityType.MANNEQUIN))
                         {
-                            ((IAvatarInvoker) ple).litematica$tryUpdateSkin();
-
-                            EntityRenderState state = ((IEntityRendererInvoker) this.entityRenderManager).litematica_getRenderStateNullSafe(entityTmp, tickProgress);
-
-                            if (state != null)
+                            try
                             {
-                                this.schematicRenderState.entityStates.add(state);
-                                this.renderedEntities.put(entityTmp.position(), entityTmp.getUUID());
-                                ++this.countEntitiesRendered;
+                                ClientMannequin cm = (ClientMannequin) avatar;
+                                ((IAvatarInvoker) cm).litematica$tryUpdateSkin();
+                                EntityRenderState state = ((IEntityRendererInvoker) this.getEntityRenderer()).litematica_getRenderStateNullSafe(cm, tickProgress);
+
+                                if (state != null)
+                                {
+                                    shouldRender = ((IEntityRendererInvoker) this.getEntityRenderer()).litematica_shouldRender(cm, frustum, cameraX, cameraY, cameraZ);
+
+                                    if (shouldRender)
+                                    {
+                                        this.getSchematicRenderState().entityStates.add(state);
+                                        this.renderedEntities.put(cm.position(), cm.getUUID());
+                                        ++this.countEntitiesRendered;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Litematica.LOGGER.error("Exception rendering Mannequin [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
+                            }
+                        }
+                        else if (avatar.getType().equals(EntityType.PLAYER))
+                        {
+                            try
+                            {
+                                AbstractClientPlayer acp = (AbstractClientPlayer) avatar;
+                                EntityRenderState state = ((IEntityRendererInvoker) this.getEntityRenderer()).litematica_getRenderStateNullSafe(acp, tickProgress);
+
+                                if (state != null)
+                                {
+                                    shouldRender = ((IEntityRendererInvoker) this.getEntityRenderer()).litematica_shouldRender(acp, frustum, cameraX, cameraY, cameraZ);
+
+                                    if (shouldRender)
+                                    {
+                                        this.getSchematicRenderState().entityStates.add(state);
+                                        this.renderedEntities.put(acp.position(), acp.getUUID());
+                                        ++this.countEntitiesRendered;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Litematica.LOGGER.error("Exception rendering Player [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
                             }
                         }
 
-						// Guess we can't render Player Models in the Schem world.
-						continue;
-					}
-
-                    boolean shouldRender = this.entityRenderManager.shouldRender(entityTmp, frustum, cameraX, cameraY, cameraZ);
+                        // Guess we can't (Or shouldn't) render Players
+                        continue;
+                    }
+                    else if (entityTmp instanceof EnderDragon || entityTmp instanceof EnderDragonPart)
+                    {
+                        shouldRender = true;
+                        // Still half broken.
+                    }
+                    else
+                    {
+                        shouldRender = ((IEntityRendererInvoker) this.getEntityRenderer()).litematica_shouldRender(entityTmp, frustum, cameraX, cameraY, cameraZ);
+                    }
 
                     if (shouldRender)
                     {
