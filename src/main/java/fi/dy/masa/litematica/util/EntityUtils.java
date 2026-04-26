@@ -10,6 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.malilib.util.nbt.NbtView;
@@ -279,6 +281,13 @@ public class EntityUtils
             if (optional.isPresent())
             {
                 Entity entity = optional.get();
+
+                if (entity.getType().equals(EntityType.MANNEQUIN))
+                {
+                    ClientMannequin cm = new ClientMannequin(world, Minecraft.getInstance().playerSkinRenderCache());
+                    cm.load(view.getReader());
+                    entity = cm;    // Fixes Class Cast exception for rendering
+                }
 
                 if (!nbt.contains("UUID"))
                 {
