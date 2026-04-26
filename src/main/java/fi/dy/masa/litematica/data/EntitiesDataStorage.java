@@ -859,6 +859,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
                             var dataAdj = this.getFromBlockEntityCache(posAdj);
 
+                            // TODO
                             if (dataAdj == null)
                             {
                                 this.requestBlockEntity(world, posAdj);
@@ -1268,9 +1269,14 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 this.blockEntityCache.put(pos, Pair.of(System.currentTimeMillis(), Pair.of(blockEntity, data)));
             }
 
-            NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
-            blockEntity.loadWithComponents(view.getReader());
             ChunkPos chunkPos = new ChunkPos(pos);
+
+            if (blockEntity instanceof Container || this.hasPendingChunk(chunkPos))
+            {
+                NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
+                blockEntity.loadWithComponents(view.getReader());
+                this.getClientWorld().setBlockEntity(blockEntity);
+            }
 
             if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
             {
@@ -1309,12 +1315,16 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
 
                     ChunkPos chunkPos = new ChunkPos(pos);
 
+                    if (blockEntity instanceof Container || this.hasPendingChunk(chunkPos))
+                    {
+                        NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
+                        blockEntity.loadWithComponents(view.getReader());
+                    }
+
                     if (this.hasPendingChunk(chunkPos) && this.hasServuxServer() == false)
                     {
                         if (Configs.Generic.ENTITY_DATA_LOAD_NBT.getBooleanValue())
                         {
-                            NbtView view = NbtView.getReader(data, this.getClientWorld().registryAccess());
-                            blockEntity2.loadWithComponents(view.getReader());
                             this.getClientWorld().setBlockEntity(blockEntity2);
                         }
 
