@@ -1116,7 +1116,7 @@ public class WorldUtils
                     continue;
                 }
                 if (PlacementHandler.WHITELISTED_PROPERTIES.contains(p) &&
-                    !PlacementHandler.BLACKLISTED_PROPERTIES.contains(p))
+                    !PlacementHandler.BLACKLISTED_PROPERTIES.containsKey(p))
                 {
                     @SuppressWarnings("unchecked")
                     Property<T> prop = (Property<T>) p;
