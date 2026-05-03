@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.world.phys.Vec3;
@@ -281,7 +280,7 @@ public class ChunkRenderDispatcherLitematica
 //
 //        while (list.size() != this.countUberBuffers)
 //        {
-            this.runChunkUploads(Long.MAX_VALUE, profiler);
+            this.runChunkUploads(Long.MAX_VALUE);
 
 //            try
 //            {
@@ -529,7 +528,7 @@ public class ChunkRenderDispatcherLitematica
         }
 
 //        LOGGER.warn("[Dispatch] uploadVertexBufferByBlockLayer layer [{}] --> DONE", layer.label());
-        profiler.pop();
+//        profiler.pop();
     }
 
     private void uploadVertexBufferByType(final OverlayRenderType type, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final VertexSorting sorter, boolean resortOnly)

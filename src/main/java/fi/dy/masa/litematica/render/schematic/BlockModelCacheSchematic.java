@@ -107,7 +107,7 @@ public class BlockModelCacheSchematic
 	{
 		if (this.blockColors == null)
 		{
-			this.blockColors = this.mc.getBlockColors();
+			this.blockColors = BlockColors.createDefault();
 		}
 
 		return this.blockColors;
@@ -191,7 +191,7 @@ public class BlockModelCacheSchematic
 		this.itemModelResolver = ((IMixinMinecraft) this.mc).litematica_getItemModelResolver();
 		this.blockStateModelSet = this.modelManager.getBlockStateModelSet();
 		this.blockModelSet = this.modelManager.getBlockModelSet();
-		this.blockColors = this.mc.getBlockColors();
+		this.blockColors = BlockColors.createDefault();
 		this.fluidStateModelSet = this.modelManager.getFluidStateModelSet();
 		this.entityModelSet = this.modelManager.entityModels().get();
 		this.spriteGetter = ((IMixinModelManager) this.modelManager).litematica_getAtlasManager();

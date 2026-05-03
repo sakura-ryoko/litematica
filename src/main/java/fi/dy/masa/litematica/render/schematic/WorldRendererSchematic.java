@@ -663,7 +663,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         if (RenderSystem.isOnRenderThread())
         {
             profiler.push("upload_remaining_buffers");
-            this.needsUpdate |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
+            this.needsUpdate |= this.renderDispatcher.runChunkUploads(finishTimeNano);
             profiler.pop();
         }
     }
