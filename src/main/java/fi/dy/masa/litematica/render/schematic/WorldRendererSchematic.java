@@ -370,7 +370,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
             if (this.renderDispatcher == null)
             {
-                this.renderDispatcher = new ChunkRenderDispatcherLitematica(profiler);
+                this.renderDispatcher = new ChunkRenderDispatcherLitematica();
             }
 
             this.displayListEntitiesDirty = true;
@@ -406,7 +406,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
 
         this.chunksToUpdate.clear();
-        this.renderDispatcher.stopChunkUpdates(profiler);
+        this.renderDispatcher.stopChunkUpdates();
         this.profiler = null;
         this.clearBlockBatchDraw();
 		this.clearWorldRenderStates();
@@ -567,7 +567,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     profiler.push("update_now");
                     this.profiler = profiler;
 
-                    this.renderDispatcher.updateChunkNow(chunkRendererTmp, profiler);
+                    this.renderDispatcher.updateChunkNow(chunkRendererTmp);
                     chunkRendererTmp.clearNeedsUpdate();
 
                     profiler.pop();
@@ -595,7 +595,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         //LOGGER.warn("[WorldRenderer] updateChunks()");
         this.profiler = profiler;
         profiler.push("run_chunk_updates");
-        this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano, profiler);
+        this.displayListEntitiesDirty |= this.renderDispatcher.runChunkUploads(finishTimeNano);
 
         if (this.profiler == null)
         {
@@ -617,11 +617,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (immediate)
                 {
-                    flag = this.renderDispatcher.updateChunkNow(renderChunk, profiler);
+                    flag = this.renderDispatcher.updateChunkNow(renderChunk);
                 }
                 else
                 {
-                    flag = this.renderDispatcher.updateChunkLater(renderChunk, profiler);
+                    flag = this.renderDispatcher.updateChunkLater(renderChunk);
                 }
 
                 if (!flag)
@@ -952,7 +952,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 if ((chunkRenderer.getChunkRenderData().isBlockLayerStarted(ChunkSectionLayer.TRANSLUCENT) ||
                     (chunkRenderer.getChunkRenderData() != ChunkRenderDataSchematic.EMPTY && chunkRenderer.hasOverlay())) && h++ < 15)
                 {
-                    this.renderDispatcher.updateTransparencyLater(chunkRenderer, profiler);
+                    this.renderDispatcher.updateTransparencyLater(chunkRenderer);
                 }
             }
         }

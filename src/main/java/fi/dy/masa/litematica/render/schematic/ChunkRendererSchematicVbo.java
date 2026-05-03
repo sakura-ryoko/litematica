@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -273,9 +272,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.gpuBufferCache.clearAll();
     }
 
-    protected void resortTransparency(ChunkRenderTaskSchematic task, ProfilerFiller profiler)
+    protected void resortTransparency(ChunkRenderTaskSchematic task)
     {
-        this.profiler = profiler;
         this.getProfiler().push("resort_task");
         ChunkRenderDataSchematic data = task.getChunkRenderData();
         Vec3 cameraPos = task.getCameraPosSupplier().get();
@@ -332,9 +330,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.profiler = null;
     }
 
-    protected void rebuildChunk(ChunkRenderTaskSchematic task, ProfilerFiller profiler)
+    protected void rebuildChunk(ChunkRenderTaskSchematic task)
     {
-        this.profiler = profiler;
         this.getProfiler().push("rebuild_chunk");
         ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
         //task.setChunkRenderData(data);
@@ -562,85 +559,6 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         data.setTimeBuilt(this.world.getGameTime());
     }
-
-//    protected void uploadChunk(ChunkRenderTaskSchematic task, ProfilerFiller profiler)
-//    {
-//        this.profiler = profiler;
-//        this.getProfiler().push("upload_chunk");
-//        ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
-//        //task.setChunkRenderData(data);
-//        task.getLock().lock();
-//
-//        try
-//        {
-//            if (task.getStatus() != ChunkRenderTaskSchematic.Status.COMPILING)
-//            {
-//                return;
-//            }
-//
-//            task.setChunkRenderData(data);
-//        }
-//        finally
-//        {
-//            task.getLock().unlock();
-//        }
-//
-//        LOGGER.warn("[VBO] uploadChunk() pos [{}]", this.position.toShortString());
-//
-//        BufferAllocatorCache allocators = task.getAllocatorCache();
-//        Vec3 cameraPos = task.getCameraPosSupplier().get();
-//        float x = (float) cameraPos.x - this.position.getX();
-//        float y = (float) cameraPos.y - this.position.getY();
-//        float z = (float) cameraPos.z - this.position.getZ();
-//
-//        for (ChunkSectionLayer layer : ChunkRenderLayers.BLOCK_RENDER_LAYERS)
-//        {
-//            if (data.isBlockLayerStarted(layer))
-//            {
-//                try
-//                {
-//                    this.postRenderBlocks(layer, x, y, z, data, allocators);
-//                }
-//                catch (Exception e)
-//                {
-//                    LOGGER.error("uploadChunk() [VBO] failed to postRenderBlocks() for layer [{}] --> {}", layer.label(), e.toString());
-//                }
-//            }
-//            else
-//            {
-//                LOGGER.error("uploadChunk() [VBO] failed to postRenderBlocks() for layer [{}] --> Layer is not started", layer.label());
-//            }
-//        }
-//
-////        for (RenderType renderType : ChunkRenderLayers.RENDER_LAYERS)
-////        {
-////            if (data.isLayerStarted(renderType))
-////            {
-////                this.postRenderBlocks();
-////            }
-////        }
-//
-//        for (OverlayRenderType type : OverlayRenderType.values())
-//        {
-//            if (data.isOverlayTypeStarted(type))
-//            {
-//                try
-//                {
-//                    this.postRenderOverlay(type, x, y, z, data, allocators);
-//                }
-//                catch (Exception e)
-//                {
-//                    LOGGER.error("uploadChunk() [VBO] failed to postRenderOverlay() for overlay type [{}] --> {}", type.name(), e.toString());
-//                }
-//            }
-//            else
-//            {
-//                LOGGER.error("uploadChunk() [VBO] failed to postRenderBlocks() for overlay type [{}] --> Layer is not started", type.name());
-//            }
-//        }
-//
-//        this.getProfiler().pop();
-//    }
 
     protected void renderBlocksAndOverlay(BlockPos pos,
                                           @Nonnull ChunkRenderDataSchematic data,

@@ -20,7 +20,7 @@ import fi.dy.masa.litematica.render.LitematicaRenderer;
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
-	private static final int MAX_PLATFORM_THREADS = 2;          // The hard limit of usable Threads
+	private static final int MAX_PLATFORM_THREADS = 4;          // The hard limit of usable Threads
 	private static final float TASK_INTERVAL = 1.50F;           // The amount of time in between task check updates
 	private static final int MAX_DEFERRED_CAP = 850;            // The approx amount of tasks that can be queued before they are deferred for each task interval
 	private boolean useVirtual = false;
