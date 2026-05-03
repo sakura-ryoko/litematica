@@ -591,9 +591,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
-    protected void resortTransparency(ChunkRenderTaskSchematic task, ProfilerFiller profiler)
+    protected void resortTransparency(ChunkRenderTaskSchematic task)
     {
-        this.profiler = profiler;
         this.getProfiler().push("resort_task");
         ChunkRenderDataSchematic data = task.getChunkRenderData();
         Vec3 cameraPos = task.getCameraPosSupplier().get();
@@ -652,10 +651,10 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.profiler = null;
     }
 
-    protected void rebuildChunk(ChunkRenderTaskSchematic task, ProfilerFiller profiler)
+    protected void rebuildChunk(ChunkRenderTaskSchematic task)
     {
 //        LOGGER.warn("[VBO] rebuildChunk() pos [{}]", this.position.toShortString());
-        this.profiler = profiler;
+//        this.profiler = profiler;
         this.getProfiler().push("rebuild_chunk");
         ChunkRenderDataSchematic data = new ChunkRenderDataSchematic();
         task.getLock().lock();
