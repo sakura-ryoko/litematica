@@ -1,10 +1,15 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.lang.Math;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
+import fi.dy.masa.malilib.render.RenderContext;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
 
@@ -80,7 +85,6 @@ import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.MathUtils;
-import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -96,6 +100,8 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class WorldRendererSchematic implements IWorldSchematicRenderer
 {
+    private static final String STATUS_OVERLAY_TIMING_PROPERTY = "litematica.debug.schematicOverlayTiming";
+    private static final long STATUS_OVERLAY_TIMING_LOG_INTERVAL_MS = 5000L;
     private static final Logger LOGGER = Litematica.LOGGER;
     private final Minecraft mc;
     private final List<ChunkRendererSchematicVbo> renderInfos;
@@ -126,20 +132,17 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private int countEntitiesTotal;
     private int countEntitiesRendered;
     private int countEntitiesHidden;
+    private long statusOverlayTimingLastLogTime;
+    private long statusOverlayTimingNanos;
+    private long statusOverlayTimingChunks;
+    private long statusOverlayTimingVertices;
+    private long statusOverlayTimingDraws;
 
     private double lastTranslucentSortX;
     private double lastTranslucentSortY;
     private double lastTranslucentSortZ;
     private boolean needsUpdate;
     private boolean shouldDraw;
-    private int diagVisibleChunks;
-    private int diagPreparedChunks;
-    private int diagDrawCallsSolid;
-    private int diagDrawCallsCutout;
-    private int diagDrawCallsTranslucent;
-    private int diagOverlayOutlineDrawCalls;
-    private int diagOverlayQuadDrawCalls;
-    private long diagLastOverlayLogTime;
 
     public WorldRendererSchematic(Minecraft mc)
     {
@@ -213,41 +216,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
 
         return count;
-    }
-
-    public int getDiagVisibleChunks()
-    {
-        return this.diagVisibleChunks;
-    }
-
-    public int getDiagPreparedChunks()
-    {
-        return this.diagPreparedChunks;
-    }
-
-    public int getDiagDrawCallsSolid()
-    {
-        return this.diagDrawCallsSolid;
-    }
-
-    public int getDiagDrawCallsCutout()
-    {
-        return this.diagDrawCallsCutout;
-    }
-
-    public int getDiagDrawCallsTranslucent()
-    {
-        return this.diagDrawCallsTranslucent;
-    }
-
-    public int getDiagOverlayOutlineDrawCalls()
-    {
-        return this.diagOverlayOutlineDrawCalls;
-    }
-
-    public int getDiagOverlayQuadDrawCalls()
-    {
-        return this.diagOverlayQuadDrawCalls;
     }
 
     @Override
@@ -468,7 +436,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //        LOGGER.warn("[WorldRenderer] setupTerrain()");
         this.profiler = profiler;
         profiler.push("setup_terrain");
-        this.diagVisibleChunks = 0;
 
         if (this.chunkRendererDispatcher == null ||
             this.mc.options.renderDistance().get() + 2 != this.renderDistanceChunks)
@@ -581,7 +548,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 //                        }
 
                         this.renderInfos.add(chunkRenderer);
-                        ++this.diagVisibleChunks;
                     }
                 }
 
@@ -687,10 +653,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 index++;
             }
 
-            if (Reference.DEBUG_MODE && index > 0)
-            {
-                LOGGER.info("[WorldRenderer] updateChunks(): {} Chunks updated.", index);
-            }
         }
 
         profiler.pop();
@@ -728,10 +690,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         this.profiler = profiler;
 //        RenderSystem.assertOnRenderThread();
         profiler.push("layer_multi_phase");
-        this.diagPreparedChunks = this.renderInfos.size();
-        this.diagDrawCallsSolid = 0;
-        this.diagDrawCallsCutout = 0;
-        this.diagDrawCallsTranslucent = 0;
 
 	    List<DynamicUniforms.Transform> transformValues = new ArrayList<>();
 //        EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
@@ -922,9 +880,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         if (startedDrawing)
         {
-            this.diagDrawCallsSolid = renderMap.get(ChunkSectionLayer.SOLID).size();
-            this.diagDrawCallsCutout = renderMap.get(ChunkSectionLayer.CUTOUT).size();
-            this.diagDrawCallsTranslucent = renderMap.get(ChunkSectionLayer.TRANSLUCENT).size();
             profiler.popPush("fill_uniforms");
             this.getSchematicRenderState().chunkFixUniform.fillBuffer(atlasWidth, atlasHeight, 1.0f);
             GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms()
@@ -949,6 +904,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     @Override
     public void drawBlockLayerGroup(ChunkSectionLayerGroup group, @Nullable GpuSampler sampler)
     {
+
 //        LOGGER.warn("[WorldRenderer] drawBlockLayerGroup() [{}]", group.label());
         if (this.getSchematicRenderState().hasBatchDraw() && this.shouldDraw)
         {
@@ -1123,24 +1079,21 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public void renderBlockOverlays(Camera camera, float lineWidth, ProfilerFiller profiler)
+    public void renderBlockOverlays(RenderTarget fb, Camera camera, ProfilerFiller profiler)
     {
-//        LOGGER.warn("[WorldRenderer] renderBlockOverlays()");
         this.profiler = profiler;
-        // Draw filled status faces first so the final colored outlines remain visible.
-        this.renderBlockOverlay(OverlayRenderType.QUAD, camera, lineWidth, profiler);
-        this.renderBlockOverlay(OverlayRenderType.OUTLINE, camera, lineWidth, profiler);
+        boolean timingEnabled = isStatusOverlayTimingEnabled();
 
-        this.logOverlayDiagnostics();
+        // Draw filled status faces first so the final colored outlines remain visible.
+        this.renderBlockOverlay(fb, OverlayRenderType.QUAD, camera, profiler, timingEnabled);
+        this.renderBlockOverlay(fb, OverlayRenderType.OUTLINE, camera, profiler, timingEnabled);
+        this.logStatusOverlayTimingIfNeeded(timingEnabled);
     }
 
-    protected void renderBlockOverlay(OverlayRenderType type, Camera camera, float lineWidth, ProfilerFiller profiler)
+    protected void renderBlockOverlay(RenderTarget fb, OverlayRenderType type, Camera camera, ProfilerFiller profiler, boolean timingEnabled)
     {
-//        LOGGER.warn("[WorldRenderer] renderBlockOverlay() [{}]", type.name());
         profiler.push("overlay_" + type.name());
         this.profiler = profiler;
-        int drawCount = 0;
-
         Vec3 cameraPos = camera.position();
         double x = cameraPos.x;
         double y = cameraPos.y;
@@ -1165,132 +1118,147 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
-                    if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
+                    if (!chunkMeshData.hasMeshData(type))
                     {
-//                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
                     }
 
                     offset[0] = (float) (chunkOrigin.getX() - x);
                     offset[1] = (float) (chunkOrigin.getY() - y);
                     offset[2] = (float) (chunkOrigin.getZ() - z);
-                    this.drawOverlayInternal(pipeline, buffers, -1, offset, false, true);
-                    ++drawCount;
+
+                    this.drawOverlayMeshDataCameraRelative(fb, type, chunkMeshData, pipeline, offset, timingEnabled);
+
                 }
             }
-        }
-
-        if (type == OverlayRenderType.OUTLINE)
-        {
-            this.diagOverlayOutlineDrawCalls = drawCount;
-        }
-        else if (type == OverlayRenderType.QUAD)
-        {
-            this.diagOverlayQuadDrawCalls = drawCount;
         }
 
         profiler.pop();
     }
 
-    private void logOverlayDiagnostics()
+    private void drawOverlayMeshDataCameraRelative(RenderTarget fb, OverlayRenderType type, ChunkMeshDataSchematic chunkMeshData,
+                                                   RenderPipeline pipeline, float[] offset, boolean timingEnabled)
     {
-        if (!Boolean.getBoolean("litematica.debug.schematicOverlay"))
+        MeshData sourceMeshData = chunkMeshData.getMeshDataOrNull(type);
+
+        if (sourceMeshData == null)
+        {
+            return;
+        }
+
+        long startTime = timingEnabled ? System.nanoTime() : 0L;
+        int copiedVertices = 0;
+        int draws = 0;
+
+        try (RenderContext ctx = new RenderContext(() -> "litematica:schematic_status_overlay/" + type.name().toLowerCase(Locale.ROOT), pipeline))
+        {
+            BufferBuilder builder = ctx.getBuilder();
+            copiedVertices = this.copyOverlayMeshDataWithOffset(type, sourceMeshData, offset, builder);
+
+            try (MeshData meshData = builder.build())
+            {
+                if (meshData != null)
+                {
+                    ctx.draw(fb, meshData, false, false, false);
+                    draws = 1;
+                }
+            }
+        }
+        catch (Exception err)
+        {
+            LOGGER.warn("Schematic status overlay draw failed for {}: {}", type.name(), err.getMessage());
+        }
+        finally
+        {
+            if (timingEnabled)
+            {
+                this.recordStatusOverlayTiming(System.nanoTime() - startTime, copiedVertices, draws);
+            }
+        }
+    }
+
+    private int copyOverlayMeshDataWithOffset(OverlayRenderType type, MeshData sourceMeshData, float[] offset, BufferBuilder builder)
+    {
+        ByteBuffer vertices = sourceMeshData.vertexBuffer().duplicate().order(ByteOrder.nativeOrder());
+        int vertexSize = type.getVertexFormat().getVertexSize();
+        int vertexCount = sourceMeshData.drawState().vertexCount();
+        int copiedVertices = 0;
+
+        for (int i = 0; i < vertexCount; ++i)
+        {
+            int base = vertices.position() + i * vertexSize;
+
+            if (base + 16 > vertices.limit())
+            {
+                break;
+            }
+
+            float vx = vertices.getFloat(base) + offset[0];
+            float vy = vertices.getFloat(base + 4) + offset[1];
+            float vz = vertices.getFloat(base + 8) + offset[2];
+            int color = ARGB.toABGR(vertices.getInt(base + 12));
+
+            if (type == OverlayRenderType.OUTLINE)
+            {
+                float lineWidth = vertexSize >= 20 && base + 20 <= vertices.limit() ? vertices.getFloat(base + 16) : 1.0F;
+                builder.addVertex(vx, vy, vz).setColor(color).setLineWidth(lineWidth);
+            }
+            else
+            {
+                builder.addVertex(vx, vy, vz).setColor(color);
+            }
+
+            ++copiedVertices;
+        }
+
+        return copiedVertices;
+    }
+
+    private static boolean isStatusOverlayTimingEnabled()
+    {
+        return Boolean.getBoolean(STATUS_OVERLAY_TIMING_PROPERTY);
+    }
+
+    private void recordStatusOverlayTiming(long elapsedNanos, int vertices, int draws)
+    {
+        this.statusOverlayTimingNanos += elapsedNanos;
+        this.statusOverlayTimingChunks += 1L;
+        this.statusOverlayTimingVertices += vertices;
+        this.statusOverlayTimingDraws += draws;
+    }
+
+    private void logStatusOverlayTimingIfNeeded(boolean timingEnabled)
+    {
+        if (!timingEnabled)
         {
             return;
         }
 
         long now = System.currentTimeMillis();
 
-        if (now - this.diagLastOverlayLogTime < 5000L)
+        if (this.statusOverlayTimingLastLogTime == 0L)
+        {
+            this.statusOverlayTimingLastLogTime = now;
+        }
+
+        if (now - this.statusOverlayTimingLastLogTime < STATUS_OVERLAY_TIMING_LOG_INTERVAL_MS)
         {
             return;
         }
 
-        this.diagLastOverlayLogTime = now;
-        ChunkRendererSchematicVbo.OverlayBuildStats stats = new ChunkRendererSchematicVbo.OverlayBuildStats();
+        LOGGER.info("[StatusOverlayTiming] copyDrawMs={} chunks={} vertices={} draws={}",
+                    String.format(Locale.ROOT, "%.3f", this.statusOverlayTimingNanos / 1_000_000.0D),
+                    this.statusOverlayTimingChunks,
+                    this.statusOverlayTimingVertices,
+                    this.statusOverlayTimingDraws);
 
-        for (ChunkRendererSchematicVbo renderer : this.renderInfos)
-        {
-            renderer.getOverlayBuildStats().mergeInto(stats);
-        }
-
-        SchematicPlacement selected = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
-        List<SchematicPlacement> placements = DataManager.getSchematicPlacementManager().getAllSchematicsPlacements();
-        String placement = selected != null ?
-                           String.format("%s/%s", selected.getName(), selected.getHashId()) :
-                           "<none selected>";
-        boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
-        RenderPipeline quadPipeline = renderThrough ? OverlayRenderType.QUAD.getRenderThrough() : OverlayRenderType.QUAD.getPipeline();
-        RenderPipeline outlinePipeline = renderThrough ? OverlayRenderType.OUTLINE.getRenderThrough() : OverlayRenderType.OUTLINE.getPipeline();
-
-        LOGGER.info("[OverlayDiag] placement={} placementCount={} enableOverlay={} sides={} outlines={} renderThrough={} forcedColors={} verifierOverlay={} overlayPassOrder='ghost terrain before status overlay; status quads before status outlines'",
-                    placement,
-                    placements.size(),
-                    Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_SIDES.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_OUTLINES.getBooleanValue(),
-                    renderThrough,
-                    Boolean.getBoolean("litematica.debug.schematicOverlay.forceColors"),
-                    Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue());
-        LOGGER.info("[OverlayDiag] overlayOptions culling={} reducedInnerSides={} modelSides={} modelOutline={} typeMissing={} typeExtra={} typeWrongBlock={} typeWrongState={} typeDiffBlock={} outlineWidth={} outlineWidthThrough={} configuredColors missing={} extra={} wrongBlock={} wrongState={} diffBlock={}",
-                    Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY_CULLING.getBooleanValue(),
-                    Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_MISSING.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_EXTRA.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_WRONG_BLOCK.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_WRONG_STATE.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_TYPE_DIFF_BLOCK.getBooleanValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue(),
-                    Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue(),
-                    colorToHex(Configs.Colors.SCHEMATIC_OVERLAY_COLOR_MISSING.getColor()),
-                    colorToHex(Configs.Colors.SCHEMATIC_OVERLAY_COLOR_EXTRA.getColor()),
-                    colorToHex(Configs.Colors.SCHEMATIC_OVERLAY_COLOR_WRONG_BLOCK.getColor()),
-                    colorToHex(Configs.Colors.SCHEMATIC_OVERLAY_COLOR_WRONG_STATE.getColor()),
-                    colorToHex(Configs.Colors.SCHEMATIC_OVERLAY_COLOR_DIFF_BLOCK.getColor()));
-        LOGGER.info("[OverlayDiag] statusCounts totalChecked={} {} colors={}",
-                    stats.getTotalChecked(),
-                    stats.getTypeCountsString(),
-                    stats.getColorCountsString());
-        LOGGER.info("[OverlayDiag] meshVertices quads={} outlines={} drawCalls quads={} outlines={} visibleChunks={} solid={} cutout={} translucent={}",
-                    stats.getQuadVertices(),
-                    stats.getOutlineVertices(),
-                    this.diagOverlayQuadDrawCalls,
-                    this.diagOverlayOutlineDrawCalls,
-                    this.diagVisibleChunks,
-                    this.diagDrawCallsSolid,
-                    this.diagDrawCallsCutout,
-                    this.diagDrawCallsTranslucent);
-        LOGGER.info("[OverlayDiag] quadPipeline location={} mode={} format={} vertexShader={} fragmentShader={} depth={} colorTarget={}",
-                    quadPipeline.getLocation(),
-                    quadPipeline.getVertexFormatMode(),
-                    quadPipeline.getVertexFormat(),
-                    quadPipeline.getVertexShader(),
-                    quadPipeline.getFragmentShader(),
-                    quadPipeline.getDepthStencilState(),
-                    quadPipeline.getColorTargetState());
-        LOGGER.info("[OverlayDiag] outlinePipeline location={} mode={} format={} vertexShader={} fragmentShader={} depth={} colorTarget={}",
-                    outlinePipeline.getLocation(),
-                    outlinePipeline.getVertexFormatMode(),
-                    outlinePipeline.getVertexFormat(),
-                    outlinePipeline.getVertexShader(),
-                    outlinePipeline.getFragmentShader(),
-                    outlinePipeline.getDepthStencilState(),
-                    outlinePipeline.getColorTargetState());
-    }
-
-    private static String colorToHex(Color4f color)
-    {
-        int a = Math.round(color.a * 255.0f) & 0xFF;
-        int r = Math.round(color.r * 255.0f) & 0xFF;
-        int g = Math.round(color.g * 255.0f) & 0xFF;
-        int b = Math.round(color.b * 255.0f) & 0xFF;
-
-        return String.format("#%02X%02X%02X%02X", a, r, g, b);
+        this.statusOverlayTimingLastLogTime = now;
+        this.statusOverlayTimingNanos = 0L;
+        this.statusOverlayTimingChunks = 0L;
+        this.statusOverlayTimingVertices = 0L;
+        this.statusOverlayTimingDraws = 0L;
     }
 
     @Override
@@ -1356,79 +1324,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
 
         return false;
-    }
-
-    // Probably not the most efficient way; but it works.
-    private void drawOverlayInternal(RenderPipeline pipeline,
-                                     ChunkRenderBuffers buffers,
-                                     int color, float[] offset,
-                                     boolean useColor, boolean useOffset) throws RuntimeException
-    {
-        if (RenderSystem.isOnRenderThread())
-        {
-            Vector4f colorMod = new Vector4f(1f, 1f, 1f, 1f);
-            Vector3f modelOffset = new Vector3f();
-            Matrix4f texMatrix = new Matrix4f();
-
-            if (useOffset)
-            {
-                modelOffset.set(offset);
-            }
-
-            if (useColor)
-            {
-                float[] rgba = {ARGB.redFloat(color), ARGB.greenFloat(color), ARGB.blueFloat(color), ARGB.alphaFloat(color)};
-                colorMod.set(rgba);
-            }
-
-            RenderTarget mainFb = RenderUtils.fb();
-            GpuTextureView texture1 = mainFb.getColorTextureView();
-            GpuTextureView texture2 = mainFb.useDepth ? mainFb.getDepthTextureView() : null;
-            RenderSystem.AutoStorageIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
-            GpuBuffer indexBuffer;
-            VertexFormat.IndexType indexType;
-
-            if (buffers.getIndexBuffer() == null)
-            {
-                if (buffers.getIndexCount() > 0)
-                {
-                    indexBuffer = shapeIndexBuffer.getBuffer(buffers.getIndexCount());
-                    indexType = shapeIndexBuffer.type();
-                }
-                else
-                {
-                    LOGGER.error("WorldRendererSchematic#drawInternal() [{}] --> setup IndexBuffer --> NO INDEX COUNT!", buffers.getName());
-                    return;
-                }
-            }
-            else
-            {
-                indexBuffer = buffers.getIndexBuffer();
-                indexType = buffers.getIndexType();
-            }
-
-            GpuBufferSlice gpuSlice = RenderSystem.getDynamicUniforms()
-                                                  .writeTransform(
-                                                          RenderSystem.getModelViewMatrixCopy(),
-                                                          colorMod,
-                                                          modelOffset,
-                                                          texMatrix);
-
-            // Attach Frame buffers
-            try (RenderPass pass = RenderSystem.getDevice()
-                                               .createCommandEncoder()
-                                               .createRenderPass(() -> "litematica:drawInternal/schematic_overlay",
-                                                                 texture1, OptionalInt.empty(),
-                                                                 texture2, OptionalDouble.empty()))
-            {
-                pass.setPipeline(pipeline);
-                RenderSystem.bindDefaultUniforms(pass);
-                pass.setUniform("DynamicTransforms", gpuSlice);
-                pass.setVertexBuffer(0, buffers.getVertexBuffer());
-                pass.setIndexBuffer(indexBuffer, indexType);
-                pass.drawIndexed(0, 0, buffers.getIndexCount(), 1);
-            }
-        }
     }
 
     @Override

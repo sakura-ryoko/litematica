@@ -1,6 +1,8 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
+
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import org.joml.Matrix4fc;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -142,21 +144,18 @@ public class LitematicaRenderer
         }
     }
 
-    public void renderSchematicOverlays(Camera camera, ProfilerFiller profiler)
+    public void renderSchematicOverlays(RenderTarget fb, Camera camera, ProfilerFiller profiler)
     {
         boolean invert = Hotkeys.INVERT_OVERLAY_RENDER_STATE.getKeybind().isKeybindHeld();
 
         if (Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY.getBooleanValue() != invert)
         {
-            boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
-            float lineWidth = (float) (renderThrough ? Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() : Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
-
             profiler.push("schematic_overlay");
 
             if (!IrisCompat.isShadowPassActive())
             {
                 // this.getCamera()
-                this.getWorldRenderer().renderBlockOverlays(camera, lineWidth, profiler);
+                this.getWorldRenderer().renderBlockOverlays(fb, camera, profiler);
             }
 
             profiler.pop();
@@ -369,17 +368,17 @@ public class LitematicaRenderer
 		}
 	}
 
-	public void piecewiseRenderOverlay(ProfilerFiller profiler)
+	public void piecewiseRenderOverlay(RenderTarget fb, ProfilerFiller profiler)
     {
         if (this.renderPiecewiseSchematic)
         {
             profiler.push(Reference.MOD_ID+"_schematic_overlay");
-            this.renderSchematicOverlays(this.getCamera(), profiler);
+            this.renderSchematicOverlays(fb, this.getCamera(), profiler);
             profiler.pop();
         }
 
-		this.getWorldRenderer().clearWorldRenderStates();
-        this.cleanup();
+		//this.getWorldRenderer().clearWorldRenderStates();
+        //this.cleanup();
     }
 
     public void renderEntityDebugHitboxes(IEntityHitboxDebugRendererInvoker invoker, double cameraX, double cameraY, double cameraZ, DebugValueAccess debugValueAccess, Frustum frustum, float ticks, ProfilerFiller profiler)

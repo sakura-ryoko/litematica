@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.render;
 
 import java.util.List;
 import javax.annotation.Nonnull;
+
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
@@ -118,7 +120,7 @@ public interface IWorldSchematicRenderer
 
 //	void updateBlockEntities(Collection<BlockEntity> toRemove, Collection<BlockEntity> toAdd);
 
-	void renderBlockOverlays(Camera camera, float lineWidth, ProfilerFiller profiler);
+	void renderBlockOverlays(RenderTarget fb, Camera camera, ProfilerFiller profiler);
 
 	void scheduleChunkRenders(int chunkX, int chunkZ, boolean immediate);
 

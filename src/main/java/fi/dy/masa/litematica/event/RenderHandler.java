@@ -59,7 +59,7 @@ public class RenderHandler implements IRenderer
 
             // Schematic Overlay Rendering
             profiler.popPush("schematic_overlay");
-            LitematicaRenderer.getInstance().piecewiseRenderOverlay(profiler);
+            LitematicaRenderer.getInstance().piecewiseRenderOverlay(fb, profiler);
             profiler.pop();
         }
     }
