@@ -40,6 +40,7 @@
         "hud.MixinDebugScreenOverlay",
         "model.IMixinBlockModelSet",
         "model.IMixinBlockStateModelSet",
+        "model.IMixinEntityRenderDispatcher",
         "model.IMixinEntityModelSet",
         "model.IMixinFluidStateModelSet",
         "model.IMixinMinecraft",

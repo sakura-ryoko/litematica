@@ -230,7 +230,7 @@ public class SchematicPlacementManager
                             if (!this.worldSupplier.get().getChunkSource().hasChunk(cx, cz) &&
                                 DataManager.getSchematicPlacementManager().canHandleChunk(Minecraft.getInstance().level, cx, cz))
                             {
-                                Frustum frustum = Minecraft.getInstance().gameRenderer.getMainCamera().getCapturedFrustum();
+                                Frustum frustum = Minecraft.getInstance().gameRenderer.mainCamera().getCapturedFrustum();
 
                                 // Check Frustum culling
                                 if (frustum != null)

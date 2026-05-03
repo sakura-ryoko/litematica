@@ -6,6 +6,8 @@ import fi.dy.masa.malilib.data.CachedTagKey;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 /**
@@ -53,24 +55,14 @@ public class CachedTagManager
 	{
 		List<String> list = new ArrayList<>();
 
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLACK_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLUE_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BROWN_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.CYAN_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GRAY_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GREEN_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_BLUE_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_GRAY_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIME_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.MAGENTA_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.ORANGE_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PINK_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PURPLE_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.RED_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.YELLOW_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.WHITE_STAINED_GLASS).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.TINTED_GLASS).toString());
+		list.add("minecraft:glass");
+
+		for (DyeColor color : DyeColor.VALUES)
+		{
+			list.add("minecraft:" + color.getName() + "_stained_glass");
+		}
+
+		list.add("minecraft:tinted_glass");
 
 		return list;
 	}
@@ -79,23 +71,12 @@ public class CachedTagManager
 	{
 		List<String> list = new ArrayList<>();
 
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLACK_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLUE_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BROWN_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.CYAN_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GRAY_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GREEN_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_BLUE_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_GRAY_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIME_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.MAGENTA_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.ORANGE_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PINK_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PURPLE_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.RED_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.YELLOW_STAINED_GLASS_PANE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.WHITE_STAINED_GLASS_PANE).toString());
+		list.add("minecraft:glass_pane");
+
+		for (DyeColor color : DyeColor.VALUES)
+		{
+			list.add("minecraft:" + color.getName() + "_stained_glass_pane");
+		}
 
 		return list;
 	}
@@ -103,23 +84,7 @@ public class CachedTagManager
 	private static List<String> buildConcretePowderItemCache()
 	{
 		List<String> list = new ArrayList<>();
-
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLACK_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLUE_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BROWN_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.CYAN_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GRAY_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GREEN_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_BLUE_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_GRAY_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIME_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.MAGENTA_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.ORANGE_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PINK_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PURPLE_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.RED_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.YELLOW_CONCRETE_POWDER).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.WHITE_CONCRETE_POWDER).toString());
+		list.add("#minecraft:concrete_powders");
 
 		return list;
 	}
@@ -127,23 +92,7 @@ public class CachedTagManager
 	private static List<String> buildConcreteItemCache()
 	{
 		List<String> list = new ArrayList<>();
-
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLACK_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLUE_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BROWN_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.CYAN_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GRAY_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GREEN_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_BLUE_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_GRAY_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIME_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.MAGENTA_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.ORANGE_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PINK_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PURPLE_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.RED_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.YELLOW_CONCRETE).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.WHITE_CONCRETE).toString());
+		list.add("#minecraft:concrete");
 
 		return list;
 	}
@@ -151,23 +100,7 @@ public class CachedTagManager
 	private static List<String> buildGlazedTerracottaItemCache()
 	{
 		List<String> list = new ArrayList<>();
-
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLACK_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BLUE_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.BROWN_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.CYAN_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GRAY_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.GREEN_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_BLUE_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIGHT_GRAY_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.LIME_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.MAGENTA_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.ORANGE_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PINK_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.PURPLE_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.RED_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.YELLOW_GLAZED_TERRACOTTA).toString());
-		list.add(BuiltInRegistries.ITEM.getKey(Items.WHITE_GLAZED_TERRACOTTA).toString());
+		list.add("#minecraft:glazed_terracotta");
 
 		return list;
 	}
@@ -175,26 +108,26 @@ public class CachedTagManager
     {
         List<String> list = new ArrayList<>();
 
-        list.add(BuiltInRegistries.ITEM.getKey(Items.BONE_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.CLAY).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.COAL_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.COPPER_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.DIAMOND_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.EMERALD_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.GOLD_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.HAY_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.HONEY_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.IRON_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.LAPIS_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.MELON).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.NETHERITE_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RAW_COPPER_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RAW_GOLD_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RAW_IRON_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.REDSTONE_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RESIN_BLOCK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RESIN_BRICKS).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.SLIME_BLOCK).toString());
+        list.add(itemId(Items.BONE_BLOCK));
+        list.add(itemId(Items.CLAY));
+        list.add(itemId(Items.COAL_BLOCK));
+        list.add(itemId(Items.COPPER_BLOCK.weathering().unaffected()));
+        list.add(itemId(Items.DIAMOND_BLOCK));
+        list.add(itemId(Items.EMERALD_BLOCK));
+        list.add(itemId(Items.GOLD_BLOCK));
+        list.add(itemId(Items.HAY_BLOCK));
+        list.add(itemId(Items.HONEY_BLOCK));
+        list.add(itemId(Items.IRON_BLOCK));
+        list.add(itemId(Items.LAPIS_BLOCK));
+        list.add(itemId(Items.MELON));
+        list.add(itemId(Items.NETHERITE_BLOCK));
+        list.add(itemId(Items.RAW_COPPER_BLOCK));
+        list.add(itemId(Items.RAW_GOLD_BLOCK));
+        list.add(itemId(Items.RAW_IRON_BLOCK));
+        list.add(itemId(Items.REDSTONE_BLOCK));
+        list.add(itemId(Items.RESIN_BLOCK));
+        list.add(itemId(Items.RESIN_BRICKS));
+        list.add(itemId(Items.SLIME_BLOCK));
 
         return list;
     }
@@ -203,29 +136,29 @@ public class CachedTagManager
     {
         List<String> list = new ArrayList<>();
 
-        list.add(BuiltInRegistries.ITEM.getKey(Items.BONE).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.CLAY_BALL).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.COAL).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.EMERALD).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.GLOWSTONE_DUST).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.GOLD_INGOT).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.GOLD_NUGGET).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.HONEY_BOTTLE).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.ICE).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.IRON_INGOT).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.IRON_NUGGET).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.LAPIS_LAZULI).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.MELON_SLICE).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.NETHERITE_INGOT).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.NETHER_WART).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.PACKED_ICE).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.REDSTONE).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RESIN_BRICK).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.RESIN_CLUMP).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.SLIME_BALL).toString());
-        list.add(BuiltInRegistries.ITEM.getKey(Items.WHEAT).toString());
+        list.add(itemId(Items.BONE));
+        list.add(itemId(Items.CLAY_BALL));
+        list.add(itemId(Items.COAL));
+        list.add(itemId(Items.COPPER_INGOT));
+        list.add(itemId(Items.DIAMOND));
+        list.add(itemId(Items.EMERALD));
+        list.add(itemId(Items.GLOWSTONE_DUST));
+        list.add(itemId(Items.GOLD_INGOT));
+        list.add(itemId(Items.GOLD_NUGGET));
+        list.add(itemId(Items.HONEY_BOTTLE));
+        list.add(itemId(Items.ICE));
+        list.add(itemId(Items.IRON_INGOT));
+        list.add(itemId(Items.IRON_NUGGET));
+        list.add(itemId(Items.LAPIS_LAZULI));
+        list.add(itemId(Items.MELON_SLICE));
+        list.add(itemId(Items.NETHERITE_INGOT));
+        list.add(itemId(Items.NETHER_WART));
+        list.add(itemId(Items.PACKED_ICE));
+        list.add(itemId(Items.REDSTONE));
+        list.add(itemId(Items.RESIN_BRICK));
+        list.add(itemId(Items.RESIN_CLUMP));
+        list.add(itemId(Items.SLIME_BALL));
+        list.add(itemId(Items.WHEAT));
 
         return list;
     }
@@ -240,4 +173,9 @@ public class CachedTagManager
 		CachedItemTags.getInstance().clearEntry(PACKED_BLOCK_ITEMS_KEY);
 		CachedItemTags.getInstance().clearEntry(UNPACKED_BLOCK_ITEMS_KEY);
     }
+
+	private static String itemId(Item item)
+	{
+		return BuiltInRegistries.ITEM.getKey(item).toString();
+	}
 }

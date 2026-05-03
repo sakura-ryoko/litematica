@@ -50,7 +50,7 @@ public class IrisRenderingFix
 
 	private LevelRenderState levelRenderState()
 	{
-		return this.mc.gameRenderer.getGameRenderState().levelRenderState;
+		return this.mc.gameRenderer.gameRenderState().levelRenderState;
 	}
 
 	private DeltaTracker deltaTracker()

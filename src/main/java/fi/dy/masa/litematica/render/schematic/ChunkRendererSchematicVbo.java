@@ -49,6 +49,7 @@ import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
 import fi.dy.masa.litematica.render.RenderUtils;
@@ -70,6 +71,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     private final RandomSource rand;
     protected final ReentrantLock chunkRenderLock;
     protected final ReentrantLock chunkRenderDataLock;
+    private final OverlayBuildStats overlayBuildStats;
     protected ProfilerFiller profiler;
     protected final BlockPos.MutableBlockPos position;
     protected final BlockPos.MutableBlockPos chunkRelativePos;
@@ -111,6 +113,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         this.chunkRenderLock = new ReentrantLock();
 //		this.setBlockEntities = new HashSet<>();
         this.chunkRenderDataLock = new ReentrantLock();
+        this.overlayBuildStats = new OverlayBuildStats();
         this.position = new BlockPos.MutableBlockPos();
         this.chunkRelativePos = new BlockPos.MutableBlockPos();
 		this.boxes = new ArrayList<>();
@@ -125,6 +128,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
     public boolean hasOverlay()
     {
         return this.hasOverlay;
+    }
+
+    public OverlayBuildStats getOverlayBuildStats()
+    {
+        return this.overlayBuildStats;
     }
 
 	public boolean isEmpty()
@@ -698,6 +706,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
         this.existingOverlays.clear();
         this.hasOverlay = false;
+        this.overlayBuildStats.reset();
         this.getProfiler().popPush("rebuild_chunk_start");
         
         synchronized (this.boxes)
@@ -850,7 +859,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             this.chunkRenderDataLock.unlock();
         }
 
-        if (this.worldRenderer.getChunkSchematicState(this.chunkPosition.x(), this.chunkPosition.z()).atLeast(ChunkSchematicState.RENDERED))
+        if (this.worldRenderer.getChunkSchematicState(this.chunkPosition.x(), this.chunkPosition.z()).atLeast(ChunkSchematicState.LOADED))
         {
             this.worldRenderer.setChunkSchematicState(this.chunkPosition.x(), this.chunkPosition.z(), ChunkSchematicState.RENDERED);
         }
@@ -929,6 +938,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             OverlayType type = this.getOverlayType(stateSchematic, stateClient);
 
             this.overlayColor = getOverlayColor(type);
+            this.overlayBuildStats.recordType(type, this.overlayColor);
 
             if (this.overlayColor != null)
             {
@@ -1109,7 +1119,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             }
 
             Color4f overlayColor = new Color4f(this.overlayColor.r, this.overlayColor.g, this.overlayColor.b, 1f);
-	        float lineWidth = 1.0f;
+            boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() ||
+                                    Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
+            float lineWidth = (float) (renderThrough ?
+                                       Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue() :
+                                       Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue());
 
             this.getProfiler().popPush("cull_inner_sides");
             if (Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue())
@@ -1180,7 +1194,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 else
                 {
                     this.getProfiler().popPush("render_reduced_edges");
-                    this.renderOverlayReducedEdges(pos, adjTypes, type, lineWidth, bufferOverlayOutlines);
+                    this.renderOverlayReducedEdges(pos, adjTypes, type, overlayColor, lineWidth, bufferOverlayOutlines);
                     //RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(pos, relPos, overlayColor, 0, bufferOverlayOutlines);
                 }
             }
@@ -1226,7 +1240,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return this.chunkRelativePos.set(pos.getX() & 0xF, pos.getY() - this.position.getY(), pos.getZ() & 0xF);
     }
 
-    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, float lineWidth, BufferBuilder bufferOverlayOutlines)
+    protected void renderOverlayReducedEdges(BlockPos pos, OverlayType[][][] adjTypes, OverlayType typeSelf, Color4f overlayColor,
+                                             float lineWidth, BufferBuilder bufferOverlayOutlines)
     {
         OverlayType[] neighborTypes = new OverlayType[4];
         Vec3i[] neighborPositions = new Vec3i[4];
@@ -1304,7 +1319,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         try
                         {
                             this.getProfiler().popPush("render_batched");
-                            RenderUtils.drawBlockBoxEdgeBatchedDebugLines(this.getChunkRelativePosition(pos), axis, corner, this.overlayColor, lineWidth, bufferOverlayOutlines);
+                            RenderUtils.drawBlockBoxEdgeBatchedDebugLines(this.getChunkRelativePosition(pos), axis, corner, overlayColor, lineWidth, bufferOverlayOutlines);
                         }
                         catch (IllegalStateException ignored)
                         {
@@ -1428,7 +1443,25 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             default:
         }
 
+        if (overlayColor != null && Boolean.getBoolean("litematica.debug.schematicOverlay.forceColors"))
+        {
+            return getForcedDebugOverlayColor(overlayType);
+        }
+
         return overlayColor;
+    }
+
+    private static Color4f getForcedDebugOverlayColor(OverlayType overlayType)
+    {
+        return switch (overlayType)
+        {
+            case MISSING     -> Color4f.fromColor(0xFFFF0000);
+            case EXTRA       -> Color4f.fromColor(0xFFFF00FF);
+            case WRONG_BLOCK -> Color4f.fromColor(0xFF8000FF);
+            case WRONG_STATE -> Color4f.fromColor(0xFFFFFF00);
+            case DIFF_BLOCK  -> Color4f.fromColor(0xFF00FFFF);
+            default          -> Color4f.fromColor(0xFFFFFFFF);
+        };
     }
 
     private <T extends BlockEntity> void addBlockEntity(BlockPos pos, ChunkMeshDataSchematic chunkMeshData)
@@ -1838,6 +1871,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                 else
                 {
 //                    LOGGER.warn("[VBO] postRenderBlocks(): type: [{}] -- Save Mesh Data; VC: [{}]", type.name(), meshData.drawState().vertexCount());
+                    this.overlayBuildStats.recordVertices(type, meshData.drawState().vertexCount());
                     chunkMeshData.saveMeshData(type, meshData);
                 }
             }
@@ -1861,6 +1895,104 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
 
 //        LOGGER.warn("[VBO] postRenderBlocks(): type: [{}] --> END", type.name());
+    }
+
+    public static class OverlayBuildStats
+    {
+        private final EnumMap<OverlayType, Integer> typeCounts = new EnumMap<>(OverlayType.class);
+        private final Map<String, Integer> colorCounts = new LinkedHashMap<>();
+        private int quadVertices;
+        private int outlineVertices;
+
+        public synchronized void reset()
+        {
+            this.typeCounts.clear();
+            this.colorCounts.clear();
+            this.quadVertices = 0;
+            this.outlineVertices = 0;
+        }
+
+        public synchronized void recordType(OverlayType type, @Nullable Color4f color)
+        {
+            this.typeCounts.merge(type, 1, Integer::sum);
+
+            if (color != null)
+            {
+                this.colorCounts.merge(color.toHexString(), 1, Integer::sum);
+            }
+        }
+
+        public synchronized void recordVertices(OverlayRenderType type, int vertices)
+        {
+            if (type == OverlayRenderType.QUAD)
+            {
+                this.quadVertices += vertices;
+            }
+            else if (type == OverlayRenderType.OUTLINE)
+            {
+                this.outlineVertices += vertices;
+            }
+        }
+
+        public synchronized void mergeInto(OverlayBuildStats target)
+        {
+            for (Map.Entry<OverlayType, Integer> entry : this.typeCounts.entrySet())
+            {
+                target.typeCounts.merge(entry.getKey(), entry.getValue(), Integer::sum);
+            }
+
+            for (Map.Entry<String, Integer> entry : this.colorCounts.entrySet())
+            {
+                target.colorCounts.merge(entry.getKey(), entry.getValue(), Integer::sum);
+            }
+
+            target.quadVertices += this.quadVertices;
+            target.outlineVertices += this.outlineVertices;
+        }
+
+        public synchronized int getTotalChecked()
+        {
+            int total = 0;
+
+            for (int count : this.typeCounts.values())
+            {
+                total += count;
+            }
+
+            return total;
+        }
+
+        public synchronized String getTypeCountsString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (OverlayType type : OverlayType.values())
+            {
+                if (!sb.isEmpty())
+                {
+                    sb.append(", ");
+                }
+
+                sb.append(type.name()).append('=').append(this.typeCounts.getOrDefault(type, 0));
+            }
+
+            return sb.toString();
+        }
+
+        public synchronized String getColorCountsString()
+        {
+            return this.colorCounts.toString();
+        }
+
+        public synchronized int getQuadVertices()
+        {
+            return this.quadVertices;
+        }
+
+        public synchronized int getOutlineVertices()
+        {
+            return this.outlineVertices;
+        }
     }
 
     protected VertexSorting createVertexSorter(float x, float y, float z)

@@ -147,7 +147,7 @@ public interface IWorldSchematicRenderer
 
 	static int getLightmap(LightGetter getter, BlockAndTintGetter world, BlockState state, BlockPos pos)
 	{
-		if (state.emissiveRendering(world, pos))
+		if (state.emissiveRendering())
 		{
 			return 15728880;
 		}

@@ -3,8 +3,10 @@ package fi.dy.masa.litematica.schematic.conversion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.BlockGetter;
@@ -50,26 +52,7 @@ public class SchematicConversionFixers
             if (colorOrig != colorFromData)
             {
                 Integer rotation = state.getValue(BannerBlock.ROTATION);
-
-                switch (colorFromData)
-                {
-                    case WHITE:         state = Blocks.WHITE_BANNER.defaultBlockState();      break;
-                    case ORANGE:        state = Blocks.ORANGE_BANNER.defaultBlockState();     break;
-                    case MAGENTA:       state = Blocks.MAGENTA_BANNER.defaultBlockState();    break;
-                    case LIGHT_BLUE:    state = Blocks.LIGHT_BLUE_BANNER.defaultBlockState(); break;
-                    case YELLOW:        state = Blocks.YELLOW_BANNER.defaultBlockState();     break;
-                    case LIME:          state = Blocks.LIME_BANNER.defaultBlockState();       break;
-                    case PINK:          state = Blocks.PINK_BANNER.defaultBlockState();       break;
-                    case GRAY:          state = Blocks.GRAY_BANNER.defaultBlockState();       break;
-                    case LIGHT_GRAY:    state = Blocks.LIGHT_GRAY_BANNER.defaultBlockState(); break;
-                    case CYAN:          state = Blocks.CYAN_BANNER.defaultBlockState();       break;
-                    case PURPLE:        state = Blocks.PURPLE_BANNER.defaultBlockState();     break;
-                    case BLUE:          state = Blocks.BLUE_BANNER.defaultBlockState();       break;
-                    case BROWN:         state = Blocks.BROWN_BANNER.defaultBlockState();      break;
-                    case GREEN:         state = Blocks.GREEN_BANNER.defaultBlockState();      break;
-                    case RED:           state = Blocks.RED_BANNER.defaultBlockState();        break;
-                    case BLACK:         state = Blocks.BLACK_BANNER.defaultBlockState();      break;
-                }
+                state = Blocks.BANNER.pick(colorFromData).defaultBlockState();
 
                 state = state.setValue(BannerBlock.ROTATION, rotation);
             }
@@ -89,26 +72,7 @@ public class SchematicConversionFixers
             if (colorOrig != colorFromData)
             {
                 Direction facing = state.getValue(WallBannerBlock.FACING);
-
-                switch (colorFromData)
-                {
-                    case WHITE:         state = Blocks.WHITE_WALL_BANNER.defaultBlockState();      break;
-                    case ORANGE:        state = Blocks.ORANGE_WALL_BANNER.defaultBlockState();     break;
-                    case MAGENTA:       state = Blocks.MAGENTA_WALL_BANNER.defaultBlockState();    break;
-                    case LIGHT_BLUE:    state = Blocks.LIGHT_BLUE_WALL_BANNER.defaultBlockState(); break;
-                    case YELLOW:        state = Blocks.YELLOW_WALL_BANNER.defaultBlockState();     break;
-                    case LIME:          state = Blocks.LIME_WALL_BANNER.defaultBlockState();       break;
-                    case PINK:          state = Blocks.PINK_WALL_BANNER.defaultBlockState();       break;
-                    case GRAY:          state = Blocks.GRAY_WALL_BANNER.defaultBlockState();       break;
-                    case LIGHT_GRAY:    state = Blocks.LIGHT_GRAY_WALL_BANNER.defaultBlockState(); break;
-                    case CYAN:          state = Blocks.CYAN_WALL_BANNER.defaultBlockState();       break;
-                    case PURPLE:        state = Blocks.PURPLE_WALL_BANNER.defaultBlockState();     break;
-                    case BLUE:          state = Blocks.BLUE_WALL_BANNER.defaultBlockState();       break;
-                    case BROWN:         state = Blocks.BROWN_WALL_BANNER.defaultBlockState();      break;
-                    case GREEN:         state = Blocks.GREEN_WALL_BANNER.defaultBlockState();      break;
-                    case RED:           state = Blocks.RED_WALL_BANNER.defaultBlockState();        break;
-                    case BLACK:         state = Blocks.BLACK_WALL_BANNER.defaultBlockState();      break;
-                }
+                state = Blocks.WALL_BANNER.pick(colorFromData).defaultBlockState();
 
                 state = state.setValue(WallBannerBlock.FACING, facing);
             }
@@ -127,26 +91,7 @@ public class SchematicConversionFixers
             BedPart part = state.getValue(BedBlock.PART);
             Boolean occupied = state.getValue(BedBlock.OCCUPIED);
 
-            switch (colorId)
-            {
-                case  0: state = Blocks.WHITE_BED.defaultBlockState(); break;
-                case  1: state = Blocks.ORANGE_BED.defaultBlockState(); break;
-                case  2: state = Blocks.MAGENTA_BED.defaultBlockState(); break;
-                case  3: state = Blocks.LIGHT_BLUE_BED.defaultBlockState(); break;
-                case  4: state = Blocks.YELLOW_BED.defaultBlockState(); break;
-                case  5: state = Blocks.LIME_BED.defaultBlockState(); break;
-                case  6: state = Blocks.PINK_BED.defaultBlockState(); break;
-                case  7: state = Blocks.GRAY_BED.defaultBlockState(); break;
-                case  8: state = Blocks.LIGHT_GRAY_BED.defaultBlockState(); break;
-                case  9: state = Blocks.CYAN_BED.defaultBlockState(); break;
-                case 10: state = Blocks.PURPLE_BED.defaultBlockState(); break;
-                case 11: state = Blocks.BLUE_BED.defaultBlockState(); break;
-                case 12: state = Blocks.BROWN_BED.defaultBlockState(); break;
-                case 13: state =  Blocks.GREEN_BED.defaultBlockState(); break;
-                case 14: state = Blocks.RED_BED.defaultBlockState(); break;
-                case 15: state = Blocks.BLACK_BED.defaultBlockState(); break;
-                default: return state;
-            }
+            state = getBedStateFromLegacyColor(colorId, state);
 
             state = state.setValue(BedBlock.FACING, facing)
                          .setValue(BedBlock.PART, part)
@@ -524,6 +469,20 @@ public class SchematicConversionFixers
 
         return getRepeaterPowerOnSide(reader, pos.relative(sideLeft) , sideLeft ) > 0 ||
                getRepeaterPowerOnSide(reader, pos.relative(sideRight), sideRight) > 0;
+    }
+
+    private static BlockState getBedStateFromLegacyColor(int colorId, BlockState fallbackState)
+    {
+        if (colorId < 0 || colorId > 15)
+        {
+            return fallbackState;
+        }
+
+        DyeColor color = DyeColor.byId(colorId);
+        Identifier id = Identifier.withDefaultNamespace(color.getName() + "_bed");
+        Block bedBlock = BuiltInRegistries.BLOCK.getValue(id);
+
+        return bedBlock instanceof BedBlock ? bedBlock.defaultBlockState() : fallbackState;
     }
 
     private static int getRepeaterPowerOnSide(BlockGetter reader, BlockPos pos, Direction side)

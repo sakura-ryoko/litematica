@@ -59,6 +59,8 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 public class OverlayRenderer
 {
     private static final OverlayRenderer INSTANCE = new OverlayRenderer();
+    private static boolean diagAreaPathActive;
+    private static boolean diagPlacementPathActive;
 
     // https://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
     public static final int[] KELLY_COLORS = {
@@ -113,6 +115,16 @@ public class OverlayRenderer
         return INSTANCE;
     }
 
+    public static boolean isDiagAreaPathActive()
+    {
+        return diagAreaPathActive;
+    }
+
+    public static boolean isDiagPlacementPathActive()
+    {
+        return diagPlacementPathActive;
+    }
+
     public void updatePlacementCache()
     {
         this.placements.clear();
@@ -138,6 +150,9 @@ public class OverlayRenderer
         float expand = 0.001f;
         float lineWidthBlockBox = 2f;
         float lineWidthArea = isProjectMode ? 3f : 1.5f;
+
+        diagAreaPathActive = renderAreas;
+        diagPlacementPathActive = renderPlacements || isProjectMode;
 
         if (renderAreas || renderPlacements || isProjectMode)
         {

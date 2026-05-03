@@ -14,6 +14,7 @@ import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -270,6 +271,12 @@ public class EntityUtils
         return entitytype.canSerialize() && id != null ? id.toString() : null;
     }
 
+    private static boolean isEntityType(Entity entity, String path)
+    {
+        Identifier id = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        return id != null && id.equals(Identifier.withDefaultNamespace(path));
+    }
+
     @Nullable
     private static Entity createEntityFromNBTSingle(CompoundTag nbt, Level world)
     {
@@ -282,7 +289,7 @@ public class EntityUtils
             {
                 Entity entity = optional.get();
 
-                if (entity.getType().equals(EntityType.MANNEQUIN))
+                if (isEntityType(entity, "mannequin"))
                 {
                     ClientMannequin cm = new ClientMannequin(world, Minecraft.getInstance().playerSkinRenderCache());
                     cm.load(view.getReader());

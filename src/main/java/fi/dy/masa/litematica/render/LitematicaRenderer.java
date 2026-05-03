@@ -44,6 +44,8 @@ public class LitematicaRenderer
     private boolean renderPiecewiseEntities;
     private boolean renderPiecewiseTileEntities;
     private boolean renderEntityDebugHitboxes;
+    private int diagTerrainPathCalls;
+    private int diagTranslucentPathCalls;
 
     public static LitematicaRenderer getInstance()
     {
@@ -177,6 +179,8 @@ public class LitematicaRenderer
         this.renderPiecewiseBlocks = false;
         this.renderPiecewiseEntities = false;
         this.renderPiecewiseTileEntities = false;
+        this.diagTerrainPathCalls = 0;
+        this.diagTranslucentPathCalls = 0;
         this.camera = null;
         this.frustum = null;
         IWorldSchematicRenderer worldRenderer = this.getWorldRenderer();
@@ -297,9 +301,28 @@ public class LitematicaRenderer
     {
         if (this.renderPiecewiseBlocks)
         {
+            if (group == ChunkSectionLayerGroup.TRANSLUCENT)
+            {
+                ++this.diagTranslucentPathCalls;
+            }
+            else
+            {
+                ++this.diagTerrainPathCalls;
+            }
+
             // Use Saved Profiler later
             this.getWorldRenderer().drawBlockLayerGroup(group, sampler);
         }
+    }
+
+    public int getDiagTerrainPathCalls()
+    {
+        return this.diagTerrainPathCalls;
+    }
+
+    public int getDiagTranslucentPathCalls()
+    {
+        return this.diagTranslucentPathCalls;
     }
 
     public void piecewisePrepareEntities(Camera camera, Frustum frustum, LevelRenderState renderStates, DeltaTracker tickCounter, ProfilerFiller profiler)
@@ -373,7 +396,7 @@ public class LitematicaRenderer
     {
 	    if (this.camera == null)
         {
-            this.camera = this.mc.gameRenderer.getMainCamera();
+            this.camera = this.mc.gameRenderer.mainCamera();
         }
 
         return this.camera;

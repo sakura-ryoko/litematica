@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.GraphicsWorkarounds;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.StagingBuffer;
 import com.mojang.blaze3d.vertex.UberGpuBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -31,17 +31,16 @@ public class UberBufferCache implements AutoCloseable
 		int vboStageSize = 33554432;
 		int iboStageSize = 2097152;
 		GpuDevice gpuDevice = RenderSystem.getDevice();
-		GraphicsWorkarounds workarounds = GraphicsWorkarounds.get(gpuDevice);
 		this.blockBuffers = Util.makeEnumMap(
 				ChunkSectionLayer.class,
 				layer ->
 				{
 					VertexFormat vertexFormat = layer.pipeline().getVertexFormat();
 					UberGpuBuffer<ChunkMeshDataSchematic> vertexUberBuffer = new UberGpuBuffer<>(
-							layer.label(), 32, vboHeapSize, vertexFormat.getVertexSize(), gpuDevice, vboStageSize, workarounds
+							layer.label(), 32, vboHeapSize, vertexFormat.getVertexSize(), StagingBuffer.create(layer.label(), gpuDevice, vboStageSize)
 					);
 					UberGpuBuffer<ChunkMeshDataSchematic> indexUberBuffer = layer == ChunkSectionLayer.TRANSLUCENT
-					                                                        ? new UberGpuBuffer<>(layer.label(), 64, iboHeapSize, 8, gpuDevice, iboStageSize, workarounds)
+					                                                        ? new UberGpuBuffer<>(layer.label(), 64, iboHeapSize, 8, StagingBuffer.create(layer.label(), gpuDevice, iboStageSize))
 					                                                        : null;
 					return new ChunkRenderUberBuffers(vertexUberBuffer, indexUberBuffer);
 				}
@@ -52,10 +51,10 @@ public class UberBufferCache implements AutoCloseable
 				{
 					VertexFormat vertexFormat = type.getPipeline().getVertexFormat();
 					UberGpuBuffer<ChunkMeshDataSchematic> vertexUberBuffer = new UberGpuBuffer<>(
-							type.name(), 32, vboHeapSize, vertexFormat.getVertexSize(), gpuDevice, vboStageSize, workarounds
+							type.name(), 32, vboHeapSize, vertexFormat.getVertexSize(), StagingBuffer.create(type.name(), gpuDevice, vboStageSize)
 					);
 					UberGpuBuffer<ChunkMeshDataSchematic> indexUberBuffer = type.isTranslucent()
-					                                                        ? new UberGpuBuffer<>(type.name(), 64, iboHeapSize, 8, gpuDevice, iboStageSize, workarounds)
+					                                                        ? new UberGpuBuffer<>(type.name(), 64, iboHeapSize, 8, StagingBuffer.create(type.name(), gpuDevice, iboStageSize))
 					                                                        : null;
 					return new ChunkRenderUberBuffers(vertexUberBuffer, indexUberBuffer);
 				}

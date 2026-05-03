@@ -23,7 +23,7 @@ public class ClientTickHandler implements IClientTickHandler
                 sm.moveGrabbedElement(mc.player);
             }
 
-            if (mc.screen == null)
+            if (mc.gui.screen() == null)
             {
                 if (Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
                 {
