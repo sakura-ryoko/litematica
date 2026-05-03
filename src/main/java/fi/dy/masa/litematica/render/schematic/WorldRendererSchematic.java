@@ -17,8 +17,10 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.systems.ScissorState;
 import com.mojang.blaze3d.textures.AddressMode;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
@@ -101,6 +103,7 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 public class WorldRendererSchematic implements IWorldSchematicRenderer
 {
     private static final String STATUS_OVERLAY_TIMING_PROPERTY = "litematica.debug.schematicOverlayTiming";
+    private static final String STATUS_OVERLAY_FORCE_FALLBACK_PROPERTY = "litematica.debug.schematicOverlay.forceFallback";
     private static final long STATUS_OVERLAY_TIMING_LOG_INTERVAL_MS = 5000L;
     private static final Logger LOGGER = Litematica.LOGGER;
     private final Minecraft mc;
@@ -123,6 +126,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private float lastCameraYaw;
     private ChunkRenderDispatcherLitematica renderDispatcher;
     private final IChunkRendererFactory renderChunkFactory;
+    private final IdentityHashMap<ChunkRendererSchematicVbo, EnumMap<OverlayRenderType, CachedStatusOverlayMesh>> statusOverlayCache;
     //private ShaderGroup entityOutlineShader;
     //private boolean entityOutlinesRendered;
 
@@ -133,10 +137,17 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private int countEntitiesRendered;
     private int countEntitiesHidden;
     private long statusOverlayTimingLastLogTime;
-    private long statusOverlayTimingNanos;
+    private long statusOverlayTimingFallbackNanos;
+    private long statusOverlayTimingFallbackDraws;
+    private long statusOverlayTimingCachedNanos;
+    private long statusOverlayTimingCachedBuffers;
+    private long statusOverlayTimingCachedDraws;
+    private long statusOverlayTimingCacheBuildNanos;
+    private long statusOverlayTimingCacheBuilds;
+    private long statusOverlayTimingCacheBuildVertices;
     private long statusOverlayTimingChunks;
-    private long statusOverlayTimingVertices;
-    private long statusOverlayTimingDraws;
+    private long statusOverlayTimingVerticesCopied;
+    private boolean statusOverlayCacheWarningLogged;
 
     private double lastTranslucentSortX;
     private double lastTranslucentSortY;
@@ -144,12 +155,17 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private boolean needsUpdate;
     private boolean shouldDraw;
 
+    private static final String RENDER_MODE_INVALIDATION_PROPERTY = "litematica.debug.renderModeInvalidation";
+
+    private int lastLayerRenderSignature = Integer.MIN_VALUE;
+
     public WorldRendererSchematic(Minecraft mc)
     {
         this.mc = mc;
         this.renderChunkFactory = ChunkRendererSchematicVbo::new;
 //	    this.blockEntities = new HashSet<>();
 	    this.renderInfos = new ArrayList<>(1024);
+        this.statusOverlayCache = new IdentityHashMap<>();
         this.renderedEntities = new HashMap<>();
 		this.schematicRenderState = this.getSchematicRenderState();
 	    this.chunksToUpdate = new LinkedHashSet<>();
@@ -334,6 +350,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
         else
         {
+            this.closeStatusOverlayCache();
             this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
             this.chunksToUpdate.clear();
             this.renderInfos.forEach(ChunkRendererSchematicVbo::deleteGlResources);
@@ -384,6 +401,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             this.profiler = profiler;
 
             profiler.push("load_renderers");
+            this.closeStatusOverlayCache();
 
             if (this.renderDispatcher == null)
             {
@@ -418,6 +436,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     protected void stopChunkUpdates(ProfilerFiller profiler)
     {
 //        LOGGER.warn("[WorldRenderer] stopChunkUpdates()");
+        this.closeStatusOverlayCache();
+
         if (!this.chunksToUpdate.isEmpty())
         {
             this.chunksToUpdate.forEach(ChunkRendererSchematicVbo::deleteGlResources);
@@ -476,6 +496,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         double cameraZ = cameraPos.z;
 
         this.renderDispatcher.setCameraPosition(cameraPos);
+        this.checkLayerRenderStateChanged();
 
         profiler.popPush("culling");
         BlockPos viewPos = BlockPos.containing(cameraX, cameraY + (double) entity.getEyeHeight(), cameraZ);
@@ -1083,14 +1104,16 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     {
         this.profiler = profiler;
         boolean timingEnabled = isStatusOverlayTimingEnabled();
+        boolean forceFallback = isStatusOverlayForceFallbackEnabled();
 
         // Draw filled status faces first so the final colored outlines remain visible.
-        this.renderBlockOverlay(fb, OverlayRenderType.QUAD, camera, profiler, timingEnabled);
-        this.renderBlockOverlay(fb, OverlayRenderType.OUTLINE, camera, profiler, timingEnabled);
+        this.renderBlockOverlay(fb, OverlayRenderType.QUAD, camera, profiler, timingEnabled, forceFallback);
+        this.renderBlockOverlay(fb, OverlayRenderType.OUTLINE, camera, profiler, timingEnabled, forceFallback);
         this.logStatusOverlayTimingIfNeeded(timingEnabled);
     }
 
-    protected void renderBlockOverlay(RenderTarget fb, OverlayRenderType type, Camera camera, ProfilerFiller profiler, boolean timingEnabled)
+    protected void renderBlockOverlay(RenderTarget fb, OverlayRenderType type, Camera camera, ProfilerFiller profiler,
+                                      boolean timingEnabled, boolean forceFallback)
     {
         profiler.push("overlay_" + type.name());
         this.profiler = profiler;
@@ -1120,6 +1143,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 {
                     BlockPos chunkOrigin = renderer.getOrigin();
 
+                    if (timingEnabled)
+                    {
+                        ++this.statusOverlayTimingChunks;
+                    }
+
                     if (!chunkMeshData.hasMeshData(type))
                     {
                         continue;
@@ -1128,6 +1156,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     offset[0] = (float) (chunkOrigin.getX() - x);
                     offset[1] = (float) (chunkOrigin.getY() - y);
                     offset[2] = (float) (chunkOrigin.getZ() - z);
+
+                    if (forceFallback == false && this.drawCachedStatusOverlay(fb, renderer, type, chunkMeshData, pipeline, offset, timingEnabled))
+                    {
+                        continue;
+                    }
 
                     this.drawOverlayMeshDataCameraRelative(fb, type, chunkMeshData, pipeline, offset, timingEnabled);
 
@@ -1179,6 +1212,175 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
     }
 
+    private boolean drawCachedStatusOverlay(RenderTarget fb, ChunkRendererSchematicVbo renderer, OverlayRenderType type,
+                                            ChunkMeshDataSchematic chunkMeshData, RenderPipeline pipeline,
+                                            float[] offset, boolean timingEnabled)
+    {
+        long startTime = timingEnabled ? System.nanoTime() : 0L;
+
+        try
+        {
+            CachedStatusOverlayMesh cached = this.getOrCreateCachedStatusOverlay(renderer, type, chunkMeshData, pipeline, timingEnabled);
+
+            if (cached == null || cached.isValid() == false)
+            {
+                return false;
+            }
+
+            cached.draw(fb, offset);
+
+            if (timingEnabled)
+            {
+                this.statusOverlayTimingCachedNanos += System.nanoTime() - startTime;
+                ++this.statusOverlayTimingCachedBuffers;
+                ++this.statusOverlayTimingCachedDraws;
+            }
+
+            return true;
+        }
+        catch (Exception err)
+        {
+            if (this.statusOverlayCacheWarningLogged == false)
+            {
+                this.statusOverlayCacheWarningLogged = true;
+                LOGGER.warn("Cached schematic status overlay draw failed; falling back to per-frame copy path: {}", err.getMessage());
+            }
+
+            return false;
+        }
+    }
+
+    @Nullable
+    private CachedStatusOverlayMesh getOrCreateCachedStatusOverlay(ChunkRendererSchematicVbo renderer, OverlayRenderType type,
+                                                                   ChunkMeshDataSchematic chunkMeshData, RenderPipeline pipeline,
+                                                                   boolean timingEnabled)
+    {
+        MeshData sourceMeshData = chunkMeshData.getMeshDataOrNull(type);
+
+        if (sourceMeshData == null || sourceMeshData.drawState().vertexCount() <= 0)
+        {
+            this.removeCachedStatusOverlay(renderer, type);
+            return null;
+        }
+
+        BlockPos chunkOrigin = renderer.getOrigin();
+        int configSignature = this.getStatusOverlayConfigSignature();
+        EnumMap<OverlayRenderType, CachedStatusOverlayMesh> rendererCache =
+                this.statusOverlayCache.computeIfAbsent(renderer, ignored -> new EnumMap<>(OverlayRenderType.class));
+        CachedStatusOverlayMesh cached = rendererCache.get(type);
+
+        if (cached != null && cached.matches(sourceMeshData, pipeline, chunkOrigin, configSignature))
+        {
+            return cached;
+        }
+
+        if (cached != null)
+        {
+            cached.closeQuietly();
+            rendererCache.remove(type);
+        }
+
+        long startTime = timingEnabled ? System.nanoTime() : 0L;
+        CachedStatusOverlayMesh newCache = this.buildCachedStatusOverlay(type, sourceMeshData, pipeline, chunkOrigin, configSignature);
+
+        if (newCache != null)
+        {
+            rendererCache.put(type, newCache);
+
+            if (timingEnabled)
+            {
+                this.statusOverlayTimingCacheBuildNanos += System.nanoTime() - startTime;
+                ++this.statusOverlayTimingCacheBuilds;
+                this.statusOverlayTimingCacheBuildVertices += newCache.vertexCount();
+            }
+        }
+
+        return newCache;
+    }
+
+    @Nullable
+    private CachedStatusOverlayMesh buildCachedStatusOverlay(OverlayRenderType type, MeshData sourceMeshData,
+                                                             RenderPipeline pipeline, BlockPos chunkOrigin,
+                                                             int configSignature)
+    {
+        RenderContext ctx = new RenderContext(() -> "litematica:schematic_status_overlay_cached/" + type.name().toLowerCase(Locale.ROOT), pipeline);
+
+        try
+        {
+            BufferBuilder builder = ctx.getBuilder();
+            int copiedVertices = this.copyOverlayMeshDataWithOffset(type, sourceMeshData, new float[] { 0.0F, 0.0F, 0.0F }, builder);
+
+            if (copiedVertices <= 0)
+            {
+                ctx.close();
+                return null;
+            }
+
+            MeshData meshData = builder.build();
+
+            if (meshData == null)
+            {
+                ctx.close();
+                return null;
+            }
+
+            try (meshData)
+            {
+                CachedStatusOverlayMesh cached =
+                        CachedStatusOverlayMesh.upload(sourceMeshData, pipeline, chunkOrigin.immutable(), type, copiedVertices, configSignature, meshData);
+                ctx.close();
+                return cached;
+            }
+        }
+        catch (Exception err)
+        {
+            try
+            {
+                ctx.close();
+            }
+            catch (Exception ignored)
+            {
+            }
+
+            throw new RuntimeException("Failed to build cached status overlay for " + type.name() + ": " + err.getMessage(), err);
+        }
+    }
+
+    private void removeCachedStatusOverlay(ChunkRendererSchematicVbo renderer, OverlayRenderType type)
+    {
+        EnumMap<OverlayRenderType, CachedStatusOverlayMesh> rendererCache = this.statusOverlayCache.get(renderer);
+
+        if (rendererCache == null)
+        {
+            return;
+        }
+
+        CachedStatusOverlayMesh cached = rendererCache.remove(type);
+
+        if (cached != null)
+        {
+            cached.closeQuietly();
+        }
+
+        if (rendererCache.isEmpty())
+        {
+            this.statusOverlayCache.remove(renderer);
+        }
+    }
+
+    private void closeStatusOverlayCache()
+    {
+        for (EnumMap<OverlayRenderType, CachedStatusOverlayMesh> rendererCache : this.statusOverlayCache.values())
+        {
+            for (CachedStatusOverlayMesh cached : rendererCache.values())
+            {
+                cached.closeQuietly();
+            }
+        }
+
+        this.statusOverlayCache.clear();
+    }
+
     private int copyOverlayMeshDataWithOffset(OverlayRenderType type, MeshData sourceMeshData, float[] offset, BufferBuilder builder)
     {
         ByteBuffer vertices = sourceMeshData.vertexBuffer().duplicate().order(ByteOrder.nativeOrder());
@@ -1221,12 +1423,48 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         return Boolean.getBoolean(STATUS_OVERLAY_TIMING_PROPERTY);
     }
 
+    private static boolean isStatusOverlayForceFallbackEnabled()
+    {
+        return Boolean.getBoolean(STATUS_OVERLAY_FORCE_FALLBACK_PROPERTY);
+    }
+
+    private int getStatusOverlayConfigSignature()
+    {
+        LayerRange range = DataManager.getRenderLayerRange();
+
+        return Objects.hash(
+                Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_SIDES.getBooleanValue(),
+                Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_OUTLINES.getBooleanValue(),
+                Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue(),
+                Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY_CULLING.getBooleanValue(),
+                Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.getBooleanValue(),
+                Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_SIDES.getBooleanValue(),
+                Configs.Visuals.SCHEMATIC_OVERLAY_MODEL_OUTLINE.getBooleanValue(),
+                Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH.getDoubleValue(),
+                Configs.Visuals.SCHEMATIC_OVERLAY_OUTLINE_WIDTH_THROUGH.getDoubleValue(),
+                Configs.Colors.SCHEMATIC_OVERLAY_COLOR_MISSING.getIntegerValue(),
+                Configs.Colors.SCHEMATIC_OVERLAY_COLOR_EXTRA.getIntegerValue(),
+                Configs.Colors.SCHEMATIC_OVERLAY_COLOR_WRONG_BLOCK.getIntegerValue(),
+                Configs.Colors.SCHEMATIC_OVERLAY_COLOR_WRONG_STATE.getIntegerValue(),
+                Configs.Colors.SCHEMATIC_OVERLAY_COLOR_DIFF_BLOCK.getIntegerValue(),
+                range.getLayerMode(),
+                range.getAxis(),
+                range.getLayerSingle(),
+                range.getLayerAbove(),
+                range.getLayerBelow(),
+                range.getLayerRangeMin(),
+                range.getLayerRangeMax(),
+                range.getLayerMin(),
+                range.getLayerMax()
+        );
+
+    }
+
     private void recordStatusOverlayTiming(long elapsedNanos, int vertices, int draws)
     {
-        this.statusOverlayTimingNanos += elapsedNanos;
-        this.statusOverlayTimingChunks += 1L;
-        this.statusOverlayTimingVertices += vertices;
-        this.statusOverlayTimingDraws += draws;
+        this.statusOverlayTimingFallbackNanos += elapsedNanos;
+        this.statusOverlayTimingVerticesCopied += vertices;
+        this.statusOverlayTimingFallbackDraws += draws;
     }
 
     private void logStatusOverlayTimingIfNeeded(boolean timingEnabled)
@@ -1248,17 +1486,147 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             return;
         }
 
-        LOGGER.info("[StatusOverlayTiming] copyDrawMs={} chunks={} vertices={} draws={}",
-                    String.format(Locale.ROOT, "%.3f", this.statusOverlayTimingNanos / 1_000_000.0D),
+        LOGGER.info("[StatusOverlayTiming] cachedDrawMs={} cacheBuildMs={} fallbackCopyDrawMs={} overlayChunks={} verticesCopied={} cacheBuildVertices={} cachedBuffers={} cachedDrawCalls={} fallbackDrawCalls={} cacheBuilds={}",
+                    String.format(Locale.ROOT, "%.3f", this.statusOverlayTimingCachedNanos / 1_000_000.0D),
+                    String.format(Locale.ROOT, "%.3f", this.statusOverlayTimingCacheBuildNanos / 1_000_000.0D),
+                    String.format(Locale.ROOT, "%.3f", this.statusOverlayTimingFallbackNanos / 1_000_000.0D),
                     this.statusOverlayTimingChunks,
-                    this.statusOverlayTimingVertices,
-                    this.statusOverlayTimingDraws);
+                    this.statusOverlayTimingVerticesCopied,
+                    this.statusOverlayTimingCacheBuildVertices,
+                    this.statusOverlayTimingCachedBuffers,
+                    this.statusOverlayTimingCachedDraws,
+                    this.statusOverlayTimingFallbackDraws,
+                    this.statusOverlayTimingCacheBuilds);
 
         this.statusOverlayTimingLastLogTime = now;
-        this.statusOverlayTimingNanos = 0L;
+        this.statusOverlayTimingFallbackNanos = 0L;
+        this.statusOverlayTimingFallbackDraws = 0L;
+        this.statusOverlayTimingCachedNanos = 0L;
+        this.statusOverlayTimingCachedBuffers = 0L;
+        this.statusOverlayTimingCachedDraws = 0L;
+        this.statusOverlayTimingCacheBuildNanos = 0L;
+        this.statusOverlayTimingCacheBuilds = 0L;
+        this.statusOverlayTimingCacheBuildVertices = 0L;
         this.statusOverlayTimingChunks = 0L;
-        this.statusOverlayTimingVertices = 0L;
-        this.statusOverlayTimingDraws = 0L;
+        this.statusOverlayTimingVerticesCopied = 0L;
+    }
+
+    private static class CachedStatusOverlayMesh implements AutoCloseable
+    {
+        private final GpuBuffer vertexBuffer;
+        private final RenderSystem.AutoStorageIndexBuffer sequentialIndexBuffer;
+        private final MeshData sourceMeshData;
+        private final RenderPipeline pipeline;
+        private final BlockPos chunkOrigin;
+        private final OverlayRenderType type;
+        private final int indexCount;
+        private final int vertexCount;
+        private final int configSignature;
+        private boolean valid;
+
+        private CachedStatusOverlayMesh(GpuBuffer vertexBuffer, RenderSystem.AutoStorageIndexBuffer sequentialIndexBuffer,
+                                        MeshData sourceMeshData, RenderPipeline pipeline,
+                                        BlockPos chunkOrigin, OverlayRenderType type, int indexCount, int vertexCount,
+                                        int configSignature)
+        {
+            this.vertexBuffer = vertexBuffer;
+            this.sequentialIndexBuffer = sequentialIndexBuffer;
+            this.sourceMeshData = sourceMeshData;
+            this.pipeline = pipeline;
+            this.chunkOrigin = chunkOrigin;
+            this.type = type;
+            this.indexCount = indexCount;
+            this.vertexCount = vertexCount;
+            this.configSignature = configSignature;
+            this.valid = true;
+        }
+
+        private static CachedStatusOverlayMesh upload(MeshData sourceMeshData, RenderPipeline pipeline,
+                                                      BlockPos chunkOrigin, OverlayRenderType type,
+                                                      int vertexCount, int configSignature, MeshData meshData)
+        {
+            GpuDevice device = RenderSystem.getDevice();
+            int expectedSize = meshData.vertexBuffer().remaining();
+            GpuBuffer vertexBuffer = device.createBuffer(() -> "litematica:schematic_status_overlay_cached/" + type.name().toLowerCase(Locale.ROOT) + " VertexBuffer", 40, expectedSize);
+            device.createCommandEncoder().writeToBuffer(vertexBuffer.slice(), meshData.vertexBuffer());
+            RenderSystem.AutoStorageIndexBuffer sequentialIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
+
+            return new CachedStatusOverlayMesh(vertexBuffer, sequentialIndexBuffer, sourceMeshData, pipeline, chunkOrigin, type,
+                                               meshData.drawState().indexCount(), vertexCount, configSignature);
+        }
+
+        private boolean matches(MeshData sourceMeshData, RenderPipeline pipeline, BlockPos chunkOrigin, int configSignature)
+        {
+            return this.valid &&
+                   this.sourceMeshData == sourceMeshData &&
+                   this.pipeline == pipeline &&
+                   this.chunkOrigin.equals(chunkOrigin) &&
+                   this.configSignature == configSignature;
+        }
+
+        private boolean isValid()
+        {
+            return this.valid && this.vertexBuffer.isClosed() == false && this.indexCount > 0;
+        }
+
+        private int vertexCount()
+        {
+            return this.vertexCount;
+        }
+
+        private void draw(RenderTarget fb, float[] offset)
+        {
+            GpuDevice device = RenderSystem.getDevice();
+            GpuTextureView colorTexture = fb.getColorTextureView();
+            GpuTextureView depthTexture = fb.useDepth ? fb.getDepthTextureView() : null;
+            Matrix4f modelViewMatrix = new Matrix4f(RenderSystem.getModelViewMatrixCopy()).translate(offset[0], offset[1], offset[2]);
+            GpuBufferSlice transforms = RenderSystem.getDynamicUniforms()
+                                                    .writeTransform(modelViewMatrix,
+                                                                    new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+                                                                    new Vector3f(0.0F, 0.0F, 0.0F),
+                                                                    new Matrix4f());
+            GpuBuffer indexBuffer = this.sequentialIndexBuffer.getBuffer(this.indexCount);
+
+            try (RenderPass pass = device.createCommandEncoder()
+                                         .createRenderPass(() -> "litematica:schematic_status_overlay_cached/" + this.type.name().toLowerCase(Locale.ROOT),
+                                                           colorTexture, OptionalInt.empty(),
+                                                           depthTexture, OptionalDouble.empty()))
+            {
+                pass.setPipeline(this.pipeline);
+
+                ScissorState scissorState = RenderSystem.getScissorStateForRenderTypeDraws();
+
+                if (scissorState.enabled())
+                {
+                    pass.enableScissor(scissorState.x(), scissorState.y(), scissorState.width(), scissorState.height());
+                }
+
+                RenderSystem.bindDefaultUniforms(pass);
+                pass.setUniform("DynamicTransforms", transforms);
+                pass.setIndexBuffer(indexBuffer, this.sequentialIndexBuffer.type());
+                pass.setVertexBuffer(0, this.vertexBuffer);
+                pass.drawIndexed(0, 0, this.indexCount, 1);
+            }
+        }
+
+        private void closeQuietly()
+        {
+            try
+            {
+                this.close();
+            }
+            catch (Exception err)
+            {
+                LOGGER.warn("Failed to close cached status overlay mesh for {}: {}", this.type.name(), err.getMessage());
+            }
+        }
+
+        @Override
+        public void close() throws Exception
+        {
+            this.valid = false;
+            this.vertexBuffer.close();
+        }
     }
 
     @Override
@@ -1789,4 +2157,76 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         BlockModelCacheSchematic.INSTANCE.onReloadResources();
         this.getBlockRenderer().reload();
 	}
+
+    private int getLayerRenderSignature()
+    {
+        LayerRange range = DataManager.getRenderLayerRange();
+
+        return Objects.hash(
+                range.getLayerMode(),
+                range.getAxis(),
+                range.getLayerSingle(),
+                range.getLayerAbove(),
+                range.getLayerBelow(),
+                range.getLayerRangeMin(),
+                range.getLayerRangeMax(),
+                range.getLayerMin(),
+                range.getLayerMax()
+        );
+    }
+
+    private void invalidateAllSchematicRenderChunksForLayerChange(int oldSignature, int newSignature)
+    {
+        int dirtyCount = 0;
+
+        this.closeStatusOverlayCache();
+
+        for (ChunkRendererSchematicVbo renderer : this.renderInfos)
+        {
+            if (renderer != null)
+            {
+                renderer.setNeedsUpdate(true);
+                this.chunksToUpdate.add(renderer);
+                ++dirtyCount;
+            }
+        }
+
+        this.needsUpdate = true;
+        this.clearWorldRenderStates();
+
+        if (Boolean.getBoolean(RENDER_MODE_INVALIDATION_PROPERTY))
+        {
+            LayerRange range = DataManager.getRenderLayerRange();
+
+            LOGGER.warn(
+                    "[Litematica] Layer render state changed ({} -> {}), mode={}, axis={}, min={}, max={}, single={}, marked {} schematic chunks dirty",
+                    oldSignature,
+                    newSignature,
+                    range.getLayerMode(),
+                    range.getAxis(),
+                    range.getLayerMin(),
+                    range.getLayerMax(),
+                    range.getLayerSingle(),
+                    dirtyCount
+            );
+        }
+    }
+
+    private void checkLayerRenderStateChanged()
+    {
+        int currentSignature = this.getLayerRenderSignature();
+
+        if (this.lastLayerRenderSignature == Integer.MIN_VALUE)
+        {
+            this.lastLayerRenderSignature = currentSignature;
+            return;
+        }
+
+        if (currentSignature != this.lastLayerRenderSignature)
+        {
+            int oldSignature = this.lastLayerRenderSignature;
+            this.lastLayerRenderSignature = currentSignature;
+            this.invalidateAllSchematicRenderChunksForLayerChange(oldSignature, currentSignature);
+        }
+    }
 }
