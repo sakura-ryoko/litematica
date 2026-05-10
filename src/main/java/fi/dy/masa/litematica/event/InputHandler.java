@@ -173,7 +173,15 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
         if (Hotkeys.OPERATION_MODE_CHANGE_MODIFIER.getKeybind().isKeybindHeld())
         {
-            DataManager.setToolMode(DataManager.getToolMode().cycle(mc.player, amount < 0));
+            boolean forward = amount < 0;
+            boolean reverseOperationModeDirection = Configs.Generic.REVERSE_OP_MODE_DIRECTION.getBooleanValue();
+
+            if (reverseOperationModeDirection)
+            {
+                forward = !forward;
+            }
+
+            DataManager.setToolMode(DataManager.getToolMode().cycle(mc.player, forward));
             return true;
         }
 
