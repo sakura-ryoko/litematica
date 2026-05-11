@@ -145,7 +145,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			return;
 		}
 
-		final boolean wasEmpty = !this.hasTasks();
+		final boolean empty = this.getTaskCount() == 0;
 
 		switch (newTask)
 		{
@@ -154,8 +154,13 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			default -> this.queueOther.offer(newTask);
 		}
 
-		if (wasEmpty)
+		if (empty)
 		{
+			if (Reference.DEBUG_MODE)
+			{
+				Litematica.LOGGER.error("[EMPTY] Waking up threads...");
+			}
+
 			this.ensureThreadsAreAlive();
 		}
 

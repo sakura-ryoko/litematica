@@ -209,7 +209,14 @@ public class ChunkSchematic extends LevelChunk
     @Override
     public void addEntity(@Nonnull Entity entity)
     {
-        this.getLevel().addFreshEntity(entity);
+        if (this.getLevel() instanceof WorldSchematic ws)
+        {
+            ws.addFreshEntitySafe(entity);
+        }
+        else
+        {
+            this.getLevel().addFreshEntity(entity);
+        }
     }
 
     public int getTileEntityCount()

@@ -52,10 +52,8 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 				this.paused.set(false);
 			}
 
-			this.running.set(true);
+			this.run();
 		}
-
-		this.run();
 	}
 
 	@Override
@@ -126,6 +124,11 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	public void run()
 	{
 		if (!this.isCorrectThread()) { return; }
+		if (!this.isRunning())
+		{
+			this.running.set(true);
+		}
+
 		this.lastTaskTime = System.currentTimeMillis();
 		this.ticks = 0L;
 		Litematica.debugLog("Executor: Running: [{}/{}]", this.isRunning(), this.isPaused());
