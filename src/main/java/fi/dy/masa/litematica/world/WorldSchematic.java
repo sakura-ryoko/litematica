@@ -240,7 +240,14 @@ public class WorldSchematic extends Level
     }
 
     @Override
-    public boolean addFreshEntity(Entity entity)
+    public boolean addFreshEntity(@NonNull Entity entity)
+    {
+        return this.addFreshEntitySafe(entity);
+    }
+
+    // Added so that other mods do not interfere with the Schematic Worlds' Entity Spawning.
+    // There is Zero need for them to "Track" it.
+    public boolean addFreshEntitySafe(@NonNull Entity entity)
     {
         int chunkX = Mth.floor(entity.getX() / 16.0D);
         int chunkZ = Mth.floor(entity.getZ() / 16.0D);
@@ -269,16 +276,14 @@ public class WorldSchematic extends Level
             {
                 // Entity UUID's *MUST* be unique
                 entity.setUUID(UUID.randomUUID());
-                return this.addFreshEntity(entity);
             }
         }
 
         ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
 
-        if (this.entityLookup.contains(entity.getId()) || entity.getId() < 0)
+        while (this.entityLookup.contains(entity.getId()) || entity.getId() < 0)
         {
             entity.setId(this.nextEntityId++);
-            return this.addFreshEntity(entity);
         }
 
         this.entityLookup.put(entity, chunkPos, this);

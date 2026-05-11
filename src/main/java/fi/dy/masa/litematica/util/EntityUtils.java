@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+
+import fi.dy.masa.litematica.world.WorldSchematic;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -356,7 +358,34 @@ public class EntityUtils
 
     public static void spawnEntityAndPassengersInWorld(Entity entity, Level world)
     {
-        if (world.addFreshEntity(entity) && entity.isVehicle())
+        boolean result;
+
+        if (world instanceof WorldSchematic ws)
+        {
+            result = ws.addFreshEntitySafe(entity);
+        }
+        else
+        {
+            if (!Configs.Generic.DEDUPLICATE_SCHEMATIC_ENTITIES.getBooleanValue())
+            {
+                entity.setUUID(UUID.randomUUID());
+            }
+
+            try
+            {
+                result = world.addFreshEntity(entity);
+            }
+            catch (Exception e)
+            {
+                Litematica.LOGGER.error("EntityUtils#spawnEntityAndPassengersInWorld(): Exception; type({}): [{}/{}]; {}",
+                                        entity.getId(), entity.getStringUUID(),
+                                        entity.getType().getDescription().getString(),
+                                        e.getLocalizedMessage());
+                result = false;
+            }
+        }
+
+        if (result && entity.isVehicle())
         {
             for (Entity passenger : entity.getPassengers())
             {

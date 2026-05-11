@@ -15,7 +15,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +23,6 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -72,6 +70,7 @@ public class SchematicPlacementManager
     protected final Set<ChunkPos> chunksPreChange;
     protected final List<ChunkPos> visibleChunks;
     protected final Supplier<WorldSchematic> worldSupplier;
+    protected final List<PlacementManagerTask> pendingTasks;
     protected ChunkPos lastVisibleChunksSortPos;
     protected boolean visibleChunksNeedsUpdate;
     private final int tickRate = 7;      // in seconds
@@ -91,6 +90,7 @@ public class SchematicPlacementManager
         this.touchedVolumesInChunk = new Long2ObjectOpenHashMap<>();
         this.chunksPreChange = new HashSet<>();
         this.visibleChunks = new ArrayList<>();
+        this.pendingTasks = new ArrayList<>();
         this.lastVisibleChunksSortPos = ChunkPos.ZERO;
 
         this.worldSupplier = worldSupplier;
@@ -148,6 +148,17 @@ public class SchematicPlacementManager
     public void onClientTick(Minecraft mc)
     {
         long now = System.currentTimeMillis();
+
+        // Drain tasks every tick.
+        if (!this.pendingTasks.isEmpty())
+        {
+            for (PlacementManagerTask task : this.pendingTasks)
+            {
+                PlacementManagerDaemonHandler.INSTANCE.addTask(task);
+            }
+
+            this.pendingTasks.clear();
+        }
 
         if ((now - this.lastTick) > this.getTickRateMs())
         {
@@ -208,129 +219,12 @@ public class SchematicPlacementManager
             return;
         }
 
-        PlacementManagerDaemonHandler.INSTANCE.addTask(
-                new PlacementManagerTaskOther(this.worldSupplier, cc.x, cc.z, () ->
-                {
-                    Set<ChunkPos> loaded = new HashSet<>();
-                    Set<ChunkPos> notLoaded = new HashSet<>();
+        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskFixer(this.worldSupplier, cc.x, cc.z, offset));
+    }
 
-                    final int startcx = cc.x - offset;
-                    final int startcz = cc.z - offset;
-                    final int endcx = cc.x + offset;
-                    final int endcz = cc.z + offset;
-
-                    for (int cx = startcx; cx < endcx; cx++)
-                    {
-                        for (int cz = startcz; cz < endcz; cz++)
-                        {
-                            final ChunkPos cp = new ChunkPos(cx, cz);
-
-                            if (!this.worldSupplier.get().getChunkSource().hasChunk(cx, cz) &&
-                                DataManager.getSchematicPlacementManager().canHandleChunk(Minecraft.getInstance().level, cx, cz))
-                            {
-                                Frustum frustum = Minecraft.getInstance().levelRenderer.getCapturedFrustum();
-
-                                // Check Frustum culling
-                                if (frustum != null)
-                                {
-                                    BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(cx << 4, Minecraft.getInstance().level.getMinY(), cz << 4);
-                                    int x = pos.getX();
-                                    int y = pos.getY();
-                                    int z = pos.getZ();
-
-                                    AABB bb = new AABB(x, y, z, x + 16, y + Minecraft.getInstance().level.getHeight(), z + 16);
-
-                                    if (frustum.isVisible(bb))
-                                    {
-                                        notLoaded.add(cp);
-                                    }
-                                }
-                                else
-                                {
-                                    notLoaded.add(cp);
-                                }
-                            }
-                            else if (this.worldSupplier.get().getChunkSource().hasChunk(cx, cz))
-                            {
-                                loaded.add(cp);
-                            }
-                        }
-                    }
-
-                    if (!loaded.isEmpty())
-                    {
-                        Litematica.debugLog("SchematicPlacementManager//FIXER: checking [{}] loaded chunks", loaded.size());
-                        loaded.forEach(c ->
-                                       {
-                                           PlacementManagerDaemonHandler.INSTANCE.addTask(
-                                                   new PlacementManagerTaskOther(this.worldSupplier, c.x, c.z, () ->
-                                                   {
-                                                       List<SchematicPlacement> placements = DataManager.getSchematicPlacementManager().getAllSchematicsTouchingChunk(c);
-
-                                                       if (placements.isEmpty())
-                                                       {
-                                                           DataManager.getSchematicPlacementManager().markChunkForUnload(c.x, c.z);
-                                                       }
-                                                       else
-                                                       {
-                                                           boolean unload = true;
-
-                                                           for (SchematicPlacement s : placements)
-                                                           {
-                                                               if (s.isRenderingEnabled())
-                                                               {
-                                                                   unload = false;
-                                                               }
-                                                           }
-
-                                                           if (unload)
-                                                           {
-                                                               DataManager.getSchematicPlacementManager().markChunkForUnload(c.x, c.z);
-                                                           }
-                                                       }
-                                                   }));
-                                       });
-                    }
-
-                    if (!notLoaded.isEmpty())
-                    {
-                        Litematica.debugLog("SchematicPlacementManager//FIXER: checking [{}] unloaded chunks", notLoaded.size());
-                        notLoaded.forEach(c ->
-                                          {
-                                              PlacementManagerDaemonHandler.INSTANCE.addTask(
-                                                      new PlacementManagerTaskOther(this.worldSupplier, c.x, c.z, () ->
-                                                      {
-                                                          List<SchematicPlacement> placements = DataManager.getSchematicPlacementManager().getAllSchematicsTouchingChunk(c);
-
-                                                          // Load/Rebuild if Chunk is Near, no matter what for Verifier.
-                                                          if (c.getChessboardDistance(cc) <= 3)
-                                                          {
-                                                              DataManager.getSchematicPlacementManager().markChunkForRebuild(c.x, c.z);
-                                                          }
-                                                          else
-                                                          {
-                                                              if (!placements.isEmpty())
-                                                              {
-                                                                  boolean rebuild = false;
-
-                                                                  for (SchematicPlacement s : placements)
-                                                                  {
-                                                                      if (s.isRenderingEnabled())
-                                                                      {
-                                                                          rebuild = true;
-                                                                      }
-                                                                  }
-
-                                                                  if (rebuild)
-                                                                  {
-                                                                      DataManager.getSchematicPlacementManager().markChunkForRebuild(c.x, c.z);
-                                                                  }
-                                                              }
-                                                          }
-                                                      }));
-                                          });
-                    }
-            }));
+    protected void schedulePendingTaskForNextTick(PlacementManagerTask task)
+    {
+        this.pendingTasks.add(task);
     }
 
     public void onToggleMainRendering(boolean toggle)
@@ -1240,6 +1134,7 @@ public class SchematicPlacementManager
     public void clear()
     {
         PlacementManagerDaemonHandler.INSTANCE.reset();
+        this.pendingTasks.clear();
         this.schematicPlacements.clear();
         this.selectedPlacement = null;
         this.schematicsTouchingChunk.clear();
