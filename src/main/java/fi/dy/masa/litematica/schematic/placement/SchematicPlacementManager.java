@@ -220,7 +220,7 @@ public class SchematicPlacementManager
             return;
         }
 
-        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskFixer(this.worldSupplier, cc.x, cc.z, offset));
+        PlacementManagerDaemonHandler.INSTANCE.addTask(new PlacementManagerTaskFixer(this.worldSupplier, cc.x(), cc.z(), offset));
     }
 
     protected void schedulePendingTaskForNextTick(PlacementManagerTask task)

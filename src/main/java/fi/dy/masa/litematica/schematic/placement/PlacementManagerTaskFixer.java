@@ -41,10 +41,10 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 			Set<ChunkPos> loaded = new HashSet<>();
 			Set<ChunkPos> notLoaded = new HashSet<>();
 
-			final int startX = this.pos().x - this.offset;
-			final int startZ = this.pos().z - this.offset;
-			final int endX = this.pos().x + this.offset;
-			final int endZ = this.pos().z + this.offset;
+			final int startX = this.pos().x() - this.offset;
+			final int startZ = this.pos().z() - this.offset;
+			final int endX = this.pos().x() + this.offset;
+			final int endZ = this.pos().z() + this.offset;
 			ClientLevel clientWorld = Minecraft.getInstance().level;
 
 			if (clientWorld == null) { return; }
@@ -58,7 +58,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 					if (!this.worldSupplier().get().getChunkSource().hasChunk(cx, cz) &&
 					    DataManager.getSchematicPlacementManager().canHandleChunk(clientWorld, cx, cz))
 					{
-						Frustum frustum = Minecraft.getInstance().levelRenderer.getCapturedFrustum();
+						Frustum frustum = Minecraft.getInstance().gameRenderer.getMainCamera().getCapturedFrustum();
 
 						// Check Frustum culling
 						if (frustum != null)
@@ -98,7 +98,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 								   if (placements.isEmpty())
 								   {
 									   DataManager.getSchematicPlacementManager()
-												  .schedulePendingTaskForNextTick(new PlacementManagerTaskUnload(this.worldSupplier(), c.x, c.z));
+												  .schedulePendingTaskForNextTick(new PlacementManagerTaskUnload(this.worldSupplier(), c.x(), c.z()));
 								   }
 								   else
 								   {
@@ -115,7 +115,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 									   if (unload)
 									   {
 										   DataManager.getSchematicPlacementManager()
-													  .schedulePendingTaskForNextTick(new PlacementManagerTaskUnload(this.worldSupplier(), c.x, c.z));
+													  .schedulePendingTaskForNextTick(new PlacementManagerTaskUnload(this.worldSupplier(), c.x(), c.z()));
 									   }
 								   }
 							   });
@@ -133,7 +133,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 									  if (c.getChessboardDistance(this.pos()) <= 3)
 									  {
 										  DataManager.getSchematicPlacementManager()
-													 .schedulePendingTaskForNextTick(new PlacementManagerTaskRebuild(this.worldSupplier(), c.x, c.z));
+													 .schedulePendingTaskForNextTick(new PlacementManagerTaskRebuild(this.worldSupplier(), c.x(), c.z()));
 									  }
 									  else
 									  {
@@ -152,7 +152,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 											  if (rebuild)
 											  {
 												  DataManager.getSchematicPlacementManager()
-															 .schedulePendingTaskForNextTick(new PlacementManagerTaskRebuild(this.worldSupplier(), c.x, c.z));
+															 .schedulePendingTaskForNextTick(new PlacementManagerTaskRebuild(this.worldSupplier(), c.x(), c.z()));
 											  }
 										  }
 									  }
