@@ -12,7 +12,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	private final AtomicBoolean paused = new AtomicBoolean(false);
 	private final long sleepTime;
 	private final float sleepDelay;
-	private final long maxTicks;
+	private long maxTicks;
 	private long lastTaskTime;
 	private long ticks;
 
@@ -25,7 +25,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		this.sleepTime = MathUtils.clamp(sleepTime, 60000L, Long.MAX_VALUE); // 1 min
 		this.sleepDelay = 0.75F;        // <1-second sleep delay (Must not be < 1/2 the tick rate)
-		this.maxTicks = 128L;           // Cap how many ticks per an interrupt cycle without tasks to do
+		this.maxTicks = 8L;             // Cap how many ticks per an interrupt cycle without tasks to do
 		this.ticks = 0L;
 	}
 
@@ -85,7 +85,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 			this.paused.set(false);
 		}
 
-		this.start();
+//		this.start();
 	}
 
 	@Override
@@ -117,18 +117,16 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public boolean hasTasks()
 	{
-		return PlacementManagerDaemonHandler.INSTANCE.hasTasks();
+		return PlacementManagerDaemonHandler.INSTANCE.hasActiveTasks();
 	}
 
 	@Override
 	public void run()
 	{
 		if (!this.isCorrectThread()) { return; }
-		if (!this.isRunning())
-		{
-			this.running.set(true);
-		}
 
+		this.running.set(true);
+		this.maxTicks = PlacementManagerDaemonHandler.INSTANCE.getProfile().maxTicks();
 		this.lastTaskTime = System.currentTimeMillis();
 		this.ticks = 0L;
 		Litematica.debugLog("Executor: Running: [{}/{}]", this.isRunning(), this.isPaused());
@@ -142,8 +140,16 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 			else if (!this.isPaused() && this.loopSafe())
 			{
 				this.paused.set(true);
-				this.sleep();
-				return;
+				this.ticks = 0L;
+
+				if (this.hasTasks())
+				{
+					this.sleep(PlacementManagerDaemonHandler.INSTANCE.getProfile().yieldTime());
+				}
+				else
+				{
+					this.sleep();
+				}
 			}
 		}
 	}
@@ -161,7 +167,6 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 			{
 				this.processTask(task);
 				this.lastTaskTime = System.currentTimeMillis();
-				return false;
 			}
 		}
 		catch (InterruptedException e)
@@ -179,8 +184,8 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public boolean shouldPause()
 	{
-		if (this.hasTasks()) { return false; }
 		if (this.ticks > this.maxTicks) { return true; }
+		if (this.hasTasks()) { return false; }
 		return (System.currentTimeMillis() - this.lastTaskTime) > (this.sleepDelay * 1000L);
 	}
 

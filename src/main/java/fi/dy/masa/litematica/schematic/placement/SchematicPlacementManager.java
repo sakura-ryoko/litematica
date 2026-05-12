@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -70,7 +71,7 @@ public class SchematicPlacementManager
     protected final Set<ChunkPos> chunksPreChange;
     protected final List<ChunkPos> visibleChunks;
     protected final Supplier<WorldSchematic> worldSupplier;
-    protected final List<PlacementManagerTask> pendingTasks;
+    protected final LinkedBlockingQueue<PlacementManagerTask> pendingTasks;
     protected ChunkPos lastVisibleChunksSortPos;
     protected boolean visibleChunksNeedsUpdate;
     private final int tickRate = 7;      // in seconds
@@ -90,7 +91,7 @@ public class SchematicPlacementManager
         this.touchedVolumesInChunk = new Long2ObjectOpenHashMap<>();
         this.chunksPreChange = new HashSet<>();
         this.visibleChunks = new ArrayList<>();
-        this.pendingTasks = new ArrayList<>();
+        this.pendingTasks = new LinkedBlockingQueue<>();
         this.lastVisibleChunksSortPos = ChunkPos.ZERO;
 
         this.worldSupplier = worldSupplier;
@@ -118,7 +119,7 @@ public class SchematicPlacementManager
                WorldUtils.isClientChunkLoaded(clientWorld, chunkX, chunkZ);
     }
 
-    // This fixes when joining the world, and your placement's aren't being rendered
+    // This fixes when joining the world, and your placements aren't being rendered
     public void onWorldJoin()
     {
         PlacementManagerDaemonHandler.INSTANCE.start();
@@ -130,11 +131,7 @@ public class SchematicPlacementManager
 
         if (this.schematicsTouchingChunk.isEmpty() && !this.schematicPlacements.isEmpty())
         {
-            this.schematicPlacements.forEach(
-                    (schematicPlacement) ->
-                            this.addTouchedChunksFor(schematicPlacement)
-            );
-
+            this.schematicPlacements.forEach(this::addTouchedChunksFor);
             this.lastSchematicChange = System.currentTimeMillis();
             this.setVisibleSubChunksNeedsUpdate();
         }
@@ -152,7 +149,9 @@ public class SchematicPlacementManager
         // Drain tasks every tick.
         if (!this.pendingTasks.isEmpty())
         {
-            for (PlacementManagerTask task : this.pendingTasks)
+            PlacementManagerTask task;
+
+            while ((task = this.pendingTasks.poll()) != null)
             {
                 PlacementManagerDaemonHandler.INSTANCE.addTask(task);
             }
@@ -224,7 +223,7 @@ public class SchematicPlacementManager
 
     protected void schedulePendingTaskForNextTick(PlacementManagerTask task)
     {
-        this.pendingTasks.add(task);
+        this.pendingTasks.offer(task);
     }
 
     public void onToggleMainRendering(boolean toggle)

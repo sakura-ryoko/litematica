@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.schematic;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1528,7 +1529,23 @@ public class LitematicaSchematic
                 this.metadata.setSchematicVersion(version);
                 this.metadata.setMinecraftDataVersion(minecraftDataVersion);
                 this.metadata.setFileType(FileType.LITEMATICA_SCHEMATIC);
-                this.readSubRegionsFromNBT(nbt.getCompoundOrEmpty("Regions"), version, minecraftDataVersion);
+                try
+                {
+                    this.readSubRegionsFromNBT(nbt.getCompoundOrEmpty("Regions"), version, minecraftDataVersion);
+                }
+                catch (OutOfMemoryError e)
+                {
+                    this.blockContainers.clear();
+                    this.tileEntities.clear();
+                    this.entities.clear();
+                    this.pendingBlockTicks.clear();
+                    this.subRegionPositions.clear();
+                    this.subRegionSizes.clear();
+                    System.gc();
+
+                    InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_load.out_of_memory", e.getLocalizedMessage());
+                    return false;
+                }
 
                 return true;
             }
@@ -2739,11 +2756,11 @@ public class LitematicaSchematic
 
             return true;
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.error.schematic_write_to_file_failed.exception", fileSchematic.toAbsolutePath());
             Litematica.LOGGER.error(StringUtils.translate("litematica.error.schematic_write_to_file_failed.exception", fileSchematic.toAbsolutePath()), e);
-            Litematica.LOGGER.error(e.getMessage());
+            Litematica.LOGGER.error(e.getLocalizedMessage());
         }
 
         return false;

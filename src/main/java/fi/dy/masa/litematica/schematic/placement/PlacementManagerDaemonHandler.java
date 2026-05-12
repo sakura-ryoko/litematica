@@ -1,40 +1,44 @@
 package fi.dy.masa.litematica.schematic.placement;
 
 import java.util.ConcurrentModificationException;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.ChunkPos;
 
+import fi.dy.masa.malilib.config.options.ConfigInteger;
+import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.interfaces.IThreadDaemonHandler;
 import fi.dy.masa.malilib.util.MathUtils;
+import fi.dy.masa.malilib.util.thread.ThreadExecutorPair;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
+import fi.dy.masa.litematica.util.PlacementManagerThreadProfile;
 
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
-	private static final int MAX_PLATFORM_THREADS = 4;          // The hard limit of usable Threads
+	public static final int MAX_PLATFORM_THREADS = MathUtils.max(Runtime.getRuntime().availableProcessors() / 2, 1);    // The hard limit of usable Threads
 	private static final float TASK_INTERVAL = 1.50F;           // The amount of time in between task check updates
-	private static final int MAX_DEFERRED_CAP = 850;            // The approx amount of tasks that can be queued before they are deferred for each task interval
+	private static final int MAX_DEFERRED_CAP = 2048;           // The approx amount of tasks that can be queued before they are deferred for each task interval
 	private boolean useVirtual = false;
 	private final String namePrefix = Reference.MOD_NAME+" Placement Manager";
-	private final int threadCount = this.calculateMaxThreads();
-	private final ConcurrentHashMap<String, Thread> threadMap = this.builder();
+	private int threadCount = 1;
+	private final ConcurrentHashMap<String, ThreadExecutorPair<PlacementManagerTask>> threadMap;
 	private final LinkedBlockingQueue<PlacementManagerTask> queueUnload = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> queueRebuild = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> queueOther = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> deferredQueue = new LinkedBlockingQueue<>();
+	private final ReentrantLock lock = new ReentrantLock();
 	private long lastTick;
 	private boolean processing = false;
 
-	private int calculateMaxThreads()
+	private int calculateDefaultSafeThreadCount()
 	{
 		final int result = this.getThreadCountSafe();
 		if (result < 1) { this.useVirtual = true; }
@@ -42,22 +46,36 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return MathUtils.clamp(result, 1, MAX_PLATFORM_THREADS);
 	}
 
-	private ConcurrentHashMap<String, Thread> builder()
-	{
-		ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<>(this.threadCount, 0.9f, 1);
-
-		for (int i = 0; i < this.threadCount; i++)
-		{
-			final String name = this.threadCount > 1 ? this.namePrefix+" "+ (i+1) : this.namePrefix;
-			threads.put(name, this.threadFactory(name, this.useVirtual, new PlacementManagerDaemonExecutor()));
-		}
-
-		return threads;
-	}
-
 	private PlacementManagerDaemonHandler()
 	{
+		this.threadCount = this.calculateDefaultSafeThreadCount();
+		this.threadMap = new ConcurrentHashMap<>(this.getClampedThreadCount(this.threadCount), 0.9f, 1);
+		this.buildThreadMap();
 		this.lastTick = System.currentTimeMillis();
+	}
+
+	private synchronized void buildThreadMap()
+	{
+		// Only build when empty
+		if (this.threadMap.isEmpty())
+		{
+			this.lock.lock();
+
+			try
+			{
+				final int count = this.getClampedThreadCount(this.threadCount);
+
+				for (int i = 0; i < count; i++)
+				{
+					final String name = count > 1 ? this.namePrefix + " " + (i + 1) : this.namePrefix;
+					this.threadMap.put(name, this.threadFactory(name, this.useVirtual, new PlacementManagerDaemonExecutor()));
+				}
+			}
+			finally
+			{
+				this.lock.unlock();
+			}
+		}
 	}
 
 	@Override
@@ -66,17 +84,103 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return this.namePrefix;
 	}
 
+	public PlacementManagerThreadProfile getProfile()
+	{
+		return (PlacementManagerThreadProfile) Configs.Generic.PLACEMENT_MANAGER_PROFILE.getOptionListValue();
+	}
+
+	public void resetProfile(ConfigOptionList config)
+	{
+		PlacementManagerThreadProfile profile = (PlacementManagerThreadProfile) config.getOptionListValue();
+		PlacementManagerThreadProfile lastProfile = (PlacementManagerThreadProfile) config.getLastOptionListValue();
+
+		if (!lastProfile.equals(profile) && Minecraft.getInstance().level != null)
+		{
+			Litematica.LOGGER.info("Resetting Placement Manager Thread profile from config change [{} -> {}]", lastProfile.getDisplayName(), profile.getDisplayName());
+			this.stop();
+//			this.reset();
+			this.start();
+		}
+	}
+
+	private int getDeferredCap()
+	{
+		return MathUtils.clamp(this.getProfile().deferredCap(), 64, MAX_DEFERRED_CAP);
+	}
+
+	private int getClampedThreadCount(final int count)
+	{
+		return MathUtils.clamp(count, 1, MAX_PLATFORM_THREADS);
+	}
+
+	private int getConfiguredThreadCount()
+	{
+		int count = Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT.getIntegerValue();
+
+		if (count < 1)
+		{
+			count = this.calculateDefaultSafeThreadCount();
+		}
+
+		return this.getClampedThreadCount(count);
+	}
+
+	public void resetThreadCount(ConfigInteger config)
+	{
+		int count = this.getConfiguredThreadCount();
+		final int lastCount = this.getClampedThreadCount(config.getLastIntegerValue());
+
+		if (count != lastCount)
+		{
+			this.stop();
+			this.lock.lock();
+
+			try
+			{
+				if (this.useVirtual)
+				{
+					// This means your computer is a real, verified potato.
+					// Count 1 is enforced
+					count = 1;
+
+					// and you probably shouldn't be using the MAX profile, either.
+					if (this.getProfile() == PlacementManagerThreadProfile.MAX)
+					{
+						Configs.Generic.PLACEMENT_MANAGER_PROFILE.resetToDefault();
+					}
+				}
+
+				Litematica.LOGGER.info("Resetting Placement Manager Thread count from config change [{} -> {}]", lastCount, count);
+
+				synchronized (this.threadMap)
+				{
+					this.threadMap.clear();
+				}
+			}
+			finally
+			{
+				this.threadCount = this.getClampedThreadCount(count);
+				this.lock.unlock();
+				this.buildThreadMap();
+			}
+
+			this.start();
+		}
+	}
+
 	@Override
 	public void start()
 	{
-		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads", this.threadMap.size());
+		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads [Profile: {}]", this.threadMap.size(), this.getProfile().getDisplayName());
 		Set<String> keys = this.threadMap.keySet();
 
 		for (String key : keys)
 		{
+			ThreadExecutorPair<PlacementManagerTask> pair = this.threadMap.get(key);
+
 			try
 			{
-				this.safeStart(this.threadMap.get(key));
+				this.safeStart(pair);
 			}
 			catch (ConcurrentModificationException cme)
 			{
@@ -84,13 +188,22 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			}
 			catch (IllegalStateException is)
 			{
-				// Terminated
-				Thread entry = this.threadFactory(key, this.useVirtual, new PlacementManagerDaemonExecutor());
-				entry.start();
+				this.lock.lock();
 
-				synchronized (this.threadMap)
+				try
 				{
-					this.threadMap.replace(key, entry);
+					// Terminated
+					pair = this.threadFactory(key, this.useVirtual, new PlacementManagerDaemonExecutor());
+					pair.thread().start();
+
+					synchronized (this.threadMap)
+					{
+						this.threadMap.replace(key, pair);
+					}
+				}
+				finally
+				{
+					this.lock.unlock();
 				}
 			}
 			catch (RuntimeException re)
@@ -109,9 +222,11 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 		for (String key : keys)
 		{
+			ThreadExecutorPair<PlacementManagerTask> pair = this.threadMap.get(key);
+
 			try
 			{
-				this.safeStop(this.threadMap.get(key));
+				this.safeStop(pair);
 			}
 			catch (ConcurrentModificationException cme)
 			{
@@ -185,17 +300,18 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			return this.queueOther.poll();
 		}
 
-//		if (!this.deferredQueue.isEmpty())
-//		{
-//			this.fillDeferredTasks();
-//		}
-
 		return null;
 	}
 
 	protected synchronized int getTaskCount()
 	{
 		return this.queueRebuild.size() + this.queueUnload.size() + this.queueOther.size() + this.deferredQueue.size();
+	}
+
+	// Get any non-deferred tasks to be considered "active"
+	protected synchronized boolean hasActiveTasks()
+	{
+		return !this.queueUnload.isEmpty() || !this.queueRebuild.isEmpty() || !this.queueOther.isEmpty();
 	}
 
 	@Override
@@ -210,11 +326,11 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return MathUtils.floor(TASK_INTERVAL * 1000L);
 	}
 
-	private synchronized boolean checkIfTasksAreFull()
+	private boolean checkIfTasksAreFull()
 	{
 		final int threadCount = this.threadMap.size();
 		final int total = this.queueUnload.size() + this.queueRebuild.size() + this.queueOther.size();
-		final int calc = MathUtils.clamp((threadCount / 2), 1, threadCount) * MAX_DEFERRED_CAP;
+		final int calc = MathUtils.clamp((threadCount / 2), 1, threadCount) * this.getDeferredCap();
 		return total >= calc && total > 0;
 	}
 
@@ -236,17 +352,17 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return false;
 	}
 
-	private synchronized void fillDeferredTasks()
+	private void fillDeferredTasks()
 	{
-		CopyOnWriteArrayList<PlacementManagerTask> tasks = new CopyOnWriteArrayList<>(this.deferredQueue);
+		int cap = this.getDeferredCap();
+		int total = 0;
+		PlacementManagerTask task;
 
-		synchronized (this.deferredQueue)
+		while (total < cap && (task = this.deferredQueue.poll()) != null)
 		{
-			this.deferredQueue.clear();
+			this.addTask(task);
+			total++;
 		}
-
-		tasks.forEach(this::addTask);
-		tasks.clear();
 	}
 
 	@Override
@@ -287,19 +403,30 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 			for (String key : keySet)
 			{
+				ThreadExecutorPair<PlacementManagerTask> pair = this.threadMap.get(key);
+
 				try
 				{
-					this.safeStart(this.threadMap.get(key));
+					this.safeStart(pair);
 				}
 				catch (IllegalStateException is)
 				{
-					// Terminated (Replace)
-					Thread entry = this.threadFactory(key, this.useVirtual, new PlacementManagerDaemonExecutor());
-					entry.start();
+					this.lock.lock();
 
-					synchronized (this.threadMap)
+					try
 					{
-						this.threadMap.replace(key, entry);
+						// Terminated (Replace)
+						pair = this.threadFactory(key, this.useVirtual, new PlacementManagerDaemonExecutor());
+						pair.thread().start();
+
+						synchronized (this.threadMap)
+						{
+							this.threadMap.replace(key, pair);
+						}
+					}
+					finally
+					{
+						this.lock.unlock();
 					}
 				}
 				catch (RuntimeException ignored) {}
@@ -309,54 +436,22 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	protected void removeUnloadTasksFor(int x, int z)
 	{
-		synchronized (this.queueUnload)
-		{
-			Queue<PlacementManagerTask> newQueue = new ConcurrentLinkedQueue<>(this.queueUnload);
-
-			this.queueUnload.clear();
-			this.queueUnload.addAll(newQueue.stream()
-			                                .filter(task -> !(task.cx() == x && task.cz() == z))
-			                                .toList());
-		}
+		this.queueUnload.removeIf(task -> task.cx() == x && task.cz() == z);
 	}
 
 	protected void removeRebuildTasksFor(int x, int z)
 	{
-		synchronized (this.queueUnload)
-		{
-			Queue<PlacementManagerTask> newQueue = new ConcurrentLinkedQueue<>(this.queueRebuild);
-
-			this.queueRebuild.clear();
-			this.queueRebuild.addAll(newQueue.stream()
-			                                 .filter(task -> !(task.cx() == x && task.cz() == z))
-			                                 .toList());
-		}
+		this.queueRebuild.removeIf(task -> task.cx() == x && task.cz() == z);
 	}
 
 	protected void removeOtherTasksFor(int x, int z)
 	{
-		synchronized (this.queueOther)
-		{
-			Queue<PlacementManagerTask> newQueue = new ConcurrentLinkedQueue<>(this.queueOther);
-
-			this.queueOther.clear();
-			this.queueOther.addAll(newQueue.stream()
-			                               .filter(task -> !(task.cx() == x && task.cz() == z))
-			                               .toList());
-		}
+		this.queueOther.removeIf(task -> task.cx() == x && task.cz() == z);
 	}
 
 	protected void removeDeferredTasksFor(int x, int z)
 	{
-		synchronized (this.deferredQueue)
-		{
-			Queue<PlacementManagerTask> newQueue = new ConcurrentLinkedQueue<>(this.deferredQueue);
-
-			this.deferredQueue.clear();
-			this.deferredQueue.addAll(newQueue.stream()
-			                                  .filter(task -> !(task.cx() == x && task.cz() == z))
-			                                  .toList());
-		}
+		this.deferredQueue.removeIf(task -> task.cx() == x && task.cz() == z);
 	}
 
 	public boolean hasAnyRebuildTasksFor(ChunkPos pos)
@@ -366,22 +461,22 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public synchronized boolean hasAnyUnloadTasksFor(int cx, int cz)
 	{
-		return !this.queueUnload.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
+		return this.queueUnload.stream().anyMatch(task -> (task.cx() == cx && task.cz() == cz));
 	}
 
 	public synchronized boolean hasAnyRebuildTasksFor(int cx, int cz)
 	{
-		return !this.queueRebuild.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
+		return this.queueRebuild.stream().anyMatch(task -> (task.cx() == cx && task.cz() == cz));
 	}
 
 	public synchronized boolean hasAnyOtherTasksFor(int cx, int cz)
 	{
-		return !this.queueOther.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
+		return this.queueOther.stream().anyMatch(task -> (task.cx() == cx && task.cz() == cz));
 	}
 
 	public synchronized boolean hasAnyDeferredTasksFor(int cx, int cz)
 	{
-		return !this.deferredQueue.stream().filter(task -> (task.cx() == cx && task.cz() == cz)).toList().isEmpty();
+		return this.deferredQueue.stream().anyMatch(task -> (task.cx() == cx && task.cz() == cz));
 	}
 
 	public boolean hasAnyTasks()
