@@ -174,9 +174,13 @@ public class WidgetSchematicEntry extends WidgetListEntryBase<LitematicaSchemati
 			}
 			else if (this.type == Type.RELOAD)
 			{
-				this.widget.schematic.readFromFile();
-				SchematicPlacementManager manager = DataManager.getSchematicPlacementManager();
-				manager.getAllPlacementsOfSchematic(this.widget.schematic).forEach(manager::markChunksForRebuild);
+				boolean result = this.widget.schematic.readFromFile();
+
+				if (result)
+				{
+					SchematicPlacementManager manager = DataManager.getSchematicPlacementManager();
+					manager.getAllPlacementsOfSchematic(this.widget.schematic).forEach(manager::markChunksForRebuild);
+				}
 			}
 			else if (this.type == Type.UNLOAD)
 			{
