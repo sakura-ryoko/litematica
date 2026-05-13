@@ -56,7 +56,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
         list.add(entity.getUUID());
 
-        this.chunkMap.put(pos.toLong(), list);
+        this.chunkMap.put(pos.pack(), list);
         this.uuidMap.put(entity.getUUID(), entity.getId());
         this.entityMap.put(entity.getId(), entity);
 
@@ -221,7 +221,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
     public Iterable<T> getAllByChunk(ChunkPos pos)
     {
-        final List<UUID> list = this.chunkMap.get(pos.pack());
+        final CopyOnWriteArrayList<UUID> list = this.chunkMap.get(pos.pack());
 
         if (list == null || list.isEmpty())
         {
