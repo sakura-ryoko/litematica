@@ -221,7 +221,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
 
     public Iterable<T> getAllByChunk(ChunkPos pos)
     {
-        final List<UUID> list = this.chunkMap.get(pos.toLong());
+        final CopyOnWriteArrayList<UUID> list = this.chunkMap.get(pos.toLong());
 
         if (list == null || list.isEmpty())
         {
