@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
@@ -80,10 +81,10 @@ public class WorldSchematic extends Level
     private final TickRateManager tickManager;
     private final Holder<DimensionType> dimensionType;
     private final SchematicEntityLookup<Entity> entityLookup;
-    private final Int2ObjectOpenHashMap<EnderDragonPart> dragonParts;
+    private final ConcurrentHashMap<Integer, EnderDragonPart> dragonParts;
     protected Holder<Biome> biome;
     private LevelData.RespawnData properties;
-    protected int nextEntityId;
+    protected AtomicInteger nextEntityId;
 
     public WorldSchematic(WritableLevelData properties,
                           @Nonnull RegistryAccess registryManager,
@@ -102,7 +103,7 @@ public class WorldSchematic extends Level
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);
         this.dimensionType = dimension;
-        this.dragonParts = new Int2ObjectOpenHashMap<>();
+        this.dragonParts = new ConcurrentHashMap<>(12, 0.9f, 2);
 
         if (!registryManager.equals(RegistryAccess.EMPTY))
         {
@@ -116,6 +117,7 @@ public class WorldSchematic extends Level
         this.tickManager = new TickRateManager();
         this.entityLookup = new SchematicEntityLookup<>();
         this.properties = LevelData.RespawnData.DEFAULT;
+        this.nextEntityId = new AtomicInteger(0);
     }
 
     @Override
@@ -283,7 +285,7 @@ public class WorldSchematic extends Level
 
         while (this.entityLookup.contains(entity.getId()) || entity.getId() < 0)
         {
-            entity.setId(this.nextEntityId++);
+            entity.setId(this.nextEntityId.incrementAndGet());
         }
 
         this.entityLookup.put(entity, chunkPos, this);
@@ -309,7 +311,7 @@ public class WorldSchematic extends Level
         {
             this.entityLookup.reset();
             this.dragonParts.clear();
-            this.nextEntityId = 0;
+            this.nextEntityId.set(0);
         }
     }
 
@@ -341,7 +343,7 @@ public class WorldSchematic extends Level
         }
         catch (Exception ignored) { }
 
-        this.nextEntityId = 0;
+        this.nextEntityId.set(0);
     }
 
     @Override

@@ -40,7 +40,7 @@ public class ChunkManagerSchematic extends ChunkSource
         return this.world;
     }
 
-    public synchronized void loadChunk(int chunkX, int chunkZ)
+    public void loadChunk(int chunkX, int chunkZ)
     {
         ChunkSchematic chunk = new ChunkSchematic(this.world, new ChunkPos(chunkX, chunkZ));
         chunk.setState(ChunkSchematicState.LOADED);
@@ -48,12 +48,12 @@ public class ChunkManagerSchematic extends ChunkSource
     }
 
     @Override
-    public synchronized boolean hasChunk(int chunkX, int chunkZ)
+    public boolean hasChunk(int chunkX, int chunkZ)
     {
         return this.loadedChunks.containsKey(ChunkPos.asLong(chunkX, chunkZ));
     }
 
-    public synchronized ChunkSchematicState getChunkState(int chunkX, int chunkZ)
+    public ChunkSchematicState getChunkState(int chunkX, int chunkZ)
     {
         long key = ChunkPos.asLong(chunkX, chunkZ);
 
@@ -67,7 +67,7 @@ public class ChunkManagerSchematic extends ChunkSource
         }
     }
 
-    public synchronized void setChunkState(int chunkX, int chunkZ, ChunkSchematicState state)
+    public void setChunkState(int chunkX, int chunkZ, ChunkSchematicState state)
     {
         long key = ChunkPos.asLong(chunkX, chunkZ);
 
@@ -84,19 +84,19 @@ public class ChunkManagerSchematic extends ChunkSource
     }
 
     @Override
-    public synchronized int getLoadedChunksCount()
+    public int getLoadedChunksCount()
     {
         return this.loadedChunks.size();
     }
 
-    public synchronized ImmutableList<Long> getLoadedKeySet()
+    public ImmutableList<Long> getLoadedKeySet()
     {
         ImmutableList.Builder<Long> builder = ImmutableList.builder();
         this.loadedChunks.keySet().forEach(builder::add);
         return builder.build();
     }
 
-    public synchronized ImmutableList<ChunkPos> getLoadedNonEmptyChunkPosSet()
+    public ImmutableList<ChunkPos> getLoadedNonEmptyChunkPosSet()
     {
         ImmutableList.Builder<ChunkPos> builder = ImmutableList.builder();
 
@@ -113,26 +113,26 @@ public class ChunkManagerSchematic extends ChunkSource
     }
 
     @Override
-    public synchronized LevelChunk getChunk(int chunkX, int chunkZ, @Nonnull ChunkStatus status, boolean fallbackToEmpty)
+    public LevelChunk getChunk(int chunkX, int chunkZ, @Nonnull ChunkStatus status, boolean fallbackToEmpty)
     {
         ChunkSchematic chunk = this.getChunkForLighting(chunkX, chunkZ);
         return chunk == null && fallbackToEmpty ? this.blankChunk : chunk;
     }
 
     @Override
-    public synchronized ChunkSchematic getChunkForLighting(int chunkX, int chunkZ)
+    public ChunkSchematic getChunkForLighting(int chunkX, int chunkZ)
     {
         ChunkSchematic chunk = this.loadedChunks.get(ChunkPos.asLong(chunkX, chunkZ));
         return chunk == null ? this.blankChunk : chunk;
     }
 
     @Nullable
-    public synchronized ChunkSchematic getChunkIfExists(int chunkX, int chunkZ)
+    public ChunkSchematic getChunkIfExists(int chunkX, int chunkZ)
     {
         return this.loadedChunks.get(ChunkPos.asLong(chunkX, chunkZ));
     }
 
-    public synchronized void unloadChunk(int chunkX, int chunkZ)
+    public void unloadChunk(int chunkX, int chunkZ)
     {
         ChunkSchematic chunk = this.loadedChunks.remove(ChunkPos.asLong(chunkX, chunkZ));
 
@@ -144,7 +144,7 @@ public class ChunkManagerSchematic extends ChunkSource
     }
 
     // Causes issues
-    public synchronized boolean replaceChunk(int chunkX, int chunkZ,
+    public boolean replaceChunk(int chunkX, int chunkZ,
                                              @Nonnull ChunkSchematic newChunk)
     {
         ChunkPos pos = new ChunkPos(chunkX, chunkZ);
@@ -187,7 +187,7 @@ public class ChunkManagerSchematic extends ChunkSource
         // NO-OP
     }
 
-    public synchronized int getTileEntityCount()
+    public int getTileEntityCount()
     {
         int count = 0;
 
