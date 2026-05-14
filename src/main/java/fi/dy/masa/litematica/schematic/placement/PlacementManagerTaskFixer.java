@@ -97,7 +97,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 
 								   if (placements.isEmpty())
 								   {
-									   DataManager.getSchematicPlacementManager().markChunkForUnload(c.x, c.z);
+									   DataManager.getSchematicPlacementManager().markChunkForUnload(c.x(), c.z());
 //												  .schedulePendingTaskForNextTick(new PlacementManagerTaskUnload(this.worldSupplier(), c.x, c.z));
 								   }
 								   else
@@ -114,7 +114,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 
 									   if (unload)
 									   {
-										   DataManager.getSchematicPlacementManager().markChunkForUnload(c.x, c.z);
+										   DataManager.getSchematicPlacementManager().markChunkForUnload(c.x(), c.z());
 //													  .schedulePendingTaskForNextTick(new PlacementManagerTaskUnload(this.worldSupplier(), c.x, c.z));
 									   }
 								   }

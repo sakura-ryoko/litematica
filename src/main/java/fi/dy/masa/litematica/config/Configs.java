@@ -18,6 +18,7 @@ import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.MessageOutputType;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.malilib.util.i18n.i18nConfig;
 import fi.dy.masa.malilib.util.i18n.i18nManager;
 import fi.dy.masa.malilib.util.i18n.i18nOption;
