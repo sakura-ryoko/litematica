@@ -40,18 +40,13 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         if (world != null && this.mc.level != null)
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
-//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkSource().getLoadedChunks();
             ImmutableList<ChunkPos> keySet = world.getChunkSource().getLoadedNonEmptyChunkPosSet();
 
             final int cxMin = (Math.min(minX, maxX) >> 4);
             final int cxMax = (Math.max(minX, maxX) >> 4);
 
-//            for (ChunkSchematic chunk : schematicChunks.values())
             for (ChunkPos pos : keySet)
             {
-//                ChunkPos pos = chunk.getPos();
-
-                // && chunk.isEmpty() == false
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
                 if (pos.x() >= cxMin && pos.x() <= cxMax &&
                     WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()))
@@ -70,14 +65,10 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         if (world != null && this.mc.level != null)
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
-//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkSource().getLoadedChunks();
             ImmutableList<ChunkPos> keySet = world.getChunkSource().getLoadedNonEmptyChunkPosSet();
 
-//            for (ChunkSchematic chunk : schematicChunks.values())
             for (ChunkPos pos : keySet)
             {
-//                ChunkPos pos = chunk.getPos();
-                // chunk.isEmpty() == false &&
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
                 if (WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()))
                 {
@@ -95,17 +86,12 @@ public class SchematicWorldRefresher implements IRangeChangeListener
         if (world != null && this.mc.level != null)
         {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
-//            Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkSource().getLoadedChunks();
             ImmutableList<ChunkPos> keySet = world.getChunkSource().getLoadedNonEmptyChunkPosSet();
             final int czMin = (Math.min(minZ, maxZ) >> 4);
             final int czMax = (Math.max(minZ, maxZ) >> 4);
 
-//            for (ChunkSchematic chunk : schematicChunks.values())
             for (ChunkPos pos : keySet)
             {
-//                ChunkPos pos = chunk.getPos();
-
-                //  && chunk.isEmpty() == false
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
                 if (pos.z() >= czMin && pos.z() <= czMax &&
                     WorldUtils.isClientChunkLoaded(this.mc.level, pos.x(), pos.z()))

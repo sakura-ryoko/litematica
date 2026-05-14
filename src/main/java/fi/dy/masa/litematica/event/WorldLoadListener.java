@@ -10,6 +10,7 @@ import net.minecraft.util.datafix.fixes.BlockStateData;
 import fi.dy.masa.malilib.interfaces.IWorldLoadListener;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.compat.jade.JadeCompat;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.CachedTagManager;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
@@ -55,6 +56,7 @@ public class WorldLoadListener implements IWorldLoadListener
         {
             Litematica.debugLog("onWorldLoadPost(): Init BlockStateFlattening DataFixer [Test: {}]", BlockStateData.upgradeBlock("minecraft:air"));
             SchematicConversionMaps.computeMaps();
+            Configs.checkBaseLanguage();
             DataManager.load();
             EntitiesDataStorage.getInstance().onWorldJoin();
             CachedTagManager.startCache();

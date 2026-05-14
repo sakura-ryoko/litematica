@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
+@Deprecated
 public class PlacementManagerTaskUnload extends PlacementManagerTask
 {
 	private final Runnable task;
@@ -27,7 +28,7 @@ public class PlacementManagerTaskUnload extends PlacementManagerTask
 		return () ->
 		{
 			WorldSchematic worldSchematic = this.worldSupplier().get();
-			SchematicPlacementManager manager =  DataManager.getSchematicPlacementManager();
+			SchematicPlacementManager manager = DataManager.getSchematicPlacementManager();
 
 			if (worldSchematic.getChunkSource().hasChunk(this.cx(), this.cz()))
 			{

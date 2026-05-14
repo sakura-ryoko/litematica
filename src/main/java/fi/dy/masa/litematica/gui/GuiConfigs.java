@@ -56,6 +56,13 @@ public class GuiConfigs extends GuiConfigsBase implements IConfigGuiAllTab
 //        x += this.createButton(x, y, -1, ConfigGuiTab.TEST);
     }
 
+    @Override
+    public void removed()
+    {
+        super.removed();
+        Configs.checkBaseLanguage();
+    }
+
     private int createButton(int x, int y, int width, ConfigGuiTab tab)
     {
         ButtonGeneric button = new ButtonGeneric(x, y, width, 20, tab.getDisplayName());

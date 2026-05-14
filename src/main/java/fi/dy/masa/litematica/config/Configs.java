@@ -3,21 +3,24 @@ package fi.dy.masa.litematica.config;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+
+import net.minecraft.client.Minecraft;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import net.minecraft.client.Minecraft;
-
 import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.options.*;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
+import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.MessageOutputType;
-import fi.dy.masa.malilib.util.data.json.JsonUtils;
+import fi.dy.masa.malilib.util.i18n.i18nConfig;
+import fi.dy.masa.malilib.util.i18n.i18nManager;
+import fi.dy.masa.malilib.util.i18n.i18nOption;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
@@ -30,6 +33,7 @@ import fi.dy.masa.litematica.util.*;
 public class Configs implements IConfigHandler
 {
     private static final String CONFIG_FILE_NAME = Reference.MOD_ID + ".json";
+    public static final Optional<i18nManager> LANG = Optional.ofNullable(i18nManager.create(Reference.MOD_ID));
 
     private static final String GENERIC_KEY = Reference.MOD_ID+".config.generic";
     public static class Generic
@@ -113,7 +117,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PICK_BLOCK_SHULKERS         = new ConfigBoolean("pickBlockShulkers", false).apply(GENERIC_KEY);
         public static final ConfigString        PICK_BLOCKABLE_SLOTS        = new ConfigString( "pickBlockableSlots", "1,2,3,4,5").apply(GENERIC_KEY);
         public static final ConfigBoolean       PLACEMENT_RESTRICTION       = new ConfigBoolean("placementRestriction", false).apply(GENERIC_KEY);
-        public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 0, 0, PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS).apply(GENERIC_KEY);
+        public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 4, 1, PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS).apply(GENERIC_KEY);
         public static final ConfigOptionList    PLACEMENT_MANAGER_PROFILE   = new ConfigOptionList("placementManagerProfile", PlacementManagerThreadProfile.DEFAULT).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_MATERIALS_IN_GUI     = new ConfigBoolean("renderMaterialListInGuis", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_THREAD_NO_TIMEOUT    = new ConfigBoolean("renderThreadNoTimeout", true).apply(GENERIC_KEY);
@@ -123,6 +127,8 @@ public class Configs implements IConfigHandler
         public static final ConfigString        TOOL_ITEM                   = new ConfigString( "toolItem", "minecraft:stick").apply(GENERIC_KEY);
         public static final ConfigBoolean       TOOL_ITEM_ENABLED           = new ConfigBoolean("toolItemEnabled", true).apply(GENERIC_KEY);
         public static final ConfigString        TOOL_ITEM_COMPONENTS        = new ConfigString( "toolItemComponents", "empty").apply(GENERIC_KEY);
+        public static final ConfigBoolean       TRANSLATION_TRY_BASE_LANGUAGE= new ConfigBoolean("translationTryBaseLanguage",false).apply(GENERIC_KEY);
+        public static final ConfigOptionList    TRANSLATION_LANGUAGE        = new ConfigOptionList("translationLanguage", new i18nConfig(LANG.orElseThrow())).apply(GENERIC_KEY);
         public static final ConfigBoolean       UNHIDE_SCHEMATIC_PROJECTS   = new ConfigBoolean("unhideSchematicVCS", false).apply(GENERIC_KEY);
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
@@ -216,7 +222,9 @@ public class Configs implements IConfigHandler
                 EASY_PLACE_SWAP_INTERVAL,
                 PICK_BLOCKABLE_SLOTS,
                 TOOL_ITEM,
-                TOOL_ITEM_COMPONENTS
+                TOOL_ITEM_COMPONENTS,
+                TRANSLATION_TRY_BASE_LANGUAGE,
+                TRANSLATION_LANGUAGE
         );
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
@@ -474,9 +482,11 @@ public class Configs implements IConfigHandler
             }
         }
 
+        checkBaseLanguage();
+        DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
         if (Minecraft.getInstance().level != null)
         {
-            DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
+            PlacementManagerDaemonHandler.INSTANCE.checkThreadCount();
             DataManager.getInstance().setToolItemComponents(Generic.TOOL_ITEM_COMPONENTS.getStringValue(), Minecraft.getInstance().level.registryAccess());
         }
 
@@ -523,5 +533,35 @@ public class Configs implements IConfigHandler
     public void save()
     {
         saveToFile();
+    }
+
+    // Attempts to load the same language file as MaLiLib; where available -- on occasion
+    public static void checkBaseLanguage()
+    {
+        if (Generic.TRANSLATION_TRY_BASE_LANGUAGE.getBooleanValue())
+        {
+            LANG.ifPresent(
+                    i18nManager ->
+                    {
+                        String baseKey = Registry.TRANSLATION_OVERRIDE_MANAGER.getBaseLanguageCode();
+
+                        // Try setting language if it doesn't match
+                        if (!i18nManager.getLang().getLangCode().equals(baseKey))
+                        {
+                            List<i18nOption> list = i18nManager.getLanguageOptions();
+
+                            for (i18nOption entry : list)
+                            {
+                                if (entry.getKey().equals(baseKey))
+                                {
+                                    i18nConfig newConfig = ((i18nConfig) Generic.TRANSLATION_LANGUAGE.getOptionListValue()).fromString(baseKey);
+                                    Generic.TRANSLATION_LANGUAGE.setOptionListValue(newConfig);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+            );
+        }
     }
 }
