@@ -127,7 +127,7 @@
     "litematica.config.generic.comment.pickBlockIgnoreNbt": "启用适用于1.12.2版本Ornithe核心的“轻松放置 - 重写后（Easy Place Post-Rewrite）”\n功能的“选取方块忽略NBT数据（pickBlockIgnoreNbt）”设置。",
     "litematica.config.generic.comment.pickBlockShulkers": "若启用此选项，\n当玩家物品栏中未直接找到选取方块所需的物品、\n但潜影盒中含有该物品时，\n系统会自动将潜影盒切换至玩家手中。",
     "litematica.config.generic.comment.pickBlockableSlots": "允许用于选取投影方块的快捷栏槽位配置",
-    "litematica.config.generic.comment.placementManagerProfile": "请按如下方式调整“放置管理器线程”（Placement Manager Thread）的性能参数：\n\n最大(MAX)—— 每周期 16 个任务（让步间隔 20ms，延迟任务上限 2048）\n默认(DEFAULT)—— 每周期 8 个任务（让步间隔 50ms，延迟任务上限 1024）\n极低(MINIMAL)—— 每周期 4 个任务（让步间隔 100ms，延迟任务上限 512）\n极简(POTATO)—— 每周期 2 个任务（让步间隔 150ms，延迟任务上限 128）\n\n较低的配置模式有助于降低 CPU 负载，\n从而防止在性能较弱的系统上出现帧率骤降（掉帧）的问题；\n但作为代价，区块重构（Chunk Rebuilds）所需的时间将会显著增加。",
+    "litematica.config.generic.comment.placementManagerProfile": "请按如下方式调整“放置管理器线程”（Placement Manager Thread）的性能参数：\n\n最大(MAX)—— 每周期 32 个任务（让步间隔 20ms，延迟任务上限 2048）\n默认(DEFAULT)—— 每周期 16 个任务（让步间隔 50ms，延迟任务上限 1024）\n极低(MINIMAL)—— 每周期 8 个任务（让步间隔 100ms，延迟任务上限 512）\n极简(POTATO)—— 每周期 4 个任务（让步间隔 150ms，延迟任务上限 128）\n\n较低的配置模式有助于降低 CPU 负载，\n从而防止在性能较弱的系统上出现帧率骤降（掉帧）的问题；\n但作为代价，区块重构（Chunk Rebuilds）所需的时间将会显著增加。",
     "litematica.config.generic.comment.placementManagerThreadCount": "设置“放置管理器线程”（Placement ManagerThreads）的最大数量。\n注意：默认值（§e0§r）能够安全地根据您系统的 CPU 核心数进行自动适配；\n若想查看实际的线程使用情况，您可以在 F3 调试界面中启用 §b调试 - HUD放置管理器线程数(debugHudPMThreads)§r 配置项。\n§6注意：即便从技术上讲您可以分配 16 个线程，但这并不意味着您真的应该这样做。\n§e通常而言，对于绝大多数用户来说，分配 2 或 4 个线程就已经足够了。",
     "litematica.config.generic.comment.placementReplaceBehavior": "原理图虚拟世界中的方块替换规则：\n允许叠加放置时不总是被后续空气覆盖\n特殊方块（如光源）需使用\"全部替换\"模式才能放置",
     "litematica.config.generic.comment.placementRestriction": "启用此选项后，使用键（右键）仅在满足以下条件时生效：\n手持物品必须与目标位置的预设方块匹配\n目标位置在结构文件中必须为空缺方块位",

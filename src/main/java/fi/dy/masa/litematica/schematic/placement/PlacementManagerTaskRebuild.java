@@ -91,7 +91,7 @@ public class PlacementManagerTaskRebuild extends PlacementManagerTask
 
 				protoChunk.clear();
 
-				PlacementManagerDaemonHandler.INSTANCE.removeUnloadTasksFor(this.cx(), this.cz());
+//				PlacementManagerDaemonHandler.INSTANCE.removeUnloadTasksFor(this.cx(), this.cz());
 				PlacementManagerDaemonHandler.INSTANCE.removeRebuildTasksFor(this.cx(), this.cz());
 
 				worldSchematic.scheduleChunkRenders(this.cx(), this.cz());

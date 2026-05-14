@@ -91,9 +91,12 @@ public class ChunkManagerSchematic extends ChunkSource
 
     public ImmutableList<Long> getLoadedKeySet()
     {
-        ImmutableList.Builder<Long> builder = ImmutableList.builder();
-        this.loadedChunks.keySet().forEach(builder::add);
-        return builder.build();
+        return ImmutableList.copyOf(this.loadedChunks.keySet());
+    }
+
+    public ImmutableList<ChunkSchematic> getLoadedValueSet()
+    {
+        return ImmutableList.copyOf(this.loadedChunks.values());
     }
 
     public ImmutableList<ChunkPos> getLoadedNonEmptyChunkPosSet()
