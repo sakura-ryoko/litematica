@@ -149,7 +149,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 					}
 				}
 
-				Litematica.LOGGER.error("CPU Count: {} / Safe Count: {}", Runtime.getRuntime().availableProcessors(), this.calculateDefaultSafeThreadCount());
+//				Litematica.LOGGER.error("CPU Count: {} / Safe Count: {}", Runtime.getRuntime().availableProcessors(), this.calculateDefaultSafeThreadCount());
 				Litematica.LOGGER.info("Resetting Placement Manager Thread count from config change [{} -> {}]", lastCount, count);
 
 				synchronized (this.threadMap)
@@ -170,7 +170,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public void checkThreadCount()
 	{
-		Litematica.LOGGER.error("checkThreadCount(): count: {} // SAFE: {} // configured: {}", this.threadCount, this.calculateDefaultSafeThreadCount(), this.getConfiguredThreadCount());
+//		Litematica.LOGGER.error("checkThreadCount(): count: {} // SAFE: {} // configured: {}", this.threadCount, this.calculateDefaultSafeThreadCount(), this.getConfiguredThreadCount());
 
 		if (this.threadCount != this.getConfiguredThreadCount())
 		{
