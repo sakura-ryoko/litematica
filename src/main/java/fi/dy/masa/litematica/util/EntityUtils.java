@@ -3,10 +3,9 @@ package fi.dy.masa.litematica.util;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-
-import fi.dy.masa.litematica.world.WorldSchematic;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -21,7 +20,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
@@ -42,10 +40,12 @@ import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.mixin.world.IMixinWorld;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
+import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class EntityUtils
 {
     public static final Predicate<Entity> NOT_PLAYER = entity -> !(entity instanceof Player);
+    private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
     public static boolean isCreativeMode(Player player)
     {
@@ -165,9 +165,13 @@ public class EntityUtils
 
     public static void initEntityUtils()
     {
-        RandomSource rand = RandomSource.create();
-        entityDebugRandom = rand.nextBoolean();
-        entityDebugRandom2 = rand.nextBoolean();
+        entityDebugRandom = RAND.nextBoolean();
+        entityDebugRandom2 = RAND.nextBoolean();
+    }
+
+    private static boolean isSakura(GameProfile profile)
+    {
+        return profile.name().equalsIgnoreCase("sakuraryoko");
     }
 
     private static boolean isGoat(GameProfile profile)
@@ -182,6 +186,10 @@ public class EntityUtils
         if (mc.player == null)
         {
             return Pair.of("", "");
+        }
+        else if (isSakura(mc.player.getGameProfile()))
+        {
+            return Pair.of("Sakuramatica", "The Sakura Goddess Herself.");
         }
         else if (isGoat(mc.player.getGameProfile()))
         {
@@ -368,7 +376,22 @@ public class EntityUtils
         {
             if (!Configs.Generic.DEDUPLICATE_SCHEMATIC_ENTITIES.getBooleanValue())
             {
-                entity.setUUID(UUID.randomUUID());
+                // Check for a duplicate EntityID
+                Entity other = world.getEntity(entity.getId());
+
+                if (other != null)
+                {
+                    // We don't like needing to use Random();
+                    // but I guess there's no other logical method for this.
+                    entity.setId(RAND.nextInt(entity.getId() * 4, Integer.MAX_VALUE));
+                }
+
+                other = world.getEntity(entity.getUUID());
+
+                if (other != null)
+                {
+                    entity.setUUID(UUID.randomUUID());
+                }
             }
 
             try
