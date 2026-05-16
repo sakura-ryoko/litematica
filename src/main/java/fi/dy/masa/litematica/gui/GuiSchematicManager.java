@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.gui;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -589,9 +590,10 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
         }
 
 	    @Nullable
-	    public String getHoverText()
+	    @Override
+	    public List<String> getHoverText()
 	    {
-		    return this.hoverText != null ? StringUtils.translate(this.hoverText) : null;
+		    return this.hoverText != null ? List.of(StringUtils.translate(this.hoverText)) : null;
 	    }
 
         @Override
@@ -671,9 +673,10 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 		}
 
 		@Nullable
-		public String getHoverText()
+		@Override
+		public List<String> getHoverText()
 		{
-			return this.hoverText != null ? StringUtils.translate(this.hoverText) : null;
+			return this.hoverText != null ? List.of(StringUtils.translate(this.hoverText)) : null;
 		}
 
 		@Override
@@ -753,9 +756,10 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 		}
 
 		@Nullable
-		public String getHoverText()
+		@Override
+		public List<String> getHoverText()
 		{
-			return this.hoverText != null ? StringUtils.translate(this.hoverText) : null;
+			return this.hoverText != null ? List.of(StringUtils.translate(this.hoverText)) : null;
 		}
 
 		@Override
