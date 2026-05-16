@@ -484,10 +484,10 @@ public class Configs implements IConfigHandler
         }
 
         checkBaseLanguage();
-        DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
         if (Minecraft.getInstance().level != null)
         {
             PlacementManagerDaemonHandler.INSTANCE.checkThreadCount();
+            DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
             DataManager.getInstance().setToolItemComponents(Generic.TOOL_ITEM_COMPONENTS.getStringValue(), Minecraft.getInstance().level.registryAccess());
         }
         InventoryUtils.setPickBlockableSlots(Generic.PICK_BLOCKABLE_SLOTS.getStringValue());
