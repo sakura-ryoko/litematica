@@ -135,7 +135,7 @@
     "litematica.config.generic.comment.recipeBookSinglePlayerShadowUnlock": "싱글 플레이어에서 서버 조합법 책을 잠금 해제하여\n원재료 목록 출력 결과를 개선합니다. 이 옵션을 적용하려면\n클라이언트를 재시작하거나 다시 로그인해야 합니다.",
     "litematica.config.generic.comment.renderMaterialListInGuis": "GUI 내부에서 재료 목록을 렌더링해야\n하는지 여부입니다.",
     "litematica.config.generic.comment.renderThreadNoTimeout": "렌더링 작업자 스레드에서 시간 초과를 제거합니다.\n대형 스키매틱을 이동하거나 다룰 때 렌더링이 매우\n끊기는 경우 이 기능을 비활성화해 보세요.\n그러나 일부 경우 스키매틱 렌더링이 훨씬 더 느려질 수 있습니다.",
-    "litematica.config.generic.comment.reverseOperationModeDirection": "활성화하면, 작동 모드 변경 수정자 키를 누른 상태에서 작동 모드를\n순환할 때 사용하는 스크롤 방향을 반전합니다.",
+    "litematica.config.generic.comment.reverseOperationModeDirection": "활성화하면, 작동 모드 변경 홀드키를 누른 상태에서 작동 모드를\n순환할 때 사용하는 스크롤 방향을 반전합니다.",
     "litematica.config.generic.comment.schematicVcsDeleteMode": "스키매틱 VCS 모드에서 다음 버전을 붙여넣을 때\n이전 스키매틱 버전을 제거하는 데 사용할 삭제 모드",
     "litematica.config.generic.comment.selectionCornersMode": "사용할 영역 선택 모서리 모드 (모서리 또는 확장)",
     "litematica.config.generic.comment.serverNbtRequestRate": "서버 엔티티 데이터 동기화에 대한 요청 한계 속도입니다.",
