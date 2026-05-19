@@ -14,7 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
@@ -417,10 +417,11 @@ public class SchematicaSchematic
     private void readEntitiesFromWorld(Level world, BlockPos posStart, BlockPos size)
     {
         this.entities.clear();
-        List<Entity> entities = world.getEntities((Entity) null, PositionUtils.createEnclosingAABB(posStart, posStart.offset(size)), (e) -> (e instanceof Player) == false);
+        List<Entity> entities = world.getEntities((Entity) null, PositionUtils.createEnclosingAABB(posStart, posStart.offset(size)), EntityUtils.NOT_PLAYER);
 
         for (Entity entity : entities)
         {
+            if (entity instanceof EnderDragonPart) { continue; }
             NbtView view = NbtView.getWriter(world.registryAccess());
             entity.saveWithoutId(view.getWriter());
             CompoundTag nbt = view.readNbt();
