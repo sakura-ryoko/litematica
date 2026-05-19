@@ -69,10 +69,15 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
             {
                 for (int cz = minChunkZ; cz <= maxChunkZ; cz++)
                 {
-                    final long cp = new ChunkPos(cx, cz).toLong();
+                    final long cp = ChunkPos.asLong(cx, cz);
+                    CopyOnWriteArrayList<UUID> list = this.chunkMap.computeIfAbsent(cp, k -> new CopyOnWriteArrayList<>());
 
-                    this.chunkMap.computeIfAbsent(cp, k -> new CopyOnWriteArrayList<>())
-                                 .addIfAbsent(entity.getUUID());
+                    list.addIfAbsent(entity.getUUID());
+
+                    if (list.size() == 1)
+                    {
+                        this.chunkMap.put(cp, list);
+                    }
                 }
             }
         }
@@ -82,7 +87,11 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
             CopyOnWriteArrayList<UUID> list = this.chunkMap.computeIfAbsent(cp, k -> new CopyOnWriteArrayList<>());
 
             list.addIfAbsent(entity.getUUID());
-//            this.chunkMap.put(cp, list);
+
+            if (list.size() == 1)
+            {
+                this.chunkMap.put(cp, list);
+            }
         }
 
         world.onTrackingStart((Entity) entity);

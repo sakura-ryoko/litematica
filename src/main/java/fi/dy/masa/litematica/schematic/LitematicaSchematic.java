@@ -75,9 +75,7 @@ import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.*;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
-import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
-import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class LitematicaSchematic
 {
