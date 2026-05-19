@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.schematic;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +27,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.level.ChunkPos;
@@ -703,6 +703,7 @@ public class LitematicaSchematic
 
             for (Entity entity : entities)
             {
+                if (entity instanceof EnderDragonPart) { continue; }
                 NbtView view = NbtView.getWriter(world.registryAccess());
 
                 entity.saveWithoutId(view.getWriter());
@@ -748,6 +749,7 @@ public class LitematicaSchematic
 
             for (Entity entity : entities)
             {
+                if (entity instanceof EnderDragonPart) { continue; }
                 UUID uuid = entity.getUUID();
                 /*
                 if (entity.posX >= bb.minX && entity.posX < bb.maxX &&

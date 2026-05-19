@@ -1289,7 +1289,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     if ((this.renderedEntities.containsKey(entityTmp.position()) && this.renderedEntities.get(entityTmp.position()).equals(entityTmp.getUUID())) ||
                         !layerRange.isPositionWithinRange(MathUtils.floor(entityTmp.getX()), MathUtils.floor(entityTmp.getY()), MathUtils.floor(entityTmp.getZ())))
                     {
-//                        LOGGER.warn("[WorldRenderer] prepareEntities/iterate: Chunk: {}, Skipping POS / UUID [{}]", chunkPos.toString(), entityTmp.position(), entityTmp.getStringUUID());
+//                        LOGGER.warn("[WorldRenderer] prepareEntities/iterate: Chunk: {}, Skipping POS {} / UUID [{}]", chunkPos.toString(), entityTmp.position(), entityTmp.getStringUUID());
                         continue;
                     }
 
@@ -1320,7 +1320,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                             }
                             catch (Exception ex)
                             {
-                                Litematica.LOGGER.error("Exception rendering Mannequin [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
+                                LOGGER.error("Exception rendering Mannequin [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
                             }
                         }
                         else if (avatar.getType().equals(EntityType.PLAYER))
@@ -1344,7 +1344,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                             }
                             catch (Exception ex)
                             {
-                                Litematica.LOGGER.error("Exception rendering Player [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
+                                LOGGER.error("Exception rendering Player [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
                             }
                         }
 

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -52,13 +53,37 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
             this.remove(entity.getUUID(), world);
         }
 
-        CopyOnWriteArrayList<UUID> list = this.chunkMap.getOrDefault(pos.toLong(), new CopyOnWriteArrayList<>());
-
-        list.add(entity.getUUID());
-
-        this.chunkMap.put(pos.toLong(), list);
         this.uuidMap.put(entity.getUUID(), entity.getId());
         this.entityMap.put(entity.getId(), entity);
+
+        // Special case handling for entities potentially larger than a chunk (ie; the Ender Dragon)
+        if (entity instanceof EnderDragon)
+        {
+            AABB bb = entity.getBoundingBox();
+            int minChunkX = ((int) Math.floor(bb.minX)) >> 4;
+            int maxChunkX = ((int) Math.floor(bb.maxX)) >> 4;
+            int minChunkZ = ((int) Math.floor(bb.minZ)) >> 4;
+            int maxChunkZ = ((int) Math.floor(bb.maxZ)) >> 4;
+
+            for (int cx = minChunkX; cx <= maxChunkX; cx++)
+            {
+                for (int cz = minChunkZ; cz <= maxChunkZ; cz++)
+                {
+                    final long cp = new ChunkPos(cx, cz).toLong();
+
+                    this.chunkMap.computeIfAbsent(cp, k -> new CopyOnWriteArrayList<>())
+                                 .addIfAbsent(entity.getUUID());
+                }
+            }
+        }
+        else
+        {
+            final long cp = pos.toLong();
+            CopyOnWriteArrayList<UUID> list = this.chunkMap.computeIfAbsent(cp, k -> new CopyOnWriteArrayList<>());
+
+            list.addIfAbsent(entity.getUUID());
+//            this.chunkMap.put(cp, list);
+        }
 
         world.onTrackingStart((Entity) entity);
     }
