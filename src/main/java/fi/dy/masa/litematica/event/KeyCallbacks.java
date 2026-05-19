@@ -42,7 +42,7 @@ public class KeyCallbacks
         ValueChangeCallback valueChangeCallback = new ValueChangeCallback();
         RenderChangeCallback renderChangeCallback = new RenderChangeCallback();
 
-        Configs.Generic.PLACEMENT_MANAGER_PROFILE.setValueChangeCallback(PlacementManagerDaemonHandler.INSTANCE::resetProfile);
+//        Configs.Generic.PLACEMENT_MANAGER_PROFILE.setValueChangeCallback(PlacementManagerDaemonHandler.INSTANCE::resetProfile);
         Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT.setValueChangeCallback(PlacementManagerDaemonHandler.INSTANCE::resetThreadCount);
         Configs.Generic.PICK_BLOCKABLE_SLOTS.setValueChangeCallback(valueChangeCallback);
         Configs.Generic.ENTITY_DATA_SYNC.setValueChangeCallback((config) -> EntitiesDataStorage.getInstance().onEntityDataSyncToggled(config));

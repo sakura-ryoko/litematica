@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.malilib.config.options.ConfigInteger;
-import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.interfaces.IThreadDaemonHandler;
 import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.malilib.util.thread.ThreadExecutorPair;
@@ -18,17 +17,16 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
-import fi.dy.masa.litematica.util.PlacementManagerThreadProfile;
 
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
-	public static final int MAX_PLATFORM_THREADS = MathUtils.max(Runtime.getRuntime().availableProcessors() / 2, 1);    // The hard limit of usable Threads
+	public static final int MAX_PLATFORM_THREADS = MathUtils.max(Runtime.getRuntime().availableProcessors() / 4, 1);    // The hard limit of usable Threads
 	private static final float TASK_INTERVAL = 1.50F;           // The amount of time in between task check updates
-	private static final int MAX_DEFERRED_CAP = 2048;           // The approx amount of tasks that can be queued before they are deferred for each task interval
+	private static final int MAX_DEFERRED_CAP = 850;            // The approx amount of tasks that can be queued before they are deferred for each task interval
 	private boolean useVirtual = false;
 	private final String namePrefix = Reference.MOD_NAME+" Placement Manager";
-	private int threadCount = 1;
+	private int threadCount;
 	private final ConcurrentHashMap<String, ThreadExecutorPair<PlacementManagerTask>> threadMap;
 //	private final LinkedBlockingQueue<PlacementManagerTask> queueUnload = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> queueRebuild = new LinkedBlockingQueue<>();
@@ -47,8 +45,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	private PlacementManagerDaemonHandler()
 	{
-		this.threadCount = MAX_PLATFORM_THREADS;
-		this.threadMap = new ConcurrentHashMap<>(this.getClampedThreadCount(this.threadCount), 0.9f, 2);
+		this.threadCount = this.getClampedThreadCount(MAX_PLATFORM_THREADS);
+		this.threadMap = new ConcurrentHashMap<>(this.threadCount, 0.9f, 1);
 //		this.buildThreadMap();
 		this.lastTick = System.currentTimeMillis();
 	}
@@ -83,28 +81,29 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return this.namePrefix;
 	}
 
-	public PlacementManagerThreadProfile getProfile()
-	{
-		return (PlacementManagerThreadProfile) Configs.Generic.PLACEMENT_MANAGER_PROFILE.getOptionListValue();
-	}
-
-	public void resetProfile(ConfigOptionList config)
-	{
-		PlacementManagerThreadProfile profile = (PlacementManagerThreadProfile) config.getOptionListValue();
-		PlacementManagerThreadProfile lastProfile = (PlacementManagerThreadProfile) config.getLastOptionListValue();
-
-		if (!lastProfile.equals(profile) && Minecraft.getInstance().level != null)
-		{
-			Litematica.LOGGER.info("Resetting Placement Manager Thread profile from config change [{} -> {}]", lastProfile.getDisplayName(), profile.getDisplayName());
-			this.stop();
-//			this.reset();
-			this.start();
-		}
-	}
+//	public PlacementManagerThreadProfile getProfile()
+//	{
+//		return (PlacementManagerThreadProfile) Configs.Generic.PLACEMENT_MANAGER_PROFILE.getOptionListValue();
+//	}
+//
+//	public void resetProfile(ConfigOptionList config)
+//	{
+//		PlacementManagerThreadProfile profile = (PlacementManagerThreadProfile) config.getOptionListValue();
+//		PlacementManagerThreadProfile lastProfile = (PlacementManagerThreadProfile) config.getLastOptionListValue();
+//
+//		if (!lastProfile.equals(profile) && Minecraft.getInstance().level != null)
+//		{
+//			Litematica.LOGGER.info("Resetting Placement Manager Thread profile from config change [{} -> {}]", lastProfile.getDisplayName(), profile.getDisplayName());
+//			this.stop();
+////			this.reset();
+//			this.start();
+//		}
+//	}
 
 	private int getDeferredCap()
 	{
-		return MathUtils.clamp(this.getProfile().deferredCap(), 64, MAX_DEFERRED_CAP);
+//		return MathUtils.clamp(this.getProfile().deferredCap(), 64, MAX_DEFERRED_CAP);
+		return MAX_DEFERRED_CAP;
 	}
 
 	private int getClampedThreadCount(final int count)
@@ -143,10 +142,10 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 					count = 1;
 
 					// and you probably shouldn't be using the MAX profile, either.
-					if (this.getProfile() == PlacementManagerThreadProfile.MAX)
-					{
-						Configs.Generic.PLACEMENT_MANAGER_PROFILE.resetToDefault();
-					}
+//					if (this.getProfile() == PlacementManagerThreadProfile.MAX)
+//					{
+//						Configs.Generic.PLACEMENT_MANAGER_PROFILE.resetToDefault();
+//					}
 				}
 
 //				Litematica.LOGGER.error("CPU Count: {} / Safe Count: {}", Runtime.getRuntime().availableProcessors(), this.calculateDefaultSafeThreadCount());
@@ -181,7 +180,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public void start()
 	{
-		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads [Profile: {}]", this.threadMap.size(), this.getProfile().getDisplayName());
+		// , this.getProfile().getDisplayName()
+		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads", this.threadMap.size());
 		Set<String> keys = this.threadMap.keySet();
 
 		for (String key : keys)

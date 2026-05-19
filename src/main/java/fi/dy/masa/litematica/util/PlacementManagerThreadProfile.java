@@ -5,12 +5,13 @@ import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 
+@Deprecated(forRemoval = true)
 public enum PlacementManagerThreadProfile implements IConfigOptionListEntry
 {
-    MAX         ("max",     "litematica.label.pm_thread_profile.max",     32,20L,  2048),
-    DEFAULT     ("default", "litematica.label.pm_thread_profile.default", 16,50L,  1024),
-    MINIMAL     ("min",     "litematica.label.pm_thread_profile.min",     8, 100L, 512),
-    POTATO      ("potato",  "litematica.label.pm_thread_profile.potato",  4, 150L, 256),
+    MAX("max", "litematica.label.pm_thread_profile.max", 32, 20L, 2048),
+    DEFAULT("default", "litematica.label.pm_thread_profile.default", 16, 50L, 1024),
+    MINIMAL("min", "litematica.label.pm_thread_profile.min", 8, 100L, 512),
+    POTATO("potato", "litematica.label.pm_thread_profile.potato", 4, 150L, 256),
     ;
 
     private static final ImmutableList<PlacementManagerThreadProfile> VALUES = ImmutableList.copyOf(values());
