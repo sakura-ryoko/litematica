@@ -430,6 +430,7 @@ public class Configs implements IConfigHandler
         DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
         if (MinecraftClient.getInstance().world != null)
         {
+            DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
             DataManager.getInstance().setToolItemComponents(Generic.TOOL_ITEM_COMPONENTS.getStringValue(), MinecraftClient.getInstance().world.getRegistryManager());
         }
         InventoryUtils.setPickBlockableSlots(Generic.PICK_BLOCKABLE_SLOTS.getStringValue());

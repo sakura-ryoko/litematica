@@ -84,13 +84,20 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
                     maxY = Math.max(bb.maxY, maxY);
                 }
 
-                if (EntitiesDataStorage.getInstance().hasServuxServer())
+                if (this.areSurroundingChunksLoaded(pos, this.clientWorld, 0))
                 {
-                    EntitiesDataStorage.getInstance().requestServuxBulkEntityData(pos, minY, maxY);
+                    if (EntitiesDataStorage.getInstance().hasServuxServer())
+                    {
+                        EntitiesDataStorage.getInstance().requestServuxBulkEntityData(pos, minY, maxY);
+                    }
+                    else if (EntitiesDataStorage.getInstance().getIfReceivedBackupPackets())
+                    {
+                        EntitiesDataStorage.getInstance().requestBackupBulkEntityData(pos, minY, maxY);
+                    }
                 }
-                else if (EntitiesDataStorage.getInstance().getIfReceivedBackupPackets())
+                else
                 {
-                    EntitiesDataStorage.getInstance().requestBackupBulkEntityData(pos, minY, maxY);
+                    return false;
                 }
             }
 
