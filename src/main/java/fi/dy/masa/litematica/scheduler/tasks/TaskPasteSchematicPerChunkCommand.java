@@ -4,26 +4,26 @@ import java.util.*;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.google.common.collect.Queues;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,12 +34,11 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import com.google.common.collect.Queues;
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.position.PositionUtils;
@@ -53,7 +52,6 @@ import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PasteNbtBehavior;
 import fi.dy.masa.litematica.util.ReplaceBehavior;
 import fi.dy.masa.litematica.world.ChunkSchematic;
-import fi.dy.masa.litematica.world.ChunkSchematicState;
 
 public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChunkBase
 {
@@ -313,7 +311,6 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected boolean shouldSetBlock(BlockState stateSchematic, BlockState stateClient)
     {
         boolean matched = stateClient == stateSchematic;
-//        Litematica.LOGGER.error("shouldSetBlock(): matched: [{}]/CBOnly [{}], client: [{}], schem: [{}]", matched, this.changedBlockOnly, stateClient.toString(), stateSchematic.toString());
 
         if (stateSchematic.hasBlockEntity() && Configs.Generic.PASTE_IGNORE_BE_ENTIRELY.getBooleanValue())
         {
@@ -332,6 +329,21 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
     protected void summonEntity(Entity entity)
     {
+        // In case the entity belongs to a neighboring chunk.
+        if (this.currentBox != null)
+        {
+            int x = entity.getBlockX();
+            int y = entity.getBlockY();
+            int z = entity.getBlockZ();
+
+            if (x < this.currentBox.minX() || x > this.currentBox.maxX() ||
+                y < this.currentBox.minY() || y > this.currentBox.maxY() ||
+                z < this.currentBox.minZ() || z > this.currentBox.maxZ())
+            {
+                return;
+            }
+        }
+
         String id = EntityUtils.getEntityId(entity);
 
         if (id != null)
@@ -341,45 +353,119 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
             if (entity instanceof ItemFrame itemFrame)
             {
-                command = this.getSummonCommandForItemFrame(itemFrame, command);
+                this.handleSummonItemFrame(itemFrame, command, entity.getX(), entity.getY(), entity.getZ());
             }
-
-            this.queuedCommands.offer(command);
+            else
+            {
+                this.queuedCommands.offer(command);
+            }
         }
     }
 
-    protected String getSummonCommandForItemFrame(ItemFrame itemFrame, String originalCommand)
+    protected void handleSummonItemFrame(ItemFrame itemFrame, String baseSummonCmd, double x, double y, double z)
     {
         ItemStack stack = itemFrame.getItem();
+        int facingId = itemFrame.getDirection().get3DDataValue();
+        String facingTag = String.format("{Facing:%db}", facingId);
 
-        if (stack.isEmpty() == false)
+        if (stack.isEmpty())
         {
-            Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-            int facingId = itemFrame.getDirection().get3DDataValue();
-            String nbtStr = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b}}", facingId, itemId);
-            TypedEntityData<EntityType<?>> entityData = stack.get(DataComponents.ENTITY_DATA);
-
-            if (entityData != null)
-            {
-				CompoundTag entityComp = entityData.copyTagWithoutId();
-
-				if (entityComp.isEmpty())
-				{
-					String itemNbt = entityComp.toString();
-					String tmp = String.format(" {Facing:%db,Item:{id:\"%s\",Count:1b,tag:%s}}",
-											   facingId, itemId, itemNbt);
-
-					if (originalCommand.length() + tmp.length() < 255)
-					{
-						nbtStr = tmp;
-					}
-				}
-            }
-
-            return originalCommand + nbtStr;
+            this.queuedCommands.offer(baseSummonCmd + " " + facingTag);
+            return;
         }
 
-        return originalCommand;
+        CompoundTag itemNbt = InventoryUtils.toNbtOrEmpty(stack, this.schematicWorld.registryAccess());
+        String fullNbtStr = String.format("{Facing:%db,Item:%s}", facingId, itemNbt.toString());
+        String fullCmd = baseSummonCmd + " " + fullNbtStr;
+
+        if (fullCmd.length() <= this.maxCommandLength)
+        {
+            // Almost never works; but we shall try, yes?
+            this.queuedCommands.offer(fullCmd);
+        }
+        else
+        {
+            String itemId = itemNbt.getStringOr("id", "");
+            CompoundTag visualItemNbt = new CompoundTag();
+
+            if (!itemId.isEmpty())
+            {
+                visualItemNbt.putString("id", itemId);
+            }
+
+            String visualCmd = baseSummonCmd + " " + (itemId.isEmpty() ? facingTag : String.format("{Facing:%db,Item:%s}", facingId, visualItemNbt.toString()));
+
+            if (!itemId.isEmpty() && itemNbt.contains("components"))
+            {
+                CompoundTag components = itemNbt.getCompoundOrEmpty("components");
+                CompoundTag visualComponents = new CompoundTag();
+                boolean hasComponents = false;
+
+                // Add Custom Name; only if it fits
+                if (components.contains("minecraft:custom_name"))
+                {
+                    visualComponents.put("minecraft:custom_name", components.get("minecraft:custom_name"));
+                    visualItemNbt.put("components", visualComponents);
+
+                    String testCmd = baseSummonCmd + " " + String.format("{Facing:%db,Item:%s}", facingId, visualItemNbt.toString());
+
+                    if (testCmd.length() <= this.maxCommandLength)
+                    {
+                        visualCmd = testCmd;
+                        hasComponents = true;
+                    }
+                    else
+                    {
+                        // Too long; --> Remove
+                        visualComponents.remove("minecraft:custom_name");
+                    }
+                }
+
+                // Add Dyed Color; only if it fits
+                if (components.contains("minecraft:dyed_color"))
+                {
+                    visualComponents.put("minecraft:dyed_color", components.get("minecraft:dyed_color"));
+                    visualItemNbt.put("components", visualComponents);
+
+                    String testCmd = baseSummonCmd + " " + String.format("{Facing:%db,Item:%s}", facingId, visualItemNbt.toString());
+
+                    if (testCmd.length() <= this.maxCommandLength)
+                    {
+                        visualCmd = testCmd;
+                        hasComponents = true;
+                    }
+                    else
+                    {
+                        // Too long; --> Remove
+                        visualComponents.remove("minecraft:dyed_color");
+                    }
+                }
+
+                if (!hasComponents)
+                {
+                    // Too long; --> Remove
+                    visualItemNbt.remove("components");
+                }
+            }
+
+            String visualNbtStr = itemId.isEmpty() ? facingTag : String.format("{Facing:%db,Item:%s}", facingId, visualItemNbt.toString());
+            String dataModifyCmd = String.format(Locale.ROOT,
+                                                 "data modify entity @e[type=item_frame,x=%f,y=%f,z=%f,distance=..0.1,limit=1] Item set value %s",
+                                                 x, y, z, itemNbt);
+
+            if (!itemId.isEmpty() && dataModifyCmd.length() <= this.maxCommandLength)
+            {
+                this.queuedCommands.offer(visualCmd);
+                this.queuedCommands.offer(this.delayCommand);
+                this.queuedCommands.offer(dataModifyCmd);
+            }
+            else
+            {
+                // Failure; we need to use no NBT.
+                Litematica.LOGGER.error("handleSummonItemFrame: Split command failed. NBT too large for command; using a fallback (visual only) item!");
+                this.queuedCommands.offer(visualCmd);
+            }
+        }
     }
 
     protected void queueSetBlockCommand(int x, int y, int z, BlockState state)
@@ -506,6 +592,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                                            cmdName,
                                            placementPos.getX(), placementPos.getY(), placementPos.getZ(),
                                            this.useStrict);
+
             commandHandler.accept(command);
         }
     }
@@ -521,7 +608,6 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected void specialPasteSignBlock(BlockPos pos, BlockState state, Level schematicWorld, Consumer<String> commandHandler)
     {
         BlockEntity be = schematicWorld.getBlockEntity(pos);
-        String cmdName = this.setBlockCommand;
         String blockString = BlockStateParser.serialize(state);
 
         if (be instanceof SignBlockEntity signBe)
@@ -531,14 +617,44 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             if (tag != null)
             {
                 // Remove redundant tags to save on the command string length
+                if (signBe.getFrontText().hasMessage(this.mc.player) == false)
+                {
+                    tag.remove("front_text");
+                }
+                else
+                {
+                    CompoundTag frontText = tag.getCompoundOrEmpty("front_text");
+
+                    if (signBe.getFrontText().hasGlowingText() == false)
+                    {
+                        frontText.remove("has_glowing_text");
+                    }
+                    if (signBe.getFrontText().getColor() == DyeColor.BLACK)
+                    {
+                        frontText.remove("color");
+                    }
+
+                    tag.put("front_text", frontText);
+                }
+
                 if (signBe.getBackText().hasMessage(this.mc.player) == false)
                 {
                     tag.remove("back_text");
                 }
-
-                if (signBe.getFrontText().hasMessage(this.mc.player) == false)
+                else
                 {
-                    tag.remove("front_text");
+                    CompoundTag backText = tag.getCompoundOrEmpty("back_text");
+
+                    if (signBe.getBackText().hasGlowingText() == false)
+                    {
+                        backText.remove("has_glowing_text");
+                    }
+                    if (signBe.getBackText().getColor() == DyeColor.BLACK)
+                    {
+                        backText.remove("color");
+                    }
+
+                    tag.put("back_text", backText);
                 }
 
                 if (signBe.isWaxed() == false)
@@ -549,7 +665,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 tag.remove("components");
 
                 String cmd = String.format("%s %d %d %d %s%s%s",
-                                           cmdName,
+                                           this.setBlockCommand,
                                            pos.getX(), pos.getY(), pos.getZ(),
                                            blockString, tag.toString(),
                                            this.useStrict);
@@ -560,12 +676,70 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     ++this.sentSetblockCommands;
                     return;
                 }
+                else
+                {
+                    CompoundTag baseTag = new CompoundTag();
+
+                    if (tag.contains("is_waxed"))
+                    {
+                        baseTag.put("is_waxed", tag.get("is_waxed"));
+                    }
+
+                    String baseCmd = String.format("%s %d %d %d %s%s%s",
+                                                   this.setBlockCommand, pos.getX(), pos.getY(), pos.getZ(),
+                                                   blockString, baseTag.toString(), this.useStrict);
+                    String frontCmd = null;
+
+                    if (tag.contains("front_text"))
+                    {
+                        frontCmd = String.format("data modify block %d %d %d front_text set value %s",
+                                                 pos.getX(), pos.getY(), pos.getZ(), tag.get("front_text").toString());
+                    }
+
+                    String backCmd = null;
+
+                    if (tag.contains("back_text"))
+                    {
+                        backCmd = String.format("data modify block %d %d %d back_text set value %s",
+                                                 pos.getX(), pos.getY(), pos.getZ(), tag.get("back_text").toString());
+                    }
+
+                    boolean safeLength = true;
+                    if (frontCmd != null && frontCmd.length() > this.maxCommandLength) { safeLength = false; }
+                    if (backCmd != null && backCmd.length() > this.maxCommandLength)   { safeLength = false; }
+
+                    if (safeLength)
+                    {
+                        commandHandler.accept(baseCmd);
+
+                        if (frontCmd != null)
+                        {
+                            commandHandler.accept(this.delayCommand);
+                            commandHandler.accept(frontCmd);
+                        }
+                        if (backCmd != null)
+                        {
+                            commandHandler.accept(this.delayCommand);
+                            commandHandler.accept(backCmd);
+                        }
+
+                        ++this.sentSetblockCommands;
+                        return;
+                    }
+                    else
+                    {
+                        // Fallback to setDataViaModify() if the NBT is too powerful for mortal command limits.
+                        this.setDataViaDataModify(pos, state, be, schematicWorld, this.mc.level, commandHandler);
+                        return;
+                    }
+                }
             }
         }
 
         String cmd = String.format("%s %d %d %d %s%s",
-                                   cmdName, pos.getX(), pos.getY(), pos.getZ(), blockString,
+                                   this.setBlockCommand, pos.getX(), pos.getY(), pos.getZ(), blockString,
                                    this.useStrict);
+
         commandHandler.accept(cmd);
         ++this.sentSetblockCommands;
     }
@@ -1049,10 +1223,6 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
         if (stack.isEmpty() == false)
         {
-            // FIXME
-            //be.setStackNbt(stack, registryManager);
-            //BlockItem.setBlockEntityData(stack, be.getType(), nbt);
-
             BlockUtils.setStackNbt(stack, be, registryManager);
             mc.player.getInventory().setItem(Inventory.SLOT_OFFHAND, stack);
             mc.gameMode.handleCreativeModeItemAdd(stack, 45);
