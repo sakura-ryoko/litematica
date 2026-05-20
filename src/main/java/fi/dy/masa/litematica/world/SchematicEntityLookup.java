@@ -70,6 +70,7 @@ public class SchematicEntityLookup<T extends EntityAccess> implements LevelEntit
                 for (int cz = minChunkZ; cz <= maxChunkZ; cz++)
                 {
                     final long cp = ChunkPos.pack(cx, cz);
+                    CopyOnWriteArrayList<UUID> list = this.chunkMap.computeIfAbsent(cp, k -> new CopyOnWriteArrayList<>());
 
                     list.addIfAbsent(entity.getUUID());
 
