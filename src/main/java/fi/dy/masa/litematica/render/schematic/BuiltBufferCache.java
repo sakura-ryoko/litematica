@@ -38,37 +38,31 @@ public class BuiltBufferCache implements AutoCloseable
 
     protected void storeBuiltBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull MeshData newBuffer)
     {
-        if (this.hasBuiltBufferByBlockLayer(layer))
+        MeshData remove = this.blockBuffers.put(layer, newBuffer);
+
+        if (remove != null)
         {
-            this.blockBuffers.get(layer).close();
-        }
-        synchronized (this.blockBuffers)
-        {
-            this.blockBuffers.put(layer, newBuffer);
+            remove.close();
         }
     }
 
     protected void storeBuiltBufferByLayer(RenderType layer, @Nonnull MeshData newBuffer)
     {
-        if (this.hasBuiltBufferByLayer(layer))
+        MeshData remove = this.layerBuffers.put(layer, newBuffer);
+
+        if (remove != null)
         {
-            this.layerBuffers.get(layer).close();
-        }
-        synchronized (this.layerBuffers)
-        {
-            this.layerBuffers.put(layer, newBuffer);
+            remove.close();
         }
     }
 
     protected void storeBuiltBufferByType(OverlayRenderType type, @Nonnull MeshData newBuffer)
     {
-        if (this.hasBuiltBufferByType(type))
+        MeshData remove = this.overlayBuffers.put(type, newBuffer);
+
+        if (remove != null)
         {
-            this.overlayBuffers.get(type).close();
-        }
-        synchronized (this.overlayBuffers)
-        {
-            this.overlayBuffers.put(type, newBuffer);
+            remove.close();
         }
     }
 
@@ -92,28 +86,35 @@ public class BuiltBufferCache implements AutoCloseable
 
     protected void closeAll()
     {
-        ArrayList<MeshData> builtBuffers;
+        for (MeshData mesh : this.blockBuffers.values())
+        {
+            try
+            {
+                mesh.close();
+            }
+            catch (Exception ignored) {}
+        }
+        this.blockBuffers.clear();
 
-        synchronized (this.blockBuffers)
+        for (MeshData mesh : this.layerBuffers.values())
         {
-            builtBuffers = new ArrayList<>(this.blockBuffers.values());
-            this.blockBuffers.clear();
+            try
+            {
+                mesh.close();
+            }
+            catch (Exception ignored) {}
         }
-        synchronized (this.layerBuffers)
+        this.layerBuffers.clear();
+
+        for (MeshData mesh : this.overlayBuffers.values())
         {
-            builtBuffers.addAll(this.layerBuffers.values());
-            this.layerBuffers.clear();
+            try
+            {
+                mesh.close();
+            }
+            catch (Exception ignored) {}
         }
-        synchronized (this.overlayBuffers)
-        {
-            builtBuffers.addAll(this.overlayBuffers.values());
-            this.overlayBuffers.clear();
-        }
-        try
-        {
-            builtBuffers.forEach(MeshData::close);
-        }
-        catch (Exception ignored) { }
+        this.overlayBuffers.clear();
     }
 
     @Override

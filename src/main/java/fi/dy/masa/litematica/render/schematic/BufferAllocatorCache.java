@@ -38,10 +38,7 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.blockCache.get(layer).close();
             }
 
-            synchronized (this.blockCache)
-            {
-                this.blockCache.put(layer, new ByteBufferBuilder(layer.bufferSize()));
-            }
+            this.blockCache.put(layer, new ByteBufferBuilder(layer.bufferSize()));
         }
         for (RenderType layer : RENDER_LAYERS)
         {
@@ -50,10 +47,7 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.layerCache.get(layer).close();
             }
 
-            synchronized (this.layerCache)
-            {
-                this.layerCache.put(layer, new ByteBufferBuilder(layer.bufferSize()));
-            }
+            this.layerCache.put(layer, new ByteBufferBuilder(layer.bufferSize()));
         }
         for (OverlayRenderType type : TYPES)
         {
@@ -62,10 +56,7 @@ public class BufferAllocatorCache implements AutoCloseable
                 this.overlayCache.get(type).close();
             }
 
-            synchronized (this.overlayCache)
-            {
-                this.overlayCache.put(type, new ByteBufferBuilder(type.getExpectedBufferSize()));
-            }
+            this.overlayCache.put(type, new ByteBufferBuilder(type.getExpectedBufferSize()));
         }
 
         this.clear = true;
@@ -89,40 +80,30 @@ public class BufferAllocatorCache implements AutoCloseable
     protected ByteBufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer)
     {
         this.clear = false;
-
-        synchronized (this.blockCache)
-        {
-            return this.blockCache.computeIfAbsent(layer, l -> new ByteBufferBuilder(l.bufferSize()));
-        }
+        return this.blockCache.computeIfAbsent(layer, l -> new ByteBufferBuilder(l.bufferSize()));
     }
 
     protected ByteBufferBuilder getBufferByLayer(RenderType layer)
     {
         this.clear = false;
-
-        synchronized (this.layerCache)
-        {
-            return this.layerCache.computeIfAbsent(layer, l -> new ByteBufferBuilder(l.bufferSize()));
-        }
+        return this.layerCache.computeIfAbsent(layer, l -> new ByteBufferBuilder(l.bufferSize()));
     }
 
     protected ByteBufferBuilder getBufferByOverlay(OverlayRenderType type)
     {
         this.clear = false;
-
-        synchronized (this.overlayCache)
-        {
-            return this.overlayCache.computeIfAbsent(type, t -> new ByteBufferBuilder(t.getExpectedBufferSize()));
-        }
+        return this.overlayCache.computeIfAbsent(type, t -> new ByteBufferBuilder(t.getExpectedBufferSize()));
     }
 
     protected void closeByBlockLayer(ChunkSectionLayer layer)
     {
         try
         {
-            synchronized (this.blockCache)
+            ByteBufferBuilder remove = this.blockCache.remove(layer);
+
+            if (remove != null)
             {
-                this.blockCache.remove(layer).close();
+                remove.close();
             }
         }
         catch (Exception ignored) { }
@@ -132,9 +113,11 @@ public class BufferAllocatorCache implements AutoCloseable
     {
         try
         {
-            synchronized (this.layerCache)
+            ByteBufferBuilder remove = this.layerCache.remove(layer);
+
+            if (remove != null)
             {
-                this.layerCache.remove(layer).close();
+                remove.close();
             }
         }
         catch (Exception ignored) { }
@@ -144,9 +127,11 @@ public class BufferAllocatorCache implements AutoCloseable
     {
         try
         {
-            synchronized (this.overlayCache)
+            ByteBufferBuilder remove = this.overlayCache.remove(type);
+
+            if (remove != null)
             {
-                this.overlayCache.remove(type).close();
+                remove.close();
             }
         }
         catch (Exception ignored) { }
@@ -182,25 +167,35 @@ public class BufferAllocatorCache implements AutoCloseable
 
     protected void closeAll()
     {
-        ArrayList<ByteBufferBuilder> allocators;
+        for (ByteBufferBuilder alloc : this.blockCache.values())
+        {
+            try
+            {
+                alloc.close();
+            }
+            catch (Exception ignored) { }
+        }
+        this.blockCache.clear();
 
-        synchronized (this.blockCache)
+        for (ByteBufferBuilder alloc : this.layerCache.values())
         {
-            allocators = new ArrayList<>(this.blockCache.values());
-            this.blockCache.clear();
+            try
+            {
+                alloc.close();
+            }
+            catch (Exception ignored) { }
         }
-        synchronized (this.layerCache)
-        {
-            allocators.addAll(this.layerCache.values());
-            this.layerCache.clear();
-        }
-        synchronized (this.overlayCache)
-        {
-            allocators.addAll(this.overlayCache.values());
-            this.overlayCache.clear();
-        }
+        this.layerCache.clear();
 
-        allocators.forEach(ByteBufferBuilder::close);
+        for (ByteBufferBuilder alloc : this.overlayCache.values())
+        {
+            try
+            {
+                alloc.close();
+            }
+            catch (Exception ignored) { }
+        }
+        this.overlayCache.clear();
         this.clear = true;
     }
 

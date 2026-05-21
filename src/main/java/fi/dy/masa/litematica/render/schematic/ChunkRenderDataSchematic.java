@@ -8,12 +8,20 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.*;
 import com.mojang.blaze3d.vertex.MeshData;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.jspecify.annotations.NonNull;
 
 public class ChunkRenderDataSchematic implements AutoCloseable
 {
-    public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic() {
+    public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic()
+    {
         @Override
         protected void setBlockLayerUsed(ChunkSectionLayer layer)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void setBlockLayerUnused(ChunkSectionLayer layer)
         {
             throw new UnsupportedOperationException();
         }
@@ -31,6 +39,12 @@ public class ChunkRenderDataSchematic implements AutoCloseable
         }
 
         @Override
+        protected void setBlockLayerUnused(RenderType layer)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         protected void setLayerStarted(RenderType layer)
         {
             throw new UnsupportedOperationException();
@@ -38,6 +52,60 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
         @Override
         protected void setOverlayTypeUsed(OverlayRenderType layer)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void setOverlayTypeUnused(OverlayRenderType type)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void addBlockEntity(BlockEntity be)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void addNoCullBlockEntity(BlockEntity be)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected BuiltBufferCache getBuiltBufferCache()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void closeBuiltBufferCache()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void setTransparentSortingDataForBlockLayer(ChunkSectionLayer layer, MeshData.@NonNull SortState transparentSortingData)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void setTransparentSortingDataForLayer(RenderType layer, MeshData.@NonNull SortState transparentSortingData)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void setTransparentSortingDataForOverlay(OverlayRenderType type, MeshData.@NonNull SortState transparentSortingData)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void setTimeBuilt(long time)
         {
             throw new UnsupportedOperationException();
         }
@@ -70,12 +138,12 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 	{
 		this.blockEntities = new ArrayList<>();
 		this.noCullBlockEntities = new ArrayList<>();
-		this.blockLayersUsed = new ObjectArraySet<>();
-		this.blockLayersStarted = new ObjectArraySet<>();
+		this.blockLayersUsed = EnumSet.noneOf(ChunkSectionLayer.class);
+		this.blockLayersStarted = EnumSet.noneOf(ChunkSectionLayer.class);
 		this.layersUsed = new ObjectArraySet<>();
 		this.layersStarted = new ObjectArraySet<>();
-		this.overlayLayersUsed = new ObjectArraySet<>();
-		this.overlayLayersStarted = new ObjectArraySet<>();
+		this.overlayLayersUsed = EnumSet.noneOf(OverlayRenderType.class);
+		this.overlayLayersStarted = EnumSet.noneOf(OverlayRenderType.class);
 		this.builtBufferCache = new BuiltBufferCache();
 		this.blockSortingData = new HashMap<>();
 		this.layerSortingData = new HashMap<>();

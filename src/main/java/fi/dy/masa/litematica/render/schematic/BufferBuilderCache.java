@@ -39,61 +39,50 @@ public class BufferBuilderCache implements AutoCloseable
 
     protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull BufferAllocatorCache allocators)
     {
-        synchronized (this.blockBufferBuilders)
-        {
-            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByBlockLayer(key), key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
-        }
+        return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByBlockLayer(key), key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
     }
 
     protected BufferBuilder getBufferByLayer(RenderType layer, @Nonnull BufferAllocatorCache allocators)
     {
-        synchronized (this.layerBufferBuilders)
-        {
-            return this.layerBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.mode(), key.format()));
-        }
+        return this.layerBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.mode(), key.format()));
     }
 
     protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
     {
-        synchronized (this.overlayBufferBuilders)
-        {
-            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
-        }
+        return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
     }
 
     protected void clearAll()
     {
-        ArrayList<BufferBuilder> buffers;
-
-        synchronized (this.blockBufferBuilders)
+        for (BufferBuilder buffer : this.blockBufferBuilders.values())
         {
-            buffers = new ArrayList<>(this.blockBufferBuilders.values());
-            this.blockBufferBuilders.clear();
-        }
-        synchronized (this.layerBufferBuilders)
-        {
-            buffers.addAll(this.layerBufferBuilders.values());
-            this.layerBufferBuilders.clear();
-        }
-        synchronized (this.overlayBufferBuilders)
-        {
-            buffers.addAll(this.overlayBufferBuilders.values());
-            this.overlayBufferBuilders.clear();
-        }
-        for (BufferBuilder buffer : buffers)
-        {
-            if (!((IMixinBufferBuilder) buffer).malilib_isBuilding())
-			{
-                continue;
-			}
-			
-            MeshData built = buffer.build();
-			
-            if (built != null)
+            if (((IMixinBufferBuilder) buffer).malilib_isBuilding())
             {
-                built.close();
+                MeshData built = buffer.build();
+                if (built != null) { built.close(); }
             }
         }
+        this.blockBufferBuilders.clear();
+
+        for (BufferBuilder buffer : this.layerBufferBuilders.values())
+        {
+            if (((IMixinBufferBuilder) buffer).malilib_isBuilding())
+            {
+                MeshData built = buffer.build();
+                if (built != null) { built.close(); }
+            }
+        }
+        this.layerBufferBuilders.clear();
+
+        for (BufferBuilder buffer : this.overlayBufferBuilders.values())
+        {
+            if (((IMixinBufferBuilder) buffer).malilib_isBuilding())
+            {
+                MeshData built = buffer.build();
+                if (built != null) { built.close(); }
+            }
+        }
+        this.overlayBufferBuilders.clear();
     }
 
     @Override
