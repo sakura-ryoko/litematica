@@ -17,6 +17,7 @@ import fi.dy.masa.malilib.config.options.*;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.malilib.util.MessageOutputType;
 import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.malilib.util.i18n.i18nConfig;
@@ -120,7 +121,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PICK_BLOCK_SHULKERS         = new ConfigBoolean("pickBlockShulkers", false).apply(GENERIC_KEY);
         public static final ConfigString        PICK_BLOCKABLE_SLOTS        = new ConfigString( "pickBlockableSlots", "1,2,3,4,5").apply(GENERIC_KEY);
         public static final ConfigBoolean       PLACEMENT_RESTRICTION       = new ConfigBoolean("placementRestriction", false).apply(GENERIC_KEY);
-        public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 2, 1, PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS).apply(GENERIC_KEY);
+        public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 2, 1, MathUtils.max(PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS, PlacementManagerDaemonHandler.MIN_PLATFORM_THREADS)).apply(GENERIC_KEY);
 //        public static final ConfigOptionList    PLACEMENT_MANAGER_PROFILE   = new ConfigOptionList("placementManagerProfile", PlacementManagerThreadProfile.DEFAULT).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_MATERIALS_IN_GUI     = new ConfigBoolean("renderMaterialListInGuis", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_THREAD_NO_TIMEOUT    = new ConfigBoolean("renderThreadNoTimeout", true).apply(GENERIC_KEY);
