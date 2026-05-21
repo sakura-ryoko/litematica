@@ -21,9 +21,10 @@ import fi.dy.masa.litematica.render.LitematicaRenderer;
 public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<PlacementManagerTask>
 {
 	public static final PlacementManagerDaemonHandler INSTANCE = new PlacementManagerDaemonHandler();
-	public static final int MAX_PLATFORM_THREADS = MathUtils.max(Runtime.getRuntime().availableProcessors() / 4, 1);    // The hard limit of usable Threads
-	private static final float TASK_INTERVAL = 1.50F;           // The amount of time in between task check updates
-	private static final int MAX_DEFERRED_CAP = 850;            // The approx amount of tasks that can be queued before they are deferred for each task interval
+	public static final int MIN_PLATFORM_THREADS = 2;                       // The hard min limit of usable Threads
+	public static final int MAX_PLATFORM_THREADS = calculateMaxThreads();   // The hard max limit of usable Threads
+	private static final float TASK_INTERVAL = 1.50F;                       // The amount of time in between task check updates
+	private static final int MAX_DEFERRED_CAP = 850;                        // The approx amount of tasks that can be queued before they are deferred for each task interval
 	private boolean useVirtual = false;
 	private final String namePrefix = Reference.MOD_NAME+" Placement Manager";
 	private int threadCount;
@@ -36,16 +37,24 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private long lastTick;
 	private boolean processing = false;
 
+	private static int calculateMaxThreads()
+	{
+		final int count = (Runtime.getRuntime().availableProcessors() / 4);
+		final int result = MathUtils.max(count, MIN_PLATFORM_THREADS);
+		Litematica.LOGGER.info("Placement Manager calculated thread limit: [{}]", String.format("%02d/%02d", MIN_PLATFORM_THREADS, result));
+		return result;
+	}
+
 	private int calculateDefaultSafeThreadCount()
 	{
 		final int result = this.getThreadCountSafe();
 		this.useVirtual = result < 1;
-		return MathUtils.clamp(result, 1, MAX_PLATFORM_THREADS);
+		return MathUtils.clamp(result, MIN_PLATFORM_THREADS, MAX_PLATFORM_THREADS);
 	}
 
 	private PlacementManagerDaemonHandler()
 	{
-		this.threadCount = this.getClampedThreadCount(MAX_PLATFORM_THREADS);
+		this.threadCount = MathUtils.max(MAX_PLATFORM_THREADS, MIN_PLATFORM_THREADS);
 		this.threadMap = new ConcurrentHashMap<>(this.threadCount, 0.9f, 1);
 //		this.buildThreadMap();
 		this.lastTick = System.currentTimeMillis();
@@ -108,7 +117,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	private int getClampedThreadCount(final int count)
 	{
-		return MathUtils.clamp(count, 1, MAX_PLATFORM_THREADS);
+		return MathUtils.clamp(count, MIN_PLATFORM_THREADS, MAX_PLATFORM_THREADS);
 	}
 
 	private int getConfiguredThreadCount()
@@ -117,7 +126,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 		if (count < 1)
 		{
-			count = this.calculateDefaultSafeThreadCount();
+			count = MathUtils.max(this.calculateDefaultSafeThreadCount(), MIN_PLATFORM_THREADS);
 		}
 
 		return this.getClampedThreadCount(count);
@@ -138,14 +147,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 				if (this.useVirtual)
 				{
 					// This means your computer is a real, verified potato.
-					// Count 1 is enforced
-					count = 1;
-
-					// and you probably shouldn't be using the MAX profile, either.
-//					if (this.getProfile() == PlacementManagerThreadProfile.MAX)
-//					{
-//						Configs.Generic.PLACEMENT_MANAGER_PROFILE.resetToDefault();
-//					}
+					count = MIN_PLATFORM_THREADS;
 				}
 
 //				Litematica.LOGGER.error("CPU Count: {} / Safe Count: {}", Runtime.getRuntime().availableProcessors(), this.calculateDefaultSafeThreadCount());
