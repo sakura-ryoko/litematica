@@ -16,12 +16,12 @@ public class MixinBlock
 {
     @Inject(method = "popResource(Lnet/minecraft/world/level/Level;Ljava/util/function/Supplier;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At("HEAD"), cancellable = true)
-    private static void litematica_preventItemDrops(Level world,
-                                                    Supplier<ItemEntity> itemEntitySupplier,
-                                                    ItemStack stack,
+    private static void litematica_preventItemDrops(Level level,
+                                                    Supplier<ItemEntity> entityFactory,
+                                                    ItemStack itemStack,
                                                     CallbackInfo ci)
     {
-        if (WorldUtils.shouldPreventBlockUpdates(world))
+        if (WorldUtils.shouldPreventBlockUpdates(level))
         {
             ci.cancel();
         }
