@@ -1,8 +1,9 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.Set;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -22,6 +23,18 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		}
 
 		@Override
+		protected void setBlockLayerUnused(ChunkSectionLayer layer)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		protected @Nullable ChunkMeshDataSchematic updateMeshDataCache(ChunkMeshDataSchematic meshData)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		protected void setBlockLayerStarted(ChunkSectionLayer layer)
 		{
 			throw new UnsupportedOperationException();
@@ -31,6 +44,24 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		protected void setOverlayTypeUsed(OverlayRenderType layer)
 		{
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		protected void setOverlayTypeUnused(OverlayRenderType type)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		protected void setTimeBuilt(long time)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isEmpty()
+		{
+			return true;
 		}
 
 		@Override
@@ -52,10 +83,10 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 	public ChunkRenderDataSchematic()
 	{
 		this.meshDataCache = new ChunkMeshDataSchematic();
-		this.blockLayersUsed = new ObjectArraySet<>();
-		this.blockLayersStarted = new ObjectArraySet<>();
-		this.overlayLayersUsed = new ObjectArraySet<>();
-		this.overlayLayersStarted = new ObjectArraySet<>();
+		this.blockLayersUsed = EnumSet.noneOf(ChunkSectionLayer.class);
+		this.blockLayersStarted = EnumSet.noneOf(ChunkSectionLayer.class);
+		this.overlayLayersUsed = EnumSet.noneOf(OverlayRenderType.class);
+		this.overlayLayersStarted = EnumSet.noneOf(OverlayRenderType.class);
 		this.blocksEmpty = true;
 		this.overlayEmpty = true;
 	}
@@ -65,9 +96,12 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		return this.meshDataCache;
 	}
 
-	protected void updateMeshDataCache(ChunkMeshDataSchematic meshData)
+	@Nullable
+	protected ChunkMeshDataSchematic updateMeshDataCache(ChunkMeshDataSchematic meshData)
 	{
 //		LOGGER.warn("[RD] updateMeshDataCache()");
+		ChunkMeshDataSchematic oldData = null;
+
 		if (this.meshDataCache != null || !this.meshDataCache.isEmpty())
 		{
 			int comparator = ChunkMeshDataSchematic.COMPARATOR.compare(this.meshDataCache, meshData);
@@ -77,7 +111,8 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 			if (comparator > 0)
 			{
 //				LOGGER.error("[RD] updateMeshDataCache() oldData CLEAR");
-				this.meshDataCache.clearAll();
+				oldData = this.meshDataCache;
+//				this.meshDataCache.clearAll();
 				this.meshDataCache = meshData;
 			}
 //			else
@@ -94,6 +129,8 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 
 //		LOGGER.error("[RD] updateMeshDataCache() newData DUMP -->");
 //		this.meshDataCache.dumpMeshDataDebug();
+
+		return oldData;
 	}
 
 	public boolean isBlockLayerEmpty()

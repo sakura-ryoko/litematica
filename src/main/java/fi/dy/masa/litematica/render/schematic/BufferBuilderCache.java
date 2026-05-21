@@ -1,8 +1,6 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.annotation.Nonnull;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -35,48 +33,35 @@ public class BufferBuilderCache implements AutoCloseable
 
     protected BufferBuilder getBuilder(ChunkSectionLayer layer, @Nonnull ByteBufferBuilder alloc)
     {
-        synchronized (this.blockBufferBuilders)
-        {
-            return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(alloc, key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
-        }
+        return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(alloc, key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
     }
 
     protected BufferBuilder getBuilder(OverlayRenderType type, @Nonnull ByteBufferBuilder alloc)
     {
-        synchronized (this.overlayBufferBuilders)
-        {
-            return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(alloc, key.getDrawMode(), key.getVertexFormat()));
-        }
+        return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(alloc, key.getDrawMode(), key.getVertexFormat()));
     }
 
     protected void clearAll()
     {
-        ArrayList<BufferBuilder> buffers;
-
-        synchronized (this.blockBufferBuilders)
+        for (BufferBuilder buffer : this.blockBufferBuilders.values())
         {
-            buffers = new ArrayList<>(this.blockBufferBuilders.values());
-            this.blockBufferBuilders.clear();
-        }
-        synchronized (this.overlayBufferBuilders)
-        {
-            buffers.addAll(this.overlayBufferBuilders.values());
-            this.overlayBufferBuilders.clear();
-        }
-        for (BufferBuilder buffer : buffers)
-        {
-            if (!((IMixinBufferBuilder) buffer).malilib_isBuilding())
-			{
-                continue;
-			}
-			
-            MeshData built = buffer.build();
-			
-            if (built != null)
+            if (((IMixinBufferBuilder) buffer).malilib_isBuilding())
             {
-                built.close();
+                MeshData built = buffer.build();
+                if (built != null) { built.close(); }
             }
         }
+        this.blockBufferBuilders.clear();
+
+        for (BufferBuilder buffer : this.overlayBufferBuilders.values())
+        {
+            if (((IMixinBufferBuilder) buffer).malilib_isBuilding())
+            {
+                MeshData built = buffer.build();
+                if (built != null) { built.close(); }
+            }
+        }
+        this.overlayBufferBuilders.clear();
     }
 
     @Override

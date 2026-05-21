@@ -29,32 +29,27 @@ public class GpuBufferCache implements AutoCloseable
 
     protected void saveBuffers(ChunkSectionLayer layer, @Nonnull ChunkRenderBuffers newBuffer)
     {
-        if (this.hasBuffers(layer))
-        {
-            ChunkRenderBuffers remove = this.blockBuffers.remove(layer);
+        ChunkRenderBuffers remove = this.blockBuffers.put(layer, newBuffer);
 
+        if (remove != null)
+        {
             try
             {
                 remove.close();
             }
             catch (Exception err)
             {
-                throw new RuntimeException("Exception closing Block Layer "+layer.label()+" Buffers; "+ err.getMessage());
+                throw new RuntimeException("Exception closing Block Layer " + layer.label() + " Buffers; " + err.getMessage());
             }
-        }
-
-        synchronized (this.blockBuffers)
-        {
-            this.blockBuffers.put(layer, newBuffer);
         }
     }
 
     protected void saveBuffers(OverlayRenderType type, @Nonnull ChunkRenderBuffers newBuffer)
     {
-        if (this.hasBuffers(type))
-        {
-            ChunkRenderBuffers remove = this.overlayBuffers.remove(type);
+        ChunkRenderBuffers remove = this.overlayBuffers.put(type, newBuffer);
 
+        if (remove != null)
+        {
             try
             {
                 remove.close();
@@ -63,11 +58,6 @@ public class GpuBufferCache implements AutoCloseable
             {
                 throw new RuntimeException("Exception closing Overlay Type "+type.name()+" Buffers; "+ err.getMessage());
             }
-        }
-
-        synchronized (this.overlayBuffers)
-        {
-            this.overlayBuffers.put(type, newBuffer);
         }
     }
 
@@ -86,44 +76,35 @@ public class GpuBufferCache implements AutoCloseable
     protected void clearAll()
     {
 //        Litematica.LOGGER.warn("GpuBufferCache clearAll()");
-
-        synchronized (this.blockBuffers)
-        {
-            this.blockBuffers.forEach(
-                    (layer, buffers) ->
+        this.blockBuffers.forEach(
+                (layer, buffers) ->
+                {
+                    try
                     {
-                        try
-                        {
-                            buffers.close();
-                        }
-                        catch (Exception err)
-                        {
-                            throw new RuntimeException("Exception closing Block Layer "+layer.label()+" Buffers; "+ err.getMessage());
-                        }
+                        buffers.close();
                     }
-            );
-
-            this.blockBuffers.clear();
-        }
-
-        synchronized (this.overlayBuffers)
-        {
-            this.overlayBuffers.forEach(
-                    (type, buffers) ->
+                    catch (Exception err)
                     {
-                        try
-                        {
-                            buffers.close();
-                        }
-                        catch (Exception err)
-                        {
-                            throw new RuntimeException("Exception closing Overlay Type "+type.name()+" Buffers; "+ err.getMessage());
-                        }
+                        throw new RuntimeException("Exception closing Block Layer "+layer.label()+" Buffers; "+ err.getMessage());
                     }
-            );
+                }
+        );
+        this.blockBuffers.clear();
 
-            this.overlayBuffers.clear();
-        }
+        this.overlayBuffers.forEach(
+                (type, buffers) ->
+                {
+                    try
+                    {
+                        buffers.close();
+                    }
+                    catch (Exception err)
+                    {
+                        throw new RuntimeException("Exception closing Overlay Type "+type.name()+" Buffers; "+ err.getMessage());
+                    }
+                }
+        );
+        this.overlayBuffers.clear();
     }
 
     @Override

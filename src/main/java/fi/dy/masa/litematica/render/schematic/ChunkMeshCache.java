@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,25 +30,21 @@ public class ChunkMeshCache implements AutoCloseable
 
     protected void saveMeshData(ChunkSectionLayer layer, @Nonnull MeshData newBuffer)
     {
-        if (this.hasMeshData(layer))
+        MeshData remove = this.blockMeshData.put(layer, newBuffer);
+
+        if (remove != null)
         {
-            this.blockMeshData.get(layer).close();
-        }
-        synchronized (this.blockMeshData)
-        {
-            this.blockMeshData.put(layer, newBuffer);
+            remove.close();
         }
     }
 
     protected void saveMeshData(OverlayRenderType type, @Nonnull MeshData newBuffer)
     {
-        if (this.hasMeshData(type))
+        MeshData remove = this.overlayMeshData.put(type, newBuffer);
+
+        if (remove != null)
         {
-            this.overlayMeshData.get(type).close();
-        }
-        synchronized (this.overlayMeshData)
-        {
-            this.overlayMeshData.put(type, newBuffer);
+            remove.close();
         }
     }
 
@@ -67,23 +62,25 @@ public class ChunkMeshCache implements AutoCloseable
 
     protected void closeAll()
     {
-        ArrayList<MeshData> list;
+        for (MeshData mesh : this.blockMeshData.values())
+        {
+            try
+            {
+                mesh.close();
+            }
+            catch (Exception ignored) {}
+        }
+        this.blockMeshData.clear();
 
-        synchronized (this.blockMeshData)
+        for (MeshData mesh : this.overlayMeshData.values())
         {
-            list = new ArrayList<>(this.blockMeshData.values());
-            this.blockMeshData.clear();
+            try
+            {
+                mesh.close();
+            }
+            catch (Exception ignored) {}
         }
-        synchronized (this.overlayMeshData)
-        {
-            list.addAll(this.overlayMeshData.values());
-            this.overlayMeshData.clear();
-        }
-        try
-        {
-            list.forEach(MeshData::close);
-        }
-        catch (Exception ignored) { }
+        this.overlayMeshData.clear();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,10 +34,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
                 this.blockCache.get(layer).close();
             }
 
-            synchronized (this.blockCache)
-            {
-                this.blockCache.put(layer, new ByteBufferBuilder(layer.bufferSize()));
-            }
+            this.blockCache.put(layer, new ByteBufferBuilder(layer.bufferSize()));
         }
         for (OverlayRenderType type : TYPES)
         {
@@ -47,10 +43,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
                 this.overlayCache.get(type).close();
             }
 
-            synchronized (this.overlayCache)
-            {
-                this.overlayCache.put(type, new ByteBufferBuilder(type.getExpectedBufferSize()));
-            }
+            this.overlayCache.put(type, new ByteBufferBuilder(type.getExpectedBufferSize()));
         }
 
         this.clear = true;
@@ -69,45 +62,41 @@ public class ByteBufferBuilderCache implements AutoCloseable
     protected ByteBufferBuilder getAllocator(ChunkSectionLayer layer)
     {
         this.clear = false;
-
-        synchronized (this.blockCache)
-        {
-            return this.blockCache.computeIfAbsent(layer, l -> new ByteBufferBuilder(l.bufferSize()));
-        }
+        return this.blockCache.computeIfAbsent(layer, l -> new ByteBufferBuilder(l.bufferSize()));
     }
 
     protected ByteBufferBuilder getAllocator(OverlayRenderType type)
     {
         this.clear = false;
-
-        synchronized (this.overlayCache)
-        {
-            return this.overlayCache.computeIfAbsent(type, t -> new ByteBufferBuilder(t.getExpectedBufferSize()));
-        }
+        return this.overlayCache.computeIfAbsent(type, t -> new ByteBufferBuilder(t.getExpectedBufferSize()));
     }
 
     protected void closeByBlockLayer(ChunkSectionLayer layer)
     {
         try
         {
-            synchronized (this.blockCache)
+            ByteBufferBuilder remove = this.blockCache.remove(layer);
+
+            if (remove != null)
             {
-                this.blockCache.remove(layer).close();
+                remove.close();
             }
         }
-        catch (Exception ignored) { }
+        catch (Exception ignored) {}
     }
 
     protected void closeByType(OverlayRenderType type)
     {
         try
         {
-            synchronized (this.overlayCache)
+            ByteBufferBuilder remove = this.overlayCache.remove(type);
+
+            if (remove != null)
             {
-                this.overlayCache.remove(type).close();
+                remove.close();
             }
         }
-        catch (Exception ignored) { }
+        catch (Exception ignored) {}
     }
 
     protected boolean isClear() { return this.clear; }
@@ -138,25 +127,30 @@ public class ByteBufferBuilderCache implements AutoCloseable
 
     protected void closeAll()
     {
-        ArrayList<ByteBufferBuilder> allocators;
-
-        synchronized (this.blockCache)
+        for (ByteBufferBuilder alloc : this.blockCache.values())
         {
-            allocators = new ArrayList<>(this.blockCache.values());
-            this.blockCache.clear();
+            try
+            {
+                alloc.close();
+            }
+            catch (Exception ignored) { }
         }
-        synchronized (this.overlayCache)
-        {
-            allocators.addAll(this.overlayCache.values());
-            this.overlayCache.clear();
-        }
+        this.blockCache.clear();
 
-        allocators.forEach(ByteBufferBuilder::close);
+        for (ByteBufferBuilder alloc : this.overlayCache.values())
+        {
+            try
+            {
+                alloc.close();
+            }
+            catch (Exception ignored) { }
+        }
+        this.overlayCache.clear();
         this.clear = true;
     }
 
     @Override
-    public void close()
+    public void close() throws Exception
     {
         this.closeAll();
     }

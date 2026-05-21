@@ -4,14 +4,13 @@ import fi.dy.masa.litematica.config.Configs;
 
 public class AOLightmap
 {
-	protected static final ThreadLocal<AOBrightness> BRIGHTNESS_CACHE = ThreadLocal.withInitial(AOBrightness::new);
-	public final AOBrightness brightnessCache = BRIGHTNESS_CACHE.get();
+	public final AOBrightness brightnessCache = new AOBrightness();
 
 	public void enableCache()
 	{
 		if (Configs.Visuals.RENDER_AO_MODERN_ENABLE.getBooleanValue())
 		{
-			BRIGHTNESS_CACHE.get().enable();
+			this.brightnessCache.enable();
 		}
 	}
 
@@ -19,7 +18,7 @@ public class AOLightmap
 	{
 		if (Configs.Visuals.RENDER_AO_MODERN_ENABLE.getBooleanValue())
 		{
-			BRIGHTNESS_CACHE.get().disable();
+			this.brightnessCache.disable();
 		}
 	}
 }

@@ -262,24 +262,7 @@ public class BlockModelCacheSchematic
 	@Nullable
 	public BlockStateModel fetchBlockStateModel(BlockState state)
 	{
-		BlockStateModel model;
-
-		if (this.blockStateModelCache.containsKey(state))
-		{
-			synchronized (this.blockStateModelCache)
-			{
-				model = this.blockStateModelCache.get(state);
-			}
-		}
-		else
-		{
-			model = this.blockStateModelSet.get(state);
-
-			synchronized (this.blockStateModelCache)
-			{
-				this.blockStateModelCache.put(state, model);
-			}
-		}
+		BlockStateModel model = this.blockStateModelCache.computeIfAbsent(state, k -> this.blockStateModelSet.get(k));
 
 		if (model != null && this.checkBlockStateModel(model))
 		{
@@ -333,24 +316,7 @@ public class BlockModelCacheSchematic
 	@Nullable
 	public BlockModel fetchBlockModel(BlockState state)
 	{
-		BlockModel model;
-
-		if (this.blockModelCache.containsKey(state))
-		{
-			synchronized (this.blockModelCache)
-			{
-				model = this.blockModelCache.get(state);
-			}
-		}
-		else
-		{
-			model = this.blockModelSet.get(state);
-
-			synchronized (this.blockModelCache)
-			{
-				this.blockModelCache.put(state, model);
-			}
-		}
+		BlockModel model = this.blockModelCache.computeIfAbsent(state, k -> this.blockModelSet.get(k));
 
 		if (model != null)
 		{
@@ -391,25 +357,8 @@ public class BlockModelCacheSchematic
 	@Nullable
 	public FluidModel fetchFluidModel(FluidState state)
 	{
-		FluidModel model;
 		final Fluid fluid = state.getType();
-
-		if (this.fluidModelCache.containsKey(fluid))
-		{
-			synchronized (this.fluidModelCache)
-			{
-				model = this.fluidModelCache.get(fluid);
-			}
-		}
-		else
-		{
-			model = this.fluidStateModelSet.get(state);
-
-			synchronized (this.fluidModelCache)
-			{
-				this.fluidModelCache.put(fluid, model);
-			}
-		}
+		FluidModel model = this.fluidModelCache.computeIfAbsent(fluid, k -> this.fluidStateModelSet.get(state));
 
 		if (model != null)
 		{
