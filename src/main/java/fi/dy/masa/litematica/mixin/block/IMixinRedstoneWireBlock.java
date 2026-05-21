@@ -11,5 +11,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMixinRedstoneWireBlock
 {
     @Invoker("getConnectionState")
-    BlockState litematica_GetPlacementState(BlockGetter world, BlockState state, BlockPos pos);
+    BlockState litematica_GetPlacementState(BlockGetter level, BlockState state, BlockPos pos);
 }

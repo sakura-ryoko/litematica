@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMixinAbstractBlock
 {
     @Invoker("getCloneItemStack")
-    ItemStack litematica_getPickStack(LevelReader worldView, BlockPos blockPos, BlockState blockState, boolean bl);
+    ItemStack litematica_getPickStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData);
 }

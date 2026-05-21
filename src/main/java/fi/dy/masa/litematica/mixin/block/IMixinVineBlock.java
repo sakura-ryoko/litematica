@@ -11,5 +11,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMixinVineBlock
 {
     @Invoker("canSupportAtFace")
-    boolean litematica_invokeShouldConnectUp(BlockGetter blockReader, BlockPos pos, Direction side);
+    boolean litematica_invokeShouldConnectUp(BlockGetter level, BlockPos pos, Direction direction);
 }

@@ -14,6 +14,7 @@
         "block.MixinBlock",
         "block.MixinBlockStateData",
         "block.MixinChestBlock",
+        "block.MixinGlazedTerracottaBlock",
         "block.MixinRailBlocks",
         "block.MixinStairsBlock",
         "client.IMixinProfilerSystem",

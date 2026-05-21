@@ -19,10 +19,11 @@ public abstract class MixinRailBlocks extends BaseRailBlock
         super(disableCorners, builder);
     }
 
-    @Inject(method = "rotate(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Rotation;)Lnet/minecraft/world/level/block/state/BlockState;", at = @At("HEAD"), cancellable = true)
-    private void litematica_fixRailRotation(BlockState state, Rotation rot, CallbackInfoReturnable<BlockState> cir)
+    @Inject(method = "rotate(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/Rotation;)Lnet/minecraft/world/level/block/state/BlockState;",
+            at = @At("HEAD"), cancellable = true)
+    private void litematica_fixRailRotation(BlockState state, Rotation rotation, CallbackInfoReturnable<BlockState> cir)
     {
-        if (Configs.Generic.FIX_RAIL_ROTATION.getBooleanValue() && rot == Rotation.CLOCKWISE_180)
+        if (Configs.Generic.FIX_RAIL_ROTATION.getBooleanValue() && rotation == Rotation.CLOCKWISE_180)
         {
             RailShape shape = null;
 
@@ -40,7 +41,7 @@ public abstract class MixinRailBlocks extends BaseRailBlock
             }
 
             // Fix the incomplete switch statement causing the ccw_90 rotation being used instead
-            // for the 180 degree rotation of the straight rails.
+            // for the 180-degree rotation of the straight rails.
             if (shape == RailShape.EAST_WEST || shape == RailShape.NORTH_SOUTH)
             {
                 cir.setReturnValue(state);

@@ -15,9 +15,9 @@ import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 public abstract class MixinBlockStateData
 {
     @Inject(method = "register", at = @At("HEAD"))
-    private static void litematica_onAddEntry(int oldIdAndMeta, Dynamic<?> newStateDynamic, Dynamic<?>[] oldStateDynamics, CallbackInfo ci)
+    private static void litematica_onAddEntry(int id, Dynamic<?> tag, Dynamic<?>[] legacy, CallbackInfo ci)
     {
-        List<Dynamic<?>> oldDynamics = Arrays.stream(oldStateDynamics).toList();
-		SchematicConversionMaps.addDynamicEntry(oldIdAndMeta, newStateDynamic, oldDynamics);
+        List<Dynamic<?>> oldDynamics = Arrays.stream(legacy).toList();
+		SchematicConversionMaps.addDynamicEntry(id, tag, oldDynamics);
     }
 }

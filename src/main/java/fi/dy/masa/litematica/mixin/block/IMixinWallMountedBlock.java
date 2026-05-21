@@ -11,5 +11,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMixinWallMountedBlock
 {
     @Invoker("canSurvive")
-    boolean litematica_invokeCanPlaceAt(BlockState state, LevelReader world, BlockPos pos);
+    boolean litematica_invokeCanPlaceAt(BlockState state, LevelReader level, BlockPos pos);
 }

@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface IMixinStairsBlock
 {
     @Invoker("getStairsShape")
-    static StairsShape litematica_invokeGetStairShape(BlockState state, BlockGetter worldIn, BlockPos pos) { return null; }
+    static StairsShape litematica_invokeGetStairShape(BlockState state, BlockGetter level, BlockPos pos) { return null; }
 }
