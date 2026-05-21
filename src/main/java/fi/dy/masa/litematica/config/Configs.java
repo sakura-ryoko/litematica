@@ -4,11 +4,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
-import net.minecraft.client.Minecraft;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import net.minecraft.client.Minecraft;
+
 import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.config.IConfigBase;

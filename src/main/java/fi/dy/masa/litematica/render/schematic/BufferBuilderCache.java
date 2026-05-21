@@ -1,12 +1,13 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import javax.annotation.Nonnull;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+
 import fi.dy.masa.malilib.mixin.render.IMixinBufferBuilder;
 
 public class BufferBuilderCache implements AutoCloseable

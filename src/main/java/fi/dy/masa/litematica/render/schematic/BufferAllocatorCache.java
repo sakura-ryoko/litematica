@@ -1,13 +1,13 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 public class BufferAllocatorCache implements AutoCloseable
