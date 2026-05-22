@@ -61,6 +61,22 @@ public class BlockTintCache
 		}
 	}
 
+	private void configure(final BlockState state)
+	{
+		List<BlockTintSource> sources = this.blockColors().getTintSources(state);
+		int count = sources.size();
+
+		if (count > 0)
+		{
+			this.tintSources.addAll(sources);
+
+			for (int i = 0; i < count; i++)
+			{
+				this.tintValues.add(-1);
+			}
+		}
+	}
+
 	private int calculate(final BlockAndTintGetter world, final BlockState state, final BlockPos pos, final int tintIndex)
 	{
 		if (!this.initialized)
@@ -90,19 +106,16 @@ public class BlockTintCache
 		}
 	}
 
-	private void configure(final BlockState state)
+	protected void resetTintCache()
 	{
-		List<BlockTintSource> sources = this.blockColors().getTintSources(state);
-		int count = sources.size();
+		this.lastTintIndex = -1;
 
-		if (count > 0)
+		if (this.initialized)
 		{
-			this.tintSources.addAll(sources);
-
-			for (int i = 0; i < count; i++)
-			{
-				this.tintValues.add(-1);
-			}
+			this.tintSources.clear();
+			this.tintValues.clear();
+			this.lastTintValue = -1;
+			this.initialized = false;
 		}
 	}
 }

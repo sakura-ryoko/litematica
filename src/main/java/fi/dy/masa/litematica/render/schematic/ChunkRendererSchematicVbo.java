@@ -488,8 +488,10 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     builder.putBlockBakedQuad(bx, by, bz, quad, inst);
                 };
                 VisGraph visGraph = new VisGraph();
+                BlockModelRendererSchematic renderer = new BlockModelRendererSchematic();
 
-                this.worldRenderer.getBlockRenderer().enableCache();
+                renderer.reload();
+                renderer.enableCache();
 
                 for (IntBoundingBox box : this.boxes)
                 {
@@ -510,12 +512,12 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         // Fluid rendering and the overlay do not use the MatrixStack.
                         // Block models use the VertexConsumer#quad() method, and they use the MatrixStack.
                         Vec3 offset = new Vec3(posMutable.getX() & 0xF, posMutable.getY() - bottomY, posMutable.getZ() & 0xF);
-                        this.renderBlocksAndOverlay(posMutable, data, chunkMeshData, blockOutput, offset, visGraph);
+                        this.renderBlocksAndOverlay(renderer, posMutable, data, chunkMeshData, blockOutput, offset, visGraph);
                     }
 
                 }
 
-                this.worldRenderer.getBlockRenderer().disableCache();
+                renderer.disableCache();
                 Set<ChunkSectionLayer> usedBlockLayers = new HashSet<>();
 
                 this.getProfiler().popPush("rebuild_chunk_layers");
@@ -595,7 +597,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
-    protected void renderBlocksAndOverlay(BlockPos pos,
+    protected void renderBlocksAndOverlay(BlockModelRendererSchematic renderer,
+                                          BlockPos pos,
                                           @Nonnull ChunkRenderDataSchematic data,
                                           @Nonnull ChunkMeshDataSchematic chunkMeshData,
                                           IBlockOutputSchematic blockOutput,
@@ -653,7 +656,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             if (stateSchematic.getRenderShape() == RenderShape.MODEL)
             {
                 this.getProfiler().popPush("render_build_blocks");
-                this.worldRenderer.renderBlock(this.schematicWorldView, stateSchematic, pos, offset, blockOutput);
+                this.worldRenderer.renderBlock(renderer, this.schematicWorldView, stateSchematic, pos, offset, blockOutput);
 
                 if (clientHasAir)
                 {

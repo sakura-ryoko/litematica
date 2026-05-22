@@ -216,11 +216,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         return this.profiler;
     }
 
-    @Override
-    public BlockModelRendererSchematic getBlockRenderer()
-    {
-        return BlockModelCacheSchematic.INSTANCE.blockModelRenderer();
-    }
+//    @Override
+//    public BlockModelRendererSchematic getBlockRenderer()
+//    {
+//        return BlockModelCacheSchematic.INSTANCE.blockModelRenderer();
+//    }
 
     @Override
     public BlockEntityRenderDispatcher getBlockEntityRenderer()
@@ -1126,7 +1126,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public boolean renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output)
+    public boolean renderBlock(BlockModelRendererSchematic renderer, BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output)
     {
         try
         {
@@ -1136,7 +1136,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
             if (model != null)
             {
-                result = this.getBlockRenderer().tessellateBlock(world, state, pos, offset, model, state.getSeed(pos), output);
+                result = renderer.tessellateBlock(world, state, pos, offset, model, state.getSeed(pos), output);
 //                System.out.printf("renderBlock(): result [%s] (stateIn: %s)\n", result, state.toString());
             }
             else
@@ -1719,6 +1719,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     public void reloadBlockRenderManager()
 	{
         BlockModelCacheSchematic.INSTANCE.onReloadResources();
-        this.getBlockRenderer().reload();
+//        this.getBlockRenderer().reload();
 	}
 }

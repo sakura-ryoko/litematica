@@ -59,7 +59,7 @@ public class BlockModelCacheSchematic
 	private SpriteGetter spriteGetter;
 	private PlayerSkinRenderCache skinCache;
 
-	private BlockModelRendererSchematic blockModelRenderer;
+//	private BlockModelRendererSchematic blockModelRenderer;
 	private BlockEntityRenderDispatcher blockEntityRenderDispatcher;
 	private EntityRenderDispatcher entityRenderDispatcher;
 	private FluidRenderer fluidRenderer;
@@ -133,15 +133,15 @@ public class BlockModelCacheSchematic
 		return this.skinCache;
 	}
 
-	protected BlockModelRendererSchematic blockModelRenderer()
-	{
-		if (this.blockModelRenderer == null)
-		{
-			this.blockModelRenderer = new BlockModelRendererSchematic();
-		}
-
-		return this.blockModelRenderer;
-	}
+//	protected BlockModelRendererSchematic blockModelRenderer()
+//	{
+//		if (this.blockModelRenderer == null)
+//		{
+//			this.blockModelRenderer = new BlockModelRendererSchematic();
+//		}
+//
+//		return this.blockModelRenderer;
+//	}
 
 	protected BlockEntityRenderDispatcher blockEntityRenderer()
 	{
@@ -222,7 +222,7 @@ public class BlockModelCacheSchematic
 
 	private void refreshRenderers()
 	{
-		this.blockModelRenderer = new BlockModelRendererSchematic();
+//		this.blockModelRenderer = new BlockModelRendererSchematic();
 		this.entityRenderDispatcher = this.mc.getEntityRenderDispatcher();
 		this.blockEntityRenderDispatcher = this.mc.getBlockEntityRenderDispatcher();
 		this.fluidRenderer = new FluidRenderer(this.fluidStateModelSet);

@@ -64,7 +64,7 @@ public interface IWorldSchematicRenderer
 
 	ProfilerFiller getProfiler();
 
-	BlockModelRendererSchematic getBlockRenderer();
+//	BlockModelRendererSchematic getBlockRenderer();
 
 	BlockEntityRenderDispatcher getBlockEntityRenderer();
 
@@ -100,7 +100,7 @@ public interface IWorldSchematicRenderer
 
 	List<BlockStateModelPart> getModelParts(BlockPos pos, BlockState state, RandomSource rand);
 
-	boolean renderBlock(BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output);
+	boolean renderBlock(BlockModelRendererSchematic renderer, BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output);
 
 	boolean renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY);
 

@@ -74,6 +74,11 @@ public class BlockModelRendererSchematic
 		this.tintCache.onReloadResources();
 	}
 
+	protected void resetQuadLight()
+	{
+		this.quadInst.setColor(0xFFFFFFFF);
+	}
+
 	public void reloadLightmap()
 	{
 		this.lightmap.disableCache();
@@ -127,6 +132,7 @@ public class BlockModelRendererSchematic
 			finally
 			{
 				this.parts.clear();
+				this.tintCache.resetTintCache();
 				this.lightmap.disableCache();
 			}
 		}
@@ -256,6 +262,7 @@ public class BlockModelRendererSchematic
 	{
 		for (BakedQuad quad : quads)
 		{
+			this.resetQuadLight();
 			this.processor.prepareFlat(world, state, pos, light, quad, this.quadInst);
 			this.tessellateQuad(world, state, pos, quad, v3, out);
 		}
@@ -269,6 +276,7 @@ public class BlockModelRendererSchematic
 	{
 		for (BakedQuad bakedQuad : quads)
 		{
+			this.resetQuadLight();
 			this.processor.prepareSmooth(world, state, pos, bakedQuad, this.quadInst);
 			this.tessellateQuad(world, state, pos, bakedQuad, v3, out);
 		}
@@ -282,7 +290,12 @@ public class BlockModelRendererSchematic
 
 	    if (tint != -1)
 	    {
-			this.quadInst.multiplyColor(this.tintCache.get(world, state, pos, tint));
+		    int tintColor = this.tintCache.get(world, state, pos, tint);
+
+			if (tintColor != -1)
+			{
+				this.quadInst.multiplyColor(tintColor);
+			}
 	    }
 
 	    out.put(v3.x, v3.y, v3.z, bakedQuad, this.quadInst);
