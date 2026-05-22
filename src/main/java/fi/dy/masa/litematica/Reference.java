@@ -13,7 +13,7 @@ public class Reference
     public static final String MC_VERSION = SharedConstants.getCurrentVersion().id();
     public static final String MOD_TYPE = "fabric";
     public static final String MOD_STRING = MOD_ID+"-"+MOD_TYPE+"-"+MC_VERSION+"-"+MOD_VERSION;
-    private static final boolean LOCAL_DEBUG = true;
+    private static final boolean LOCAL_DEBUG = false;
     public static final boolean DEBUG_MODE = isDebug();
 
     private static boolean isDebug()

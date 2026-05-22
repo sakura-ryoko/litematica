@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Rotation;
 
 import fi.dy.masa.malilib.config.IConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
+import fi.dy.masa.malilib.config.options.ConfigInteger;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
@@ -40,10 +41,10 @@ public class KeyCallbacks
         IHotkeyCallback callbackHotkeys = new KeyCallbackHotkeys(mc);
         IHotkeyCallback callbackMessage = new KeyCallbackToggleMessage(mc);
         ValueChangeCallback valueChangeCallback = new ValueChangeCallback();
+        ThreadCountChangeCallback threadCountChangeCallback = new ThreadCountChangeCallback();
         RenderChangeCallback renderChangeCallback = new RenderChangeCallback();
 
-//        Configs.Generic.PLACEMENT_MANAGER_PROFILE.setValueChangeCallback(PlacementManagerDaemonHandler.INSTANCE::resetProfile);
-        Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT.setValueChangeCallback(PlacementManagerDaemonHandler.INSTANCE::resetThreadCount);
+        Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT.setValueChangeCallback(threadCountChangeCallback);
         Configs.Generic.PICK_BLOCKABLE_SLOTS.setValueChangeCallback(valueChangeCallback);
         Configs.Generic.ENTITY_DATA_SYNC.setValueChangeCallback((config) -> EntitiesDataStorage.getInstance().onEntityDataSyncToggled(config));
 
@@ -149,6 +150,15 @@ public class KeyCallbacks
             {
                 InventoryUtils.setPickBlockableSlots(Configs.Generic.PICK_BLOCKABLE_SLOTS.getStringValue());
             }
+        }
+    }
+
+    private static class ThreadCountChangeCallback implements IValueChangeCallback<ConfigInteger>
+    {
+        @Override
+        public void onValueChanged(ConfigInteger config)
+        {
+            PlacementManagerDaemonHandler.INSTANCE.resetThreadCount(config, Minecraft.getInstance().level == null);
         }
     }
 

@@ -36,6 +36,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private final ReentrantLock lock = new ReentrantLock();
 	private long lastTick;
 	private boolean processing = false;
+	private boolean forceStop = false;
 
 	private static int calculateMaxThreads()
 	{
@@ -56,7 +57,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	{
 		this.threadCount = MathUtils.max(MAX_PLATFORM_THREADS, MIN_PLATFORM_THREADS);
 		this.threadMap = new ConcurrentHashMap<>(this.threadCount, 0.9f, 1);
-//		this.buildThreadMap();
+//		this.buildThreadMap();      // Build the map later (After world join)
 		this.lastTick = System.currentTimeMillis();
 	}
 
@@ -65,6 +66,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		// Only build when empty
 		if (this.threadMap.isEmpty())
 		{
+			if (this.forceStop) { return; }
 			this.lock.lock();
 
 			try
@@ -90,25 +92,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return this.namePrefix;
 	}
 
-//	public PlacementManagerThreadProfile getProfile()
-//	{
-//		return (PlacementManagerThreadProfile) Configs.Generic.PLACEMENT_MANAGER_PROFILE.getOptionListValue();
-//	}
-//
-//	public void resetProfile(ConfigOptionList config)
-//	{
-//		PlacementManagerThreadProfile profile = (PlacementManagerThreadProfile) config.getOptionListValue();
-//		PlacementManagerThreadProfile lastProfile = (PlacementManagerThreadProfile) config.getLastOptionListValue();
-//
-//		if (!lastProfile.equals(profile) && Minecraft.getInstance().level != null)
-//		{
-//			Litematica.LOGGER.info("Resetting Placement Manager Thread profile from config change [{} -> {}]", lastProfile.getDisplayName(), profile.getDisplayName());
-//			this.stop();
-////			this.reset();
-//			this.start();
-//		}
-//	}
-
 	private int getDeferredCap()
 	{
 //		return MathUtils.clamp(this.getProfile().deferredCap(), 64, MAX_DEFERRED_CAP);
@@ -124,7 +107,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	{
 		int count = Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT.getIntegerValue();
 
-		if (count < 1)
+		if (count < MIN_PLATFORM_THREADS)
 		{
 			count = MathUtils.max(this.calculateDefaultSafeThreadCount(), MIN_PLATFORM_THREADS);
 		}
@@ -132,7 +115,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return this.getClampedThreadCount(count);
 	}
 
-	public void resetThreadCount(ConfigInteger config)
+	public void resetThreadCount(ConfigInteger config, boolean noBuild)
 	{
 		int count = this.getConfiguredThreadCount();
 		final int lastCount = this.getClampedThreadCount(config.getLastIntegerValue());
@@ -144,9 +127,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 			try
 			{
-				if (this.useVirtual)
+				if (this.useVirtual || count < MIN_PLATFORM_THREADS)
 				{
-					// This means your computer is a real, verified potato.
 					count = MIN_PLATFORM_THREADS;
 				}
 
@@ -162,26 +144,36 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			{
 				this.threadCount = this.getClampedThreadCount(count);
 				this.lock.unlock();
-				this.buildThreadMap();
+				this.gc();
 			}
 
-			this.start();
+			if (!noBuild)
+			{
+				this.buildThreadMap();
+				this.start();
+			}
 		}
 	}
 
-	public void checkThreadCount()
+	public void checkThreadCount(boolean noBuild)
 	{
 //		Litematica.LOGGER.error("checkThreadCount(): count: {} // SAFE: {} // configured: {}", this.threadCount, this.calculateDefaultSafeThreadCount(), this.getConfiguredThreadCount());
-
 		if (this.threadCount != this.getConfiguredThreadCount())
 		{
-			this.resetThreadCount(Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT);
+			this.resetThreadCount(Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT, noBuild);
+		}
+
+		if (this.threadMap.isEmpty() && !noBuild)
+		{
+			this.gc();
+			this.buildThreadMap();
 		}
 	}
 
 	@Override
 	public void start()
 	{
+		if (this.forceStop) { return; }
 		// , this.getProfile().getDisplayName()
 		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads", this.threadMap.size());
 		Set<String> keys = this.threadMap.keySet();
@@ -285,7 +277,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		{
 			if (Reference.DEBUG_MODE)
 			{
-				Litematica.LOGGER.error("[EMPTY] Waking up threads...");
+				Litematica.LOGGER.error("addTask: [EMPTY] Waking up threads...");
 			}
 
 			this.ensureThreadsAreAlive();
@@ -384,6 +376,7 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public void onClientTick(Minecraft mc)
 	{
+		if (this.forceStop) { return; }
 		long now = System.currentTimeMillis();
 		if (this.lastTick > now) this.lastTick = now;
 
@@ -410,10 +403,12 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	private void ensureThreadsAreAlive()
 	{
+		if (this.forceStop) { return; }
 		final int count = this.getTaskCount();
 
 		if (count > 0)
 		{
+			this.checkThreadCount(false);
 			Litematica.debugLog("PlacementManagerDaemonHandler: {} tasks detected --> checking Thread states", count);
 			Set<String> keySet = this.threadMap.keySet();
 
@@ -590,6 +585,51 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		this.removeAllOtherTasks();
 		this.removeAllDeferredTasks();
 		this.processing = false;
+	}
+
+	protected void resetForceStop()
+	{
+		this.forceStop = false;
+	}
+
+	protected boolean isForceStop()
+	{
+		return this.forceStop;
+	}
+
+	@Override
+	public void endAll()
+	{
+		this.forceStop = true;
+		this.reset();
+		this.stop();
+		this.lock.lock();
+
+		try
+		{
+			// Give the threads 50 ms to clean up.
+			Thread.sleep(50L);
+
+			synchronized (this.threadMap)
+			{
+				this.threadMap.clear();
+			}
+		}
+		catch (InterruptedException e)
+		{
+			// NO-OP
+		}
+		finally
+		{
+			this.lock.unlock();
+			this.gc();
+		}
+	}
+
+	private void gc()
+	{
+		Litematica.debugLog("PlacementManagerDaemonHandler: Executing Garbage collection");
+		System.gc();
 	}
 
 	@Override

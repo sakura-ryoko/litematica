@@ -25,7 +25,7 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		this.sleepTime = MathUtils.clamp(sleepTime, 60000L, Long.MAX_VALUE); // 1 min
 		this.sleepDelay = 0.75F;        // <1-second sleep delay (Must not be < 1/2 the tick rate)
-		this.maxTicks = 128L;           // Cap how many ticks per an interrupt cycle without tasks to do
+		this.maxTicks = 64L;            // Cap how many ticks per an interrupt cycle without tasks to do
 		this.ticks = 0L;
 	}
 
@@ -44,6 +44,12 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public void start()
 	{
+		if (PlacementManagerDaemonHandler.INSTANCE.isForceStop())
+		{
+			this.stop();
+			return;
+		}
+
 		if (!this.isRunning())
 		{
 			Litematica.debugLog("Executor: Starting");
@@ -79,13 +85,19 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public void resume()
 	{
+		if (PlacementManagerDaemonHandler.INSTANCE.isForceStop())
+		{
+			this.stop();
+			return;
+		}
+
 		if (this.isPaused())
 		{
-			Litematica.debugLog("Executor: Resuming");
+			Litematica.debugLog("Executor: Paused; Resuming");
 			this.paused.set(false);
 		}
 
-//		this.start();
+		this.start();
 	}
 
 	@Override
@@ -125,6 +137,12 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	{
 		if (!this.isCorrectThread()) { return; }
 
+		if (PlacementManagerDaemonHandler.INSTANCE.isForceStop())
+		{
+			this.stop();
+			return;
+		}
+
 		this.running.set(true);
 //		this.maxTicks = PlacementManagerDaemonHandler.INSTANCE.getProfile().maxTicks();
 		this.lastTaskTime = System.currentTimeMillis();
@@ -141,19 +159,18 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 			{
 				this.paused.set(true);
 				this.ticks = 0L;
-
-//				if (this.hasTasks())
-//				{
-//					this.sleep(PlacementManagerDaemonHandler.INSTANCE.getProfile().yieldTime());
-//				}
-//				else
-//				{
-//					this.sleep();
-//				}
-
 				this.sleep();
+				// calls this.resume() when sleep is interrupt() or times out.
+			}
+
+			if (PlacementManagerDaemonHandler.INSTANCE.isForceStop())
+			{
+				this.stop();
+				return;
 			}
 		}
+
+		Litematica.debugLog("Executor: Stopped: [{}/{}]", this.isRunning(), this.isPaused());
 	}
 
 	@Override
@@ -186,8 +203,8 @@ public class PlacementManagerDaemonExecutor implements IThreadDaemonExecutor<Pla
 	@Override
 	public boolean shouldPause()
 	{
-		if (this.ticks > this.maxTicks) { return true; }
 		if (this.hasTasks()) { return false; }
+		if (this.ticks > this.maxTicks) { return true; }
 		return this.checkTaskTime();
 	}
 
