@@ -93,7 +93,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT        = new ConfigBoolean("entityDataSyncLoadNbt", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       EXECUTE_REQUIRE_TOOL        = new ConfigBoolean("executeRequireHoldingTool", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_CHEST_MIRROR            = new ConfigBoolean("fixChestMirror", true).apply(GENERIC_KEY);
-        public static final ConfigBoolean       FIX_GLAZED_TERRACOTTA_MIRROR= new ConfigBoolean("fixGlazedTerracottaMirror", false).apply(GENERIC_KEY);
+//        public static final ConfigBoolean       FIX_GLAZED_TERRACOTTA_MIRROR= new ConfigBoolean("fixGlazedTerracottaMirror", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_RAIL_ROTATION           = new ConfigBoolean("fixRailRotation", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_STAIRS_MIRROR           = new ConfigBoolean("fixStairsMirror", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       GENERATE_LOWERCASE_NAMES    = new ConfigBoolean("generateLowercaseNames", false).apply(GENERIC_KEY);
@@ -121,7 +121,8 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PICK_BLOCK_SHULKERS         = new ConfigBoolean("pickBlockShulkers", false).apply(GENERIC_KEY);
         public static final ConfigString        PICK_BLOCKABLE_SLOTS        = new ConfigString( "pickBlockableSlots", "1,2,3,4,5").apply(GENERIC_KEY);
         public static final ConfigBoolean       PLACEMENT_RESTRICTION       = new ConfigBoolean("placementRestriction", false).apply(GENERIC_KEY);
-        public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 2, 1, MathUtils.max(PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS, PlacementManagerDaemonHandler.MIN_PLATFORM_THREADS)).apply(GENERIC_KEY);
+        public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 2, PlacementManagerDaemonHandler.MIN_PLATFORM_THREADS,
+                                                                                                  MathUtils.max(PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS, PlacementManagerDaemonHandler.MIN_PLATFORM_THREADS)).apply(GENERIC_KEY);
 //        public static final ConfigOptionList    PLACEMENT_MANAGER_PROFILE   = new ConfigOptionList("placementManagerProfile", PlacementManagerThreadProfile.DEFAULT).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_MATERIALS_IN_GUI     = new ConfigBoolean("renderMaterialListInGuis", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_THREAD_NO_TIMEOUT    = new ConfigBoolean("renderThreadNoTimeout", true).apply(GENERIC_KEY);
@@ -173,7 +174,7 @@ public class Configs implements IConfigHandler
                 ENTITY_DATA_LOAD_NBT,
                 EXECUTE_REQUIRE_TOOL,
                 FIX_CHEST_MIRROR,
-                FIX_GLAZED_TERRACOTTA_MIRROR,
+//                FIX_GLAZED_TERRACOTTA_MIRROR,
                 FIX_RAIL_ROTATION,
                 FIX_STAIRS_MIRROR,
                 GENERATE_LOWERCASE_NAMES,
@@ -490,7 +491,7 @@ public class Configs implements IConfigHandler
         checkBaseLanguage();
         if (Minecraft.getInstance().level != null)
         {
-            PlacementManagerDaemonHandler.INSTANCE.checkThreadCount();
+            PlacementManagerDaemonHandler.INSTANCE.checkThreadCount(true);
             DataManager.setToolItem(Generic.TOOL_ITEM.getStringValue());
             DataManager.getInstance().setToolItemComponents(Generic.TOOL_ITEM_COMPONENTS.getStringValue(), Minecraft.getInstance().level.registryAccess());
         }

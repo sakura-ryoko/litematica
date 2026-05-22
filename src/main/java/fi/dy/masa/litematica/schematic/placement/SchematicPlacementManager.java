@@ -124,7 +124,8 @@ public class SchematicPlacementManager
     // This fixes when joining the world, and your placements aren't being rendered
     public void onWorldJoin()
     {
-        PlacementManagerDaemonHandler.INSTANCE.checkThreadCount();
+        PlacementManagerDaemonHandler.INSTANCE.resetForceStop();
+        PlacementManagerDaemonHandler.INSTANCE.checkThreadCount(false);
         PlacementManagerDaemonHandler.INSTANCE.start();
 
         if (this.schematicPlacements.isEmpty())
@@ -1181,6 +1182,7 @@ public class SchematicPlacementManager
 
     public void clear()
     {
+        // We can safely use endAll() here; but this is mainly for performance reasons
         PlacementManagerDaemonHandler.INSTANCE.reset();
         this.pendingTasks.clear();
         this.schematicPlacements.clear();

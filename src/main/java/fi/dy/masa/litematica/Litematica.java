@@ -21,9 +21,10 @@ public class Litematica implements ModInitializer
 
     public static void debugLog(String msg, Object... args)
     {
-        if (Configs.Generic.DEBUG_LOGGING.getBooleanValue())
+        if (Configs.Generic.DEBUG_LOGGING.getBooleanValue() || Reference.DEBUG_MODE)
         {
-            Litematica.LOGGER.info(msg, args);
+            String message = "[DEBUG] "+msg;
+            Litematica.LOGGER.info(message, args);
         }
     }
 }
