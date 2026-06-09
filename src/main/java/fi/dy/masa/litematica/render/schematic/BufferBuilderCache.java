@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.render.schematic;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
@@ -33,12 +34,12 @@ public class BufferBuilderCache implements AutoCloseable
 
     protected BufferBuilder getBuilder(ChunkSectionLayer layer, @Nonnull ByteBufferBuilder alloc)
     {
-        return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(alloc, key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
+        return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(alloc, PrimitiveTopology.QUADS, layer.vertexFormat()));
     }
 
     protected BufferBuilder getBuilder(OverlayRenderType type, @Nonnull ByteBufferBuilder alloc)
     {
-        return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(alloc, key.getDrawMode(), key.getVertexFormat()));
+        return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(alloc, key.topology(), key.vertexFormat()));
     }
 
     protected void clearAll()

@@ -52,7 +52,7 @@ public class BlockModelRendererSchematic
 		if (!this.useCulling) { return true; }
 		BlockState neighborState = worldIn.getBlockState(neighbor);
 
-		return (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(posIn, face) ||
+		return (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(fi.dy.masa.malilib.util.position.BlockPos.of(posIn), fi.dy.masa.malilib.util.position.Direction.of(face)) ||
 				Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue() &&
 				(Configs.Visuals.RENDER_TRANSLUCENT_INNER_SIDES.getBooleanValue())) ||
 				Block.shouldRenderFace(stateIn, neighborState, face);

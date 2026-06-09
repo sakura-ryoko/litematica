@@ -523,7 +523,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 				try
 				{
 					Minecraft mc = Minecraft.getInstance();
-					Screenshot.takeScreenshot(mc.getMainRenderTarget(), (screenshot) ->
+					Screenshot.takeScreenshot(mc.gameRenderer.mainRenderTarget(), (screenshot) ->
 					{
 						int x = screenshot.getWidth() >= screenshot.getHeight()
 								? (screenshot.getWidth() - screenshot.getHeight()) / 2 : 0;

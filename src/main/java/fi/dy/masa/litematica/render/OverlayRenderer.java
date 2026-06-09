@@ -21,7 +21,7 @@ import net.minecraft.world.phys.HitResult;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
-import org.joml.Matrix4f;
+
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
@@ -379,7 +379,7 @@ public class OverlayRenderer
     private void renderSchematicMismatches(List<MismatchRenderPos> posList, @Nullable BlockPos lookPos, ProfilerFiller profiler)
     {
         profiler.push("batched_lines");
-        RenderContext ctx = new RenderContext(() -> "litematica:schematic_mistaches/batched_lines", MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL);
+        RenderContext ctx = new RenderContext(() -> "litematica:schematic_mistaches/batched_lines", MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL, 0);
         BufferBuilder buffer = ctx.getBuilder();
 		float lineWidth = 2.0f;
 
@@ -389,11 +389,11 @@ public class OverlayRenderer
 
         for (MismatchRenderPos entry : posList)
         {
-            Color4f color = entry.type.getColor();
+            Color4f color = entry.type().getColor();
 
-            if (entry.pos.equals(lookPos) == false)
+            if (entry.pos().equals(lookPos) == false)
             {
-                fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLinesSimple(entry.pos, color, 0.002, lineWidth, buffer);
+                fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLinesSimple(entry.pos(), color, 0.002, lineWidth, buffer);
             }
             else
             {
@@ -402,7 +402,7 @@ public class OverlayRenderer
 
             if (connections && prevEntry != null)
             {
-                fi.dy.masa.malilib.render.RenderUtils.drawConnectingLineBatchedLines(prevEntry.pos, entry.pos, false, color, lineWidth, buffer);
+                fi.dy.masa.malilib.render.RenderUtils.drawConnectingLineBatchedLines(prevEntry.pos(), entry.pos(), false, color, lineWidth, buffer);
             }
 
             prevEntry = entry;
@@ -412,7 +412,7 @@ public class OverlayRenderer
         {
             if (connections && prevEntry != null)
             {
-                fi.dy.masa.malilib.render.RenderUtils.drawConnectingLineBatchedLines(prevEntry.pos, lookedEntry.pos, false, lookedEntry.type.getColor(), lineWidth, buffer);
+                fi.dy.masa.malilib.render.RenderUtils.drawConnectingLineBatchedLines(prevEntry.pos(), lookedEntry.pos(), false, lookedEntry.type().getColor(), lineWidth, buffer);
             }
 
             try
@@ -431,9 +431,9 @@ public class OverlayRenderer
 
             profiler.popPush("outlines");
 	        lineWidth = 6f;
-            buffer = ctx.start(() -> "litematica:schematic_mistaches/outlines", MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL);
+            buffer = ctx.start(() -> "litematica:schematic_mistaches/outlines", MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL, 0);
 
-            fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLinesSimple(lookPos, lookedEntry.type.getColor(), 0.002, lineWidth, buffer);
+            fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLinesSimple(lookPos, lookedEntry.type().getColor(), 0.002, lineWidth, buffer);
         }
 
         try
@@ -453,15 +453,15 @@ public class OverlayRenderer
         profiler.popPush("sides");
         if (Configs.Visuals.RENDER_ERROR_MARKER_SIDES.getBooleanValue())
         {
-            buffer = ctx.start(() -> "litematica:schematic_mistaches/side_quads", MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL);
+            buffer = ctx.start(() -> "litematica:schematic_mistaches/side_quads", MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL, 0);
 
             float alpha = (float) Configs.InfoOverlays.VERIFIER_ERROR_HILIGHT_ALPHA.getDoubleValue();
 
             for (MismatchRenderPos entry : posList)
             {
-                Color4f color = entry.type.getColor();
+                Color4f color = entry.type().getColor();
                 color = new Color4f(color.r, color.g, color.b, alpha);
-                fi.dy.masa.malilib.render.RenderUtils.renderAreaSidesBatched(entry.pos, entry.pos, color, 0.002, buffer);
+                fi.dy.masa.malilib.render.RenderUtils.renderAreaSidesBatched(entry.pos(), entry.pos(), color, 0.002, buffer);
             }
 
             try
@@ -578,7 +578,7 @@ public class OverlayRenderer
 
                 if (mismatch != null && worldSchematic != null)
                 {
-                    BlockMismatchInfo info = new BlockMismatchInfo(mismatch.stateExpected, mismatch.stateFound);
+                    BlockMismatchInfo info = new BlockMismatchInfo(mismatch.stateExpected(), mismatch.stateFound());
                     BlockInfoAlignment align = (BlockInfoAlignment) Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ALIGNMENT.getOptionListValue();
                     int offY = Configs.InfoOverlays.BLOCK_INFO_OVERLAY_OFFSET_Y.getIntegerValue();
                     int invHeight = RenderUtils.renderInventoryOverlays(ctx, align, offY, worldSchematic, ctx.mc().level, pos);
@@ -808,7 +808,7 @@ public class OverlayRenderer
         profiler.pop();
     }
 
-    private enum BoxType
+    public enum BoxType
     {
         AREA_SELECTED,
         AREA_UNSELECTED,

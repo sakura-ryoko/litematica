@@ -73,22 +73,6 @@ public class LitematicaDebugHud implements DebugScreenEntry
 		this.left = true;
 	}
 
-//	public boolean isDefaultProfile()
-//	{
-//		MinecraftClient mc = MinecraftClient.getInstance();
-//		if (mc.debugHudEntryList == null) return false;
-//
-//		List<Identifier> vis = new ArrayList<>(mc.debugHudEntryList.visibleEntries);
-//		Set<Identifier> def = DebugHudEntries.PROFILES.get(DebugProfileType.DEFAULT).keySet();
-//
-//		for (Identifier entry : def)
-//		{
-//			vis.remove(entry);
-//		}
-//
-//		return (vis.size() == 1 && vis.getFirst() == LITEMATICA_DEBUG);
-//	}
-
 	@Override
 	public void display(@Nonnull DebugScreenDisplayer lines, @Nullable Level world, @Nullable LevelChunk clientChunk, @Nullable LevelChunk chunk)
 	{

@@ -17,7 +17,7 @@ import net.minecraft.world.phys.AABB;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.infohud.InfoHud;

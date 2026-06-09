@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -45,11 +46,15 @@ import net.minecraft.world.ticks.TickPriority;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.IStringConsumer;
-import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.FileNameUtils;
+import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.data.Schema;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.malilib.util.nbt.NbtView;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -73,8 +78,6 @@ import fi.dy.masa.litematica.schematic.transmit.SchematicBufferManager;
 import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.*;
-import fi.dy.masa.litematica.util.EntityUtils;
-import fi.dy.masa.litematica.util.WorldUtils;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class LitematicaSchematic
@@ -312,8 +315,8 @@ public class LitematicaSchematic
      * Copy an existing Litematic to a new object to make a "copy" for file export.
      *
      * @param existing (Existing Litematic object)
-     * @param newAuthor
-     * @return
+     * @param newAuthor -
+     * @return -
      */
     public static LitematicaSchematic createEmptySchematicFromExisting(@Nonnull LitematicaSchematic existing, String newAuthor)
     {
@@ -842,8 +845,8 @@ public class LitematicaSchematic
             Map<BlockPos, ScheduledTick<Fluid>> fluidTickMap = new HashMap<>();
 
             // We want to loop nice & easy from 0 to n here, but the per-sub-region pos1 can be at
-            // any corner of the area. Thus we need to offset from the total area origin
-            // to the minimum/negative corner (ie. 0,0 in the loop) corner here.
+            // any corner of the area. Thus, we need to offset from the total area origin
+            // to the minimum/negative corner (i.e. 0,0 in the loop) corner here.
             final BlockPos minCorner = PositionUtils.getMinCorner(box.getPos1(), box.getPos2());
             final int startX = minCorner.getX();
             final int startY = minCorner.getY();
@@ -934,7 +937,7 @@ public class LitematicaSchematic
                 if (chunkTickScheduler != null)
                 {
                     chunkTickScheduler.getAll()
-                            .filter((t) -> box.containsPos(t.pos()))
+                            .filter((t) -> box.contains(fi.dy.masa.malilib.util.position.BlockPos.of(t.pos())))
                             .forEach((t) -> this.addRelativeTickToMap(outputMap, t, minCorner, currentTick));
                 }
             }
@@ -975,7 +978,7 @@ public class LitematicaSchematic
     public static boolean isGravityBlock(BlockState state)
     {
         return state.is(BlockTags.SAND) ||
-               state.is(BlockTags.CONCRETE_POWDER) ||
+               state.is(BlockTags.CONCRETE_POWDERS) ||
                state.getBlock() == Blocks.GRAVEL;
     }
 
@@ -1520,9 +1523,9 @@ public class LitematicaSchematic
 
             if (version >= 1 && version <= SCHEMATIC_VERSION)
             {
-                if (minecraftDataVersion - this.MINECRAFT_DATA_VERSION > 100)
+                if (minecraftDataVersion - MINECRAFT_DATA_VERSION > 100)
                 {
-                    InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.error.schematic_load.newer_minecraft_version", minecraftDataVersion, this.MINECRAFT_DATA_VERSION);
+                    InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, "litematica.error.schematic_load.newer_minecraft_version", minecraftDataVersion, MINECRAFT_DATA_VERSION);
                 }
 
                 this.metadata.readFromNBT(nbt.getCompoundOrEmpty("Metadata"));
@@ -1678,7 +1681,6 @@ public class LitematicaSchematic
     {
         final int size = tagList.size();
         List<BlockState> list = new ArrayList<>(size);
-        //RegistryEntryLookup<Block> lookup = Registries.createEntryLookup(Registries.BLOCK);
         HolderGetter<Block> lookup = SchematicWorldHandler.INSTANCE.getRegistryManager().lookupOrThrow(Registries.BLOCK);
 
         for (int id = 0; id < size; ++id)
@@ -2991,38 +2993,24 @@ public class LitematicaSchematic
                 case SPONGE_SCHEMATIC ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
-//                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
-//                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
 
                     if (schem.readFromSpongeSchematicMetadataOnly(fileName, nbt))
                     {
-//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         SchematicMetadata meta = schem.getMetadata();
                         updateMetadataWithFileTime(file, meta);
                         return Pair.of(meta.getSchematicSchema(), meta);
                     }
-//                    else
-//                    {
-//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
-//                    }
                 }
                 case VANILLA_STRUCTURE ->
                 {
                     LitematicaSchematic schem = new LitematicaSchematic(file, type);
-//                    DataFixerMode dataFixer = (DataFixerMode) Configs.Generic.DATAFIXER_MODE.getOptionListValue();
-//                    Configs.Generic.DATAFIXER_MODE.setOptionListValue(DataFixerMode.NEVER);
 
                     if (schem.readFromVanillaStructureMetadataOnly(fileName, nbt))
                     {
-//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         SchematicMetadata meta = schem.getMetadata();
                         updateMetadataWithFileTime(file, meta);
                         return Pair.of(meta.getSchematicSchema(), meta);
                     }
-//                    else
-//                    {
-//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
-//                    }
                 }
                 case SCHEMATICA_SCHEMATIC ->
                 {
@@ -3030,7 +3018,6 @@ public class LitematicaSchematic
 
                     if (schem.readBlocksFromNBTMetadataOnly(file, nbt))
                     {
-//                        Configs.Generic.DATAFIXER_MODE.setOptionListValue(dataFixer);
                         SchematicMetadata meta = schem.getMetadata();
                         updateMetadataWithFileTime(file, meta);
                         return Pair.of(meta.getSchematicSchema(), meta);
@@ -3135,18 +3122,24 @@ public class LitematicaSchematic
         return schematic.readFromFile(schematicType) ? schematic : null;
     }
 
-    public static class EntityInfo
+    public record EntityInfo(Vec3 posVec, CompoundTag nbt)
     {
-        public final Vec3 posVec;
-        public final CompoundTag nbt;
-
         public EntityInfo(Vec3 posVec, CompoundTag nbt)
         {
             this.posVec = posVec;
 
-            if (nbt.contains("SleepingX")) { nbt.putInt("SleepingX", Mth.floor(posVec.x)); }
-            if (nbt.contains("SleepingY")) { nbt.putInt("SleepingY", Mth.floor(posVec.y)); }
-            if (nbt.contains("SleepingZ")) { nbt.putInt("SleepingZ", Mth.floor(posVec.z)); }
+            if (nbt.contains("SleepingX"))
+            {
+                nbt.putInt("SleepingX", Mth.floor(posVec.x));
+            }
+            if (nbt.contains("SleepingY"))
+            {
+                nbt.putInt("SleepingY", Mth.floor(posVec.y));
+            }
+            if (nbt.contains("SleepingZ"))
+            {
+                nbt.putInt("SleepingZ", Mth.floor(posVec.z));
+            }
 
             this.nbt = nbt;
         }
@@ -3157,28 +3150,11 @@ public class LitematicaSchematic
         }
     }
 
-    public static class SchematicSaveInfo
+    public record SchematicSaveInfo(boolean visibleOnly, boolean includeSupportBlocks, boolean ignoreEntities, boolean fromSchematicWorld)
     {
-        public final boolean visibleOnly;
-        public final boolean includeSupportBlocks;
-        public final boolean ignoreEntities;
-        public final boolean fromSchematicWorld;
-
-        public SchematicSaveInfo(boolean visibleOnly,
-                                 boolean ignoreEntities)
+        public SchematicSaveInfo(boolean visibleOnly, boolean ignoreEntities)
         {
-            this (visibleOnly, false, ignoreEntities, false);
-        }
-
-        public SchematicSaveInfo(boolean visibleOnly,
-                                 boolean includeSupportBlocks,
-                                 boolean ignoreEntities,
-                                 boolean fromSchematicWorld)
-        {
-            this.visibleOnly = visibleOnly;
-            this.includeSupportBlocks = includeSupportBlocks;
-            this.ignoreEntities = ignoreEntities;
-            this.fromSchematicWorld = fromSchematicWorld;
+            this(visibleOnly, false, ignoreEntities, false);
         }
     }
 
@@ -3187,6 +3163,7 @@ public class LitematicaSchematic
      *
      * @return ()
      */
+    @VisibleForTesting
     @Override
     public String toString()
     {

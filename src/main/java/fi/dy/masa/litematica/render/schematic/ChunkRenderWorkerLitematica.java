@@ -21,14 +21,12 @@ public class ChunkRenderWorkerLitematica implements Runnable
 {
     private static final Logger LOGGER = Litematica.LOGGER;
     private final ChunkRenderDispatcherLitematica chunkRenderDispatcher;
-//    private UberBufferCache uberCache;
     private boolean shouldRun;
 
     public ChunkRenderWorkerLitematica(ChunkRenderDispatcherLitematica chunkRenderDispatcherIn)
     {
         this.shouldRun = true;
         this.chunkRenderDispatcher = chunkRenderDispatcherIn;
-//        this.uberCache = uberCacheIn;
 //        LOGGER.error("[LW] init()");
     }
 
@@ -91,12 +89,6 @@ public class ChunkRenderWorkerLitematica implements Runnable
         }
         else
         {
-//            if (!task.setRegionRenderCacheBuilder(this.getRegionRenderCache()))
-//            {
-//                profiler.pop();
-//                throw new InterruptedException("No free Allocator Cache found");
-//            }
-
             ChunkRenderTaskSchematic.Type taskType = task.getType();
 
 //            profiler.popPush("run_task_now_" + taskType.name());
@@ -122,7 +114,6 @@ public class ChunkRenderWorkerLitematica implements Runnable
                         LOGGER.warn("Chunk render task was {} when I expected it to be compiling; aborting task", (Object) task.getStatus());
                     }
 
-//                    this.resetUberBuffers(task);
 //                    profiler.pop();
                     return;
                 }
@@ -138,7 +129,6 @@ public class ChunkRenderWorkerLitematica implements Runnable
             ArrayList<ListenableFuture<Object>> futuresList = Lists.newArrayList();
             ChunkRendererSchematicVbo renderChunk = task.getRenderChunk();
             ChunkRenderDataSchematic compiledChunk = task.getChunkRenderData();
-//            ByteBufferBuilderCache allocators = task.getAllocatorCache();
 
 //            LOGGER.warn("[LW] processTask() PRE compiledChunk DUMP -->");
 //            compiledChunk.dumpRenderDataDebug();
@@ -257,42 +247,6 @@ public class ChunkRenderWorkerLitematica implements Runnable
 
 //        profiler.pop();
     }
-
-//    @Nullable
-//    private UberBufferCache getRegionRenderCache() throws InterruptedException
-//    {
-//        return this.uberCache != null ? this.uberCache : this.chunkRenderDispatcher.allocateUberBuffers();
-//    }
-//
-//    private void clearUberBuffers(ChunkRenderTaskSchematic generator)
-//    {
-//        UberBufferCache uberCache = generator.getUberCache();
-//
-//        if (uberCache != null && !uberCache.isClear())
-//        {
-//            uberCache.clearAll();
-//        }
-//
-//        if (this.uberCache == null)
-//        {
-//            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
-//        }
-//    }
-//
-//    private void resetUberBuffers(ChunkRenderTaskSchematic generator)
-//    {
-//        UberBufferCache uberCache = generator.getUberCache();
-//
-//        if (uberCache != null && !uberCache.isClear())
-//        {
-//            uberCache.clearAll();
-//        }
-//
-//        if (this.uberCache == null)
-//        {
-//            this.chunkRenderDispatcher.freeUberBuffers(uberCache);
-//        }
-//    }
 
     public void notifyToStop()
     {

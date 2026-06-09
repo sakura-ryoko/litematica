@@ -13,7 +13,7 @@ public class TaskTimer
 
     /**
      * Ticks the timer. Returns true when it hits 0, and then resets itself.
-     * @return
+     * @return -
      */
     public boolean tick()
     {

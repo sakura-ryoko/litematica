@@ -1,7 +1,5 @@
 package fi.dy.masa.litematica.gui;
 
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiRenderLayerEditBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
@@ -9,8 +7,10 @@ import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
 import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
-import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.position.LayerRange;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
 
 public class GuiRenderLayer extends GuiRenderLayerEditBase
 {

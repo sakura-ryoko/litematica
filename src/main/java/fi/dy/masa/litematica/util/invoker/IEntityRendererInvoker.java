@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.util;
+package fi.dy.masa.litematica.util.invoker;
 
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;

@@ -28,7 +28,7 @@ public class PmCommand implements IClientCommandListener
 		if (mc.getCameraEntity() == null) return false;
 		List<String> list = new ArrayList<>(args);      // Copy it first
 		ChunkPos camPos = mc.getCameraEntity().chunkPosition();
-		ChatComponent chat = mc.gui.getChat();
+		ChatComponent chat = mc.gui.hud.getChat();
 		list.removeFirst();
 
 		if (!list.isEmpty())

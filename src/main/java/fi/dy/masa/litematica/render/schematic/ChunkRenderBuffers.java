@@ -3,8 +3,8 @@ package fi.dy.masa.litematica.render.schematic;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.Nullable;
 
+import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 public class ChunkRenderBuffers implements AutoCloseable
 {
@@ -13,12 +13,12 @@ public class ChunkRenderBuffers implements AutoCloseable
     @Nullable
     protected volatile GpuBuffer indexBuffer;
     private volatile int indexCount;
-    private volatile VertexFormat.IndexType indexType;
+    private volatile IndexType indexType;
 
     protected ChunkRenderBuffers(Supplier<String> name,
                                  GpuBuffer vertexBuffer,
                                  @Nullable GpuBuffer indexBuffer,
-                                 int indexCount, VertexFormat.IndexType indexType)
+                                 int indexCount, IndexType indexType)
     {
         this.name = name;
         this.vertexBuffer = vertexBuffer;
@@ -53,12 +53,12 @@ public class ChunkRenderBuffers implements AutoCloseable
         return this.indexCount;
     }
 
-    protected VertexFormat.IndexType getIndexType()
+    protected IndexType getIndexType()
     {
         return this.indexType;
     }
 
-    protected void setIndexType(VertexFormat.IndexType indexType)
+    protected void setIndexType(IndexType indexType)
     {
         this.indexType = indexType;
     }

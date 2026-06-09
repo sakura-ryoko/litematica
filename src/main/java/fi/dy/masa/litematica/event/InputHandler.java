@@ -322,7 +322,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                 }
                 else
                 {
-                    return WorldUtils.handlePlacementRestriction(mc);
+                    return EasyPlaceUtils.handlePlacementRestriction(mc);
                 }
             }
         }

@@ -23,23 +23,23 @@ public abstract class MixinBlockItem_easyPlace extends Item
     }
 
     @Shadow protected abstract BlockState getPlacementState(BlockPlaceContext context);
-    @Shadow protected abstract boolean canPlace(BlockPlaceContext context, BlockState state);
+    @Shadow protected abstract boolean canPlace(BlockPlaceContext context, BlockState stateForPlacement);
     @Shadow public abstract Block getBlock();
 
     @Inject(method = "getPlacementState", at = @At("HEAD"), cancellable = true)
-    private void litematica_modifyPlacementState(BlockPlaceContext ctx, CallbackInfoReturnable<BlockState> cir)
+    private void litematica_modifyPlacementState(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
             Configs.Generic.EASY_PLACE_SP_HANDLING.getBooleanValue())
         {
-            BlockState stateOrig = this.getBlock().getStateForPlacement(ctx);
+            BlockState stateOrig = this.getBlock().getStateForPlacement(context);
 
             if (stateOrig != null)
             {
-				if (!Configs.Generic.EASY_PLACE_SP_VALIDATION.getBooleanValue() || this.canPlace(ctx, stateOrig))
+				if (!Configs.Generic.EASY_PLACE_SP_VALIDATION.getBooleanValue() || this.canPlace(context, stateOrig))
 				{
-					UseContext context = UseContext.from(ctx, ctx.getHand());
-					cir.setReturnValue(PlacementHandler.applyPlacementProtocolToPlacementState(stateOrig, context));
+					UseContext ctx = UseContext.from(context, context.getHand());
+					cir.setReturnValue(PlacementHandler.applyPlacementProtocolToPlacementState(stateOrig, ctx));
 				}
             }
         }

@@ -31,8 +31,6 @@ import fi.dy.masa.litematica.util.ItemUtils;
 
 public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<BlockMismatchEntry>
 {
-//    private static final LocalRandom RAND = new LocalRandom(0);
-
     public static final String HEADER_EXPECTED = "litematica.gui.label.schematic_verifier.expected";
     public static final String HEADER_FOUND = "litematica.gui.label.schematic_verifier.found";
     public static final String HEADER_COUNT = "litematica.gui.label.schematic_verifier.count";
@@ -41,7 +39,6 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
     private static int maxNameLengthFound;
     private static int maxCountLength;
 
-//    private final BlockRenderManager blockModelShapes;
     private final GuiSchematicVerifier guiSchematicVerifier;
     private final WidgetListSchematicVerificationResults listWidget;
     private final SchematicVerifier verifier;
@@ -61,7 +58,6 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         super(x, y, width, height, entry, listIndex);
 
         this.columnCount = 3;
-//        this.blockModelShapes = this.mc.getBlockRenderManager();
         this.mismatchEntry = entry;
         this.guiSchematicVerifier = guiSchematicVerifier;
         this.listWidget = listWidget;
@@ -94,8 +90,8 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
             this.header1 = null;
             this.header2 = null;
             this.header3 = null;
-            this.mismatchInfo = new BlockMismatchInfo(entry.blockMismatch.stateExpected, entry.blockMismatch.stateFound);
-            this.count = entry.blockMismatch.count;
+            this.mismatchInfo = new BlockMismatchInfo(entry.blockMismatch.stateExpected(), entry.blockMismatch.stateFound());
+            this.count = entry.blockMismatch.count();
 
             if (entry.mismatchType != MismatchType.CORRECT_STATE)
             {
@@ -116,12 +112,12 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
 
         for (BlockMismatch entry : mismatches)
         {
-            ItemStack stack = ItemUtils.getItemForState(entry.stateExpected);
-            String name = BlockMismatchInfo.getDisplayName(entry.stateExpected, stack);
+            ItemStack stack = ItemUtils.getItemForState(entry.stateExpected());
+            String name = BlockMismatchInfo.getDisplayName(entry.stateExpected(), stack);
             maxNameLengthExpected = Math.max(maxNameLengthExpected, StringUtils.getStringWidth(name));
 
-            stack = ItemUtils.getItemForState(entry.stateFound);
-            name = BlockMismatchInfo.getDisplayName(entry.stateFound, stack);
+            stack = ItemUtils.getItemForState(entry.stateFound());
+            name = BlockMismatchInfo.getDisplayName(entry.stateFound(), stack);
             maxNameLengthFound = Math.max(maxNameLengthFound, StringUtils.getStringWidth(name));
         }
 
@@ -153,14 +149,14 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         int x2 = x1 + maxNameLengthExpected + 40; // including item icon
         int x3 = x2 + maxNameLengthFound + 40;
 
-        switch (column)
-        {
-            case 0: return x1;
-            case 1: return x2;
-            case 2: return x3;
-            case 3: return x3 + maxCountLength + 20;
-            default: return x1;
-        }
+	    return switch (column)
+	    {
+		    case 0 -> x1;
+		    case 1 -> x2;
+		    case 2 -> x3;
+		    case 3 -> x3 + maxCountLength + 20;
+		    default -> x1;
+	    };
     }
 
     @Override
@@ -269,7 +265,7 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
         }
         else if (this.mismatchInfo != null &&
                 (this.mismatchEntry.mismatchType != MismatchType.CORRECT_STATE ||
-                 this.mismatchEntry.blockMismatch.stateExpected.isAir() == false)) 
+                 this.mismatchEntry.blockMismatch.stateExpected().isAir() == false))
         {
             this.drawString(ctx, x1 + 20, y, color, this.mismatchInfo.nameExpected);
 

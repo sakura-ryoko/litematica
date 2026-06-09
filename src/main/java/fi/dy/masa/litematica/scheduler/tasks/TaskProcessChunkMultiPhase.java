@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import javax.annotation.Nullable;
+import com.google.common.collect.Queues;
+
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -13,11 +15,11 @@ import net.minecraft.util.Util;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
-import com.google.common.collect.Queues;
+
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.util.ToBooleanFunction;
-import fi.dy.masa.malilib.util.IntBoundingBox;
 
 public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
 {

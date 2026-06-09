@@ -50,7 +50,7 @@ import fi.dy.masa.malilib.interfaces.IDataSyncer;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractHorseEntity;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractNautilus;
 import fi.dy.masa.malilib.mixin.entity.IMixinPiglinEntity;
-import fi.dy.masa.malilib.mixin.network.IMixinDataQueryHandler;
+import fi.dy.masa.malilib.mixin.network.IMixinDebugQueryHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.InventoryUtils;
@@ -665,10 +665,18 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 }
             }
 
-            if (world instanceof ServerLevel)
+            if (world instanceof ServerLevel sl)
             {
-//                return this.refreshBlockEntityFromWorld(world, pos);
-                this.requestBlockEntityFromLocalServer(this.mc, world, pos);
+                if (Thread.currentThread().getName().contains("Server"))
+                {
+//                    Litematica.debugLog("requestBlockEntity: be at pos [{}] refresh from server world", pos.toShortString());
+                    return this.refreshBlockEntityFromWorld(sl, pos);
+                }
+                else
+                {
+//                    Litematica.debugLog("requestBlockEntity: be at pos [{}] refresh from local server", pos.toShortString());
+                    this.requestBlockEntityFromLocalServer(this.mc, world, pos);
+                }
             }
 
             return this.blockEntityCache.get(pos).getRight();
@@ -750,10 +758,18 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             }
 
             // Refresh from Server World
-            if (world instanceof ServerLevel)
+            if (world instanceof ServerLevel sl)
             {
-//                return this.refreshEntityFromWorld(world, entityId);
-                this.requestEntityFromLocalServer(this.mc, world, entityId);
+                if (Thread.currentThread().getName().contains("Server"))
+                {
+//                    Litematica.debugLog("requestEntity: entity Id [{}] refresh from server world", entityId);
+                    return this.refreshEntityFromWorld(sl, entityId);
+                }
+                else
+                {
+//                    Litematica.debugLog("requestEntity: entity Id [{}] refresh from local server", entityId);
+                    this.requestEntityFromLocalServer(this.mc, world, entityId);
+                }
             }
 
             return this.entityCache.get(entityId).getRight();
@@ -1022,7 +1038,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         {
             this.sentBackupPackets = true;
             handler.getDebugQueryHandler().queryBlockEntityTag(pos, nbtCompound -> this.handleBlockEntityData(pos, nbtCompound, null));
-            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.left(pos));
+            this.transactionToBlockPosOrEntityId.put(((IMixinDebugQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.left(pos));
         }
     }
 
@@ -1039,7 +1055,7 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
         {
             this.sentBackupPackets = true;
             handler.getDebugQueryHandler().queryEntityTag(entityId, nbtCompound -> this.handleEntityData(entityId, nbtCompound));
-            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.right(entityId));
+            this.transactionToBlockPosOrEntityId.put(((IMixinDebugQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.right(entityId));
         }
     }
 

@@ -1,8 +1,9 @@
 package fi.dy.masa.litematica.util;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.core.BlockPos;
@@ -19,15 +20,18 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.decoration.painting.Painting;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.Vec3;
 
-import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.malilib.util.nbt.NbtView;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -35,7 +39,9 @@ import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
-import fi.dy.masa.litematica.world.*;
+import fi.dy.masa.litematica.world.ChunkSchematicState;
+import fi.dy.masa.litematica.world.ProtoChunkSchematic;
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
 public class WorldPlacingUtils
 {
@@ -339,7 +345,7 @@ public class WorldPlacingUtils
 
         for (EntityInfo info : entityList)
         {
-            Vec3 pos = info.posVec;
+            Vec3 pos = info.posVec();
             pos = PositionUtils.getTransformedPosition(pos, schematicPlacement.getMirror(), schematicPlacement.getRotation());
             pos = PositionUtils.getTransformedPosition(pos, placement.getMirror(), placement.getRotation());
             double x = pos.x + offX;
@@ -349,7 +355,7 @@ public class WorldPlacingUtils
 
             if (x >= minX && x < maxX && z >= minZ && z < maxZ)
             {
-                CompoundTag tag = info.nbt.copy();
+                CompoundTag tag = info.nbt().copy();
                 String id = tag.getStringOr("id", "");
 
                 // Avoid warning about invalid hanging position.

@@ -5,16 +5,18 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
+import com.google.common.collect.ArrayListMultimap;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import com.google.common.collect.ArrayListMultimap;
-import fi.dy.masa.malilib.util.IntBoundingBox;
+
 import fi.dy.masa.malilib.util.LayerMode;
-import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -186,8 +188,8 @@ public abstract class TaskProcessChunkBase extends TaskBase
     {
         for (Box box : boxes)
         {
-            final int rangeMin = range.getLayerMin();
-            final int rangeMax = range.getLayerMax();
+            final int rangeMin = range.getMinLayerBoundary();
+            final int rangeMax = range.getMaxLayerBoundary();
             int boxMinX = Math.min(box.getPos1().getX(), box.getPos2().getX());
             int boxMinY = Math.min(box.getPos1().getY(), box.getPos2().getY());
             int boxMinZ = Math.min(box.getPos1().getZ(), box.getPos2().getZ());

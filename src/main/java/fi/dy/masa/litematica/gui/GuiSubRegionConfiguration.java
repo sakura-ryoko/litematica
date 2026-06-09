@@ -365,28 +365,18 @@ public class GuiSubRegionConfiguration extends GuiBase
                 BlockPos posOld = this.placement.getPos();
                 posOld = PositionUtils.getTransformedBlockPos(posOld, this.schematicPlacement.getMirror(), this.schematicPlacement.getRotation());
                 posOld = posOld.offset(this.schematicPlacement.getOrigin());
-                BlockPos pos = posOld;
-
-                switch (this.type)
+                BlockPos pos = switch (this.type)
                 {
-                    case X:
-                        pos = new BlockPos(value, posOld.getY(), posOld.getZ());
-                        break;
-                    case Y:
-                        pos = new BlockPos(posOld.getX(), value, posOld.getZ());
-                        break;
-                    case Z:
-                        pos = new BlockPos(posOld.getX(), posOld.getY(), value);
-                        break;
-                }
+	                case X -> new BlockPos(value, posOld.getY(), posOld.getZ());
+	                case Y -> new BlockPos(posOld.getX(), value, posOld.getZ());
+	                case Z -> new BlockPos(posOld.getX(), posOld.getY(), value);
+                };
 
-                this.parent.setNextMessageType(MessageType.ERROR);
+	            this.parent.setNextMessageType(MessageType.ERROR);
                 this.schematicPlacement.moveSubRegionTo(this.placement.getName(), pos, this.parent);
                 this.parent.updateElements();
             }
-            catch (NumberFormatException ignored)
-            {
-            }
+            catch (NumberFormatException ignored) { }
 
             return false;
         }
@@ -398,10 +388,7 @@ public class GuiSubRegionConfiguration extends GuiBase
         @Override
         public void onSelectionChange(WidgetCheckBox entry)
         {
-            if (entry == null)
-            {
-                return;
-            }
+            if (entry == null) { return; }
             this.placement.setCoordinateLocked(this.type, entry.isChecked());
         }
     }

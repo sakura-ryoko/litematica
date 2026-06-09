@@ -81,7 +81,6 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
         x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
 		x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_SCHEMATIC) + 4;
 		x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
-//		x += this.createButton(x, y, -1, ButtonListener.Type.DELETE) + 4;
 		// Masa doesn't want "destructive" operations in the Load GUI.
 
         ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS;
@@ -133,128 +132,108 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
 
 			if (entry == null)
 			{
-					// Masa doesn't want "destructive" operations in the Load GUI.
-					// Used to delete an empty folder that is selected
-	//				if (this.type == Type.DELETE)
-	//				{
-	//					Path target = this.gui.getListWidget().getCurrentDirectory();
-	//					FileDeleter deleter = new FileDeleter(target, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-	//					GuiBase.openGui(new GuiConfirmAction(180, "litematica.gui.title.delete_confirm", deleter, this.gui, "litematica.message.delete_confirm", target.getFileName().toString()));
-	//				}
-	//				else
-	//				{
+				// Masa doesn't want "destructive" operations in the Load GUI.
+				// Used to delete an empty folder that is selected
 				this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.no_schematic_selected");
-	//				}
 			}
+			else
+			{
+				Path file = entry.getFullPath();
+
+				if (!Files.exists(file) || !Files.isReadable(file))
+				{
+					this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.cant_read_file", file.getFileName());
+					return;
+				}
+
+				this.gui.setNextMessageType(MessageType.ERROR);
+				LitematicaSchematic schematic = null;
+				FileType fileType = FileType.fromFile(entry.getFullPath());
+				boolean warnType = false;
+
+				if (fileType == FileType.LITEMATICA_SCHEMATIC)
+				{
+					schematic = LitematicaSchematic.createFromFile(entry.getDirectory(), entry.name());
+				}
+				else if (fileType == FileType.SCHEMATICA_SCHEMATIC)
+				{
+					schematic
+							= WorldUtils.convertSchematicaSchematicToLitematicaSchematic(entry.getDirectory(), entry.name(), false, this.gui);
+					warnType = true;
+				}
+				else if (fileType == FileType.VANILLA_STRUCTURE)
+				{
+					schematic = WorldUtils.convertStructureToLitematicaSchematic(entry.getDirectory(), entry.name());
+					warnType = true;
+				}
+				else if (fileType == FileType.SPONGE_SCHEMATIC)
+				{
+					schematic
+							= WorldUtils.convertSpongeSchematicToLitematicaSchematic(entry.getDirectory(), entry.name());
+					warnType = true;
+				}
 				else
 				{
-					Path file = entry.getFullPath();
+					this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.unsupported_type", file.getFileName());
+				}
 
-					if (!Files.exists(file) || !Files.isReadable(file))
+				if (schematic != null)
+				{
+					if (this.type == Type.LOAD_SCHEMATIC)
 					{
-						this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.cant_read_file", file.getFileName());
-						return;
-					}
+						SchematicHolder.getInstance().addSchematic(schematic, true);
+						this.gui.addMessage(MessageType.SUCCESS, "litematica.info.schematic_load.schematic_loaded", file.getFileName());
 
-					this.gui.setNextMessageType(MessageType.ERROR);
-					LitematicaSchematic schematic = null;
-					FileType fileType = FileType.fromFile(entry.getFullPath());
-					boolean warnType = false;
-
-					if (fileType == FileType.LITEMATICA_SCHEMATIC)
-					{
-						schematic = LitematicaSchematic.createFromFile(entry.getDirectory(), entry.name());
-					}
-					else if (fileType == FileType.SCHEMATICA_SCHEMATIC)
-					{
-						schematic
-								= WorldUtils.convertSchematicaSchematicToLitematicaSchematic(entry.getDirectory(), entry.name(), false, this.gui);
-						warnType = true;
-					}
-					else if (fileType == FileType.VANILLA_STRUCTURE)
-					{
-						schematic = WorldUtils.convertStructureToLitematicaSchematic(entry.getDirectory(), entry.name());
-						warnType = true;
-					}
-					else if (fileType == FileType.SPONGE_SCHEMATIC)
-					{
-						schematic
-								= WorldUtils.convertSpongeSchematicToLitematicaSchematic(entry.getDirectory(), entry.name());
-						warnType = true;
-					}
-					else
-					{
-						this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.unsupported_type", file.getFileName());
-					}
-
-					if (schematic != null)
-					{
-						if (this.type == Type.LOAD_SCHEMATIC)
+						if (DataManager.getCreatePlacementOnLoad() && this.gui.mc.player != null)
 						{
-							SchematicHolder.getInstance().addSchematic(schematic, true);
-							this.gui.addMessage(MessageType.SUCCESS, "litematica.info.schematic_load.schematic_loaded", file.getFileName());
+							BlockPos pos = BlockPos.containing(this.gui.mc.player.position());
+							String name = schematic.getMetadata().getName();
+							boolean enabled = !GuiBase.isShiftDown();
 
-							if (DataManager.getCreatePlacementOnLoad() && this.gui.mc.player != null)
-							{
-								BlockPos pos = BlockPos.containing(this.gui.mc.player.position());
-								String name = schematic.getMetadata().getName();
-								boolean enabled = GuiBase.isShiftDown() == false;
+							SchematicPlacementManager manager = DataManager.getSchematicPlacementManager();
+							SchematicPlacement placement
+									= SchematicPlacement.createFor(schematic, pos, name, enabled, enabled);
+							manager.addSchematicPlacement(placement, true);
+							manager.setSelectedSchematicPlacement(placement);
+						}
+					}
+					else if (this.type == Type.MATERIAL_LIST)
+					{
+						if (GuiBase.isShiftDown())
+						{
+							MaterialListCreator creator = new MaterialListCreator(schematic);
+							GuiStringListSelection gui = new GuiStringListSelection(schematic.getAreas()
+							                                                                 .keySet(), creator);
+							gui.setTitle(StringUtils.translate("litematica.gui.title.material_list.select_schematic_regions", schematic.getMetadata()
+							                                                                                                           .getName()));
+							gui.setParent(GuiUtils.getCurrentScreen());
+							GuiBase.openGui(gui);
+						}
+						else
+						{
+							MaterialListSchematic materialList = new MaterialListSchematic(schematic, true);
+							DataManager.setMaterialList(materialList); // Remember the last opened material list for the hotkey to (re-) open it
+							GuiBase.openGui(new GuiMaterialList(materialList));
+						}
+					}
+					else if (this.type == Type.RENAME_SCHEMATIC)
+					{
+						String oldName = schematic.getMetadata().getName();
+						GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.rename_schematic", oldName, this.gui, new SchematicRenamer(entry.getDirectory(), entry.name(), this.gui)));
+					}
+					else if (this.type == Type.RENAME_FILE)
+					{
+						FileRenamer renamer = new FileRenamer(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
+						GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.rename_file", entry.name(), this.gui, renamer));
+					}
+					// Masa doesn't want "destructive" operations in the Load GUI.
 
-								SchematicPlacementManager manager = DataManager.getSchematicPlacementManager();
-								SchematicPlacement placement
-										= SchematicPlacement.createFor(schematic, pos, name, enabled, enabled);
-								manager.addSchematicPlacement(placement, true);
-								manager.setSelectedSchematicPlacement(placement);
-							}
-						}
-						else if (this.type == Type.MATERIAL_LIST)
-						{
-							if (GuiBase.isShiftDown())
-							{
-								MaterialListCreator creator = new MaterialListCreator(schematic);
-								GuiStringListSelection gui = new GuiStringListSelection(schematic.getAreas()
-								                                                                 .keySet(), creator);
-								gui.setTitle(StringUtils.translate("litematica.gui.title.material_list.select_schematic_regions", schematic.getMetadata()
-								                                                                                                           .getName()));
-								gui.setParent(GuiUtils.getCurrentScreen());
-								GuiBase.openGui(gui);
-							}
-							else
-							{
-								MaterialListSchematic materialList = new MaterialListSchematic(schematic, true);
-								DataManager.setMaterialList(materialList); // Remember the last opened material list for the hotkey to (re-) open it
-								GuiBase.openGui(new GuiMaterialList(materialList));
-							}
-						}
-						else if (this.type == Type.RENAME_SCHEMATIC)
-						{
-							String oldName = schematic.getMetadata().getName();
-							GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.rename_schematic", oldName, this.gui, new SchematicRenamer(entry.getDirectory(), entry.name(), this.gui)));
-						}
-						// Masa doesn't want "destructive" operations in the Load GUI.
-	//					else if (this.type == Type.COPY)
-	//					{
-	//						FileCopier copier = new FileCopier(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-	//						GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.copy_file", entry.getName(), this.gui, copier));
-	//					}
-						else if (this.type == Type.RENAME_FILE)
-						{
-							FileRenamer renamer = new FileRenamer(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-							GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.rename_file", entry.name(), this.gui, renamer));
-						}
-						// Masa doesn't want "destructive" operations in the Load GUI.
-	//					else if (this.type == Type.DELETE)
-	//					{
-	//						FileDeleter deleter = new FileDeleter(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-	//						GuiBase.openGui(new GuiConfirmAction(180, "litematica.gui.title.delete_confirm", deleter, this.gui, "litematica.message.delete_confirm", file.getFileName().toString()));
-	//					}
-
-						if (warnType)
-						{
-							InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, 15000, "litematica.message.warn.schematic_load_non_litematica");
-						}
+					if (warnType)
+					{
+						InfoUtils.showGuiOrInGameMessage(MessageType.WARNING, 15000, "litematica.message.warn.schematic_load_non_litematica");
 					}
 				}
+			}
 		}
 
 			private record SchematicRenamer(Path dir, String fileName, GuiSchematicLoad gui)

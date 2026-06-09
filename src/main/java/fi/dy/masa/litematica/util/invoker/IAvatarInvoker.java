@@ -1,4 +1,4 @@
-package fi.dy.masa.litematica.util;
+package fi.dy.masa.litematica.util.invoker;
 
 public interface IAvatarInvoker
 {

@@ -43,7 +43,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
                 this.overlayCache.get(type).close();
             }
 
-            this.overlayCache.put(type, new ByteBufferBuilder(type.getExpectedBufferSize()));
+            this.overlayCache.put(type, new ByteBufferBuilder(type.expectedBufferSize()));
         }
 
         this.clear = true;
@@ -68,7 +68,7 @@ public class ByteBufferBuilderCache implements AutoCloseable
     protected ByteBufferBuilder getAllocator(OverlayRenderType type)
     {
         this.clear = false;
-        return this.overlayCache.computeIfAbsent(type, t -> new ByteBufferBuilder(t.getExpectedBufferSize()));
+        return this.overlayCache.computeIfAbsent(type, t -> new ByteBufferBuilder(t.expectedBufferSize()));
     }
 
     protected void closeByBlockLayer(ChunkSectionLayer layer)
@@ -157,6 +157,6 @@ public class ByteBufferBuilderCache implements AutoCloseable
 
     static
     {
-        EXPECTED_TOTAL_SIZE = BLOCK_LAYERS.stream().mapToInt(ChunkSectionLayer::bufferSize).sum() + TYPES.stream().mapToInt(OverlayRenderType::getExpectedBufferSize).sum();
+        EXPECTED_TOTAL_SIZE = BLOCK_LAYERS.stream().mapToInt(ChunkSectionLayer::bufferSize).sum() + TYPES.stream().mapToInt(OverlayRenderType::expectedBufferSize).sum();
     }
 }

@@ -81,7 +81,7 @@ public class RenderHandler implements IRenderer
 
             if (GuiUtils.getCurrentScreen() == null)
             {
-                if (ctx.mc().options.hideGui == false)
+                if (ctx.mc().gui.hud.isHidden() == false)
                 {
                     ToolHud.getInstance().renderHud(ctx);
                     profiler.popPush("overlay_hover_info");

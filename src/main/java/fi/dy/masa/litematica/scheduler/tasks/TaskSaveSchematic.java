@@ -3,15 +3,16 @@ package fi.dy.masa.litematica.scheduler.tasks;
 import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
@@ -48,7 +49,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         this.subRegions = area.getAllSubRegions();
         this.info = info;
         this.overrideFile = overrideFile;
-        this.fromSchematicWorld = info.fromSchematicWorld;
+        this.fromSchematicWorld = info.fromSchematicWorld();
 
         this.addPerChunkBoxes(area.getAllSubRegionBoxes());
     }
@@ -107,7 +108,7 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         ImmutableMap<@NotNull String, @NotNull IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x(), pos.z(), this.subRegions);
         this.schematic.takeBlocksFromWorldWithinChunk(world, volumes, this.subRegions, this.info);
 
-        if (this.info.ignoreEntities == false)
+        if (this.info.ignoreEntities() == false)
         {
             this.schematic.takeEntitiesFromWorldWithinChunk(world, pos.x(), pos.z(), volumes, this.subRegions, this.existingEntities, this.origin);
         }

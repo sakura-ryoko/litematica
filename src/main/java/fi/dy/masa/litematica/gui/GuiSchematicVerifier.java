@@ -367,39 +367,30 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
         @Override
         public boolean equals(Object obj)
         {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) { return true; }
+            if (obj == null) { return false; }
+            if (getClass() != obj.getClass()) { return false; }
+
             BlockMismatchEntry other = (BlockMismatchEntry) obj;
+
             if (blockMismatch == null)
             {
-                if (other.blockMismatch != null)
-                    return false;
+                if (other.blockMismatch != null) { return false; }
             }
-            else if (!blockMismatch.equals(other.blockMismatch))
-                return false;
+            else if (!blockMismatch.equals(other.blockMismatch)) { return false; }
             if (header1 == null)
             {
-                if (other.header1 != null)
-                    return false;
+                if (other.header1 != null) { return false; }
             }
-            else if (!header1.equals(other.header1))
-                return false;
+            else if (!header1.equals(other.header1)) { return false; }
             if (header2 == null)
             {
-                if (other.header2 != null)
-                    return false;
+                if (other.header2 != null) { return false; }
             }
-            else if (!header2.equals(other.header2))
-                return false;
-            if (mismatchType != other.mismatchType)
-                return false;
-            if (type != other.type)
-                return false;
-            return true;
+            else if (!header2.equals(other.header2)) { return false; }
+            if (mismatchType != other.mismatchType) { return false; }
+
+	        return type == other.type;
         }
 
         public enum Type

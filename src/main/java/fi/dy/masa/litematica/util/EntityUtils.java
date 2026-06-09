@@ -286,13 +286,13 @@ public class EntityUtils
         try
         {
             NbtView view = NbtView.getReader(nbt, world.registryAccess());
-            Optional<Entity> optional = EntityType.create(view.getReader(), world, EntitySpawnReason.LOAD);
+            Optional<Entity> optional = EntityType.create(view.getReader(), world, new EntitySpawnRequest(EntitySpawnReason.LOAD, true));
 
             if (optional.isPresent())
             {
                 Entity entity = optional.get();
 
-                if (entity.getType().equals(EntityType.MANNEQUIN))
+                if (entity.getType().equals(EntityTypes.MANNEQUIN))
                 {
                     ClientMannequin cm = new ClientMannequin(world, Minecraft.getInstance().playerSkinRenderCache());
                     cm.load(view.getReader());

@@ -40,7 +40,7 @@ public record ChunkRenderLayers()
 
     public static Pair<RenderPipeline, RenderPipeline> getWireframe()
     {
-        return Pair.of(MaLiLibPipelines.WIREFRAME, MaLiLibPipelines.WIREFRAME_OFFSET);
+        return Pair.of(MaLiLibPipelines.LEGACY_WIREFRAME, MaLiLibPipelines.LEGACY_WIREFRAME_OFFSET);
 //        return Pair.of(LitematicaPipelines.WIREFRAME, LitematicaPipelines.WIREFRAME_OFFSET);
     }
 
@@ -65,12 +65,12 @@ public record ChunkRenderLayers()
             {
                 results2 = results1[0].split("\\[");
 
-                return layer.mode().name() + "/" + results2[1];
+                return layer.format() + "/" + results2[1];
             }
 
-            return layer.mode().name() + "/" + results1[0];
+            return layer.format() + "/" + results1[0];
         }
 
-        return layer.mode().name() + "/" + base;
+        return layer.format() + "/" + base;
     }
 }

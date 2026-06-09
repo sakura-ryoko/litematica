@@ -7,8 +7,8 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 
+import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
@@ -407,7 +407,7 @@ public class ChunkMeshDataSchematic implements AutoCloseable
 		this.clearAll();
 	}
 
-	public record DrawState(int indexCount, VertexFormat.IndexType indexType, boolean hasIndexBuffer)
+	public record DrawState(int indexCount, IndexType indexType, boolean hasIndexBuffer)
 	{
 	}
 

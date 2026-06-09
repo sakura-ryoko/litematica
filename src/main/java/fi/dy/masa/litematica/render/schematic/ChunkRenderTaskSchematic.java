@@ -23,7 +23,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
     private final ReentrantLock lock;
     private final Supplier<Vec3> cameraPosSupplier;
     private final double distanceSq;
-//    private UberBufferCache uberCache;
     private ChunkRenderTaskSchematic.Status status;
     private boolean finished;
 
@@ -103,27 +102,6 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
             this.lock.unlock();
         }
     }
-
-//    public UberBufferCache getUberCache()
-//    {
-//        return this.uberCache;
-//    }
-//
-//    public boolean setRegionRenderCacheBuilder(UberBufferCache uberCache)
-//    {
-//        if (uberCache == null)
-//        {
-//            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] uberCache is null");
-//            return false;
-//        }
-//        if (this.uberCache != null && !this.uberCache.isClear())
-//        {
-//            this.uberCache.clearAll();
-//        }
-//
-//        this.uberCache = uberCache;
-//        return true;
-//    }
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
     {

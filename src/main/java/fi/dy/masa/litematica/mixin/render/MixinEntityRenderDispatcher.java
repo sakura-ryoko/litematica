@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.util.IEntityRendererInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityRendererInvoker;
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class MixinEntityRenderDispatcher implements IEntityRendererInvoker

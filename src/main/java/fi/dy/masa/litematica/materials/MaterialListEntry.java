@@ -72,20 +72,19 @@ public class MaterialListEntry
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) { return true; }
+        if (obj == null) { return false; }
+        if (getClass() != obj.getClass()) { return false; }
+
         MaterialListEntry other = (MaterialListEntry) obj;
+
         if (this.item == null)
         {
-            if (other.item != null)
-                return false;
+	        return other.item == null;
         }
-        else if (! this.item.equals(other.item))
-            return false;
-        return true;
+        else
+        {
+            return this.item.equals(other.item);
+        }
     }
 }

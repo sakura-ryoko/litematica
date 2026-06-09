@@ -21,7 +21,7 @@ public class LayerUtils
         {
             DataManager.getRenderLayerRange().setSingleBoundaryToPosition(EntityUtils.getCameraEntity());
         }
-        else if (mc.screen == null)
+        else if (mc.gui.screen() == null)
         {
             layerChangeRepeatTick();
         }

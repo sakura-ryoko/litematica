@@ -39,7 +39,10 @@ import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.IStateFixer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConverter;
-import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.util.DataFixerMode;
+import fi.dy.masa.litematica.util.EntityUtils;
+import fi.dy.masa.litematica.util.FileType;
+import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -452,13 +455,6 @@ public class SchematicaSchematic
         }
 
         return schematic;
-    }
-
-    @Deprecated
-    @Nullable
-    public static SchematicaSchematic createFromFile(File file)
-    {
-        return createFromFile(file.toPath());
     }
 
     @Nullable

@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -20,10 +21,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ComparatorMode;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -31,17 +29,18 @@ import net.minecraft.world.phys.Vec3;
 import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.MessageOutputType;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.game.PlacementUtils;
 import fi.dy.masa.malilib.util.game.wrap.GameWrap;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.materials.MaterialCache;
+import fi.dy.masa.litematica.mixin.block.IMixinWallMountedBlock;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 import fi.dy.masa.litematica.tool.ToolMode;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
@@ -561,7 +560,7 @@ public class EasyPlaceUtils
 		// TODO -- POST-REWRITE CODE (No rotations?)
 		if (usingAdjacentClickPosition == false && isSlab == false)
 		{
-			side = WorldUtils.applyPlacementFacing(stateSchematic, side, stateClient);
+			side = applyPlacementFacing(stateSchematic, side, stateClient);
 
 			// Fluid _blocks_ are not replaceable... >_>
 			if (stateClient.canSurvive(world, targetBlockPos) == false &&
@@ -574,7 +573,7 @@ public class EasyPlaceUtils
 		// TODO -- POST-REWRITE CODE (No rotations?)
 		// *** ADDED Easy Place Code from Pre-Rewrite for rotations ***
 		// Support for special cases
-		WorldUtils.PlacementProtocolData placementData = WorldUtils.applyPlacementProtocolAll(clickPos, stateSchematic, hitPos);
+		PlacementProtocolData placementData = applyPlacementProtocolAll(clickPos, stateSchematic, hitPos);
 //		BlockPos pos = targetBlockPos;
 
 		if (placementData.mustFail)
@@ -598,17 +597,17 @@ public class EasyPlaceUtils
 		// TODO --> Move V3 / V2 / Slab handling to EasyPlaceUtils.
 		if (protocol == EasyPlaceProtocol.V3)
 		{
-			hitPos = WorldUtils.applyPlacementProtocolV3(clickPos, stateSchematic, hitPos);
+			hitPos = applyPlacementProtocolV3(clickPos, stateSchematic, hitPos);
 		}
 		else if (protocol == EasyPlaceProtocol.V2 && isSlab == false)
 		{
 			// Carpet Accurate Block Placement protocol support, plus slab support
-			hitPos = WorldUtils.applyCarpetProtocolHitVec(clickPos, stateSchematic, hitPos);
+			hitPos = applyCarpetProtocolHitVec(clickPos, stateSchematic, hitPos);
 		}
 		else if (protocol == EasyPlaceProtocol.SLAB_ONLY)
 		{
 			// Slab support only
-			hitPos = WorldUtils.applyBlockSlabProtocol(clickPos, stateSchematic, hitPos);
+			hitPos = applyBlockSlabProtocol(clickPos, stateSchematic, hitPos);
 		}
 
 		// TODO -- POST-REWRITE CODE (No rotations?)
@@ -707,56 +706,56 @@ public class EasyPlaceUtils
         return PlacementUtils.isReplaceable(worldClient, targetPos, true);
     }
 
-    private static Vec3 applyCarpetProtocolHitVec(BlockPos pos, BlockState state, Vec3 hitVecIn)
-    {
-        double x = hitVecIn.x;
-        double y = hitVecIn.y;
-        double z = hitVecIn.z;
-        Block block = state.getBlock();
-        Optional<Direction> facingOptional = BlockUtils.getFirstPropertyFacingValue(state);
+//    private static Vec3 applyCarpetProtocolHitVec(BlockPos pos, BlockState state, Vec3 hitVecIn)
+//    {
+//        double x = hitVecIn.x;
+//        double y = hitVecIn.y;
+//        double z = hitVecIn.z;
+//        Block block = state.getBlock();
+//        Optional<Direction> facingOptional = BlockUtils.getFirstPropertyFacingValue(state);
+//
+//        if (facingOptional.isPresent())
+//        {
+//            x = facingOptional.get().ordinal() + 2 + pos.getX();
+//        }
+//
+//        if (block instanceof RepeaterBlock)
+//        {
+//            x += ((state.getValue(RepeaterBlock.DELAY)) - 1) * 10;
+//        }
+//        else if (block instanceof TrapDoorBlock && state.getValue(TrapDoorBlock.HALF) == Half.TOP)
+//        {
+//            x += 10;
+//        }
+//        else if (block instanceof ComparatorBlock && state.getValue(ComparatorBlock.MODE) == ComparatorMode.SUBTRACT)
+//        {
+//            x += 10;
+//        }
+//        else if (block instanceof StairBlock && state.getValue(StairBlock.HALF) == Half.TOP)
+//        {
+//            x += 10;
+//        }
+//
+//        return new Vec3(x, y, z);
+//    }
 
-        if (facingOptional.isPresent())
-        {
-            x = facingOptional.get().ordinal() + 2 + pos.getX();
-        }
-
-        if (block instanceof RepeaterBlock)
-        {
-            x += ((state.getValue(RepeaterBlock.DELAY)) - 1) * 10;
-        }
-        else if (block instanceof TrapDoorBlock && state.getValue(TrapDoorBlock.HALF) == Half.TOP)
-        {
-            x += 10;
-        }
-        else if (block instanceof ComparatorBlock && state.getValue(ComparatorBlock.MODE) == ComparatorMode.SUBTRACT)
-        {
-            x += 10;
-        }
-        else if (block instanceof StairBlock && state.getValue(StairBlock.HALF) == Half.TOP)
-        {
-            x += 10;
-        }
-
-        return new Vec3(x, y, z);
-    }
-
-    private static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
-    {
-        Optional<EnumProperty<Direction>> propOptional = BlockUtils.getFirstDirectionProperty(stateSchematic);
-
-        if (propOptional.isPresent())
-        {
-            side = stateSchematic.getValue(propOptional.get()).getOpposite();
-        }
-
-        return side;
-    }
+//    private static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
+//    {
+//        Optional<EnumProperty<Direction>> propOptional = BlockUtils.getFirstDirectionProperty(stateSchematic);
+//
+//        if (propOptional.isPresent())
+//        {
+//            side = stateSchematic.getValue(propOptional.get()).getOpposite();
+//        }
+//
+//        return side;
+//    }
 
     /**
      * Does placement restriction checks for the targeted position.
-     * If the targeted position is outside of the current layer range, or should be air
+     * If the targeted position is outside the current layer range, or should be air
      * in the schematic, or the player is holding the wrong item in hand, then true is returned
-     * to indicate that the use action should be cancelled.
+     * to indicate that the use action should be canceled.
      */
     public static boolean handlePlacementRestriction()
     {
@@ -838,7 +837,7 @@ public class EasyPlaceUtils
             LayerRange range = DataManager.getRenderLayerRange();
 
             // The targeted position should be air or it's outside the current render range
-            if (worldSchematic.isEmptyBlock(pos) || range.isPositionWithinRange(pos) == false)
+            if (worldSchematic.isEmptyBlock(pos) || range.isPositionWithinRange(fi.dy.masa.malilib.util.position.BlockPos.of(pos)) == false)
             {
                 return true;
             }
@@ -852,6 +851,460 @@ public class EasyPlaceUtils
 
         return false;
     }
+
+	static boolean easyPlaceBlockChecksCancel(BlockState stateSchematic, BlockState stateClient,
+	                                          Player player, HitResult trace, ItemStack stack)
+	{
+		Block blockSchematic = stateSchematic.getBlock();
+
+		if (blockSchematic instanceof SlabBlock && stateSchematic.getValue(SlabBlock.TYPE) == SlabType.DOUBLE)
+		{
+			Block blockClient = stateClient.getBlock();
+
+			if (blockClient instanceof SlabBlock && stateClient.getValue(SlabBlock.TYPE) != SlabType.DOUBLE)
+			{
+				return blockSchematic != blockClient;
+			}
+		}
+
+		if (trace.getType() != HitResult.Type.BLOCK)
+		{
+			return false;
+		}
+
+		BlockHitResult hitResult = (BlockHitResult) trace;
+		BlockPlaceContext ctx = new BlockPlaceContext(new UseOnContext(player, InteractionHand.MAIN_HAND, hitResult));
+
+		return !stateClient.canBeReplaced(ctx);
+	}
+
+	public static class PlacementProtocolData
+	{
+		boolean handled;
+		boolean mustFail;
+		BlockPos pos;
+		Direction side;
+		Vec3 hitVec;
+	}
+
+	public static PlacementProtocolData applyPlacementProtocolAll(BlockPos pos, BlockState stateSchematic, Vec3 hitVecIn)
+	{
+		PlacementProtocolData placementData = new PlacementProtocolData();
+
+		Block stateBlock = stateSchematic.getBlock();
+		final Level world = Minecraft.getInstance().level;
+
+		//Wall-mountable blocks
+		if (stateBlock instanceof BaseTorchBlock ||
+			stateBlock instanceof AbstractBannerBlock ||
+			stateBlock instanceof SignBlock ||
+			stateBlock instanceof AbstractSkullBlock)
+	{
+			placementData.handled = true;
+			placementData.hitVec = hitVecIn;
+
+			if (stateBlock instanceof WallTorchBlock ||
+				stateBlock instanceof RedstoneWallTorchBlock ||
+				stateBlock instanceof WallBannerBlock ||
+				stateBlock instanceof WallSignBlock ||
+				stateBlock instanceof WallSkullBlock)
+		{
+				placementData.side = stateSchematic.getValue(BlockStateProperties.HORIZONTAL_FACING);
+				placementData.pos = pos.relative(placementData.side.getOpposite());
+			}
+			else
+			{
+				placementData.side = Direction.UP;
+				placementData.pos = pos.below();
+			}
+
+			//If the supporting block doesn't exist, fail
+			BlockState stateFacing = world.getBlockState(placementData.pos);
+			if (stateFacing == null || stateFacing.isAir())
+			{
+				placementData.mustFail = true;
+			}
+		}
+		else if (stateBlock instanceof FaceAttachedHorizontalDirectionalBlock)
+		{
+			//If the supporting block doesn't exist, fail
+			if (!((IMixinWallMountedBlock)stateBlock).litematica_invokeCanPlaceAt(stateSchematic, world, pos))
+				placementData.mustFail = true;
+		}
+
+		return placementData;
+	}
+
+	/**
+	 * Apply the Carpet-Extra mod accurate block placement protocol support
+	 */
+	public static Vec3 applyCarpetProtocolHitVec(BlockPos pos, BlockState state, Vec3 hitVecIn)
+	{
+		double x = hitVecIn.x;
+		double y = hitVecIn.y;
+		double z = hitVecIn.z;
+		Block block = state.getBlock();
+		Optional<Direction> facing = BlockUtils.getFirstPropertyFacingValue(state);
+		final int propertyIncrement = 16;
+		boolean hasData = false;
+		int protocolValue = 0;
+
+		if (facing.isPresent())
+		{
+			//System.out.printf("(EasyPlaceUtils):v2: applying: 0x%08X (getFirstDirectionProperty() -> %s)\n", protocolValue, facing.get().getName());
+
+			protocolValue = facing.get().get3DDataValue();
+			hasData = true; // without this down rotation would not be detected >_>
+		}
+		else if (state.hasProperty(BlockStateProperties.AXIS))
+		{
+			Direction.Axis axis = state.getValue(BlockStateProperties.AXIS);
+			//System.out.printf("(EasyPlaceUtils):v2: 0x%08X (current axis %s)\n", protocolValue, axis.getName());
+
+			protocolValue = axis.ordinal();
+			hasData = true; // without this id 0 would not be detected >_>
+			//System.out.printf("(EasyPlaceUtils):v2: axis current state: %s, protocolValue 0x%08X\n", state.toString(), protocolValue);
+		}
+
+		if (block instanceof RepeaterBlock)
+		{
+			protocolValue += state.getValue(RepeaterBlock.DELAY) * propertyIncrement;
+		}
+		else if (block instanceof ComparatorBlock && state.getValue(ComparatorBlock.MODE) == ComparatorMode.SUBTRACT)
+		{
+			protocolValue += propertyIncrement;
+		}
+		else if (state.hasProperty(BlockStateProperties.HALF) && state.getValue(BlockStateProperties.HALF) == Half.TOP)
+		{
+			protocolValue += propertyIncrement;
+		}
+		else if (state.hasProperty(BlockStateProperties.SLAB_TYPE) && state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.TOP)
+		{
+			protocolValue += propertyIncrement;
+		}
+
+		y = applySlabOrStairHitVecY(y, pos, state);
+
+		if (protocolValue != 0 || hasData)
+		{
+			x += (protocolValue * 2) + 2;
+		}
+
+		//System.out.printf("(EasyPlaceUtils):v2: stateIn: %s // Vec3d Out [%s]\n", state.toString(), new Vec3d(x, y, z).toString());
+
+		return new Vec3(x, y, z);
+	}
+
+	private static double applySlabOrStairHitVecY(double origY, BlockPos pos, BlockState state)
+	{
+		double y = origY;
+
+		if (state.hasProperty(BlockStateProperties.SLAB_TYPE))
+		{
+			y = pos.getY();
+
+			if (state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.TOP)
+			{
+				y += 0.99;
+			}
+		}
+		else if (state.hasProperty(BlockStateProperties.HALF))
+		{
+			y = pos.getY();
+
+			if (state.getValue(BlockStateProperties.HALF) == Half.TOP)
+			{
+				y += 0.99;
+			}
+		}
+
+		return y;
+	}
+
+	public static Vec3 applyBlockSlabProtocol(BlockPos pos, BlockState state, Vec3 hitVecIn)
+	{
+		double newY = applySlabOrStairHitVecY(hitVecIn.y, pos, state);
+		return newY != hitVecIn.y ? new Vec3(hitVecIn.x, newY, hitVecIn.z) : hitVecIn;
+	}
+
+	public static <T extends Comparable<T>> Vec3 applyPlacementProtocolV3(BlockPos pos, BlockState state, Vec3 hitVecIn)
+	{
+		Collection<Property<?>> props = state.getBlock().getStateDefinition().getProperties();
+
+		if (props.isEmpty())
+		{
+			return hitVecIn;
+		}
+
+		double relX = hitVecIn.x - pos.getX();
+		int protocolValue = 0;
+		int shiftAmount = 1;
+		int propCount = 0;
+
+		//System.out.printf("(EasyPlaceUtils):v3: hit vec.x %s, pos.x: %s\n", hitVecIn.x(), pos.getX());
+		//System.out.printf("(EasyPlaceUtils):v3: raw protocol value in: 0x%08X\n", protocolValue);
+
+		Optional<EnumProperty<Direction>> property = BlockUtils.getFirstDirectionProperty(state);
+
+		// DirectionProperty - allow all except: VERTICAL_DIRECTION (PointedDripstone)
+		if (property.isPresent() && property.get() != BlockStateProperties.VERTICAL_DIRECTION)
+		{
+			Direction direction = state.getValue(property.get());
+			protocolValue |= direction.get3DDataValue() << shiftAmount;
+			//System.out.printf("(EasyPlaceUtils):v3: applying: 0x%08X (getFirstDirection %s)\n", protocolValue, property.get().getName());
+			shiftAmount += 3;
+			++propCount;
+		}
+
+		List<Property<?>> propList = new ArrayList<>(props);
+		propList.sort(Comparator.comparing(Property::getName));
+
+		try
+		{
+			for (Property<?> p : propList)
+			{
+				//System.out.printf("(EasyPlaceUtils):v3: check property [%s], whitelisted [%s], blacklisted [%s]\n", p.getName(), PlacementHandler.WHITELISTED_PROPERTIES.contains(p), PlacementHandler.BLACKLISTED_PROPERTIES.contains(p));
+
+				if (property.isPresent() && property.get().equals(p))
+				{
+					//System.out.printf("(EasyPlaceUtils):v3: skipping prot val: 0x%08X [Property %s]\n", protocolValue, p.getName());
+					continue;
+				}
+				if (PlacementHandler.WHITELISTED_PROPERTIES.contains(p) &&
+					!PlacementHandler.BLACKLISTED_PROPERTIES.containsKey(p))
+				{
+					@SuppressWarnings("unchecked")
+					Property<T> prop = (Property<T>) p;
+					List<T> list = new ArrayList<>(prop.getPossibleValues());
+					list.sort(Comparable::compareTo);
+
+					int requiredBits = Mth.log2(Mth.smallestEncompassingPowerOfTwo(list.size()));
+					int valueIndex = list.indexOf(state.getValue(prop));
+
+					//System.out.printf("(EasyPlaceUtils):v3: trying to apply valInd: %d, bits: %d, prot val: 0x%08X [Property %s]\n", valueIndex, requiredBits, protocolValue, prop.getName());
+
+					if (valueIndex != -1)
+					{
+						//System.out.printf("(EasyPlaceUtils):v3: requesting: %s = %s, index: %d\n", prop.getName(), state.getValue(prop), valueIndex);
+						protocolValue |= (valueIndex << shiftAmount);
+						shiftAmount += requiredBits;
+						++propCount;
+					}
+				}
+				else
+				{
+					//System.out.printf("(EasyPlaceUtils):v3: skipping prot val: 0x%08X [Property %s]\n", protocolValue, p.getName());
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Litematica.LOGGER.warn("Exception trying to request placement protocol value", e);
+		}
+
+		if (propCount > 0)
+		{
+			double x = pos.getX() + relX + 2 + protocolValue;
+			//System.out.printf("(EasyPlaceUtils):v3: request prot value 0x%08X\n", protocolValue + 2);
+			return new Vec3(x, hitVecIn.y, hitVecIn.z);
+		}
+
+		return hitVecIn;
+	}
+
+	public static Direction applyPlacementFacing(BlockState stateSchematic, Direction side, BlockState stateClient)
+	{
+		Block blockSchematic = stateSchematic.getBlock();
+		Block blockClient = stateClient.getBlock();
+
+		if (blockSchematic instanceof SlabBlock)
+		{
+			if (stateSchematic.getValue(SlabBlock.TYPE) == SlabType.DOUBLE &&
+				blockClient instanceof SlabBlock &&
+				stateClient.getValue(SlabBlock.TYPE) != SlabType.DOUBLE)
+		{
+				if (stateClient.getValue(SlabBlock.TYPE) == SlabType.TOP)
+				{
+					return Direction.DOWN;
+				}
+				else
+				{
+					return Direction.UP;
+				}
+			}
+			// Single slab
+			else
+			{
+				return Direction.NORTH;
+			}
+		}
+		else if (stateSchematic.hasProperty(BlockStateProperties.HALF))
+		{
+			side = stateSchematic.getValue(BlockStateProperties.HALF) == Half.TOP ? Direction.DOWN : Direction.UP;
+		}
+
+		return side;
+	}
+
+	/**
+	 * Does placement restriction checks for the targeted position.
+	 * If the targeted position is outside of the current layer range, or should be air
+	 * in the schematic, or the player is holding the wrong item in hand, then true is returned
+	 * to indicate that the use action should be cancelled.
+	 * @param mc -
+	 * @return -
+	 */
+	public static boolean handlePlacementRestriction(Minecraft mc)
+	{
+		boolean cancel = placementRestrictionInEffect(mc);
+
+		if (cancel)
+		{
+			MessageOutputType type = (MessageOutputType) Configs.Generic.PLACEMENT_RESTRICTION_WARN.getOptionListValue();
+
+			if (type == MessageOutputType.MESSAGE)
+			{
+				InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.placement_restriction_fail");
+			}
+			else if (type == MessageOutputType.ACTIONBAR)
+			{
+				InfoUtils.printActionbarMessage("litematica.message.placement_restriction_fail");
+			}
+		}
+
+		return cancel;
+	}
+
+	/**
+	 * Does placement restriction checks for the targeted position.
+	 * If the targeted position is outside of the current layer range, or should be air
+	 * in the schematic, or the player is holding the wrong item in hand, then true is returned
+	 * to indicate that the use action should be cancelled.
+	 * @param mc -
+	 * @return true if the use action should be cancelled
+	 */
+	static boolean placementRestrictionInEffect(Minecraft mc)
+	{
+		HitResult trace = mc.hitResult;
+
+		ItemStack stack = mc.player.getMainHandItem();
+
+		if (stack.isEmpty())
+		{
+			stack = mc.player.getOffhandItem();
+		}
+
+		if (stack.isEmpty())
+		{
+			return false;
+		}
+
+		if (trace != null && trace.getType() == HitResult.Type.BLOCK)
+		{
+			BlockHitResult blockHitResult = (BlockHitResult) trace;
+			BlockPlaceContext ctx = new BlockPlaceContext(new UseOnContext(mc.player, InteractionHand.MAIN_HAND, blockHitResult));
+
+			// Get the possibly offset position, if the targeted block is not replaceable
+			BlockPos pos = ctx.getClickedPos();
+
+			BlockState stateClient = mc.level.getBlockState(pos);
+
+			Level worldSchematic = SchematicWorldHandler.getSchematicWorld();
+			LayerRange range = DataManager.getRenderLayerRange();
+			boolean schematicHasAir = worldSchematic.isEmptyBlock(pos);
+
+			// The targeted position is outside the current render range
+			if (schematicHasAir == false && range.isPositionWithinRange(pos) == false)
+			{
+				return true;
+			}
+
+			// There should not be anything in the targeted position,
+			// and the position is within or close to a schematic sub-region
+			if (schematicHasAir && isPositionWithinRangeOfSchematicRegions(pos, 2))
+			{
+				return true;
+			}
+
+			blockHitResult = new BlockHitResult(blockHitResult.getLocation(), blockHitResult.getDirection(), pos, false);
+			ctx = new BlockPlaceContext(new UseOnContext(mc.player, InteractionHand.MAIN_HAND, blockHitResult));
+
+			// Placement position is already occupied
+			if (stateClient.canBeReplaced(ctx) == false)
+			{
+				return true;
+			}
+
+			BlockState stateSchematic = worldSchematic.getBlockState(pos);
+			stack = MaterialCache.getInstance().getRequiredBuildItemForState(stateSchematic, worldSchematic, pos);
+
+			// The player is holding the wrong item for the targeted position
+			if (stack.isEmpty() == false && EntityUtils.getUsedHandForItem(mc.player, stack) == null)
+			{
+				return true;
+			}
+
+			// Ignore if schematic block is wall-mountable and orientation is wrong
+			Block schematicBlock = stateSchematic.getBlock();
+			if (schematicBlock instanceof WallTorchBlock ||
+				schematicBlock instanceof RedstoneWallTorchBlock ||
+				schematicBlock instanceof WallBannerBlock ||
+				schematicBlock instanceof WallSignBlock ||
+				schematicBlock instanceof WallSkullBlock)
+			{
+				if (blockHitResult.getDirection() != stateSchematic.getValue(BlockStateProperties.HORIZONTAL_FACING))
+					return true;
+			}
+
+			// Orientation is wrong
+			BlockState attemptState = schematicBlock.getStateForPlacement(ctx);
+			return !isMatchingStatePlacementRestriction (attemptState, stateSchematic);
+		}
+
+		return false;
+	}
+
+	private static boolean isMatchingStatePlacementRestriction (BlockState state1, BlockState state2)
+	{
+		if (state1 == null || state2 == null)
+			return false;
+		if (state1 == state2)
+			return true;
+
+		Property<?>[] orientationProperties = new Property<?>[] {
+				BlockStateProperties.FACING, //pistons
+				BlockStateProperties.HALF, //stairs, trapdoors
+				BlockStateProperties.FACING_HOPPER,
+				BlockStateProperties.DOOR_HINGE,
+				BlockStateProperties.HORIZONTAL_FACING, //small dripleaf
+				BlockStateProperties.AXIS, //logs
+				BlockStateProperties.SLAB_TYPE,
+				BlockStateProperties.VERTICAL_DIRECTION,
+				BlockStateProperties.ROTATION_16, //banners
+				BlockStateProperties.HANGING, //lanterns
+				BlockStateProperties.ATTACH_FACE, //lever, button, grindstone
+				BlockStateProperties.BELL_ATTACHMENT, //bell (double-check for single-wall / double-wall)
+				//Properties.HORIZONTAL_AXIS, //Nether portals, though they aren't directly placeable
+				//Properties.ORIENTATION, //jigsaw blocks, Crafters
+		};
+
+		for (Property<?> property : orientationProperties)
+		{
+			boolean hasProperty1 = state1.hasProperty(property);
+			boolean hasProperty2 = state2.hasProperty(property);
+
+			if (hasProperty1 != hasProperty2)
+				return false;
+			if (!hasProperty1)
+				continue;
+
+			if (state1.getValue(property) != state2.getValue(property))
+				return false;
+		}
+
+		//Other properties are considered as matching
+		return true;
+	}
 
     private static boolean isPositionWithinRangeOfSchematicRegions(BlockPos pos, int range)
     {

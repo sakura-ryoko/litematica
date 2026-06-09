@@ -53,22 +53,22 @@ public class SchematicConversionFixers
 
                 switch (colorFromData)
                 {
-                    case WHITE:         state = Blocks.WHITE_BANNER.defaultBlockState();      break;
-                    case ORANGE:        state = Blocks.ORANGE_BANNER.defaultBlockState();     break;
-                    case MAGENTA:       state = Blocks.MAGENTA_BANNER.defaultBlockState();    break;
-                    case LIGHT_BLUE:    state = Blocks.LIGHT_BLUE_BANNER.defaultBlockState(); break;
-                    case YELLOW:        state = Blocks.YELLOW_BANNER.defaultBlockState();     break;
-                    case LIME:          state = Blocks.LIME_BANNER.defaultBlockState();       break;
-                    case PINK:          state = Blocks.PINK_BANNER.defaultBlockState();       break;
-                    case GRAY:          state = Blocks.GRAY_BANNER.defaultBlockState();       break;
-                    case LIGHT_GRAY:    state = Blocks.LIGHT_GRAY_BANNER.defaultBlockState(); break;
-                    case CYAN:          state = Blocks.CYAN_BANNER.defaultBlockState();       break;
-                    case PURPLE:        state = Blocks.PURPLE_BANNER.defaultBlockState();     break;
-                    case BLUE:          state = Blocks.BLUE_BANNER.defaultBlockState();       break;
-                    case BROWN:         state = Blocks.BROWN_BANNER.defaultBlockState();      break;
-                    case GREEN:         state = Blocks.GREEN_BANNER.defaultBlockState();      break;
-                    case RED:           state = Blocks.RED_BANNER.defaultBlockState();        break;
-                    case BLACK:         state = Blocks.BLACK_BANNER.defaultBlockState();      break;
+                    case WHITE:         state = Blocks.BANNER.white().defaultBlockState();      break;
+                    case ORANGE:        state = Blocks.BANNER.orange().defaultBlockState();     break;
+                    case MAGENTA:       state = Blocks.BANNER.magenta().defaultBlockState();    break;
+                    case LIGHT_BLUE:    state = Blocks.BANNER.lightBlue().defaultBlockState(); break;
+                    case YELLOW:        state = Blocks.BANNER.yellow().defaultBlockState();     break;
+                    case LIME:          state = Blocks.BANNER.lime().defaultBlockState();       break;
+                    case PINK:          state = Blocks.BANNER.pink().defaultBlockState();       break;
+                    case GRAY:          state = Blocks.BANNER.gray().defaultBlockState();       break;
+                    case LIGHT_GRAY:    state = Blocks.BANNER.lightGray().defaultBlockState(); break;
+                    case CYAN:          state = Blocks.BANNER.cyan().defaultBlockState();       break;
+                    case PURPLE:        state = Blocks.BANNER.purple().defaultBlockState();     break;
+                    case BLUE:          state = Blocks.BANNER.blue().defaultBlockState();       break;
+                    case BROWN:         state = Blocks.BANNER.brown().defaultBlockState();      break;
+                    case GREEN:         state = Blocks.BANNER.green().defaultBlockState();      break;
+                    case RED:           state = Blocks.BANNER.red().defaultBlockState();        break;
+                    case BLACK:         state = Blocks.BANNER.black().defaultBlockState();      break;
                 }
 
                 state = state.setValue(BannerBlock.ROTATION, rotation);
@@ -92,22 +92,22 @@ public class SchematicConversionFixers
 
                 switch (colorFromData)
                 {
-                    case WHITE:         state = Blocks.WHITE_WALL_BANNER.defaultBlockState();      break;
-                    case ORANGE:        state = Blocks.ORANGE_WALL_BANNER.defaultBlockState();     break;
-                    case MAGENTA:       state = Blocks.MAGENTA_WALL_BANNER.defaultBlockState();    break;
-                    case LIGHT_BLUE:    state = Blocks.LIGHT_BLUE_WALL_BANNER.defaultBlockState(); break;
-                    case YELLOW:        state = Blocks.YELLOW_WALL_BANNER.defaultBlockState();     break;
-                    case LIME:          state = Blocks.LIME_WALL_BANNER.defaultBlockState();       break;
-                    case PINK:          state = Blocks.PINK_WALL_BANNER.defaultBlockState();       break;
-                    case GRAY:          state = Blocks.GRAY_WALL_BANNER.defaultBlockState();       break;
-                    case LIGHT_GRAY:    state = Blocks.LIGHT_GRAY_WALL_BANNER.defaultBlockState(); break;
-                    case CYAN:          state = Blocks.CYAN_WALL_BANNER.defaultBlockState();       break;
-                    case PURPLE:        state = Blocks.PURPLE_WALL_BANNER.defaultBlockState();     break;
-                    case BLUE:          state = Blocks.BLUE_WALL_BANNER.defaultBlockState();       break;
-                    case BROWN:         state = Blocks.BROWN_WALL_BANNER.defaultBlockState();      break;
-                    case GREEN:         state = Blocks.GREEN_WALL_BANNER.defaultBlockState();      break;
-                    case RED:           state = Blocks.RED_WALL_BANNER.defaultBlockState();        break;
-                    case BLACK:         state = Blocks.BLACK_WALL_BANNER.defaultBlockState();      break;
+                    case WHITE:         state = Blocks.WALL_BANNER.white().defaultBlockState();      break;
+                    case ORANGE:        state = Blocks.WALL_BANNER.orange().defaultBlockState();     break;
+                    case MAGENTA:       state = Blocks.WALL_BANNER.magenta().defaultBlockState();    break;
+                    case LIGHT_BLUE:    state = Blocks.WALL_BANNER.lightBlue().defaultBlockState(); break;
+                    case YELLOW:        state = Blocks.WALL_BANNER.yellow().defaultBlockState();     break;
+                    case LIME:          state = Blocks.WALL_BANNER.lime().defaultBlockState();       break;
+                    case PINK:          state = Blocks.WALL_BANNER.pink().defaultBlockState();       break;
+                    case GRAY:          state = Blocks.WALL_BANNER.gray().defaultBlockState();       break;
+                    case LIGHT_GRAY:    state = Blocks.WALL_BANNER.lightGray().defaultBlockState(); break;
+                    case CYAN:          state = Blocks.WALL_BANNER.cyan().defaultBlockState();       break;
+                    case PURPLE:        state = Blocks.WALL_BANNER.purple().defaultBlockState();     break;
+                    case BLUE:          state = Blocks.WALL_BANNER.blue().defaultBlockState();       break;
+                    case BROWN:         state = Blocks.WALL_BANNER.brown().defaultBlockState();      break;
+                    case GREEN:         state = Blocks.WALL_BANNER.green().defaultBlockState();      break;
+                    case RED:           state = Blocks.WALL_BANNER.red().defaultBlockState();        break;
+                    case BLACK:         state = Blocks.WALL_BANNER.black().defaultBlockState();      break;
                 }
 
                 state = state.setValue(WallBannerBlock.FACING, facing);
@@ -129,22 +129,22 @@ public class SchematicConversionFixers
 
             switch (colorId)
             {
-                case  0: state = Blocks.WHITE_BED.defaultBlockState(); break;
-                case  1: state = Blocks.ORANGE_BED.defaultBlockState(); break;
-                case  2: state = Blocks.MAGENTA_BED.defaultBlockState(); break;
-                case  3: state = Blocks.LIGHT_BLUE_BED.defaultBlockState(); break;
-                case  4: state = Blocks.YELLOW_BED.defaultBlockState(); break;
-                case  5: state = Blocks.LIME_BED.defaultBlockState(); break;
-                case  6: state = Blocks.PINK_BED.defaultBlockState(); break;
-                case  7: state = Blocks.GRAY_BED.defaultBlockState(); break;
-                case  8: state = Blocks.LIGHT_GRAY_BED.defaultBlockState(); break;
-                case  9: state = Blocks.CYAN_BED.defaultBlockState(); break;
-                case 10: state = Blocks.PURPLE_BED.defaultBlockState(); break;
-                case 11: state = Blocks.BLUE_BED.defaultBlockState(); break;
-                case 12: state = Blocks.BROWN_BED.defaultBlockState(); break;
-                case 13: state =  Blocks.GREEN_BED.defaultBlockState(); break;
-                case 14: state = Blocks.RED_BED.defaultBlockState(); break;
-                case 15: state = Blocks.BLACK_BED.defaultBlockState(); break;
+                case  0: state = Blocks.BED.white().defaultBlockState(); break;
+                case  1: state = Blocks.BED.orange().defaultBlockState(); break;
+                case  2: state = Blocks.BED.magenta().defaultBlockState(); break;
+                case  3: state = Blocks.BED.lightBlue().defaultBlockState(); break;
+                case  4: state = Blocks.BED.yellow().defaultBlockState(); break;
+                case  5: state = Blocks.BED.lime().defaultBlockState(); break;
+                case  6: state = Blocks.BED.pink().defaultBlockState(); break;
+                case  7: state = Blocks.BED.gray().defaultBlockState(); break;
+                case  8: state = Blocks.BED.lightGray().defaultBlockState(); break;
+                case  9: state = Blocks.BED.cyan().defaultBlockState(); break;
+                case 10: state = Blocks.BED.purple().defaultBlockState(); break;
+                case 11: state = Blocks.BED.blue().defaultBlockState(); break;
+                case 12: state = Blocks.BED.brown().defaultBlockState(); break;
+                case 13: state = Blocks.BED.green().defaultBlockState(); break;
+                case 14: state = Blocks.BED.red().defaultBlockState(); break;
+                case 15: state = Blocks.BED.black().defaultBlockState(); break;
                 default: return state;
             }
 

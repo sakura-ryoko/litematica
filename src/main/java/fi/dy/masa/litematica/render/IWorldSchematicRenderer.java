@@ -36,7 +36,7 @@ import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
 import fi.dy.masa.litematica.render.schematic.BlockModelRendererSchematic;
 import fi.dy.masa.litematica.render.schematic.IBlockOutputSchematic;
 import fi.dy.masa.litematica.render.schematic.SchematicRenderState;
-import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -147,7 +147,7 @@ public interface IWorldSchematicRenderer
 
 	static int getLightmap(LightGetter getter, BlockAndTintGetter world, BlockState state, BlockPos pos)
 	{
-		if (state.emissiveRendering(world, pos))
+		if (state.emissiveRendering())
 		{
 			return 15728880;
 		}

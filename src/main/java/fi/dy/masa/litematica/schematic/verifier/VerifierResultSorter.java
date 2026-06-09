@@ -23,13 +23,13 @@ public class VerifierResultSorter implements Comparator<BlockMismatch>
 
         if (sortCriteria == SortCriteria.COUNT)
         {
-            int count1 = entry1.count;
-            int count2 = entry2.count;
+            int count1 = entry1.count();
+            int count2 = entry2.count();
 
             if (count1 == count2)
             {
-                String name1 = ItemUtils.getItemForState(entry1.stateExpected).getHoverName().getString();
-                String name2 = ItemUtils.getItemForState(entry2.stateExpected).getHoverName().getString();
+                String name1 = ItemUtils.getItemForState(entry1.stateExpected()).getHoverName().getString();
+                String name2 = ItemUtils.getItemForState(entry2.stateExpected()).getHoverName().getString();
                 return name1.compareTo(name2);
             }
 
@@ -41,17 +41,17 @@ public class VerifierResultSorter implements Comparator<BlockMismatch>
 
             if (sortCriteria == SortCriteria.NAME_EXPECTED)
             {
-                state1_1 = entry1.stateExpected;
-                state1_2 = entry2.stateExpected;
-                state2_1 = entry1.stateFound;
-                state2_2 = entry2.stateFound;
+                state1_1 = entry1.stateExpected();
+                state1_2 = entry2.stateExpected();
+                state2_1 = entry1.stateFound();
+                state2_2 = entry2.stateFound();
             }
             else
             {
-                state2_1 = entry1.stateExpected;
-                state2_2 = entry2.stateExpected;
-                state1_1 = entry1.stateFound;
-                state1_2 = entry2.stateFound;
+                state2_1 = entry1.stateExpected();
+                state2_2 = entry2.stateExpected();
+                state1_1 = entry1.stateFound();
+                state1_2 = entry2.stateFound();
             }
 
             String name1_1 = ItemUtils.getItemForState(state1_1).getHoverName().getString();

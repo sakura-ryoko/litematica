@@ -6,9 +6,12 @@ import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.WeatheringCopperCollection;
+
 import fi.dy.masa.malilib.data.CachedTagUtils;
 import org.apache.commons.lang3.math.Fraction;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,68 +38,23 @@ public class MaterialListJsonOverrides
     private void initOverrides()
     {
         // Copper Block
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_COPPER),         this.add(Items.COPPER_BLOCK), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_COPPER),       this.add(Items.COPPER_BLOCK), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_COPPER),        this.add(Items.COPPER_BLOCK), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_COPPER),   this.add(Items.WAXED_COPPER_BLOCK), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_COPPER), this.add(Items.WAXED_COPPER_BLOCK), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_COPPER),  this.add(Items.WAXED_COPPER_BLOCK), Fraction.ONE));
+        this.addCopperOverrides(Items.COPPER_BLOCK);
         // Copper Grate
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_COPPER_GRATE),         this.add(Items.COPPER_GRATE), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_COPPER_GRATE),       this.add(Items.COPPER_GRATE), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_COPPER_GRATE),        this.add(Items.COPPER_GRATE), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_COPPER_GRATE),   this.add(Items.WAXED_COPPER_GRATE), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_COPPER_GRATE), this.add(Items.WAXED_COPPER_GRATE), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_COPPER_GRATE),  this.add(Items.WAXED_COPPER_GRATE), Fraction.ONE));
+        this.addCopperOverrides(Items.COPPER_GRATE);
         // Cut Copper
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_CUT_COPPER),         this.add(Items.CUT_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_CUT_COPPER),       this.add(Items.CUT_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_CUT_COPPER),        this.add(Items.CUT_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_CUT_COPPER),   this.add(Items.WAXED_CUT_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_CUT_COPPER), this.add(Items.WAXED_CUT_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_CUT_COPPER),  this.add(Items.WAXED_CUT_COPPER), Fraction.ONE));
+        this.addCopperOverrides(Items.CUT_COPPER);
         // Chiseled Copper
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_CHISELED_COPPER),         this.add(Items.CHISELED_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_CHISELED_COPPER),       this.add(Items.CHISELED_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_CHISELED_COPPER),        this.add(Items.CHISELED_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_CHISELED_COPPER),   this.add(Items.WAXED_CHISELED_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_CHISELED_COPPER), this.add(Items.WAXED_CHISELED_COPPER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_CHISELED_COPPER),  this.add(Items.WAXED_CHISELED_COPPER), Fraction.ONE));
+        this.addCopperOverrides(Items.CHISELED_COPPER);
         // Copper Bulb
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_COPPER_BULB),         this.add(Items.COPPER_BULB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_COPPER_BULB),       this.add(Items.COPPER_BULB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_COPPER_BULB),        this.add(Items.COPPER_BULB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_COPPER_BULB),   this.add(Items.WAXED_COPPER_BULB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_COPPER_BULB), this.add(Items.WAXED_COPPER_BULB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_COPPER_BULB),  this.add(Items.WAXED_COPPER_BULB), Fraction.ONE));
+        this.addCopperOverrides(Items.COPPER_BULB);
         // Copper Slab
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_CUT_COPPER_SLAB),         this.add(Items.CUT_COPPER_SLAB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_CUT_COPPER_SLAB),       this.add(Items.CUT_COPPER_SLAB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_CUT_COPPER_SLAB),        this.add(Items.CUT_COPPER_SLAB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_CUT_COPPER_SLAB),   this.add(Items.WAXED_CUT_COPPER_SLAB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_CUT_COPPER_SLAB), this.add(Items.WAXED_CUT_COPPER_SLAB), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_CUT_COPPER_SLAB),  this.add(Items.WAXED_CUT_COPPER_SLAB), Fraction.ONE));
+        this.addCopperOverrides(Items.CUT_COPPER_SLAB);
         // Copper Stairs
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_CUT_COPPER_STAIRS),         this.add(Items.CUT_COPPER_STAIRS), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_CUT_COPPER_STAIRS),       this.add(Items.CUT_COPPER_STAIRS), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_CUT_COPPER_STAIRS),        this.add(Items.CUT_COPPER_STAIRS), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_CUT_COPPER_STAIRS),   this.add(Items.WAXED_CUT_COPPER_STAIRS), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_CUT_COPPER_STAIRS), this.add(Items.WAXED_CUT_COPPER_STAIRS), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_CUT_COPPER_STAIRS),  this.add(Items.WAXED_CUT_COPPER_STAIRS), Fraction.ONE));
+        this.addCopperOverrides(Items.CUT_COPPER_STAIRS);
         // Copper Door
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_COPPER_DOOR),         this.add(Items.COPPER_DOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_COPPER_DOOR),       this.add(Items.COPPER_DOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_COPPER_DOOR),        this.add(Items.COPPER_DOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_COPPER_DOOR),   this.add(Items.WAXED_COPPER_DOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_COPPER_DOOR), this.add(Items.WAXED_COPPER_DOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_COPPER_DOOR),  this.add(Items.WAXED_COPPER_DOOR), Fraction.ONE));
+        this.addCopperOverrides(Items.COPPER_DOOR);
         // Copper Trap Door
-        this.overrides.add(new ResultOverride(this.add(Items.EXPOSED_COPPER_TRAPDOOR),         this.add(Items.COPPER_TRAPDOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WEATHERED_COPPER_TRAPDOOR),       this.add(Items.COPPER_TRAPDOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.OXIDIZED_COPPER_TRAPDOOR),        this.add(Items.COPPER_TRAPDOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_EXPOSED_COPPER_TRAPDOOR),   this.add(Items.WAXED_COPPER_TRAPDOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_WEATHERED_COPPER_TRAPDOOR), this.add(Items.WAXED_COPPER_TRAPDOOR), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WAXED_OXIDIZED_COPPER_TRAPDOOR),  this.add(Items.WAXED_COPPER_TRAPDOOR), Fraction.ONE));
+        this.addCopperOverrides(Items.COPPER_TRAPDOOR);
         // Stripped Woods
         this.overrides.add(new ResultOverride(this.add(Items.STRIPPED_ACACIA_LOG),   this.add(Items.ACACIA_LOG), Fraction.ONE));
         this.overrides.add(new ResultOverride(this.add(Items.STRIPPED_BAMBOO_BLOCK), this.add(Items.BAMBOO), Fraction.ONE));
@@ -111,25 +69,26 @@ public class MaterialListJsonOverrides
         this.overrides.add(new ResultOverride(this.add(Items.STRIPPED_SPRUCE_LOG),   this.add(Items.SPRUCE_LOG), Fraction.ONE));
         this.overrides.add(new ResultOverride(this.add(Items.STRIPPED_WARPED_STEM),  this.add(Items.WARPED_STEM), Fraction.ONE));
         // Concrete
-        this.overrides.add(new ResultOverride(this.add(Items.BLACK_CONCRETE),       this.add(Items.BLACK_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.BLUE_CONCRETE),        this.add(Items.BLUE_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.BROWN_CONCRETE),       this.add(Items.BROWN_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.CYAN_CONCRETE),        this.add(Items.CYAN_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.GRAY_CONCRETE),        this.add(Items.GRAY_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.GREEN_CONCRETE),       this.add(Items.GREEN_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.LIGHT_BLUE_CONCRETE),  this.add(Items.LIGHT_BLUE_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.LIGHT_GRAY_CONCRETE),  this.add(Items.LIGHT_GRAY_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.LIME_CONCRETE),        this.add(Items.LIME_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.MAGENTA_CONCRETE),     this.add(Items.MAGENTA_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.ORANGE_CONCRETE),      this.add(Items.ORANGE_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.PINK_CONCRETE),        this.add(Items.PINK_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.PURPLE_CONCRETE),      this.add(Items.PURPLE_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.RED_CONCRETE),         this.add(Items.RED_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.YELLOW_CONCRETE),      this.add(Items.YELLOW_CONCRETE_POWDER), Fraction.ONE));
-        this.overrides.add(new ResultOverride(this.add(Items.WHITE_CONCRETE),       this.add(Items.WHITE_CONCRETE_POWDER), Fraction.ONE));
+        for (DyeColor color : DyeColor.VALUES)
+        {
+            this.overrides.add(new ResultOverride(this.add(Items.CONCRETE.pick(color)), this.add(Items.CONCRETE_POWDER.pick(color)), Fraction.ONE));
+        }
         // Anvils
         this.overrides.add(new ResultOverride(this.add(Items.CHIPPED_ANVIL), this.add(Items.ANVIL), Fraction.ONE));
         this.overrides.add(new ResultOverride(this.add(Items.DAMAGED_ANVIL), this.add(Items.ANVIL), Fraction.ONE));
+    }
+
+    private void addCopperOverrides(WeatheringCopperCollection<Item> collection)
+    {
+        Holder<Item> unwaxedBase = this.add(collection.weathering().unaffected());
+        this.overrides.add(new ResultOverride(this.add(collection.weathering().exposed()), unwaxedBase, Fraction.ONE));
+        this.overrides.add(new ResultOverride(this.add(collection.weathering().weathered()), unwaxedBase, Fraction.ONE));
+        this.overrides.add(new ResultOverride(this.add(collection.weathering().oxidized()), unwaxedBase, Fraction.ONE));
+
+        Holder<Item> waxedBase = this.add(collection.waxed().unaffected());
+        this.overrides.add(new ResultOverride(this.add(collection.waxed().exposed()), waxedBase, Fraction.ONE));
+        this.overrides.add(new ResultOverride(this.add(collection.waxed().weathered()), waxedBase, Fraction.ONE));
+        this.overrides.add(new ResultOverride(this.add(collection.waxed().oxidized()), waxedBase, Fraction.ONE));
     }
 
     private void initPackingOverrides()
@@ -142,7 +101,7 @@ public class MaterialListJsonOverrides
         // x9 = x1
         this.packingOverrides.add(new ResultOverride(this.add(Items.BONE_MEAL), this.add(Items.BONE_BLOCK), by9));
         this.packingOverrides.add(new ResultOverride(this.add(Items.COAL), this.add(Items.COAL_BLOCK), by9));
-        this.packingOverrides.add(new ResultOverride(this.add(Items.COPPER_INGOT), this.add(Items.COPPER_BLOCK), by9));
+        this.packingOverrides.add(new ResultOverride(this.add(Items.COPPER_INGOT), this.add(Items.COPPER_BLOCK.weathering().unaffected()), by9));
         this.packingOverrides.add(new ResultOverride(this.add(Items.DIAMOND), this.add(Items.DIAMOND_BLOCK), by9));
         this.packingOverrides.add(new ResultOverride(this.add(Items.EMERALD), this.add(Items.EMERALD_BLOCK), by9));
         this.packingOverrides.add(new ResultOverride(this.add(Items.GOLD_INGOT), this.add(Items.GOLD_BLOCK), by9));
@@ -190,15 +149,15 @@ public class MaterialListJsonOverrides
     {
         if (firstItem.is(ItemTags.WOOL))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_WOOL);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WOOL.white());
         }
         else if (firstItem.is(ItemTags.WOOL_CARPETS))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_CARPET);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.CARPET.white());
         }
         else if (firstItem.is(ItemTags.BEDS))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_BED);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.BED.white());
         }
         else if (firstItem.is(ItemTags.CANDLES))
         {
@@ -210,7 +169,7 @@ public class MaterialListJsonOverrides
         }
         else if (firstItem.is(ItemTags.BANNERS))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_BANNER);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.BANNER.white());
         }
         else if (firstItem.is(ItemTags.TERRACOTTA))
         {
@@ -222,7 +181,7 @@ public class MaterialListJsonOverrides
         }
         else if (firstItem.is(ItemTags.HARNESSES))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_HARNESS);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.HARNESS.white());
         }
         else if (CachedTagUtils.matchItemTag(CachedTagManager.GLASS_ITEMS_KEY, firstItem))
         {
@@ -232,17 +191,17 @@ public class MaterialListJsonOverrides
         {
             return BuiltInRegistries.ITEM.wrapAsHolder(Items.GLASS_PANE);
         }
-        else if (CachedTagUtils.matchItemTag(CachedTagManager.CONCRETE_POWDER_ITEMS_KEY, firstItem))
+        else if (firstItem.is(ItemTags.CONCRETE_POWDERS))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_CONCRETE_POWDER);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.CONCRETE_POWDER.white());
         }
-        else if (CachedTagUtils.matchItemTag(CachedTagManager.CONCRETE_ITEMS_KEY, firstItem))
+        else if (firstItem.is(ItemTags.CONCRETE))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_CONCRETE);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.CONCRETE.white());
         }
-        else if (CachedTagUtils.matchItemTag(CachedTagManager.GLAZED_TERRACOTTA_ITEMS_KEY, firstItem))
+        else if (firstItem.is(ItemTags.GLAZED_TERRACOTTA))
         {
-            return BuiltInRegistries.ITEM.wrapAsHolder(Items.WHITE_GLAZED_TERRACOTTA);
+            return BuiltInRegistries.ITEM.wrapAsHolder(Items.GLAZED_TERRACOTTA.white());
         }
 
         return this.matchOverride(firstItem, 1).getLeft();
@@ -255,96 +214,96 @@ public class MaterialListJsonOverrides
         {
             if (input.is(ItemTags.BEDS))
             {
-                if (ing.test(Items.WHITE_BED.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_BED.getDefaultInstance()))
+                if (ing.test(Items.BED.white().getDefaultInstance()) ||
+                    ing.test(Items.BED.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (input.is(ItemTags.WOOL))
             {
-                if (ing.test(Items.WHITE_WOOL.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_WOOL.getDefaultInstance()))
+                if (ing.test(Items.WOOL.white().getDefaultInstance()) ||
+                    ing.test(Items.WOOL.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (input.is(ItemTags.WOOL_CARPETS))
             {
-                if (ing.test(Items.WHITE_CARPET.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_CARPET.getDefaultInstance()))
+                if (ing.test(Items.CARPET.white().getDefaultInstance()) ||
+                    ing.test(Items.CARPET.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (input.is(ItemTags.CANDLES))
             {
-                if (ing.test(Items.WHITE_CANDLE.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_CANDLE.getDefaultInstance()))
+                if (ing.test(Items.DYED_CANDLE.white().getDefaultInstance()) ||
+                    ing.test(Items.DYED_CANDLE.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (input.is(ItemTags.SHULKER_BOXES))
             {
-                if (ing.test(Items.WHITE_SHULKER_BOX.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_SHULKER_BOX.getDefaultInstance()))
+                if (ing.test(Items.DYED_SHULKER_BOX.white().getDefaultInstance()) ||
+                    ing.test(Items.DYED_SHULKER_BOX.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (input.is(ItemTags.BANNERS))
             {
-                if (ing.test(Items.WHITE_BANNER.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_BANNER.getDefaultInstance()))
+                if (ing.test(Items.BANNER.white().getDefaultInstance()) ||
+                    ing.test(Items.BANNER.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (input.is(ItemTags.TERRACOTTA))
             {
-                if (ing.test(Items.WHITE_TERRACOTTA.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_TERRACOTTA.getDefaultInstance()))
+                if (ing.test(Items.DYED_TERRACOTTA.white().getDefaultInstance()) ||
+                    ing.test(Items.DYED_TERRACOTTA.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (CachedTagUtils.matchItemTag(CachedTagManager.GLASS_ITEMS_KEY, input))
             {
-                if (ing.test(Items.WHITE_STAINED_GLASS.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_STAINED_GLASS.getDefaultInstance()))
+                if (ing.test(Items.STAINED_GLASS.white().getDefaultInstance()) ||
+                    ing.test(Items.STAINED_GLASS.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
             else if (CachedTagUtils.matchItemTag(CachedTagManager.GLASS_PANE_ITEMS_KEY, input))
             {
-                if (ing.test(Items.WHITE_STAINED_GLASS_PANE.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_STAINED_GLASS_PANE.getDefaultInstance()))
+                if (ing.test(Items.STAINED_GLASS_PANE.white().getDefaultInstance()) ||
+                    ing.test(Items.STAINED_GLASS_PANE.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
-            else if (CachedTagUtils.matchItemTag(CachedTagManager.CONCRETE_ITEMS_KEY, input))
+            else if (input.is(ItemTags.CONCRETE))
             {
-                if (ing.test(Items.WHITE_CONCRETE.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_CONCRETE.getDefaultInstance()))
+                if (ing.test(Items.CONCRETE.white().getDefaultInstance()) ||
+                    ing.test(Items.CONCRETE.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
-            else if (CachedTagUtils.matchItemTag(CachedTagManager.CONCRETE_POWDER_ITEMS_KEY, input))
+            else if (input.is(ItemTags.CONCRETE_POWDERS))
             {
-                if (ing.test(Items.WHITE_CONCRETE_POWDER.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_CONCRETE_POWDER.getDefaultInstance()))
+                if (ing.test(Items.CONCRETE_POWDER.white().getDefaultInstance()) ||
+                    ing.test(Items.CONCRETE_POWDER.black().getDefaultInstance()))
                 {
                     return true;
                 }
             }
-            else if (CachedTagUtils.matchItemTag(CachedTagManager.GLAZED_TERRACOTTA_ITEMS_KEY, input))
+            else if (input.is(ItemTags.GLAZED_TERRACOTTA))
             {
-                if (ing.test(Items.WHITE_GLAZED_TERRACOTTA.getDefaultInstance()) ||
-                    ing.test(Items.BLACK_GLAZED_TERRACOTTA.getDefaultInstance()))
+                if (ing.test(Items.GLAZED_TERRACOTTA.white().getDefaultInstance()) ||
+                    ing.test(Items.GLAZED_TERRACOTTA.black().getDefaultInstance()))
                 {
                     return true;
                 }

@@ -3,6 +3,10 @@ package fi.dy.masa.litematica.util;
 import java.util.*;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,14 +17,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.tuple.Pair;
+
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
@@ -231,8 +234,8 @@ public class PositionUtils
     /**
      * Returns the min and max corners of the enclosing box around the given collection of boxes.
      * The minimum corner is the left entry and the maximum corner is the right entry of the pair.
-     * @param boxes
-     * @return
+     * @param boxes -
+     * @return -
      */
     @Nullable
     public static Pair<BlockPos, BlockPos> getEnclosingAreaCorners(Collection<Box> boxes)
@@ -443,8 +446,8 @@ public class PositionUtils
     {
         for (Box box : boxes)
         {
-            final int rangeMin = range.getLayerMin();
-            final int rangeMax = range.getLayerMax();
+            final int rangeMin = range.getMinLayerBoundary();
+            final int rangeMax = range.getMaxLayerBoundary();
             int boxMinX = Math.min(box.getPos1().getX(), box.getPos2().getX());
             int boxMinY = Math.min(box.getPos1().getY(), box.getPos2().getY());
             int boxMinZ = Math.min(box.getPos1().getZ(), box.getPos2().getZ());
@@ -498,7 +501,7 @@ public class PositionUtils
     /**
      * Creates an enclosing AABB around the given positions. They will both be inside the box.
      */
-    public static net.minecraft.world.phys.AABB createEnclosingAABB(BlockPos pos1, BlockPos pos2)
+    public static AABB createEnclosingAABB(BlockPos pos1, BlockPos pos2)
     {
         int minX = Math.min(pos1.getX(), pos2.getX());
         int minY = Math.min(pos1.getY(), pos2.getY());
@@ -510,7 +513,7 @@ public class PositionUtils
         return createAABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public static net.minecraft.world.phys.AABB createAABBFrom(IntBoundingBox bb)
+    public static AABB createAABBFrom(IntBoundingBox bb)
     {
         return createAABB(bb.minX(), bb.minY(), bb.minZ(), bb.maxX() + 1, bb.maxY() + 1, bb.maxZ() + 1);
     }
@@ -518,7 +521,7 @@ public class PositionUtils
     /**
      * Creates an AABB for the given position
      */
-    public static net.minecraft.world.phys.AABB createAABBForPosition(BlockPos pos)
+    public static AABB createAABBForPosition(BlockPos pos)
     {
         return createAABBForPosition(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -526,7 +529,7 @@ public class PositionUtils
     /**
      * Creates an AABB for the given position
      */
-    public static net.minecraft.world.phys.AABB createAABBForPosition(int x, int y, int z)
+    public static AABB createAABBForPosition(int x, int y, int z)
     {
         return createAABB(x, y, z, x + 1, y + 1, z + 1);
     }
@@ -534,18 +537,18 @@ public class PositionUtils
     /**
      * Creates an AABB with the given bounds
      */
-    public static net.minecraft.world.phys.AABB createAABB(int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
+    public static AABB createAABB(int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
     {
-        return new net.minecraft.world.phys.AABB(minX, minY, minZ, maxX, maxY, maxZ);
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     /**
      * Returns the given position adjusted such that the coordinate indicated by <b>type</b>
      * is set to the value in <b>value</b>
-     * @param pos
-     * @param value
-     * @param type
-     * @return
+     * @param pos -
+     * @param value -
+     * @param type -
+     * @return -
      */
     public static BlockPos getModifiedPosition(BlockPos pos, int value, CoordinateType type)
     {
@@ -1118,20 +1121,20 @@ public class PositionUtils
         {
             case X:
             {
-                final int clampedMinX = Math.max(minX, range.getLayerMin());
-                final int clampedMaxX = Math.min(maxX, range.getLayerMax());
+                final int clampedMinX = Math.max(minX, range.getMinLayerBoundary());
+                final int clampedMaxX = Math.min(maxX, range.getMaxLayerBoundary());
                 return IntBoundingBox.createProper(clampedMinX, minY, minZ, clampedMaxX, maxY, maxZ);
             }
             case Y:
             {
-                final int clampedMinY = Math.max(minY, range.getLayerMin());
-                final int clampedMaxY = Math.min(maxY, range.getLayerMax());
+                final int clampedMinY = Math.max(minY, range.getMinLayerBoundary());
+                final int clampedMaxY = Math.min(maxY, range.getMaxLayerBoundary());
                 return IntBoundingBox.createProper(minX, clampedMinY, minZ, maxX, clampedMaxY, maxZ);
             }
             case Z:
             {
-                final int clampedMinZ = Math.max(minZ, range.getLayerMin());
-                final int clampedMaxZ = Math.min(maxZ, range.getLayerMax());
+                final int clampedMinZ = Math.max(minZ, range.getMinLayerBoundary());
+                final int clampedMaxZ = Math.min(maxZ, range.getMaxLayerBoundary());
                 return IntBoundingBox.createProper(minX, minY, clampedMinZ, maxX, maxY, clampedMaxZ);
             }
             default:

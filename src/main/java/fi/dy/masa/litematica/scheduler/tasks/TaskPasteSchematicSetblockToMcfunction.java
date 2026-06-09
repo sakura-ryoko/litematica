@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import net.minecraft.client.player.LocalPlayer;
-import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;

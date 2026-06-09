@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import javax.annotation.Nullable;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,17 +28,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiTextInput;
 import fi.dy.masa.malilib.gui.GuiTextInputStackedMultiLine;
 import fi.dy.masa.malilib.gui.Message.MessageType;
-import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
 import fi.dy.masa.malilib.interfaces.IStringDualConsumerFeedback;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.SubChunkPos;
+import fi.dy.masa.malilib.util.position.ChunkSectionPos;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
@@ -399,14 +400,14 @@ public class SchematicUtils
     {
         if (pos != null)
         {
-            SubChunkPos cpos = new SubChunkPos(pos);
+            ChunkSectionPos cpos = new ChunkSectionPos(fi.dy.masa.malilib.util.position.BlockPos.of(pos));
             List<PlacementPart> list = DataManager.getSchematicPlacementManager().getAllPlacementsTouchingChunk(pos);
 
             if (list.isEmpty() == false)
             {
                 for (PlacementPart part : list)
                 {
-                    if (part.getBox().containsPos(pos))
+                    if (part.getBox().contains(pos))
                     {
                         SchematicPlacement placement = part.getPlacement();
                         String regionName = part.getSubRegionName();
@@ -465,7 +466,7 @@ public class SchematicUtils
             {
                 for (PlacementPart part : list)
                 {
-                    if (part.getBox().containsPos(posStart))
+                    if (part.getBox().contains(posStart))
                     {
                         SchematicPlacement placement = part.getPlacement();
                         String regionName = part.getSubRegionName();
@@ -559,7 +560,7 @@ public class SchematicUtils
             {
                 for (PlacementPart part : list)
                 {
-                    if (part.getBox().containsPos(posStart))
+                    if (part.getBox().contains(posStart))
                     {
                         if (replaceAllIdenticalBlocks(manager, part, stateOriginal, stateNew,
                                                       blockStateTest, blockModifier, world))
@@ -588,7 +589,7 @@ public class SchematicUtils
             {
                 for (PlacementPart part : list)
                 {
-                    if (part.getBox().containsPos(pos))
+                    if (part.getBox().contains(pos))
                     {
                         if (setAllStatesToAirExcept(manager, part, state, world))
                         {
@@ -645,12 +646,12 @@ public class SchematicUtils
                 continue;
             }
 
-            int minX = range.getClampedValue(-30000000, Direction.Axis.X);
-            int minZ = range.getClampedValue(-30000000, Direction.Axis.Z);
-            int maxX = range.getClampedValue( 30000000, Direction.Axis.X);
-            int maxZ = range.getClampedValue( 30000000, Direction.Axis.Z);
-            int minY = range.getClampedValue(world.getMinY(), Direction.Axis.Y);
-            int maxY = range.getClampedValue(world.getMaxY(), Direction.Axis.Y);
+            int minX = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
+            int minZ = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
+            int maxX = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
+            int maxZ = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
+            int minY = range.getClampedValue(world.getMinY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
+            int maxY = range.getClampedValue(world.getMaxY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
 
             BlockPos posStart = new BlockPos(minX, minY, minZ);
             BlockPos posEnd = new BlockPos(maxX, maxY, maxZ);
@@ -767,12 +768,12 @@ public class SchematicUtils
                 continue;
             }
 
-            int minX = range.getClampedValue(-30000000, Direction.Axis.X);
-            int minZ = range.getClampedValue(-30000000, Direction.Axis.Z);
-            int maxX = range.getClampedValue( 30000000, Direction.Axis.X);
-            int maxZ = range.getClampedValue( 30000000, Direction.Axis.Z);
-            int minY = range.getClampedValue(world.getMinY(), Direction.Axis.Y);
-            int maxY = range.getClampedValue(world.getMaxY(), Direction.Axis.Y);
+            int minX = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
+            int minZ = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
+            int maxX = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
+            int maxZ = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
+            int minY = range.getClampedValue(world.getMinY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
+            int maxY = range.getClampedValue(world.getMaxY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
 
             BlockPos posStart = new BlockPos(minX, minY, minZ);
             BlockPos posEnd = new BlockPos(maxX, maxY, maxZ);
@@ -1098,9 +1099,9 @@ public class SchematicUtils
 
 	/**
 	 * Requested to be added by Earthcomputer from Litemoretica.
-	 * @param currentSelection
-	 * @param mcWorld
-	 * @return
+	 * @param currentSelection -
+	 * @param mcWorld -
+	 * @return -
 	 */
 	public static boolean saveAreaSelectionToSchematic(AreaSelection currentSelection, Level mcWorld)
 	{

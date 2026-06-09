@@ -58,7 +58,7 @@ public class PlacementManagerTaskFixer extends PlacementManagerTask
 					if (!this.worldSupplier().get().getChunkSource().hasChunk(cx, cz) &&
 					    DataManager.getSchematicPlacementManager().canHandleChunk(clientWorld, cx, cz))
 					{
-						Frustum frustum = Minecraft.getInstance().gameRenderer.getMainCamera().getCapturedFrustum();
+						Frustum frustum = Minecraft.getInstance().gameRenderer.mainCamera().getCapturedFrustum();
 
 						// Check Frustum culling
 						if (frustum != null)

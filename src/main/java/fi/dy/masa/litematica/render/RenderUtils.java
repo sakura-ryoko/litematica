@@ -98,17 +98,12 @@ public class RenderUtils
         final int x = pos.getX();
         final int y = pos.getY();
         final int z = pos.getZ();
-//        final int vertexSize = vertexData.length / 4;
         final float[] fx = new float[4];
         final float[] fy = new float[4];
         final float[] fz = new float[4];
 
         for (int index = 0; index < 4; index++)
         {
-//            fx[index] = x + Float.intBitsToFloat(vertexData[index * vertexSize    ]);
-//            fy[index] = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
-//            fz[index] = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
-
 	        Vector3fc v3fc = quad.position(index);
 
 	        fx[index] = x + v3fc.x();
@@ -183,7 +178,6 @@ public class RenderUtils
         final int x = pos.getX();
         final int y = pos.getY();
         final int z = pos.getZ();
-//        final int vertexSize = vertexData.length / 4;
         final float[] fx = new float[4];
         final float[] fy = new float[4];
         final float[] fz = new float[4];
@@ -191,9 +185,6 @@ public class RenderUtils
         for (int index = 0; index < 4; index++)
         {
 			Vector3fc v3fc = quad.position(index);
-//            fx[index] = x + Float.intBitsToFloat(vertexData[index * vertexSize    ]);
-//            fy[index] = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
-//            fz[index] = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
 
             fx[index] = x + v3fc.x();
             fy[index] = y + v3fc.y();
@@ -295,19 +286,13 @@ public class RenderUtils
 
     private static void renderModelQuadOverlayBatched(BlockPos pos, BufferBuilder buffer, Color4f color, BakedQuad quad)
     {
-//        final int[] vertexData = quad.vertexData();
         final int x = pos.getX();
         final int y = pos.getY();
         final int z = pos.getZ();
-//        final int vertexSize = vertexData.length / 4;
         float fx, fy, fz;
 
         for (int index = 0; index < 4; index++)
         {
-//            fx = x + Float.intBitsToFloat(vertexData[index * vertexSize    ]);
-//            fy = y + Float.intBitsToFloat(vertexData[index * vertexSize + 1]);
-//            fz = z + Float.intBitsToFloat(vertexData[index * vertexSize + 2]);
-
 	        Vector3fc v3fc = quad.position(index);
 
             fx = x + v3fc.x();
@@ -473,17 +458,19 @@ public class RenderUtils
         int yInv = 0;
         int compatShift = OverlayRenderer.calculateCompatYShift();
 
-        switch (align)
-        {
-            case CENTER:
-                xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yInv = GuiUtils.getScaledWindowHeight() / 2 - props.height - offY;
-                break;
-            case TOP_CENTER:
-                xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
-                yInv = offY + compatShift;
-                break;
-        }
+	    yInv = switch (align)
+	    {
+		    case CENTER ->
+		    {
+			    xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
+			    yield GuiUtils.getScaledWindowHeight() / 2 - props.height - offY;
+		    }
+		    case TOP_CENTER ->
+		    {
+			    xInv = GuiUtils.getScaledWindowWidth() / 2 - (props.width / 2);
+			    yield offY + compatShift;
+		    }
+	    };
 
         if      (side == LeftRight.LEFT)  { xInv -= (props.width / 2 + 4); }
         else if (side == LeftRight.RIGHT) { xInv += (props.width / 2 + 4); }

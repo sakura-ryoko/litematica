@@ -11,16 +11,16 @@ import fi.dy.masa.litematica.config.Configs;
 
 public enum DataFixerMode implements IConfigOptionListEntry, StringRepresentable
 {
-    ALWAYS                  ("always", "litematica.gui.label.data_fixer_mode.always"),
-    BELOW_1215              ("below_1215", "litematica.gui.label.data_fixer_mode.below_1215"),
-    BELOW_1205              ("below_1205", "litematica.gui.label.data_fixer_mode.below_1205"),
-    BELOW_120X              ("below_120X", "litematica.gui.label.data_fixer_mode.below_120X"),
-    BELOW_119X              ("below_119X", "litematica.gui.label.data_fixer_mode.below_119X"),
-    BELOW_117X              ("below_117X", "litematica.gui.label.data_fixer_mode.below_117X"),
-    BELOW_116X              ("below_116X", "litematica.gui.label.data_fixer_mode.below_116X"),
-    BELOW_113X              ("below_113X", "litematica.gui.label.data_fixer_mode.below_113X"),
-    BELOW_112X              ("below_112X", "litematica.gui.label.data_fixer_mode.below_112X"),
-    NEVER                   ("never", "litematica.gui.label.data_fixer_mode.never");
+    ALWAYS                  ("always",      "litematica.gui.label.data_fixer_mode.always"),
+    BELOW_1215              ("below_1215",  "litematica.gui.label.data_fixer_mode.below_1215"),
+    BELOW_1205              ("below_1205",  "litematica.gui.label.data_fixer_mode.below_1205"),
+    BELOW_120X              ("below_120X",  "litematica.gui.label.data_fixer_mode.below_120X"),
+    BELOW_119X              ("below_119X",  "litematica.gui.label.data_fixer_mode.below_119X"),
+    BELOW_117X              ("below_117X",  "litematica.gui.label.data_fixer_mode.below_117X"),
+    BELOW_116X              ("below_116X",  "litematica.gui.label.data_fixer_mode.below_116X"),
+    BELOW_113X              ("below_113X",  "litematica.gui.label.data_fixer_mode.below_113X"),
+    BELOW_112X              ("below_112X",  "litematica.gui.label.data_fixer_mode.below_112X"),
+    NEVER                   ("never",       "litematica.gui.label.data_fixer_mode.never");
 
     public static final StringRepresentable.EnumCodec<DataFixerMode> CODEC = StringRepresentable.fromEnum(DataFixerMode::values);
     public static final ImmutableList<DataFixerMode> VALUES = ImmutableList.copyOf(values());

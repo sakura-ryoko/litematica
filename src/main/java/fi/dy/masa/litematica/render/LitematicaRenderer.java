@@ -24,7 +24,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.render.schematic.WorldRendererSchematic;
-import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class LitematicaRenderer
@@ -219,13 +219,13 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseUpdate(Camera camera, ProfilerFiller profiler)
+    public void piecewiseUpdate(CameraRenderState camera, ProfilerFiller profiler)
     {
         //LOGGER.error("[LR] piecewiseUpdate()");
         if (this.renderPiecewiseSchematic)
         {
             profiler.push(Reference.MOD_ID+"_update_chunks");
-            this.camera = camera;
+            this.camera = this.getCamera();
             this.getWorldRenderer().updateChunks(this.finishTimeNano, profiler);
             profiler.pop();
         }
@@ -373,7 +373,7 @@ public class LitematicaRenderer
     {
 	    if (this.camera == null)
         {
-            this.camera = this.mc.gameRenderer.getMainCamera();
+            this.camera = this.mc.gameRenderer.mainCamera();
         }
 
         return this.camera;

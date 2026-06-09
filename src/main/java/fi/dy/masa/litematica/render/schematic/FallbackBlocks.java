@@ -20,43 +20,43 @@ public class FallbackBlocks
 	public static HashMap<Identifier, StateDefinition<Block, BlockState>> ID_TO_STATE_MANAGER = new HashMap<>();
 
 	// Glass Blocks
-	public static Identifier BLACK_GLASS = registerBasic("black_glass_fallback", Blocks.BLACK_STAINED_GLASS);
-	public static Identifier BLUE_GLASS = registerBasic("blue_glass_fallback", Blocks.BLUE_STAINED_GLASS);
-	public static Identifier BROWN_GLASS = registerBasic("brown_glass_fallback", Blocks.BROWN_STAINED_GLASS);
-	public static Identifier CYAN_GLASS = registerBasic("cyan_glass_fallback", Blocks.CYAN_STAINED_GLASS);
+	public static Identifier BLACK_GLASS = registerBasic("black_glass_fallback", Blocks.STAINED_GLASS.black());
+	public static Identifier BLUE_GLASS = registerBasic("blue_glass_fallback", Blocks.STAINED_GLASS.blue());
+	public static Identifier BROWN_GLASS = registerBasic("brown_glass_fallback", Blocks.STAINED_GLASS.brown());
+	public static Identifier CYAN_GLASS = registerBasic("cyan_glass_fallback", Blocks.STAINED_GLASS.cyan());
 	public static Identifier GLASS = registerBasic("glass_fallback", Blocks.GLASS);
-	public static Identifier GRAY_GLASS = registerBasic("gray_glass_fallback", Blocks.GRAY_STAINED_GLASS);
-	public static Identifier GREEN_GLASS = registerBasic("green_glass_fallback", Blocks.GREEN_STAINED_GLASS);
-	public static Identifier LIME_GLASS = registerBasic("lime_glass_fallback", Blocks.LIME_STAINED_GLASS);
-	public static Identifier LT_BLUE_GLASS = registerBasic("lt_blue_glass_fallback", Blocks.LIGHT_BLUE_STAINED_GLASS);
-	public static Identifier LT_GRAY_GLASS = registerBasic("lt_gray_glass_fallback", Blocks.LIGHT_GRAY_STAINED_GLASS);
-	public static Identifier MAGENTA_GLASS = registerBasic("magenta_glass_fallback", Blocks.MAGENTA_STAINED_GLASS);
-	public static Identifier ORANGE_GLASS = registerBasic("orange_glass_fallback", Blocks.ORANGE_STAINED_GLASS);
-	public static Identifier PINK_GLASS = registerBasic("pink_glass_fallback", Blocks.PINK_STAINED_GLASS);
-	public static Identifier PURPLE_GLASS = registerBasic("purple_glass_fallback", Blocks.PURPLE_STAINED_GLASS);
-	public static Identifier RED_GLASS = registerBasic("red_glass_fallback", Blocks.RED_STAINED_GLASS);
+	public static Identifier GRAY_GLASS = registerBasic("gray_glass_fallback", Blocks.STAINED_GLASS.gray());
+	public static Identifier GREEN_GLASS = registerBasic("green_glass_fallback", Blocks.STAINED_GLASS.green());
+	public static Identifier LIME_GLASS = registerBasic("lime_glass_fallback", Blocks.STAINED_GLASS.lime());
+	public static Identifier LT_BLUE_GLASS = registerBasic("lt_blue_glass_fallback", Blocks.STAINED_GLASS.lightBlue());
+	public static Identifier LT_GRAY_GLASS = registerBasic("lt_gray_glass_fallback", Blocks.STAINED_GLASS.lightGray());
+	public static Identifier MAGENTA_GLASS = registerBasic("magenta_glass_fallback", Blocks.STAINED_GLASS.magenta());
+	public static Identifier ORANGE_GLASS = registerBasic("orange_glass_fallback", Blocks.STAINED_GLASS.orange());
+	public static Identifier PINK_GLASS = registerBasic("pink_glass_fallback", Blocks.STAINED_GLASS.pink());
+	public static Identifier PURPLE_GLASS = registerBasic("purple_glass_fallback", Blocks.STAINED_GLASS.purple());
+	public static Identifier RED_GLASS = registerBasic("red_glass_fallback", Blocks.STAINED_GLASS.red());
 	public static Identifier TINTED_GLASS = registerBasic("tinted_glass_fallback", Blocks.TINTED_GLASS);
-	public static Identifier WHITE_GLASS = registerBasic("white_glass_fallback", Blocks.WHITE_STAINED_GLASS);
-	public static Identifier YELLOW_GLASS = registerBasic("yellow_glass_fallback", Blocks.YELLOW_STAINED_GLASS);
+	public static Identifier WHITE_GLASS = registerBasic("white_glass_fallback", Blocks.STAINED_GLASS.white());
+	public static Identifier YELLOW_GLASS = registerBasic("yellow_glass_fallback", Blocks.STAINED_GLASS.yellow());
 
 	// Glass Panes
-	public static Identifier BLACK_GLASS_PANE = registerHorizontalConnecting("black_glass_pane_fallback", Blocks.BLACK_STAINED_GLASS_PANE);
-	public static Identifier BLUE_GLASS_PANE = registerHorizontalConnecting("blue_glass_pane_fallback", Blocks.BLUE_STAINED_GLASS_PANE);
-	public static Identifier BROWN_GLASS_PANE = registerHorizontalConnecting("brown_glass_pane_fallback", Blocks.BROWN_STAINED_GLASS_PANE);
-	public static Identifier CYAN_GLASS_PANE = registerHorizontalConnecting("cyan_glass_pane_fallback", Blocks.CYAN_STAINED_GLASS_PANE);
+	public static Identifier BLACK_GLASS_PANE = registerHorizontalConnecting("black_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.black());
+	public static Identifier BLUE_GLASS_PANE = registerHorizontalConnecting("blue_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.blue());
+	public static Identifier BROWN_GLASS_PANE = registerHorizontalConnecting("brown_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.brown());
+	public static Identifier CYAN_GLASS_PANE = registerHorizontalConnecting("cyan_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.cyan());
 	public static Identifier GLASS_PANE = registerHorizontalConnecting("glass_pane_fallback", Blocks.GLASS_PANE);
-	public static Identifier GRAY_GLASS_PANE = registerHorizontalConnecting("gray_glass_pane_fallback", Blocks.GRAY_STAINED_GLASS_PANE);
-	public static Identifier GREEN_GLASS_PANE = registerHorizontalConnecting("green_glass_pane_fallback", Blocks.GREEN_STAINED_GLASS_PANE);
-	public static Identifier LIME_GLASS_PANE = registerHorizontalConnecting("lime_glass_pane_fallback", Blocks.LIME_STAINED_GLASS_PANE);
-	public static Identifier LT_BLUE_GLASS_PANE = registerHorizontalConnecting("lt_blue_glass_pane_fallback", Blocks.LIGHT_BLUE_STAINED_GLASS_PANE);
-	public static Identifier LT_GRAY_GLASS_PANE = registerHorizontalConnecting("lt_gray_glass_pane_fallback", Blocks.LIGHT_GRAY_STAINED_GLASS_PANE);
-	public static Identifier MAGENTA_GLASS_PANE = registerHorizontalConnecting("magenta_glass_pane_fallback", Blocks.MAGENTA_STAINED_GLASS_PANE);
-	public static Identifier ORANGE_GLASS_PANE = registerHorizontalConnecting("orange_glass_pane_fallback", Blocks.ORANGE_STAINED_GLASS_PANE);
-	public static Identifier PINK_GLASS_PANE = registerHorizontalConnecting("pink_glass_pane_fallback", Blocks.PINK_STAINED_GLASS_PANE);
-	public static Identifier PURPLE_GLASS_PANE = registerHorizontalConnecting("purple_glass_pane_fallback", Blocks.PURPLE_STAINED_GLASS_PANE);
-	public static Identifier RED_GLASS_PANE = registerHorizontalConnecting("red_glass_pane_fallback", Blocks.RED_STAINED_GLASS_PANE);
-	public static Identifier WHITE_GLASS_PANE = registerHorizontalConnecting("white_glass_pane_fallback", Blocks.WHITE_STAINED_GLASS_PANE);
-	public static Identifier YELLOW_GLASS_PANE = registerHorizontalConnecting("yellow_glass_pane_fallback", Blocks.YELLOW_STAINED_GLASS_PANE);
+	public static Identifier GRAY_GLASS_PANE = registerHorizontalConnecting("gray_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.gray());
+	public static Identifier GREEN_GLASS_PANE = registerHorizontalConnecting("green_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.green());
+	public static Identifier LIME_GLASS_PANE = registerHorizontalConnecting("lime_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.lime());
+	public static Identifier LT_BLUE_GLASS_PANE = registerHorizontalConnecting("lt_blue_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.lightBlue());
+	public static Identifier LT_GRAY_GLASS_PANE = registerHorizontalConnecting("lt_gray_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.lightGray());
+	public static Identifier MAGENTA_GLASS_PANE = registerHorizontalConnecting("magenta_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.magenta());
+	public static Identifier ORANGE_GLASS_PANE = registerHorizontalConnecting("orange_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.orange());
+	public static Identifier PINK_GLASS_PANE = registerHorizontalConnecting("pink_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.pink());
+	public static Identifier PURPLE_GLASS_PANE = registerHorizontalConnecting("purple_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.purple());
+	public static Identifier RED_GLASS_PANE = registerHorizontalConnecting("red_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.red());
+	public static Identifier WHITE_GLASS_PANE = registerHorizontalConnecting("white_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.white());
+	public static Identifier YELLOW_GLASS_PANE = registerHorizontalConnecting("yellow_glass_pane_fallback", Blocks.STAINED_GLASS_PANE.yellow());
 
 	private static Identifier registerBasic(String name, Block block)
 	{

@@ -20,7 +20,7 @@ import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.ISta
 public class SchematicConverter
 {
     private final IdentityHashMap<Class<? extends Block>, IStateFixer> fixersPerBlock = new IdentityHashMap<>();
-    private IdentityHashMap<BlockState, IStateFixer> postProcessingStateFixers = new IdentityHashMap<>();
+    private final IdentityHashMap<BlockState, IStateFixer> postProcessingStateFixers = new IdentityHashMap<>();
 
     private SchematicConverter()
     {
@@ -101,7 +101,7 @@ public class SchematicConverter
     /**
      * Creates the post process state filter array.
      * @param palette ()
-     * @return true if there are at least some states that need post processing
+     * @return true if there are at least some states that need post-processing
      */
     public boolean createPostProcessStateFilter(BlockState[] palette)
     {
@@ -111,7 +111,7 @@ public class SchematicConverter
     /**
      * Creates the post process state filter array.
      * @param palette ()
-     * @return true if there are at least some states that need post processing
+     * @return true if there are at least some states that need post-processing
      */
     public boolean createPostProcessStateFilter(Collection<BlockState> palette)
     {
@@ -147,23 +147,6 @@ public class SchematicConverter
     private IStateFixer getFixerFor(BlockState state)
     {
         return this.fixersPerBlock.get(state.getBlock().getClass());
-    }
-
-    public CompoundTag fixTileEntityNBT(CompoundTag tag, BlockState state)
-    {
-        /*
-        try
-        {
-            tag = (NBTTagCompound) this.mc.getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NBTDynamicOps.INSTANCE, tag),
-                    1139, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-        }
-        catch (Throwable e)
-        {
-            Litematica.logger.warn("Failed to update BlockEntity data for block '{}'", state, e);
-        }
-        */
-
-        return tag;
     }
 
     public static void postProcessBlocks(LitematicaBlockStateContainer container, @Nullable Map<BlockPos, CompoundTag> tiles,

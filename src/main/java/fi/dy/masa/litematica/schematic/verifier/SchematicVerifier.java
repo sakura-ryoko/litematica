@@ -2,15 +2,6 @@ package fi.dy.masa.litematica.schematic.verifier;
 
 import java.util.*;
 import javax.annotation.Nullable;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -18,13 +9,24 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.ICompletionListener;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
+import fi.dy.masa.malilib.util.position.Direction;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.infohud.IInfoHudRenderer;
@@ -659,12 +661,12 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
         Direction.Axis axis = range.getAxis();
         boolean ranged = this.schematicPlacement.getSchematicVerifierType() == BlockInfoListType.RENDER_LAYERS;
 
-        final int startX = ranged && axis == Direction.Axis.X ? Math.max(box.minX(), range.getLayerMin()) : box.minX();
-        final int startY = ranged && axis == Direction.Axis.Y ? Math.max(box.minY(), range.getLayerMin()) : box.minY();
-        final int startZ = ranged && axis == Direction.Axis.Z ? Math.max(box.minZ(), range.getLayerMin()) : box.minZ();
-        final int endX = ranged && axis == Direction.Axis.X ? Math.min(box.maxX(), range.getLayerMax()) : box.maxX();
-        final int endY = ranged && axis == Direction.Axis.Y ? Math.min(box.maxY(), range.getLayerMax()) : box.maxY();
-        final int endZ = ranged && axis == Direction.Axis.Z ? Math.min(box.maxZ(), range.getLayerMax()) : box.maxZ();
+        final int startX = ranged && axis == Direction.Axis.X ? Math.max(box.minX(), range.getMinLayerBoundary()) : box.minX();
+        final int startY = ranged && axis == Direction.Axis.Y ? Math.max(box.minY(), range.getMinLayerBoundary()) : box.minY();
+        final int startZ = ranged && axis == Direction.Axis.Z ? Math.max(box.minZ(), range.getMinLayerBoundary()) : box.minZ();
+        final int endX = ranged && axis == Direction.Axis.X ? Math.min(box.maxX(), range.getMaxLayerBoundary()) : box.maxX();
+        final int endY = ranged && axis == Direction.Axis.Y ? Math.min(box.maxY(), range.getMaxLayerBoundary()) : box.maxY();
+        final int endZ = ranged && axis == Direction.Axis.Z ? Math.min(box.maxZ(), range.getMaxLayerBoundary()) : box.maxZ();
 
         for (int y = startY; y <= endY; ++y)
         {
@@ -940,21 +942,9 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
     }
     */
 
-    public static class BlockMismatch implements Comparable<BlockMismatch>
+    public record BlockMismatch(MismatchType mismatchType, BlockState stateExpected, BlockState stateFound, int count)
+        implements Comparable<BlockMismatch>
     {
-        public final MismatchType mismatchType;
-        public final BlockState stateExpected;
-        public final BlockState stateFound;
-        public final int count;
-
-        public BlockMismatch(MismatchType mismatchType, BlockState stateExpected, BlockState stateFound, int count)
-        {
-            this.mismatchType = mismatchType;
-            this.stateExpected = stateExpected;
-            this.stateFound = stateFound;
-            this.count = count;
-        }
-
         @Override
         public int compareTo(BlockMismatch other)
         {
@@ -966,65 +956,44 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((mismatchType == null) ? 0 : mismatchType.hashCode());
-            result = prime * result + ((stateExpected == null) ? 0 : stateExpected.hashCode());
-            result = prime * result + ((stateFound == null) ? 0 : stateFound.hashCode());
+            result = prime * result + ((this.mismatchType == null) ? 0 : this.mismatchType.hashCode());
+            result = prime * result + ((this.stateExpected == null) ? 0 : this.stateExpected.hashCode());
+            result = prime * result + ((this.stateFound == null) ? 0 : this.stateFound.hashCode());
             return result;
         }
 
         @Override
         public boolean equals(Object obj)
         {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) { return true; }
+            if (obj == null) { return false; }
+            if (getClass() != obj.getClass()) { return false; }
+
             BlockMismatch other = (BlockMismatch) obj;
-            if (mismatchType != other.mismatchType)
-                return false;
-            if (stateExpected == null)
+
+            if (this.mismatchType != other.mismatchType) { return false; }
+            if (this.stateExpected == null)
             {
-                if (other.stateExpected != null)
-                    return false;
+                if (other.stateExpected != null) { return false; }
             }
-            else if (stateExpected != other.stateExpected)
-                return false;
-            if (stateFound == null)
+            else if (this.stateExpected != other.stateExpected) { return false; }
+            if (this.stateFound == null)
             {
-                if (other.stateFound != null)
-                    return false;
+	            return other.stateFound == null;
             }
-            else if (stateFound != other.stateFound)
-                return false;
-            return true;
+            else
+            {
+                return this.stateFound == other.stateFound;
+            }
         }
     }
 
-    public static class MismatchRenderPos
+    public record MismatchRenderPos(MismatchType type, BlockPos pos)
+    { }
+
+    private record RenderPosComparator(BlockPos posReference, boolean closestFirst)
+            implements Comparator<MismatchRenderPos>
     {
-        public final MismatchType type;
-        public final BlockPos pos;
-
-        public MismatchRenderPos(MismatchType type, BlockPos pos)
-        {
-            this.type = type;
-            this.pos = pos;
-        }
-    }
-
-    private static class RenderPosComparator implements Comparator<MismatchRenderPos>
-    {
-        private final BlockPos posReference;
-        private final boolean closestFirst;
-
-        public RenderPosComparator(BlockPos posReference, boolean closestFirst)
-        {
-            this.posReference = posReference;
-            this.closestFirst = closestFirst;
-        }
-
         @Override
         public int compare(MismatchRenderPos pos1, MismatchRenderPos pos2)
         {

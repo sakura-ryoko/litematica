@@ -29,9 +29,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTicks;
 import net.minecraft.world.ticks.ScheduledTick;
 
-import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.malilib.util.nbt.NbtView;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -40,7 +40,6 @@ import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
-import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
@@ -336,7 +335,7 @@ public class SchematicPlacingUtils
                 {
                     BlockPos pos = entry.getKey();
 
-                    if (box.containsPos(pos))
+                    if (box.contains(pos))
                     {
                         posMutable.set(posMinRelMinusRegX + pos.getX(),
                                        posMinRelMinusRegY + pos.getY(),
@@ -362,7 +361,7 @@ public class SchematicPlacingUtils
                 {
                     BlockPos pos = entry.getKey();
 
-                    if (box.containsPos(pos))
+                    if (box.contains(pos))
                     {
                         posMutable.set(posMinRelMinusRegX + pos.getX(),
                                        posMinRelMinusRegY + pos.getY(),
@@ -453,7 +452,7 @@ public class SchematicPlacingUtils
 
         for (EntityInfo info : entityList)
         {
-            Vec3 pos = info.posVec;
+            Vec3 pos = info.posVec();
             pos = PositionUtils.getTransformedPosition(pos, schematicPlacement.getMirror(), schematicPlacement.getRotation());
             pos = PositionUtils.getTransformedPosition(pos, placement.getMirror(), placement.getRotation());
             double x = pos.x + offX;
@@ -469,7 +468,7 @@ public class SchematicPlacingUtils
 
             if (x >= minX && x < maxX && z >= minZ && z < maxZ)
             {
-                CompoundTag tag = info.nbt.copy();
+                CompoundTag tag = info.nbt().copy();
                 String id = tag.getStringOr("id", "");
 
                 // Avoid warning about invalid hanging position.

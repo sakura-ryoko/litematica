@@ -38,11 +38,6 @@ public class MaterialCache
         this.displayItemsForStates.clear();
     }
 
-//    public ItemStack getRequiredBuildItemForState(BlockState state)
-//    {
-//        return this.getRequiredBuildItemForState(state);
-//    }
-
     public ItemStack getRequiredBuildItemForState(BlockState state)
     {
         ItemStack stack = this.buildItemsForStates.get(state);
@@ -96,7 +91,6 @@ public class MaterialCache
             }
             else
             {
-//            world.setBlock(pos, state, 0x14);
                 stack = ((IMixinAbstractBlock) state.getBlock()).litematica_getPickStack(world, pos, state, false);
             }
         }

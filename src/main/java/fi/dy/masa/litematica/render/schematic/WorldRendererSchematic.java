@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.Logger;
 import org.joml.*;
 
+import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -54,7 +55,7 @@ import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.AgeableWaterCreature;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.fish.Cod;
@@ -77,8 +78,8 @@ import net.minecraft.world.phys.Vec3;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
 import fi.dy.masa.malilib.util.EntityUtils;
-import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.MathUtils;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -86,7 +87,7 @@ import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
-import fi.dy.masa.litematica.util.*;
+import fi.dy.masa.litematica.util.invoker.*;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -215,12 +216,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
         return this.profiler;
     }
-
-//    @Override
-//    public BlockModelRendererSchematic getBlockRenderer()
-//    {
-//        return BlockModelCacheSchematic.INSTANCE.blockModelRenderer();
-//    }
 
     @Override
     public BlockEntityRenderDispatcher getBlockEntityRenderer()
@@ -747,7 +742,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     }
 
                     GpuBuffer indexBuffer;
-                    VertexFormat.IndexType indexType;
+                    IndexType indexType;
 
                     if (buffers.getIndexBuffer() == null)
                     {
@@ -790,7 +785,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                     int pos = transformValues.size();
 
 //                    int hash = 173;
-                    VertexFormat vf = layer.pipeline().getVertexFormat();
+                    VertexFormat vf = layer.pipeline().getVertexFormatBinding(0);
 //                    GpuBuffer vbo = slice.vertexBuffer();
 //
 //                    if (layer != ChunkSectionLayer.TRANSLUCENT)
@@ -868,7 +863,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         if (startedDrawing)
         {
             profiler.popPush("fill_uniforms");
-            this.getSchematicRenderState().chunkFixUniform.fillBuffer(atlasWidth, atlasHeight, 1.0f);
+            this.getSchematicRenderState().chunkFixUniform.updateBuffer(atlasWidth, atlasHeight, 1.0f);
             GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms()
                                                            .writeTransforms(
                                                                    transformValues.toArray(new DynamicUniforms.Transform[0])
@@ -878,7 +873,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             this.getSchematicRenderState().batchDraw = new ChunkRenderBatchDraw(blockAtlas, renderMap,
                                                       renderCollidingBlocks, renderAsTranslucent, indexCount,
                                                       transformSlices,
-                                                      this.getSchematicRenderState().chunkFixUniform.getCurrentBuffer()
+                                                      this.getSchematicRenderState().chunkFixUniform.getCurrentBufferSlice()
             );
             this.shouldDraw = true;
         }
@@ -1085,7 +1080,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         double z = cameraPos.z;
 
         boolean renderThrough = Configs.Visuals.SCHEMATIC_OVERLAY_RENDER_THROUGH.getBooleanValue() || Hotkeys.RENDER_OVERLAY_THROUGH_BLOCKS.getKeybind().isKeybindHeld();
-        RenderPipeline pipeline = renderThrough ? type.getRenderThrough() : type.getPipeline();
+        RenderPipeline pipeline = renderThrough ? type.renderThrough() : type.pipeline();
 
         float[] offset = new float[]{0.3f, 0.0f, 0.6f};
 
@@ -1116,7 +1111,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-                    this.drawOverlayInternal(pipeline, buffers, -1, offset, false, false);
+                    this.drawOverlayInternal(type, pipeline, buffers, -1, offset, false, false);
                     matrix4fStack.popMatrix();
                 }
             }
@@ -1191,7 +1186,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     // Probably not the most efficient way; but it works.
-    private void drawOverlayInternal(RenderPipeline pipeline,
+    private void drawOverlayInternal(OverlayRenderType type,
+                                     RenderPipeline pipeline,
                                      ChunkRenderBuffers buffers,
                                      int color, float[] offset,
                                      boolean useColor, boolean useOffset) throws RuntimeException
@@ -1213,12 +1209,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 colorMod.set(rgba);
             }
 
-            RenderTarget mainFb = RenderUtils.fb();
+            RenderTarget mainFb = RenderUtils.mainTarget();
             GpuTextureView texture1 = mainFb.getColorTextureView();
             GpuTextureView texture2 = mainFb.useDepth ? mainFb.getDepthTextureView() : null;
-            RenderSystem.AutoStorageIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(pipeline.getVertexFormatMode());
+            RenderSystem.AutoStorageIndexBuffer shapeIndexBuffer = RenderSystem.getSequentialBuffer(type.topology());
             GpuBuffer indexBuffer;
-            VertexFormat.IndexType indexType;
+            IndexType indexType;
 
             if (buffers.getIndexBuffer() == null)
             {
@@ -1241,7 +1237,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
             GpuBufferSlice gpuSlice = RenderSystem.getDynamicUniforms()
                                                   .writeTransform(
-                                                          RenderSystem.getModelViewMatrix(),
+                                                          RenderSystem.getModelViewMatrixCopy(),
                                                           colorMod,
                                                           modelOffset,
                                                           texMatrix);
@@ -1250,15 +1246,15 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             try (RenderPass pass = RenderSystem.getDevice()
                                                .createCommandEncoder()
                                                .createRenderPass(() -> "litematica:drawInternal/schematic_overlay",
-                                                                 texture1, OptionalInt.empty(),
+                                                                 texture1, Optional.empty(),
                                                                  texture2, OptionalDouble.empty()))
             {
                 pass.setPipeline(pipeline);
                 RenderSystem.bindDefaultUniforms(pass);
                 pass.setUniform("DynamicTransforms", gpuSlice);
-                pass.setVertexBuffer(0, buffers.getVertexBuffer());
+                pass.setVertexBuffer(0, buffers.getVertexBuffer().slice());
                 pass.setIndexBuffer(indexBuffer, indexType);
-                pass.drawIndexed(0, 0, buffers.getIndexCount(), 1);
+                pass.drawIndexed(buffers.getIndexCount(), 1, 0, 0, 0);
             }
         }
     }
@@ -1380,7 +1376,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     if (entityTmp instanceof Avatar avatar)
                     {
-                        if (avatar.getType().equals(EntityType.MANNEQUIN))
+                        if (avatar.getType().equals(EntityTypes.MANNEQUIN))
                         {
                             try
                             {
@@ -1405,7 +1401,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                                 LOGGER.error("Exception rendering Mannequin [{}]; {}", avatar.getClass().getName(), ex.getLocalizedMessage());
                             }
                         }
-                        else if (avatar.getType().equals(EntityType.PLAYER))
+                        else if (avatar.getType().equals(EntityTypes.PLAYER))
                         {
                             try
                             {
@@ -1564,7 +1560,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                         {
                             matrices.pushPose();
                             matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-                            BlockEntityRenderState state = this.getBlockEntityRenderer().tryExtractRenderState(te, tickProgress, null);
+                            BlockEntityRenderState state = this.getBlockEntityRenderer().tryExtractRenderState(te, tickProgress, null, false);
                             this.getSchematicRenderState().blockEntityStates.add(state);
                             // Ignore crumbling, because there is no point in the Schem World.
                             matrices.popPose();
@@ -1593,7 +1589,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                         {
                             matrices.pushPose();
                             matrices.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-                            BlockEntityRenderState state = this.getBlockEntityRenderer().tryExtractRenderState(te, tickProgress, null);
+                            BlockEntityRenderState state = this.getBlockEntityRenderer().tryExtractRenderState(te, tickProgress, null, true);
                             this.getSchematicRenderState().blockEntityStates.add(state);
                             // Ignore crumbling, because there is no point in the Schem World.
                             matrices.popPose();

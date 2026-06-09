@@ -67,51 +67,9 @@ public class ChunkRenderDispatcherLitematica
         }
 
         this.countRenderThreads = maxThreads;
-        this.queueFreeRenderAllocators = Queues.newArrayBlockingQueue(maxCache);
-
-        for (int i = 0; i < maxCache; ++i)
-        {
-            try
-            {
-                this.queueFreeRenderAllocators.add(new BufferAllocatorCache());
-            }
-            catch (OutOfMemoryError e)
-            {
-                LOGGER.warn("Only able to allocate {}/{} BufferAllocator caches", this.queueFreeRenderAllocators.size(), i);
-                int adjusted = Math.min(this.queueFreeRenderAllocators.size() * 2 / 3, this.queueFreeRenderAllocators.size() - 1);
-
-                for (int j = 0; j < adjusted; ++j)
-                {
-                    try
-                    {
-                        BufferAllocatorCache r = this.queueFreeRenderAllocators.take();
-                        r.close();
-                    }
-                    catch (Exception ignored) { }
-
-                    maxCache = adjusted;
-                }
-            }
-        }
-
-        this.countRenderAllocators = maxCache;
-        LOGGER.info("Using {} max total BufferAllocator caches", this.countRenderAllocators + 1);
-
-        this.renderWorker = new ChunkRenderWorkerLitematica(this, new BufferAllocatorCache());
          */
 
-//        this.countUberBuffers = 2;
         this.cameraPos = Vec3.ZERO;
-
-//        LOGGER.info("Using {} total BufferAllocator caches", this.countUberBuffers + 1);
-//
-//        this.queueFreeUberBuffers = Queues.newArrayBlockingQueue(this.countUberBuffers);
-//
-//        for (int i = 0; i < this.countUberBuffers; ++i)
-//        {
-//            this.queueFreeUberBuffers.add(new UberBufferCache());
-//        }
-
         this.renderWorker = new ChunkRenderWorkerLitematica(this);
     }
 
@@ -276,45 +234,9 @@ public class ChunkRenderDispatcherLitematica
 //        LOGGER.warn("[Dispatch] stopChunkUpdates()");
 //        profiler.push("stop_chunk_updates");
         this.clearChunkUpdates();
-//        List<UberBufferCache> list = new ArrayList<>();
-//
-//        while (list.size() != this.countUberBuffers)
-//        {
-            this.runChunkUploads(Long.MAX_VALUE);
-
-//            try
-//            {
-//                list.add(this.allocateUberBuffers());
-//            }
-//            catch (InterruptedException e)
-//            {
-//                LOGGER.warn("stopChunkUpdates(): Process Interrupted; error message: [{}]", e.getLocalizedMessage());
-//            }
-//        }
-//
-//        this.queueFreeUberBuffers.addAll(list);
+        this.runChunkUploads(Long.MAX_VALUE);
 //        profiler.pop();
     }
-
-//    public void freeUberBuffers(UberBufferCache uberCache)
-//    {
-//        if (uberCache != null)
-//        {
-//            try
-//            {
-//                uberCache.close();
-//            }
-//            catch (Exception ignored) { }
-//        }
-//
-//        uberCache = new UberBufferCache();
-//        this.queueFreeUberBuffers.add(uberCache);
-//    }
-//
-//    public UberBufferCache allocateUberBuffers() throws InterruptedException
-//    {
-//        return this.queueFreeUberBuffers.take();
-//    }
 
     protected ChunkRenderTaskSchematic getNextChunkUpdate() throws InterruptedException
     {
@@ -362,34 +284,6 @@ public class ChunkRenderDispatcherLitematica
 //        profiler.pop();
         return flag;
     }
-
-//    protected ListenableFuture<Object> scheduleChunkUploads(final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq)
-//    {
-//        LOGGER.warn("[Dispatch] scheduleChunkUploads()");
-//
-//        profiler.push("schedule_chunk_uploads");
-//        if (Minecraft.getInstance().isSameThread())
-//        {
-//            if (!chunkRenderData.isBlockLayerEmpty())
-//            {
-//                this.uploadChunkNow(renderChunk, profiler);
-//            }
-//
-//            profiler.pop();
-//            return Futures.immediateFuture(null);
-//        }
-//        else
-//        {
-//            ListenableFutureTask<Object> futureTask = ListenableFutureTask.create(() -> ChunkRenderDispatcherLitematica.this.scheduleChunkUploads(renderChunk, chunkRenderData, distanceSq, profiler), null);
-//
-//            synchronized (this.queueChunkUploads)
-//            {
-//                this.queueChunkUploads.add(new PendingUpload(futureTask, distanceSq));
-//                profiler.pop();
-//                return futureTask;
-//            }
-//        }
-//    }
 
     protected ListenableFuture<Object> uploadChunkBlocks(final ChunkSectionLayer layer, final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq, boolean resortOnly)
     {
@@ -635,15 +529,7 @@ public class ChunkRenderDispatcherLitematica
                 LOGGER.warn("Interrupted whilst waiting for worker to die", (Throwable)interruptedexception);
             }
         }
-
-//        this.queueFreeUberBuffers.forEach(UberBufferCache::clearAll);
-//        this.queueFreeUberBuffers.clear();
     }
-
-//    public boolean hasNoFreeRenderAllocators()
-//    {
-//        return this.queueFreeUberBuffers.isEmpty();
-//    }
 
     protected static class PendingUpload implements Comparable<PendingUpload>
     {

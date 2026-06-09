@@ -2,9 +2,11 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
 
+import com.mojang.blaze3d.IndexType;
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -13,7 +15,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -30,13 +31,13 @@ public record ChunkRenderBatchDraw(
 		boolean renderTranslucent,
         int maxIndicesRequired,
 		GpuBufferSlice[] dynamicTransforms,
-		GpuBuffer chunkFixUBO)
+		GpuBufferSlice chunkFixUBO)
 {
     public void draw(final ChunkSectionLayerGroup group, final GpuSampler sampler, ProfilerFiller profiler)
     {
-        RenderSystem.AutoStorageIndexBuffer defaultIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer defaultIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer defaultIBO = this.maxIndicesRequired() == 0 ? null : defaultIndices.getBuffer(this.maxIndicesRequired());
-        VertexFormat.IndexType indexType = this.maxIndicesRequired() == 0 ? null : defaultIndices.type();
+        IndexType indexType = this.maxIndicesRequired() == 0 ? null : defaultIndices.type();
         ChunkSectionLayer[] layers = group.layers();
         Minecraft mc = Minecraft.getInstance();
 	    boolean wf = SharedConstants.DEBUG_HOTKEYS && mc.wireframe;
@@ -48,7 +49,7 @@ public record ChunkRenderBatchDraw(
 		                                   .createRenderPass(
 				                                   () -> "litematica:schematic_chunk/" + group.label(),
 				                                   fb.getColorTextureView(),
-				                                   OptionalInt.empty(),
+				                                   Optional.empty(),
 				                                   fb.getDepthTextureView(),
 				                                   OptionalDouble.empty()
 		                                   ))

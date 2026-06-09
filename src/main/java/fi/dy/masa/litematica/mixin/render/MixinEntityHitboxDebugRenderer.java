@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
+import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
-import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
 
 @Mixin(EntityHitboxDebugRenderer.class)
 public abstract class MixinEntityHitboxDebugRenderer implements IEntityHitboxDebugRendererInvoker
@@ -30,7 +30,7 @@ public abstract class MixinEntityHitboxDebugRenderer implements IEntityHitboxDeb
 	{
 		ProfilerFiller profiler = Profiler.get();
 
-		if (profiler instanceof ActiveProfiler ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
+		if (profiler instanceof ActiveProfiler ps && !((IMixinActiveProfiler) ps).litematica_isStarted())
 		{
 			profiler.startTick();
 		}

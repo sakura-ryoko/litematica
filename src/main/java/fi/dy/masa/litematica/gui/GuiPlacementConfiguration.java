@@ -167,16 +167,14 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
         int offset = this.getStringWidth(label) + 4;
 
         BlockPos pos = this.placement.getOrigin();
-        String text = "";
-
-        switch (type)
+        String text = switch (type)
         {
-            case X: text = String.valueOf(pos.getX()); break;
-            case Y: text = String.valueOf(pos.getY()); break;
-            case Z: text = String.valueOf(pos.getZ()); break;
-        }
+	        case X -> String.valueOf(pos.getX());
+	        case Y -> String.valueOf(pos.getY());
+	        case Z -> String.valueOf(pos.getZ());
+        };
 
-        GuiTextFieldInteger textField = new GuiTextFieldInteger(x + offset, y + 2, width, 14, this.font);
+	    GuiTextFieldInteger textField = new GuiTextFieldInteger(x + offset, y + 2, width, 14, this.font);
         textField.setValueWrapper(text);
         TextFieldListener listener = new TextFieldListener(type, this.placement, this);
         this.addTextField(textField, listener, TextFieldType.STRING);

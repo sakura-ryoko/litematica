@@ -899,19 +899,8 @@ public class SchematicConversionMaps
         return nbt;
     }
 
-    private static class ConversionData
-    {
-        private final int idMeta;
-        private final String newStateString;
-        private final String[] oldStateStrings;
-
-        private ConversionData(int idMeta, String newStateString, String[] oldStateStrings)
-        {
-            this.idMeta = idMeta;
-            this.newStateString = newStateString;
-            this.oldStateStrings = oldStateStrings;
-        }
-    }
+    private record ConversionData(int idMeta, String newStateString, String[] oldStateStrings)
+    { }
 
     public record ConversionDynamic(int idMeta, Dynamic<?> newState, List<Dynamic<?>> oldStates)
     { }

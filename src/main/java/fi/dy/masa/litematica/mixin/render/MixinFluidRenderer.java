@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 
-import fi.dy.masa.litematica.util.IFluidRendererInvoker;
+import fi.dy.masa.litematica.util.invoker.IFluidRendererInvoker;
 
 @Mixin(FluidRenderer.class)
 public abstract class MixinFluidRenderer implements IFluidRendererInvoker

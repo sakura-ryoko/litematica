@@ -18,7 +18,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.material.FogType;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
-import fi.dy.masa.litematica.mixin.client.IMixinProfilerSystem;
+import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
@@ -42,7 +42,7 @@ public class IrisRenderingFix
 		{
 			this.profiler = Profiler.get();
 		}
-		if (this.profiler instanceof ActiveProfiler ps && !((IMixinProfilerSystem) ps).litematica_isStarted())
+		if (this.profiler instanceof ActiveProfiler ps && !((IMixinActiveProfiler) ps).litematica_isStarted())
 		{
 			this.profiler.startTick();
 		}
@@ -50,7 +50,7 @@ public class IrisRenderingFix
 
 	private LevelRenderState levelRenderState()
 	{
-		return this.mc.gameRenderer.getGameRenderState().levelRenderState;
+		return this.mc.gameRenderer.gameRenderState().levelRenderState;
 	}
 
 	private DeltaTracker deltaTracker()

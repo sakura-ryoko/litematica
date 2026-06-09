@@ -20,10 +20,10 @@ import net.minecraft.world.phys.BlockHitResult;
 public class MixinClientPlayerInteractionManager_easyPlace
 {
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
-    private void litematica_onInteractBlock(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
+    private void litematica_onInteractBlock(LocalPlayer player, InteractionHand hand, BlockHitResult blockHit, CallbackInfoReturnable<InteractionResult> cir)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
-                Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+            Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
         {
             // Prevent recursion, since the Easy Place mode can call this code again
             if (EasyPlaceUtils.isHandling() == false)
@@ -54,16 +54,16 @@ public class MixinClientPlayerInteractionManager_easyPlace
             at = @At(value = "INVOKE",
                      target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;",
                      shift = At.Shift.BEFORE), cancellable = true)
-    private void litematica_onInteractBlockInternal(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
+    private void litematica_onInteractBlockInternal(LocalPlayer player, InteractionHand hand, BlockHitResult blockHit, CallbackInfoReturnable<InteractionResult> cir)
     {
         if (Configs.Generic.EASY_PLACE_MODE.getBooleanValue() &&
-                Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
+            Configs.Generic.EASY_PLACE_POST_REWRITE.getBooleanValue())
         {
             // Prevent recursion, since the Easy Place mode can call this code again
             if (EasyPlaceUtils.isHandling() == false)
             {
                 if (EasyPlaceUtils.shouldDoEasyPlaceActions() &&
-                        EasyPlaceUtils.handleEasyPlaceWithMessage())
+                    EasyPlaceUtils.handleEasyPlaceWithMessage())
                 {
                     cir.setReturnValue(InteractionResult.FAIL);
                 }

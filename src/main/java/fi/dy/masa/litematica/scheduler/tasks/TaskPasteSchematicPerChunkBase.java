@@ -6,8 +6,8 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.world.level.ChunkPos;
 
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;

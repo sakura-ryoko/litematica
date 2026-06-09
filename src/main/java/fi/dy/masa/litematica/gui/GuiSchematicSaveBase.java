@@ -39,7 +39,9 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         this.textField.setMaxLengthWrapper(256);
         this.textField.setFocusedWrapper(true);
 
-        this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.save_from_schematic_world"), StringUtils.translate("litematica.gui.label.schematic_save.hover_info.save_from_schematic_world"));
+        this.checkboxSaveFromSchematicWorld = new WidgetCheckBox(0, 0, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED,
+                                                                 StringUtils.translate("litematica.gui.label.schematic_save.checkbox.save_from_schematic_world"),
+                                                                 StringUtils.translate("litematica.gui.label.schematic_save.hover_info.save_from_schematic_world"));
     }
 
     @Override
@@ -89,10 +91,13 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
         this.checkboxSaveFromSchematicWorld.setPosition(x, y + 12);
         this.addWidget(this.checkboxSaveFromSchematicWorld);
 
-        this.checkboxVisibleOnly = new WidgetCheckBox(x, y + 24, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.visible_blocks_only"));
+        this.checkboxVisibleOnly = new WidgetCheckBox(x, y + 24, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED,
+                                                      StringUtils.translate("litematica.gui.label.schematic_save.checkbox.visible_blocks_only"));
         this.addWidget(this.checkboxVisibleOnly);
 
-        this.checkboxIncludeSupportBlocks = new WidgetCheckBox(x, y + 36, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, StringUtils.translate("litematica.gui.label.schematic_save.checkbox.support_blocks"), StringUtils.translate("litematica.gui.label.schematic_save.hover_info.support_blocks"));
+        this.checkboxIncludeSupportBlocks = new WidgetCheckBox(x, y + 36, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED,
+                                                               StringUtils.translate("litematica.gui.label.schematic_save.checkbox.support_blocks"),
+                                                               StringUtils.translate("litematica.gui.label.schematic_save.hover_info.support_blocks"));
         this.addWidget(this.checkboxIncludeSupportBlocks);
 
         this.createButton(10, 54, ButtonType.SAVE);
