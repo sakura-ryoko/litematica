@@ -37,12 +37,11 @@ import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
-@Mixin(value = LevelRenderer.class, priority = 900)
+@Mixin(value = LevelRenderer.class, priority = 850)
 public abstract class MixinLevelRenderer
 {
 	@Shadow @Final private SubmitNodeStorage submitNodeStorage;
 	@Shadow private @Nullable GpuSampler chunkLayerSampler;
-	@Shadow @Final private LevelRenderState levelRenderState;
 	@Unique private ProfilerFiller profiler;
 
     @Unique
@@ -58,21 +57,6 @@ public abstract class MixinLevelRenderer
         }
     }
 
-//    @Inject(method = "cullTerrain", at = @At("TAIL"))
-//    private void litematica_onPostSetupTerrain(
-//		    Camera camera, Frustum frustum, boolean spectator, CallbackInfo ci)
-//    {
-//        this.litematica$prepareProfiler();
-//        LitematicaRenderer.getInstance().piecewisePrepare(frustum, this.profiler);
-//
-//	    // Why Iris?
-//	    if (IrisCompat.isShaderActive())
-//	    {
-//		    IrisRenderingFix.INSTANCE.setCamera(camera);
-//		    IrisRenderingFix.INSTANCE.extractAndCompileSectionsWithShadersOn();
-//	    }
-//    }
-
     @Inject(method = "compileSections",
             at = @At(value = "INVOKE",
                      target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V",
@@ -81,11 +65,11 @@ public abstract class MixinLevelRenderer
     private void litematica_onPostUpdateChunks(CameraRenderState camera, CallbackInfo ci)
     {
 		if (IrisCompat.isShaderActive()) { return; }
-        this.litematica$prepareProfiler();
-	    LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
+//	    LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
 
 		if (IrisCompat.hasSodium())
 		{
+			this.litematica$prepareProfiler();
 			LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.pos, this.profiler);
 		}
     }

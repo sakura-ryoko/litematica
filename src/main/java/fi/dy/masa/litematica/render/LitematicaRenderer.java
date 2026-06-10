@@ -219,13 +219,13 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseUpdate(CameraRenderState camera, ProfilerFiller profiler)
+    public void piecewiseUpdate(Camera camera, ProfilerFiller profiler)
     {
         //LOGGER.error("[LR] piecewiseUpdate()");
         if (this.renderPiecewiseSchematic)
         {
             profiler.push(Reference.MOD_ID+"_update_chunks");
-            this.camera = this.getCamera();
+            this.camera = camera;
             this.getWorldRenderer().updateChunks(this.finishTimeNano, profiler);
             profiler.pop();
         }

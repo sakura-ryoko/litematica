@@ -83,7 +83,7 @@ public class WorldSchematic extends Level
     private final TickRateManager tickManager;
     private final Holder<DimensionType> dimensionType;
     private final SchematicEntityLookup<Entity> entityLookup;
-    private final ConcurrentHashMap<Integer, EnderDragonPart> dragonParts;
+    private final ConcurrentHashMap<UUID, EnderDragonPart> dragonParts;
     protected Holder<Biome> biome;
     private LevelData.RespawnData properties;
     protected AtomicInteger nextEntityId;
@@ -294,6 +294,11 @@ public class WorldSchematic extends Level
         return true;
     }
 
+    public int getLastUsedEntityId()
+    {
+        return this.nextEntityId.get();
+    }
+
     public void unloadEntitiesByChunk(int chunkX, int chunkZ)
     {
         if (!this.hasChunk(chunkX, chunkZ))
@@ -313,7 +318,7 @@ public class WorldSchematic extends Level
         {
             this.entityLookup.reset();
             this.dragonParts.clear();
-            this.nextEntityId.set(0);
+            this.nextEntityId.set(1);
         }
     }
 
@@ -345,7 +350,7 @@ public class WorldSchematic extends Level
         }
         catch (Exception ignored) { }
 
-        this.nextEntityId.set(0);
+        this.nextEntityId.set(1);
     }
 
     @Override
@@ -522,7 +527,7 @@ public class WorldSchematic extends Level
         {
             for (EnderDragonPart part : ed.getSubEntities())
             {
-                this.dragonParts.put(part.getId(), part);
+                this.dragonParts.put(part.getUUID(), part);
             }
         }
     }
@@ -533,7 +538,7 @@ public class WorldSchematic extends Level
         {
             for (EnderDragonPart part : ed.getSubEntities())
             {
-                this.dragonParts.remove(part.getId(), part);
+                this.dragonParts.remove(part.getUUID(), part);
             }
         }
     }

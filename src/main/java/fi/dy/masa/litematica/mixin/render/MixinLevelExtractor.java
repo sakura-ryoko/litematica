@@ -27,7 +27,7 @@ import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 
-@Mixin(LevelExtractor.class)
+@Mixin(value = LevelExtractor.class, priority = 850)
 public abstract class MixinLevelExtractor
 {
 	@Shadow private @Nullable ClientLevel level;
@@ -59,6 +59,7 @@ public abstract class MixinLevelExtractor
 		}
 	}
 
+	// was "cullTerrain"
 	@Inject(method = "extract",
 	        at = @At(value = "INVOKE",
 	                 target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
@@ -74,7 +75,10 @@ public abstract class MixinLevelExtractor
 		{
 			IrisRenderingFix.INSTANCE.setCamera(camera);
 			IrisRenderingFix.INSTANCE.extractAndCompileSectionsWithShadersOn();
+			return;
 		}
+
+		LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
 	}
 
 	@Inject(method = "extractVisibleEntities", at = @At(value = "RETURN"))

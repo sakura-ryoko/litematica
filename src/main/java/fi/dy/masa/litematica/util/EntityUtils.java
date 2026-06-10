@@ -308,10 +308,22 @@ public class EntityUtils
                 {
                     entity.setId(nbt.getIntOr("LastEntityID", -1));
                 }
+                else
+                {
+                    // It needs an entityId :shrug:
+                    if (world instanceof WorldSchematic ws)
+                    {
+                        entity.setId(RAND.nextInt(ws.getLastUsedEntityId() * 4, Integer.MAX_VALUE));
+                    }
+                    else
+                    {
+                        entity.setId(RAND.nextInt(50000, Integer.MAX_VALUE));
+                    }
+                }
 
                 if (Reference.DEBUG_MODE)
                 {
-                    Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; type({}): [{}/{}]",
+                    Litematica.LOGGER.warn("[EntityUtils] createEntityFromNBTSingle() successful; id({}) [{}/{}]",
                                            entity.getId(),
                                            entity.getStringUUID(),
                                            entity.getType().getDescription().getString());
@@ -400,7 +412,7 @@ public class EntityUtils
             }
             catch (Exception e)
             {
-                Litematica.LOGGER.error("EntityUtils#spawnEntityAndPassengersInWorld(): Exception; type({}): [{}/{}]; {}",
+                Litematica.LOGGER.error("EntityUtils#spawnEntityAndPassengersInWorld(): Exception; id({}): [{}/{}]; {}",
                                         entity.getId(), entity.getStringUUID(),
                                         entity.getType().getDescription().getString(),
                                         e.getLocalizedMessage());

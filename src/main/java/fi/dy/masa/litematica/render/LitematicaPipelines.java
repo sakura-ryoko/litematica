@@ -3,46 +3,64 @@ package fi.dy.masa.litematica.render;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.VisibleForTesting;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+
 @ApiStatus.Internal
 @VisibleForTesting
 @Deprecated
 public class LitematicaPipelines
 {
-//	// todo TERRAIN Snippet
-//	public static RenderPipeline.Snippet TERRAIN_STAGE;
-//	public static RenderPipeline.Snippet TERRAIN_TRANSLUCENT_STAGE;
-//	public static RenderPipeline.Snippet TERRAIN_MASA_STAGE;
+//	// todo POSITION_COLOR Snippet
+//	public static RenderPipeline.Snippet POSITION_COLOR_STAGE;
+//	public static RenderPipeline.Snippet POSITION_COLOR_TRANSLUCENT_STAGE;
+//	public static RenderPipeline.Snippet POSITION_COLOR_MASA_STAGE;
 //
-//	// TERRAIN
-//	public static RenderPipeline SOLID_TERRAIN;
-//	public static RenderPipeline WIREFRAME;
-//	public static RenderPipeline CUTOUT_TERRAIN;
+//	// POSITION_COLOR_TRANSLUCENT
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_NO_DEPTH;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_LEQUAL_DEPTH_OFFSET_1;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_LEQUAL_DEPTH_OFFSET_2;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_LEQUAL_DEPTH_OFFSET_3;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_LEQUAL_DEPTH_NO_CULL;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_LEQUAL_DEPTH;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT_DEPTH_MASK;
+//	public static RenderPipeline POSITION_COLOR_TRANSLUCENT;
 //
-//	// TERRAIN_OFFSET
-//	public static RenderPipeline SOLID_TERRAIN_OFFSET;
-//	public static RenderPipeline WIREFRAME_OFFSET;
-//	public static RenderPipeline CUTOUT_TERRAIN_OFFSET;
+//	// POSITION_COLOR_MASA
+//	public static RenderPipeline POSITION_COLOR_MASA_NO_DEPTH_NO_CULL;
+//	public static RenderPipeline POSITION_COLOR_MASA_NO_DEPTH;
+//	public static RenderPipeline POSITION_COLOR_MASA_LEQUAL_DEPTH_OFFSET_1;
+//	public static RenderPipeline POSITION_COLOR_MASA_LEQUAL_DEPTH_OFFSET_2;
+//	public static RenderPipeline POSITION_COLOR_MASA_LEQUAL_DEPTH_OFFSET_3;
+//	public static RenderPipeline POSITION_COLOR_MASA_LEQUAL_DEPTH_NO_CULL;
+//	public static RenderPipeline POSITION_COLOR_MASA_LEQUAL_DEPTH;
+//	public static RenderPipeline POSITION_COLOR_MASA_DEPTH_MASK;
+//	public static RenderPipeline POSITION_COLOR_MASA;
 //
-//	// TERRAIN_TRANSLUCENT
-//	public static RenderPipeline TRANSLUCENT;
-//	public static RenderPipeline TRANSLUCENT_OFFSET;
+//	// todo DEBUG_LINES Snippet
+//	public static RenderPipeline.Snippet DEBUG_LINES_STAGE;
+//	public static RenderPipeline.Snippet DEBUG_LINES_TRANSLUCENT_STAGE;
+//	public static RenderPipeline.Snippet DEBUG_LINES_MASA_SIMPLE_STAGE;
 //
-//	// todo BLOCK Snippet
-//	public static RenderPipeline.Snippet BLOCK_STAGE;
-//	public static RenderPipeline.Snippet BLOCK_TRANSLUCENT_STAGE;
-//	public static RenderPipeline.Snippet BLOCK_MASA_STAGE;
+//	// DEBUG_LINES_TRANSLUCENT
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_NO_DEPTH_NO_CULL;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_NO_DEPTH;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_NO_CULL;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_LEQUAL_DEPTH;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_OFFSET_1;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_OFFSET_2;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT_OFFSET_3;
+//	public static RenderPipeline DEBUG_LINES_TRANSLUCENT;
 //
-//	// BLOCK
-//	public static RenderPipeline SOLID_BLOCK;
-//	public static RenderPipeline CUTOUT_BLOCK;
-//
-//	// BLOCK_OFFSET
-//	public static RenderPipeline SOLID_BLOCK_OFFSET;
-//	public static RenderPipeline CUTOUT_BLOCK_OFFSET;
-//
-//	// BLOCK_TRANSLUCENT
-//	public static RenderPipeline TRANSLUCENT_BLOCK;
-//	public static RenderPipeline TRANSLUCENT_BLOCK_OFFSET;
+//	// DEBUG_LINES_MASA_SIMPLE
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_NO_DEPTH;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_NO_CULL;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_LEQUAL_DEPTH;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_OFFSET_1;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_OFFSET_2;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE_OFFSET_3;
+//	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE;
 //
 //	// todo LEGACY_TERRAIN Snippet
 //	public static RenderPipeline.Snippet LEGACY_TERRAIN_STAGE;
