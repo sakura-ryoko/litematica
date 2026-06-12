@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = ServerGamePacketListenerImpl.class, priority = 980)
 public class MixinServerGamePacketListenerImpl_easyPlace
 {
-    @WrapOperation(method = "handleUseItemOn", require = 0,
+    @WrapOperation(method = "handleUseItemOn",
                    at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/world/phys/Vec3;subtract(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 litematica_removeHitPosCheck(Vec3 instance, Vec3 vec, Operation<Vec3> original)
