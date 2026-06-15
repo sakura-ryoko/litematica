@@ -665,10 +665,18 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
                 }
             }
 
-            if (world instanceof ServerLevel)
+            if (world instanceof ServerLevel sl)
             {
-//                return this.refreshBlockEntityFromWorld(world, pos);
-                this.requestBlockEntityFromLocalServer(this.mc, world, pos);
+                if (Thread.currentThread().getName().contains("Server"))
+                {
+//                    Litematica.debugLog("requestBlockEntity: be at pos [{}] refresh from server world", pos.toShortString());
+                    return this.refreshBlockEntityFromWorld(sl, pos);
+                }
+                else
+                {
+//                    Litematica.debugLog("requestBlockEntity: be at pos [{}] refresh from local server", pos.toShortString());
+                    this.requestBlockEntityFromLocalServer(this.mc, world, pos);
+                }
             }
 
             return this.blockEntityCache.get(pos).getRight();
@@ -750,10 +758,18 @@ public class EntitiesDataStorage implements IClientTickHandler, IDataSyncer
             }
 
             // Refresh from Server World
-            if (world instanceof ServerLevel)
+            if (world instanceof ServerLevel sl)
             {
-//                return this.refreshEntityFromWorld(world, entityId);
-                this.requestEntityFromLocalServer(this.mc, world, entityId);
+                if (Thread.currentThread().getName().contains("Server"))
+                {
+//                    Litematica.debugLog("requestEntity: entity Id [{}] refresh from server world", entityId);
+                    return this.refreshEntityFromWorld(sl, entityId);
+                }
+                else
+                {
+//                    Litematica.debugLog("requestEntity: entity Id [{}] refresh from local server", entityId);
+                    this.requestEntityFromLocalServer(this.mc, world, entityId);
+                }
             }
 
             return this.entityCache.get(entityId).getRight();
