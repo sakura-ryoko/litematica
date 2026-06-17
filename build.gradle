@@ -1,5 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version '1.16.+'
+	id 'net.fabricmc.fabric-loom' version '1.17.+'
 	id 'maven-publish'
 }
 
@@ -22,13 +22,12 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-//    mappings loom.officialMojangMappings()
 	implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
 //	implementation "org.jspecify:jspecify:1.0.0"
 
-//	implementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
-	implementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
+	implementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_out}:${project.malilib_version}"
+//	implementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 //	compileOnly fabricApi.module("fabric-api-base", project.fabric_api_version)
