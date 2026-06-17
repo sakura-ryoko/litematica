@@ -1109,6 +1109,7 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "목표 배치가 현재 선택되지 않았습니다. 모두 교체 단축키는 선택된 배치의 서브-지역(들)에 대해서만 작동합니다. 따라서 특정 서브-지역의 블록만 교체하려면 해당 서브-지역만 선택하세요. 전체 스키매틱 (모든 서브-지역) 에 대해서 교체를 하려면 특정 서브-지역이 아닌 전체 배치를 선택하세요. 또한 교체되는 블록들은 현재 렌더 레이어 설정으로 제한된 영역 내에서만 바뀝니다.",
     "litematica.message.warn.schematic_rendering_disabled": "경고: 스키매틱 렌더링이 현재 비활성화되었습니다.\n표시 -> %s, 또는 단축키 -> %s ['%s']",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "경고: 검증기 오버레이 렌더링이 현재 비활성화되었습니다! 정보 오버레이 -> %s (또는 단축키 -> %s ['%s'])",
+    "litematica.message.warn.shaders_on": "Note: You are trying to render a Schematic while shaders are active.",
     "litematica.message.warning.invalid_number": "유효하지 않은 숫자 입력입니다. '%s'",
     "litematica.message.warning.schematic_projects_hidden": "경고: 스키매틱 버전 제어 시스템이 현재 숨겨져 있습니다. 당신이 이것의 작동 방식을 잘 알고 일부 모드 작동을 변경하고자 하지 않는 이상, 일반적으로 이 기능은 사용하면 안 됩니다. 이 기능은 반복적인, 인-플레이스 설계 작업을 위한 것으로, 다른 버전 간 전환 빌드 인-플레이스(= 이전 버전 삭제 및 교체)가 필요한 경우에 사용합니다. 이 기능을 사용하려면 일반 설정에서 다음을 활성화 하세요. -> 스키매틱 VCS 숨기기 해제",
     "litematica.pm_command.display_chunk_debug.base": "§e청크 [%d, %d]§7 -- 상태: §b%s§7 [Created: %d]§r",

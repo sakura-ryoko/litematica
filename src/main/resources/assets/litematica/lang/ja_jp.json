@@ -1109,6 +1109,7 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "対象となる配置が選択されていません．\n「すべて置換」ショートカットは，クリックした配置内の選択中の子領域にのみ機能します．そのため，特定の子領域内のブロックを置換する場合には，その子領域を選択する必要があります．図面全体(すべての子領域)で置換を実施する場合には，子領域ではなく配置全体を選択する必要があります．\nまた，置換は現在のレイヤ描画設定で制限された領域内に対してのみ行われます．",
     "litematica.message.warn.schematic_rendering_disabled": "警告: 図面の描画が無効になっています．\n表示 -> %s または ショートカット -> %s ['%s'] を確認してください．",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "警告: 検証オーバーレイが無効になっています！\n情報オーバーレイ -> %s (または ショートカット -> %s ['%s']) を確認してください．",
+    "litematica.message.warn.shaders_on": "Note: You are trying to render a Schematic while shaders are active.",
     "litematica.message.warning.invalid_number": "無効な数値入力: '%s'",
     "litematica.message.warning.schematic_projects_hidden": "警告: 図面バージョン管理システムは非表示になっています．この機能について十分に理解していない場合は使用しないでください．この機能は，建築物のバージョンをその場で切り替える (=以前のバージョンを削除して置換する) 必要がある，反復的な設計作業を目的としています．使用する場合は，一般 -> 図面VCSを表示 を有効にしてください．",
     "litematica.pm_command.display_chunk_debug.base": "§eChunk [%d, %d]§7 -- State: §b%s§7 [Created: %d]§r",

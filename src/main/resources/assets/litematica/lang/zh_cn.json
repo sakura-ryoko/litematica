@@ -1109,6 +1109,7 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "§6警告：目标放置原理图未选中\n替换快捷键仅对当前选中的子区域生效\n完整替换需选中整个放置原理图\n替换范围也受当前渲染层限制§r",
     "litematica.message.warn.schematic_rendering_disabled": "§6警告：原理图渲染已禁用\n请查看 视效 -> %s\n或快捷键 -> %s ['%s']§r",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "§6警告：验证器的渲染已禁用！\n请查看 信息 -> %s 或 快捷键 -> %s ['%s']§r",
+    "litematica.message.warn.shaders_on": "Note: You are trying to render a Schematic while shaders are active.",
     "litematica.message.warning.invalid_number": "§c无效数字输入'%s'§r",
     "litematica.message.warning.schematic_projects_hidden": "警告：结构版本控制系统当前处于隐藏状态。\n通常情况下，除非你确实了解其运作方式及对模组行为的修改，否则不应使用此功能。\n该功能专为迭代式原位设计工作设计，\n适用于需要在同一位置切换不同建筑版本（即删除并替换前一版本）的场景。\n如需使用，请在通用设置里启用“显示原理图版本控制系统（unhideSchematicVCS）”。",
     "litematica.pm_command.display_chunk_debug.base": "§e区块 [%d, %d]§7 -- 状态：§b%s§7 [已创建：%d]§r",
