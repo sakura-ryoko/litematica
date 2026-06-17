@@ -1109,6 +1109,7 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "Эта голограмма в данный момент не выбрана. Клавиша \"Заменить всё\" работает только с выбранными компонентами, на которые вы нажимаете. Поэтому, чтобы заменить блоки в конкретном компоненте, выберите этот компонент. Чтобы произвести замену во всей голограмме (все компоненты), выберите всю голограммы, а не отдельный компонент. Также блоки будут заменены только в пределах отображаемых слоёв.",
     "litematica.message.warn.schematic_rendering_disabled": "Внимание: В настоящее время отображение схемы отключено.\nПроверьте настройки [Отображение] -> %s, или [Клавиши] -> %s ['%s']",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "Внимание: Оверлей проверки схемы отключён! Проверьте [Наложение информации] -> %s (или [Клавиши] -> %s ['%s'])",
+    "litematica.message.warn.shaders_on": "Note: You are trying to render a Schematic while shaders are active.",
     "litematica.message.warning.invalid_number": "Некорректный ввод числа '%s'",
     "litematica.message.warning.schematic_projects_hidden": "Внимание: Система контроля версий схем (VCS) скрыта. В целом вам НЕ следует использовать, если вы не знаете, каким образом она работает и меняет поведение мода. Она создана для итеративной работы на месте, где нужно постоянное переключение между разными версиями схемы. Если вы хотите её использовать, включите настройку [Основные] -> unhideSchematicVCS",
     "litematica.pm_command.display_chunk_debug.base": "§eChunk [%d, %d]§7 -- State: §b%s§7 [Created: %d]§r",
