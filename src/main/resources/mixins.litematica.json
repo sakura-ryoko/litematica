@@ -51,7 +51,6 @@
         "render.IMixinGameRenderer",
         "render.MixinEntityHitboxDebugRenderer",
         "render.MixinEntityRenderDispatcher",
-        "render.MixinFluidRenderer",
         "render.MixinGameRenderer",
         "render.MixinLevelExtractor",
         "render.MixinLevelRenderer",

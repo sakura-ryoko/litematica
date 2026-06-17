@@ -223,11 +223,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         return BlockModelCacheSchematic.INSTANCE.blockEntityRenderer();
     }
 
-    @Override
-    public FluidRenderer getFluidRenderer()
-    {
-        return BlockModelCacheSchematic.INSTANCE.fluidRenderer();
-    }
+//    @Override
+//    public FluidModelRendererSchematic getFluidRenderer()
+//    {
+//        return BlockModelCacheSchematic.INSTANCE.fluidRenderer();
+//    }
 
     @Override
     public EntityRenderDispatcher getEntityRenderer()
@@ -1152,7 +1152,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     @Override
-    public boolean renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY)
+    public boolean renderFluid(FluidModelRendererSchematic renderer, BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY)
     {
         try
         {
@@ -1161,16 +1161,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
             if (model != null)
             {
-                if (offsetY != 0.0f)
-                {
-                    IFluidRendererInvoker invoker = (IFluidRendererInvoker) this.getFluidRenderer();
-                    invoker.litematica$setOffsetY(offsetY);
-                    invoker.litematica$tesselate(world, pos, output, blockState, fluidState);
-                }
-                else
-                {
-                    this.getFluidRenderer().tesselate(world, pos, output, blockState, fluidState);
-                }
+                renderer.setYOffset(offsetY);
+                renderer.tesselate(world, pos, output, blockState, fluidState);
 
                 return true;
             }
