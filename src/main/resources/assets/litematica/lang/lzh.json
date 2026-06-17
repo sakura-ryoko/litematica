@@ -1109,6 +1109,7 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "The targeted placement is currently not selected. The Replace All hotkey only works on the currently selected sub-region(s) of the placement you click on. So to replace the blocks in only one sub-region, select that sub-region. To replace in the entire schematic (all sub-regions), select the entire placement and not a sub-region of it. The blocks are also only replaced within the area limited by the current Render Layers setting.",
     "litematica.message.warn.schematic_rendering_disabled": "誡：蜃圖已禁繪\n見 觀→%s，抑或 捷鍵→%s[「%s」]",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "誡：驗器覆繪已禁！\n見覆訊→%s（抑或 捷鍵→%s[「%s」]）",
+    "litematica.message.warn.shaders_on": "Note: You are trying to render a Schematic while shaders are active.",
     "litematica.message.warning.invalid_number": "所入之數不堪用「%s」",
     "litematica.message.warning.schematic_projects_hidden": "Warning: The Schematic Version Control System is currently hidden. In general you should NOT use this, unless you really know how it works and changes some of the mod behavior. It is meant for iteratire, in-place design work, where flipping between different versions of the build in-place (= deleting and replacing the previous version) is needed. If you want to use it, then enable the option Generic -> unhideSchematicVCS",
     "litematica.pm_command.display_chunk_debug.base": "§e區塊 [%d, %d]§7 -- 態：§b%s§7 [既立：%d]§r",

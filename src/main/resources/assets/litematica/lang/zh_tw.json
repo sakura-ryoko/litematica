@@ -1109,6 +1109,7 @@
     "litematica.message.warn.schematic_rebuild_placement_not_selected": "目前未選擇目標展示位置。\n[全部取代] 快速鍵僅適用於您點擊的放置的目前選定子區域。因此，要僅取代一個子區域中的塊，請選擇該子區域。\n要取代整個原理圖（所有子區域），請選擇整個位置而不是其子區域。 \n這些方塊也僅在目前「繪製層」設定限制的區域內被取代",
     "litematica.message.warn.schematic_rendering_disabled": "警告：目前停用了原理圖繪製\n查看視覺效果 -> %s，或者快速鍵 -> %s ['%s']",
     "litematica.message.warn.schematic_verifier.overlay_disabled": "警告：驗證程式重疊繪製目前已停用！請參閱資訊 -> %s（或者快速鍵 -> %s ['%s']）",
+    "litematica.message.warn.shaders_on": "Note: You are trying to render a Schematic while shaders are active.",
     "litematica.message.warning.invalid_number": "輸入無效的數位「%s」",
     "litematica.message.warning.schematic_projects_hidden": "警告：原理圖版本控制系統目前處於隱藏狀態。\n一般來說，你不應該使用它，除非你真的知道它是如何工作的並改變了一些 Mod 行為。\n如果您想使用它，請啟用選項 [通用] -> [不隱藏原理圖版本控制系統]",
     "litematica.pm_command.display_chunk_debug.base": "§e區塊 [%d, %d]§7 -- 狀態: §b%s§7 [建立: %d]§r",
