@@ -62,7 +62,7 @@ public class BlockModelCacheSchematic
 //	private BlockModelRendererSchematic blockModelRenderer;
 	private BlockEntityRenderDispatcher blockEntityRenderDispatcher;
 	private EntityRenderDispatcher entityRenderDispatcher;
-	private FluidRenderer fluidRenderer;
+//	private FluidModelRendererSchematic fluidRenderer;
 	private FogRenderer fogRenderer;
 
 	private BlockModelCacheSchematic()
@@ -163,15 +163,15 @@ public class BlockModelCacheSchematic
 		return this.entityRenderDispatcher;
 	}
 
-	protected FluidRenderer fluidRenderer()
-	{
-		if (this.fluidRenderer == null)
-		{
-			this.fluidRenderer = new FluidRenderer(this.fluidStateModelSet);
-		}
-
-		return this.fluidRenderer;
-	}
+//	protected FluidModelRendererSchematic fluidRenderer()
+//	{
+//		if (this.fluidRenderer == null)
+//		{
+//			this.fluidRenderer = new FluidModelRendererSchematic(this.fluidStateModelSet);
+//		}
+//
+//		return this.fluidRenderer;
+//	}
 
 	protected FogRenderer fogRenderer()
 	{
@@ -225,7 +225,7 @@ public class BlockModelCacheSchematic
 //		this.blockModelRenderer = new BlockModelRendererSchematic();
 		this.entityRenderDispatcher = this.mc.getEntityRenderDispatcher();
 		this.blockEntityRenderDispatcher = this.mc.getBlockEntityRenderDispatcher();
-		this.fluidRenderer = new FluidRenderer(this.fluidStateModelSet);
+//		this.fluidRenderer = new FluidModelRendererSchematic(this.fluidStateModelSet);
 		this.fogRenderer = ((IMixinGameRenderer) this.mc.gameRenderer).litematica_getFogRenderer();
 	}
 

@@ -52,7 +52,6 @@
         "render.IMixinGameRenderer",
         "render.MixinEntityHitboxDebugRenderer",
         "render.MixinEntityRenderDispatcher",
-        "render.MixinFluidRenderer",
         "render.MixinGameRenderer",
         "render.MixinLevelRenderer",
         "screen.IMixinAbstractContainerScreen",

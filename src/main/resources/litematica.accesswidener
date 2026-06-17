@@ -1,1 +1,11 @@
 accessWidener v2 official
+accessible field net/minecraft/client/renderer/block/FluidRenderer fluidModels Lnet/minecraft/client/renderer/block/FluidStateModelSet;
+accessible method net/minecraft/client/renderer/block/FluidRenderer isNeighborSameFluid (Lnet/minecraft/world/level/material/FluidState;Lnet/minecraft/world/level/material/FluidState;)Z
+accessible method net/minecraft/client/renderer/block/FluidRenderer isFaceOccludedByState (Lnet/minecraft/core/Direction;FLnet/minecraft/world/level/block/state/BlockState;)Z
+accessible method net/minecraft/client/renderer/block/FluidRenderer isFaceOccludedByNeighbor (Lnet/minecraft/core/Direction;FLnet/minecraft/world/level/block/state/BlockState;)Z
+accessible method net/minecraft/client/renderer/block/FluidRenderer isFaceOccludedBySelf (Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z
+accessible method net/minecraft/client/renderer/block/FluidRenderer calculateAverageHeight (Lnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/world/level/material/Fluid;FFFLnet/minecraft/core/BlockPos;)F
+accessible method net/minecraft/client/renderer/block/FluidRenderer addWeightedHeight ([FF)V
+accessible method net/minecraft/client/renderer/block/FluidRenderer getHeight (Lnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/world/level/material/Fluid;Lnet/minecraft/core/BlockPos;)F
+accessible method net/minecraft/client/renderer/block/FluidRenderer getHeight (Lnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/world/level/material/Fluid;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/material/FluidState;)F
+accessible method net/minecraft/client/renderer/block/FluidRenderer getLightCoords (Lnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;)I

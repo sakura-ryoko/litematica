@@ -34,6 +34,7 @@ import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
 import fi.dy.masa.litematica.render.schematic.BlockModelRendererSchematic;
+import fi.dy.masa.litematica.render.schematic.FluidModelRendererSchematic;
 import fi.dy.masa.litematica.render.schematic.IBlockOutputSchematic;
 import fi.dy.masa.litematica.render.schematic.SchematicRenderState;
 import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
@@ -68,7 +69,7 @@ public interface IWorldSchematicRenderer
 
 	BlockEntityRenderDispatcher getBlockEntityRenderer();
 
-	FluidRenderer getFluidRenderer();
+//	FluidModelRendererSchematic getFluidRenderer();
 
 	EntityRenderDispatcher getEntityRenderer();
 
@@ -102,7 +103,7 @@ public interface IWorldSchematicRenderer
 
 	boolean renderBlock(BlockModelRendererSchematic renderer, BlockAndTintGetter world, BlockState state, BlockPos pos, Vec3 offset, IBlockOutputSchematic output);
 
-	boolean renderFluid(BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY);
+	boolean renderFluid(FluidModelRendererSchematic renderer, BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY);
 
 	void drawBlockLayerGroup(ChunkSectionLayerGroup group, @Nullable GpuSampler sampler);
 

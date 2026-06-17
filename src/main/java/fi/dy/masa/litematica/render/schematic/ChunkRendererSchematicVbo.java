@@ -488,10 +488,13 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     builder.putBlockBakedQuad(bx, by, bz, quad, inst);
                 };
                 VisGraph visGraph = new VisGraph();
-                BlockModelRendererSchematic renderer = new BlockModelRendererSchematic();
+                BlockModelRendererSchematic blockRenderer = new BlockModelRendererSchematic();
+                FluidModelRendererSchematic fluidRenderer = new FluidModelRendererSchematic(BlockModelCacheSchematic.INSTANCE.fluidStateModelSet());
 
-                renderer.reload();
-                renderer.enableCache();
+                blockRenderer.toggleAO(true);
+                blockRenderer.toggleCulling(true);
+                blockRenderer.reload();
+                blockRenderer.enableCache();
 
                 for (IntBoundingBox box : this.boxes)
                 {
@@ -512,12 +515,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                         // Fluid rendering and the overlay do not use the MatrixStack.
                         // Block models use the VertexConsumer#quad() method, and they use the MatrixStack.
                         Vec3 offset = new Vec3(posMutable.getX() & 0xF, posMutable.getY() - bottomY, posMutable.getZ() & 0xF);
-                        this.renderBlocksAndOverlay(renderer, posMutable, data, chunkMeshData, blockOutput, offset, visGraph);
+                        this.renderBlocksAndOverlay(blockRenderer, fluidRenderer, posMutable, data, chunkMeshData, blockOutput, offset, visGraph);
                     }
-
                 }
 
-                renderer.disableCache();
+                blockRenderer.disableCache();
                 Set<ChunkSectionLayer> usedBlockLayers = new HashSet<>();
 
                 this.getProfiler().popPush("rebuild_chunk_layers");
@@ -597,7 +599,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         }
     }
 
-    protected void renderBlocksAndOverlay(BlockModelRendererSchematic renderer,
+    protected void renderBlocksAndOverlay(BlockModelRendererSchematic blockRenderer,
+                                          FluidModelRendererSchematic fluidRenderer,
                                           BlockPos pos,
                                           @Nonnull ChunkRenderDataSchematic data,
                                           @Nonnull ChunkMeshDataSchematic chunkMeshData,
@@ -650,13 +653,13 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
                     return builder;
                 };
 
-                this.worldRenderer.renderFluid(this.schematicWorldView, stateSchematic, fluidState, pos, fluidOutput, offsetY);
+                this.worldRenderer.renderFluid(fluidRenderer, this.schematicWorldView, stateSchematic, fluidState, pos, fluidOutput, offsetY);
             }
 
             if (stateSchematic.getRenderShape() == RenderShape.MODEL)
             {
                 this.getProfiler().popPush("render_build_blocks");
-                this.worldRenderer.renderBlock(renderer, this.schematicWorldView, stateSchematic, pos, offset, blockOutput);
+                this.worldRenderer.renderBlock(blockRenderer, this.schematicWorldView, stateSchematic, pos, offset, blockOutput);
 
                 if (clientHasAir)
                 {

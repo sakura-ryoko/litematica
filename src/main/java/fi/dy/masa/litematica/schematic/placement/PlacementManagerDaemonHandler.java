@@ -587,12 +587,14 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		this.processing = false;
 	}
 
-	protected void resetForceStop()
+	@Override
+	public void resetForceStop()
 	{
 		this.forceStop = false;
 	}
 
-	protected boolean isForceStop()
+	@Override
+	public boolean isForceStop()
 	{
 		return this.forceStop;
 	}
@@ -624,12 +626,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 			this.lock.unlock();
 			this.gc();
 		}
-	}
-
-	private void gc()
-	{
-		Litematica.debugLog("PlacementManagerDaemonHandler: Executing Garbage collection");
-		System.gc();
 	}
 
 	@Override
