@@ -25,7 +25,6 @@ import fi.dy.masa.malilib.compat.iris.IrisCompat;
 
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
-//		EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> drawData,
 		EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> drawData,
         boolean renderCollidingBlocks,
 		boolean renderTranslucent,
@@ -35,6 +34,7 @@ public record ChunkRenderBatchDraw(
 {
     public void draw(final ChunkSectionLayerGroup group, final GpuSampler sampler, ProfilerFiller profiler)
     {
+//	    Litematica.LOGGER.error("ChunkRenderBatchDraw::draw({})", group.label());
         RenderSystem.AutoStorageIndexBuffer defaultIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer defaultIBO = this.maxIndicesRequired() == 0 ? null : defaultIndices.getBuffer(this.maxIndicesRequired());
         IndexType indexType = this.maxIndicesRequired() == 0 ? null : defaultIndices.type();
@@ -62,56 +62,44 @@ public record ChunkRenderBatchDraw(
 //			}
 
 			pass.setUniform("ChunkFix", this.chunkFixUBO);
-
-			if (IrisCompat.isShaderActive())
-			{
-
-			}
-
 			pass.bindTexture("Sampler0", this.atlasTexture, sampler);
-			pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(),
-			                 RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
+			pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
 
 			for (ChunkSectionLayer layer : layers)
 			{
-//				Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>> draws = this.drawData().get(layer);
 				List<RenderPass.Draw<GpuBufferSlice[]>> draws = this.drawData().get(layer);
 
 				profiler.popPush("draw_group_" + layer.label());
 				if (!draws.isEmpty())
 				{
-//					for (List<RenderPass.Draw<GpuBufferSlice[]>> list : draws.values())
-//					{
-						if (layer == ChunkSectionLayer.TRANSLUCENT)
-						{
-							draws = draws.reversed();
-						}
+					if (layer == ChunkSectionLayer.TRANSLUCENT)
+					{
+						draws = draws.reversed();
+					}
 
-						if (wf)
+					if (wf)
+					{
+						pass.setPipeline(this.renderCollidingBlocks()
+						                 ? ChunkRenderLayers.getWireframe().getRight()
+						                 : ChunkRenderLayers.getWireframe().getLeft());
+					}
+					else
+					{
+						if (this.renderTranslucent())
 						{
 							pass.setPipeline(this.renderCollidingBlocks()
-							                 ? ChunkRenderLayers.getWireframe().getRight()
-							                 : ChunkRenderLayers.getWireframe().getLeft());
+							                 ? ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getRight()
+							                 : ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getLeft()
+							);
 						}
 						else
 						{
-							if (this.renderTranslucent())
-							{
-								pass.setPipeline(this.renderCollidingBlocks()
-								                 ? ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getRight()
-								                 : ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getLeft()
-								);
-							}
-							else
-							{
-								pass.setPipeline(this.renderCollidingBlocks()
-								                 ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
-								                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
-								);
-							}
-//						}
+							pass.setPipeline(this.renderCollidingBlocks()
+							                 ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
+							                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
+							);
+						}
 
-//					pass.drawMultipleIndexed(list, gpuBuffer, indexType, List.of("ChunkSection"), this.chunkSections());
 						pass.drawMultipleIndexed(draws, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
 					}
 				}

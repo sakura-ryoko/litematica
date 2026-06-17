@@ -79,6 +79,7 @@ public abstract class MixinLevelExtractor
 		}
 
 		LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
+		LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.position(), this.profiler);
 	}
 
 	@Inject(method = "extractVisibleEntities", at = @At(value = "RETURN"))

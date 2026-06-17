@@ -22,6 +22,7 @@ import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 
+@Deprecated
 public class IrisRenderingFix
 {
 	public static final IrisRenderingFix INSTANCE = new IrisRenderingFix();
@@ -29,6 +30,8 @@ public class IrisRenderingFix
 	private final CameraRenderState state;
 	private Camera camera;
 	private ProfilerFiller profiler;
+	public boolean wasCalled = false;
+	public boolean wasWarned = false;
 
 	private IrisRenderingFix()
 	{
@@ -105,15 +108,16 @@ public class IrisRenderingFix
 			Frustum frustum = this.camera.getCullFrustum();
 			float worldTicks = this.deltaTracker().getGameTimeDeltaPartialTick(false);
 			float cameraTicks = this.camera.getCameraEntityPartialTicks(this.deltaTracker());
+			if (!this.wasCalled) { this.wasCalled = true; }
 
 			this.extractCameraWithShadersOn(worldTicks, cameraTicks);
 			this.camera.getViewRotationMatrix(modelViewMatrix);
 
-			this.extractFogBufferWithShadersOn();
-
-			LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
 			LitematicaRenderer.getInstance().piecewisePrepareEntities(this.camera, frustum, this.levelRenderState(), this.deltaTracker(), this.profiler);
 			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(this.camera, this.levelRenderState(), worldTicks, this.profiler);
+
+			this.extractFogBufferWithShadersOn();
+			LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
 		}
 	}
 }

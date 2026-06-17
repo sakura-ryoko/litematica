@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.render;
 
 import javax.annotation.Nullable;
+import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4fc;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -20,6 +21,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -30,7 +32,7 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 public class LitematicaRenderer
 {
     private static final LitematicaRenderer INSTANCE = new LitematicaRenderer();
-//    private static final Logger LOGGER = Litematica.LOGGER;
+    private static final Logger LOGGER = Litematica.LOGGER;
 
     private Minecraft mc;
     private IWorldSchematicRenderer worldRenderer;
@@ -169,7 +171,7 @@ public class LitematicaRenderer
 
     public void piecewisePrepare(Frustum frustum, ProfilerFiller profiler)
     {
-        //LOGGER.error("[LR] piecewisePrepare()");
+//        LOGGER.error("[LR] piecewisePrepare()");
 		// Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() &&
         boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
                          this.mc.getCameraEntity() != null;
@@ -203,7 +205,6 @@ public class LitematicaRenderer
 //                profiler.popPush(Reference.MOD_ID+"_update_chunks");
 //                worldRenderer.updateChunks(this.finishTimeNano, profiler);
 
-                // Why Iris?
                 if (IrisCompat.isShaderActive())
                 {
                     profiler.popPush(Reference.MOD_ID+"_update_chunks");
@@ -221,7 +222,7 @@ public class LitematicaRenderer
 
     public void piecewiseUpdate(Camera camera, ProfilerFiller profiler)
     {
-        //LOGGER.error("[LR] piecewiseUpdate()");
+//        LOGGER.error("[LR] piecewiseUpdate()");
         if (this.renderPiecewiseSchematic)
         {
             profiler.push(Reference.MOD_ID+"_update_chunks");

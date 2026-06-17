@@ -23,7 +23,6 @@ import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.profiling.ActiveProfiler;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -54,33 +53,6 @@ public abstract class MixinLevelRenderer
         if (this.profiler instanceof ActiveProfiler ps && !((IMixinActiveProfiler) ps).litematica_isStarted())
         {
             this.profiler.startTick();
-        }
-    }
-
-    @Inject(method = "compileSections",
-            at = @At(value = "INVOKE",
-                     target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V",
-                     ordinal = 1)
-    )
-    private void litematica_onPostUpdateChunks(CameraRenderState camera, CallbackInfo ci)
-    {
-		if (IrisCompat.isShaderActive()) { return; }
-//	    LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
-
-		if (IrisCompat.hasSodium())
-		{
-			this.litematica$prepareProfiler();
-			LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.pos, this.profiler);
-		}
-    }
-
-    @Inject(method = "scheduleTranslucentSectionResort", at = @At("TAIL"))
-    private void litematica_onScheduleTranslucentSort(Vec3 cameraPos, CallbackInfo ci)
-    {
-        if (!IrisCompat.hasSodium())
-        {
-	        this.litematica$prepareProfiler();
-            LitematicaRenderer.getInstance().scheduleTranslucentSorting(cameraPos, this.profiler);
         }
     }
 
