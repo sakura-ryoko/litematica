@@ -81,6 +81,7 @@ public class Hotkeys
     public static final ConfigHotkey TOGGLE_SIGN_TEXT_PASTE             = new ConfigHotkey("toggleSignTextPaste",               "").apply(HOTKEYS_KEY);
     public static final ConfigHotkey TOGGLE_TRANSLUCENT_RENDERING       = new ConfigHotkey("toggleTranslucentRendering",        "").apply(HOTKEYS_KEY);
     public static final ConfigHotkey TOGGLE_VERIFIER_OVERLAY_RENDERING  = new ConfigHotkey("toggleVerifierOverlayRendering",    "").apply(HOTKEYS_KEY);
+    public static final ConfigHotkey TOGGLE_MATERIAL_LIST_INFO          = new ConfigHotkey("toggleMaterialListInfo",            "").apply(HOTKEYS_KEY);
     public static final ConfigHotkey TOOL_ENABLED_TOGGLE                = new ConfigHotkey("toolEnabledToggle",                 "M,T").apply(HOTKEYS_KEY);
     public static final ConfigHotkey TOOL_PLACE_CORNER_1                = new ConfigHotkey("toolPlaceCorner1",                  "BUTTON_1", KeybindSettings.PRESS_ALLOWEXTRA).apply(HOTKEYS_KEY);
     public static final ConfigHotkey TOOL_PLACE_CORNER_2                = new ConfigHotkey("toolPlaceCorner2",                  "BUTTON_2", KeybindSettings.PRESS_ALLOWEXTRA).apply(HOTKEYS_KEY);
@@ -161,6 +162,7 @@ public class Hotkeys
             TOGGLE_SIGN_TEXT_PASTE,
             TOGGLE_TRANSLUCENT_RENDERING,
             TOGGLE_VERIFIER_OVERLAY_RENDERING,
+            TOGGLE_MATERIAL_LIST_INFO,
             TOOL_ENABLED_TOGGLE,
             TOOL_PLACE_CORNER_1,
             TOOL_PLACE_CORNER_2,

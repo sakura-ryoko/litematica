@@ -23,6 +23,8 @@ import fi.dy.masa.litematica.data.EntitiesDataStorage;
 import fi.dy.masa.litematica.gui.*;
 import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
 import fi.dy.masa.litematica.materials.MaterialListBase;
+import fi.dy.masa.litematica.materials.MaterialListHudRenderer;
+import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
@@ -137,6 +139,7 @@ public class KeyCallbacks
         Hotkeys.TOGGLE_SIGN_TEXT_PASTE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.SIGN_TEXT_PASTE));
         Hotkeys.TOGGLE_TRANSLUCENT_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT));
         Hotkeys.TOGGLE_VERIFIER_OVERLAY_RENDERING.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED));
+        Hotkeys.TOGGLE_MATERIAL_LIST_INFO.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.TOOL_ENABLED_TOGGLE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.TOOL_ITEM_ENABLED));
 		Hotkeys.SCHEMATIC_EDIT_REPLACE_SELECTION.getKeybind().setCallback(callbackMessage);
     }
@@ -589,6 +592,38 @@ public class KeyCallbacks
             else if (key == Hotkeys.UNLOAD_CURRENT_SCHEMATIC.getKeybind())
             {
                 SchematicUtils.unloadCurrentlySelectedSchematic();
+                return true;
+            }
+            else if (key == Hotkeys.TOGGLE_MATERIAL_LIST_INFO.getKeybind())
+            {
+                MaterialListBase materialList = DataManager.getMaterialList();
+                if (materialList == null)
+                {
+                    SchematicPlacement schematicPlacement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
+
+                    if (schematicPlacement != null)
+                    {
+                        materialList = schematicPlacement.getMaterialList();
+                        materialList.reCreateMaterialList();
+                        DataManager.setMaterialList(materialList);
+                    }
+                    else
+                    {
+                        InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.no_placement_selected");
+                    }
+                }
+                if (materialList != null) {
+                    MaterialListHudRenderer renderer = materialList.getHudRenderer();
+                    renderer.toggleShouldRender();
+                    if (renderer.getShouldRenderCustom())
+                    {
+                        InfoHud.getInstance().addInfoHudRenderer(renderer, true);
+                    }
+                    else
+                    {
+                        InfoHud.getInstance().removeInfoHudRenderersOfType(renderer.getClass(), true);
+                    }
+                }
                 return true;
             }
 
