@@ -21,7 +21,7 @@ public interface ISchematicPickBlockEventManager
 
 	boolean isProcessingCancelled();
 
-	void resetCanceled();
+	void resetCancelled();
 
-	Supplier<String> getProcessingCanceledBy();
+	Supplier<String> getProcessingCancelledBy();
 }

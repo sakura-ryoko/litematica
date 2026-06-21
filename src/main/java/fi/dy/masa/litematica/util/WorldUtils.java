@@ -595,7 +595,7 @@ public class WorldUtils
     {
         BlockPos pos;
 
-        SchematicPickBlockEventHandler.getInstance().resetCanceled();
+        SchematicPickBlockEventHandler.getInstance().resetCancelled();
 
 		if (SchematicPickBlockEventHandler.getInstance().onSchematicPickBlockStart(closest))
 		{
