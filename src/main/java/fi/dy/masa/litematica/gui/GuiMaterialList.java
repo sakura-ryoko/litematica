@@ -255,7 +255,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
                 case LIST_TYPE:
                     BlockInfoListType type = materialList.getMaterialListType();
-                    materialList.setMaterialListType((BlockInfoListType) type.cycle(mouseButton == 0));
+                    materialList.setMaterialListType((BlockInfoListType) type.cycle(mouseButton == 0), false);
                     materialList.reCreateMaterialList();
                     break;
 

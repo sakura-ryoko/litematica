@@ -130,6 +130,8 @@ public class KeyCallbacks
         Hotkeys.TOGGLE_AREA_SELECTION_RENDERING.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Visuals.ENABLE_AREA_SELECTION_RENDERING));
         Hotkeys.TOGGLE_SCHEMATIC_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.ENABLE_SCHEMATIC_RENDERING));
         Hotkeys.TOGGLE_INFO_OVERLAY_RENDERING.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED));
+        Hotkeys.TOGGLE_MATERIAL_LIST_INFO.getKeybind().setCallback(callbackHotkeys);
+        Hotkeys.TOGGLE_MATERIAL_LIST_TYPE.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.TOGGLE_OVERLAY_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.ENABLE_SCHEMATIC_OVERLAY));
         Hotkeys.TOGGLE_OVERLAY_OUTLINE_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_OUTLINES));
         Hotkeys.TOGGLE_OVERLAY_SIDE_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.SCHEMATIC_OVERLAY_ENABLE_SIDES));
@@ -139,7 +141,6 @@ public class KeyCallbacks
         Hotkeys.TOGGLE_SIGN_TEXT_PASTE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.SIGN_TEXT_PASTE));
         Hotkeys.TOGGLE_TRANSLUCENT_RENDERING.getKeybind().setCallback(new RenderToggle(Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT));
         Hotkeys.TOGGLE_VERIFIER_OVERLAY_RENDERING.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED));
-        Hotkeys.TOGGLE_MATERIAL_LIST_INFO.getKeybind().setCallback(callbackHotkeys);
         Hotkeys.TOOL_ENABLED_TOGGLE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.TOOL_ITEM_ENABLED));
 		Hotkeys.SCHEMATIC_EDIT_REPLACE_SELECTION.getKeybind().setCallback(callbackMessage);
     }
@@ -524,6 +525,49 @@ public class KeyCallbacks
                 }
                 return true;
             }
+            else if (key == Hotkeys.TOGGLE_MATERIAL_LIST_INFO.getKeybind())
+            {
+                MaterialListBase materialList = DataManager.getMaterialList();
+                if (materialList == null)
+                {
+                    SchematicPlacement schematicPlacement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
+
+                    if (schematicPlacement != null)
+                    {
+                        materialList = schematicPlacement.getMaterialList();
+                        materialList.reCreateMaterialList();
+                        DataManager.setMaterialList(materialList);
+                    }
+                    else
+                    {
+                        InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.no_placement_selected");
+                    }
+                }
+                if (materialList != null) {
+                    MaterialListHudRenderer renderer = materialList.getHudRenderer();
+                    renderer.toggleShouldRender();
+                    if (renderer.getShouldRenderCustom())
+                    {
+                        InfoHud.getInstance().addInfoHudRenderer(renderer, true);
+                    }
+                    else
+                    {
+                        InfoHud.getInstance().removeInfoHudRenderersOfType(renderer.getClass(), true);
+                    }
+                }
+                return true;
+            }
+            else if (key == Hotkeys.TOGGLE_MATERIAL_LIST_TYPE.getKeybind())
+            {
+                MaterialListBase materialList = DataManager.getMaterialList();
+                if (materialList == null) {
+                    return true;
+                }
+                BlockInfoListType type = materialList.getMaterialListType();
+                materialList.setMaterialListType((BlockInfoListType) type.cycle(true), true);
+                materialList.reCreateMaterialList();
+                return true;
+            }
             else if (key == Hotkeys.CLONE_SELECTION.getKeybind())
             {
                 SchematicUtils.cloneSelectionArea(this.mc);
@@ -592,38 +636,6 @@ public class KeyCallbacks
             else if (key == Hotkeys.UNLOAD_CURRENT_SCHEMATIC.getKeybind())
             {
                 SchematicUtils.unloadCurrentlySelectedSchematic();
-                return true;
-            }
-            else if (key == Hotkeys.TOGGLE_MATERIAL_LIST_INFO.getKeybind())
-            {
-                MaterialListBase materialList = DataManager.getMaterialList();
-                if (materialList == null)
-                {
-                    SchematicPlacement schematicPlacement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
-
-                    if (schematicPlacement != null)
-                    {
-                        materialList = schematicPlacement.getMaterialList();
-                        materialList.reCreateMaterialList();
-                        DataManager.setMaterialList(materialList);
-                    }
-                    else
-                    {
-                        InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.no_placement_selected");
-                    }
-                }
-                if (materialList != null) {
-                    MaterialListHudRenderer renderer = materialList.getHudRenderer();
-                    renderer.toggleShouldRender();
-                    if (renderer.getShouldRenderCustom())
-                    {
-                        InfoHud.getInstance().addInfoHudRenderer(renderer, true);
-                    }
-                    else
-                    {
-                        InfoHud.getInstance().removeInfoHudRenderersOfType(renderer.getClass(), true);
-                    }
-                }
                 return true;
             }
 

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.util.InfoUtils;
 import net.minecraft.util.Mth;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
@@ -219,9 +222,14 @@ public abstract class MaterialListBase implements IMaterialList
         return this.countMismatched;
     }
 
-    public void setMaterialListType(BlockInfoListType type)
+    public void setMaterialListType(BlockInfoListType type, boolean printMessage)
     {
         this.materialListType = type;
+        if (printMessage) {
+            String val = GuiBase.TXT_GREEN + type.getDisplayName();
+            InfoUtils.printActionbarMessage("malilib.message.set_layer_mode_to", val);
+        }
+
     }
 
     public JsonObject toJson()
@@ -241,7 +249,7 @@ public abstract class MaterialListBase implements IMaterialList
     {
         if (JsonUtils.hasString(obj, "type"))
         {
-            this.setMaterialListType(BlockInfoListType.fromStringStatic(JsonUtils.getString(obj, "type")));
+            this.setMaterialListType(BlockInfoListType.fromStringStatic(JsonUtils.getString(obj, "type")), false);
         }
 
         if (JsonUtils.hasString(obj, "sort_criteria"))
