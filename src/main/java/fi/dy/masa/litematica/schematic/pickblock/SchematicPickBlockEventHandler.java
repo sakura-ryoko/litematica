@@ -74,26 +74,41 @@ public class SchematicPickBlockEventHandler implements ISchematicPickBlockEventM
 		}
 	}
 
+	@Override
 	public boolean hasPickStack()
 	{
 		return !this.pickStack.isEmpty();
 	}
 
+	@Override
 	public boolean hasSlotHandler()
 	{
 		return this.slotHandler != null;
 	}
 
-	public boolean isProcessingCancelled()
-	{
-		return this.processingCancelled;
-	}
-
+	@Override
 	public ItemStack getPickStack()
 	{
 		return this.pickStack;
 	}
 
+	@Override
+	public boolean isProcessingCancelled()
+	{
+		return this.processingCancelled;
+	}
+
+	@Override
+	public void resetCanceled()
+	{
+		if (this.isProcessingCancelled())
+		{
+			this.processingCancelled = false;
+			this.processingCanceledBy = () -> "not_cancelled";
+		}
+	}
+
+	@Override
 	public Supplier<String> getProcessingCanceledBy()
 	{
 		return this.processingCanceledBy;
@@ -116,6 +131,11 @@ public class SchematicPickBlockEventHandler implements ISchematicPickBlockEventM
 			else if (result == SchematicPickBlockEventResult.ERROR)
 			{
 				Litematica.LOGGER.error("SchematicPickBlockEventHandler: Error processing 'executePickBlockHandler' from: {}", this.slotHandler.getName().get());
+				this.resetCanceled();
+			}
+			else
+			{
+				this.resetCanceled();
 			}
 		}
 
@@ -145,6 +165,11 @@ public class SchematicPickBlockEventHandler implements ISchematicPickBlockEventM
 				else if (result == SchematicPickBlockEventResult.ERROR)
 				{
 					Litematica.LOGGER.error("SchematicPickBlockEventHandler: Error processing 'onSchematicPickBlockStart' from: {}", handler.getName().get());
+					this.resetCanceled();
+				}
+				else
+				{
+					this.resetCanceled();
 				}
 			}
 		}
@@ -174,6 +199,11 @@ public class SchematicPickBlockEventHandler implements ISchematicPickBlockEventM
 				else if (result == SchematicPickBlockEventResult.ERROR)
 				{
 					Litematica.LOGGER.error("SchematicPickBlockEventHandler: Error processing 'onSchematicPickBlockPreGather' from: {}", handler.getName().get());
+					this.resetCanceled();
+				}
+				else
+				{
+					this.resetCanceled();
 				}
 			}
 		}
@@ -203,6 +233,11 @@ public class SchematicPickBlockEventHandler implements ISchematicPickBlockEventM
 				else if (result == SchematicPickBlockEventResult.ERROR)
 				{
 					Litematica.LOGGER.error("SchematicPickBlockEventHandler: Error processing 'onSchematicPickBlockPrePick' from: {}", handler.getName().get());
+					this.resetCanceled();
+				}
+				else
+				{
+					this.resetCanceled();
 				}
 			}
 		}
@@ -224,6 +259,8 @@ public class SchematicPickBlockEventHandler implements ISchematicPickBlockEventM
 			{
 				handler.onSchematicPickBlockSuccess();
 			}
+
+			this.resetCanceled();
 		}
 	}
 }
