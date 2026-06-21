@@ -19,7 +19,7 @@ import fi.dy.masa.malilib.util.LayerMode;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.gui.*;
 import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
 import fi.dy.masa.litematica.materials.MaterialListBase;
@@ -46,7 +46,7 @@ public class KeyCallbacks
 
         Configs.Generic.PLACEMENT_MANAGER_THREAD_COUNT.setValueChangeCallback(threadCountChangeCallback);
         Configs.Generic.PICK_BLOCKABLE_SLOTS.setValueChangeCallback(valueChangeCallback);
-        Configs.Generic.ENTITY_DATA_SYNC.setValueChangeCallback((config) -> EntitiesDataStorage.getInstance().onEntityDataSyncToggled(config));
+        Configs.Generic.ENTITY_DATA_SYNC.setValueChangeCallback((config) -> EntityDataManager.getInstance().onEntityDataSyncToggled(config));
 
         Configs.Visuals.ENABLE_AREA_SELECTION_RENDERING.setValueChangeCallback(renderChangeCallback);
         Configs.Visuals.ENABLE_PLACEMENT_BOXES_RENDERING.setValueChangeCallback(renderChangeCallback);
