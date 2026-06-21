@@ -29,7 +29,7 @@ import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 
 public class PlacementHandler
 {
@@ -98,7 +98,7 @@ public class PlacementHandler
         if (protocol == EasyPlaceProtocol.AUTO)
         {
             if (Minecraft.getInstance().isLocalServer() ||
-                EntitiesDataStorage.getInstance().hasServuxServer() ||
+                EntityDataManager.getInstance().hasServuxServer() ||
                 DataManager.hasServuxServer())
             {
                 return EasyPlaceProtocol.V3;

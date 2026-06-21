@@ -20,9 +20,10 @@ import net.minecraft.util.Util;
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.PacketSplitter;
+import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 
@@ -32,7 +33,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPacketPayload> imp
     private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> INSTANCE = new ServuxLitematicaHandler<>()
     {
         @Override
-        public void receive(ServuxLitematicaPacket.Payload payload, ClientPlayNetworking.@NonNull Context context)
+        public void receive(ServuxLitematicaPacket.@NonNull Payload payload, ClientPlayNetworking.@NonNull Context context)
         {
             ServuxLitematicaHandler.INSTANCE.receivePlayPayload(payload, context);
         }
@@ -83,13 +84,13 @@ public abstract class ServuxLitematicaHandler<T extends CustomPacketPayload> imp
         {
             case PACKET_S2C_METADATA ->
             {
-                if (EntitiesDataStorage.getInstance().receiveServuxMetadata(packet.getCompound()))
+                if (EntityDataManager.getInstance().receiveServuxMetadata(packet.getCompound()))
                 {
                     this.servuxRegistered = true;
                 }
             }
-            case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound(), null);
-            case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
+            case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> EntityDataManager.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound());
+            case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE -> EntityDataManager.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
             case PACKET_S2C_NBT_RESPONSE_DATA ->
             {
                 if (this.readingSessionKey == -1)
@@ -126,6 +127,8 @@ public abstract class ServuxLitematicaHandler<T extends CustomPacketPayload> imp
 
         String task = nbt.getStringOr("Task", "BulkEntityReply");
 
+        Litematica.debugLog("handleBulkData: received task: {}", task);
+
         // For future Granular Task Management
         switch (task)
         {
@@ -146,7 +149,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPacketPayload> imp
                     }
                 }
             }
-            default -> EntitiesDataStorage.getInstance().handleBulkEntityData(type, nbt);
+            default -> EntityDataManager.getInstance().handleBulkEntityData(type, DataConverterNbt.fromVanillaCompound(nbt));
         }
     }
 
@@ -204,7 +207,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPacketPayload> imp
                 Litematica.LOGGER.warn("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
                 ServuxLitematicaHandler.INSTANCE.unregisterPlayReceiver();
-                EntitiesDataStorage.getInstance().onPacketFailure();
+                EntityDataManager.getInstance().onPacketFailure();
             }
             else
             {

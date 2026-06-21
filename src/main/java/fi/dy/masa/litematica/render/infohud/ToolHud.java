@@ -9,7 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
@@ -315,7 +315,7 @@ public class ToolHud extends InfoHud
 
                     str = Configs.Generic.PASTE_NBT_BEHAVIOR.getOptionListValue().getDisplayName();
 
-                    if (EntitiesDataStorage.getInstance().hasServuxServer()
+                    if (EntityDataManager.getInstance().hasServuxServer()
                         && Configs.Generic.PASTE_USING_SERVUX.getBooleanValue()
                         && !Configs.Generic.PASTE_USING_COMMANDS_IN_SP.getBooleanValue())
                     {
