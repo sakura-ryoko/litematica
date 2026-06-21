@@ -73,7 +73,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
 
     private final static ServuxLitematicaHandler<ServuxLitematicaPacket.Payload> HANDLER = ServuxLitematicaHandler.getInstance();
     private final static long LONG_CACHE_TIMEOUT = 30L;
-    private final static long CHUNK_TIMEOUT_MS = 15000L;
+    private final static long CHUNK_TIMEOUT_MS = 7500L;
     private final Minecraft mc;
     private ClientLevel clientWorld;
     private boolean servuxServer = false;
