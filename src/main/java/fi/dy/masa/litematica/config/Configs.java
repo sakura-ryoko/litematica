@@ -90,7 +90,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBooleanHotkeyed ENTITY_DATA_SYNC          = new ConfigBooleanHotkeyed("entityDataSync", false, "").apply(GENERIC_KEY);
         public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP     = new ConfigBoolean("entityDataSyncBackup", false).apply(GENERIC_KEY);
         public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_TIMEOUT= new ConfigFloat("entityDataSyncCacheTimeout", 2.75f, 1.0f, 100.0f).apply(GENERIC_KEY);
-        public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT        = new ConfigBoolean("entityDataSyncLoadNbt", true).apply(GENERIC_KEY);
+//        public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT        = new ConfigBoolean("entityDataSyncLoadNbt", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       EXECUTE_REQUIRE_TOOL        = new ConfigBoolean("executeRequireHoldingTool", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_CHEST_MIRROR            = new ConfigBoolean("fixChestMirror", true).apply(GENERIC_KEY);
 //        public static final ConfigBoolean       FIX_GLAZED_TERRACOTTA_MIRROR= new ConfigBoolean("fixGlazedTerracottaMirror", false).apply(GENERIC_KEY);
@@ -171,7 +171,7 @@ public class Configs implements IConfigHandler
                 ENTITY_DATA_SYNC,
                 ENTITY_DATA_SYNC_BACKUP,
                 ENTITY_DATA_SYNC_CACHE_TIMEOUT,
-                ENTITY_DATA_LOAD_NBT,
+//                ENTITY_DATA_LOAD_NBT,
                 EXECUTE_REQUIRE_TOOL,
                 FIX_CHEST_MIRROR,
 //                FIX_GLAZED_TERRACOTTA_MIRROR,
