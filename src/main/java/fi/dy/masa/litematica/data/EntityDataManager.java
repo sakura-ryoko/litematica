@@ -36,7 +36,7 @@ import fi.dy.masa.malilib.interfaces.IDataSyncer;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractHorseEntity;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractNautilus;
 import fi.dy.masa.malilib.mixin.entity.IMixinPiglinEntity;
-import fi.dy.masa.malilib.mixin.network.IMixinDebugQueryHandler;
+import fi.dy.masa.malilib.mixin.network.IMixinDataQueryHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.registry.Registry;
@@ -638,7 +638,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         {
             this.sentBackupPackets = true;
             handler.getDebugQueryHandler().queryBlockEntityTag(pos, nbtCompound -> this.handleBlockEntityData(pos, nbtCompound));
-            this.transactionToBlockPosOrEntityId.put(((IMixinDebugQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.left(pos));
+            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.left(pos));
         }
     }
 
@@ -655,7 +655,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         {
             this.sentBackupPackets = true;
             handler.getDebugQueryHandler().queryEntityTag(entityId, nbtCompound -> this.handleEntityData(entityId, nbtCompound));
-            this.transactionToBlockPosOrEntityId.put(((IMixinDebugQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.right(entityId));
+            this.transactionToBlockPosOrEntityId.put(((IMixinDataQueryHandler) handler.getDebugQueryHandler()).malilib_currentTransactionId(), Either.right(entityId));
         }
     }
 
@@ -708,7 +708,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         maxY = Mth.clamp(maxY, -60, 319);
 
         ClientLevel world = this.getClientWorld();
-        ChunkAccess chunk = world != null ? world.getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, false) : null;
+        ChunkAccess chunk = world != null ? world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false) : null;
 
         if (chunk == null)
         {
@@ -876,7 +876,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
             this.getCache().removeFromCache(pos);
             this.getCache().addToCache(pos, be, data);
 
-            ChunkPos chunkPos = ChunkPos.containing(pos);
+            ChunkPos chunkPos = new ChunkPos(pos);
 
             if ((this.loadContainerBlockEntities() && be instanceof Container) || this.hasPendingChunk(chunkPos))
             {
@@ -1011,7 +1011,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
             long now = System.currentTimeMillis();
 
             // Take no action when ChunkPos is not loaded by the ClientWorld.
-            if (cw != null && !WorldUtils.isClientChunkLoaded(cw, pos.x(), pos.z()))
+            if (cw != null && !WorldUtils.isClientChunkLoaded(cw, pos.x, pos.z))
             {
                 this.pendingChunkTimeout.replace(pos, now);
                 return;
