@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import fi.dy.masa.litematica.command.PmCommand;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.event.*;
 import fi.dy.masa.litematica.gui.GuiConfigs;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
@@ -40,7 +40,7 @@ public class InitHandler implements IInitializationHandler
                         Registry.TRANSLATION_OVERRIDE_MANAGER.registerLanguageMode(Reference.MOD_ID, (i18nMode) cfg.getOptionListValue())
         );
 
-        EntitiesDataStorage.getInstance().onGameInit();
+        EntityDataManager.getInstance().onGameInit();
 
         InputEventHandler.getKeybindManager().registerKeybindProvider(InputHandler.getInstance());
         InputEventHandler.getInputManager().registerKeyboardInputHandler(InputHandler.getInstance());
@@ -54,7 +54,7 @@ public class InitHandler implements IInitializationHandler
         ServerHandler.getInstance().registerServerHandler(new ServerListener());
 
         TickHandler.getInstance().registerClientTickHandler(new ClientTickHandler());
-        TickHandler.getInstance().registerClientTickHandler(EntitiesDataStorage.getInstance());
+        TickHandler.getInstance().registerClientTickHandler(EntityDataManager.getInstance());
         TickHandler.getInstance().registerClientTickHandler(PlacementManagerDaemonHandler.INSTANCE);
 
         WorldLoadListener listener = new WorldLoadListener();

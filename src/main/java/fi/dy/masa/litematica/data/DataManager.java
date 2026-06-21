@@ -397,7 +397,7 @@ public class DataManager implements IDirectoryCache
         this.schematicProjectsManager.saveCurrentProject();
         JsonObject root = this.toJson();
 
-        root.add("block_entities", EntitiesDataStorage.getInstance().toJson());
+        root.add("block_entities", EntityDataManager.getInstance().toJson());
 
         Path file = getCurrentStorageFile(false);
         JsonUtils.writeJsonToFileAsPath(root, file);
@@ -420,7 +420,7 @@ public class DataManager implements IDirectoryCache
 
             if (JsonUtils.hasObject(root, "block_entities"))
             {
-                EntitiesDataStorage.getInstance().fromJson(JsonUtils.getNestedObject(root, "block_entities", false));
+                EntityDataManager.getInstance().fromJson(JsonUtils.getNestedObject(root, "block_entities", false));
             }
         }
     }

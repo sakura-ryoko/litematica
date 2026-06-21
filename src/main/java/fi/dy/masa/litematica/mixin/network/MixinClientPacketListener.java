@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -78,7 +78,7 @@ public abstract class MixinClientPacketListener
     {
         if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
         {
-            EntitiesDataStorage.getInstance().handleVanillaQueryNbt(packet.getTransactionId(), packet.getTag());
+            EntityDataManager.getInstance().handleVanillaQueryNbt(packet.getTransactionId(), packet.getTag());
         }
     }
 
@@ -88,7 +88,7 @@ public abstract class MixinClientPacketListener
         if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
         {
             // when the player becomes OP, the server sends the command tree to the client
-            EntitiesDataStorage.getInstance().resetOpCheck();
+            EntityDataManager.getInstance().resetOpCheck();
         }
     }
 }

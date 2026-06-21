@@ -5,23 +5,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableMap;
+
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.MeshData;
-import org.joml.Matrix4f;
+
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
@@ -36,7 +34,7 @@ import fi.dy.masa.litematica.compat.jade.JadeCompat;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.gui.widgets.WidgetSchematicVerificationResult.BlockMismatchInfo;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
@@ -575,7 +573,7 @@ public class OverlayRenderer
 
                 if (DataManager.getInstance().hasIntegratedServer() == false)
                 {
-                    EntitiesDataStorage.getInstance().requestBlockEntity(mc.level, pos);
+                    EntityDataManager.getInstance().requestBlockEntityWrapped(this.mc.level, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
                 }
 
                 BlockMismatch mismatch = verifier.getMismatchForPosition(pos);
@@ -656,25 +654,25 @@ public class OverlayRenderer
         }
     }
 
-    public void requestBlockEntityAt(Level world, BlockPos pos)
-    {
-        if (!(world instanceof ServerLevel))
-        {
-            EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
-
-            BlockState state = world.getBlockState(pos);
-            if (state.getBlock() instanceof ChestBlock)
-            {
-                ChestType type = state.getValue(ChestBlock.TYPE);
-
-                if (type != ChestType.SINGLE)
-                {
-                    BlockPos posAdj = pos.relative(ChestBlock.getConnectedDirection(state));
-                    EntitiesDataStorage.getInstance().requestBlockEntity(world, posAdj);
-                }
-            }
-        }
-    }
+//    public void requestBlockEntityAt(Level world, BlockPos pos)
+//    {
+//        if (!(world instanceof ServerLevel))
+//        {
+//            EntityDataManager.getInstance().requestBlockEntityWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
+//
+//            BlockState state = world.getBlockState(pos);
+//            if (state.getBlock() instanceof ChestBlock)
+//            {
+//                ChestType type = state.getValue(ChestBlock.TYPE);
+//
+//                if (type != ChestType.SINGLE)
+//                {
+//                    BlockPos posAdj = pos.relative(ChestBlock.getConnectedDirection(state));
+//                    EntityDataManager.getInstance().requestBlockEntityWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(posAdj));
+//                }
+//            }
+//        }
+//    }
 
     public static int calculateCompatYShift()
     {

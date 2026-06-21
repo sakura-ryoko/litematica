@@ -39,7 +39,7 @@ import fi.dy.masa.litematica.command.PmCommand;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
@@ -1117,7 +1117,7 @@ public class SchematicPlacementManager
                 }
                 else if (mc.hasSingleplayerServer() == false || Configs.Generic.PASTE_USING_COMMANDS_IN_SP.getBooleanValue())
                 {
-                    if (EntitiesDataStorage.getInstance().hasServuxServer() &&
+                    if (EntityDataManager.getInstance().hasServuxServer() &&
                         Configs.Generic.PASTE_USING_SERVUX.getBooleanValue())
                     {
                         Litematica.debugLog("Found a Servux server, I am sending the Schematic Placement to it.");

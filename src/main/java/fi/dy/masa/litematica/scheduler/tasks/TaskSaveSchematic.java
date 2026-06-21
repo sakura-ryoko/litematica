@@ -3,16 +3,17 @@ package fi.dy.masa.litematica.scheduler.tasks;
 import java.nio.file.Path;
 import java.util.*;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableMap;
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import com.google.common.collect.ImmutableMap;
-import org.jetbrains.annotations.NotNull;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -62,15 +63,15 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
         }
 
         // Request entity data from Servux, if the ClientWorld matches, and treat it as not yet loaded
-        if ((EntitiesDataStorage.getInstance().hasServuxServer() ||
-            EntitiesDataStorage.getInstance().getIfReceivedBackupPackets()) &&
-            Objects.equals(EntitiesDataStorage.getInstance().getWorld(), this.clientWorld))
+        if ((EntityDataManager.getInstance().hasServuxServer() ||
+            EntityDataManager.getInstance().getIfReceivedBackupPackets()) &&
+            Objects.equals(EntityDataManager.getInstance().getBestWorld(), this.clientWorld))
         {
-            if (EntitiesDataStorage.getInstance().hasCompletedChunk(pos))
+            if (EntityDataManager.getInstance().hasCompletedChunk(pos))
             {
                 return this.areSurroundingChunksLoaded(pos, this.clientWorld, 0);
             }
-            else if (EntitiesDataStorage.getInstance().hasPendingChunk(pos) == false)
+            else if (EntityDataManager.getInstance().hasPendingChunk(pos) == false)
             {
                 ImmutableMap<@NotNull String, @NotNull IntBoundingBox> volumes = PositionUtils.getBoxesWithinChunk(pos.x, pos.z, this.subRegions);
                 int minY = 319;         // Invert Values
@@ -84,13 +85,20 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
                     maxY = Math.max(bb.maxY(), maxY);
                 }
 
-                if (EntitiesDataStorage.getInstance().hasServuxServer())
+                if (this.areSurroundingChunksLoaded(pos, this.clientWorld, 0))
                 {
-                    EntitiesDataStorage.getInstance().requestServuxBulkEntityData(pos, minY, maxY);
+                    if (EntityDataManager.getInstance().hasServuxServer())
+                    {
+                        EntityDataManager.getInstance().requestServuxBulkEntityData(pos, minY, maxY);
+                    }
+                    else if (EntityDataManager.getInstance().getIfReceivedBackupPackets())
+                    {
+                        EntityDataManager.getInstance().requestBackupBulkEntityData(pos, minY, maxY);
+                    }
                 }
-                else if (EntitiesDataStorage.getInstance().getIfReceivedBackupPackets())
+                else
                 {
-                    EntitiesDataStorage.getInstance().requestBackupBulkEntityData(pos, minY, maxY);
+                    return false;
                 }
             }
 
@@ -112,12 +120,12 @@ public class TaskSaveSchematic extends TaskProcessChunkBase
             this.schematic.takeEntitiesFromWorldWithinChunk(world, pos.x, pos.z, volumes, this.subRegions, this.existingEntities, this.origin);
         }
 
-        if ((EntitiesDataStorage.getInstance().hasServuxServer() ||
-            EntitiesDataStorage.getInstance().getIfReceivedBackupPackets()) &&
-            EntitiesDataStorage.getInstance().hasCompletedChunk(pos) &&
-            Objects.equals(EntitiesDataStorage.getInstance().getWorld(), this.clientWorld))
+        if ((EntityDataManager.getInstance().hasServuxServer() ||
+            EntityDataManager.getInstance().getIfReceivedBackupPackets()) &&
+            EntityDataManager.getInstance().hasCompletedChunk(pos) &&
+            Objects.equals(EntityDataManager.getInstance().getBestWorld(), this.clientWorld))
         {
-            EntitiesDataStorage.getInstance().markCompletedChunkDirty(pos);
+            EntityDataManager.getInstance().markCompletedChunkDirty(pos);
             // Mark Dirty for refresh
         }
 

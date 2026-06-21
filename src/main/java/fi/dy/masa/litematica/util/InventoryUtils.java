@@ -41,7 +41,7 @@ import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.nbt.NbtInventory;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.EntitiesDataStorage;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.world.WorldSchematic;
 
 public class InventoryUtils
@@ -312,7 +312,6 @@ public class InventoryUtils
         return (Configs.Generic.PICK_BLOCK_AVOID_DAMAGEABLE.getBooleanValue() == false ||
                 stack.isDamageableItem() == false) &&
                (Configs.Generic.PICK_BLOCK_AVOID_TOOLS.getBooleanValue() == false ||
-                //(stack.getItem() instanceof MiningToolItem) == false);
                 (EquipmentUtils.isRegularTool(stack)) == false);
     }
 
@@ -466,7 +465,7 @@ public class InventoryUtils
             }
             else
             {
-                Pair<BlockEntity, CompoundData> pair = EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+                Pair<BlockEntity, CompoundData> pair = EntityDataManager.getInstance().requestBlockEntityWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
 
                 if (pair != null)
                 {
@@ -524,7 +523,7 @@ public class InventoryUtils
         {
             if (data.isEmpty())
             {
-                Pair<BlockEntity, CompoundData> pair = EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+                Pair<BlockEntity, CompoundData> pair = EntityDataManager.getInstance().requestBlockEntityWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
 
                 if (pair != null)
                 {
@@ -532,7 +531,7 @@ public class InventoryUtils
                 }
             }
 
-            inv = EntitiesDataStorage.getInstance().getBlockInventory(world, pos, false);
+            inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos), false);
         }
 
         if (data != null && !data.isEmpty())
@@ -590,7 +589,7 @@ public class InventoryUtils
 		}
 		else
 		{
-			inv = EntitiesDataStorage.getInstance().getBlockInventory(world, pos, false);
+			inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos), false);
 		}
 
 		if (inv != null && inv.getContainerSize() >= NbtInventory.DEFAULT_SIZE)

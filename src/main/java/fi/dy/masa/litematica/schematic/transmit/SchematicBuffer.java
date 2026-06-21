@@ -4,28 +4,33 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.util.FileType;
 
-public class SchematicBuffer implements AutoCloseable
+public class SchematicBuffer
 {
     public static final int BUFFER_SIZE = 16384;
     private final String name;
     private final FileType type;
-    private final HashMap<Integer, Slice> buffer;
+    private Slice[] buffer;
+    private final int totalExpectedSlices;
+    private final long totalExpectedSize;
+    private final AtomicInteger receivedSlices = new AtomicInteger(0);
 
-    public SchematicBuffer(String name)
+    public SchematicBuffer(String name, int totalExpectedSlices, long totalExpectedSize)
     {
-        this(name, FileType.LITEMATICA_SCHEMATIC);
+        this(name, totalExpectedSlices, totalExpectedSize, FileType.LITEMATICA_SCHEMATIC);
     }
 
-    public SchematicBuffer(String name, FileType type)
+    public SchematicBuffer(String name, int totalExpectedSlices, long totalExpectedSize, FileType type)
     {
         this.name = name;
         this.type = type;
-        this.buffer = new HashMap<>();
+        this.totalExpectedSlices = totalExpectedSlices;
+        this.totalExpectedSize = totalExpectedSize;
+        this.buffer = new Slice[totalExpectedSlices];
     }
 
     public String getName()
@@ -54,11 +59,29 @@ public class SchematicBuffer implements AutoCloseable
 
     public void receiveSlice(final int number, Slice slice)
     {
-        this.buffer.put(number, slice);
+        if (number >= 0 && number < this.totalExpectedSlices)
+        {
+            if (this.buffer[number] == null)
+            {
+                this.buffer[number] = slice;
+                this.receivedSlices.incrementAndGet();
+            }
+        }
+    }
+
+    public boolean isComplete()
+    {
+        return this.receivedSlices.get() == this.totalExpectedSlices;
     }
 
     public Path writeFile(Path dir)
     {
+        if (!this.isComplete())
+        {
+            Litematica.LOGGER.error("SchematicBuffer#writeFile(): Attempted to write incomplete buffer! Expected: {}, Received: {}", this.totalExpectedSlices, this.receivedSlices.get());
+            return null;
+        }
+
         if (!Files.isDirectory(dir))
         {
             try
@@ -67,7 +90,7 @@ public class SchematicBuffer implements AutoCloseable
             }
             catch (IOException err)
             {
-                Litematica.LOGGER.error("LitematicBuffer#writeFile(): Exception creating directory '{}'; {}", dir.toAbsolutePath().toString(), err.getLocalizedMessage());
+                Litematica.LOGGER.error("SchematicBuffer#writeFile(): Exception creating directory '{}'; {}", dir.toAbsolutePath().toString(), err.getLocalizedMessage());
                 return null;
             }
         }
@@ -82,7 +105,7 @@ public class SchematicBuffer implements AutoCloseable
             }
             catch (IOException err)
             {
-                Litematica.LOGGER.error("LitematicBuffer#writeFile(): Exception deleting file '{}'; {}", file.toAbsolutePath().toString(), err.getLocalizedMessage());
+                Litematica.LOGGER.error("SchematicBuffer#writeFile(): Exception deleting file '{}'; {}", file.toAbsolutePath().toString(), err.getLocalizedMessage());
                 return null;
             }
         }
@@ -90,31 +113,38 @@ public class SchematicBuffer implements AutoCloseable
         try (OutputStream os = Files.newOutputStream(file))
         {
             // Write in correct Slice order
-            for (int i = 0; i < this.buffer.size(); i++)
+            for (Slice entry : this.buffer)
             {
-                Slice entry = this.buffer.get(i);
-
-                if (entry != null)
-                {
-                    os.write(entry.data(), 0, entry.size());
-                }
+                os.write(entry.data(), 0, entry.size());
             }
         }
         catch (Exception err)
         {
-            Litematica.LOGGER.error("LitematicBuffer#writeFile(): Exception saving file '{}'; {}", file.toAbsolutePath().toString(), err.getLocalizedMessage());
+            Litematica.LOGGER.error("SchematicBuffer#writeFile(): Exception saving file '{}'; {}", file.toAbsolutePath().toString(), err.getLocalizedMessage());
             return null;
         }
 
-        Litematica.debugLog("LitematicBuffer#writeFile(): Saved file '{}' successfully", file.toAbsolutePath().toString());
-        this.buffer.clear();
-        return file;
-    }
+        try
+        {
+            long actualSize = Files.size(file);
 
-    @Override
-    public void close() throws Exception
-    {
-        this.buffer.clear();
+            if (actualSize != this.totalExpectedSize)
+            {
+                Litematica.LOGGER.error("SchematicBuffer#writeFile(): File size mismatch for '{}'! Expected: {} bytes, Actual: {} bytes. Deleting corrupted file.",
+                                        file.getFileName(), this.totalExpectedSize, actualSize);
+                Files.deleteIfExists(file);
+                return null;
+            }
+        }
+        catch (IOException err)
+        {
+            Litematica.LOGGER.error("SchematicBuffer#writeFile(): Exception verifying file size for '{}'; {}", file.toAbsolutePath().toString(), err.getLocalizedMessage());
+            return null;
+        }
+
+        Litematica.debugLog("SchematicBuffer#writeFile(): Saved file '{}' successfully", file.toAbsolutePath().toString());
+        this.buffer = null;
+        return file;
     }
 
     public record Slice(byte[] data, int size) {}
