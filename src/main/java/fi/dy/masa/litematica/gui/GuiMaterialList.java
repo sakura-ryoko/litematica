@@ -31,6 +31,7 @@ import fi.dy.masa.litematica.materials.json.MaterialListJson;
 import fi.dy.masa.litematica.materials.json.MaterialListJsonCache;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.util.BlockInfoListType;
+import fi.dy.masa.litematica.util.InclusionType;
 
 public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMaterialListEntry, WidgetListMaterialList>
                              implements ICompletionListener
@@ -100,6 +101,8 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
             x += this.createButton(x, y, -1, ButtonListener.Type.LIST_TYPE) + gap;
         }
 
+        x += this.createButton(x, y, -1, ButtonListener.Type.ENTITIES_INCLUSION_TYPE) + gap;
+        x += this.createButton(x, y, -1, ButtonListener.Type.CONTAINERS_INCLUSION_TYPE) + gap;
         x += this.createButtonOnOff(x, y, -1, this.materialList.getHideAvailable(), ButtonListener.Type.HIDE_AVAILABLE) + gap;
         x += this.createButtonOnOff(x, y, -1, this.materialList.getHudRenderer().getShouldRenderCustom(), ButtonListener.Type.TOGGLE_INFO_HUD) + gap;
 
@@ -168,6 +171,14 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         {
             label = type.getDisplayName(this.materialList.getMaterialListType().getDisplayName());
         }
+        else if (type == ButtonListener.Type.ENTITIES_INCLUSION_TYPE)
+        {
+            label = type.getDisplayName(this.materialList.getEntitiesInclusionType().getDisplayName());
+        }
+        else if (type == ButtonListener.Type.CONTAINERS_INCLUSION_TYPE)
+        {
+            label = type.getDisplayName(this.materialList.getContainersInclusionType().getDisplayName());
+        }
         else
         {
             label = type.getDisplayName();
@@ -199,6 +210,8 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
         width += this.getStringWidth(ButtonListener.Type.REFRESH_LIST.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.LIST_TYPE.getDisplayName(this.materialList.getMaterialListType().getDisplayName()));
+        width += this.getStringWidth(ButtonListener.Type.ENTITIES_INCLUSION_TYPE.getDisplayName(this.materialList.getEntitiesInclusionType().getDisplayName()));
+        width += this.getStringWidth(ButtonListener.Type.CONTAINERS_INCLUSION_TYPE.getDisplayName(this.materialList.getContainersInclusionType().getDisplayName()));
         width += this.getStringWidth(ButtonListener.Type.CLEAR_IGNORED.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.CLEAR_CACHE.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.WRITE_TO_FILE.getDisplayName());
@@ -256,6 +269,18 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                 case LIST_TYPE:
                     BlockInfoListType type = materialList.getMaterialListType();
                     materialList.setMaterialListType((BlockInfoListType) type.cycle(mouseButton == 0), false);
+                    materialList.reCreateMaterialList();
+                    break;
+
+                case ENTITIES_INCLUSION_TYPE:
+                    InclusionType entitiesType = materialList.getEntitiesInclusionType();
+                    materialList.setEntitiesInclusionType((InclusionType) entitiesType.cycle(mouseButton == 0));
+                    materialList.reCreateMaterialList();
+                    break;
+
+                case CONTAINERS_INCLUSION_TYPE:
+                    InclusionType containersType = materialList.getContainersInclusionType();
+                    materialList.setContainersInclusionType((InclusionType) containersType.cycle(mouseButton == 0));
                     materialList.reCreateMaterialList();
                     break;
 
@@ -437,6 +462,8 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         {
             REFRESH_LIST        ("litematica.gui.button.material_list.refresh_list"),
             LIST_TYPE           ("litematica.gui.button.material_list.list_type"),
+            ENTITIES_INCLUSION_TYPE           ("litematica.gui.button.material_list.entities_inclusion_type"),
+            CONTAINERS_INCLUSION_TYPE         ("litematica.gui.button.material_list.containers_inclusion_type"),
             HIDE_AVAILABLE      ("litematica.gui.button.material_list.hide_available"),
             TOGGLE_INFO_HUD     ("litematica.gui.button.material_list.toggle_info_hud"),
             CLEAR_IGNORED       ("litematica.gui.button.material_list.clear_ignored"),

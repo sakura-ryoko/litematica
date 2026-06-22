@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import fi.dy.masa.litematica.util.BlockInfoListType;
+import fi.dy.masa.litematica.util.InclusionType;
 import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.util.JsonUtils;
 
@@ -27,6 +28,8 @@ public abstract class MaterialListBase implements IMaterialList
     @Nullable protected ICompletionListener completionListener;
     protected SortCriteria sortCriteria = SortCriteria.COUNT_TOTAL;
     protected BlockInfoListType materialListType = BlockInfoListType.ALL;
+    protected InclusionType entitiesInclusionType = InclusionType.NONE;
+    protected InclusionType containersInclusionType = InclusionType.NONE;
     protected boolean reverse = false;
     protected boolean hideAvailable;
     protected int multiplier = 1;
@@ -140,6 +143,16 @@ public abstract class MaterialListBase implements IMaterialList
         return this.materialListType;
     }
 
+    public InclusionType getEntitiesInclusionType()
+    {
+        return this.entitiesInclusionType;
+    }
+
+    public InclusionType getContainersInclusionType()
+    {
+        return this.containersInclusionType;
+    }
+
     /**
      * Resets the pre-filtered materials list to the all materials list
      */
@@ -230,6 +243,16 @@ public abstract class MaterialListBase implements IMaterialList
             InfoUtils.printActionbarMessage("malilib.message.set_layer_mode_to", val);
         }
 
+    }
+
+    public void setEntitiesInclusionType(InclusionType type)
+    {
+        this.entitiesInclusionType = type;
+    }
+
+    public void setContainersInclusionType(InclusionType type)
+    {
+        this.containersInclusionType = type;
     }
 
     public JsonObject toJson()
