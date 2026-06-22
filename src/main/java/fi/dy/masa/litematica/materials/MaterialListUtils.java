@@ -72,13 +72,10 @@ public class MaterialListUtils
         if (!countsTotal.isEmpty())
         {
             MaterialCache cache = MaterialCache.getInstance();
-            Object2IntOpenHashMap<ItemType> itemTypesTotal = new Object2IntOpenHashMap<>();
-            Object2IntOpenHashMap<ItemType> itemTypesMissing = new Object2IntOpenHashMap<>();
-            Object2IntOpenHashMap<ItemType> itemTypesMismatch = new Object2IntOpenHashMap<>();
 
-            convertStatesToStacks(countsTotal, itemTypesTotal, cache);
-            convertStatesToStacks(countsMissing, itemTypesMissing, cache);
-            convertStatesToStacks(countsMismatch, itemTypesMismatch, cache);
+            Object2IntOpenHashMap<ItemType> itemTypesTotal = convertStatesToStacks(countsTotal, cache);
+            Object2IntOpenHashMap<ItemType> itemTypesMissing = convertStatesToStacks(countsMissing, cache);
+            Object2IntOpenHashMap<ItemType> itemTypesMismatch = convertStatesToStacks(countsMismatch, cache);
 
             if (player != null)
             {
@@ -109,11 +106,11 @@ public class MaterialListUtils
         return list;
     }
 
-    private static void convertStatesToStacks(
+    private static Object2IntOpenHashMap<ItemType> convertStatesToStacks(
             Object2IntOpenHashMap<BlockState> blockStatesIn,
-            Object2IntOpenHashMap<ItemType> itemTypesOut,
             MaterialCache cache)
     {
+        Object2IntOpenHashMap<ItemType> itemTypesOut = new Object2IntOpenHashMap<>();
         for (BlockState state : blockStatesIn.keySet())
         {
             int count = blockStatesIn.getInt(state);
@@ -145,6 +142,8 @@ public class MaterialListUtils
                 }
             }
         }
+
+        return itemTypesOut;
     }
 
     public static void updateAvailableCounts(List<MaterialListEntry> list, Player player)
