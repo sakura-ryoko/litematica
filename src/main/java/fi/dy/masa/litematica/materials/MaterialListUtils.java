@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.ItemType;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 
 public class MaterialListUtils
@@ -61,22 +64,40 @@ public class MaterialListUtils
         return getMaterialList(countsTotal, countsTotal.clone(), new Object2IntOpenHashMap<>(), mc.player);
     }
 
-    public static List<MaterialListEntry> getMaterialList(
-            Object2IntOpenHashMap<BlockState> countsTotal,
-            Object2IntOpenHashMap<BlockState> countsMissing,
-            Object2IntOpenHashMap<BlockState> countsMismatch,
+    public static List<MaterialListEntry> createEntitiesListFor(LitematicaSchematic schematic, Collection<String> subRegions)
+    {
+
+        Object2IntOpenHashMap<ItemType> entitiesTotal = new Object2IntOpenHashMap<>();
+
+        for (String regionName : subRegions) {
+           List<EntityInfo> entitiesList = schematic.getEntityListForRegion(regionName);
+           if (entitiesList != null) {
+               for (EntityInfo entityInfo : entitiesList) {
+                   String id = entityInfo.nbt.getStringOr("id", "");
+                   if (!id.isEmpty()) {
+                       Identifier identifier = Identifier.tryParse(id);
+                       Item item = BuiltInRegistries.ITEM.getValue(identifier);
+                       ItemType itemType = new ItemType(new ItemStack(item));
+                       entitiesTotal.addTo(itemType, 1);
+                   }
+               }
+           }
+        }
+
+        Minecraft mc = Minecraft.getInstance();
+        return getMaterialListFromItems(entitiesTotal, entitiesTotal.clone(), new Object2IntOpenHashMap<>(), mc.player);
+    }
+
+    public static List<MaterialListEntry> getMaterialListFromItems(
+            Object2IntOpenHashMap<ItemType> itemTypesTotal,
+            Object2IntOpenHashMap<ItemType> itemTypesMissing,
+            Object2IntOpenHashMap<ItemType> itemTypesMismatch,
             Player player)
     {
         List<MaterialListEntry> list = new ArrayList<>();
 
-        if (!countsTotal.isEmpty())
+        if (!itemTypesTotal.isEmpty())
         {
-            MaterialCache cache = MaterialCache.getInstance();
-
-            Object2IntOpenHashMap<ItemType> itemTypesTotal = convertStatesToStacks(countsTotal, cache);
-            Object2IntOpenHashMap<ItemType> itemTypesMissing = convertStatesToStacks(countsMissing, cache);
-            Object2IntOpenHashMap<ItemType> itemTypesMismatch = convertStatesToStacks(countsMismatch, cache);
-
             if (player != null)
             {
                 Object2IntOpenHashMap<ItemType> playerInvItems = getInventoryItemCounts(player.getInventory());
@@ -102,8 +123,25 @@ public class MaterialListUtils
                 }
             }
         }
-
         return list;
+    }
+
+    public static List<MaterialListEntry> getMaterialList(
+            Object2IntOpenHashMap<BlockState> countsTotal,
+            Object2IntOpenHashMap<BlockState> countsMissing,
+            Object2IntOpenHashMap<BlockState> countsMismatch,
+            Player player)
+    {
+        if (countsTotal.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        MaterialCache cache = MaterialCache.getInstance();
+        Object2IntOpenHashMap<ItemType> itemTypesTotal = convertStatesToStacks(countsTotal, cache);
+        Object2IntOpenHashMap<ItemType> itemTypesMissing = convertStatesToStacks(countsMissing, cache);
+        Object2IntOpenHashMap<ItemType> itemTypesMismatch = convertStatesToStacks(countsMismatch, cache);
+
+        return getMaterialListFromItems(itemTypesTotal, itemTypesMissing, itemTypesMismatch, player);
     }
 
     private static Object2IntOpenHashMap<ItemType> convertStatesToStacks(
