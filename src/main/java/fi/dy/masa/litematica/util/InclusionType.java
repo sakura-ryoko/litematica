@@ -9,8 +9,8 @@ import fi.dy.masa.malilib.util.StringUtils;
 public enum InclusionType implements IConfigOptionListEntry, StringRepresentable
 {
     NONE             ("all",             "litematica.gui.label.inclusion_type.none"),
-    ONLY             ("only",            "litematica.gui.label.inclusion_type.only"),
-    INCLUDE          ("include",         "litematica.gui.label.inclusion_type.include");
+    INCLUDE          ("include",         "litematica.gui.label.inclusion_type.include"),
+    ONLY             ("only",            "litematica.gui.label.inclusion_type.only");
 
     public static final StringRepresentable.EnumCodec<InclusionType> CODEC = StringRepresentable.fromEnum(InclusionType::values);
     public static final ImmutableList<InclusionType> VALUES = ImmutableList.copyOf(values());

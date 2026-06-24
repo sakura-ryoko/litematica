@@ -3,6 +3,7 @@ package fi.dy.masa.litematica.materials;
 import java.util.Collection;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.util.InclusionType;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class MaterialListSchematic extends MaterialListBase
@@ -31,7 +32,7 @@ public class MaterialListSchematic extends MaterialListBase
     @Override
     public void reCreateMaterialList()
     {
-        this.materialListAll = ImmutableList.copyOf(MaterialListUtils.createMaterialListFor(this.schematic, this.regions));
+        this.materialListAll = ImmutableList.copyOf(MaterialListUtils.createMaterialList(this.schematic, this.regions, this.entitiesInclusionType, this.containersInclusionType));
         this.refreshPreFilteredList();
         this.updateCounts();
     }

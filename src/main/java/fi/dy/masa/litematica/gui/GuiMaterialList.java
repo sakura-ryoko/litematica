@@ -2,6 +2,8 @@ package fi.dy.masa.litematica.gui;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+
+import fi.dy.masa.litematica.Litematica;
 import net.minecraft.client.Minecraft;
 import fi.dy.masa.malilib.data.DataDump;
 import fi.dy.masa.malilib.gui.GuiBase;
