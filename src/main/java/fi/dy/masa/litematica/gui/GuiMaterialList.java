@@ -278,12 +278,14 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     InclusionType entitiesType = materialList.getEntitiesInclusionType();
                     materialList.setEntitiesInclusionType((InclusionType) entitiesType.cycle(mouseButton == 0));
                     materialList.reCreateMaterialList();
+                    this.parent.onTaskCompleted();
                     break;
 
                 case CONTAINERS_INCLUSION_TYPE:
                     InclusionType containersType = materialList.getContainersInclusionType();
                     materialList.setContainersInclusionType((InclusionType) containersType.cycle(mouseButton == 0));
                     materialList.reCreateMaterialList();
+                    this.parent.onTaskCompleted();
                     break;
 
                 case HIDE_AVAILABLE:
