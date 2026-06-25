@@ -32,7 +32,7 @@ public class MaterialListSchematic extends MaterialListBase
     @Override
     public void reCreateMaterialList()
     {
-        this.materialListAll = ImmutableList.copyOf(MaterialListUtils.createMaterialList(this.schematic, this.regions, this.entitiesInclusionType, this.containersInclusionType));
+        this.materialListAll = ImmutableList.copyOf(MaterialListUtils.createMaterialListForSchematic(this.schematic, this.regions, this.entitiesInclusionType, this.containersInclusionType));
         this.refreshPreFilteredList();
         this.updateCounts();
     }

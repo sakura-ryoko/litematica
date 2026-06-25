@@ -27,47 +27,58 @@ import fi.dy.masa.litematica.schematic.LitematicaSchematic.EntityInfo;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.util.InclusionType;
 
+/**
+ * Naming convention used in this class:
+ * - "create*ItemCounts"  : tally up item counts (Object2IntOpenHashMap<ItemType>) from schematic/world data
+ * - "createMaterialList*": build the final List<MaterialListEntry> for a whole schematic/placement
+ * - "buildEntriesFrom*"  : turn already-tallied item/block counts into a List<MaterialListEntry>
+ */
 public class MaterialListUtils
 {
-    public static List<MaterialListEntry> createBlocksList(LitematicaSchematic schematic)
+    /**
+     * Builds the material list for a schematic that hasn't been placed yet, i.e. there is no
+     * world to compare against, so everything is reported as missing.
+     */
+    public static List<MaterialListEntry> createMaterialListForSchematic(LitematicaSchematic schematic,
+                                                                           Collection<String> subRegions,
+                                                                           InclusionType entitiesInclusionType,
+                                                                           InclusionType containersInclusionType)
     {
-        return createMaterialList(schematic, schematic.getAreas().keySet(), InclusionType.NONE, InclusionType.NONE);
-    }
-
-    public static List<MaterialListEntry> createMaterialList(LitematicaSchematic schematic, Collection<String> subRegions, InclusionType entitiesInclusionType, InclusionType containersInclusionType)
-    {
-        Object2IntOpenHashMap<ItemType> total = new Object2IntOpenHashMap<>();
         Player player = Minecraft.getInstance().player;
 
-        if (entitiesInclusionType != InclusionType.NONE) {
-            Object2IntOpenHashMap<ItemType> entitiesList = createEntitiesList(schematic, subRegions);
-            if (entitiesInclusionType == InclusionType.ONLY) {
-                return getMaterialListFromItems(entitiesList, entitiesList.clone(), new Object2IntOpenHashMap<>(), player);
-            }
-            for (ItemType itemType : entitiesList.keySet()) {
-                total.addTo(itemType, entitiesList.getInt(itemType));
-            }
-        }
-        if (containersInclusionType != InclusionType.NONE) {
-            Object2IntOpenHashMap<ItemType> containersList = createContainersList(schematic, subRegions);
-            if (containersInclusionType == InclusionType.ONLY) {
-                return getMaterialListFromItems(containersList, containersList.clone(), new Object2IntOpenHashMap<>(), player);
-            }
-            for (ItemType itemType : containersList.keySet()) {
-                total.addTo(itemType, containersList.getInt(itemType));
-            }
+        if (entitiesInclusionType == InclusionType.ONLY)
+        {
+            Object2IntOpenHashMap<ItemType> entitiesTotal = createEntityItemCounts(schematic, subRegions);
+            return buildEntriesFromItemCounts(entitiesTotal, entitiesTotal.clone(), new Object2IntOpenHashMap<>(), player);
         }
 
-        Object2IntOpenHashMap<ItemType> blocksList = createBlocksList(schematic, subRegions);
-        for (ItemType itemType : blocksList.keySet()) {
-            total.addTo(itemType, blocksList.getInt(itemType));
+        if (containersInclusionType == InclusionType.ONLY)
+        {
+            Object2IntOpenHashMap<ItemType> containersTotal = createContainerItemCounts(schematic, subRegions);
+            return buildEntriesFromItemCounts(containersTotal, containersTotal.clone(), new Object2IntOpenHashMap<>(), player);
         }
 
+        Object2IntOpenHashMap<ItemType> total = createBlockItemCounts(schematic, subRegions);
 
-        return getMaterialListFromItems(total, total.clone(), new Object2IntOpenHashMap<>(), player);
+        if (entitiesInclusionType != InclusionType.NONE)
+        {
+            createEntityItemCounts(schematic, subRegions).forEach(total::addTo);
+        }
+
+        if (containersInclusionType != InclusionType.NONE)
+        {
+            createContainerItemCounts(schematic, subRegions).forEach(total::addTo);
+        }
+
+        return buildEntriesFromItemCounts(total, total.clone(), new Object2IntOpenHashMap<>(), player);
     }
 
-    public static Object2IntOpenHashMap<ItemType> createBlocksList(LitematicaSchematic schematic, Collection<String> subRegions)
+    public static List<MaterialListEntry> createBlocksList(LitematicaSchematic schematic)
+    {
+        return createMaterialListForSchematic(schematic, schematic.getAreas().keySet(), InclusionType.NONE, InclusionType.NONE);
+    }
+
+    public static Object2IntOpenHashMap<ItemType> createBlockItemCounts(LitematicaSchematic schematic, Collection<String> subRegions)
     {
         Object2IntOpenHashMap<BlockState> countsTotal = new Object2IntOpenHashMap<>();
 
@@ -97,12 +108,11 @@ public class MaterialListUtils
         }
         MaterialCache cache = MaterialCache.getInstance();
 
-        return convertStatesToStacks(countsTotal, cache);
+        return convertBlockStatesToItemCounts(countsTotal, cache);
     }
 
-    public static Object2IntOpenHashMap<ItemType> createEntitiesList(LitematicaSchematic schematic, Collection<String> subRegions)
+    public static Object2IntOpenHashMap<ItemType> createEntityItemCounts(LitematicaSchematic schematic, Collection<String> subRegions)
     {
-
         Object2IntOpenHashMap<ItemType> entitiesTotal = new Object2IntOpenHashMap<>();
 
         for (String regionName : subRegions) {
@@ -123,7 +133,7 @@ public class MaterialListUtils
         return entitiesTotal;
     }
 
-    public static Object2IntOpenHashMap<ItemType> createContainersList(LitematicaSchematic schematic, Collection<String> subRegions)
+    public static Object2IntOpenHashMap<ItemType> createContainerItemCounts(LitematicaSchematic schematic, Collection<String> subRegions)
     {
         Object2IntOpenHashMap<ItemType> containersTotal = new Object2IntOpenHashMap<>();
         for (String regionName : subRegions) {
@@ -138,22 +148,48 @@ public class MaterialListUtils
                     listTag.addAll(entityInfo.nbt.getListOrEmpty("Items"));
                 }
             }
-                for (Tag tag : listTag) {
-                    if (tag instanceof CompoundTag) {
-                        Identifier identifier = Identifier.tryParse(((CompoundTag) tag).getStringOr("id", ""));
-                        Item item = BuiltInRegistries.ITEM.getValue(identifier);
-                        int count = ((CompoundTag) tag).getIntOr("count", 0);
-                        ItemType itemType = new ItemType(new ItemStack(item), false);
-                        containersTotal.addTo(itemType, count);
-                    }
+            for (Tag tag : listTag) {
+                if (tag instanceof CompoundTag itemTag) {
+                    accumulateContainerItem(itemTag, containersTotal);
                 }
-
+            }
         }
 
         return containersTotal;
     }
 
-    public static List<MaterialListEntry> getMaterialListFromItems(
+    /**
+     * Adds the counts for a single item stack's NBT, and -- since shulker boxes can't be nested --
+     * unpacks one extra level of "minecraft:container" contents if the item itself is a shulker box.
+     * Bundles are intentionally not unpacked here.
+     */
+    private static void accumulateContainerItem(CompoundTag itemTag, Object2IntOpenHashMap<ItemType> containersTotal)
+    {
+        addItemTagCount(itemTag, containersTotal);
+
+        CompoundTag components = itemTag.getCompoundOrEmpty("components");
+        ListTag shulkerItems = components.getListOrEmpty("minecraft:container");
+
+        for (Tag slotTag : shulkerItems) {
+            if (slotTag instanceof CompoundTag slotCompound && slotCompound.contains("item")) {
+                addItemTagCount(slotCompound.getCompoundOrEmpty("item"), containersTotal);
+            }
+        }
+    }
+
+    private static void addItemTagCount(CompoundTag itemTag, Object2IntOpenHashMap<ItemType> total)
+    {
+        Identifier identifier = Identifier.tryParse(itemTag.getStringOr("id", ""));
+        Item item = BuiltInRegistries.ITEM.getValue(identifier);
+        int count = itemTag.getIntOr("count", 0);
+        ItemType itemType = new ItemType(new ItemStack(item), false);
+        total.addTo(itemType, count);
+    }
+
+    /**
+     * Turns already-tallied item counts into the final entry list, looking up availability from the player's inventory.
+     */
+    public static List<MaterialListEntry> buildEntriesFromItemCounts(
             Object2IntOpenHashMap<ItemType> itemTypesTotal,
             Object2IntOpenHashMap<ItemType> itemTypesMissing,
             Object2IntOpenHashMap<ItemType> itemTypesMismatch,
@@ -163,35 +199,24 @@ public class MaterialListUtils
 
         if (!itemTypesTotal.isEmpty())
         {
-            if (player != null)
-            {
-                Object2IntOpenHashMap<ItemType> playerInvItems = getInventoryItemCounts(player.getInventory());
+            Object2IntOpenHashMap<ItemType> playerInvItems = player != null ? getInventoryItemCounts(player.getInventory()) : new Object2IntOpenHashMap<>();
 
-                for (ItemType type : itemTypesTotal.keySet())
-                {
-                    list.add(new MaterialListEntry(type.getStack().copy(),
-                                                   itemTypesTotal.getInt(type),
-                                                   itemTypesMissing.getInt(type),
-                                                   itemTypesMismatch.getInt(type),
-                                                   playerInvItems.getInt(type)));
-                }
-            }
-            else
+            for (ItemType type : itemTypesTotal.keySet())
             {
-                for (ItemType type : itemTypesTotal.keySet())
-                {
-                    list.add(new MaterialListEntry(type.getStack().copy(),
-                                                   itemTypesTotal.getInt(type),
-                                                   itemTypesMissing.getInt(type),
-                                                   itemTypesMismatch.getInt(type),
-                                                   0));
-                }
+                list.add(new MaterialListEntry(type.getStack().copy(),
+                                               itemTypesTotal.getInt(type),
+                                               itemTypesMissing.getInt(type),
+                                               itemTypesMismatch.getInt(type),
+                                               playerInvItems.getInt(type)));
             }
         }
         return list;
     }
 
-    public static List<MaterialListEntry> getMaterialList(
+    /**
+     * Builds the material list for a placement (or other live-world block count), with no entities/containers.
+     */
+    public static List<MaterialListEntry> buildEntriesFromBlockCounts(
             Object2IntOpenHashMap<BlockState> countsTotal,
             Object2IntOpenHashMap<BlockState> countsMissing,
             Object2IntOpenHashMap<BlockState> countsMismatch,
@@ -202,14 +227,122 @@ public class MaterialListUtils
         }
 
         MaterialCache cache = MaterialCache.getInstance();
-        Object2IntOpenHashMap<ItemType> itemTypesTotal = convertStatesToStacks(countsTotal, cache);
-        Object2IntOpenHashMap<ItemType> itemTypesMissing = convertStatesToStacks(countsMissing, cache);
-        Object2IntOpenHashMap<ItemType> itemTypesMismatch = convertStatesToStacks(countsMismatch, cache);
+        Object2IntOpenHashMap<ItemType> itemTypesTotal = convertBlockStatesToItemCounts(countsTotal, cache);
+        Object2IntOpenHashMap<ItemType> itemTypesMissing = convertBlockStatesToItemCounts(countsMissing, cache);
+        Object2IntOpenHashMap<ItemType> itemTypesMismatch = convertBlockStatesToItemCounts(countsMismatch, cache);
 
-        return getMaterialListFromItems(itemTypesTotal, itemTypesMissing, itemTypesMismatch, player);
+        return buildEntriesFromItemCounts(itemTypesTotal, itemTypesMissing, itemTypesMismatch, player);
     }
 
-    private static Object2IntOpenHashMap<ItemType> convertStatesToStacks(
+    /**
+     * Builds the material list for a placement, combining live-world block counts with entity/container
+     * item counts gathered separately (e.g. filtered to what's visible in the current render layer).
+     * Entities/containers are counted from the schematic's ghost/overlay world, so there is no real-world
+     * match to check availability against: they are always reported as missing.
+     */
+    public static List<MaterialListEntry> buildEntriesForPlacement(
+            Object2IntOpenHashMap<BlockState> countsTotal,
+            Object2IntOpenHashMap<BlockState> countsMissing,
+            Object2IntOpenHashMap<BlockState> countsMismatch,
+            Object2IntOpenHashMap<ItemType> entitiesTotal,
+            InclusionType entitiesInclusionType,
+            Object2IntOpenHashMap<ItemType> containersTotal,
+            InclusionType containersInclusionType,
+            Player player)
+    {
+        if (entitiesInclusionType == InclusionType.ONLY)
+        {
+            return buildEntriesFromItemCounts(entitiesTotal, entitiesTotal.clone(), new Object2IntOpenHashMap<>(), player);
+        }
+
+        if (containersInclusionType == InclusionType.ONLY)
+        {
+            return buildEntriesFromItemCounts(containersTotal, containersTotal.clone(), new Object2IntOpenHashMap<>(), player);
+        }
+
+        Object2IntOpenHashMap<ItemType> itemTypesTotal;
+        Object2IntOpenHashMap<ItemType> itemTypesMissing;
+        Object2IntOpenHashMap<ItemType> itemTypesMismatch;
+
+        if (countsTotal.isEmpty())
+        {
+            itemTypesTotal = new Object2IntOpenHashMap<>();
+            itemTypesMissing = new Object2IntOpenHashMap<>();
+            itemTypesMismatch = new Object2IntOpenHashMap<>();
+        }
+        else
+        {
+            MaterialCache cache = MaterialCache.getInstance();
+            itemTypesTotal = convertBlockStatesToItemCounts(countsTotal, cache);
+            itemTypesMissing = convertBlockStatesToItemCounts(countsMissing, cache);
+            itemTypesMismatch = convertBlockStatesToItemCounts(countsMismatch, cache);
+        }
+
+        mergeAsMissing(itemTypesTotal, itemTypesMissing, entitiesTotal, entitiesInclusionType);
+        mergeAsMissing(itemTypesTotal, itemTypesMissing, containersTotal, containersInclusionType);
+
+        return buildEntriesFromItemCounts(itemTypesTotal, itemTypesMissing, itemTypesMismatch, player);
+    }
+
+    /**
+     * Builds the material list for the area analyzer: a plain inventory of what's currently present
+     * in the selected area, with no "missing" concept (there is nothing to compare the area against).
+     */
+    public static List<MaterialListEntry> buildEntriesForAreaAnalyzer(
+            Object2IntOpenHashMap<BlockState> countsTotal,
+            Object2IntOpenHashMap<ItemType> entitiesTotal,
+            InclusionType entitiesInclusionType,
+            Object2IntOpenHashMap<ItemType> containersTotal,
+            InclusionType containersInclusionType,
+            Player player)
+    {
+        if (entitiesInclusionType == InclusionType.ONLY)
+        {
+            return buildEntriesFromItemCounts(entitiesTotal, new Object2IntOpenHashMap<>(), new Object2IntOpenHashMap<>(), player);
+        }
+
+        if (containersInclusionType == InclusionType.ONLY)
+        {
+            return buildEntriesFromItemCounts(containersTotal, new Object2IntOpenHashMap<>(), new Object2IntOpenHashMap<>(), player);
+        }
+
+        Object2IntOpenHashMap<ItemType> itemTypesTotal = countsTotal.isEmpty()
+                ? new Object2IntOpenHashMap<>()
+                : convertBlockStatesToItemCounts(countsTotal, MaterialCache.getInstance());
+
+        if (entitiesInclusionType != InclusionType.NONE)
+        {
+            entitiesTotal.forEach(itemTypesTotal::addTo);
+        }
+
+        if (containersInclusionType != InclusionType.NONE)
+        {
+            containersTotal.forEach(itemTypesTotal::addTo);
+        }
+
+        Object2IntOpenHashMap<ItemType> empty = new Object2IntOpenHashMap<>();
+        return buildEntriesFromItemCounts(itemTypesTotal, empty, empty, player);
+    }
+
+    private static void mergeAsMissing(Object2IntOpenHashMap<ItemType> total,
+                                        Object2IntOpenHashMap<ItemType> missing,
+                                        Object2IntOpenHashMap<ItemType> extra,
+                                        InclusionType inclusionType)
+    {
+        if (inclusionType == InclusionType.NONE)
+        {
+            return;
+        }
+
+        for (ItemType itemType : extra.keySet())
+        {
+            int count = extra.getInt(itemType);
+            total.addTo(itemType, count);
+            missing.addTo(itemType, count);
+        }
+    }
+
+    private static Object2IntOpenHashMap<ItemType> convertBlockStatesToItemCounts(
             Object2IntOpenHashMap<BlockState> blockStatesIn,
             MaterialCache cache)
     {

@@ -91,13 +91,16 @@ public abstract class TaskCountBlocksBase extends TaskProcessChunkBase
     {
         if (this.finished && this.isInWorld())
         {
-            List<MaterialListEntry> list = MaterialListUtils.getMaterialList(
-                    this.countsTotal, this.countsMissing, this.countsMismatch, this.mc.player);
-            this.materialList.setMaterialListEntries(list);
+            this.materialList.setMaterialListEntries(this.buildMaterialListEntries());
         }
 
         InfoHud.getInstance().removeInfoHudRenderer(this, false);
 
         super.onStop();
+    }
+
+    protected List<MaterialListEntry> buildMaterialListEntries()
+    {
+        return MaterialListUtils.buildEntriesFromBlockCounts(this.countsTotal, this.countsMissing, this.countsMismatch, this.mc.player);
     }
 }
