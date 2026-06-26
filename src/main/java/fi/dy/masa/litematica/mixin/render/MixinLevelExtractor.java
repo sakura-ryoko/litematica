@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import fi.dy.masa.malilib.compat.iris.IrisCompat;
-import fi.dy.masa.litematica.compat.iris.IrisRenderingFix;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
@@ -71,12 +70,12 @@ public abstract class MixinLevelExtractor
 		LitematicaRenderer.getInstance().piecewisePrepare(cullFrustum, this.profiler);
 
 		// Why Iris?
-		if (IrisCompat.isShaderActive())
-		{
-			IrisRenderingFix.INSTANCE.setCamera(camera);
-			IrisRenderingFix.INSTANCE.extractAndCompileSectionsWithShadersOn();
-			return;
-		}
+//		if (IrisCompat.isShaderActive())
+//		{
+//			IrisRenderingFix.INSTANCE.setCamera(camera);
+//			IrisRenderingFix.INSTANCE.extractAndCompileSectionsWithShadersOn();
+//			return;
+//		}
 
 		LitematicaRenderer.getInstance().piecewiseUpdate(camera, this.profiler);
 		LitematicaRenderer.getInstance().scheduleTranslucentSorting(camera.position(), this.profiler);
@@ -86,7 +85,7 @@ public abstract class MixinLevelExtractor
 	private void litematica_onPostPrepareEntities(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState output, CallbackInfo ci)
 	{
 		// Why Iris?
-		if (IrisCompat.isShaderActive()) { return; }
+//		if (IrisCompat.isShaderActive()) { return; }
 		this.litematica$prepareProfiler();
 		LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, frustum, output, deltaTracker, this.profiler);
 

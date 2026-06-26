@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
 @Mixin(GameRenderer.class)
@@ -26,7 +25,7 @@ public abstract class MixinGameRenderer
 	                                          @Local(name = "cameraState") CameraRenderState cameraState)
 	{
 		// Why Iris?
-		if (IrisCompat.isShaderActive()) { return; }
+//		if (IrisCompat.isShaderActive()) { return; }
 		LitematicaRenderer.getInstance().updateCameraState(this.mainCamera, cameraEntityPartialTicks, cameraState);
 	}
 }

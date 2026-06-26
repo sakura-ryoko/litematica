@@ -6,6 +6,7 @@ import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.blaze3d.resource.ResourceHandle;
@@ -13,6 +14,7 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
@@ -32,7 +34,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
@@ -41,6 +42,7 @@ public abstract class MixinLevelRenderer
 {
 	@Shadow @Final private SubmitNodeStorage submitNodeStorage;
 	@Shadow private @Nullable GpuSampler chunkLayerSampler;
+	@Shadow @Final private LevelTargetBundle targets;
 	@Unique private ProfilerFiller profiler;
 
     @Unique
@@ -66,7 +68,7 @@ public abstract class MixinLevelRenderer
                                             @Local(name = "profiler") ProfilerFiller profiler)
     {
         this.profiler = profiler;
-		if (IrisCompat.isShaderActive()) { return; }
+//		if (IrisCompat.isShaderActive()) { return; }
         LitematicaRenderer.getInstance().capturePreMainValues(cameraState, terrainFog, profiler);
     }
 
@@ -74,11 +76,9 @@ public abstract class MixinLevelRenderer
     private void litematica_onPrepareBlockLayersPost(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
 	    // Why Iris?
-	    if (!IrisCompat.isShaderActive())
-	    {
-		    this.litematica$prepareProfiler();
-		    LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
-	    }
+//		if (IrisCompat.isShaderActive()) { return; }
+	    this.litematica$prepareProfiler();
+	    LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
     }
 
 	// BYTECODE (Virtual Method) Mixin for Section Group rendering
@@ -108,6 +108,23 @@ public abstract class MixinLevelRenderer
 	                                                      ResourceHandle<RenderTarget> particleTarget, CallbackInfo ci)
 	{
 		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT, this.chunkLayerSampler);
+	}
+
+	@Inject(method = "render",
+	        at = @At(value = "INVOKE",
+	                 target = "Lnet/minecraft/client/renderer/LevelRenderer;addWeatherPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V",
+	                 shift = At.Shift.BEFORE))
+	private void litematica_renderMainPass(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker,
+	                                       boolean renderOutline, CameraRenderState cameraState, Matrix4fc modelViewMatrix,
+	                                       GpuBufferSlice terrainFog, Vector4f fogColor, boolean shouldRenderSky, CallbackInfo ci,
+	                                       @Local(name = "frame") FrameGraphBuilder frame,
+                                           @Local(name = "featureFrame") FeatureRenderDispatcher.PreparedFrame featureFrame,
+                                           @Local(name = "profiler") ProfilerFiller profiler)
+	{
+//		if (IrisCompat.isShaderActive())
+//		{
+//			IrisRenderingFix.INSTANCE.renderMainPassWithShadersOn(frame, this.targets, featureFrame, profiler);
+//		}
 	}
 
 	@Inject(method = "submitEntities", at = @At("RETURN"))

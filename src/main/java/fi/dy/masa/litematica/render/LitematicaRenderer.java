@@ -205,13 +205,13 @@ public class LitematicaRenderer
 //                profiler.popPush(Reference.MOD_ID+"_update_chunks");
 //                worldRenderer.updateChunks(this.finishTimeNano, profiler);
 
-                if (IrisCompat.isShaderActive())
-                {
-                    profiler.popPush(Reference.MOD_ID+"_update_chunks");
-                    worldRenderer.updateChunks(this.finishTimeNano, profiler);
-                    profiler.popPush(Reference.MOD_ID + "_schedule_translucent_sorting");
-                    worldRenderer.scheduleTranslucentSorting(this.getCamera().position(),  profiler);
-                }
+//                if (IrisCompat.isShaderActive())
+//                {
+//                    profiler.popPush(Reference.MOD_ID+"_update_chunks");
+//                    worldRenderer.updateChunks(this.finishTimeNano, profiler);
+//                    profiler.popPush(Reference.MOD_ID + "_schedule_translucent_sorting");
+//                    worldRenderer.scheduleTranslucentSorting(this.getCamera().position(),  profiler);
+//                }
 
                 profiler.pop();
 
