@@ -36,8 +36,8 @@ import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.IStringDualConsumerFeedback;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.position.ChunkSectionPos;
 import fi.dy.masa.malilib.util.position.LayerRange;
+import fi.dy.masa.malilib.util.position.SubChunkPos;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
@@ -400,7 +400,7 @@ public class SchematicUtils
     {
         if (pos != null)
         {
-            ChunkSectionPos cpos = new ChunkSectionPos(fi.dy.masa.malilib.util.position.BlockPos.of(pos));
+            SubChunkPos cpos = new SubChunkPos(pos);
             List<PlacementPart> list = DataManager.getSchematicPlacementManager().getAllPlacementsTouchingChunk(pos);
 
             if (list.isEmpty() == false)
@@ -646,12 +646,12 @@ public class SchematicUtils
                 continue;
             }
 
-            int minX = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
-            int minZ = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
-            int maxX = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
-            int maxZ = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
-            int minY = range.getClampedValue(world.getMinY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
-            int maxY = range.getClampedValue(world.getMaxY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
+            int minX = range.getClampedValue(-30000000, Direction.Axis.X);
+            int minZ = range.getClampedValue(-30000000, Direction.Axis.Z);
+            int maxX = range.getClampedValue( 30000000, Direction.Axis.X);
+            int maxZ = range.getClampedValue( 30000000, Direction.Axis.Z);
+            int minY = range.getClampedValue(world.getMinY(), Direction.Axis.Y);
+            int maxY = range.getClampedValue(world.getMaxY(), Direction.Axis.Y);
 
             BlockPos posStart = new BlockPos(minX, minY, minZ);
             BlockPos posEnd = new BlockPos(maxX, maxY, maxZ);
@@ -768,12 +768,12 @@ public class SchematicUtils
                 continue;
             }
 
-            int minX = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
-            int minZ = range.getClampedValue(-30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
-            int maxX = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.X);
-            int maxZ = range.getClampedValue( 30000000, fi.dy.masa.malilib.util.position.Direction.Axis.Z);
-            int minY = range.getClampedValue(world.getMinY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
-            int maxY = range.getClampedValue(world.getMaxY(), fi.dy.masa.malilib.util.position.Direction.Axis.Y);
+            int minX = range.getClampedValue(-30000000, Direction.Axis.X);
+            int minZ = range.getClampedValue(-30000000, Direction.Axis.Z);
+            int maxX = range.getClampedValue( 30000000, Direction.Axis.X);
+            int maxZ = range.getClampedValue( 30000000, Direction.Axis.Z);
+            int minY = range.getClampedValue(world.getMinY(), Direction.Axis.Y);
+            int maxY = range.getClampedValue(world.getMaxY(), Direction.Axis.Y);
 
             BlockPos posStart = new BlockPos(minX, minY, minZ);
             BlockPos posEnd = new BlockPos(maxX, maxY, maxZ);

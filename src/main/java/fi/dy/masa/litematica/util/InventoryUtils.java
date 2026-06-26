@@ -465,7 +465,7 @@ public class InventoryUtils
             }
             else
             {
-                Pair<BlockEntity, CompoundData> pair = EntityDataManager.getInstance().requestBlockEntityWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
+                Pair<BlockEntity, CompoundData> pair = EntityDataManager.getInstance().requestBlockEntityWrapped(world, pos);
 
                 if (pair != null)
                 {
@@ -523,7 +523,7 @@ public class InventoryUtils
         {
             if (data.isEmpty())
             {
-                Pair<BlockEntity, CompoundData> pair = EntityDataManager.getInstance().requestBlockEntityWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
+                Pair<BlockEntity, CompoundData> pair = EntityDataManager.getInstance().requestBlockEntityWrapped(world, pos);
 
                 if (pair != null)
                 {
@@ -531,7 +531,7 @@ public class InventoryUtils
                 }
             }
 
-            inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos), false);
+            inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, pos, false);
         }
 
         if (data != null && !data.isEmpty())
@@ -589,7 +589,7 @@ public class InventoryUtils
 		}
 		else
 		{
-			inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, fi.dy.masa.malilib.util.position.BlockPos.of(pos), false);
+			inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, pos, false);
 		}
 
 		if (inv != null && inv.getContainerSize() >= NbtInventory.DEFAULT_SIZE)

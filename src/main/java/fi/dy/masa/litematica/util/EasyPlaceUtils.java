@@ -837,7 +837,7 @@ public class EasyPlaceUtils
             LayerRange range = DataManager.getRenderLayerRange();
 
             // The targeted position should be air or it's outside the current render range
-            if (worldSchematic.isEmptyBlock(pos) || range.isPositionWithinRange(fi.dy.masa.malilib.util.position.BlockPos.of(pos)) == false)
+            if (worldSchematic.isEmptyBlock(pos) || range.isPositionWithinRange(pos) == false)
             {
                 return true;
             }

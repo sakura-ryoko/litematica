@@ -942,7 +942,7 @@ public class LitematicaSchematic
                 if (chunkTickScheduler != null)
                 {
                     chunkTickScheduler.getAll()
-                            .filter((t) -> box.contains(fi.dy.masa.malilib.util.position.BlockPos.of(t.pos())))
+                            .filter((t) -> box.contains(t.pos()))
                             .forEach((t) -> this.addRelativeTickToMap(outputMap, t, minCorner, currentTick));
                 }
             }
@@ -1135,7 +1135,7 @@ public class LitematicaSchematic
 
                             if (EntityDataManager.getInstance().hasServuxServer())
                             {
-                                CompoundTag tag = EntityDataManager.getInstance().getFromBlockEntityCacheNbt(fi.dy.masa.malilib.util.position.BlockPos.of(posMutable.immutable()));
+                                CompoundTag tag = EntityDataManager.getInstance().getFromBlockEntityCacheNbt(posMutable.immutable());
 
                                 if (tag != null && !tag.isEmpty())
                                 {

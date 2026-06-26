@@ -42,7 +42,7 @@ public class FluidModelRendererSchematic extends FluidRenderer
 
 	private boolean shouldRenderTopFace(FluidState fluidState, BlockPos pos, FluidState fluidStateUp)
 	{
-		return (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(fi.dy.masa.malilib.util.position.BlockPos.of(pos), Direction.UP) ||
+		return (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(pos, Direction.UP) ||
 				Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue() &&
 				(Configs.Visuals.RENDER_TRANSLUCENT_INNER_SIDES.getBooleanValue())) ||
 				!isNeighborSameFluid(fluidState, fluidStateUp);
@@ -50,7 +50,7 @@ public class FluidModelRendererSchematic extends FluidRenderer
 
 	private boolean shouldRenderBottomFace(FluidState fluidState, BlockState blockState, BlockPos pos, FluidState fluidStateDown, BlockState blockStateDown)
 	{
-		return (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(fi.dy.masa.malilib.util.position.BlockPos.of(pos), Direction.DOWN) ||
+		return (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(pos, Direction.DOWN) ||
 				Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue() &&
 				(Configs.Visuals.RENDER_TRANSLUCENT_INNER_SIDES.getBooleanValue())) ||
 				(shouldRenderFace(fluidState, blockState, Direction.DOWN, fluidStateDown) &&

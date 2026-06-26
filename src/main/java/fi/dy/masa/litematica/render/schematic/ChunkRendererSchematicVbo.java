@@ -713,9 +713,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
             for (Direction side : fi.dy.masa.malilib.util.position.PositionUtils.ALL_DIRECTIONS)
             {
-                if (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(
-                        fi.dy.masa.malilib.util.position.BlockPos.of(posIn),
-                        fi.dy.masa.malilib.util.position.Direction.of(side)) ||
+                if (DataManager.getRenderLayerRange().isPositionAtRenderEdgeOnSide(posIn, side) ||
                     Block.shouldRenderFace(stateSchematic, this.schematicWorldView.getBlockState(posIn.relative(side)), side))
                 {
                     count++;
