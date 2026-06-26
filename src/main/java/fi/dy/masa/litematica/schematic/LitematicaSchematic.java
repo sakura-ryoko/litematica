@@ -1132,7 +1132,7 @@ public class LitematicaSchematic
 
                             if (EntityDataManager.getInstance().hasServuxServer())
                             {
-                                CompoundTag tag = EntityDataManager.getInstance().getFromBlockEntityCacheNbt(fi.dy.masa.malilib.util.position.BlockPos.of(posMutable.immutable()));
+                                CompoundTag tag = EntityDataManager.getInstance().getFromBlockEntityCacheNbt(posMutable.immutable());
 
                                 if (tag != null && !tag.isEmpty())
                                 {

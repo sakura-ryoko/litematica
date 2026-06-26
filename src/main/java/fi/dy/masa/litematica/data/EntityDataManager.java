@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Either;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
@@ -52,7 +53,6 @@ import fi.dy.masa.malilib.util.data_syncer.EntityDataCache;
 import fi.dy.masa.malilib.util.data_syncer.EntityDataRequestTracker;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.malilib.util.nbt.NbtView;
-import fi.dy.masa.malilib.util.position.BlockPos;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -718,11 +718,9 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         BlockPos pos1 = new BlockPos(chunkPos.getMinBlockX(), minY, chunkPos.getMinBlockZ());
         BlockPos pos2 = new BlockPos(chunkPos.getMaxBlockX(),   maxY, chunkPos.getMaxBlockZ());
         AABB bb = PositionUtils.createEnclosingAABB(pos1, pos2);
-        Set<net.minecraft.core.BlockPos> teSetVanilla = chunk.getBlockEntitiesPos();
-        Set<BlockPos> teSet = new HashSet<>();
-        List<Entity> entList = world.getEntities((Entity) null, bb, EntityUtils.NOT_PLAYER);
+        Set<BlockPos> teSet = new HashSet<>(chunk.getBlockEntitiesPos());
+	    List<Entity> entList = world.getEntities((Entity) null, bb, EntityUtils.NOT_PLAYER);
 
-        teSetVanilla.forEach(pos -> teSet.add(BlockPos.of(pos)));
         Litematica.debugLog("EntityDataManager#requestBackupBulkEntityData(): for chunkPos {} (minY [{}], maxY [{}]) // Request --> TE: [{}], E: [{}]", chunkPos.toString(), minY, maxY, teSet.size(), entList.size());
         //System.out.printf("0: ChunkPos [%s], Box [%s] // teSet [%d], entList [%d]\n", chunkPos.toString(), bb.toString(), teSet.size(), entList.size());
 
@@ -944,7 +942,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
             for (int i = 0; i < tileList.size(); ++i)
             {
 				CompoundData te = tileList.getCompoundAt(i);
-                BlockPos pos = BlockPos.of(DataTypeUtils.readBlockPos(te));
+                BlockPos pos = DataTypeUtils.readBlockPos(te);
 //                Identifier type = Identifier.parse(te.getString("id"));
                 this.handleBlockEntityData(pos, te);
             }

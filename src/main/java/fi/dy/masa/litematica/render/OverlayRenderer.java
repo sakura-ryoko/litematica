@@ -574,7 +574,7 @@ public class OverlayRenderer
 
                 if (DataManager.getInstance().hasIntegratedServer() == false)
                 {
-                    EntityDataManager.getInstance().requestBlockEntityWrapped(this.mc.level, fi.dy.masa.malilib.util.position.BlockPos.of(pos));
+                    EntityDataManager.getInstance().requestBlockEntityWrapped(this.mc.level, pos);
                 }
 
                 BlockMismatch mismatch = verifier.getMismatchForPosition(pos);
