@@ -8,8 +8,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import fi.dy.masa.malilib.util.position.LayerRange;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.materials.IMaterialList;
 import fi.dy.masa.litematica.materials.MaterialListEntry;

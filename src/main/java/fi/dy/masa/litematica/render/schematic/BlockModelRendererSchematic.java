@@ -298,6 +298,6 @@ public class BlockModelRendererSchematic
 			}
 	    }
 
-	    out.put(v3.x, v3.y, v3.z, bakedQuad, this.quadInst);
+	    out.put(v3.x(), v3.y(), v3.z(), bakedQuad, this.quadInst);
     }
 }
