@@ -31,9 +31,9 @@ public abstract class MixinAbstractContainerScreen extends Screen
         MaterialListHudRenderer.renderLookedAtBlockInInventory(GuiContext.fromGuiGraphics(graphics), (AbstractContainerScreen<?>) (Object) this, this.minecraft);
     }
 
-    @Inject(method = "extractRenderState", at = @At("TAIL"))
-    private void litematica_renderSlotHighlightsPost(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci)
-    {
-        MaterialListHudRenderer.renderLookedAtBlockInInventory(GuiContext.fromGuiGraphics(graphics), (AbstractContainerScreen<?>) (Object) this, this.minecraft);
-    }
+//    @Inject(method = "extractRenderState", at = @At("TAIL"))
+//    private void litematica_renderSlotHighlightsPost(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci)
+//    {
+//        MaterialListHudRenderer.renderLookedAtBlockInInventory(GuiContext.fromGuiGraphics(graphics), (AbstractContainerScreen<?>) (Object) this, this.minecraft);
+//    }
 }
