@@ -266,8 +266,8 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
     public static void highlightSlotsWithItem(GuiContext ctx, ItemStack referenceItem, AbstractContainerScreen<?> gui, Color4f color, Minecraft mc)
     {
         List<Slot> slots = gui.getMenu().slots;
-        int guiX = ((IMixinAbstractContainerScreen) gui).litematica_getX();
-        int guiY = ((IMixinAbstractContainerScreen) gui).litematica_getY();
+//        int guiX = ((IMixinAbstractContainerScreen) gui).litematica_getX();
+//        int guiY = ((IMixinAbstractContainerScreen) gui).litematica_getY();
 
         for (Slot slot : slots)
         {
@@ -276,17 +276,24 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
                  InventoryUtils.doesShulkerBoxContainItem(slot.getItem(), referenceItem) ||
                  InventoryUtils.doesBundleContainItem(slot.getItem(), referenceItem)))
             {
-                renderOutlinedBox(ctx, guiX + slot.x, guiY + slot.y, 16, 16, color.intValue, color.intValue | 0xFF000000, 1f);
+                // guiX + slot.x, guiY + slot.y
+                renderOutlinedBox(ctx, slot.x, slot.y, 16, 16, color.intValue, color.intValue | 0xFF000000);
             }
         }
     }
 
-    public static void renderOutlinedBox(GuiContext ctx, int x, int y, int width, int height, int colorBg, int colorBorder, float zLevel)
+    public static void renderOutlinedBox(GuiContext ctx, int x, int y, int width, int height, int colorBg, int colorBorder)
     {
         // Draw the background
         RenderUtils.drawRect(ctx, x + 1, y + 1, width - 2, height - 2, colorBg);    // zLevel
 
         // Draw the border
         RenderUtils.drawOutline(ctx, x, y, width, height, 1, colorBorder);    // zLevel
+    }
+
+    @Deprecated(forRemoval = true)
+    public static void renderOutlinedBox(GuiContext ctx, int x, int y, int width, int height, int colorBg, int colorBorder, float zLevel)
+    {
+        renderOutlinedBox(ctx, x, y, width, height, colorBg, colorBorder);
     }
 }
