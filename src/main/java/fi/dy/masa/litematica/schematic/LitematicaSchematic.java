@@ -2136,7 +2136,7 @@ public class LitematicaSchematic
     {
         Vec3i size = readSizeFromTagImpl(tag);
 
-        if (tag.contains("palette") &&
+        if ((tag.contains("palette") || tag.contains("palettes")) &&
             tag.contains("blocks") &&
             isSizeValid(size))
         {
@@ -2169,11 +2169,29 @@ public class LitematicaSchematic
     {
         Vec3i size = readSizeFromTagImpl(tag);
 
-        if (tag.contains("palette") &&
+        if ((tag.contains("palette") || tag.contains("palettes")) &&
             tag.contains("blocks") &&
             isSizeValid(size))
         {
-            ListTag paletteTag = tag.getListOrEmpty("palette");
+            ListTag paletteTag;
+
+            if (tag.contains("palette"))
+            {
+                paletteTag = tag.getListOrEmpty("palette");
+            }
+            else if (tag.contains("palettes"))
+            {
+                ListTag palettes = tag.getListOrEmpty("palettes");
+                final int pSize = palettes.size();
+                Random rand = new Random();
+                int seed = rand.nextInt(0, (pSize - 1));
+
+                paletteTag = palettes.getListOrEmpty(seed);
+            }
+            else
+            {
+                return false;
+            }
             int minecraftDataVersion = tag.contains("DataVersion") ? tag.getIntOr("DataVersion", Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue()) : Configs.Generic.DATAFIXER_DEFAULT_SCHEMA.getIntegerValue();
 
             Map<BlockPos, CompoundTag> tileMap = new HashMap<>();
