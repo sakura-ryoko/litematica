@@ -107,6 +107,11 @@ public class GpuBufferCache implements AutoCloseable
         this.overlayBuffers.clear();
     }
 
+    protected boolean isEmpty()
+    {
+        return this.blockBuffers.isEmpty() && this.overlayBuffers.isEmpty();
+    }
+
     @Override
     public void close() throws Exception
     {

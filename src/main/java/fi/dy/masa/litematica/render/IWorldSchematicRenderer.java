@@ -65,11 +65,9 @@ public interface IWorldSchematicRenderer
 
 	ProfilerFiller getProfiler();
 
-//	BlockModelRendererSchematic getBlockRenderer();
+	ChunkRenderGpuDispatcher getChunkRendererGpuDispatcher();
 
 	BlockEntityRenderDispatcher getBlockEntityRenderer();
-
-//	FluidModelRendererSchematic getFluidRenderer();
 
 	EntityRenderDispatcher getEntityRenderer();
 
