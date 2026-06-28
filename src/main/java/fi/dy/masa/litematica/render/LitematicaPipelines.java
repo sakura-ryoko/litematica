@@ -45,9 +45,9 @@ public class LitematicaPipelines
 //	public static RenderPipeline TRANSLUCENT_BLOCK_OFFSET;
 //
 //	// todo LEGACY_TERRAIN Snippet
+//  public static BindGroupLayout LEGACY_TERRAIN_GROUP;
 //	public static RenderPipeline.Snippet LEGACY_TERRAIN_STAGE;
 //	public static RenderPipeline.Snippet LEGACY_TERRAIN_TRANSLUCENT_STAGE;
-//	public static RenderPipeline.Snippet LEGACY_TERRAIN_MASA_STAGE;
 //
 //	// LEGACY_TERRAIN
 //	public static RenderPipeline LEGACY_SOLID_TERRAIN;

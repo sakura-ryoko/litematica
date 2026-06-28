@@ -117,8 +117,15 @@ public class LitematicaRenderer
 //        Litematica.LOGGER.error("LitematicaRenderer.onEndFrame()");
         // Don't initialize early.
         if (this.worldRenderer == null) { return; }
-        if (this.getWorldRenderer().getChunkFixUniform() == null) { return; }
-        this.getWorldRenderer().getChunkFixUniform().endFrame();
+
+        if (this.getWorldRenderer().getChunkFixUniform() != null)
+        {
+            this.getWorldRenderer().getChunkFixUniform().endFrame();
+        }
+//        if (this.getWorldRenderer().getLegacyTerrainFixUniform() != null)
+//        {
+//            this.getWorldRenderer().getLegacyTerrainFixUniform().endFrame();
+//        }
 
         // Why Iris?
         if (IrisCompat.isShaderActive())
@@ -131,6 +138,7 @@ public class LitematicaRenderer
     {
 //        Litematica.LOGGER.error("LitematicaRenderer.onClose()");
         this.getWorldRenderer().clearChunkFixUniform();
+//        this.getWorldRenderer().clearLegacyTerrainFixUniform();
         this.getWorldRenderer().closeGpuSampler();
 
         // Why Iris?
