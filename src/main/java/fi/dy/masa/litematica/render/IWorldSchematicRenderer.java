@@ -33,10 +33,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
-import fi.dy.masa.litematica.render.schematic.BlockModelRendererSchematic;
-import fi.dy.masa.litematica.render.schematic.FluidModelRendererSchematic;
-import fi.dy.masa.litematica.render.schematic.IBlockOutputSchematic;
-import fi.dy.masa.litematica.render.schematic.SchematicRenderState;
+import fi.dy.masa.litematica.render.schematic.*;
 import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -65,11 +62,9 @@ public interface IWorldSchematicRenderer
 
 	ProfilerFiller getProfiler();
 
-//	BlockModelRendererSchematic getBlockRenderer();
+	ChunkRenderGpuDispatcher getChunkRendererGpuDispatcher();
 
 	BlockEntityRenderDispatcher getBlockEntityRenderer();
-
-//	FluidModelRendererSchematic getFluidRenderer();
 
 	EntityRenderDispatcher getEntityRenderer();
 

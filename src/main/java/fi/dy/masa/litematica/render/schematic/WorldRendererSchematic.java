@@ -106,6 +106,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private Set<ChunkRendererSchematicVbo> chunksToUpdate;
     private WorldSchematic world;
     private ChunkRenderDispatcherSchematic chunkRendererDispatcher;
+    private ChunkRenderGpuDispatcher chunkRendererGpuDispatcher;
     private GpuBufferSlice vanillaFogBuffer;
     private GpuSampler gpuSampler;
     private ProfilerFiller profiler;
@@ -119,8 +120,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     private float lastCameraYaw;
     private ChunkRenderDispatcherLitematica renderDispatcher;
     private final IChunkRendererFactory renderChunkFactory;
-    //private ShaderGroup entityOutlineShader;
-    //private boolean entityOutlinesRendered;
 
     private final HashMap<Vec3, UUID> renderedEntities;
     private int renderDistanceChunks;
@@ -177,8 +176,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     public String getDebugInfoRenders()
     {
         int rcTotal = this.chunkRendererDispatcher != null ? this.chunkRendererDispatcher.getRendererCount() : 0;
+        int rcGpuTotal = this.chunkRendererGpuDispatcher != null ? this.chunkRendererGpuDispatcher.size() : 0;
         int rcRendered = this.chunkRendererDispatcher != null ? this.getRenderedChunks() : 0;
-        return String.format("C: %02d/%02d %sD: %02d, L: %02d, %s", rcRendered, rcTotal, this.mc.smartCull ? "(s) " : "", this.renderDistanceChunks, 0, this.renderDispatcher == null ? "null" : this.renderDispatcher.getDebugInfo());
+        return String.format(
+                "C: %02d/%02d gU: %02d, %sD: %02d, L: %02d, %s", rcRendered, rcTotal, rcGpuTotal,
+                this.mc.smartCull ? "(s) " : "",
+                this.renderDistanceChunks, 0,
+                this.renderDispatcher == null ? "null" : this.renderDispatcher.getDebugInfo());
     }
 
     @Override
@@ -219,6 +223,13 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
 
         return this.profiler;
+    }
+
+    @Override
+    @Nullable
+    public ChunkRenderGpuDispatcher getChunkRendererGpuDispatcher()
+    {
+        return this.chunkRendererGpuDispatcher;
     }
 
     @Override
@@ -324,6 +335,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 this.chunkRendererDispatcher = null;
             }
 
+            if (this.chunkRendererGpuDispatcher != null)
+            {
+                this.chunkRendererGpuDispatcher.destroy();
+                this.chunkRendererGpuDispatcher = null;
+            }
+
             if (this.renderDispatcher != null)
             {
                 this.renderDispatcher.stopWorkerThreads();
@@ -377,6 +394,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                 this.chunkRendererDispatcher.delete();
             }
 
+            if (this.chunkRendererGpuDispatcher != null)
+            {
+                this.chunkRendererGpuDispatcher.destroy();
+                this.chunkRendererGpuDispatcher = null;
+            }
+
             this.stopChunkUpdates(profiler);
 			this.clearWorldRenderStates();
 
@@ -388,6 +411,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             BlockModelCacheSchematic.INSTANCE.onLoadRenderers();
 
             this.chunkRendererDispatcher = new ChunkRenderDispatcherSchematic(this.world, this.renderDistanceChunks, this, this.renderChunkFactory);
+            this.chunkRendererGpuDispatcher = new ChunkRenderGpuDispatcher(this.world, this);
             this.renderEntitiesStartupCounter = 2;
 
             profiler.pop();
@@ -446,7 +470,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             this.lastCameraChunkUpdateX = entityX;
             this.lastCameraChunkUpdateY = entityY;
             this.lastCameraChunkUpdateZ = entityZ;
-            this.chunkRendererDispatcher.removeOutOfRangeRenderers();
+            this.chunkRendererDispatcher.removeOutOfRangeRenderers(this.chunkRendererGpuDispatcher);
         }
 
         Vec3 cameraPos = camera.position();
@@ -722,6 +746,8 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             final ChunkRenderDataSchematic data = renderer.getChunkRenderData();
             final ChunkMeshDataSchematic chunkMeshData = data.getMeshDataCache();
             final BlockPos chunkOrigin = renderer.getOrigin();
+            final ChunkPos chunkPos = renderer.getChunkPos();
+            final ChunkRenderGpuUploader gpuUploader = this.chunkRendererGpuDispatcher.addOrGetUploader(chunkPos.x(), chunkPos.z());
 //            long now = System.currentTimeMillis();
 //            int uboIndex = -1;
 
@@ -731,11 +757,11 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!data.isBlockLayerEmpty(layer))
                 {
-                    ChunkRenderGpuBuffers buffers = renderer.getBuffersOrNull(layer);
+                    ChunkRenderGpuBuffers buffers = gpuUploader.buffersOrNull(layer);
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(layer))
                     {
-//                        LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
+                        LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
                         continue;
                     }
 
@@ -1030,15 +1056,17 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             {
                 final ChunkRenderDataSchematic compiledChunk = renderer.getChunkRenderData();
                 final ChunkMeshDataSchematic chunkMeshData = compiledChunk.getMeshDataCache();
+                final BlockPos chunkOrigin = renderer.getOrigin();
+                final ChunkPos cp = renderer.getChunkPos();
+                ChunkRenderGpuUploader gpuUploader = this.chunkRendererGpuDispatcher.addOrGetUploader(cp.x(), cp.z());
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-                    ChunkRenderGpuBuffers buffers = renderer.getBuffersOrNull(type);
-                    BlockPos chunkOrigin = renderer.getOrigin();
+                    ChunkRenderGpuBuffers buffers = gpuUploader.buffersOrNull(type);
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
                     {
-//                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
+                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
                     }
 

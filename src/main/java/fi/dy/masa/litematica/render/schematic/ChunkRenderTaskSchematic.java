@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.litematica.Litematica;
@@ -62,6 +63,11 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         }
 
         return this.chunkRenderData.get();
+    }
+
+    protected ChunkPos getChunkPos()
+    {
+        return this.getRenderChunk().getChunkPos();
     }
 
     protected void updateChunkRenderData(ChunkRenderDataSchematic data)
