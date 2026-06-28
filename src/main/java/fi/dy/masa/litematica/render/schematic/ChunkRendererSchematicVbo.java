@@ -589,7 +589,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             if (stateSchematic.hasBlockEntity())
             {
 //                LOGGER.warn("[VBO] Chunk: {} // addBlockEntity - state [{}]", this.chunkPosition.toString(), stateSchematic.toString());
-                this.addBlockEntity(stateSchematic, pos, chunkMeshData);
+                this.addBlockEntity(stateSchematic, pos, data);
             }
 
             boolean translucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
