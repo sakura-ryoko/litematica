@@ -731,7 +731,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!data.isBlockLayerEmpty(layer))
                 {
-                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
+                    ChunkRenderGpuBuffers buffers = renderer.getBuffersOrNull(layer);
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(layer))
                     {
@@ -1033,7 +1033,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(type);
+                    ChunkRenderGpuBuffers buffers = renderer.getBuffersOrNull(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
@@ -1113,7 +1113,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     // Probably not the most efficient way; but it works.
     private void drawOverlayInternal(OverlayRenderType type,
                                      RenderPipeline pipeline,
-                                     ChunkRenderBuffers buffers,
+                                     ChunkRenderGpuBuffers buffers,
                                      int color, float[] offset,
                                      boolean useColor, boolean useOffset) throws RuntimeException
     {

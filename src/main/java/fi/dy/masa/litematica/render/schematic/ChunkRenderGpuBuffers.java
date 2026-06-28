@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 
-public class ChunkRenderBuffers implements AutoCloseable
+public class ChunkRenderGpuBuffers implements AutoCloseable
 {
     private final Supplier<String> name;
     protected volatile GpuBuffer vertexBuffer;
@@ -15,10 +15,10 @@ public class ChunkRenderBuffers implements AutoCloseable
     private volatile int indexCount;
     private volatile IndexType indexType;
 
-    protected ChunkRenderBuffers(Supplier<String> name,
-                                 GpuBuffer vertexBuffer,
-                                 @Nullable GpuBuffer indexBuffer,
-                                 int indexCount, IndexType indexType)
+    protected ChunkRenderGpuBuffers(Supplier<String> name,
+                                    GpuBuffer vertexBuffer,
+                                    @Nullable GpuBuffer indexBuffer,
+                                    int indexCount, IndexType indexType)
     {
         this.name = name;
         this.vertexBuffer = vertexBuffer;

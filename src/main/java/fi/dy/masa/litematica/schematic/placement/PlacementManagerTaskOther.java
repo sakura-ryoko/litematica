@@ -9,17 +9,25 @@ public class PlacementManagerTaskOther extends PlacementManagerTask
 {
 	private final Runnable task;
 
-	protected PlacementManagerTaskOther(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ,
-	                                    @Nonnull Runnable task)
+	public PlacementManagerTaskOther(Supplier<WorldSchematic> worldSupplier, int chunkX, int chunkZ,
+	                                 @Nonnull Runnable task)
 	{
 		super(worldSupplier, chunkX, chunkZ);
 		this.task = task;
+
+		if (worldSupplier == null || worldSupplier.get() == null)
+		{
+			this.finish();
+		}
 	}
 
 	@Override
 	public void run()
 	{
-		this.task.run();
+		if (!this.isFinished())
+		{
+			this.task.run();
+		}
 	}
 
 	@Override
