@@ -57,23 +57,23 @@ public class ChunkRenderDispatcherSchematic
         this.chunkRenderers.clear();
     }
 
-    private boolean rendererOutOfRange(ChunkRendererSchematicVbo cr)
-    {
-        if (cr == null) return false;
-
-        if (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty())     // Also remove "Empty" chunks, and clear resources.
-        {
-            try
-            {
-                cr.deleteGlResources();
-            }
-            catch (Exception ignored) {}
-
-            return true;
-        }
-
-        return false;
-    }
+//    private boolean rendererOutOfRange(ChunkRendererSchematicVbo cr)
+//    {
+//        if (cr == null) return false;
+//
+//        if (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty())     // Also remove "Empty" chunks, and clear resources.
+//        {
+//            try
+//            {
+//                cr.deleteGlResources();
+//            }
+//            catch (Exception ignored) {}
+//
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
     protected void removeOutOfRangeRenderers()
     {
@@ -88,7 +88,7 @@ public class ChunkRenderDispatcherSchematic
             {
                 ChunkRendererSchematicVbo cr = entry.getValue();
 
-                if (this.rendererOutOfRange(cr))
+                if (cr != null && (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty()))
                 {
                     try
                     {

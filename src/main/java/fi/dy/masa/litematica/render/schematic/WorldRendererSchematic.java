@@ -679,7 +679,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         profiler.push("layer_multi_phase");
 
 	    List<DynamicUniforms.Transform> transformValues = new ArrayList<>();
-//        EnumMap<ChunkSectionLayer, Int2ObjectOpenHashMap<List<RenderPass.Draw<GpuBufferSlice[]>>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
         EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> renderMap = new EnumMap<>(ChunkSectionLayer.class);
 
         for (ChunkSectionLayer layer : ChunkSectionLayer.values())
@@ -733,12 +732,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!data.isBlockLayerEmpty(layer))
                 {
-                    // New
-//                    ChunkMeshDataSchematic.DrawState drawState = chunkMeshData.getDrawState(layer);
-//                    ChunkRenderBufferSlice slice = renderer.getUberSlice(chunkMeshData, layer);
-
-                    // Old
-                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(layer);
+                    ChunkRenderGpuBuffers buffers = renderer.getBuffersOrNull(layer);
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(layer))
                     {
@@ -765,70 +759,10 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                         indexType = buffers.getIndexType();
                     }
 
-                    // New
-//                    if (slice != null && drawState != null &&
-//                        (!drawState.hasIndexBuffer() || slice.indexBuffer() != null))
-//                    {
-//                        if (uboIndex == -1)
-//                        {
-//                            uboIndex = transformValues.size();
-//                            transformValues.add(new DynamicUniforms.Transform(
-//                                    matrix4fc,
-//                                    colorMod,
-//                                    new Vector3f((float) (chunkOrigin.getX() - cameraX), (float) (chunkOrigin.getY() - cameraY), (float) (chunkOrigin.getZ() - cameraZ)),
-//                                    texMatrix
-//                            ));
-//                        }
-//                    }
-//
-//                    if (slice == null || drawState == null)
-//                    {
-//                        continue;
-//                    }
-//
-//                    // Old
                     int pos = transformValues.size();
 
-//                    int hash = 173;
-                    VertexFormat vf = layer.pipeline().getVertexFormat();
-//                    GpuBuffer vbo = slice.vertexBuffer();
-//
-//                    if (layer != ChunkSectionLayer.TRANSLUCENT)
-//                    {
-//                        hash = 31 * hash + vbo.hashCode();
-//                    }
-//
-//                    int index = 0;
-//                    GpuBuffer ibo;
-//                    VertexFormat.IndexType indexType;
-//
-//                    if (!drawState.hasIndexBuffer())
-//                    {
-//                        if (drawState.indexCount() > indexCount)
-//                        {
-//                            indexCount = drawState.indexCount();
-//                        }
-//
-//                        ibo = null;
-//                        indexType = null;
-//                    }
-//                    else
-//                    {
-//                        ibo = slice.indexBuffer();
-//                        indexType = drawState.indexType();
-//
-//                        if (layer != ChunkSectionLayer.TRANSLUCENT)
-//                        {
-//                            hash = 31 * hash + ibo.hashCode();
-//                            hash = 31 * hash + indexType.hashCode();
-//                        }
-//
-//                        index = (int) (slice.indexBufferOffset() / indexType.bytes);
-//                    }
-//
-//                    int finalIdx = uboIndex;
-//                    int vertex = (int) (slice.vertexBufferOffset() / vf.getVertexSize());
-//
+                    VertexFormat vf = layer.pipeline().getVertexFormatBinding(0);
+
                     transformValues.add(new DynamicUniforms.Transform(
                             matrix4fc,
                             colorMod,
@@ -836,16 +770,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                             texMatrix
                     ));
 
-                    // New
-//                    List<RenderPass.Draw<GpuBufferSlice[]>> drawSlices = renderMap.get(layer)
-//                            .computeIfAbsent(hash,
-//                                             (Int2ObjectFunction<? extends List<RenderPass.Draw<GpuBufferSlice[]>>>)(var0 -> new ArrayList<>())
-//                            );
-
                     renderMap.get(layer).add(
                             new RenderPass.Draw<>(
                                      0,
-    // OLD
                                      buffers.getVertexBuffer(),
                                      indexBuffer, indexType,
                                      0,
@@ -853,10 +780,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                                      0,
                                      (slices, uploader) ->
                                              uploader.upload("DynamicTransforms", ((GpuBufferSlice[]) slices)[pos])
-//                                     vbo, ibo,
-//                                     indexType, index,
-//                                     drawState.indexCount(), vertex,
-//                                     (ubos, uploader) -> uploader.upload("DynamicTransforms", ubos[finalIdx])
                              ));
 
                     startedDrawing = true;
@@ -908,6 +831,12 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             {
                 sampler = this.getGpuSampler();
             }
+
+//            if (IrisCompat.isShaderActive() && !IrisRenderingFix.INSTANCE.wasWarned)
+//            {
+//               InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.warn.shaders_on");
+//                IrisRenderingFix.INSTANCE.wasWarned = true;
+//            }
 
             this.getSchematicRenderState().getBatchDraw().draw(group, sampler, this.profiler);
             RenderSystem.setShaderFog(this.vanillaFogBuffer);
@@ -1105,7 +1034,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                 if (!compiledChunk.isOverlayTypeEmpty(type))
                 {
-                    ChunkRenderBuffers buffers = renderer.getBuffersOrNull(type);
+                    ChunkRenderGpuBuffers buffers = renderer.getBuffersOrNull(type);
                     BlockPos chunkOrigin = renderer.getOrigin();
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
@@ -1116,7 +1045,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     matrix4fStack.pushMatrix();
                     matrix4fStack.translate((float) (chunkOrigin.getX() - x), (float) (chunkOrigin.getY() - y), (float) (chunkOrigin.getZ() - z));
-                    this.drawOverlayInternal(pipeline, buffers, -1, offset, false, false);
+                    this.drawOverlayInternal(type, pipeline, buffers, -1, offset, false, false);
                     matrix4fStack.popMatrix();
                 }
             }
@@ -1183,8 +1112,9 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     }
 
     // Probably not the most efficient way; but it works.
-    private void drawOverlayInternal(RenderPipeline pipeline,
-                                     ChunkRenderBuffers buffers,
+    private void drawOverlayInternal(OverlayRenderType type,
+                                     RenderPipeline pipeline,
+                                     ChunkRenderGpuBuffers buffers,
                                      int color, float[] offset,
                                      boolean useColor, boolean useOffset) throws RuntimeException
     {

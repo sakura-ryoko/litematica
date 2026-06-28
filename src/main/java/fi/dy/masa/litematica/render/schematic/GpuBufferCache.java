@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 
 public class GpuBufferCache implements AutoCloseable
 {
-    private final ConcurrentHashMap<ChunkSectionLayer, ChunkRenderBuffers> blockBuffers;
-    private final ConcurrentHashMap<OverlayRenderType, ChunkRenderBuffers> overlayBuffers;
+    private final ConcurrentHashMap<ChunkSectionLayer, ChunkRenderGpuBuffers> blockBuffers;
+    private final ConcurrentHashMap<OverlayRenderType, ChunkRenderGpuBuffers> overlayBuffers;
 
     protected GpuBufferCache()
     {
@@ -27,9 +27,9 @@ public class GpuBufferCache implements AutoCloseable
         return this.overlayBuffers.containsKey(type);
     }
 
-    protected void saveBuffers(ChunkSectionLayer layer, @Nonnull ChunkRenderBuffers newBuffer)
+    protected void saveBuffers(ChunkSectionLayer layer, @Nonnull ChunkRenderGpuBuffers newBuffer)
     {
-        ChunkRenderBuffers remove = this.blockBuffers.put(layer, newBuffer);
+        ChunkRenderGpuBuffers remove = this.blockBuffers.put(layer, newBuffer);
 
         if (remove != null)
         {
@@ -44,9 +44,9 @@ public class GpuBufferCache implements AutoCloseable
         }
     }
 
-    protected void saveBuffers(OverlayRenderType type, @Nonnull ChunkRenderBuffers newBuffer)
+    protected void saveBuffers(OverlayRenderType type, @Nonnull ChunkRenderGpuBuffers newBuffer)
     {
-        ChunkRenderBuffers remove = this.overlayBuffers.put(type, newBuffer);
+        ChunkRenderGpuBuffers remove = this.overlayBuffers.put(type, newBuffer);
 
         if (remove != null)
         {
@@ -62,13 +62,13 @@ public class GpuBufferCache implements AutoCloseable
     }
 
     @Nullable
-    protected ChunkRenderBuffers getBuffersOrNull(ChunkSectionLayer layer)
+    protected ChunkRenderGpuBuffers getBuffersOrNull(ChunkSectionLayer layer)
     {
         return this.blockBuffers.get(layer);
     }
 
     @Nullable
-    protected ChunkRenderBuffers getBuffersOrNull(OverlayRenderType type)
+    protected ChunkRenderGpuBuffers getBuffersOrNull(OverlayRenderType type)
     {
         return this.overlayBuffers.get(type);
     }
