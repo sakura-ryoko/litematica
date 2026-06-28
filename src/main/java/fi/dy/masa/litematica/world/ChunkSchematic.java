@@ -174,8 +174,7 @@ public class ChunkSchematic extends LevelChunk
         {
             BlockState teState = te.getBlockState();
 
-            if (!teState.equals(currState) &&
-                te.getType().isValid(currState))
+            if (!teState.equals(currState) && te.getType().isValid(currState))
             {
                 if (!currState.getBlock().equals(teState.getBlock()))
                 {

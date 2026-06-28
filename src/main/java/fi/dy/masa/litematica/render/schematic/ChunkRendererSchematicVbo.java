@@ -32,6 +32,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -631,7 +632,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
             if (hasTE)
             {
 //                LOGGER.warn("[VBO] Chunk: {} // addBlockEntity - state [{}]", this.chunkPosition.toString(), stateSchematic.toString());
-                this.addBlockEntity(pos, chunkMeshData);
+                this.addBlockEntity(stateSchematic, pos, chunkMeshData);
             }
 
             // TODO change when the fluids become separate
@@ -1174,9 +1175,20 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
         return overlayColor;
     }
 
-    private <T extends BlockEntity> void addBlockEntity(BlockPos pos, ChunkMeshDataSchematic chunkMeshData)
+    private <T extends BlockEntity> void addBlockEntity(BlockState state, BlockPos pos, ChunkMeshDataSchematic chunkMeshData)
     {
         BlockEntity te = this.schematicWorldView.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+
+        if (te == null)
+        {
+            te = ((EntityBlock) state.getBlock()).newBlockEntity(pos, state);
+
+            if (te != null)
+            {
+                this.schematicWorldView.world.getChunkAt(pos).addAndRegisterBlockEntity(te);
+                this.schematicWorldView.addBlockEntity(pos, te);
+            }
+        }
 
         if (te != null)
         {
