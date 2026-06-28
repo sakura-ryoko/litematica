@@ -169,6 +169,28 @@ public class LitematicaRenderer
 		this.getWorldRenderer().updateCameraState(camera, tickProgress, cameraState);
 	}
 
+    public void updateConfigState()
+    {
+        boolean render = Configs.Visuals.ENABLE_RENDERING.getBooleanValue();
+        this.renderPiecewiseSchematic = false;
+        this.renderPiecewiseBlocks = false;
+        this.renderPiecewiseEntities = false;
+        this.renderPiecewiseTileEntities = false;
+        this.camera = null;
+        this.frustum = null;
+
+        if (render)
+        {
+            boolean invert = Hotkeys.INVERT_GHOST_BLOCK_RENDER_STATE.getKeybind().isKeybindHeld();
+            this.renderPiecewiseSchematic = Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() != invert;
+            this.renderPiecewiseBlocks = this.renderPiecewiseSchematic && Configs.Visuals.ENABLE_SCHEMATIC_BLOCKS.getBooleanValue();
+//            this.renderCollidingSchematicBlocks = Configs.Visuals.RENDER_COLLIDING_SCHEMATIC_BLOCKS.getBooleanValue();
+            this.renderPiecewiseEntities = this.renderPiecewiseSchematic && Configs.Visuals.RENDER_SCHEMATIC_ENTITIES.getBooleanValue();
+            this.renderPiecewiseTileEntities = this.renderPiecewiseSchematic && Configs.Visuals.RENDER_SCHEMATIC_TILE_ENTITIES.getBooleanValue();
+            this.renderEntityDebugHitboxes = this.renderPiecewiseEntities && Configs.Visuals.ENABLE_SCHEMATIC_ENTITY_HITBOXES.getBooleanValue();
+        }
+    }
+
     public void piecewisePrepare(Frustum frustum, ProfilerFiller profiler)
     {
 //        LOGGER.error("[LR] piecewisePrepare()");
