@@ -764,7 +764,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(layer))
                     {
-                        LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
+//                        LOGGER.error("Layer [{}], ChunkOrigin [{}], NO BUFFERS!", layer.name(), chunkOrigin.toShortString());
                         continue;
                     }
 
@@ -1081,7 +1081,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     if (buffers == null || buffers.isClosed() || !chunkMeshData.hasMeshData(type))
                     {
-                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
+//                        LOGGER.error("Overlay [{}], ChunkOrigin [{}], NO BUFFERS", type.name(), chunkOrigin.toShortString());
                         continue;
                     }
 

@@ -1176,10 +1176,10 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 				}
 			}
 		}
-		else
-		{
-			LOGGER.error("[VBO] addBlockEntity: Block Entity not found at {}", pos.toShortString());
-		}
+//		else
+//		{
+//			LOGGER.error("[VBO] addBlockEntity: Block Entity not found at {}", pos.toShortString());
+//		}
 	}
 
 	private BufferBuilder preRenderBlocks(ChunkRenderDispatcherBuffers pack, ChunkSectionLayer layer)
