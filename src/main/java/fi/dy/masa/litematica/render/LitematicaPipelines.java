@@ -3,8 +3,6 @@ package fi.dy.masa.litematica.render;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-
 @ApiStatus.Internal
 @VisibleForTesting
 @Deprecated
@@ -63,9 +61,9 @@ public class LitematicaPipelines
 //	public static RenderPipeline DEBUG_LINES_MASA_SIMPLE;
 //
 //	// todo LEGACY_TERRAIN Snippet
+//  public static BindGroupLayout LEGACY_TERRAIN_GROUP;
 //	public static RenderPipeline.Snippet LEGACY_TERRAIN_STAGE;
 //	public static RenderPipeline.Snippet LEGACY_TERRAIN_TRANSLUCENT_STAGE;
-//	public static RenderPipeline.Snippet LEGACY_TERRAIN_MASA_STAGE;
 //
 //	// LEGACY_TERRAIN
 //	public static RenderPipeline LEGACY_SOLID_TERRAIN;

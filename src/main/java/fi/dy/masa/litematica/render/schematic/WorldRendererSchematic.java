@@ -91,7 +91,10 @@ import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
-import fi.dy.masa.litematica.util.invoker.*;
+import fi.dy.masa.litematica.util.invoker.IAvatarInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityInvoker;
+import fi.dy.masa.litematica.util.invoker.IEntityRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -900,6 +903,18 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
     {
         this.getSchematicRenderState().clearChunkFixUniform();
     }
+
+//    @Override
+//    public LegacyTerrainFixUniform getLegacyTerrainFixUniform()
+//    {
+//        return this.getSchematicRenderState().legacyTerrainFix;
+//    }
+//
+//    @Override
+//    public void clearLegacyTerrainFixUniform()
+//    {
+//        this.getSchematicRenderState().clearLegacyTerrainFixUniform();
+//    }
 
     @Override
 	public void clearWorldRenderStates()

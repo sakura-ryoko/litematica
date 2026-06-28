@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -15,6 +16,7 @@ public class SchematicRenderState
 	protected final List<EntityRenderState> entityStates;
 	protected ChunkRenderBatchDraw batchDraw;
 	protected ChunkFixUniform chunkFixUniform;
+//	protected LegacyTerrainFixUniform legacyTerrainFix;
 
 	protected SchematicRenderState()
 	{
@@ -23,6 +25,7 @@ public class SchematicRenderState
 		this.entityStates = new ArrayList<>();
 		this.batchDraw = null;
 		this.chunkFixUniform = new ChunkFixUniform();
+//		this.legacyTerrainFix = new LegacyTerrainFixUniform();
 	}
 
 	protected boolean hasBatchDraw()
@@ -52,4 +55,15 @@ public class SchematicRenderState
 		catch (Exception _) {}
 		this.chunkFixUniform = new ChunkFixUniform();
 	}
+
+	// Performed under `endFrame()`
+//	protected void clearLegacyTerrainFixUniform()
+//	{
+//		try
+//		{
+//			this.legacyTerrainFix.close();
+//		}
+//		catch (Exception _) {}
+//		this.legacyTerrainFix = new LegacyTerrainFixUniform();
+//	}
 }

@@ -124,6 +124,8 @@ public interface IWorldSchematicRenderer
 
 	ChunkFixUniform getChunkFixUniform();
 
+//	LegacyTerrainFixUniform getLegacyTerrainFixUniform();
+
 	void setGpuSampler(@Nonnull GpuSampler gpuSampler);
 
 	GpuSampler getGpuSampler();
@@ -131,6 +133,8 @@ public interface IWorldSchematicRenderer
 	void closeGpuSampler();
 
 	void clearChunkFixUniform();
+
+//	void clearLegacyTerrainFixUniform();
 
 	void clearWorldRenderStates();
 

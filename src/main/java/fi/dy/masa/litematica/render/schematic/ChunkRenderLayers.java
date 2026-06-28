@@ -41,7 +41,7 @@ public record ChunkRenderLayers()
     public static Pair<RenderPipeline, RenderPipeline> getWireframe()
     {
         return Pair.of(MaLiLibPipelines.LEGACY_WIREFRAME, MaLiLibPipelines.LEGACY_WIREFRAME_OFFSET);
-//        return Pair.of(LitematicaPipelines.WIREFRAME, LitematicaPipelines.WIREFRAME_OFFSET);
+//        return Pair.of(LitematicaPipelines.LEGACY_WIREFRAME, LitematicaPipelines.LEGACY_WIREFRAME_OFFSET);
     }
 
     private static List<OverlayRenderType> getTypes()
