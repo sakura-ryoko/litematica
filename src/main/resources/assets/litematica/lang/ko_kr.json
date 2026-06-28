@@ -357,7 +357,7 @@
     "litematica.config.hotkeys.name.pickBlockToggle": "블록 선택 토글",
     "litematica.config.hotkeys.name.renderInfoOverlay": "렌더 정보 오버레이",
     "litematica.config.hotkeys.name.renderOverlayThroughBlocks": "렌더 오버레이 투시 블록",
-    "litematica.config.hotkeys.name.rerenderSchematic": "렌더러 스키매틱",
+    "litematica.config.hotkeys.name.rerenderSchematic": "스키매틱 재렌더링",
     "litematica.config.hotkeys.name.saveAreaAsInMemorySchematic": "메모리 내 스키매틱으로 영역 저장",
     "litematica.config.hotkeys.name.saveAreaAsSchematicToFile": "스키매틱 파일로 영역 저장",
     "litematica.config.hotkeys.name.schematicEditBreakAllExcept": "스키매틱 편집 모두 파괴 제외",
