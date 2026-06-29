@@ -86,10 +86,10 @@ import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.mixin.entity.IMixinEntity;
 import fi.dy.masa.litematica.render.IWorldSchematicRenderer;
-import fi.dy.masa.litematica.util.invoker.IAvatarInvoker;
-import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
-import fi.dy.masa.litematica.util.invoker.IEntityInvoker;
-import fi.dy.masa.litematica.util.invoker.IEntityRendererInvoker;
+import fi.dy.masa.litematica.util.IAvatarInvoker;
+import fi.dy.masa.litematica.util.IEntityHitboxDebugRendererInvoker;
+import fi.dy.masa.litematica.util.IEntityInvoker;
+import fi.dy.masa.litematica.util.IEntityRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematic;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -790,7 +790,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
 
                     int pos = transformValues.size();
 
-                    VertexFormat vf = layer.pipeline().getVertexFormatBinding(0);
+                    VertexFormat vf = layer.pipeline().getVertexFormat();
 
                     transformValues.add(new DynamicUniforms.Transform(
                             matrix4fc,

@@ -420,7 +420,7 @@ public class ChunkRenderDispatcherLitematica
             uploader.uploadBuffersByType(type, meshData, useResorting);
         }
 
-        if (type.translucent() && useResorting)
+        if (type.isTranslucent() && useResorting)
         {
             MeshData.SortState sorting = chunkMeshData.getTransparentSortingDataForOverlay(type);
 

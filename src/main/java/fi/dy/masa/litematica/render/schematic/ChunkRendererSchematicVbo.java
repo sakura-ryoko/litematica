@@ -1311,7 +1311,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
 			boolean resortOverlays = false;
 
-            if (type.translucent() && resortOverlays)
+            if (type.isTranslucent() && resortOverlays)
             {
                 try
                 {
@@ -1425,7 +1425,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
 			boolean resortOverlays = false;
 
-            if (type.translucent() && resortOverlays)
+            if (type.isTranslucent() && resortOverlays)
             {
 	            MeshData.SortState sortingData;
 	            VertexSorting sorter = VertexSorting.byDistance(x, y, z);
