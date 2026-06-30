@@ -1,35 +1,38 @@
 package fi.dy.masa.litematica.render.schematic;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
-import net.minecraft.world.phys.Vec3;
+import javax.annotation.Nonnull;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
-import fi.dy.masa.litematica.Litematica;
+
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 
 public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchematic>
 {
-    private final ChunkRendererSchematicVbo chunkRenderer;
+    private final AtomicReference<ChunkRendererSchematicVbo> chunkRenderer;
+    private final AtomicReference<ChunkRenderDataSchematic> chunkRenderData;
     private final ChunkRenderTaskSchematic.Type type;
     private final List<Runnable> listFinishRunnables;
     private final ReentrantLock lock;
     private final Supplier<Vec3> cameraPosSupplier;
     private final double distanceSq;
-    private BufferAllocatorCache allocatorCache;
-    private ChunkRenderDataSchematic chunkRenderData;
     private ChunkRenderTaskSchematic.Status status;
     private boolean finished;
 
-    public ChunkRenderTaskSchematic(ChunkRendererSchematicVbo renderChunkIn, ChunkRenderTaskSchematic.Type typeIn, Supplier<Vec3> cameraPosSupplier, double distanceSqIn)
+    public ChunkRenderTaskSchematic(@Nonnull ChunkRendererSchematicVbo renderChunkIn, ChunkRenderTaskSchematic.Type typeIn, Supplier<Vec3> cameraPosSupplier, double distanceSqIn)
     {
-        this.chunkRenderer = renderChunkIn;
         this.type = typeIn;
 		this.listFinishRunnables = Lists.newArrayList();
 	    this.lock = new ReentrantLock();
         this.cameraPosSupplier = cameraPosSupplier;
         this.distanceSq = distanceSqIn;
 	    this.status = ChunkRenderTaskSchematic.Status.PENDING;
+        this.chunkRenderer = new AtomicReference<>(renderChunkIn);
+        this.chunkRenderData = new AtomicReference<>(new ChunkRenderDataSchematic());
     }
 
     public Supplier<Vec3> getCameraPosSupplier()
@@ -44,52 +47,61 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
 
     protected ChunkRendererSchematicVbo getRenderChunk()
     {
-        return this.chunkRenderer;
+        return this.chunkRenderer.get();
     }
 
     protected ChunkRenderDataSchematic getChunkRenderData()
     {
-        return this.chunkRenderData;
+        if (this.chunkRenderData.get() == null || this.chunkRenderData.get().isEmpty())
+        {
+            this.updateChunkRenderData(this.getRenderChunk().getChunkRenderData());
+        }
+
+        return this.chunkRenderData.get();
     }
 
-    protected void setChunkRenderData(ChunkRenderDataSchematic chunkRenderData)
+    protected ChunkPos getChunkPos()
     {
+        return this.getRenderChunk().getChunkPos();
+    }
+
+    protected void updateChunkRenderData(ChunkRenderDataSchematic data)
+    {
+//        LOGGER.warn("[Task] updateChunkRenderData() type: [{}]", this.type.name());
         this.lock.lock();
 
         try
         {
-            if (this.chunkRenderData != null)
-            {
-                this.chunkRenderData.clearAll();
-            }
+//            if (this.chunkRenderData != null)
+//            {
+//                this.chunkRenderData.clearAll();
+//            }
+//
+//            this.chunkRenderData = data;
 
-            this.chunkRenderData = chunkRenderData;
+            if (!data.isEmpty())
+            {
+                ChunkRenderDataSchematic oldData = this.chunkRenderData.getAndSet(data);
+
+                if (oldData != null)
+                {
+//                    LOGGER.error("[Task] updateChunkRenderData() type: [{}] // oldData DUMP -->", this.type.name());
+//                    oldData.dumpRenderDataDebug();
+                    oldData.clearAll();
+                }
+            }
+//            else
+//            {
+//                LOGGER.error("[Task] updateChunkRenderData() newData EMPTY!");
+//            }
+
+//            LOGGER.error("[Task] updateChunkRenderData() type: [{}] // newData DUMP -->", this.type.name());
+//            data.dumpRenderDataDebug();
         }
         finally
         {
             this.lock.unlock();
         }
-    }
-
-    public BufferAllocatorCache getAllocatorCache()
-    {
-        return this.allocatorCache;
-    }
-
-    public boolean setRegionRenderCacheBuilder(BufferAllocatorCache allocatorCache)
-    {
-        if (allocatorCache == null)
-        {
-            Litematica.LOGGER.error("setRegionRenderCacheBuilder() [Task] allocatorCache is null");
-            return false;
-        }
-        if (this.allocatorCache != null && !this.allocatorCache.isClear())
-        {
-            this.allocatorCache.closeAll();
-        }
-
-        this.allocatorCache = allocatorCache;
-        return true;
     }
 
     protected void setStatus(ChunkRenderTaskSchematic.Status statusIn)
@@ -114,7 +126,7 @@ public class ChunkRenderTaskSchematic implements Comparable<ChunkRenderTaskSchem
         {
             if (this.type == ChunkRenderTaskSchematic.Type.REBUILD_CHUNK && this.status != ChunkRenderTaskSchematic.Status.DONE)
             {
-                this.chunkRenderer.setNeedsUpdate(false);
+                this.chunkRenderer.get().setNeedsUpdate(false);
             }
 
             this.finished = true;

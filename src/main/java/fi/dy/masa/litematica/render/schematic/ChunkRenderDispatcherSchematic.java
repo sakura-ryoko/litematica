@@ -57,59 +57,69 @@ public class ChunkRenderDispatcherSchematic
         this.chunkRenderers.clear();
     }
 
-    private boolean rendererOutOfRange(ChunkRendererSchematicVbo cr)
-    {
-        if (cr == null) return false;
-
-        if (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty())     // Also remove "Empty" chunks, and clear resources.
-        {
-            try
-            {
-                cr.deleteGlResources();
-            }
-            catch (Exception ignored) {}
-
-            return true;
-        }
-
-        return false;
-    }
+//    private boolean rendererOutOfRange(ChunkRendererSchematicVbo cr)
+//    {
+//        if (cr == null) return false;
+//
+//        if (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty())     // Also remove "Empty" chunks, and clear resources.
+//        {
+//            try
+//            {
+//                cr.deleteGlResources();
+//            }
+//            catch (Exception ignored) {}
+//
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
     protected void removeOutOfRangeRenderers()
     {
-        RenderSystem.assertOnRenderThread();
+//        RenderSystem.assertOnRenderThread();
 
         // Remove renderers that go out of view distance
         if (!this.chunkRenderers.isEmpty())
         {
             int prevCount = this.chunkRenderers.size();
 
-            this.chunkRenderers.entrySet().removeIf(entry ->
+            try
             {
-                ChunkRendererSchematicVbo cr = entry.getValue();
+                this.chunkRenderers.entrySet()
+                                   .removeIf(entry ->
+                                    {
+                                        ChunkRendererSchematicVbo cr = entry.getValue();
 
-                if (this.rendererOutOfRange(cr))
-                {
-                    try
-                    {
-                        cr.close();
-                    }
-                    catch (Exception ignored) {}
+                                        if (cr != null && (cr.getDistanceSq() > this.viewDistanceBlocksSq || cr.isEmpty()))
+                                        {
+                                            try
+                                            {
+                                                cr.close();
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                if (Reference.DEBUG_MODE)
+                                                {
+                                                    Litematica.debugLog("removeOutOfRangeRenderers: cr.close() threw an exception; {}", e.getLocalizedMessage());
+                                                }
+                                            }
 
-                    return true;
-                }
-                else
+                                            return true;
+                                        }
+                                        else
+                                        {
+                                            return false;
+                                        }
+                                    });
+            }
+            catch (Exception e)
+            {
+                if (Reference.DEBUG_MODE)
                 {
-                    return false;
+                    Litematica.debugLog("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getLocalizedMessage());
                 }
-            });
-//            catch (Exception e)
-//            {
-//                if (Reference.DEBUG_MODE)
-//                {
-//                    Litematica.debugLog("removeOutOfRangeRenderers: keySet() threw an exception; {}", e.getLocalizedMessage());
-//                }
-//            }
+            }
 
             if (Reference.DEBUG_MODE && prevCount != this.chunkRenderers.size())
             {

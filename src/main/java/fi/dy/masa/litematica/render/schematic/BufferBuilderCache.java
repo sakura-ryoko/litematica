@@ -4,53 +4,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
 
 import fi.dy.masa.malilib.mixin.render.IMixinBufferBuilder;
 
 public class BufferBuilderCache implements AutoCloseable
 {
     private final ConcurrentHashMap<ChunkSectionLayer, BufferBuilder> blockBufferBuilders;
-    private final ConcurrentHashMap<RenderType, BufferBuilder> layerBufferBuilders;
     private final ConcurrentHashMap<OverlayRenderType, BufferBuilder> overlayBufferBuilders;
 
     protected BufferBuilderCache()
     {
-		this.blockBufferBuilders = new ConcurrentHashMap<>(BufferAllocatorCache.BLOCK_LAYERS.size(), 0.9f, 1);
-		this.layerBufferBuilders = new ConcurrentHashMap<>(BufferAllocatorCache.RENDER_LAYERS.size(), 0.9f, 1);
-		this.overlayBufferBuilders = new ConcurrentHashMap<>(BufferAllocatorCache.TYPES.size(), 0.9f, 1);
+		this.blockBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.BLOCK_LAYERS.size(), 0.9f, 1);
+		this.overlayBufferBuilders = new ConcurrentHashMap<>(ByteBufferBuilderCache.TYPES.size(), 0.9f, 1);
     }
 
-    protected boolean hasBufferByBlockLayer(ChunkSectionLayer layer)
+    protected boolean hasBuilder(ChunkSectionLayer layer)
     {
         return this.blockBufferBuilders.containsKey(layer);
     }
 
-    protected boolean hasBufferByLayer(RenderType layer)
-    {
-        return this.layerBufferBuilders.containsKey(layer);
-    }
-
-    protected boolean hasBufferByOverlay(OverlayRenderType type)
+    protected boolean hasBuilder(OverlayRenderType type)
     {
         return this.overlayBufferBuilders.containsKey(type);
     }
 
-    protected BufferBuilder getBufferByBlockLayer(ChunkSectionLayer layer, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBuilder(ChunkSectionLayer layer, @Nonnull ByteBufferBuilder alloc)
     {
-        return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByBlockLayer(key), key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
+        return this.blockBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(alloc, key.pipeline().getVertexFormatMode(), key.pipeline().getVertexFormat()));
     }
 
-    protected BufferBuilder getBufferByLayer(RenderType layer, @Nonnull BufferAllocatorCache allocators)
+    protected BufferBuilder getBuilder(OverlayRenderType type, @Nonnull ByteBufferBuilder alloc)
     {
-        return this.layerBufferBuilders.computeIfAbsent(layer, (key) -> new BufferBuilder(allocators.getBufferByLayer(key), key.mode(), key.format()));
-    }
-
-    protected BufferBuilder getBufferByOverlay(OverlayRenderType type, @Nonnull BufferAllocatorCache allocators)
-    {
-        return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(allocators.getBufferByOverlay(key), key.getDrawMode(), key.getVertexFormat()));
+        return this.overlayBufferBuilders.computeIfAbsent(type, (key) -> new BufferBuilder(alloc, key.getDrawMode(), key.getVertexFormat()));
     }
 
     protected void clearAll()
@@ -64,16 +52,6 @@ public class BufferBuilderCache implements AutoCloseable
             }
         }
         this.blockBufferBuilders.clear();
-
-        for (BufferBuilder buffer : this.layerBufferBuilders.values())
-        {
-            if (((IMixinBufferBuilder) buffer).malilib_isBuilding())
-            {
-                MeshData built = buffer.build();
-                if (built != null) { built.close(); }
-            }
-        }
-        this.layerBufferBuilders.clear();
 
         for (BufferBuilder buffer : this.overlayBufferBuilders.values())
         {

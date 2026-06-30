@@ -1,378 +1,313 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import javax.annotation.Nonnull;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.Set;
 import javax.annotation.Nullable;
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import java.util.*;
-import com.mojang.blaze3d.vertex.MeshData;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
-import org.jspecify.annotations.NonNull;
+
+import fi.dy.masa.litematica.Litematica;
 
 public class ChunkRenderDataSchematic implements AutoCloseable
 {
-    public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic()
-    {
-        @Override
-        protected void setBlockLayerUsed(ChunkSectionLayer layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+	private static final Logger LOGGER = Litematica.LOGGER;
+	public static final Comparator<ChunkRenderDataSchematic> COMPARATOR = new RenderDataComparator();
+	public static final ChunkRenderDataSchematic EMPTY = new ChunkRenderDataSchematic()
+	{
+		@Override
+		protected void setBlockLayerUsed(ChunkSectionLayer layer)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setBlockLayerUnused(ChunkSectionLayer layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected void setBlockLayerUnused(ChunkSectionLayer layer)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setBlockLayerStarted(ChunkSectionLayer layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected @Nullable ChunkMeshDataSchematic updateMeshDataCache(ChunkMeshDataSchematic meshData)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setLayerUsed(RenderType layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected void setBlockLayerStarted(ChunkSectionLayer layer)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setBlockLayerUnused(RenderType layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected void setOverlayTypeUsed(OverlayRenderType layer)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setLayerStarted(RenderType layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected void setOverlayTypeUnused(OverlayRenderType type)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setOverlayTypeUsed(OverlayRenderType layer)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected void setTimeBuilt(long time)
+		{
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        protected void setOverlayTypeUnused(OverlayRenderType type)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		public boolean isEmpty()
+		{
+			return true;
+		}
 
-        @Override
-        protected void addBlockEntity(BlockEntity be)
-        {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		protected void setOverlayTypeStarted(OverlayRenderType layer)
+		{
+			throw new UnsupportedOperationException();
+		}
+	};
 
-        @Override
-        protected void addNoCullBlockEntity(BlockEntity be)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected BuiltBufferCache getBuiltBufferCache()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void closeBuiltBufferCache()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void setTransparentSortingDataForBlockLayer(ChunkSectionLayer layer, MeshData.@NonNull SortState transparentSortingData)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void setTransparentSortingDataForLayer(RenderType layer, MeshData.@NonNull SortState transparentSortingData)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void setTransparentSortingDataForOverlay(OverlayRenderType type, MeshData.@NonNull SortState transparentSortingData)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void setTimeBuilt(long time)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void setOverlayTypeStarted(OverlayRenderType layer)
-        {
-            throw new UnsupportedOperationException();
-        }
-    };
-
-    private final List<BlockEntity> blockEntities;
-    private final List<BlockEntity> noCullBlockEntities;
-    private final Set<ChunkSectionLayer> blockLayersUsed;
-    private final Set<ChunkSectionLayer> blockLayersStarted;
-    private final Set<RenderType> layersUsed;
-    private final Set<RenderType> layersStarted;
-    private final Set<OverlayRenderType> overlayLayersUsed;
-    private final Set<OverlayRenderType> overlayLayersStarted;
-    private final BuiltBufferCache builtBufferCache;
-    private final Map<ChunkSectionLayer, MeshData.SortState> blockSortingData;
-    private final Map<RenderType, MeshData.SortState> layerSortingData;
-    private final Map<OverlayRenderType, MeshData.SortState> overlaySortingData;
-    private boolean blocksEmpty;
-    private boolean layerEmpty;
-    private boolean overlayEmpty;
-    private long timeBuilt;
+	private volatile ChunkMeshDataSchematic meshDataCache;
+	private final Set<ChunkSectionLayer> blockLayersUsed;
+	private final Set<ChunkSectionLayer> blockLayersStarted;
+	private final Set<OverlayRenderType> overlayLayersUsed;
+	private final Set<OverlayRenderType> overlayLayersStarted;
+	private boolean blocksEmpty;
+	private boolean overlayEmpty;
+	private long timeBuilt;
 
 	public ChunkRenderDataSchematic()
 	{
-		this.blockEntities = new ArrayList<>();
-		this.noCullBlockEntities = new ArrayList<>();
+		this.meshDataCache = new ChunkMeshDataSchematic();
 		this.blockLayersUsed = EnumSet.noneOf(ChunkSectionLayer.class);
 		this.blockLayersStarted = EnumSet.noneOf(ChunkSectionLayer.class);
-		this.layersUsed = new ObjectArraySet<>();
-		this.layersStarted = new ObjectArraySet<>();
 		this.overlayLayersUsed = EnumSet.noneOf(OverlayRenderType.class);
 		this.overlayLayersStarted = EnumSet.noneOf(OverlayRenderType.class);
-		this.builtBufferCache = new BuiltBufferCache();
-		this.blockSortingData = new HashMap<>();
-		this.layerSortingData = new HashMap<>();
-		this.overlaySortingData = new HashMap<>();
 		this.blocksEmpty = true;
-		this.layerEmpty = true;
 		this.overlayEmpty = true;
 	}
 
-    public boolean isBlockLayerEmpty()
-    {
-        return this.blocksEmpty;
-    }
+	public ChunkMeshDataSchematic getMeshDataCache()
+	{
+		return this.meshDataCache;
+	}
 
-    public boolean isLayerEmpty()
-    {
-        return this.layerEmpty;
-    }
+	@Nullable
+	protected ChunkMeshDataSchematic updateMeshDataCache(ChunkMeshDataSchematic meshData)
+	{
+//		LOGGER.warn("[RD] updateMeshDataCache()");
+		ChunkMeshDataSchematic oldData = null;
 
-    public int getStartedSize()
-    {
-        return this.blockLayersStarted.size() + this.layersStarted.size() + this.overlayLayersStarted.size();
-    }
+		if (this.meshDataCache != null || !this.meshDataCache.isEmpty())
+		{
+			int comparator = ChunkMeshDataSchematic.COMPARATOR.compare(this.meshDataCache, meshData);
+//			LOGGER.error("[RD] updateMeshDataCache() compare: [{}] // oldData DUMP -->", comparator);
+//			this.meshDataCache.dumpMeshDataDebug();
 
-    public int getUsedSize()
-    {
-        return this.blockLayersUsed.size() + this.layersUsed.size() + this.overlayLayersUsed.size();
-    }
+			if (comparator > 0)
+			{
+//				LOGGER.error("[RD] updateMeshDataCache() oldData CLEAR");
+				oldData = this.meshDataCache;
+//				this.meshDataCache.clearAll();
+				this.meshDataCache = meshData;
+			}
+//			else
+//			{
+//				// Don't update
+//				LOGGER.error("[RD] updateMeshDataCache() oldData SAVE");
+//			}
+		}
+		else
+		{
+//			LOGGER.error("[RD] updateMeshDataCache() oldData EMPTY/NULL --> newData");
+			this.meshDataCache = meshData;
+		}
 
-    public int getSize()
-    {
-        return Math.max(this.getStartedSize(), this.getUsedSize());
-    }
+//		LOGGER.error("[RD] updateMeshDataCache() newData DUMP -->");
+//		this.meshDataCache.dumpMeshDataDebug();
 
-    public boolean isBlockLayerEmpty(ChunkSectionLayer layer)
-    {
-        return !this.blockLayersUsed.contains(layer);
-    }
+		return oldData;
+	}
 
-    public boolean isLayerEmpty(RenderType layer)
-    {
-        return !this.layersUsed.contains(layer);
-    }
+	public boolean isBlockLayerEmpty()
+	{
+		return this.blocksEmpty;
+	}
 
-    public boolean isOverlayEmpty()
-    {
-        return this.overlayEmpty;
-    }
+	public int getStartedSize()
+	{
+		return this.blockLayersStarted.size() + this.overlayLayersStarted.size();
+	}
 
-    public boolean isOverlayTypeEmpty(OverlayRenderType type)
-    {
-        return !this.overlayLayersUsed.contains(type);
-    }
+	public int getUsedSize()
+	{
+		return this.blockLayersUsed.size() + this.overlayLayersUsed.size();
+	}
 
-    public boolean isBlockLayerStarted(ChunkSectionLayer layer)
-    {
-        return this.blockLayersStarted.contains(layer);
-    }
+	public int getSize()
+	{
+		return Math.max(this.getStartedSize(), this.getUsedSize());
+	}
 
-    public boolean isLayerStarted(RenderType layer)
-    {
-        return this.layersStarted.contains(layer);
-    }
+	public boolean isBlockLayerEmpty(ChunkSectionLayer layer)
+	{
+		return !this.blockLayersUsed.contains(layer);
+	}
 
-    public boolean isOverlayTypeStarted(OverlayRenderType type)
-    {
-        return this.overlayLayersStarted.contains(type);
-    }
+	public boolean isOverlayEmpty()
+	{
+		return this.overlayEmpty;
+	}
 
-    protected void setBlockLayerStarted(ChunkSectionLayer layer)
-    {
-        this.blockLayersStarted.add(layer);
-    }
+	public boolean isOverlayTypeEmpty(OverlayRenderType type)
+	{
+		return !this.overlayLayersUsed.contains(type);
+	}
 
-    protected void setBlockLayerUsed(ChunkSectionLayer layer)
-    {
-        this.blocksEmpty = false;
-        this.blockLayersUsed.add(layer);
-    }
+	public boolean isBlockLayerStarted(ChunkSectionLayer layer)
+	{
+		return this.blockLayersStarted.contains(layer);
+	}
 
-    protected void setBlockLayerUnused(ChunkSectionLayer layer)
-    {
-        this.blockLayersStarted.remove(layer);
-        this.blockLayersUsed.remove(layer);
-    }
+	public boolean isOverlayTypeStarted(OverlayRenderType type)
+	{
+		return this.overlayLayersStarted.contains(type);
+	}
 
-    protected void setLayerStarted(RenderType layer)
-    {
-        this.layersStarted.add(layer);
-    }
+	protected void setBlockLayerStarted(ChunkSectionLayer layer)
+	{
+		this.blockLayersStarted.add(layer);
+	}
 
-    protected void setLayerUsed(RenderType layer)
-    {
-        this.layerEmpty = false;
-        this.layersUsed.add(layer);
-    }
+	protected void setBlockLayerUsed(ChunkSectionLayer layer)
+	{
+		this.blocksEmpty = false;
+		this.blockLayersUsed.add(layer);
+	}
 
-    protected void setBlockLayerUnused(RenderType layer)
-    {
-        this.layersStarted.remove(layer);
-        this.layersUsed.remove(layer);
-    }
+	protected void setBlockLayerUnused(ChunkSectionLayer layer)
+	{
+		this.blockLayersStarted.remove(layer);
+		this.blockLayersUsed.remove(layer);
+	}
 
-    protected void setOverlayTypeStarted(OverlayRenderType type)
-    {
-        this.overlayLayersStarted.add(type);
-    }
+	protected void setOverlayTypeStarted(OverlayRenderType type)
+	{
+		this.overlayLayersStarted.add(type);
+	}
 
-    protected void setOverlayTypeUsed(OverlayRenderType type)
-    {
-        this.overlayEmpty = false;
-        this.overlayLayersUsed.add(type);
-    }
+	protected void setOverlayTypeUsed(OverlayRenderType type)
+	{
+		this.overlayEmpty = false;
+		this.overlayLayersUsed.add(type);
+	}
 
-    protected void setOverlayTypeUnused(OverlayRenderType type)
-    {
-        this.overlayLayersStarted.remove(type);
-        this.overlayLayersUsed.remove(type);
-    }
+	protected void setOverlayTypeUnused(OverlayRenderType type)
+	{
+		this.overlayLayersStarted.remove(type);
+		this.overlayLayersUsed.remove(type);
+	}
 
-    public List<BlockEntity> getBlockEntities()
-    {
-        return this.blockEntities;
-    }
+	public long getTimeBuilt()
+	{
+		return this.timeBuilt;
+	}
 
-    public List<BlockEntity> getNoCullBlockEntities()
-    {
-        return this.noCullBlockEntities;
-    }
+	protected void setTimeBuilt(long time)
+	{
+		this.timeBuilt = time;
+	}
 
-    protected void addBlockEntity(BlockEntity be)
-    {
-        this.blockEntities.add(be);
-    }
+	public boolean isEmpty()
+	{
+		return (this.blocksEmpty && this.overlayEmpty) && this.meshDataCache.isEmpty() && this.timeBuilt < 1L;
+	}
 
-    protected void addNoCullBlockEntity(BlockEntity be)
-    {
-        this.noCullBlockEntities.add(be);
-    }
+	protected void clearAll()
+	{
+		if (this.meshDataCache != null)
+		{
+			this.meshDataCache.clearAll();
+		}
 
-    protected BuiltBufferCache getBuiltBufferCache()
-    {
-        return this.builtBufferCache;
-    }
+		this.meshDataCache = new ChunkMeshDataSchematic();
+		this.timeBuilt = 0L;
+		this.blockLayersUsed.clear();
+		this.overlayLayersUsed.clear();
+		this.blockLayersStarted.clear();
+		this.overlayLayersStarted.clear();
+		this.overlayEmpty = true;
+		this.blocksEmpty = true;
+	}
 
-    protected void closeBuiltBufferCache()
-    {
-        this.builtBufferCache.closeAll();
-    }
+	protected void dumpRenderDataDebug()
+	{
+		if (this.isEmpty())
+		{
+			System.out.print("[RD] ChunkRenderDataSchematic --> EMPTY\n");
+		}
+		else
+		{
+			System.out.printf("[RD] ChunkRenderDataSchematic; timeBuilt: [%d]\n", this.getTimeBuilt());
+		}
 
-    public boolean hasTransparentSortingDataForBlockLayer(ChunkSectionLayer layer)
-    {
-        return this.blockSortingData.get(layer) != null;
-    }
+		if (this.meshDataCache != null)
+		{
+			this.meshDataCache.dumpMeshDataDebug();
+		}
+		else
+		{
+			System.out.print("[RD] ChunkRenderDataSchematic // ChunkMeshDataSchematic --> NULL\n");
+		}
 
-    public boolean hasTransparentSortingDataForLayer(RenderType layer)
-    {
-        return this.layerSortingData.get(layer) != null;
-    }
+		System.out.printf("  LAYERS_STARTED  : [%s]\n", this.blockLayersStarted.toString());
+		System.out.printf("  LAYERS_USED     : [%s]\n", this.blockLayersUsed.toString());
+		System.out.printf("  OVERLAYS_STARTED: [%s]\n", this.overlayLayersStarted.toString());
+		System.out.printf("  OVERLAYS_USED   : [%s]\n", this.overlayLayersUsed.toString());
+	}
 
-    public boolean hasTransparentSortingDataForOverlay(OverlayRenderType type)
-    {
-        return this.overlaySortingData.get(type) != null;
-    }
+	@Override
+	public void close() throws Exception
+	{
+		this.clearAll();
+	}
 
-    protected void setTransparentSortingDataForBlockLayer(ChunkSectionLayer layer, @Nonnull MeshData.SortState transparentSortingData)
-    {
-        this.blockSortingData.put(layer, transparentSortingData);
-    }
+	public static class RenderDataComparator implements Comparator<ChunkRenderDataSchematic>
+	{
+		@Override
+		public int compare(ChunkRenderDataSchematic o1, ChunkRenderDataSchematic o2)
+		{
+			if (o1.isEmpty()) { return 1; }
+			else if (o2.isEmpty()) { return -1; }
+			final int timeCompare = Long.compare(o1.timeBuilt, o2.timeBuilt);
+//			System.out.printf("[RDC] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
 
-    protected void setTransparentSortingDataForLayer(RenderType layer, @Nonnull MeshData.SortState transparentSortingData)
-    {
-        this.layerSortingData.put(layer, transparentSortingData);
-    }
+			if (timeCompare != 0)
+			{
+				return -timeCompare;
+			}
 
-    protected void setTransparentSortingDataForOverlay(OverlayRenderType type, @Nonnull MeshData.SortState transparentSortingData)
-    {
-        this.overlaySortingData.put(type, transparentSortingData);
-    }
+			final int layersStartedCompare = Integer.compare(o1.blockLayersStarted.size(), o2.blockLayersStarted.size());
+			final int overlaysStartedCompare = Integer.compare(o1.overlayLayersStarted.size(), o2.overlayLayersStarted.size());
 
-    protected MeshData.SortState getTransparentSortingDataForBlockLayer(ChunkSectionLayer layer)
-    {
-        return this.blockSortingData.get(layer);
-    }
+			if (layersStartedCompare != 0 || overlaysStartedCompare != 0)
+			{
+				return layersStartedCompare > 0 ? 1 : overlaysStartedCompare;
+			}
 
-    protected MeshData.SortState getTransparentSortingDataForLayer(RenderType layer)
-    {
-        return this.layerSortingData.get(layer);
-    }
+			final int layersUsedCompare = Integer.compare(o1.blockLayersUsed.size(), o2.blockLayersUsed.size());
+			final int overlaysUsedCompare = Integer.compare(o1.overlayLayersUsed.size(), o2.overlayLayersUsed.size());
 
-    @Nullable
-    protected MeshData.SortState getTransparentSortingDataForOverlay(OverlayRenderType type)
-    {
-        return this.overlaySortingData.get(type);
-    }
+			if (layersUsedCompare != 0 || overlaysUsedCompare != 0)
+			{
+				return layersUsedCompare > 0 ? 1 : overlaysUsedCompare;
+			}
 
-    public long getTimeBuilt()
-    {
-        return this.timeBuilt;
-    }
-
-    protected void setTimeBuilt(long time)
-    {
-        this.timeBuilt = time;
-    }
-
-    protected void clearAll()
-    {
-        this.closeBuiltBufferCache();
-        this.timeBuilt = 0;
-        this.overlaySortingData.clear();
-        this.layerSortingData.clear();
-        this.blockSortingData.clear();
-        this.blockLayersUsed.clear();
-        this.layersUsed.clear();
-        this.overlayLayersUsed.clear();
-        this.blockLayersStarted.clear();
-        this.layersStarted.clear();
-        this.overlayLayersStarted.clear();
-        this.blockEntities.clear();
-        this.noCullBlockEntities.clear();
-        this.overlayEmpty = true;
-        this.layerEmpty = true;
-        this.blocksEmpty = true;
-    }
-
-    @Override
-    public void close() throws Exception
-    {
-        this.clearAll();
-    }
+			return ChunkMeshDataSchematic.COMPARATOR.compare(o1.meshDataCache, o2.meshDataCache);
+		}
+	}
 }

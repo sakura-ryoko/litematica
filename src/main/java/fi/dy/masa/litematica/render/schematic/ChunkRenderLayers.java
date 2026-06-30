@@ -16,7 +16,6 @@ import fi.dy.masa.malilib.render.MaLiLibPipelines;
 public record ChunkRenderLayers()
 {
     public static final List<ChunkSectionLayer> BLOCK_RENDER_LAYERS = getBlockRenderLayers();
-    public static final List<RenderType> RENDER_LAYERS = getRenderLayers();
     public static final List<OverlayRenderType> TYPES = getTypes();
     public static final HashMap<ChunkSectionLayer, Pair<RenderPipeline, RenderPipeline>> PIPELINE_MAP = getBlockRenderPipelineMap();
 
@@ -43,24 +42,6 @@ public record ChunkRenderLayers()
         map.put(ChunkSectionLayer.TRIPWIRE,      Pair.of(MaLiLibPipelines.LEGACY_TRIPWIRE_TERRAIN_MASA,    MaLiLibPipelines.LEGACY_TRIPWIRE_TERRAIN_MASA_OFFSET));
 
         return map;
-    }
-
-    private static List<RenderType> getRenderLayers()
-    {
-        List<RenderType> list = new ArrayList<>();
-
-		// Blocks?
-	    list.add(RenderTypes.solidMovingBlock());
-	    list.add(RenderTypes.cutoutMovingBlock());
-	    list.add(RenderTypes.translucentMovingBlock());
-	    list.add(RenderTypes.tripwireMovingBlock());
-	    list.add(RenderTypes.endPortal());
-	    list.add(RenderTypes.endGateway());
-
-        // Water Rendering
-        list.add(RenderTypes.waterMask());
-
-        return list;
     }
 
     private static List<OverlayRenderType> getTypes()

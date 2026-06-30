@@ -317,7 +317,6 @@ public class LitematicaRenderer
             profiler.pop();
         }
 
-        this.getWorldRenderer().clearBlockBatchDraw();
 		this.getWorldRenderer().clearWorldRenderStates();
         this.cleanup();
     }
