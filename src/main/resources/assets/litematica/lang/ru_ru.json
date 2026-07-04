@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§cЭто действие работает только в одиночной игре§r",
     "litematica.message.error.placement_paste_outside_world": "Голограмму невозможно вставить на текущей позиции, так как она выходит за границы мира",
     "litematica.message.error.placement_paste_rendering_disabled": "The selected placement cannot be pasted in it's current position, because rendering is not enabled for it.",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§cНе удалось вставить схему в мир§r",
     "litematica.message.error.schematic_save_failed": "Не удалось сохранить схему в файл '%s'",
     "litematica.message.error.schematic_save_interrupted": "Сохранение схемы привело к ошибке или было остановлено",
