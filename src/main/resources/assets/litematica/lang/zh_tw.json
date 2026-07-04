@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§c此操作僅在單個玩家中執行§r",
     "litematica.message.error.placement_paste_outside_world": "無法將放置貼上到目前位置，因為它超出了世界邊界",
     "litematica.message.error.placement_paste_rendering_disabled": "選擇的藍圖放置無法貼在目前的位置，因為它的渲染功能未啟用。",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§c原理圖貼上到世界失敗§r",
     "litematica.message.error.schematic_save_failed": "無法將原理圖儲存到檔案「%s」",
     "litematica.message.error.schematic_save_interrupted": "原理圖儲存中斷或停止",

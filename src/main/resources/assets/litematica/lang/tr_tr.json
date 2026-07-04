@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§cBu işlem sadece tek oyunculu modda çalışır§r",
     "litematica.message.error.placement_paste_outside_world": "Yerleştirme dünya sınırlarının dışına taştığı için mevcut konuma yapıştırılamıyor",
     "litematica.message.error.placement_paste_rendering_disabled": "The selected placement cannot be pasted in it's current position, because rendering is not enabled for it.",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§cŞematiği dünyaya yapıştırma işlemi başarısız oldu§r",
     "litematica.message.error.schematic_save_failed": "Şematik '%s' dosyasına kaydedilemedi",
     "litematica.message.error.schematic_save_interrupted": "Şematik kaydetme işlemi yarıda kesildi veya durduruldu",

@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§c此操作仅支持单人游戏§r",
     "litematica.message.error.placement_paste_outside_world": "§c无法在当前坐标粘贴：放置区域超出世界边界§r",
     "litematica.message.error.placement_paste_rendering_disabled": "选定的投影放置无法粘贴到当前位置，因为尚未启用渲染功能。",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§c原理图粘贴到世界失败§r",
     "litematica.message.error.schematic_save_failed": "§c保存原理图到文件'%s'失败§r",
     "litematica.message.error.schematic_save_interrupted": "§c原理图保存已中断或停止§r",
