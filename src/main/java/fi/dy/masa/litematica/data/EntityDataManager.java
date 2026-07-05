@@ -153,10 +153,11 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
                     return;
                 }
             }
-            else if (DataManager.getInstance().hasIntegratedServer() == false &&
-                    this.hasServuxServer() == false &&
-                    this.hasInValidServux == false &&
-                    this.getBestWorld() != null)
+            else if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() &&
+                     DataManager.getInstance().hasIntegratedServer() == false &&
+                     this.hasServuxServer() == false &&
+                     this.hasInValidServux == false &&
+                     this.getBestWorld() != null)
             {
                 // Make sure we're Play Registered, and request Metadata
                 HANDLER.registerPlayReceiver(ServuxLitematicaPacket.Payload.ID, HANDLER::receivePlayPayload);

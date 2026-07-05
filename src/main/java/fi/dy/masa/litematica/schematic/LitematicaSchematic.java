@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -1357,6 +1359,8 @@ public class LitematicaSchematic
         return tagList;
     }
 
+    @Deprecated(forRemoval = true)
+    @ApiStatus.Experimental
     public void sendTransmitFile(CompoundTag nbtIn, final long sessionKey, boolean printMessage)
     {
         if (EntityDataManager.getInstance().hasServuxServer() == false)
@@ -1393,7 +1397,6 @@ public class LitematicaSchematic
         }
 
         output.putString("Task", "Litematic-TransmitStart");
-        output.putString("FileName", file.getFileName().toString());
         output.store("FileType", FileType.CODEC, this.schematicType);
         output.putLong("SliceKey", sessionKey);
         output.putInt("TotalSlices", totalSlices);
@@ -1461,6 +1464,8 @@ public class LitematicaSchematic
         }
     }
 
+    @Deprecated(forRemoval = true)
+    @ApiStatus.Experimental
     public static @Nullable Pair<LitematicaSchematic, CompoundTag> receiveFileTransmit(CompoundTag nbt)
     {
         SchematicBufferManager manager = DataManager.getSchematicBufferManager();
@@ -1478,11 +1483,10 @@ public class LitematicaSchematic
             case "Litematic-TransmitStart" ->
             {
                 FileType type = nbt.read("FileType", FileType.CODEC).orElse(FileType.LITEMATICA_SCHEMATIC);
-                String name = nbt.getStringOr("FileName", "default_file");
                 final int totalSlices = nbt.getIntOr("TotalSlices", 1);
                 final long totalSize = nbt.getLongOr("TotalSize", -1L);
 
-                manager.createBuffer(name, totalSlices, totalSize, type, key, nbt.getCompoundOrEmpty("PlacementData"));
+                manager.createBuffer(totalSlices, totalSize, type, key, nbt.getCompoundOrEmpty("PlacementData"));
             }
             case "Litematic-TransmitData" ->
             {
@@ -1518,7 +1522,7 @@ public class LitematicaSchematic
                 }
 
                 // Successful transmission
-                Litematica.debugLog("receiveFileTransmit: Received file '{}', [tS: {}, tB: {}]", schematic.getFile().toAbsolutePath().toString(), totalSlices, totalSize);
+                Litematica.LOGGER.warn("receiveFileTransmit: Received file '{}', [tS: {}, tB: {}]", schematic.getFile().getFileName().toString(), totalSlices, totalSize);
                 return Pair.of(schematic, optional);
             }
             default ->
