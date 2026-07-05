@@ -805,6 +805,11 @@ public class SchematicPlacementManager
         {
             if (schematicPlacement != null)
             {
+                if (!schematicPlacement.isEnabled())
+                {
+                    InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.placement_paste_rendering_disabled");
+                    return;
+                }
                 /*
                 if (PositionUtils.isPlacementWithinWorld(mc.world, schematicPlacement, false) == false)
                 {
@@ -834,8 +839,9 @@ public class SchematicPlacementManager
 //                        if (Configs.Generic.PASTE_SERVUX_EXPERIMENTAL.getBooleanValue())
                         if (nbt.getSizeInBytes() > maxSize)
                         {
-                            Litematica.LOGGER.warn("[Servux Paste]: Slicing Oversided Schematic for Servux Paste ...");
-                            this.sliceForServux(schematicPlacement.getSchematic(), nbt, maxSize, printMessage);
+//                            Litematica.LOGGER.warn("[Servux Paste]: Slicing Oversided Schematic for Servux Paste ...");
+//                            this.sliceForServux(schematicPlacement.getSchematic(), nbt, maxSize, printMessage);
+                            InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.placement_paste_too_large_for_servux");
                         }
                         else
                         {
@@ -877,12 +883,12 @@ public class SchematicPlacementManager
     }
 
     // Attempt to slice the schematic if oversized, and transmit it as a file.
-    private void sliceForServux(LitematicaSchematic litematic, NbtCompound nbt, final int maxSize, boolean printMessage)
-    {
-        final long sessionKey = Random.create(Util.getMeasuringTimeMs()).nextLong();
-        nbt.remove("Schematics");
-        litematic.sendTransmitFile(nbt, sessionKey, printMessage);
-    }
+//    private void sliceForServux(LitematicaSchematic litematic, NbtCompound nbt, final int maxSize, boolean printMessage)
+//    {
+//        final long sessionKey = Random.create(Util.getMeasuringTimeMs()).nextLong();
+//        nbt.remove("Schematics");
+//        litematic.sendTransmitFile(nbt, sessionKey, printMessage);
+//    }
 
     public void clear()
     {

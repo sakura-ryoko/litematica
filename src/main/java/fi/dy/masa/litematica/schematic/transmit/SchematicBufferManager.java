@@ -1,9 +1,12 @@
 package fi.dy.masa.litematica.schematic.transmit;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import javax.annotation.Nullable;
+
 import net.minecraft.nbt.NbtCompound;
+
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -11,26 +14,26 @@ import fi.dy.masa.litematica.util.FileType;
 
 public class SchematicBufferManager
 {
-    private final HashMap<Long, SchematicBuffer> fileBuffers;
-    private final HashMap<Long, NbtCompound> optionalNbt;
+    private final ConcurrentHashMap<Long, SchematicBuffer> fileBuffers;
+    private final ConcurrentHashMap<Long, CompoundTag> optionalNbt;
 
     public SchematicBufferManager()
     {
-        this.fileBuffers = new HashMap<>();
-        this.optionalNbt = new HashMap<>();
+        this.fileBuffers = new ConcurrentHashMap<>(16, 0.9f, 1);
+        this.optionalNbt = new ConcurrentHashMap<>(16, 0.9f, 1);
     }
 
-    public void createBuffer(String name, final long sessionKey)
+    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, final long sessionKey)
     {
-        this.createBuffer(name, FileType.LITEMATICA_SCHEMATIC, sessionKey, null);
+        this.createBuffer(totalExpectedSlices, totalExpectedSize, FileType.LITEMATICA_SCHEMATIC, sessionKey, null);
     }
 
-    public void createBuffer(String name, final long sessionKey, @Nullable NbtCompound optional)
+    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, final long sessionKey, @Nullable CompoundTag optional)
     {
-        this.createBuffer(name, FileType.LITEMATICA_SCHEMATIC, sessionKey, optional);
+        this.createBuffer(totalExpectedSlices, totalExpectedSize, FileType.LITEMATICA_SCHEMATIC, sessionKey, optional);
     }
 
-    public void createBuffer(String name, FileType type, final long sessionKey, @Nullable NbtCompound optional)
+    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, FileType type, final long sessionKey, @Nullable CompoundTag optional)
     {
         if (this.fileBuffers.containsKey(sessionKey) || this.optionalNbt.containsKey(sessionKey))
         {
@@ -38,7 +41,7 @@ public class SchematicBufferManager
             return;
         }
 
-        SchematicBuffer newBuf = new SchematicBuffer(name, type);
+        SchematicBuffer newBuf = new SchematicBuffer(totalExpectedSlices, totalExpectedSize, type);
         this.fileBuffers.put(sessionKey, newBuf);
 
         if (optional != null && !optional.isEmpty())
@@ -83,9 +86,9 @@ public class SchematicBufferManager
     {
         if (this.fileBuffers.containsKey(sessionKey))
         {
-            try (SchematicBuffer buffer = this.fileBuffers.remove(sessionKey))
+            try
             {
-                buffer.close();
+                this.fileBuffers.remove(sessionKey);
             }
             catch (Exception ignored) {}
         }
@@ -108,12 +111,22 @@ public class SchematicBufferManager
 
             if (file == null)
             {
-                Litematica.LOGGER.error("finishBuffer: Failed writing Schematic Buffer to file: '{}'", buffer.getFileName());
+                Litematica.LOGGER.error("finishBuffer: Failed writing Schematic Buffer to file: '{}'", buffer.getFileNameWithExt());
                 return null;
             }
 
-            LitematicaSchematic schematic = LitematicaSchematic.createFromFile(dir, buffer.getName(), buffer.getType());
+            LitematicaSchematic schematic = LitematicaSchematic.createFromFile(dir, buffer.getFileName(), buffer.getType());
             this.cancelBuffer(sessionKey);
+
+            if (schematic == null)
+            {
+                try
+                {
+                    Files.delete(file);
+                }
+                catch (Exception ignored) {}
+            }
+
             return schematic;
         }
 

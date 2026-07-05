@@ -10,6 +10,8 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
@@ -1314,6 +1316,8 @@ public class LitematicaSchematic
         return tagList;
     }
 
+    @Deprecated(forRemoval = true)
+    @ApiStatus.Experimental
     public void sendTransmitFile(NbtCompound nbtIn, final long sessionKey, boolean printMessage)
     {
         if (EntitiesDataStorage.getInstance().hasServuxServer() == false)
@@ -1334,11 +1338,26 @@ public class LitematicaSchematic
 
         Path file = this.getFile();
         NbtCompound output = new NbtCompound();
+        final int bufferSize = SchematicBuffer.BUFFER_SIZE;
+        long totalBytes;
+        int totalSlices;
+
+        try
+        {
+            totalBytes = Files.size(file);
+            totalSlices = (int) ((totalBytes + bufferSize - 1) / bufferSize);
+        }
+        catch (IOException e)
+        {
+            Litematica.LOGGER.error("sendTransmitFile: Unable to read file size; {}", e.getLocalizedMessage());
+            return;
+        }
 
         output.putString("Task", "Litematic-TransmitStart");
-        output.putString("FileName", file.getFileName().toString());
         output.put("FileType", FileType.CODEC, this.schematicType);
         output.putLong("SliceKey", sessionKey);
+        output.putInt("TotalSlices", totalSlices);
+        output.putLong("TotalSize", totalBytes);
 
         if (!nbtIn.isEmpty())
         {
@@ -1348,30 +1367,28 @@ public class LitematicaSchematic
         ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(output));
 
         // File Stream
-        final int bufferSize = SchematicBuffer.BUFFER_SIZE;
-        byte[] buffer = new byte[bufferSize];
-        int totalBytes = 0;
-        int totalSlices = 0;
         output.putLong("SliceKey", sessionKey);
+        byte[] buffer = new byte[bufferSize];
+        int currentSlice = 0;
 
         try (InputStream is = Files.newInputStream(file))
         {
             int bytesRead = 0;
             output.putString("Task", "Litematic-TransmitData");
 
-            while (bytesRead != -1)
+            while ((bytesRead = is.read(buffer, 0, bufferSize)) != -1)
             {
                 output.remove("Slice");
                 output.remove("Size");
                 output.remove("Data");
-
-                bytesRead = is.read(buffer, 0, bufferSize);
                 output.putInt("Slice", totalSlices);
                 output.putInt("Size", bytesRead);
-                output.putByteArray("Data", buffer);
+
+                byte[] correctedData = new byte[bytesRead];
+                System.arraycopy(buffer, 0, correctedData, 0, bytesRead);
+                output.putByteArray("Data", correctedData);
                 ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(output));
-                totalBytes += bytesRead;
-                totalSlices++;
+                currentSlice++;
             }
         }
         catch (Exception err)
@@ -1394,8 +1411,6 @@ public class LitematicaSchematic
         output.remove("Size");
         output.remove("Data");
 
-        output.putInt("TotalSize", totalBytes);
-        output.putInt("TotalSlices", totalSlices);
         output.putString("Task", "Litematic-TransmitEnd");
         ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(output));
         Litematica.debugLog("receiveFileTransmit: Treansmitted file '{}', [tS: {}, tB: {}]", file.toAbsolutePath().toString(), totalSlices, totalBytes);
@@ -1406,6 +1421,8 @@ public class LitematicaSchematic
         }
     }
 
+    @Deprecated(forRemoval = true)
+    @ApiStatus.Experimental
     public static @Nullable Pair<LitematicaSchematic, NbtCompound> receiveFileTransmit(NbtCompound nbt)
     {
         SchematicBufferManager manager = DataManager.getSchematicBufferManager();
@@ -1422,10 +1439,11 @@ public class LitematicaSchematic
         {
             case "Litematic-TransmitStart" ->
             {
-                FileType type = nbt.get("FileType", FileType.CODEC).orElse(FileType.LITEMATICA_SCHEMATIC);
-                String name = nbt.getString("FileName", "default_file");
+                FileType type = nbt.read("FileType", FileType.CODEC).orElse(FileType.LITEMATICA_SCHEMATIC);
+                final int totalSlices = nbt.getIntOr("TotalSlices", 1);
+                final long totalSize = nbt.getLongOr("TotalSize", -1L);
 
-                manager.createBuffer(name, type, key, nbt.getCompoundOrEmpty("PlacementData"));
+                manager.createBuffer(totalSlices, totalSize, type, key, nbt.getCompoundOrEmpty("PlacementData"));
             }
             case "Litematic-TransmitData" ->
             {
@@ -1448,8 +1466,8 @@ public class LitematicaSchematic
             }
             case "Litematic-TransmitEnd" ->
             {
-                final int totalSize = nbt.getInt("TotalSize", -1);
                 final int totalSlices = nbt.getInt("TotalSlices", -1);
+                final long totalSize = nbt.getLong("TotalSize", -1);
                 Path dir = DataManager.getSchematicTransmitDirectory();
                 NbtCompound optional = manager.getOptionalNbt(key);
                 LitematicaSchematic schematic = manager.finishBuffer(key, dir);
@@ -1461,7 +1479,7 @@ public class LitematicaSchematic
                 }
 
                 // Successful transmission
-                Litematica.debugLog("receiveFileTransmit: Received file '{}', [tS: {}, tB: {}]", schematic.getFile().toAbsolutePath().toString(), totalSlices, totalSize);
+                Litematica.LOGGER.warn("receiveFileTransmit: Received file '{}', [tS: {}, tB: {}]", schematic.getFile().getFileName().toString(), totalSlices, totalSize);
                 return Pair.of(schematic, optional);
             }
             default ->

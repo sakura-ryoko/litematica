@@ -86,10 +86,26 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     this.servuxRegistered = true;
                 }
             }
-            case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound(), null);
-            case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE -> EntitiesDataStorage.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
+            case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE ->
+                    {
+                        if (this.servuxRegistered)
+                        {
+                            EntityDataManager.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound());
+                        }
+                    }
+            case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE ->
+                    {
+                        if (this.servuxRegistered)
+                        {
+                            EntityDataManager.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
+                        }
+                    }
             case PACKET_S2C_NBT_RESPONSE_DATA ->
             {
+                if (!this.servuxRegistered)
+                {
+                    return;
+                }
                 if (this.readingSessionKey == -1)
                 {
                     this.readingSessionKey = Random.create(Util.getMeasuringTimeMs()).nextLong();
@@ -123,29 +139,32 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
         }
 
         String task = nbt.getString("Task", "BulkEntityReply");
+        Litematica.debugLog("handleBulkData: received task: {}", task);
 
         // For future Granular Task Management
-        switch (task)
-        {
-            // File-Transmit support
-            case "Litematic-TransmitStart", "Litematic-TransmitCancel", "Litematic-TransmitData", "Litematic-TransmitEnd" ->
-            {
-                Pair<LitematicaSchematic, NbtCompound> schemPair = LitematicaSchematic.receiveFileTransmit(nbt);
+//        switch (task)
+//        {
+//            // File-Transmit support
+//            case "Litematic-TransmitStart", "Litematic-TransmitCancel", "Litematic-TransmitData", "Litematic-TransmitEnd" ->
+//            {
+//                Pair<LitematicaSchematic, CompoundTag> schemPair = LitematicaSchematic.receiveFileTransmit(nbt);
+//
+//                if (schemPair != null && schemPair.getLeft().getFile() != null)
+//                {
+//                    Litematica.LOGGER.info("handleBulkData(): Received litematic '{}' from the server", schemPair.getLeft().getFile().toAbsolutePath().toString());
+//
+//                    SchematicPlacement placement = SchematicPlacement.createFromNbt(schemPair.getLeft(), schemPair.getRight());
+//
+//                    if (placement != null)
+//                    {
+//                        DataManager.getSchematicPlacementManager().addSchematicPlacement(placement, true);
+//                    }
+//                }
+//            }
+//            default -> EntityDataManager.getInstance().handleBulkEntityData(type, DataConverterNbt.fromVanillaCompound(nbt));
+//        }
 
-                if (schemPair != null && schemPair.getLeft().getFile() != null)
-                {
-                    Litematica.LOGGER.info("handleBulkData(): Received litematic '{}' from the server", schemPair.getLeft().getFile().toAbsolutePath().toString());
-
-                    SchematicPlacement placement = SchematicPlacement.createFromNbt(schemPair.getLeft(), schemPair.getRight());
-
-                    if (placement != null)
-                    {
-                        DataManager.getSchematicPlacementManager().addSchematicPlacement(placement, true);
-                    }
-                }
-            }
-            default -> EntitiesDataStorage.getInstance().handleBulkEntityData(type, nbt);
-        }
+        EntityDataManager.getInstance().handleBulkEntityData(type, nbt);
     }
 
     @Override
