@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§cThis operation only works in single player§r",
     "litematica.message.error.placement_paste_outside_world": "The placement can't be pasted in the current position, because it goes outside the world bounds",
     "litematica.message.error.placement_paste_rendering_disabled": "The selected placement cannot be pasted in it's current position, because rendering is not enabled for it.",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§cSchematic Paste to world failed§r",
     "litematica.message.error.schematic_save_failed": "Failed to save schematic to file '%s'",
     "litematica.message.error.schematic_save_interrupted": "Schematic saving interrupted or stopped",
