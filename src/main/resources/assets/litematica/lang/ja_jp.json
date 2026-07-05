@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§cこの操作はシングルプレイでのみ機能します§r",
     "litematica.message.error.placement_paste_outside_world": "ワールドの境界外に出てしまうため，配置を現在の位置に貼り付けできません",
     "litematica.message.error.placement_paste_rendering_disabled": "The selected placement cannot be pasted in it's current position, because rendering is not enabled for it.",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§c図面を貼り付けられませんでした§r",
     "litematica.message.error.schematic_save_failed": "図面をファイル '%s' に保存できませんでした",
     "litematica.message.error.schematic_save_interrupted": "図面の保存が中断されました",

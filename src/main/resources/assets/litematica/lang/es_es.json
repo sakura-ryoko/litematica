@@ -1065,6 +1065,7 @@
     "litematica.message.error.only_works_in_single_player": "§cEsta operación solo funciona en un solo jugador§r",
     "litematica.message.error.placement_paste_outside_world": "La colocación no puede pegarse en la posición actual, porque se sale de los límites del mundo",
     "litematica.message.error.placement_paste_rendering_disabled": "La ubicación seleccionada no se puede pegar en su posición actual porque la renderización no está habilitada para ello.",
+    "litematica.message.error.placement_paste_too_large_for_servux": "The placement is too large to be safely transmitted to Servux\nConsider splitting it up before pasting.",
     "litematica.message.error.schematic_paste_failed": "§cFalló la Pegado del Esquema en el mundo§r",
     "litematica.message.error.schematic_save_failed": "No se pudo guardar el esquema en el archivo '%s'",
     "litematica.message.error.schematic_save_interrupted": "Guardado de esquema interrumpido o detenido",
