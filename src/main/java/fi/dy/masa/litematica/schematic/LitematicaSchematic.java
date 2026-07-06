@@ -1,5 +1,6 @@
 package fi.dy.masa.litematica.schematic;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1439,9 +1440,9 @@ public class LitematicaSchematic
         {
             case "Litematic-TransmitStart" ->
             {
-                FileType type = nbt.read("FileType", FileType.CODEC).orElse(FileType.LITEMATICA_SCHEMATIC);
-                final int totalSlices = nbt.getIntOr("TotalSlices", 1);
-                final long totalSize = nbt.getLongOr("TotalSize", -1L);
+                FileType type = nbt.get("FileType", FileType.CODEC).orElse(FileType.LITEMATICA_SCHEMATIC);
+                final int totalSlices = nbt.getInt("TotalSlices", 1);
+                final long totalSize = nbt.getLong("TotalSize", -1L);
 
                 manager.createBuffer(totalSlices, totalSize, type, key, nbt.getCompoundOrEmpty("PlacementData"));
             }

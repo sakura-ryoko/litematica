@@ -19,9 +19,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -65,6 +67,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected final String cloneCommand;
     protected final String fillCommand;
     protected final String setBlockCommand;
+    protected final String delayCommand;
     protected final String summonCommand;
     protected final int maxBoxVolume;
     protected final boolean useFillCommand;
@@ -87,6 +90,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         this.fillCommand = Configs.Generic.COMMAND_NAME_FILL.getStringValue();
         this.setBlockCommand = Configs.Generic.COMMAND_NAME_SETBLOCK.getStringValue();
         this.summonCommand = Configs.Generic.COMMAND_NAME_SUMMON.getStringValue();
+        this.delayCommand = "<TICK_DELAY>";
         this.useFillCommand = Configs.Generic.PASTE_USE_FILL_COMMAND.getBooleanValue();
         this.useWorldEdit = Configs.Generic.COMMAND_USE_WORLDEDIT.getBooleanValue();
         this.useStrict = Configs.Generic.COMMAND_USE_STRICT.getBooleanValue() ? " strict" : "";
@@ -173,7 +177,16 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         while (this.sentCommandsThisTick < this.maxCommandsPerTick && this.queuedCommands.isEmpty() == false)
         {
-            this.sendCommand(this.queuedCommands.poll());
+            String command = this.queuedCommands.poll();
+
+            if (command.equals(this.delayCommand))
+            {
+                this.sentCommandsThisTick = this.maxCommandsPerTick;
+            }
+            else
+            {
+                this.sendCommand(command);
+            }
         }
     }
 
@@ -327,9 +340,9 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             int y = entity.getBlockY();
             int z = entity.getBlockZ();
 
-            if (x < this.currentBox.minX() || x > this.currentBox.maxX() ||
-                y < this.currentBox.minY() || y > this.currentBox.maxY() ||
-                z < this.currentBox.minZ() || z > this.currentBox.maxZ())
+            if (x < this.currentBox.minX || x > this.currentBox.maxX ||
+                y < this.currentBox.minY || y > this.currentBox.maxY ||
+                z < this.currentBox.minZ || z > this.currentBox.maxZ)
             {
                 return;
             }
@@ -353,10 +366,10 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         }
     }
 
-    protected void handleSummonItemFrame(ItemFrame itemFrame, String baseSummonCmd, double x, double y, double z)
+    protected void handleSummonItemFrame(ItemFrameEntity itemFrame, String baseSummonCmd, double x, double y, double z)
     {
-        ItemStack stack = itemFrame.getItem();
-        int facingId = itemFrame.getDirection().get3DDataValue();
+        ItemStack stack = itemFrame.getHeldItemStack();
+        int facingId = itemFrame.getFacing().getIndex();
         String facingTag = String.format("{Facing:%db}", facingId);
 
         if (stack.isEmpty())
@@ -365,7 +378,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             return;
         }
 
-        CompoundTag itemNbt = InventoryUtils.toNbtOrEmpty(stack, this.schematicWorld.registryAccess());
+        NbtCompound itemNbt = (NbtCompound) ItemStack.CODEC.encodeStart(this.schematicWorld.getRegistryManager().getOps(NbtOps.INSTANCE), stack).getPartialOrThrow();
         String fullNbtStr = String.format("{Facing:%db,Item:%s}", facingId, itemNbt.toString());
         String fullCmd = baseSummonCmd + " " + fullNbtStr;
 
@@ -376,8 +389,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         }
         else
         {
-            String itemId = itemNbt.getStringOr("id", "");
-            CompoundTag visualItemNbt = new CompoundTag();
+            String itemId = itemNbt.getString("id", "");
+            NbtCompound visualItemNbt = new NbtCompound();
 
             if (!itemId.isEmpty())
             {
@@ -388,8 +401,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
 
             if (!itemId.isEmpty() && itemNbt.contains("components"))
             {
-                CompoundTag components = itemNbt.getCompoundOrEmpty("components");
-                CompoundTag visualComponents = new CompoundTag();
+                NbtCompound components = itemNbt.getCompoundOrEmpty("components");
+                NbtCompound visualComponents = new NbtCompound();
                 boolean hasComponents = false;
 
                 // Add Custom Name; only if it fits
@@ -571,6 +584,8 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                                                    key,
                                                    placementPos.getX(), placementPos.getY(), placementPos.getZ(),
                                                    key);
+
+                    commandHandler.accept(this.delayCommand);
                     commandHandler.accept(command);
                 }
             }
@@ -597,7 +612,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     protected void specialPasteSignBlock(BlockPos pos, BlockState state, World schematicWorld, Consumer<String> commandHandler)
     {
         BlockEntity be = schematicWorld.getBlockEntity(pos);
-        String blockString = BlockStateParser.serialize(state);
+        String blockString = BlockArgumentParser.stringifyBlockState(state);
 
         if (be instanceof SignBlockEntity signBe)
         {
@@ -606,15 +621,15 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             if (tag != null)
             {
                 // Remove redundant tags to save on the command string length
-                if (signBe.getFrontText().hasMessage(this.mc.player) == false)
+                if (signBe.getFrontText().hasText(this.mc.player) == false)
                 {
                     tag.remove("front_text");
                 }
                 else
                 {
-                    CompoundTag frontText = tag.getCompoundOrEmpty("front_text");
+                    NbtCompound frontText = tag.getCompoundOrEmpty("front_text");
 
-                    if (signBe.getFrontText().hasGlowingText() == false)
+                    if (signBe.getFrontText().isGlowing() == false)
                     {
                         frontText.remove("has_glowing_text");
                     }
@@ -626,15 +641,15 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     tag.put("front_text", frontText);
                 }
 
-                if (signBe.getBackText().hasMessage(this.mc.player) == false)
+                if (signBe.getBackText().hasText(this.mc.player) == false)
                 {
                     tag.remove("back_text");
                 }
                 else
                 {
-                    CompoundTag backText = tag.getCompoundOrEmpty("back_text");
+                    NbtCompound backText = tag.getCompoundOrEmpty("back_text");
 
-                    if (signBe.getBackText().hasGlowingText() == false)
+                    if (signBe.getBackText().isGlowing() == false)
                     {
                         backText.remove("has_glowing_text");
                     }
@@ -667,7 +682,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 }
                 else
                 {
-                    CompoundTag baseTag = new CompoundTag();
+                    NbtCompound baseTag = new NbtCompound();
 
                     if (tag.contains("is_waxed"))
                     {
@@ -718,7 +733,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     else
                     {
                         // Fallback to setDataViaModify() if the NBT is too powerful for mortal command limits.
-                        this.setDataViaDataModify(pos, state, be, schematicWorld, this.mc.level, commandHandler);
+                        this.setDataViaDataModify(pos, state, be, schematicWorld, this.mc.world, commandHandler);
                         return;
                     }
                 }

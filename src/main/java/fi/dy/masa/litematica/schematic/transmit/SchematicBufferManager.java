@@ -2,7 +2,7 @@ package fi.dy.masa.litematica.schematic.transmit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
@@ -15,7 +15,7 @@ import fi.dy.masa.litematica.util.FileType;
 public class SchematicBufferManager
 {
     private final ConcurrentHashMap<Long, SchematicBuffer> fileBuffers;
-    private final ConcurrentHashMap<Long, CompoundTag> optionalNbt;
+    private final ConcurrentHashMap<Long, NbtCompound> optionalNbt;
 
     public SchematicBufferManager()
     {
@@ -28,12 +28,12 @@ public class SchematicBufferManager
         this.createBuffer(totalExpectedSlices, totalExpectedSize, FileType.LITEMATICA_SCHEMATIC, sessionKey, null);
     }
 
-    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, final long sessionKey, @Nullable CompoundTag optional)
+    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, final long sessionKey, @Nullable NbtCompound optional)
     {
         this.createBuffer(totalExpectedSlices, totalExpectedSize, FileType.LITEMATICA_SCHEMATIC, sessionKey, optional);
     }
 
-    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, FileType type, final long sessionKey, @Nullable CompoundTag optional)
+    public void createBuffer(int totalExpectedSlices, long totalExpectedSize, FileType type, final long sessionKey, @Nullable NbtCompound optional)
     {
         if (this.fileBuffers.containsKey(sessionKey) || this.optionalNbt.containsKey(sessionKey))
         {

@@ -51,7 +51,6 @@ public class SchematicBuffer
 
     public void receiveSlice(final int number, Slice slice)
     {
-        this.buffer.put(number, slice);
         if (number >= 0 && number < this.totalExpectedSlices)
         {
             if (this.buffer[number] == null)
@@ -136,7 +135,6 @@ public class SchematicBuffer
         }
 
         Litematica.debugLog("LitematicBuffer#writeFile(): Saved file '{}' successfully", file.toAbsolutePath().toString());
-        this.buffer.clear();
         return file;
     }
 

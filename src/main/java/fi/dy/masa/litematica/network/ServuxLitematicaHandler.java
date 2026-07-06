@@ -2,10 +2,7 @@ package fi.dy.masa.litematica.network;
 
 import javax.annotation.Nullable;
 import io.netty.buffer.Unpooled;
-import org.apache.commons.lang3.tuple.Pair;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
@@ -15,14 +12,15 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.random.Random;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.PacketSplitter;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.EntitiesDataStorage;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 
 @Environment(EnvType.CLIENT)
 public abstract class ServuxLitematicaHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
@@ -90,14 +88,14 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
                     {
                         if (this.servuxRegistered)
                         {
-                            EntityDataManager.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound());
+                            EntitiesDataStorage.getInstance().handleBlockEntityData(packet.getPos(), packet.getCompound(), null);
                         }
                     }
             case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE ->
                     {
                         if (this.servuxRegistered)
                         {
-                            EntityDataManager.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
+                            EntitiesDataStorage.getInstance().handleEntityData(packet.getEntityId(), packet.getCompound());
                         }
                     }
             case PACKET_S2C_NBT_RESPONSE_DATA ->
@@ -164,7 +162,7 @@ public abstract class ServuxLitematicaHandler<T extends CustomPayload> implement
 //            default -> EntityDataManager.getInstance().handleBulkEntityData(type, DataConverterNbt.fromVanillaCompound(nbt));
 //        }
 
-        EntityDataManager.getInstance().handleBulkEntityData(type, nbt);
+        EntitiesDataStorage.getInstance().handleBulkEntityData(type, nbt);
     }
 
     @Override
