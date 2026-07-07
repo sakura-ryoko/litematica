@@ -4,6 +4,7 @@ import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.materials.MaterialListCustom;
 import fi.dy.masa.litematica.materials.MaterialListSchematic;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
@@ -167,6 +168,23 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
 				LitematicaSchematic schematic = null;
 				FileType fileType = FileType.fromFile(entry.getFullPath());
 				boolean warnType = false;
+
+				// Handle custom item list files for material list button
+				if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TXT))
+				{
+					MaterialListCustom customList = MaterialListCustom.fromFile(file);
+					if (customList != null)
+					{
+						DataManager.setMaterialList(customList);
+						GuiBase.openGui(new GuiMaterialList(customList));
+						this.gui.addMessage(MessageType.SUCCESS, "litematica.info.material_list.custom_loaded", file.getFileName());
+					}
+					else
+					{
+						this.gui.addMessage(MessageType.ERROR, "litematica.error.material_list.custom_load_failed", file.getFileName());
+					}
+					return;
+				}
 
 				if (fileType == FileType.LITEMATICA_SCHEMATIC)
 				{

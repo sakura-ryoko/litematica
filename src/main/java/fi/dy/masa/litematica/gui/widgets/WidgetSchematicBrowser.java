@@ -382,7 +382,9 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             return  name.endsWith(".litematic") ||
                     name.endsWith(".schem") ||
                     name.endsWith(".schematic") ||
-                    name.endsWith(".nbt");
+                    name.endsWith(".nbt") ||
+                    name.endsWith(".json") ||
+                    name.endsWith(".txt");
         }
     }
 }

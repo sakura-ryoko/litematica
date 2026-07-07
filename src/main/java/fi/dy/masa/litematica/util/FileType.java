@@ -12,12 +12,13 @@ public enum FileType implements StringIdentifiable
 	INVALID,
 	UNKNOWN,
 	JSON,
+	TXT,
 	LITEMATICA_SCHEMATIC,
 	SCHEMATICA_SCHEMATIC,
 	SPONGE_SCHEMATIC,
 	VANILLA_STRUCTURE;
 
-	public static final StringIdentifiable.EnumCodec<FileType> CODEC = StringIdentifiable.createCodec(FileType::values);
+	public static final EnumCodec<FileType> CODEC = StringIdentifiable.createCodec(FileType::values);
 	public static final ImmutableList<FileType> VALUES = ImmutableList.copyOf(values());
 
 	public static FileType fromName(String fileName)
@@ -41,6 +42,10 @@ public enum FileType implements StringIdentifiable
 		else if (fileName.endsWith(".json"))
 		{
 			return JSON;
+		}
+		else if (fileName.endsWith(".txt"))
+		{
+			return TXT;
 		}
 
 		return UNKNOWN;
@@ -80,6 +85,7 @@ public enum FileType implements StringIdentifiable
 			case SPONGE_SCHEMATIC -> ".schem";
 			case VANILLA_STRUCTURE -> ".nbt";
 			case JSON -> ".json";
+			case TXT -> ".txt";
 			case INVALID -> ".invalid";
 			case UNKNOWN -> ".unknown";
 		};
@@ -94,6 +100,7 @@ public enum FileType implements StringIdentifiable
 			case SPONGE_SCHEMATIC -> "sponge";
 			case VANILLA_STRUCTURE -> "vanilla_nbt";
 			case JSON -> "JSON";
+			case TXT -> "TXT";
 			case INVALID -> "invalid";
 			case UNKNOWN -> "unknown";
 		};

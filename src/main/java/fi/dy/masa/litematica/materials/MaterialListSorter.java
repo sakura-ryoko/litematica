@@ -31,6 +31,20 @@ public class MaterialListSorter implements Comparator<MaterialListEntry>
         {
             return entry1.getCountAvailable() == entry2.getCountAvailable() ? nameCompare : ((entry1.getCountAvailable() > entry2.getCountAvailable()) != reverse ? -1 : 1);
         }
+        else if (sortCriteria == SortCriteria.CACHE_ORDER)
+        {
+            // Sort by cache priority (lower = more recently accessed)
+            MaterialListItemCache cache = MaterialListItemCache.getInstance();
+            int priority1 = cache.getCachePriority(entry1.getStack());
+            int priority2 = cache.getCachePriority(entry2.getStack());
+
+            if (priority1 == priority2)
+            {
+                return nameCompare;
+            }
+
+            return (priority1 < priority2) != reverse ? -1 : 1;
+        }
 
         return reverse == false ? nameCompare * -1 : nameCompare;
     }
