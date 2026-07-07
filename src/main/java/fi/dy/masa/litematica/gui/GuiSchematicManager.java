@@ -26,6 +26,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.materials.MaterialListCustom;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.util.FileType;
 
@@ -97,7 +98,12 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
                 x = this.createButton(x, y, ButtonListener.Type.IMPORT_SCHEMATIC);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS_TYPE);
-
+            }
+			else if (type == FileType.TEXT || type == FileType.JSON)
+            {
+	            x = this.createButton(x, y, ButtonListener.Type.MATERIAL_LIST);
+	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
+	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS_TYPE);
             }
 		}
 
@@ -397,6 +403,21 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 					this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_import.unsupported_type", file.getFileName());
 				}
 			}
+			else if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TEXT))
+			{
+				MaterialListCustom customList = MaterialListCustom.fromFile(file);
+
+				if (customList != null)
+				{
+					DataManager.setMaterialList(customList);
+					GuiBase.openGui(new GuiMaterialList(customList));
+					this.gui.addMessage(MessageType.SUCCESS, "litematica.info.material_list.custom_loaded", file.getFileName());
+				}
+				else
+				{
+					this.gui.addMessage(MessageType.ERROR, "litematica.error.material_list.custom_load_failed", file.getFileName());
+				}
+			}
 			else if (this.type == Type.FILE_OPS)
 			{
 				if (this.gui.fileOpType == FileOpType.RENAME_FILE)
@@ -426,6 +447,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 			EXPORT_TYPE         (""),
 			FILE_OPS            ("litematica.gui.button.schematic_manager.file_ops", "litematica.gui.button.schematic_manager.file_ops.hover"),
 			FILE_OPS_TYPE       (""),
+			MATERIAL_LIST		("litematica.gui.button.material_list"),
 			;
 
 			private final String label;

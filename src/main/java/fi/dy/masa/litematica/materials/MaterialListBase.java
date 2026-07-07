@@ -23,7 +23,7 @@ public abstract class MaterialListBase implements IMaterialList
     protected final List<MaterialListEntry> materialListFiltered = new ArrayList<>();
     protected ImmutableList<MaterialListEntry> materialListAll = ImmutableList.of();
     @Nullable protected ICompletionListener completionListener;
-    protected SortCriteria sortCriteria = SortCriteria.COUNT_TOTAL;
+    protected SortCriteria sortCriteria = SortCriteria.CACHE_ORDER;
     protected BlockInfoListType materialListType = BlockInfoListType.ALL;
     protected boolean reverse = false;
     protected boolean hideAvailable;
@@ -260,7 +260,8 @@ public abstract class MaterialListBase implements IMaterialList
         NAME,
         COUNT_TOTAL,
         COUNT_MISSING,
-        COUNT_AVAILABLE;
+        COUNT_AVAILABLE,
+        CACHE_ORDER;
 
         public static SortCriteria fromStringStatic(String name)
         {

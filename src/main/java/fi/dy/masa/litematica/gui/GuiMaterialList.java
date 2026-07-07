@@ -2,7 +2,11 @@ package fi.dy.masa.litematica.gui;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.ItemStack;
+
 import fi.dy.masa.malilib.data.DataDump;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiListBase;
@@ -19,6 +23,7 @@ import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.data.ItemType;
 import fi.dy.masa.malilib.util.time.TimeFormat;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -113,6 +118,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         x += this.createButton(x, y, -1, ButtonListener.Type.CLEAR_CACHE) + gap;
         x += this.createButton(x, y, -1, ButtonListener.Type.WRITE_TO_FILE) + gap;
         x += this.createButton(x, y, -1, ButtonListener.Type.WRITE_TO_JSON) + gap;
+        x += this.createButton(x, y, -1, ButtonListener.Type.EXPORT) + gap;
         y += 22;
 
         y = this.getScreenHeight() - 36;
@@ -187,6 +193,10 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         {
             button.setHoverStrings("litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only");
         }
+        else if (type == ButtonListener.Type.EXPORT)
+        {
+            button.setHoverStrings("litematica.gui.button.hover.material_list.export_custom_json");
+        }
 
         this.addButton(button, listener);
 
@@ -203,6 +213,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         width += this.getStringWidth(ButtonListener.Type.CLEAR_CACHE.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.WRITE_TO_FILE.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.WRITE_TO_JSON.getDisplayName());
+        width += this.getStringWidth(ButtonListener.Type.EXPORT.getDisplayName());
         width += (new ButtonOnOff(0, 0, -1, false, ButtonListener.Type.HIDE_AVAILABLE.getTranslationKey(), false)).getWidth();
         width += (new ButtonOnOff(0, 0, -1, false, ButtonListener.Type.TOGGLE_INFO_HUD.getTranslationKey(), false)).getWidth();
         width += this.getStringWidth(StringUtils.translate("litematica.gui.label.material_list.multiplier"));
@@ -388,9 +399,30 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
                     cache.clearAll();
                     jsonWriter.clear();
                     break;
+
+                case EXPORT:
+                    MaterialListCustom customList = this.getMaterialListCustom(materialList);
+                    GuiMaterialListSave gui = new GuiMaterialListSave(customList);
+                    gui.setParent(GuiUtils.getCurrentScreen());
+                    GuiBase.openGui(gui);
+                    break;
             }
 
             this.parent.initGui(); // Re-create buttons/text fields
+        }
+
+        private MaterialListCustom getMaterialListCustom(MaterialListBase materialList)
+        {
+            Object2IntOpenHashMap<ItemType> items = new Object2IntOpenHashMap<>();
+
+            for (MaterialListEntry entry : materialList.getMaterialsAll())
+            {
+                ItemStack stack = entry.getStack();
+                ItemType itemType = new ItemType(stack, false, false);
+                items.put(itemType, entry.getCountTotal());
+            }
+
+            return new MaterialListCustom(materialList.getName(), items, null);
         }
 
         private DataDump getMaterialListDump(MaterialListBase materialList, boolean csv)
@@ -443,6 +475,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
             CLEAR_CACHE         ("litematica.gui.button.material_list.clear_cache"),
             WRITE_TO_FILE       ("litematica.gui.button.material_list.write_to_file"),
             WRITE_TO_JSON       ("litematica.gui.button.material_list.write_to_json"),
+            EXPORT              ("litematica.gui.button.material_list.export"),
             ;
 
             private final String translationKey;

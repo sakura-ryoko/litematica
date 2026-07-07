@@ -27,6 +27,51 @@ public class MaterialListUtils
         return createMaterialListFor(schematic, schematic.getAreas().keySet());
     }
 
+    /**
+     * Creates a material list directly from item types and quantities,
+     * bypassing the block-based conversion system. This allows tracking
+     * of any item type including non-placeable items like tools and food.
+     *
+     * @param items Map of ItemType to quantity
+     * @param player Player entity for inventory tracking (can be null)
+     * @return List of MaterialListEntry objects
+     */
+    public static List<MaterialListEntry> createMaterialListFromItems(
+		    java.util.Map<ItemType, Integer> items, Player player)
+    {
+        List<MaterialListEntry> list = new ArrayList<>();
+
+        if (items.isEmpty())
+        {
+            return list;
+        }
+
+        Object2IntOpenHashMap<ItemType> playerInvItems = null;
+
+        if (player != null)
+        {
+            playerInvItems = getInventoryItemCounts(player.getInventory());
+        }
+
+        for (java.util.Map.Entry<ItemType, Integer> entry : items.entrySet())
+        {
+            ItemType type = entry.getKey();
+            int count = entry.getValue();
+            int countAvailable = playerInvItems != null ? playerInvItems.getInt(type) : 0;
+
+            // For custom item lists, total = missing (no placement state to compare against)
+            list.add(new MaterialListEntry(
+                type.getStack().copy(),
+                count,           // countTotal
+                count,           // countMissing (all items are "missing" since nothing is placed)
+                0,               // countMismatched (not applicable for custom lists)
+                countAvailable   // countAvailable (from player inventory)
+            ));
+        }
+
+        return list;
+    }
+
     public static List<MaterialListEntry> createMaterialListFor(LitematicaSchematic schematic, Collection<String> subRegions)
     {
         Object2IntOpenHashMap<BlockState> countsTotal = new Object2IntOpenHashMap<>();
