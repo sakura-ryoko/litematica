@@ -7,11 +7,14 @@ import javax.annotation.Nonnull;
 import net.minecraft.util.StringRepresentable;
 import com.google.common.collect.ImmutableList;
 
+import fi.dy.masa.litematica.materials.MaterialListCustom;
+
 public enum FileType implements StringRepresentable
 {
 	INVALID,
 	UNKNOWN,
 	JSON,
+	TEXT,
 	LITEMATICA_SCHEMATIC,
 	SCHEMATICA_SCHEMATIC,
 	SPONGE_SCHEMATIC,
@@ -41,6 +44,10 @@ public enum FileType implements StringRepresentable
 		else if (fileName.endsWith(".json"))
 		{
 			return JSON;
+		}
+		else if (fileName.endsWith(MaterialListCustom.TEXT_FILE_EXTENSION))
+		{
+			return TEXT;
 		}
 
 		return UNKNOWN;
@@ -80,6 +87,7 @@ public enum FileType implements StringRepresentable
 			case SPONGE_SCHEMATIC -> ".schem";
 			case VANILLA_STRUCTURE -> ".nbt";
 			case JSON -> ".json";
+			case TEXT -> MaterialListCustom.TEXT_FILE_EXTENSION;
 			case INVALID -> ".invalid";
 			case UNKNOWN -> ".unknown";
 		};
@@ -94,6 +102,7 @@ public enum FileType implements StringRepresentable
 			case SPONGE_SCHEMATIC -> "sponge";
 			case VANILLA_STRUCTURE -> "vanilla_nbt";
 			case JSON -> "JSON";
+			case TEXT -> "TEXT";
 			case INVALID -> "invalid";
 			case UNKNOWN -> "unknown";
 		};

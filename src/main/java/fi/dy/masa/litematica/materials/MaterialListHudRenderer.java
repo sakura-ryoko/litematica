@@ -21,7 +21,7 @@ import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.mixin.screen.IMixinHandledScreen;
+import fi.dy.masa.litematica.mixin.screen.IMixinAbstractContainerScreen;
 import fi.dy.masa.litematica.render.infohud.IInfoHudRenderer;
 import fi.dy.masa.litematica.render.infohud.RenderPhase;
 import fi.dy.masa.litematica.util.InventoryUtils;
@@ -266,8 +266,8 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
     public static void highlightSlotsWithItem(GuiContext ctx, ItemStack referenceItem, AbstractContainerScreen<?> gui, Color4f color, Minecraft mc)
     {
         List<Slot> slots = gui.getMenu().slots;
-        int guiX = ((IMixinHandledScreen) gui).litematica_getX();
-        int guiY = ((IMixinHandledScreen) gui).litematica_getY();
+        int guiX = ((IMixinAbstractContainerScreen) gui).litematica_getX();
+        int guiY = ((IMixinAbstractContainerScreen) gui).litematica_getY();
 
         for (Slot slot : slots)
         {

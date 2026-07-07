@@ -19,10 +19,11 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
     ENCLOSING_BOX_ENABLED   (  0, 144, 16, 16),
     ENCLOSING_BOX_DISABLED  (  0, 160, 16, 16),
     FILE_ICON_LITEMATIC     (144,   0, 12, 12),
-    FILE_ICON_SCHEMATIC     (144,  12, 12, 12),
-    FILE_ICON_SPONGE_SCH    (144,  24, 12, 12),
-    FILE_ICON_VANILLA       (144,  36, 12, 12),
-    FILE_ICON_JSON          (144,  44, 12, 12),
+    FILE_ICON_SCHEMATIC     (144,  12, 12, 12),     // Schematica
+    FILE_ICON_SPONGE_SCH    (144,  24, 12, 12),     // Sponge / World Edit
+    FILE_ICON_VANILLA       (144,  36, 12, 12),     // Vanilla / Structure .NBT
+    FILE_ICON_JSON          (144,  48, 12, 12),     // Also used for Area Selections / other things.
+    FILE_ICON_TEXT          (144,  60, 12, 12),     // See "MaterialListCustom" (.txt)
     FILE_ICON_DIR           (156,   0, 12, 12),
     FILE_ICON_DIR_UP        (156,  12, 12, 12),
     FILE_ICON_DIR_ROOT      (156,  24, 12, 12),
@@ -137,6 +138,7 @@ public enum Icons implements IGuiIcon, IFileBrowserIconProvider
             case VANILLA_STRUCTURE -> FILE_ICON_VANILLA;
             case SPONGE_SCHEMATIC -> FILE_ICON_SPONGE_SCH;
             case JSON -> FILE_ICON_JSON;
+            case TEXT -> FILE_ICON_TEXT;
             default -> DUMMY;
         };
     }
