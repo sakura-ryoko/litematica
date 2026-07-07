@@ -21,6 +21,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.gui.interfaces.IStringListConsumer;
 import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
+import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
 import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
 import fi.dy.masa.malilib.util.FileRenamer;
@@ -32,8 +33,9 @@ import net.minecraft.util.math.BlockPos;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import org.jetbrains.annotations.Nullable;
 
-public class GuiSchematicLoad extends GuiSchematicBrowserBase
+public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
 {
     public GuiSchematicLoad()
     {
@@ -65,40 +67,61 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
     {
         super.initGui();
 
-        int x = 12;
-        int y = this.getScreenHeight() - 40;
-        int buttonWidth;
-        String label;
-        ButtonGeneric button;
-
-        label = StringUtils.translate("litematica.gui.label.schematic_load.checkbox.create_placement");
-        String hover = StringUtils.translate("litematica.gui.label.schematic_load.hoverinfo.create_placement");
-        WidgetCheckBox checkbox = new WidgetCheckBox(x, y, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, label, hover);
-        checkbox.setListener(new CheckboxListener());
-        checkbox.setChecked(DataManager.getCreatePlacementOnLoad(), false);
-        this.addWidget(checkbox);
-
-        y = this.getScreenHeight() - 26;
-        x += this.createButton(x, y, -1, ButtonListener.Type.LOAD_SCHEMATIC) + 4;
-        x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
-		x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_SCHEMATIC) + 4;
-		x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
-//		x += this.createButton(x, y, -1, ButtonListener.Type.DELETE) + 4;
-		// Masa doesn't want "destructive" operations in the Load GUI.
-
-        ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS;
-        label = StringUtils.translate(type.getLabelKey());
-        buttonWidth = this.getStringWidth(label) + 30;
-        button = new ButtonGeneric(x, y, buttonWidth, 20, label, type.getIcon());
-        this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
-
-        type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
-        label = StringUtils.translate(type.getLabelKey());
-        buttonWidth = this.getStringWidth(label) + 20;
-        x = this.getScreenWidth() - buttonWidth - 10;
-        button = new ButtonGeneric(x, y, buttonWidth, 20, label);
-        this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
+        this.createButtons();
     }
+
+	private void createButtons()
+	{
+		int x = 12;
+		int y = this.getScreenHeight() - 40;
+		int buttonWidth;
+		String label;
+		ButtonGeneric button;
+
+		label = StringUtils.translate("litematica.gui.label.schematic_load.checkbox.create_placement");
+		String hover = StringUtils.translate("litematica.gui.label.schematic_load.hoverinfo.create_placement");
+		WidgetCheckBox checkbox = new WidgetCheckBox(x, y, Icons.CHECKBOX_UNSELECTED, Icons.CHECKBOX_SELECTED, label, hover);
+		checkbox.setListener(new CheckboxListener());
+		checkbox.setChecked(DataManager.getCreatePlacementOnLoad(), false);
+		this.addWidget(checkbox);
+
+		DirectoryEntry selected = this.getListWidget().getLastSelectedEntry();
+
+		y = this.getScreenHeight() - 26;
+
+		if (this.getListWidget() == null) return;
+		if (selected != null)
+		{
+			FileType type = FileType.fromFile(selected.getFullPath());
+
+			if (type == FileType.LITEMATICA_SCHEMATIC || type == FileType.SPONGE_SCHEMATIC ||
+				type == FileType.SCHEMATICA_SCHEMATIC || type == FileType.VANILLA_STRUCTURE)
+			{
+				x += this.createButton(x, y, -1, ButtonListener.Type.LOAD_SCHEMATIC) + 4;
+				x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
+				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_SCHEMATIC) + 4;
+				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
+			}
+			else if (type == FileType.TXT || type == FileType.JSON)
+			{
+				x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
+				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
+			}
+		}
+
+		ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS;
+		label = StringUtils.translate(type.getLabelKey());
+		buttonWidth = this.getStringWidth(label) + 30;
+		button = new ButtonGeneric(x, y, buttonWidth, 20, label, type.getIcon());
+		this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
+
+		type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
+		label = StringUtils.translate(type.getLabelKey());
+		buttonWidth = this.getStringWidth(label) + 20;
+		x = this.getScreenWidth() - buttonWidth - 10;
+		button = new ButtonGeneric(x, y, buttonWidth, 20, label);
+		this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
+	}
 
     private int createButton(int x, int y, int width, ButtonListener.Type type)
     {
@@ -122,7 +145,20 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
         return width;
     }
 
-    private static class ButtonListener implements IButtonActionListener
+	@Override
+	public void onSelectionChange(@Nullable WidgetFileBrowserBase.DirectoryEntry entry)
+	{
+		this.clearButtons();
+		this.createButtons();
+	}
+
+	@Override
+	protected ISelectionListener<DirectoryEntry> getSelectionListener()
+	{
+		return this;
+	}
+
+	private static class ButtonListener implements IButtonActionListener
     {
         private final Type type;
         private final GuiSchematicLoad gui;
@@ -141,18 +177,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
 
             if (entry == null)
             {
-				// Masa doesn't want "destructive" operations in the Load GUI.
-				// Used to delete an empty folder that is selected
-//				if (this.type == Type.DELETE)
-//				{
-//					Path target = this.gui.getListWidget().getCurrentDirectory();
-//					FileDeleter deleter = new FileDeleter(target, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-//					GuiBase.openGui(new GuiConfirmAction(180, "litematica.gui.title.delete_confirm", deleter, this.gui, "litematica.message.delete_confirm", target.getFileName().toString()));
-//				}
-//				else
-//				{
-					this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.no_schematic_selected");
-//				}
+				this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_load.no_schematic_selected");
             }
 			else
 			{
@@ -256,23 +281,11 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase
 						String oldName = schematic.getMetadata().getName();
 						GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.rename_schematic", oldName, this.gui, new SchematicRenamer(entry.getDirectory(), entry.getName(), this.gui)));
 					}
-					// Masa doesn't want "destructive" operations in the Load GUI.
-//					else if (this.type == Type.COPY)
-//					{
-//						FileCopier copier = new FileCopier(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-//						GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.copy_file", entry.getName(), this.gui, copier));
-//					}
 					else if (this.type == Type.RENAME_FILE)
 					{
 						FileRenamer renamer = new FileRenamer(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
 						GuiBase.openGui(new GuiTextInputFeedback(256, "litematica.gui.title.rename_file", entry.getName(), this.gui, renamer));
 					}
-					// Masa doesn't want "destructive" operations in the Load GUI.
-//					else if (this.type == Type.DELETE)
-//					{
-//						FileDeleter deleter = new FileDeleter(file, this.gui.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
-//						GuiBase.openGui(new GuiConfirmAction(180, "litematica.gui.title.delete_confirm", deleter, this.gui, "litematica.message.delete_confirm", file.getFileName().toString()));
-//					}
 
 					if (warnType)
 					{

@@ -12,11 +12,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
+
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.malilib.util.ItemType;
 import fi.dy.masa.malilib.util.StringUtils;
@@ -29,6 +26,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  */
 public class MaterialListCustom extends MaterialListBase
 {
+    public static final String JSON_FILE_EXTENSION = ".json";
+    public static final String TEXT_FILE_EXTENSION = ".txt";
     private final String name;
     private final Path sourceFile;
 
@@ -75,7 +74,7 @@ public class MaterialListCustom extends MaterialListBase
 
             if (!element.isJsonObject())
             {
-                Litematica.LOGGER.error("MaterialListCustom: Invalid JSON file '{}' - root must be an object", file);
+                Litematica.LOGGER.error("MaterialListCustom#fromJsonFile: Invalid JSON file '{}' - root must be an object", file);
                 return null;
             }
 
@@ -84,7 +83,7 @@ public class MaterialListCustom extends MaterialListBase
 
             if (!root.has("items") || !root.get("items").isJsonArray())
             {
-                Litematica.LOGGER.error("MaterialListCustom: JSON file '{}' missing 'items' array", file);
+                Litematica.LOGGER.error("MaterialListCustom#fromJsonFile: JSON file '{}' missing 'items' array", file);
                 return null;
             }
 
@@ -95,7 +94,7 @@ public class MaterialListCustom extends MaterialListBase
             {
                 if (!itemElement.isJsonObject())
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Skipping invalid item entry in '{}'", file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromJsonFile: Skipping invalid item entry in '{}'", file);
                     continue;
                 }
 
@@ -103,33 +102,30 @@ public class MaterialListCustom extends MaterialListBase
 
                 if (!itemObj.has("id") || !itemObj.has("count"))
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Skipping item entry missing 'id' or 'count' in '{}'", file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromJsonFile: Skipping item entry missing 'id' or 'count' in '{}'", file);
                     continue;
                 }
 
                 String itemId = itemObj.get("id").getAsString();
                 int count = itemObj.get("count").getAsInt();
 
-                // Optional "cell" field is ignored by Litematica but preserved for web app use
-                // Web apps can use this to reconstruct grid layouts
-
                 if (count <= 0)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Skipping item '{}' with invalid count {} in '{}'", itemId, count, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromJsonFile: Skipping item '{}' with invalid count {} in '{}'", itemId, count, file);
                     continue;
                 }
 
                 Identifier identifier = Identifier.tryParse(itemId);
                 if (identifier == null)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Invalid item ID '{}' in '{}'", itemId, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromJsonFile: Invalid item ID '{}' in '{}'", itemId, file);
                     continue;
                 }
 
                 Item item = Registries.ITEM.get(identifier);
                 if (item == null)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Unknown item '{}' in '{}'", itemId, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromJsonFile: Unknown item '{}' in '{}'", itemId, file);
                     continue;
                 }
 
@@ -140,21 +136,21 @@ public class MaterialListCustom extends MaterialListBase
 
             if (items.isEmpty())
             {
-                Litematica.LOGGER.error("MaterialListCustom: No valid items found in '{}'", file);
+                Litematica.LOGGER.error("MaterialListCustom#fromJsonFile: No valid items found in '{}'", file);
                 return null;
             }
 
-            Litematica.LOGGER.info("MaterialListCustom: Loaded {} item types from '{}'", items.size(), file);
+            Litematica.LOGGER.info("MaterialListCustom#fromJsonFile: Loaded {} item types from '{}'", items.size(), file);
             return new MaterialListCustom(name, items, file);
         }
         catch (IOException e)
         {
-            Litematica.LOGGER.error("MaterialListCustom: Failed to read JSON file '{}': {}", file, e.getMessage());
+            Litematica.LOGGER.error("MaterialListCustom#fromJsonFile: Failed to read JSON file '{}': {}", file, e.getMessage());
             return null;
         }
         catch (Exception e)
         {
-            Litematica.LOGGER.error("MaterialListCustom: Failed to parse JSON file '{}': {}", file, e.getMessage());
+            Litematica.LOGGER.error("MaterialListCustom#fromJsonFile: Failed to parse JSON file '{}': {}", file, e.getMessage());
             return null;
         }
     }
@@ -195,7 +191,7 @@ public class MaterialListCustom extends MaterialListBase
                 String[] parts = line.split("\\s+");
                 if (parts.length != 2)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Invalid line {} in '{}': expected 'item_id count'", lineNumber, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromTextFile: Invalid line {} in '{}': expected 'item_id count'", lineNumber, file);
                     continue;
                 }
 
@@ -208,27 +204,27 @@ public class MaterialListCustom extends MaterialListBase
                 }
                 catch (NumberFormatException e)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Invalid count '{}' on line {} in '{}'", parts[1], lineNumber, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromTextFile: Invalid count '{}' on line {} in '{}'", parts[1], lineNumber, file);
                     continue;
                 }
 
                 if (count <= 0)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Invalid count {} on line {} in '{}'", count, lineNumber, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromTextFile: Invalid count {} on line {} in '{}'", count, lineNumber, file);
                     continue;
                 }
 
                 Identifier identifier = Identifier.tryParse(itemId);
                 if (identifier == null)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Invalid item ID '{}' on line {} in '{}'", itemId, lineNumber, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromTextFile: Invalid item ID '{}' on line {} in '{}'", itemId, lineNumber, file);
                     continue;
                 }
 
                 Item item = Registries.ITEM.get(identifier);
                 if (item == null)
                 {
-                    Litematica.LOGGER.warn("MaterialListCustom: Unknown item '{}' on line {} in '{}'", itemId, lineNumber, file);
+                    Litematica.LOGGER.warn("MaterialListCustom#fromTextFile: Unknown item '{}' on line {} in '{}'", itemId, lineNumber, file);
                     continue;
                 }
 
@@ -239,16 +235,16 @@ public class MaterialListCustom extends MaterialListBase
 
             if (items.isEmpty())
             {
-                Litematica.LOGGER.error("MaterialListCustom: No valid items found in '{}'", file);
+                Litematica.LOGGER.error("MaterialListCustom#fromTextFile: No valid items found in '{}'", file);
                 return null;
             }
 
-            Litematica.LOGGER.info("MaterialListCustom: Loaded {} item types from '{}'", items.size(), file);
+            Litematica.LOGGER.info("MaterialListCustom#fromTextFile: Loaded {} item types from '{}'", items.size(), file);
             return new MaterialListCustom(name, items, file);
         }
         catch (IOException e)
         {
-            Litematica.LOGGER.error("MaterialListCustom: Failed to read text file '{}': {}", file, e.getMessage());
+            Litematica.LOGGER.error("MaterialListCustom#fromTextFile: Failed to read text file '{}': {}", file, e.getMessage());
             return null;
         }
     }
@@ -263,17 +259,17 @@ public class MaterialListCustom extends MaterialListBase
     {
         String fileName = file.getFileName().toString().toLowerCase();
 
-        if (fileName.endsWith(".json"))
+        if (fileName.endsWith(JSON_FILE_EXTENSION))
         {
             return fromJsonFile(file);
         }
-        else if (fileName.endsWith(".txt"))
+        else if (fileName.endsWith(TEXT_FILE_EXTENSION))
         {
             return fromTextFile(file);
         }
         else
         {
-            Litematica.LOGGER.error("MaterialListCustom: Unsupported file format '{}' - expected .json or .txt", file);
+            Litematica.LOGGER.error("MaterialListCustom#fromFile: Unsupported file format '{}' - expected .json or .txt", file);
             return null;
         }
     }
@@ -283,8 +279,28 @@ public class MaterialListCustom extends MaterialListBase
      * @param file Path where the JSON file should be saved
      * @return true if export was successful
      */
-    public boolean toJsonFile(Path file)
+    public boolean toJsonFile(Path file, boolean overwrite)
     {
+        boolean exists = Files.exists(file);
+
+        if (exists && overwrite)
+        {
+            try
+            {
+                Files.delete(file);
+            }
+            catch (IOException e)
+            {
+                Litematica.LOGGER.error("MaterialListCustom#toJsonFile: Failed to delete file '{}'; {}", file.getFileName().toString(), e.getLocalizedMessage());
+                return false;
+            }
+        }
+        else if (exists)
+        {
+            Litematica.LOGGER.error("MaterialListCustom#toJsonFile: Failed; file '{}' already exists", file.getFileName().toString());
+            return false;
+        }
+
         try
         {
             JsonObject root = new JsonObject();
@@ -306,17 +322,16 @@ public class MaterialListCustom extends MaterialListBase
 
             root.add("items", itemsArray);
 
-            // Pretty print the JSON
-            com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(root);
 
             Files.writeString(file, json);
-            Litematica.LOGGER.info("MaterialListCustom: Exported material list to '{}'", file);
+            Litematica.LOGGER.info("MaterialListCustom#toJsonFile: Exported material list to '{}'", file);
             return true;
         }
         catch (IOException e)
         {
-            Litematica.LOGGER.error("MaterialListCustom: Failed to write JSON file '{}': {}", file, e.getMessage());
+            Litematica.LOGGER.error("MaterialListCustom#toJsonFile: Failed to write JSON file '{}': {}", file, e.getMessage());
             return false;
         }
     }
@@ -340,7 +355,6 @@ public class MaterialListCustom extends MaterialListBase
     @Override
     public void reCreateMaterialList()
     {
-        // Custom material lists can be reloaded from their source file
         if (this.sourceFile != null && Files.exists(this.sourceFile))
         {
             MaterialListCustom reloaded = fromFile(this.sourceFile);
@@ -349,13 +363,12 @@ public class MaterialListCustom extends MaterialListBase
                 this.materialListAll = reloaded.materialListAll;
                 this.refreshPreFilteredList();
                 this.updateCounts();
-                Litematica.LOGGER.info("MaterialListCustom: Reloaded material list from '{}'", this.sourceFile);
+                Litematica.LOGGER.info("MaterialListCustom#reCreateMaterialList: Reloaded material list from '{}'", this.sourceFile);
             }
         }
         else
         {
-            // Can't recreate without a source file
-            Litematica.LOGGER.warn("MaterialListCustom: Cannot recreate material list - no source file");
+            Litematica.LOGGER.warn("MaterialListCustom#reCreateMaterialList: Cannot recreate material list - no source file");
         }
     }
 }

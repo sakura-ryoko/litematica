@@ -27,6 +27,7 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.materials.MaterialListCustom;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.util.FileType;
 
@@ -84,16 +85,11 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 
             if (type == FileType.LITEMATICA_SCHEMATIC)
             {
-//                x = this.createButton(x, y, ButtonListener.Type.RENAME_SCHEMATIC);
-//                x = this.createButton(x, y, ButtonListener.Type.SET_PREVIEW);
 	            x = this.createButton(x, y, ButtonListener.Type.EDIT_SCHEMATIC);
 	            x = this.createButton(x, y, ButtonListener.Type.EDIT_TYPE);
 	            x = this.createButton(x, y, ButtonListener.Type.IMPORT_SCHEMATIC);
                 x = this.createButton(x, y, ButtonListener.Type.EXPORT_SCHEMATIC);
                 x = this.createButton(x, y, ButtonListener.Type.EXPORT_TYPE);
-//				x = this.createButton(x, y, ButtonListener.Type.RENAME_FILE);
-//				x = this.createButton(x, y, ButtonListener.Type.COPY);
-//				x = this.createButton(x, y, ButtonListener.Type.DELETE);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS_TYPE);
 
@@ -101,12 +97,14 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
             else if (type == FileType.SPONGE_SCHEMATIC || type == FileType.SCHEMATICA_SCHEMATIC || type == FileType.VANILLA_STRUCTURE)
             {
                 x = this.createButton(x, y, ButtonListener.Type.IMPORT_SCHEMATIC);
-//				x = this.createButton(x, y, ButtonListener.Type.RENAME_FILE);
-//				x = this.createButton(x, y, ButtonListener.Type.COPY);
-//				x = this.createButton(x, y, ButtonListener.Type.DELETE);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS_TYPE);
-
+            }
+			else if (type == FileType.TXT || type == FileType.JSON)
+            {
+	            x = this.createButton(x, y, ButtonListener.Type.MATERIAL_LIST);
+	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
+	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS_TYPE);
             }
 		}
 
@@ -406,6 +404,21 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 					this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_import.unsupported_type", file.getFileName());
 				}
 			}
+			else if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TXT))
+			{
+				MaterialListCustom customList = MaterialListCustom.fromFile(file);
+
+				if (customList != null)
+				{
+					DataManager.setMaterialList(customList);
+					GuiBase.openGui(new GuiMaterialList(customList));
+					this.gui.addMessage(MessageType.SUCCESS, "litematica.info.material_list.custom_loaded", file.getFileName());
+				}
+				else
+				{
+					this.gui.addMessage(MessageType.ERROR, "litematica.error.material_list.custom_load_failed", file.getFileName());
+				}
+			}
 			else if (this.type == Type.FILE_OPS)
 			{
 				if (this.gui.fileOpType == FileOpType.RENAME_FILE)
@@ -430,16 +443,12 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 		{
 			EDIT_SCHEMATIC("litematica.gui.button.schematic_manager.edit_schematic", "litematica.gui.button.schematic_manager.edit_schematic.hover"),
 			EDIT_TYPE(""),
-//			RENAME_SCHEMATIC("litematica.gui.button.rename_schematic"),
-//			SET_PREVIEW("litematica.gui.button.set_preview", "litematica.info.schematic_manager.preview.right_click_to_cancel"),
 			IMPORT_SCHEMATIC("litematica.gui.button.import", "litematica.gui.button.import.hover"),
 			EXPORT_SCHEMATIC("litematica.gui.button.schematic_manager.export_as", "litematica.gui.button.schematic_manager.export_as.hover"),
 			EXPORT_TYPE(""),
 			FILE_OPS("litematica.gui.button.schematic_manager.file_ops", "litematica.gui.button.schematic_manager.file_ops.hover"),
 			FILE_OPS_TYPE(""),
-//			RENAME_FILE("litematica.gui.button.rename_file"),
-//			COPY("litematica.gui.button.copy"),
-//			DELETE("litematica.gui.button.delete"),
+			MATERIAL_LIST("litematica.gui.button.material_list"),
 			;
 
 			private final String label;

@@ -23,6 +23,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
 import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.materials.MaterialListCustom;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.SchematicMetadata;
 import fi.dy.masa.litematica.schematic.SchematicSchema;
@@ -383,8 +384,8 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                     name.endsWith(".schem") ||
                     name.endsWith(".schematic") ||
                     name.endsWith(".nbt") ||
-                    name.endsWith(".json") ||
-                    name.endsWith(".txt");
+                    name.endsWith(MaterialListCustom.JSON_FILE_EXTENSION) ||
+                    name.endsWith(MaterialListCustom.TEXT_FILE_EXTENSION);
         }
     }
 }
