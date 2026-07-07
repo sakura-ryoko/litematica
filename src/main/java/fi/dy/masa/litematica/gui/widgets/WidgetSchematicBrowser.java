@@ -23,9 +23,12 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiSchematicBrowserBase;
 import fi.dy.masa.litematica.gui.Icons;
+import fi.dy.masa.litematica.materials.MaterialListCustom;
+import fi.dy.masa.litematica.materials.MaterialListPreview;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.SchematicMetadata;
 import fi.dy.masa.litematica.schematic.SchematicSchema;
+import fi.dy.masa.litematica.util.FileType;
 
 public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 {
@@ -34,6 +37,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
     protected final Map<Path, SchematicMetadata> cachedMetadata = new HashMap<>();
     protected final Map<Path, SchematicSchema> cachedVersion = new HashMap<>();
     protected final Map<Path, Pair<Identifier, DynamicTexture>> cachedPreviewImages = new HashMap<>();
+    protected final Map<Path, MaterialListPreview> cachedMatsMetadata = new HashMap<>();
     protected final GuiSchematicBrowserBase parent;
     protected final int infoWidth;
     protected final int infoHeight;
@@ -94,16 +98,21 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             return;
         }
 
-        Pair<SchematicSchema, SchematicMetadata> metaPair = this.getSchematicVersionAndMetadata(entry);
-        SchematicMetadata meta;
-        SchematicSchema version;
+        FileType type = FileType.fromName(entry.getName());
+        boolean matType = type == FileType.JSON || type == FileType.TEXT;
+        boolean schemType = type == FileType.LITEMATICA_SCHEMATIC || type == FileType.SPONGE_SCHEMATIC || type == FileType.VANILLA_STRUCTURE;
+        Pair<SchematicSchema, SchematicMetadata> metaPair = schemType ? this.getSchematicVersionAndMetadata(entry) : null;
+        MaterialListPreview listData = matType ? this.getMaterialListPreview(entry) : null;
+        SchematicMetadata meta = null;
+        SchematicSchema version = null;
 
         if (metaPair != null)
         {
             meta = metaPair.getRight();
             version = metaPair.getLeft();
         }
-        else
+
+        if (meta == null && listData == null)
         {
             return;
         }
@@ -238,7 +247,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 
             Pair<Identifier, DynamicTexture> pair = this.cachedPreviewImages.get(entry.getFullPath());
 
-            if (pair != null)
+            if (pair != null && pair.getRight().getPixels() != null)
             {
                 //y += 14;
                 y += 12;
@@ -256,6 +265,35 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
                 ctx.blit(RenderPipelines.GUI_TEXTURED, pair.getLeft(), x + 4, y, 0.0F, 0.0F, iconSize, iconSize, iconSize, iconSize);
             }
         }
+        else        // Material List Info Panel
+        {
+            x += 3;
+            y += 3;
+            int textColor = 0xC0C0C0C0;
+            int valueColor = 0xFFFFFFFF;
+
+            String str = StringUtils.translate("litematica.gui.label.material_list_info.title_colon");
+            this.drawString(ctx, str, x, y, textColor);
+            y += 12;
+
+            this.drawString(ctx, FileType.getString(listData.type()), x + 4, y, valueColor);
+            y += 12;
+
+            str = StringUtils.translate("litematica.gui.label.material_list_info.name");
+            this.drawString(ctx, str, x, y, textColor);
+            y += 12;
+
+            this.drawString(ctx, listData.name(), x + 4, y, valueColor);
+            y += 12;
+
+            str = StringUtils.translate("litematica.gui.label.material_list_info.item_count");
+            this.drawString(ctx, str, x, y, textColor);
+            y += 12;
+
+            str = String.format("%03d", listData.itemCount());
+            this.drawString(ctx, str, x + 4, y, valueColor);
+            y += 12;
+        }
     }
 
     public void clearSchematicMetadataCache()
@@ -264,6 +302,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         this.cachedMetadata.clear();
         this.cachedPreviewImages.clear();
         this.cachedVersion.clear();
+        this.cachedMatsMetadata.clear();
     }
 
     @Deprecated
@@ -273,7 +312,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         Path file = entry.getDirectory().resolve(entry.name());
         SchematicMetadata meta = this.cachedMetadata.get(file);
 
-        if (meta == null && this.cachedMetadata.containsKey(file) == false)
+        if (meta == null && !this.cachedMetadata.containsKey(file))
         {
             if (entry.name().endsWith(LitematicaSchematic.FILE_EXTENSION))
             {
@@ -298,7 +337,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         SchematicMetadata meta = this.cachedMetadata.get(file);
         SchematicSchema version = this.cachedVersion.get(file);
 
-        if (meta == null && this.cachedMetadata.containsKey(file) == false)
+        if (meta == null && !this.cachedMetadata.containsKey(file))
         {
             Pair<SchematicSchema, SchematicMetadata> pair = LitematicaSchematic.readMetadataAndVersionFromFile(entry.getDirectory(), entry.name());
 
@@ -318,6 +357,26 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         }
 
         return Pair.of(version, meta);
+    }
+
+    @Nullable
+    protected MaterialListPreview getMaterialListPreview(DirectoryEntry entry)
+    {
+        Path file = entry.getDirectory().resolve(entry.getName());
+        MaterialListPreview meta = this.cachedMatsMetadata.get(file);
+
+        if (meta == null && !this.cachedMatsMetadata.containsKey(file))
+        {
+            MaterialListCustom data = MaterialListCustom.fromFile(file);
+
+            if (data != null)
+            {
+                meta = new MaterialListPreview(FileType.fromFile(file), data.getName(), data.getMaterialsAll().size());
+                this.cachedMatsMetadata.put(file, meta);
+            }
+        }
+
+        return meta;
     }
 
     private void clearPreviewImages()
@@ -378,7 +437,9 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             return  name.endsWith(".litematic") ||
                     name.endsWith(".schem") ||
                     name.endsWith(".schematic") ||
-                    name.endsWith(".nbt");
+                    name.endsWith(".nbt") ||
+                    name.endsWith(MaterialListCustom.JSON_FILE_EXTENSION) ||
+                    name.endsWith(MaterialListCustom.TEXT_FILE_EXTENSION);
         }
     }
 }

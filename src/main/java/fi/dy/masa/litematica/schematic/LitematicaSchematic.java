@@ -3008,7 +3008,7 @@ public class LitematicaSchematic
             type = FileType.fromFile(file);
         }
 
-        if (type == FileType.INVALID)
+        if (type == FileType.INVALID || type == FileType.TEXT || type == FileType.JSON)
         {
             return null;
         }
