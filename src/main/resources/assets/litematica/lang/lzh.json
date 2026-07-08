@@ -107,7 +107,6 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "Bypass the new distance/coordinate check that was added in 1.18.2.\n\nThat check breaks the \"accurate placement protocol\" and causes\nany blocks placed with a rotation (or other property) request to just become ghost blocks.\n\nThere is basically no need to ever disable this.\nThe check didn't even exist ever before 1.18.2.",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "啟之則隨戲者繪其層。\n註：今啟之則廢「範疇」類之直域，誠爲不幸",
     "litematica.config.generic.comment.loadEntireSchematics": "啟之則載蜃圖之全圖。\n棄之則止載視距之內。",
-    "litematica.config.generic.comment.materialListContainerScan": "Scans recently opened containers to resort your active\nMaterial List based on your proximity to them.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "啟之則全然不顧其塊態，且後世衹需匹其塊類爾。",
