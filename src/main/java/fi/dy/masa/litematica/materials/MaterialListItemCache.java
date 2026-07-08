@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.collection.DefaultedList;
+
+import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.ItemType;
 
 /**
@@ -16,7 +21,6 @@ public class MaterialListItemCache
 {
     private static final MaterialListItemCache INSTANCE = new MaterialListItemCache();
 
-    // LinkedHashSet maintains insertion order while preventing duplicates
     private final LinkedHashSet<ItemType> cachedItems = new LinkedHashSet<>();
     private boolean enabled = true;
 
@@ -42,7 +46,6 @@ public class MaterialListItemCache
             return;
         }
 
-        // Collect all unique items from this container
         List<ItemType> foundItems = new ArrayList<>();
 
         for (Slot slot : slots)
@@ -50,23 +53,82 @@ public class MaterialListItemCache
             if (slot.hasStack())
             {
                 ItemStack stack = slot.getStack();
-                // Use ItemType to compare items without NBT
-                ItemType itemType = new ItemType(stack, false, false);
 
-                // Only add if not already in our found list for this container
-                if (!foundItems.contains(itemType))
+                if (stack.isOf(Items.SHULKER_BOX))
                 {
-                    foundItems.add(itemType);
+                    DefaultedList<ItemStack> storedItems = this.updateFromShulker(stack);
+
+                    for (ItemStack item : storedItems)
+                    {
+                        ItemType itemType = new ItemType(item, false, false);
+
+                        if (!foundItems.contains(itemType))
+                        {
+                            foundItems.add(itemType);
+                        }
+                    }
+                }
+                else if (stack.isIn(ItemTags.BUNDLES))
+                {
+                    DefaultedList<ItemStack> storedItems = this.updateFromBundle(stack);
+
+                    for (ItemStack item : storedItems)
+                    {
+                        ItemType itemType = new ItemType(item, false, false);
+
+                        if (!foundItems.contains(itemType))
+                        {
+                            foundItems.add(itemType);
+                        }
+                    }
+                }
+                else
+                {
+                    ItemType itemType = new ItemType(stack, false, false);
+
+                    if (!foundItems.contains(itemType))
+                    {
+                        foundItems.add(itemType);
+                    }
                 }
             }
         }
 
-        // Update cache: remove then re-add to move items to the front
         for (ItemType itemType : foundItems)
         {
             this.cachedItems.remove(itemType);
             this.cachedItems.add(itemType);
         }
+    }
+
+    private DefaultedList<ItemStack> updateFromShulker(ItemStack stack)
+    {
+        if (stack.isOf(Items.SHULKER_BOX) && InventoryUtils.shulkerBoxHasItems(stack))
+        {
+            DefaultedList<ItemStack> storedItems = InventoryUtils.getStoredItems(stack);
+
+            if (storedItems != null && !storedItems.isEmpty())
+            {
+                return storedItems;
+            }
+        }
+
+        return DefaultedList.of();
+    }
+
+    private DefaultedList<ItemStack> updateFromBundle(ItemStack stack)
+    {
+        if (stack.isIn(ItemTags.BUNDLES) && InventoryUtils.bundleHasItems(stack))
+        {
+            DefaultedList<ItemStack> storedItems = InventoryUtils.getBundleItems(stack);
+
+            if (storedItems != null && !storedItems.isEmpty())
+            {
+                return storedItems;
+            }
+        }
+
+        return DefaultedList.of();
     }
 
     /**
@@ -86,7 +148,6 @@ public class MaterialListItemCache
 
         ItemType itemType = new ItemType(stack, false, false);
 
-        // Convert LinkedHashSet to list to get index (more efficient than iterating)
         List<ItemType> items = new ArrayList<>(this.cachedItems);
 
         // Reverse index so most recent (last in set) = lowest priority number
@@ -98,7 +159,7 @@ public class MaterialListItemCache
             }
         }
 
-        return Integer.MAX_VALUE; // Not in cache
+        return Integer.MAX_VALUE;
     }
 
     /**

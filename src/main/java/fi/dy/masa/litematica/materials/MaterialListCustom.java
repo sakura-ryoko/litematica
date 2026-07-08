@@ -239,7 +239,7 @@ public class MaterialListCustom extends MaterialListBase
                 return null;
             }
 
-            Litematica.LOGGER.info("MaterialListCustom#fromTextFile: Loaded {} item types from '{}'", items.size(), file);
+            Litematica.debugLog("MaterialListCustom#fromTextFile: Loaded {} item types from '{}'", items.size(), file);
             return new MaterialListCustom(name, items, file);
         }
         catch (IOException e)
@@ -363,7 +363,7 @@ public class MaterialListCustom extends MaterialListBase
                 this.materialListAll = reloaded.materialListAll;
                 this.refreshPreFilteredList();
                 this.updateCounts();
-                Litematica.LOGGER.info("MaterialListCustom#reCreateMaterialList: Reloaded material list from '{}'", this.sourceFile);
+                Litematica.debugLog("MaterialListCustom#reCreateMaterialList: Reloaded material list from '{}'", this.sourceFile);
             }
         }
         else

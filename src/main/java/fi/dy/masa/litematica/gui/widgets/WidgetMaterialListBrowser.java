@@ -58,10 +58,10 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
     @Override
     protected void drawAdditionalContents(DrawContext drawContext, int mouseX, int mouseY)
     {
-        this.drawSelectedSchematicInfo(drawContext, this.getLastSelectedEntry());
+        this.drawSelectedMaterialListInfo(drawContext, this.getLastSelectedEntry());
     }
 
-    protected void drawSelectedSchematicInfo(DrawContext drawContext, @Nullable DirectoryEntry entry)
+    protected void drawSelectedMaterialListInfo(DrawContext drawContext, @Nullable DirectoryEntry entry)
     {
         int x = this.posX + this.totalWidth - this.infoWidth;
         int y = this.posY;
@@ -81,28 +81,25 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
             return;
         }
 
-        if (data != null)
-        {
-            x += 3;
-            y += 3;
-            int textColor = 0xC0C0C0C0;
-            int valueColor = 0xFFFFFFFF;
+	    x += 3;
+	    y += 3;
+	    int textColor = 0xC0C0C0C0;
+	    int valueColor = 0xFFFFFFFF;
 
-            String str = StringUtils.translate("litematica.gui.label.material_list_info.name");
-            this.drawString(drawContext, str, x, y, textColor);
-            y += 12;
+	    String str = StringUtils.translate("litematica.gui.label.material_list_info.name");
+	    this.drawString(drawContext, str, x, y, textColor);
+	    y += 12;
 
-            this.drawString(drawContext, data.name(), x + 4, y, valueColor);
-            y += 12;
+	    this.drawString(drawContext, data.name(), x + 4, y, valueColor);
+	    y += 12;
 
-            str = StringUtils.translate("litematica.gui.label.material_list_info.item_count");
-            this.drawString(drawContext, str, x, y, textColor);
-            y += 12;
+	    str = StringUtils.translate("litematica.gui.label.material_list_info.item_count");
+	    this.drawString(drawContext, str, x, y, textColor);
+	    y += 12;
 
-            str = String.format("%04d", data.itemCount());
-            this.drawString(drawContext, str, x + 4, y, valueColor);
-            y += 12;
-        }
+	    str = String.format("%04d", data.itemCount());
+	    this.drawString(drawContext, str, x + 4, y, valueColor);
+	    y += 12;
     }
 
     public void clearMetadataCache()
@@ -116,7 +113,7 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
         Path file = entry.getDirectory().resolve(entry.getName());
         MaterialListPreview meta = this.cachedMetadata.get(file);
 
-        if (meta == null && this.cachedMetadata.containsKey(file) == false)
+        if (meta == null && !this.cachedMetadata.containsKey(file))
         {
             MaterialListCustom data = MaterialListCustom.fromFile(file);
 
