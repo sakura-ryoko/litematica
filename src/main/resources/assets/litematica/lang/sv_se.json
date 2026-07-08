@@ -107,6 +107,7 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "Kringgår den nya avstånds-/koordinatkontrollen som lades till i 1.18.2.\n\nDen kontrollen bryter protokollet för exakt placering och gör att\nalla block som placeras med en begäran om rotation (eller annan egenskap) bara blir spökblock.\n\nDet finns i princip ingen anledning att någonsin inaktivera detta.\nKontrollen fanns inte ens före 1.18.2.",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "Om detta är aktiverat följer renderingslagret spelaren.\nObs: Detta kollapsar tyvärr för närvarande intervall av typen Layer Range",
     "litematica.config.generic.comment.loadEntireSchematics": "Om detta är aktiverat laddas hela schemat alltid in på en gång.\nOm det är inaktiverat laddas bara den del som ligger inom klientens synavstånd in.",
+    "litematica.config.generic.comment.materialListContainerScan": "Scan your last opened containers to resort your active Material List.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "Om detta är aktiverat ignoreras det exakta blocktillståndet, och endast blocktypen behöver matcha",
