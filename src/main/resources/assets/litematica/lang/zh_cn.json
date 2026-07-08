@@ -107,7 +107,6 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "绕过1.18.2新增的坐标检查\n（该检查会导致旋转放置变成幽灵方块）\n建议始终保持启用",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "渲染层跟随玩家位置\n注意：当前会使层范围类型失效",
     "litematica.config.generic.comment.loadEntireSchematics": "始终加载完整原理图\n（关闭时仅加载视距内部分）",
-    "litematica.config.generic.comment.materialListContainerScan": "Scans recently opened containers to resort your active\nMaterial List based on your proximity to them.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "材料列表忽略方块的状态，归纳成相同的方块的类型",

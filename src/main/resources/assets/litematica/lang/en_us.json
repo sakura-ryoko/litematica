@@ -107,7 +107,7 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "Bypass the new distance/coordinate check that was added in 1.18.2.\n\nThat check breaks the \"accurate placement protocol\" and causes\nany blocks placed with a rotation (or other property) request to just become ghost blocks.\n\nThere is basically no need to ever disable this.\nThe check didn't even exist ever before 1.18.2.",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "If true, then the render layer follows the player.\nNote: This currently collapses Layer Range type ranges unfortunately",
     "litematica.config.generic.comment.loadEntireSchematics": "If true, then the entire schematic is always loaded at once.\nIf false, then only the part that is within the client's view distance is loaded.",
-    "litematica.config.generic.comment.materialListContainerScan": "Scans recently opened containers to resort your active\nMaterial List based on your proximity to them.\n§dAdded from Stormatica by CubicMetre§r",
+    "litematica.config.generic.comment.materialListContainerScan": "Scan your last opened containers to resort your active Material List.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "When enabled, the exact block state is ignored, and only the block type needs to match",
