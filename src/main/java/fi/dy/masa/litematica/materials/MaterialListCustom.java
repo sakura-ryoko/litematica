@@ -23,6 +23,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  * A material list that is created directly from item IDs and quantities,
  * bypassing the block-based schematic system. This allows tracking of any
  * item type including tools, food, potions, and other non-placeable items.
+ * -
+ * - From Stormatica by CubicMetre
  */
 public class MaterialListCustom extends MaterialListBase
 {

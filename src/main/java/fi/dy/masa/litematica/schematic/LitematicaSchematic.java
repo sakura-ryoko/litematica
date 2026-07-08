@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
@@ -2917,7 +2916,7 @@ public class LitematicaSchematic
             type = FileType.fromFile(file);
         }
 
-        if (type == FileType.INVALID || type == FileType.TXT || type == FileType.JSON)
+        if (type == FileType.INVALID || type == FileType.TEXT || type == FileType.JSON)
         {
             return null;
         }

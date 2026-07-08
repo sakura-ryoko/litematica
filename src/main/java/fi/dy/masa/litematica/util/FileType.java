@@ -7,12 +7,14 @@ import javax.annotation.Nonnull;
 import net.minecraft.util.StringIdentifiable;
 import com.google.common.collect.ImmutableList;
 
+import fi.dy.masa.litematica.materials.MaterialListCustom;
+
 public enum FileType implements StringIdentifiable
 {
 	INVALID,
 	UNKNOWN,
 	JSON,
-	TXT,
+	TEXT,
 	LITEMATICA_SCHEMATIC,
 	SCHEMATICA_SCHEMATIC,
 	SPONGE_SCHEMATIC,
@@ -43,9 +45,9 @@ public enum FileType implements StringIdentifiable
 		{
 			return JSON;
 		}
-		else if (fileName.endsWith(".txt"))
+		else if (fileName.endsWith(MaterialListCustom.TEXT_FILE_EXTENSION))
 		{
-			return TXT;
+			return TEXT;
 		}
 
 		return UNKNOWN;
@@ -85,7 +87,7 @@ public enum FileType implements StringIdentifiable
 			case SPONGE_SCHEMATIC -> ".schem";
 			case VANILLA_STRUCTURE -> ".nbt";
 			case JSON -> ".json";
-			case TXT -> ".txt";
+			case TEXT -> MaterialListCustom.TEXT_FILE_EXTENSION;
 			case INVALID -> ".invalid";
 			case UNKNOWN -> ".unknown";
 		};
@@ -100,7 +102,7 @@ public enum FileType implements StringIdentifiable
 			case SPONGE_SCHEMATIC -> "sponge";
 			case VANILLA_STRUCTURE -> "vanilla_nbt";
 			case JSON -> "JSON";
-			case TXT -> "TXT";
+			case TEXT -> "TEXT";
 			case INVALID -> "invalid";
 			case UNKNOWN -> "unknown";
 		};

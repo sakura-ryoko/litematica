@@ -16,6 +16,7 @@ import fi.dy.masa.litematica.gui.GuiMaterialListBrowserBase;
 import fi.dy.masa.litematica.gui.Icons;
 import fi.dy.masa.litematica.materials.MaterialListCustom;
 import fi.dy.masa.litematica.materials.MaterialListPreview;
+import fi.dy.masa.litematica.util.FileType;
 
 public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
 {
@@ -29,7 +30,7 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
     public WidgetMaterialListBrowser(int x, int y, int width, int height, GuiMaterialListBrowserBase parent, @Nullable ISelectionListener<DirectoryEntry> selectionListener)
     {
         super(x, y, width, height, DataManager.getDirectoryCache(), parent.getBrowserContext(),
-                parent.getDefaultDirectory(), selectionListener, Icons.FILE_ICON_JSON);
+                parent.getDefaultDirectory(), selectionListener, Icons.FILE_ICON_TEXT);
 
         this.title = StringUtils.translate("litematica.gui.title.material_list_browser");
         this.infoWidth = 170;
@@ -86,7 +87,14 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
 	    int textColor = 0xC0C0C0C0;
 	    int valueColor = 0xFFFFFFFF;
 
-	    String str = StringUtils.translate("litematica.gui.label.material_list_info.name");
+        String str = StringUtils.translate("litematica.gui.label.material_list_info.title_colon");
+        this.drawString(drawContext, str, x, y, textColor);
+        y += 12;
+
+        this.drawString(drawContext, FileType.getString(data.type()), x + 4, y, valueColor);
+        y += 12;
+
+	    str = StringUtils.translate("litematica.gui.label.material_list_info.name");
 	    this.drawString(drawContext, str, x, y, textColor);
 	    y += 12;
 
@@ -97,7 +105,7 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
 	    this.drawString(drawContext, str, x, y, textColor);
 	    y += 12;
 
-	    str = String.format("%04d", data.itemCount());
+	    str = String.format("%03d", data.itemCount());
 	    this.drawString(drawContext, str, x + 4, y, valueColor);
 	    y += 12;
     }
@@ -119,7 +127,7 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
 
             if (data != null)
             {
-                meta = new MaterialListPreview(data.getName(), data.getMaterialsAll().size());
+                meta = new MaterialListPreview(FileType.fromFile(file), data.getName(), data.getMaterialsAll().size());
                 this.cachedMetadata.put(file, meta);
             }
         }

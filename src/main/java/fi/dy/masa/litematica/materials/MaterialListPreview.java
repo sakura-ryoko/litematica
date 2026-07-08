@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.materials;
 
-public record MaterialListPreview(String name, int itemCount)
+import fi.dy.masa.litematica.util.FileType;
+
+public record MaterialListPreview(FileType type, String name, int itemCount)
 {
 }

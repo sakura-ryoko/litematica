@@ -99,7 +99,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         }
 
         FileType type = FileType.fromName(entry.getName());
-        boolean matType = type == FileType.JSON || type == FileType.TXT;
+        boolean matType = type == FileType.JSON || type == FileType.TEXT;
         boolean schemType = type == FileType.LITEMATICA_SCHEMATIC || type == FileType.SPONGE_SCHEMATIC || type == FileType.VANILLA_STRUCTURE;
         Pair<SchematicSchema, SchematicMetadata> metaPair = schemType ? this.getSchematicVersionAndMetadata(entry) : null;
         MaterialListPreview listData = matType ? this.getMaterialListPreview(entry) : null;
@@ -272,7 +272,14 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             int textColor = 0xC0C0C0C0;
             int valueColor = 0xFFFFFFFF;
 
-            String str = StringUtils.translate("litematica.gui.label.material_list_info.name");
+            String str = StringUtils.translate("litematica.gui.label.material_list_info.title_colon");
+            this.drawString(drawContext, str, x, y, textColor);
+            y += 12;
+
+            this.drawString(drawContext, FileType.getString(listData.type()), x + 4, y, valueColor);
+            y += 12;
+
+            str = StringUtils.translate("litematica.gui.label.material_list_info.name");
             this.drawString(drawContext, str, x, y, textColor);
             y += 12;
 
@@ -283,7 +290,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
             this.drawString(drawContext, str, x, y, textColor);
             y += 12;
 
-            str = String.format("%04d", listData.itemCount());
+            str = String.format("%03d", listData.itemCount());
             this.drawString(drawContext, str, x + 4, y, valueColor);
             y += 12;
         }
@@ -364,7 +371,7 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 
             if (data != null)
             {
-                meta = new MaterialListPreview(data.getName(), data.getMaterialsAll().size());
+                meta = new MaterialListPreview(FileType.fromFile(file), data.getName(), data.getMaterialsAll().size());
                 this.cachedMatsMetadata.put(file, meta);
             }
         }

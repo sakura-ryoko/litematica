@@ -100,7 +100,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS_TYPE);
             }
-			else if (type == FileType.TXT || type == FileType.JSON)
+			else if (type == FileType.TEXT || type == FileType.JSON)
             {
 	            x = this.createButton(x, y, ButtonListener.Type.MATERIAL_LIST);
 	            x = this.createButton(x, y, ButtonListener.Type.FILE_OPS);
@@ -404,7 +404,7 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 					this.gui.addMessage(MessageType.ERROR, "litematica.error.schematic_manager.schematic_import.unsupported_type", file.getFileName());
 				}
 			}
-			else if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TXT))
+			else if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TEXT))
 			{
 				MaterialListCustom customList = MaterialListCustom.fromFile(file);
 

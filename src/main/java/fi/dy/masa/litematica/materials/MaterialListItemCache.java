@@ -11,11 +11,14 @@ import net.minecraft.util.collection.DefaultedList;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.ItemType;
+import fi.dy.masa.litematica.config.Configs;
 
 /**
  * Maintains a cache of recently accessed items from opened containers.
  * Items are ordered by recency - most recently seen items are at the front.
  * This allows material lists to prioritize showing items that are currently accessible.
+ * -
+ * - From Stormatica by CubicMetre
  */
 public class MaterialListItemCache
 {
@@ -54,7 +57,7 @@ public class MaterialListItemCache
             {
                 ItemStack stack = slot.getStack();
 
-                if (stack.isOf(Items.SHULKER_BOX))
+                if (stack.isOf(Items.SHULKER_BOX) && Configs.Generic.MATERIAL_LIST_CONTAINER_SCAN_SHULKERS.getBooleanValue())
                 {
                     DefaultedList<ItemStack> storedItems = this.updateFromShulker(stack);
 
@@ -68,7 +71,7 @@ public class MaterialListItemCache
                         }
                     }
                 }
-                else if (stack.isIn(ItemTags.BUNDLES))
+                else if (stack.isIn(ItemTags.BUNDLES) && Configs.Generic.MATERIAL_LIST_CONTAINER_SCAN_BUNDLES.getBooleanValue())
                 {
                     DefaultedList<ItemStack> storedItems = this.updateFromBundle(stack);
 

@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.materials.MaterialListHudRenderer;
 import fi.dy.masa.litematica.materials.MaterialListItemCache;
 import net.minecraft.client.gui.DrawContext;
@@ -30,11 +31,14 @@ public abstract class MixinHandledScreen extends Screen
     {
         HandledScreen<?> screen = (HandledScreen<?>) (Object) this;
 
-        // Scan container items for material list cache (only once per screen open)
-        if (!this.litematica_containerScanned)
+        if (Configs.Generic.MATERIAL_LIST_CONTAINER_SCAN.getBooleanValue())
         {
-            MaterialListItemCache.getInstance().scanContainer(screen.getScreenHandler().slots);
-            this.litematica_containerScanned = true;
+            // Scan container items for material list cache (only once per screen open)
+            if (!this.litematica_containerScanned)
+            {
+                MaterialListItemCache.getInstance().scanContainer(screen.getScreenHandler().slots);
+                this.litematica_containerScanned = true;
+            }
         }
 
         MaterialListHudRenderer.renderLookedAtBlockInInventory(drawContext, screen, this.client);

@@ -102,7 +102,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_SCHEMATIC) + 4;
 				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
 			}
-			else if (type == FileType.TXT || type == FileType.JSON)
+			else if (type == FileType.TEXT || type == FileType.JSON)
 			{
 				x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
 				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
@@ -195,7 +195,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 				boolean warnType = false;
 
 				// Handle custom item list files for material list button
-				if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TXT))
+				if (this.type == Type.MATERIAL_LIST && (fileType == FileType.JSON || fileType == FileType.TEXT))
 				{
 					MaterialListCustom customList = MaterialListCustom.fromFile(file);
 					if (customList != null)

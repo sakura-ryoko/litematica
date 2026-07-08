@@ -87,6 +87,9 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       ITEM_USE_PACKET_CHECK_BYPASS= new ConfigBoolean("itemUsePacketCheckBypass", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       LAYER_MODE_DYNAMIC          = new ConfigBoolean("layerModeFollowsPlayer", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       LOAD_ENTIRE_SCHEMATICS      = new ConfigBoolean("loadEntireSchematics", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN          = new ConfigBoolean("materialListContainerScan", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN_SHULKERS = new ConfigBoolean("materialListContainerScanShulkers", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN_BUNDLES  = new ConfigBoolean("materialListContainerScanBundles", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_IGNORE_STATE  = new ConfigBoolean("materialListIgnoreState", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_RECIPE_DETAILS= new ConfigBoolean("materialListRecipeDetails", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       PASTE_ALWAYS_USE_FILL       = new ConfigBoolean("pasteAlwaysUseFill", false).apply(GENERIC_KEY);
@@ -155,6 +158,9 @@ public class Configs implements IConfigHandler
                 ITEM_USE_PACKET_CHECK_BYPASS,
                 LAYER_MODE_DYNAMIC,
                 //LOAD_ENTIRE_SCHEMATICS,
+                MATERIAL_LIST_CONTAINER_SCAN,
+                MATERIAL_LIST_CONTAINER_SCAN_SHULKERS,
+                MATERIAL_LIST_CONTAINER_SCAN_BUNDLES,
                 MATERIAL_LIST_IGNORE_STATE,
                 MATERIAL_LIST_RECIPE_DETAILS,
                 PASTE_ALWAYS_USE_FILL,
