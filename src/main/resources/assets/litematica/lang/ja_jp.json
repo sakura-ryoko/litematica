@@ -107,6 +107,7 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "1.18.2で追加された新しい距離/座標チェックをバイパスする．\n\nこのチェックは「精密設置プロトコル」を破壊し，\n向き等のプロパティ要求付きで設置されたブロックが\nゴーストになってしまう原因となっている．\n\n1.18.2以前には存在しなかったチェックであり，\n基本的にこの設定を無効にする必要はない．",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "レイヤ描画をプレイヤーに追従させる．\n注意: 現在，この設定を有効にすると\n「指定範囲」モードで範囲が崩れる場合がある",
     "litematica.config.generic.comment.loadEntireSchematics": "trueの場合，図面全体を一度に読み込む．\nfalseの場合，クライアントの描画距離内に入っている部分のみを読み込む．",
+    "litematica.config.generic.comment.materialListContainerScan": "Scan your last opened containers to resort your active Material List.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "正確なブロック状態を無視して\nブロックの種類が一致していればよしとする",
