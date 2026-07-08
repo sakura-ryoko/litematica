@@ -107,6 +107,7 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "該功能繞過了 1.18.2 中新加入的距離/座標校驗\n\n該校驗破壞了 §6[精確放置協定]§f 的功能\n並導致任何帶有旋轉（或其他屬性）\n請求放置的方塊變成了幽靈方塊\n\n基本上沒有必要停用這個校驗\n因為在 1.18.2 之前，這個校驗甚至都不存在",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "如果開啟，則繪製層跟隨玩家，但是只能跟隨目前高度\n註：在繪製層為 範圍 模式時不起作用",
     "litematica.config.generic.comment.loadEntireSchematics": "如果啟用，那麼整個投影總是同時載入\n如果關閉，則只載入客戶端視距內的部分",
+    "litematica.config.generic.comment.materialListContainerScan": "Scan your last opened containers to resort your active Material List.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "啟用後，將忽略確切的方塊狀態，僅匹配方塊類型",

@@ -107,6 +107,7 @@
     "litematica.config.generic.comment.itemUsePacketCheckBypass": "Обійти нову перевірку відстані/координат, додану в 1.18.2.\n\nЦя перевірка порушує «протокол точного розміщення» та спричиняє будь-які блоки, розміщені з запит на обертання\n(або іншу властивість), щоб просто стати фантомними блоками.\n\nЗагалом немає потреби вимикати це.\nПеревірки навіть не існувало до 1.18.2.",
     "litematica.config.generic.comment.layerModeFollowsPlayer": "Якщо «true», тоді промальований шар слідує за гравцем.\nПримітка: наразі це, на жаль, згортає діапазони типів діапазону шарів.",
     "litematica.config.generic.comment.loadEntireSchematics": "Якщо «true», то вся схематика завжди завантажується одночасно.\nЯкщо «false», то завантажується лише та частина, яка знаходиться в межах видимости клієнта.",
+    "litematica.config.generic.comment.materialListContainerScan": "Scan your last opened containers to resort your active Material List.\n§dAdded from Stormatica by CubicMetre§r",
     "litematica.config.generic.comment.materialListContainerScanBundles": "Enable including Bundles in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListContainerScanShulkers": "Enable including Shulker Boxes in the scan while using §bmaterialListContainerScan§r",
     "litematica.config.generic.comment.materialListIgnoreState": "Якщо ввімкнено, точний стан блока ігнорується, і має відповідати лише тип блока.",
