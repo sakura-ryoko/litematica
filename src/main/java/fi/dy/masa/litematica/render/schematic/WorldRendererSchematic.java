@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.render.schematic;
 
 import java.lang.Math;
 import java.util.*;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.Logger;
@@ -850,15 +849,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
             // Disable fog in the Schematic World
             RenderSystem.setShaderFog(this.getEmptyFogBuffer());
 
-            if (sampler != null && this.gpuSampler == null)
-            {
-                this.setGpuSampler(sampler);
-            }
-
-            if (sampler == null)
-            {
-                sampler = this.getGpuSampler();
-            }
+            sampler = this.getGpuSampler();
 
             if (IrisCompat.isShaderActive() && !IrisRenderingFix.INSTANCE.wasWarned)
             {
@@ -938,13 +929,6 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         }
 
         return this.gpuSampler;
-    }
-
-    @Override
-    public void setGpuSampler(@Nonnull GpuSampler gpuSampler)
-    {
-        this.closeGpuSampler();
-        this.gpuSampler = gpuSampler;
     }
 
     @Override
