@@ -925,7 +925,7 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
                                                          AddressMode.CLAMP_TO_EDGE,
                                                          FilterMode.LINEAR,
                                                          FilterMode.LINEAR,
-                                                         4, OptionalDouble.empty()
+                                                         1, OptionalDouble.empty()
                                           );
         }
 
