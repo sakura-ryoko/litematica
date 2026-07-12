@@ -1,7 +1,6 @@
 package fi.dy.masa.litematica.render;
 
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
@@ -125,8 +124,6 @@ public interface IWorldSchematicRenderer
 	ChunkFixUniform getChunkFixUniform();
 
 //	LegacyTerrainFixUniform getLegacyTerrainFixUniform();
-
-	void setGpuSampler(@Nonnull GpuSampler gpuSampler);
 
 	GpuSampler getGpuSampler();
 
