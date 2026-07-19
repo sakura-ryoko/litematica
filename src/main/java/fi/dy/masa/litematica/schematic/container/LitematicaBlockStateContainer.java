@@ -20,6 +20,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
+
 public class LitematicaBlockStateContainer implements ILitematicaBlockStatePaletteResizer
 {
     private static final Codec<ILitematicaBlockStatePalette> PALETTE_CODEC = Codec.either(LitematicaBlockStatePaletteHashMap.CODEC, LitematicaBlockStatePaletteLinear.CODEC)
@@ -234,7 +237,8 @@ public class LitematicaBlockStateContainer implements ILitematicaBlockStatePalet
             newStorage.setAt(index, oldStorage.getAt(index));
         }
 
-        this.palette.readFromNBT(oldPalette.writeToNBT());
+//        this.palette.readFromNBT(oldPalette.writeToNBT());
+        this.palette.readFromData(oldPalette.writeToData());
 
         return this.palette.idFor(state);
     }
@@ -249,11 +253,18 @@ public class LitematicaBlockStateContainer implements ILitematicaBlockStatePalet
         return this.palette;
     }
 
+    @Deprecated(forRemoval = true)
     public static LitematicaBlockStateContainer createFrom(ListTag palette, long[] blockStates, BlockPos size)
+    {
+        return createFrom(DataConverterNbt.fromVanillaList(palette), blockStates, size);
+    }
+
+    public static LitematicaBlockStateContainer createFrom(ListData palette, long[] blockStates, BlockPos size)
     {
         int bits = Math.max(2, Integer.SIZE - Integer.numberOfLeadingZeros(palette.size() - 1));
         LitematicaBlockStateContainer container = new LitematicaBlockStateContainer(size.getX(), size.getY(), size.getZ(), bits, blockStates);
-        container.palette.readFromNBT(palette);
+//        container.palette.readFromNBT(palette);
+        container.palette.readFromData(palette);
         return container;
     }
 

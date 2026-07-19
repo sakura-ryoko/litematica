@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "Rimosso il punto di origine dell'area esplicito/manuale",
     "litematica.message.removed_selection_box": "Rimossa la casella di selezione %s",
     "litematica.message.scheduled_task_added": "Compito programmato aggiunto...",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "Selection at '%s', copied to current schematic (In memory only)",
     "litematica.message.schematic_exported_as": "Schema esportato come '%s'",
     "litematica.message.schematic_pasted": "Schema incollato nel mondo",

@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "既除顯明抑人工區原點",
     "litematica.message.removed_selection_box": "既除擇匡%s",
     "litematica.message.scheduled_task_added": "計畫之務既添…",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "「%s」之擇，既鈔之於蜃圖（惟憶）",
     "litematica.message.schematic_exported_as": "蜃圖既錄出爲「%s」",
     "litematica.message.schematic_pasted": "蜃圖既謄於世",

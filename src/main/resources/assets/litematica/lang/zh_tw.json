@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "刪除了展示的/手動區域原點",
     "litematica.message.removed_selection_box": "已刪除選擇框 %s",
     "litematica.message.scheduled_task_added": "加入的計劃任務...",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "選擇器 '%s' ，複製到目前原理圖（僅在記憶體中）",
     "litematica.message.schematic_exported_as": "原理圖匯出為「%s」",
     "litematica.message.schematic_pasted": "在世界上貼上原理圖",

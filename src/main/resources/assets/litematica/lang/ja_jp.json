@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "手動設定された領域の原点を削除しました",
     "litematica.message.removed_selection_box": "選択ボックス %s を削除しました",
     "litematica.message.scheduled_task_added": "スケジュールされたタスクが追加されました...",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "Selection at '%s', copied to current schematic (In memory only)",
     "litematica.message.schematic_exported_as": "図面を '%s' として書き出しました",
     "litematica.message.schematic_pasted": "図面をワールドに貼り付けました",

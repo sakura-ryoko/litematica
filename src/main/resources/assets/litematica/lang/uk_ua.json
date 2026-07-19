@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "Видалено явну/ручну початкову точку области",
     "litematica.message.removed_selection_box": "Видалено вибрану область %s",
     "litematica.message.scheduled_task_added": "Додано заплановане завдання…",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "Вибране в «%s», скопійовано до поточної схеми (тільки в пам'яті)",
     "litematica.message.schematic_exported_as": "Схематику експортовано як «%s»",
     "litematica.message.schematic_pasted": "Схематику вставлено в світ",

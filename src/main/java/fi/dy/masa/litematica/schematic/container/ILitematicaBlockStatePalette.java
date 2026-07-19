@@ -8,6 +8,9 @@ import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.serialization.Codec;
 
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
+
 public interface ILitematicaBlockStatePalette
 {
     @ApiStatus.Experimental
@@ -29,9 +32,27 @@ public interface ILitematicaBlockStatePalette
 
     int getPaletteSize();
 
-    void readFromNBT(ListTag tagList);
+    /**
+     * @deprecated use readFromData()
+     */
+    @Deprecated(forRemoval = true)
+    default void readFromNBT(ListTag tagList)
+    {
+        this.readFromData(DataConverterNbt.fromVanillaList(tagList));
+    }
 
-    ListTag writeToNBT();
+    /**
+     * @deprecated use writeToData()
+     */
+    @Deprecated(forRemoval = true)
+    default ListTag writeToNBT()
+    {
+        return DataConverterNbt.toVanillaList(this.writeToData());
+    }
+
+    void readFromData(ListData tagList);
+
+    ListData writeToData();
 
     /**
      * Sets the current mapping of the palette.

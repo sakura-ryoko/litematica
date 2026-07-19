@@ -507,13 +507,6 @@ public class WorldUtils
                 return false;
             }
 
-            /*
-            NbtCompound tag = template.writeNbt(new NbtCompound());
-            os = new FileOutputStream(file);
-            NbtIo.writeCompressed(tag, os);
-            os.close();
-             */
-
             NbtIo.writeCompressed(template.save(new CompoundTag()), file);
 
             return true;

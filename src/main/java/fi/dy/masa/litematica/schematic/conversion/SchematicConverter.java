@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,13 +13,14 @@ import net.minecraft.world.level.material.FluidState;
 
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.IStateFixer;
 
 public class SchematicConverter
 {
     private final IdentityHashMap<Class<? extends Block>, IStateFixer> fixersPerBlock = new IdentityHashMap<>();
-    private IdentityHashMap<BlockState, IStateFixer> postProcessingStateFixers = new IdentityHashMap<>();
+    private final IdentityHashMap<BlockState, IStateFixer> postProcessingStateFixers = new IdentityHashMap<>();
 
     private SchematicConverter()
     {
@@ -101,7 +101,7 @@ public class SchematicConverter
     /**
      * Creates the post process state filter array.
      * @param palette ()
-     * @return true if there are at least some states that need post processing
+     * @return true if there are at least some states that need post-processing
      */
     public boolean createPostProcessStateFilter(BlockState[] palette)
     {
@@ -111,7 +111,7 @@ public class SchematicConverter
     /**
      * Creates the post process state filter array.
      * @param palette ()
-     * @return true if there are at least some states that need post processing
+     * @return true if there are at least some states that need post-processing
      */
     public boolean createPostProcessStateFilter(Collection<BlockState> palette)
     {
@@ -149,24 +149,7 @@ public class SchematicConverter
         return this.fixersPerBlock.get(state.getBlock().getClass());
     }
 
-    public CompoundTag fixTileEntityNBT(CompoundTag tag, BlockState state)
-    {
-        /*
-        try
-        {
-            tag = (NBTTagCompound) this.mc.getDataFixer().update(TypeReferences.BLOCK_ENTITY, new Dynamic<>(NBTDynamicOps.INSTANCE, tag),
-                    1139, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
-        }
-        catch (Throwable e)
-        {
-            Litematica.logger.warn("Failed to update BlockEntity data for block '{}'", state, e);
-        }
-        */
-
-        return tag;
-    }
-
-    public static void postProcessBlocks(LitematicaBlockStateContainer container, @Nullable Map<BlockPos, CompoundTag> tiles,
+    public static void postProcessBlocks(LitematicaBlockStateContainer container, @Nullable Map<BlockPos, CompoundData> tiles,
                                          IdentityHashMap<BlockState, IStateFixer> postProcessingFilter)
     {
         final int sizeX = container.getSize().getX();
@@ -255,11 +238,11 @@ public class SchematicConverter
     public static class BlockReaderLitematicaContainer implements IBlockReaderWithData
     {
         private final LitematicaBlockStateContainer container;
-        private final Map<BlockPos, CompoundTag> blockEntityData;
+        private final Map<BlockPos, CompoundData> blockEntityData;
         private final Vec3i size;
         private final BlockState air;
 
-        public BlockReaderLitematicaContainer(LitematicaBlockStateContainer container, @Nullable Map<BlockPos, CompoundTag> blockEntityData)
+        public BlockReaderLitematicaContainer(LitematicaBlockStateContainer container, @Nullable Map<BlockPos, CompoundData> blockEntityData)
         {
             this.container = container;
             this.blockEntityData = blockEntityData != null ? blockEntityData : new HashMap<>();
@@ -296,7 +279,7 @@ public class SchematicConverter
 
         @Override
         @Nullable
-        public CompoundTag getBlockEntityData(BlockPos pos)
+        public CompoundData getBlockEntityData(BlockPos pos)
         {
             return this.blockEntityData.get(pos);
         }

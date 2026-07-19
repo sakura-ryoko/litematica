@@ -4,14 +4,20 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.VisibleForTesting;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.data.Schema;
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
+import fi.dy.masa.malilib.util.data.tag.util.DataTypeUtils;
 import fi.dy.masa.litematica.util.FileType;
 
 public class SchematicMetadata
@@ -123,11 +129,6 @@ public class SchematicMetadata
     }
 
     public Vec3i getEnclosingSize()
-    {
-        return this.enclosingSize;
-    }
-
-    public Vec3i getEnclosingSizeAsVanilla()
     {
         return this.enclosingSize;
     }
@@ -333,9 +334,18 @@ public class SchematicMetadata
         }
     }
 
+    /**
+     * @deprecated use writeData()
+     */
+    @Deprecated(forRemoval = true)
     public CompoundTag writeToNBT()
     {
-        CompoundTag nbt = new CompoundTag();
+        return DataConverterNbt.toVanillaCompound(this.writeData());
+    }
+
+    public CompoundData writeData()
+    {
+        CompoundData nbt = new CompoundData();
 
         nbt.putString("Name", this.name);
         nbt.putString("Author", this.author);
@@ -366,7 +376,8 @@ public class SchematicMetadata
             nbt.putLong("TimeModified", this.timeModified);
         }
 
-        nbt.put("EnclosingSize", NbtUtils.createVec3iTag(this.enclosingSize));
+//        nbt.put("EnclosingSize", NbtUtils.createVec3iTag(this.enclosingSize));
+        nbt.put("EnclosingSize", DataTypeUtils.createVec3iTag(this.enclosingSize));
 
         if (this.thumbnailPixelData != null)
         {
@@ -388,38 +399,48 @@ public class SchematicMetadata
         return nbt;
     }
 
+    /**
+     * @deprecated use readData()
+     */
+    @Deprecated(forRemoval = true)
     public void readFromNBT(CompoundTag nbt)
     {
-        this.name = nbt.getStringOr("Name", "?");
-        this.author = nbt.getStringOr("Author", "?");
-        this.description = nbt.getStringOr("Description", "");
-        this.regionCount = nbt.getIntOr("RegionCount", 0);
-        this.timeCreated = nbt.getLongOr("TimeCreated", -1L);
-        this.timeModified = nbt.getLongOr("TimeModified", -1L);
+        this.readData(DataConverterNbt.fromVanillaCompound(nbt));
+    }
 
-        if (nbt.contains("TotalVolume"))
+    public void readData(CompoundData nbt)
+    {
+        this.name = nbt.getStringOrDefault("Name", "?");
+        this.author = nbt.getStringOrDefault("Author", "?");
+        this.description = nbt.getStringOrDefault("Description", "");
+        this.regionCount = nbt.getIntOrDefault("RegionCount", 0);
+        this.timeCreated = nbt.getLongOrDefault("TimeCreated", -1L);
+        this.timeModified = nbt.getLongOrDefault("TimeModified", -1L);
+
+        if (nbt.contains("TotalVolume", Constants.NBT.TAG_INT))
         {
-            this.totalVolume = nbt.getIntOr("TotalVolume", 0);
+            this.totalVolume = nbt.getIntOrDefault("TotalVolume", 0);
         }
 
-        if (nbt.contains("TotalBlocks"))
+        if (nbt.contains("TotalBlocks", Constants.NBT.TAG_INT))
         {
-            this.totalBlocks = nbt.getIntOr("TotalBlocks", 0);
+            this.totalBlocks = nbt.getIntOrDefault("TotalBlocks", 0);
         }
 
-        if (nbt.contains("EnclosingSize"))
+        if (nbt.contains("EnclosingSize", Constants.NBT.TAG_COMPOUND))
         {
-            Vec3i size = NbtUtils.readVec3iFromTag(nbt.getCompoundOrEmpty("EnclosingSize"));
-
-            if (size != null)
-            {
-                this.enclosingSize = size;
-            }
+            this.enclosingSize = DataTypeUtils.readVec3iOrDefault(nbt, "EnclosingSize", Vec3i.ZERO);
+//            Vec3i size = NbtUtils.readVec3iFromTag(nbt.getCompoundOrEmpty("EnclosingSize"));
+//
+//            if (size != null)
+//            {
+//                this.enclosingSize = size;
+//            }
         }
 
-        if (nbt.contains("PreviewImageData"))
+        if (nbt.contains("PreviewImageData", Constants.NBT.TAG_INT_ARRAY))
         {
-            this.thumbnailPixelData = Arrays.stream(nbt.getIntArray("PreviewImageData").orElse(new int[0]));
+            this.thumbnailPixelData = Arrays.stream(nbt.getIntArrayOrDefault("PreviewImageData", new int[0]));
         }
         else
         {
@@ -428,13 +449,22 @@ public class SchematicMetadata
     }
 
     /**
-     * FOR DEBUGGING PURPOSES ONLY
-     *
-     * @return ()
+     * @deprecated use writeDataExtra()
      */
+    @Deprecated(forRemoval = true)
+    @VisibleForTesting
     public CompoundTag writeToNbtExtra()
     {
-        CompoundTag nbt = this.writeToNBT();
+        return DataConverterNbt.toVanillaCompound(this.writeDataExtra());
+    }
+
+    /**
+     * @implNote FOR DEBUGGING PURPOSES ONLY
+     */
+    @VisibleForTesting
+    public CompoundData writeDataExtra()
+    {
+        CompoundData nbt = this.writeData();
 
         nbt.putString("FileType", this.type.name());
 
@@ -469,16 +499,15 @@ public class SchematicMetadata
     }
 
     /**
-     * FOR DEBUGGING PURPOSES ONLY
-     *
-     * @return ()
+     * @implNote FOR DEBUGGING PURPOSES ONLY
      */
     @Override
+    @VisibleForTesting
     public String toString()
     {
-        CompoundTag nbt = this.writeToNbtExtra();
+        CompoundData nbt = this.writeDataExtra();
 
-        if (nbt.contains("PreviewImageData"))
+        if (nbt.contains("PreviewImageData", Constants.NBT.TAG_INT_ARRAY))
         {
             nbt.remove("PreviewImageData");
             nbt.putBoolean("PreviewImageData", true);
@@ -488,8 +517,7 @@ public class SchematicMetadata
     }
 
     /**
-     * FOR DEBUGGING PURPOSES ONLY
-     *
+     * @implNote FOR DEBUGGING PURPOSES ONLY
      */
     public void dumpMetadata()
     {
