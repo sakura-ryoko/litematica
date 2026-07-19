@@ -2,9 +2,6 @@ package fi.dy.masa.litematica.selection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
@@ -12,6 +9,11 @@ import io.netty.buffer.ByteBuf;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
 import fi.dy.masa.litematica.util.PositionUtils;
@@ -247,5 +249,22 @@ public class Box
         obj.add("name", new JsonPrimitive(this.name));
 
         return this.pos1 != null || this.pos2 != null ? obj : null;
+    }
+
+    public net.minecraft.world.level.levelgen.structure.BoundingBox toVanilla()
+    {
+        if (this.pos1 == null)
+        {
+            this.pos1 = BlockPos.ZERO;
+        }
+
+        return new BoundingBox(
+                Math.min(this.pos1.getX(), this.pos2.getX()),
+                Math.min(this.pos1.getY(), this.pos2.getY()),
+                Math.min(this.pos1.getZ(), this.pos2.getZ()),
+                Math.max(this.pos1.getX(), this.pos2.getX()),
+                Math.max(this.pos1.getY(), this.pos2.getY()),
+                Math.max(this.pos1.getZ(), this.pos2.getZ())
+        );
     }
 }

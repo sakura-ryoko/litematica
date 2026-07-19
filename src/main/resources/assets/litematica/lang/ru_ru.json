@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "Точка привязки региона удалена",
     "litematica.message.removed_selection_box": "Компонент удалён %s",
     "litematica.message.scheduled_task_added": "Добавлена отложенная задача...",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "Selection at '%s', copied to current schematic (In memory only)",
     "litematica.message.schematic_exported_as": "Схема сохранена как '%s'",
     "litematica.message.schematic_pasted": "Схема вставлена в мир",

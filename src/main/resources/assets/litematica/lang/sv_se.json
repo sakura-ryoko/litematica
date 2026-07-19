@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "Tog bort ursprungspunkten för explicit/manuell area",
     "litematica.message.removed_selection_box": "Tog bort markeringsbox %s",
     "litematica.message.scheduled_task_added": "Schemalagd uppgift tillagd...",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "Markeringen vid '%s' kopierad till det aktuella schemat (endast i minnet)",
     "litematica.message.schematic_exported_as": "Schemat exporterades som '%s'",
     "litematica.message.schematic_pasted": "Schemat klistrades in i världen",

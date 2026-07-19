@@ -6,12 +6,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.litematica.util.WorldPlacingUtils;
 
 /**
@@ -20,7 +20,7 @@ import fi.dy.masa.litematica.util.WorldPlacingUtils;
  */
 public class ProtoChunkSchematic
 {
-	private final CopyOnWriteArrayList<Pair<WorldPlacingUtils.EntityPosAndRot, CompoundTag>> entities = new  CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<Pair<WorldPlacingUtils.EntityPosAndRot, CompoundData>> entities = new  CopyOnWriteArrayList<>();
 	private final ChunkSchematic wrapped;
 
 	public ProtoChunkSchematic(@Nonnull ChunkSchematic chunk)
@@ -70,7 +70,7 @@ public class ProtoChunkSchematic
 		this.getWrapped().setState(state);
 	}
 
-	public synchronized void addEntityPairForLater(Pair<WorldPlacingUtils.EntityPosAndRot, CompoundTag> entity)
+	public synchronized void addEntityPairForLater(Pair<WorldPlacingUtils.EntityPosAndRot, CompoundData> entity)
 	{
 		this.entities.add(entity);
 	}

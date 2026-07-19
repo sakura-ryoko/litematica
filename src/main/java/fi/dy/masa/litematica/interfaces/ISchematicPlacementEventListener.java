@@ -6,6 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import com.google.gson.JsonObject;
+
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementEventHandler;
@@ -59,7 +61,20 @@ public interface ISchematicPlacementEventListener
     default void onPlacementCreateFromJson(SchematicPlacement placement, LitematicaSchematic schematic, BlockPos origin, String name, Rotation rotation, Mirror mirror, boolean enabled, boolean enableRender, JsonObject obj) {}
 
     /**
-     * Event callback when a Schematic Placement is created from loading it via an NbtCompound (Litematic Transmit).
+     * Event callback when a Schematic Placement is created from loading it via an CompoundTag (Litematic Transmit).
+     * @param placement ()
+     * @param schematic ()
+     * @param origin ()
+     * @param name ()
+     * @param enabled ()
+     * @param enableRender ()
+     * @deprecated Replaced by 'onPlacementCreateFromData()'
+     */
+    @Deprecated(forRemoval = true)
+    default void onPlacementCreateFromNbt(SchematicPlacement placement, LitematicaSchematic schematic, BlockPos origin, String name, Rotation rotation, Mirror mirror, boolean enabled, boolean enableRender, CompoundTag nbt) {}
+
+    /**
+     * Event callback when a Schematic Placement is created from loading it via an CompoundData (Litematic Transmit).
      * @param placement ()
      * @param schematic ()
      * @param origin ()
@@ -67,7 +82,7 @@ public interface ISchematicPlacementEventListener
      * @param enabled ()
      * @param enableRender ()
      */
-    default void onPlacementCreateFromNbt(SchematicPlacement placement, LitematicaSchematic schematic, BlockPos origin, String name, Rotation rotation, Mirror mirror, boolean enabled, boolean enableRender, CompoundTag nbt) {}
+    default void onPlacementCreateFromData(SchematicPlacement placement, LitematicaSchematic schematic, BlockPos origin, String name, Rotation rotation, Mirror mirror, boolean enabled, boolean enableRender, CompoundData nbt) {}
 
     /**
      * Event callback when a Schematic Placement is being saved to JSON.
@@ -77,11 +92,22 @@ public interface ISchematicPlacementEventListener
     default void onSavePlacementToJson(SchematicPlacement placement, JsonObject json) {}
 
     /**
-     * Event callback when a Schematic Placement is being saved to NBT (To Servux for pasting, etc.).
+     * Event callback when a Schematic Placement is being saved to CompoundTag (To Servux for pasting, etc.).
+     *
      * @param placement ()
-     * @param nbt ()
+     * @param nbt       ()
+     * @deprecated Replaced by 'onSavePlacementToData()'
      */
+    @Deprecated(forRemoval = true)
     default void onSavePlacementToNbt(SchematicPlacement placement, CompoundTag nbt) {}
+
+    /**
+     * Event callback when a Schematic Placement is being saved to CompoundData (To Servux for pasting, etc.).
+     *
+     * @param placement ()
+     * @param nbt       ()
+     */
+    default void onSavePlacementToData(SchematicPlacement placement, CompoundData nbt) {}
 
     /**
      * Event callback when a Schematic Placement is created from loading it via the JSON Config.

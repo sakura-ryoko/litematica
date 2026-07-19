@@ -26,7 +26,7 @@
         "network.IMixinChunkDeltaUpdateS2CPacket",
         "server.MixinMinecraftServer",
         "world.IMixinWorld",
-        "world.IMixinWorldTickScheduler",
+        "world.IMixinLevelTicks",
         "world.MixinLevel",
         "world.MixinLevelChunk"
     ],

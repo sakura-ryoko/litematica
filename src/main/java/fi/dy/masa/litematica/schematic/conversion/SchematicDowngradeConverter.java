@@ -15,7 +15,6 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.*;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
@@ -25,59 +24,63 @@ import net.minecraft.world.entity.DropChances;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+
 import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.data.DataBlockUtils;
+import fi.dy.masa.malilib.util.data.tag.*;
+import fi.dy.masa.malilib.util.data.tag.util.DataOps;
+import fi.dy.masa.malilib.util.data.tag.util.DataTypeUtils;
 import fi.dy.masa.litematica.Litematica;
 
 public class SchematicDowngradeConverter
 {
 //    private static final AnsiLogger LOGGER = new AnsiLogger(SchematicDowngradeConverter.class, true, true);
 
-    public static CompoundTag downgradeEntity_to_1_20_4(CompoundTag oldEntity, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    public static CompoundData downgradeEntity_to_1_20_4(CompoundData oldEntity, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag newEntity = new CompoundTag();
+        CompoundData newEntity = new CompoundData();
 
-        if (!oldEntity.contains("id"))
+        if (!oldEntity.contains("id", Constants.NBT.TAG_STRING))
         {
             return oldEntity;
         }
-        for (String key : oldEntity.keySet())
+        for (String key : oldEntity.getKeys())
         {
             switch (key)
             {
-                case "x" -> newEntity.putInt("x", oldEntity.getIntOr("x", 0));
-                case "y" -> newEntity.putInt("y", oldEntity.getIntOr("y", 0));
-                case "z" -> newEntity.putInt("z", oldEntity.getIntOr("z", 0));
-                case "id" -> newEntity.putString("id", oldEntity.getStringOr("id", ""));
-                case "attributes" -> newEntity.put("Attributes", processAttributes(oldEntity.get(key), minecraftDataVersion, registryManager));
-                case "flower_pos" -> newEntity.put("FlowerPos", processFlowerPos(oldEntity, key, minecraftDataVersion, registryManager));
-                case "hive_pos" -> newEntity.put("HivePos", processFlowerPos(oldEntity, key, minecraftDataVersion, registryManager));
-                case "ArmorItems" -> newEntity.put("ArmorItems", processEntityItems(oldEntity.getListOrEmpty(key), minecraftDataVersion, registryManager, 4));
-                case "HandItems" -> newEntity.put("HandItems", processEntityItems(oldEntity.getListOrEmpty(key), minecraftDataVersion, registryManager, 2));
-                case "Item" -> newEntity.put("Item", processEntityItem(oldEntity.get(key), minecraftDataVersion, registryManager));
-                case "Inventory" -> newEntity.put("Inventory", processEntityItems(oldEntity.getListOrEmpty(key), minecraftDataVersion, registryManager, 1));
+                case "x" -> newEntity.putInt("x", oldEntity.getIntOrDefault("x", 0));
+                case "y" -> newEntity.putInt("y", oldEntity.getIntOrDefault("y", 0));
+                case "z" -> newEntity.putInt("z", oldEntity.getIntOrDefault("z", 0));
+                case "id" -> newEntity.putString("id", oldEntity.getStringOrDefault("id", ""));
+                case "attributes" -> newEntity.put("Attributes", processAttributes(oldEntity.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "flower_pos" -> newEntity.put("FlowerPos", processFlowerPos(oldEntity, key, minecraftDataVersion, registry));
+                case "hive_pos" -> newEntity.put("HivePos", processFlowerPos(oldEntity, key, minecraftDataVersion, registry));
+                case "ArmorItems" -> newEntity.put("ArmorItems", processEntityItems(oldEntity.getList(key), minecraftDataVersion, registry, 4));
+                case "HandItems" -> newEntity.put("HandItems", processEntityItems(oldEntity.getList(key), minecraftDataVersion, registry, 2));
+                case "Item" -> newEntity.put("Item", processEntityItem(oldEntity.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "Inventory" -> newEntity.put("Inventory", processEntityItems(oldEntity.getList(key), minecraftDataVersion, registry, 1));
                 // 1.21.5+ tags
-                case "equipment" -> newEntity.merge(processEntityEquipment(oldEntity.get(key), minecraftDataVersion, registryManager));
-                case "drop_chances" -> newEntity.merge(processEntityDropChances(oldEntity.get(key)));
-                case "fall_distance" -> newEntity.putFloat("FallDistance", oldEntity.getFloatOr(key, 0f));
+                case "equipment" -> newEntity.combine(processEntityEquipment(oldEntity.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "drop_chances" -> newEntity.combine(processEntityDropChances(oldEntity.getData(key).orElse(new CompoundData())));
+                case "fall_distance" -> newEntity.putFloat("FallDistance", oldEntity.getFloatOrDefault(key, 0f));
                 // NbtUtils.readBlockPosFromArrayTag() // get(key, BlockPos.CODEC).orElse(null)
-                case "anchor_pos" -> processBlockPosTag(NbtUtils.readBlockPosFromIntArray(oldEntity, key), "A", newEntity);
-                case "block_pos" -> processBlockPosTag(NbtUtils.readBlockPosFromIntArray(oldEntity, key), "Tile", newEntity);
-                case "bound_pos" -> processBlockPosTag(NbtUtils.readBlockPosFromIntArray(oldEntity, key), "Bound", newEntity);
-                case "home_pos" -> processBlockPosTag(NbtUtils.readBlockPosFromIntArray(oldEntity, key), "HomePos", newEntity);
-                case "sleeping_pos" -> processBlockPosTag(NbtUtils.readBlockPosFromIntArray(oldEntity, key), "Sleeping", newEntity);
-                case "has_egg" -> newEntity.putBoolean("HasEgg", oldEntity.getBooleanOr(key, false));
-                case "life_ticks" -> newEntity.putInt("LifeTicks", oldEntity.getIntOr(key, 0));
-                case "size" -> newEntity.putInt("Size", oldEntity.getIntOr(key, 0));
-                default -> newEntity.put(key, oldEntity.get(key));
+                case "anchor_pos" -> processBlockPosTag(DataTypeUtils.readBlockPosFromArrayTag(oldEntity, key), "A", newEntity);
+                case "block_pos" -> processBlockPosTag(DataTypeUtils.readBlockPosFromArrayTag(oldEntity, key), "Tile", newEntity);
+                case "bound_pos" -> processBlockPosTag(DataTypeUtils.readBlockPosFromArrayTag(oldEntity, key), "Bound", newEntity);
+                case "home_pos" -> processBlockPosTag(DataTypeUtils.readBlockPosFromArrayTag(oldEntity, key), "HomePos", newEntity);
+                case "sleeping_pos" -> processBlockPosTag(DataTypeUtils.readBlockPosFromArrayTag(oldEntity, key), "Sleeping", newEntity);
+                case "has_egg" -> newEntity.putBoolean("HasEgg", oldEntity.getBooleanOrDefault(key, false));
+                case "life_ticks" -> newEntity.putInt("LifeTicks", oldEntity.getIntOrDefault(key, 0));
+                case "size" -> newEntity.putInt("Size", oldEntity.getIntOrDefault(key, 0));
+                default -> newEntity.put(key, oldEntity.getData(key).orElse(new CompoundData()));
             }
         }
 
         return newEntity;
     }
 
-    private static void processBlockPosTag(@Nullable BlockPos oldPos, String prefix, CompoundTag newTags)
+    private static void processBlockPosTag(@Nullable BlockPos oldPos, String prefix, CompoundData newTags)
     {
         if (oldPos != null)
         {
@@ -87,36 +90,37 @@ public class SchematicDowngradeConverter
         }
     }
 
-    private static CompoundTag processEntityDropChances(Tag nbtElement)
+    private static CompoundData processEntityDropChances(BaseData nbtElement)
     {
-        CompoundTag oldTags = nbtElement.asCompound().orElse(new CompoundTag());
-        CompoundTag newTags = new CompoundTag();
-        ListTag handDrops = new ListTag();
-        ListTag armorDrops = new ListTag();
+        CompoundData oldTags = nbtElement.asCompound().orElse(new CompoundData());
+//        CompoundData oldTags = nbtElement.getType() == Constants.NBT.TAG_COMPOUND ? (CompoundData) nbtElement : new CompoundData();
+        CompoundData newTags = new CompoundData();
+        ListData handDrops = new ListData();
+        ListData armorDrops = new ListData();
 
         for (int i = 0; i < 2; i++)
         {
-            handDrops.add(FloatTag.valueOf(DropChances.DEFAULT_EQUIPMENT_DROP_CHANCE));
+            handDrops.add(new FloatData(DropChances.DEFAULT_EQUIPMENT_DROP_CHANCE));
         }
 
         for (int i = 0; i < 4; i++)
         {
-            armorDrops.add(FloatTag.valueOf(DropChances.DEFAULT_EQUIPMENT_DROP_CHANCE));
+            armorDrops.add(new FloatData(DropChances.DEFAULT_EQUIPMENT_DROP_CHANCE));
         }
 
-        for (String key : oldTags.keySet())
+        for (String key : oldTags.getKeys())
         {
             switch (key)
             {
-                case "mainhand" -> handDrops.set(0, oldTags.get(key));
-                case "offhand" -> handDrops.set(1, oldTags.get(key));
-                case "feet" -> armorDrops.set(0, oldTags.get(key));
-                case "legs" -> armorDrops.set(1, oldTags.get(key));
-                case "chest" -> armorDrops.set(2, oldTags.get(key));
-                case "head" -> armorDrops.set(3, oldTags.get(key));
+                case "mainhand" -> handDrops.set(0, oldTags.getData(key).orElse(new CompoundData()));
+                case "offhand" -> handDrops.set(1, oldTags.getData(key).orElse(new CompoundData()));
+                case "feet" -> armorDrops.set(0, oldTags.getData(key).orElse(new CompoundData()));
+                case "legs" -> armorDrops.set(1, oldTags.getData(key).orElse(new CompoundData()));
+                case "chest" -> armorDrops.set(2, oldTags.getData(key).orElse(new CompoundData()));
+                case "head" -> armorDrops.set(3, oldTags.getData(key).orElse(new CompoundData()));
                 // Not used
-                //case "body" -> newTags.put("body_armor_drop_chance", oldTags.get(key));
-                //case "saddle" -> newTags.put("SaddleItem", oldTags.get(key));
+                //case "body" -> newTags.put("body_armor_drop_chance", oldTags.getData(key).orElse(new CompoundData()));
+                //case "saddle" -> newTags.put("SaddleItem", oldTags.getData(key).orElse(new CompoundData()));
                 default -> {}
             }
         }
@@ -127,41 +131,41 @@ public class SchematicDowngradeConverter
         return newTags;
     }
 
-    private static CompoundTag processEntityEquipment(Tag equipmentEntries, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static CompoundData processEntityEquipment(BaseData equipmentEntries, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag oldTags = equipmentEntries.asCompound().orElse(new CompoundTag());
-        CompoundTag newTags = new CompoundTag();
-        ListTag newHandItems = new ListTag();
-        ListTag newArmorItems = new ListTag();
+        CompoundData oldTags = equipmentEntries.asCompound().orElse(new CompoundData());
+        CompoundData newTags = new CompoundData();
+        ListData newHandItems = new ListData();
+        ListData newArmorItems = new ListData();
 
         for (int i = 0; i < 2; i++)
         {
-            newHandItems.add(new CompoundTag());
+            newHandItems.add(new CompoundData());
         }
 
         for (int i = 0; i < 4; i++)
         {
-            newArmorItems.add(new CompoundTag());
+            newArmorItems.add(new CompoundData());
         }
 
-        for (String key : oldTags.keySet())
+        for (String key : oldTags.getKeys())
         {
             switch (key)
             {
-                case "mainhand" -> newHandItems.set(0, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
-                case "offhand" -> newHandItems.set(1, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
-                case "feet" -> newArmorItems.set(0, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
-                case "legs" -> newArmorItems.set(1, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
-                case "chest" -> newArmorItems.set(2, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
-                case "head" -> newArmorItems.set(3, processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "mainhand" -> newHandItems.set(0, processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "offhand" -> newHandItems.set(1, processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "feet" -> newArmorItems.set(0, processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "legs" -> newArmorItems.set(1, processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "chest" -> newArmorItems.set(2, processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "head" -> newArmorItems.set(3, processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
                 case "body" ->
                 {
                     // Why is this duplicated in 1.20.4?  the world may never know...
-                    Tag ele = processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager);
+                    BaseData ele = processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry);
                     newArmorItems.set(2, ele);
                     newTags.put("ArmorItem", ele);
                 }
-                case "saddle" -> newTags.put("SaddleItem", processEntityItem(oldTags.get(key), minecraftDataVersion, registryManager));
+                case "saddle" -> newTags.put("SaddleItem", processEntityItem(oldTags.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
                 default -> {}
             }
         }
@@ -172,30 +176,30 @@ public class SchematicDowngradeConverter
         return newTags;
     }
 
-    private static Tag processEntityItem(Tag itemEntry, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static BaseData processEntityItem(BaseData itemEntry, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag oldItem = itemEntry.asCompound().orElse(new CompoundTag());;
-        CompoundTag newItem = new CompoundTag();
+        CompoundData oldItem = itemEntry.asCompound().orElse(new CompoundData());
+        CompoundData newItem = new CompoundData();
 
-        if (!oldItem.contains("id"))
+        if (!oldItem.contains("id", Constants.NBT.TAG_STRING))
         {
             return itemEntry;
         }
-        String idName = oldItem.getStringOr("id", "");
+        String idName = oldItem.getStringOrDefault("id", "");
         newItem.putString("id", idName);
-        if (oldItem.contains("count"))
+        if (oldItem.contains("count", Constants.NBT.TAG_INT))
         {
-            newItem.putByte("Count", (byte) oldItem.getIntOr("count", 1));
+            newItem.putByte("Count", (byte) oldItem.getIntOrDefault("count", 1));
         }
-        if (oldItem.contains("components"))
+        if (oldItem.contains("components", Constants.NBT.TAG_COMPOUND))
         {
-            newItem.put("tag", processComponentsTag(oldItem.getCompoundOrEmpty("components"), idName, minecraftDataVersion, registryManager));
+            newItem.put("tag", processComponentsTag(oldItem.getCompound("components"), idName, minecraftDataVersion, registry));
         }
         else
         {
             if (needsDamageTag(idName))
             {
-                CompoundTag newTag = new CompoundTag();
+                CompoundData newTag = new CompoundData();
                 newTag.putInt("Damage", 0);
                 newItem.put("tag", newTag);
             }
@@ -204,37 +208,37 @@ public class SchematicDowngradeConverter
         return newItem;
     }
 
-    private static ListTag processEntityItems(ListTag oldItems, int minecraftDataVersion, RegistryAccess registryManager, int expectedSize)
+    private static ListData processEntityItems(ListData oldItems, int minecraftDataVersion, RegistryAccess registry, int expectedSize)
     {
-        ListTag newItems = new ListTag();
+        ListData newItems = new ListData();
 
         for (int i = 0; i < oldItems.size(); i++)
         {
-            CompoundTag itemEntry = oldItems.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData itemEntry = oldItems.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
 
-            if (itemEntry.contains("id"))
+            if (itemEntry.contains("id", Constants.NBT.TAG_STRING))
             {
-                String idName = itemEntry.getStringOr("id", "");
+                String idName = itemEntry.getStringOrDefault("id", "");
                 newEntry.putString("id", idName);
 
-                if (itemEntry.contains("count"))
+                if (itemEntry.contains("count", Constants.NBT.TAG_INT))
                 {
-                    newEntry.putByte("Count", (byte) itemEntry.getIntOr("count", 1));
+                    newEntry.putByte("Count", (byte) itemEntry.getIntOrDefault("count", 1));
                 }
                 else
                 {
                     newEntry.putByte("Count", (byte) 1);
                 }
-                if (itemEntry.contains("components"))
+                if (itemEntry.contains("components", Constants.NBT.TAG_COMPOUND))
                 {
-                    newEntry.put("tag", processComponentsTag(itemEntry.getCompoundOrEmpty("components"), idName, minecraftDataVersion, registryManager));
+                    newEntry.put("tag", processComponentsTag(itemEntry.getCompound("components"), idName, minecraftDataVersion, registry));
                 }
                 else
                 {
                     if (needsDamageTag(idName))
                     {
-                        CompoundTag newTag = new CompoundTag();
+                        CompoundData newTag = new CompoundData();
                         newTag.putInt("Damage", 0);
                         newEntry.put("tag", newTag);
                     }
@@ -250,57 +254,57 @@ public class SchematicDowngradeConverter
 
             for (int i = 0; i < addTotal; i++)
             {
-                newItems.add(i, new CompoundTag());
+                newItems.add(i, new CompoundData());
             }
         }
 
         return newItems;
     }
 
-    private static Tag processAttributes(Tag attrib, int minecraftDataVersion, RegistryAccess registryManager)
+    private static BaseData processAttributes(BaseData attrib, int minecraftDataVersion, RegistryAccess registry)
     {
-        ListTag oldAttr = attrib.asList().orElse(new ListTag());
+        ListData oldAttr = attrib.asList().orElse(new ListData());
 
         if (oldAttr.isEmpty())
         {
-            CompoundTag oldTag = attrib.asCompound().orElse(new CompoundTag());
+            CompoundData oldTag = attrib.asCompound().orElse(new CompoundData());
 
             if (oldTag.isEmpty()) return attrib;
 
-            for (String key : oldTag.keySet())
+            for (String key : oldTag.getKeys())
             {
                 if (key.equals("modifiers"))
                 {
-                    return processAttributeModifiers(oldTag.getListOrEmpty(key), minecraftDataVersion, registryManager);
+                    return processAttributeModifiers(oldTag.getList(key), minecraftDataVersion, registry);
                 }
             }
         }
 
-        return processAttributeBase(oldAttr, minecraftDataVersion, registryManager);
+        return processAttributeBase(oldAttr, minecraftDataVersion, registry);
     }
 
-    private static Tag processAttributeBase(ListTag oldAttr, int minecraftDataVersion, RegistryAccess registryManager)
+    private static BaseData processAttributeBase(ListData oldAttr, int minecraftDataVersion, RegistryAccess registry)
     {
-        ListTag newAttr = new ListTag();
+        ListData newAttr = new ListData();
 
         for (int i = 0; i < oldAttr.size(); i++)
         {
-            CompoundTag attrEntry = oldAttr.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData attrEntry = oldAttr.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
 
-            if (attrEntry.contains("type"))
+            if (attrEntry.contains("type", Constants.NBT.TAG_STRING))
             {
-                newEntry.putString("Name", attributeRename(attrEntry.getStringOr("type", "")));
-                newEntry.putDouble("Base", attrEntry.getDoubleOr("amount", 0D));
+                newEntry.putString("Name", attributeRename(attrEntry.getStringOrDefault("type", "")));
+                newEntry.putDouble("Base", attrEntry.getDoubleOrDefault("amount", 0D));
             }
             else
             {
-                newEntry.putString("Name", attributeRename(attrEntry.getStringOr("id", "")));
-                newEntry.putDouble("Base", attrEntry.getDoubleOr("base", 0D));
+                newEntry.putString("Name", attributeRename(attrEntry.getStringOrDefault("id", "")));
+                newEntry.putDouble("Base", attrEntry.getDoubleOrDefault("base", 0D));
             }
 
-            ListTag listEntry = attrEntry.getListOrEmpty("modifiers");
-            ListTag newMods = processAttributeModifiers(listEntry, minecraftDataVersion, registryManager);
+            ListData listEntry = attrEntry.getList("modifiers");
+            ListData newMods = processAttributeModifiers(listEntry, minecraftDataVersion, registry);
 
             if (!newMods.isEmpty())
             {
@@ -312,31 +316,31 @@ public class SchematicDowngradeConverter
         return newAttr;
     }
 
-    private static ListTag processAttributeModifiers(ListTag modifiers, int minecraftDataVersion, RegistryAccess registryManager)
+    private static ListData processAttributeModifiers(ListData modifiers, int minecraftDataVersion, RegistryAccess registry)
     {
-        ListTag newMods = new ListTag();
+        ListData newMods = new ListData();
 
         if (modifiers.isEmpty()) return modifiers;
 
         for (int y = 0; y < modifiers.size(); y++)
         {
-            CompoundTag modEntry = modifiers.getCompoundOrEmpty(y);
-            CompoundTag newMod = new CompoundTag();
+            CompoundData modEntry = modifiers.getCompoundAt(y);
+            CompoundData newMod = new CompoundData();
 
-            if (modEntry.contains("type"))
+            if (modEntry.contains("type", Constants.NBT.TAG_STRING))
             {
-                newMod.putString("Name", attributeRename(modEntry.getStringOr("type", "")));
-                newMod.putDouble("Base", modEntry.getDoubleOr("amount", 0D));
+                newMod.putString("Name", attributeRename(modEntry.getStringOrDefault("type", "")));
+                newMod.putDouble("Base", modEntry.getDoubleOrDefault("amount", 0D));
             }
             else
             {
-                newMod.putDouble("Amount", modEntry.getDoubleOr("amount", 0D));
-                newMod.putString("Name", modifierIdToName(modEntry.getStringOr("id", "")));
+                newMod.putDouble("Amount", modEntry.getDoubleOrDefault("amount", 0D));
+                newMod.putString("Name", modifierIdToName(modEntry.getStringOrDefault("id", "")));
             }
 
-            newMod.putInt("Operation", modifierOperationToInt(modEntry.getStringOr("operation", "")));
+            newMod.putInt("Operation", modifierOperationToInt(modEntry.getStringOrDefault("operation", "")));
             //newMod.putUuid("UUID", modEntry.contains("UUID") ? modEntry.getUuid("UUID") : UUID.randomUUID());
-            newMod.store("UUID", UUIDUtil.AUTHLIB_CODEC, modEntry.read("UUID", UUIDUtil.AUTHLIB_CODEC, registryManager.createSerializationContext(NbtOps.INSTANCE)).orElse(UUID.randomUUID()));
+            newMod.putCodec("UUID", UUIDUtil.AUTHLIB_CODEC, modEntry.getCodec("UUID", UUIDUtil.AUTHLIB_CODEC, registry.createSerializationContext(DataOps.INSTANCE)).orElse(UUID.randomUUID()));
             newMods.add(newMod);
         }
 
@@ -511,42 +515,42 @@ public class SchematicDowngradeConverter
         return 0;
     }
 
-    public static CompoundTag downgradeBlockEntity_to_1_20_4(CompoundTag oldTE, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    public static CompoundData downgradeBlockEntity_to_1_20_4(CompoundData oldTE, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag newTE = new CompoundTag();
+        CompoundData newTE = new CompoundData();
 
-        if (!oldTE.contains("id"))
+        if (!oldTE.contains("id", Constants.NBT.TAG_STRING))
         {
-            oldTE.merge(SchematicConversionMaps.checkForIdTag(oldTE));
+            oldTE.combine(SchematicConversionMaps.checkForIdTag(oldTE));
         }
-        for (String key : oldTE.keySet())
+        for (String key : oldTE.getKeys())
         {
             switch (key)
             {
-                case "x" -> newTE.putInt("x", oldTE.getIntOr("x", 0));
-                case "y" -> newTE.putInt("y", oldTE.getIntOr("y", 0));
-                case "z" -> newTE.putInt("z", oldTE.getIntOr("z", 0));
-                case "id" -> newTE.putString("id", oldTE.getStringOr("id", ""));
-                case "Items" -> newTE.put("Items", processItemsTag(oldTE.getListOrEmpty("Items"), minecraftDataVersion, registryManager));
-                case "patterns" -> newTE.put("Patterns", processBannerPatterns(oldTE.get(key)));
-                case "profile" -> newTE.put("SkullOwner", processSkullProfile(oldTE.get(key), newTE, minecraftDataVersion, registryManager));
-                case "flower_pos" -> newTE.put("FlowerPos", processFlowerPos(oldTE, key, minecraftDataVersion, registryManager));
-                case "bees" -> newTE.put("Bees", processBeesTag(oldTE.get(key), minecraftDataVersion, registryManager));
-                case "item" -> newTE.put("item", processDecoratedPot(oldTE.get(key), minecraftDataVersion, registryManager));
-                case "last_interacted_slot" -> newTE.put("last_interacted_slot", oldTE.get(key));
+                case "x" -> newTE.putInt("x", oldTE.getIntOrDefault("x", 0));
+                case "y" -> newTE.putInt("y", oldTE.getIntOrDefault("y", 0));
+                case "z" -> newTE.putInt("z", oldTE.getIntOrDefault("z", 0));
+                case "id" -> newTE.putString("id", oldTE.getStringOrDefault("id", ""));
+                case "Items" -> newTE.put("Items", processItemsTag(oldTE.getList("Items"), minecraftDataVersion, registry));
+                case "patterns" -> newTE.put("Patterns", processBannerPatterns(oldTE.getData(key).orElse(new CompoundData())));
+                case "profile" -> newTE.put("SkullOwner", processSkullProfile(oldTE.getData(key).orElse(new CompoundData()), newTE, minecraftDataVersion, registry));
+                case "flower_pos" -> newTE.put("FlowerPos", processFlowerPos(oldTE, key, minecraftDataVersion, registry));
+                case "bees" -> newTE.put("Bees", processBeesTag(oldTE.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "item" -> newTE.put("item", processDecoratedPot(oldTE.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "last_interacted_slot" -> newTE.put("last_interacted_slot", oldTE.getData(key).orElse(new CompoundData()));
                 case "ticks_since_song_started" ->
                 {
                     newTE.putLong("RecordStartTick", 0L);
-                    newTE.putLong("TickCount", oldTE.getLongOr(key, 0L));
+                    newTE.putLong("TickCount", oldTE.getLongOrDefault(key, 0L));
                     newTE.putByte("IsPlaying", (byte) 0);
                 }
-                case "RecordItem" -> newTE.put("RecordItem", processRecordItem(oldTE.get(key), minecraftDataVersion, registryManager));
-                case "Book" -> newTE.put("Book", processBookTag(oldTE.get(key), minecraftDataVersion, registryManager));
+                case "RecordItem" -> newTE.put("RecordItem", processRecordItem(oldTE.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "Book" -> newTE.put("Book", processBookTag(oldTE.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
                 // 1.21.5+
                 //case "RecipesUsed" -> newTE.put("RecipesUsed", processRecipesUsedTag(oldTE));
-                case "CustomName" -> newTE.putString("CustomName", processCustomNameTag(oldTE, key, registryManager));
-                case "custom_name" -> newTE.putString("CustomName", processCustomNameTag(oldTE, key, registryManager));
-                default -> newTE.put(key, oldTE.get(key));
+                case "CustomName" -> newTE.putString("CustomName", processCustomNameTag(oldTE, key, registry));
+                case "custom_name" -> newTE.putString("CustomName", processCustomNameTag(oldTE, key, registry));
+                default -> newTE.put(key, oldTE.getData(key).orElse(new CompoundData()));
             }
         }
 
@@ -554,15 +558,15 @@ public class SchematicDowngradeConverter
     }
 
     // 1.21.5+ Only ?  Might not even be needed
-    private static CompoundTag processRecipesUsedTag(Tag nbtIn)
+    private static CompoundData processRecipesUsedTag(BaseData nbtIn, @Nonnull RegistryAccess registry)
     {
-        CompoundTag oldNbt = nbtIn.asCompound().orElse(new CompoundTag());
-        CompoundTag newNbt = new CompoundTag();
+        CompoundData oldNbt = nbtIn.asCompound().orElse(new CompoundData());
+        CompoundData newNbt = new CompoundData();
         Codec<Map<ResourceKey<Recipe<?>>, Integer>> CODEC = Codec.unboundedMap(Recipe.KEY_CODEC, Codec.INT);
         Reference2IntOpenHashMap<ResourceKey<Recipe<?>>> recipesUsed = new Reference2IntOpenHashMap<>();
 
         // todo -- make sure this even needed
-        recipesUsed.putAll(oldNbt.read("RecipesUsed", CODEC).orElse(Map.of()));
+        recipesUsed.putAll(oldNbt.getCodec("RecipesUsed", CODEC, registry.createSerializationContext(DataOps.INSTANCE)).orElse(Map.of()));
         recipesUsed.forEach((id, count) ->
         {
             newNbt.putInt(id.identifier().toString(), count);
@@ -571,39 +575,39 @@ public class SchematicDowngradeConverter
         return newNbt;
     }
 
-    private static ListTag processItemsTag(ListTag oldItems, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static ListData processItemsTag(ListData oldItems, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        ListTag newItems = new ListTag();
+        ListData newItems = new ListData();
 
         for (int i = 0; i < oldItems.size(); i++)
         {
-            CompoundTag itemEntry = oldItems.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData itemEntry = oldItems.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
 
-            if (!itemEntry.contains("id"))
+            if (!itemEntry.contains("id", Constants.NBT.TAG_STRING))
             {
                 continue;
             }
-            String idName = itemEntry.getStringOr("id", "");
+            String idName = itemEntry.getStringOrDefault("id", "");
 
             newEntry.putString("id", idName);
-            if (itemEntry.contains("count"))
+            if (itemEntry.contains("count", Constants.NBT.TAG_INT))
             {
-                newEntry.putByte("Count", (byte) itemEntry.getIntOr("count", 1));
+                newEntry.putByte("Count", (byte) itemEntry.getIntOrDefault("count", 1));
             }
-            if (itemEntry.contains("Slot"))
+            if (itemEntry.contains("Slot", Constants.NBT.TAG_BYTE))
             {
-                newEntry.putByte("Slot", itemEntry.getByteOr("Slot", (byte) 1));
+                newEntry.putByte("Slot", itemEntry.getByteOrDefault("Slot", (byte) 1));
             }
-            if (itemEntry.contains("components"))
+            if (itemEntry.contains("components", Constants.NBT.TAG_COMPOUND))
             {
-                newEntry.put("tag", processComponentsTag(itemEntry.getCompoundOrEmpty("components"), idName, minecraftDataVersion, registryManager));
+                newEntry.put("tag", processComponentsTag(itemEntry.getCompound("components"), idName, minecraftDataVersion, registry));
             }
             else
             {
                 if (needsDamageTag(idName))
                 {
-                    CompoundTag newTag = new CompoundTag();
+                    CompoundData newTag = new CompoundData();
                     newTag.putInt("Damage", 0);
                     newEntry.put("tag", newTag);
                 }
@@ -615,40 +619,40 @@ public class SchematicDowngradeConverter
         return newItems;
     }
 
-    private static ListTag processItemsTag_Nested(ListTag oldItems, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static ListData processItemsTag_Nested(ListData oldItems, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        ListTag newItems = new ListTag();
+        ListData newItems = new ListData();
 
         for (int i = 0; i < oldItems.size(); i++)
         {
-            CompoundTag itemEntry = oldItems.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData itemEntry = oldItems.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
 
-            int slotNum = itemEntry.getIntOr("slot", 0);
-            CompoundTag itemSlot = itemEntry.getCompoundOrEmpty("item");
+            int slotNum = itemEntry.getIntOrDefault("slot", 0);
+            CompoundData itemSlot = itemEntry.getCompound("item");
 
-            if (!itemSlot.contains("id"))
+            if (!itemSlot.contains("id", Constants.NBT.TAG_STRING))
             {
                 continue;
             }
-            String idName = itemSlot.getStringOr("id", "");
+            String idName = itemSlot.getStringOrDefault("id", "");
 
             newEntry.putString("id", idName);
-            if (itemSlot.contains("count"))
+            if (itemSlot.contains("count", Constants.NBT.TAG_INT))
             {
-                newEntry.putByte("Count", (byte) itemSlot.getIntOr("count", 1));
+                newEntry.putByte("Count", (byte) itemSlot.getIntOrDefault("count", 1));
             }
             newEntry.putByte("Slot", (byte) slotNum);
 
-            if (itemSlot.contains("components"))
+            if (itemSlot.contains("components", Constants.NBT.TAG_COMPOUND))
             {
-                newEntry.put("tag", processComponentsTag(itemSlot.getCompoundOrEmpty("components"), idName, minecraftDataVersion, registryManager));
+                newEntry.put("tag", processComponentsTag(itemSlot.getCompound("components"), idName, minecraftDataVersion, registry));
             }
             else
             {
                 if (needsDamageTag(idName))
                 {
-                    CompoundTag newTag = new CompoundTag();
+                    CompoundData newTag = new CompoundData();
                     newTag.putInt("Damage", 0);
                     newEntry.put("tag", newTag);
                 }
@@ -660,31 +664,31 @@ public class SchematicDowngradeConverter
         return newItems;
     }
 
-    private static CompoundTag processDecoratedPot_Nested(ListTag oldItems, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static CompoundData processDecoratedPot_Nested(ListData oldItems, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag itemEntry = oldItems.getCompoundOrEmpty(0);
-        CompoundTag newEntry = new CompoundTag();
+        CompoundData itemEntry = oldItems.getCompoundAt(0);
+        CompoundData newEntry = new CompoundData();
 
-        int slotNum = itemEntry.getIntOr("slot", 1);
-        CompoundTag itemSlot = itemEntry.getCompoundOrEmpty("item");
+        int slotNum = itemEntry.getIntOrDefault("slot", 1);
+        CompoundData itemSlot = itemEntry.getCompound("item");
 
-        if (!itemSlot.contains("id"))
+        if (!itemSlot.contains("id", Constants.NBT.TAG_STRING))
         {
             return itemEntry;
         }
-        String idName = itemSlot.getStringOr("id", "");
+        String idName = itemSlot.getStringOrDefault("id", "");
         newEntry.putString("id", idName);
-        newEntry.putByte("Count", (byte) (itemSlot.contains("count") ? itemSlot.getInt("count") : 1));
+        newEntry.putByte("Count", (byte) (itemSlot.contains("count", Constants.NBT.TAG_INT) ? itemSlot.getInt("count") : 1));
 
-        if (itemSlot.contains("components"))
+        if (itemSlot.contains("components", Constants.NBT.TAG_COMPOUND))
         {
-            newEntry.put("tag", processComponentsTag(itemSlot.getCompoundOrEmpty("components"), idName, minecraftDataVersion, registryManager));
+            newEntry.put("tag", processComponentsTag(itemSlot.getCompound("components"), idName, minecraftDataVersion, registry));
         }
         else
         {
             if (needsDamageTag(idName))
             {
-                CompoundTag newTag = new CompoundTag();
+                CompoundData newTag = new CompoundData();
                 newTag.putInt("Damage", 0);
                 newEntry.put("tag", newTag);
             }
@@ -700,43 +704,43 @@ public class SchematicDowngradeConverter
         return stack != null && !stack.isEmpty() && stack.isDamageableItem();
     }
 
-    private static CompoundTag processComponentsTag(CompoundTag nbt, String itemId, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static CompoundData processComponentsTag(CompoundData nbt, String itemId, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag outNbt = new CompoundTag();
-        CompoundTag beNbt = new CompoundTag();
-        CompoundTag dispNbt = new CompoundTag();
+        CompoundData outNbt = new CompoundData();
+        CompoundData beNbt = new CompoundData();
+        CompoundData dispNbt = new CompoundData();
         boolean needsDamage = needsDamageTag(itemId);
 
-        for (String key : nbt.keySet())
+        for (String key : nbt.getKeys())
         {
             switch (key)
             {
-                case "minecraft:attribute_modifiers" -> outNbt.put("AttributeModifiers", processAttributes(nbt.get(key), minecraftDataVersion, registryManager));
+                case "minecraft:attribute_modifiers" -> outNbt.put("AttributeModifiers", processAttributes(nbt.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
                 case "minecraft:banner_patterns" ->
                 {
-                    beNbt.put("Patterns", processBannerPatterns(nbt.get(key)));
+                    beNbt.put("Patterns", processBannerPatterns(nbt.getData(key).orElse(new CompoundData())));
                     beNbt.putString("id", "minecraft:banner");
                 }
                 case "minecraft:bees" ->
                 {
-                    beNbt.put("Bees", processBeesTag(nbt.get(key), minecraftDataVersion, registryManager));
+                    beNbt.put("Bees", processBeesTag(nbt.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:block_state" -> outNbt.put("BlockStateTag", processBlockState(nbt.get(key)));
-                case "minecraft:block_entity_data" -> processBlockEntityData(nbt.get(key), beNbt, minecraftDataVersion, registryManager);       // TODO --> check that this works or not
-                case "minecraft:bucket_entity_data" -> processBucketEntityData(nbt.get(key), beNbt, minecraftDataVersion, registryManager);
-                case "minecraft:bundle_contents" -> outNbt.put("Items", processItemsTag(nbt.getListOrEmpty(key), minecraftDataVersion, registryManager));
-                case "minecraft:can_break" -> outNbt.put("CanDestroy", nbt.get(key));
-                case "minecraft:can_place_on" -> outNbt.put("CanPlaceOn", nbt.get(key));
+                case "minecraft:block_state" -> outNbt.put("BlockStateTag", processBlockState(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:block_entity_data" -> processBlockEntityData(nbt.getData(key).orElse(new CompoundData()), beNbt, minecraftDataVersion, registry);       // TODO --> check that this works or not
+                case "minecraft:bucket_entity_data" -> processBucketEntityData(nbt.getData(key).orElse(new CompoundData()), beNbt, minecraftDataVersion, registry);
+                case "minecraft:bundle_contents" -> outNbt.put("Items", processItemsTag(nbt.getList(key), minecraftDataVersion, registry));
+                case "minecraft:can_break" -> outNbt.put("CanDestroy", nbt.getData(key).orElse(new CompoundData()));
+                case "minecraft:can_place_on" -> outNbt.put("CanPlaceOn", nbt.getData(key).orElse(new CompoundData()));
                 case "minecraft:container" ->
                 {
                     if (itemId.contains("decorated_pot"))
                     {
-                        beNbt.put("item", processDecoratedPot_Nested(nbt.getListOrEmpty(key), minecraftDataVersion, registryManager));
+                        beNbt.put("item", processDecoratedPot_Nested(nbt.getList(key), minecraftDataVersion, registry));
                     }
                     else
                     {
-                        beNbt.put("Items", processItemsTag_Nested(nbt.getListOrEmpty(key), minecraftDataVersion, registryManager));
+                        beNbt.put("Items", processItemsTag_Nested(nbt.getList(key), minecraftDataVersion, registry));
                     }
                     if (itemId.contains("shulker"))
                     {
@@ -749,69 +753,69 @@ public class SchematicDowngradeConverter
                 }
                 case "minecraft:charged_projectiles" ->
                 {
-                    outNbt.put("ChargedProjectiles", processChargedProjectile(nbt.get(key), minecraftDataVersion, registryManager));
+                    outNbt.put("ChargedProjectiles", processChargedProjectile(nbt.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
                     outNbt.putBoolean("Charged", true);
                 }
                 case "minecraft:container_loot" ->
                 {
-                    beNbt.put("LootTable", processLootTable(nbt.get(key)));
+                    beNbt.put("LootTable", processLootTable(nbt.getData(key).orElse(new CompoundData())));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:custom_data" -> processCustomData(nbt.get(key), outNbt);
-                case "minecraft:custom_model_data" -> outNbt.putInt("CustomModelData", nbt.getIntOr(key, 0));
-                case "minecraft:custom_name" -> dispNbt.putString("Name", processCustomNameTag(nbt, key, registryManager));
-                case "minecraft:damage" -> outNbt.putInt("Damage", nbt.getIntOr(key, 0));
-                case "minecraft:debug_stick_state" -> outNbt.put("DebugProperty", nbt.get(key));
-                case "minecraft:dyed_color" -> dispNbt.putInt("color", processDyedColor(nbt.get(key)));
-                case "minecraft:enchantments" -> outNbt.put("Enchantments", processEnchantments(nbt.get(key), true, true));
-                case "minecraft:entity_data" -> outNbt.put("EntityTag", downgradeEntity_to_1_20_4((CompoundTag) nbt.get(key), minecraftDataVersion, registryManager));
-                case "minecraft:stored_enchantments" -> outNbt.put("StoredEnchantments", processEnchantments(nbt.get(key), true, true));
-                case "minecraft:fireworks" -> outNbt.put("Fireworks", processFireworks(nbt.get(key)));
-                case "minecraft:firework_explosion" -> outNbt.put("Explosion", processFireworkExplosion(nbt.get(key)));
+                case "minecraft:custom_data" -> processCustomData(nbt.getData(key).orElse(new CompoundData()), outNbt);
+                case "minecraft:custom_model_data" -> outNbt.putInt("CustomModelData", nbt.getIntOrDefault(key, 0));
+                case "minecraft:custom_name" -> dispNbt.putString("Name", processCustomNameTag(nbt, key, registry));
+                case "minecraft:damage" -> outNbt.putInt("Damage", nbt.getIntOrDefault(key, 0));
+                case "minecraft:debug_stick_state" -> outNbt.put("DebugProperty", nbt.getData(key).orElse(new CompoundData()));
+                case "minecraft:dyed_color" -> dispNbt.putInt("color", processDyedColor(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:enchantments" -> outNbt.put("Enchantments", processEnchantments(nbt.getData(key).orElse(new CompoundData()), true, true));
+                case "minecraft:entity_data" -> outNbt.put("EntityTag", downgradeEntity_to_1_20_4((CompoundData) nbt.getData(key).orElse(new CompoundData()), minecraftDataVersion, registry));
+                case "minecraft:stored_enchantments" -> outNbt.put("StoredEnchantments", processEnchantments(nbt.getData(key).orElse(new CompoundData()), true, true));
+                case "minecraft:fireworks" -> outNbt.put("Fireworks", processFireworks(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:firework_explosion" -> outNbt.put("Explosion", processFireworkExplosion(nbt.getData(key).orElse(new CompoundData())));
                 // "minecraft:hide_additional_tooltip" --> ignore
-                case "minecraft:instrument" -> outNbt.put("instrument", processInstrument(nbt.get(key)));
-                case "minecraft:item_name" -> dispNbt.putString("Name", processItemName(nbt.get(key), registryManager));
+                case "minecraft:instrument" -> outNbt.put("instrument", processInstrument(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:item_name" -> dispNbt.putString("Name", processItemName(nbt.getData(key).orElse(new CompoundData()), registry));
                 case "minecraft:lock" ->
                 {
-                    beNbt.put("Lock", nbt.get(key));
+                    beNbt.put("Lock", nbt.getData(key).orElse(new CompoundData()));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:lodestone_tracker" -> processLodestoneTracker(nbt.get(key), outNbt);
-                case "minecraft:lore" -> dispNbt.put("Lore", nbt.get(key));
-                case "minecraft:map_id" -> outNbt.put("map", processMapId(nbt.get(key)));
-                case "minecraft:map_color" -> dispNbt.put("MapColor", nbt.get(key));
-                case "minecraft:map_decorations" -> outNbt.put("Decorations", processMapDecorations(nbt.get(key)));
-                case "minecraft:note_block_sound" -> beNbt.put("note_block_sound", nbt.get(key));
+                case "minecraft:lodestone_tracker" -> processLodestoneTracker(nbt.getData(key).orElse(new CompoundData()), outNbt);
+                case "minecraft:lore" -> dispNbt.put("Lore", nbt.getData(key).orElse(new CompoundData()));
+                case "minecraft:map_id" -> outNbt.put("map", processMapId(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:map_color" -> dispNbt.put("MapColor", nbt.getData(key).orElse(new CompoundData()));
+                case "minecraft:map_decorations" -> outNbt.put("Decorations", processMapDecorations(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:note_block_sound" -> beNbt.put("note_block_sound", nbt.getData(key).orElse(new CompoundData()));
                 case "minecraft:pot_decorations" ->
                 {
-                    beNbt.put("sherds", processSherds(nbt.get(key)));
+                    beNbt.put("sherds", processSherds(nbt.getData(key).orElse(new CompoundData())));
                     beNbt.putString("id", itemId);
                 }
-                case "minecraft:potion_contents" -> processPotions(nbt.get(key), outNbt);
-                case "minecraft:profile" -> outNbt.put("SkullOwner", processSkullProfile(nbt.get(key), dispNbt, minecraftDataVersion, registryManager));
-                case "minecraft:repair_cost" -> outNbt.putInt("RepairCost", nbt.getIntOr(key, 0));
-                case "minecraft:recipes" -> outNbt.put("Recipes", processRecipes(nbt.get(key)));
-                case "minecraft:suspicious_stew_effects" -> outNbt.put("effects", processSuspiciousStewEffects(nbt.get(key)));
-                case "minecraft:trim" -> outNbt.put("Trim", processTrim(nbt.get(key)));
+                case "minecraft:potion_contents" -> processPotions(nbt.getData(key).orElse(new CompoundData()), outNbt);
+                case "minecraft:profile" -> outNbt.put("SkullOwner", processSkullProfile(nbt.getData(key).orElse(new CompoundData()), dispNbt, minecraftDataVersion, registry));
+                case "minecraft:repair_cost" -> outNbt.putInt("RepairCost", nbt.getIntOrDefault(key, 0));
+                case "minecraft:recipes" -> outNbt.put("Recipes", processRecipes(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:suspicious_stew_effects" -> outNbt.put("effects", processSuspiciousStewEffects(nbt.getData(key).orElse(new CompoundData())));
+                case "minecraft:trim" -> outNbt.put("Trim", processTrim(nbt.getData(key).orElse(new CompoundData())));
                 case "minecraft:writable_book_content" ->
                 {
-                    CompoundTag bookNbt = nbt.getCompoundOrEmpty(key);
-                    bookNbt = processWritableBookContent(bookNbt, minecraftDataVersion, registryManager);
-                    for (String bookKey : bookNbt.keySet())
+                    CompoundData bookNbt = nbt.getCompound(key);
+                    bookNbt = processWritableBookContent(bookNbt, minecraftDataVersion, registry);
+                    for (String bookKey : bookNbt.getKeys())
                     {
-                        outNbt.put(bookKey, bookNbt.get(bookKey));
+                        outNbt.put(bookKey, bookNbt.getData(bookKey).orElse(new CompoundData()));
                     }
                 }
                 case "minecraft:written_book_content" ->
                 {
-                    CompoundTag bookNbt = nbt.getCompoundOrEmpty(key);
-                    bookNbt = processWrittenBookContent(bookNbt, minecraftDataVersion, registryManager);
-                    for (String bookKey : bookNbt.keySet())
+                    CompoundData bookNbt = nbt.getCompound(key);
+                    bookNbt = processWrittenBookContent(bookNbt, minecraftDataVersion, registry);
+                    for (String bookKey : bookNbt.getKeys())
                     {
-                        outNbt.put(bookKey, bookNbt.get(bookKey));
+                        outNbt.put(bookKey, bookNbt.getData(bookKey).orElse(new CompoundData()));
                     }
                 }
-                case "minecraft:unbreakable" -> outNbt.putBoolean("Unbreakable", processUnbreakable(nbt.get(key)));
+                case "minecraft:unbreakable" -> outNbt.putBoolean("Unbreakable", processUnbreakable(nbt.getData(key).orElse(new CompoundData())));
             }
         }
         if (!beNbt.isEmpty())
@@ -822,11 +826,11 @@ public class SchematicDowngradeConverter
         {
             outNbt.put("display", dispNbt);
         }
-        if (!outNbt.contains("RepairCost") && (itemId.equals("minecraft:dragon_head") || needsDamage))
+        if (!outNbt.contains("RepairCost", Constants.NBT.TAG_INT) && (itemId.equals("minecraft:dragon_head") || needsDamage))
         {
             outNbt.putInt("RepairCost", 0);
         }
-        if (!outNbt.contains("Damage") && needsDamage)
+        if (!outNbt.contains("Damage", Constants.NBT.TAG_INT) && needsDamage)
         {
             outNbt.putInt("Damage", 0);
         }
@@ -834,79 +838,79 @@ public class SchematicDowngradeConverter
         return outNbt;
     }
 
-    private static void processCustomData(Tag oldNbt, CompoundTag outNbt)
+    private static void processCustomData(BaseData oldNbt, CompoundData outNbt)
     {
-        CompoundTag origData = oldNbt.asCompound().orElse(new CompoundTag());;
+        CompoundData origData = oldNbt.asCompound().orElse(new CompoundData());
 
-        for (String keyData : origData.keySet())
+        for (String keyData : origData.getKeys())
         {
-            outNbt.put(keyData, origData.get(keyData));
+            outNbt.put(keyData, origData.getData(keyData).orElse(new CompoundData()));
         }
     }
 
-    private static void processLodestoneTracker(Tag oldEle, CompoundTag outNbt)
+    private static void processLodestoneTracker(BaseData oldEle, CompoundData outNbt)
     {
-        CompoundTag oldNbt = oldEle.asCompound().orElse(new CompoundTag());;
+        CompoundData oldNbt = oldEle.asCompound().orElse(new CompoundData());
 
-        if (oldNbt.contains("tracked"))
+        if (oldNbt.contains("tracked", Constants.NBT.TAG_BYTE))
         {
-            outNbt.putBoolean("LodestoneTracked", oldNbt.getBooleanOr("tracked", false));
+            outNbt.putBoolean("LodestoneTracked", oldNbt.getBooleanOrDefault("tracked", false));
         }
-        if (oldNbt.contains("target"))
+        if (oldNbt.contains("target", Constants.NBT.TAG_COMPOUND))
         {
-            CompoundTag target = oldNbt.getCompoundOrEmpty("target");
+            CompoundData target = oldNbt.getCompound("target");
 
-            outNbt.put("LodestoneDimension", target.get("dimension"));
-            outNbt.put("LodestonePos", target.get("pos"));
+            outNbt.put("LodestoneDimension", target.getData("dimension").orElse(new CompoundData()));
+            outNbt.put("LodestonePos", target.getData("pos").orElse(new CompoundData()));
         }
     }
 
-    private static void processBucketEntityData(Tag oldTags, CompoundTag beNbt, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static void processBucketEntityData(BaseData oldTags, CompoundData beNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag oldNbt = oldTags.asCompound().orElse(new CompoundTag());;
+        CompoundData oldNbt = oldTags.asCompound().orElse(new CompoundData());
 
-//        NbtCompound newNbt = downgradeEntity_to_1_20_4(oldNbt, minecraftDataVersion, registryManager);
+//        NbtCompound newNbt = downgradeEntity_to_1_20_4(oldNbt, minecraftDataVersion, registry);
 //        beNbt.copyFrom(newNbt);
 
-        for (String key : oldNbt.keySet())
+        for (String key : oldNbt.getKeys())
         {
-            beNbt.put(key, oldNbt.get(key));
+            beNbt.put(key, oldNbt.getData(key).orElse(new CompoundData()));
         }
     }
 
-    private static void processPotions(Tag oldPots, CompoundTag outNbt)
+    private static void processPotions(BaseData oldPots, CompoundData outNbt)
     {
-        CompoundTag oldNbt = oldPots.asCompound().orElse(new CompoundTag());;
+        CompoundData oldNbt = oldPots.asCompound().orElse(new CompoundData());
 
-        if (oldNbt.contains("potion"))
+        if (oldNbt.contains("potion", Constants.NBT.TAG_STRING))
         {
-            outNbt.putString("Potion", oldNbt.getStringOr("potion", ""));
+            outNbt.putString("Potion", oldNbt.getStringOrDefault("potion", ""));
         }
-        if (oldNbt.contains("custom_color"))
+        if (oldNbt.containsLenient("custom_color"))
         {
-            outNbt.put("CustomPotionColor", Objects.requireNonNull(oldNbt.get("custom_color")));
+            outNbt.put("CustomPotionColor", Objects.requireNonNull(oldNbt.getData("custom_color").orElse(new CompoundData())));
         }
-        if (oldNbt.contains("custom_effects"))
+        if (oldNbt.containsLenient("custom_effects"))
         {
-            outNbt.put("custom_potion_effects", Objects.requireNonNull(oldNbt.get("custom_effects")));
+            outNbt.put("custom_potion_effects", Objects.requireNonNull(oldNbt.getData("custom_effects").orElse(new CompoundData())));
         }
     }
 
-    private static Tag processMapDecorations(Tag oldDeco)
+    private static BaseData processMapDecorations(BaseData oldDeco)
     {
-        CompoundTag oldTag = oldDeco.asCompound().orElse(new CompoundTag());;
-        ListTag newTags = new ListTag();
+        CompoundData oldTag = oldDeco.asCompound().orElse(new CompoundData());
+        ListData newTags = new ListData();
 
-        for (String key : oldTag.keySet())
+        for (String key : oldTag.getKeys())
         {
-            CompoundTag entryOld = oldTag.getCompoundOrEmpty(key);
-            CompoundTag entryNew = new CompoundTag();
+            CompoundData entryOld = oldTag.getCompound(key);
+            CompoundData entryNew = new CompoundData();
 
             entryNew.putString("id", key);
-            entryNew.putDouble("x", entryOld.contains("x") ? entryOld.getDoubleOr("x", 0d) : 0.0);
-            entryNew.putDouble("z", entryOld.contains("z") ? entryOld.getDoubleOr("z", 0d) : 0.0);
-            entryNew.putDouble("rot", entryOld.contains("rotation") ? (double) entryOld.getFloatOr("rotation", 0f) : 0.0);
-            entryNew.putByte("type", (byte) (entryOld.contains("type") ? convertMapDecoration(entryOld.getStringOr("type", "")) : 0));
+            entryNew.putDouble("x", entryOld.contains("x", Constants.NBT.TAG_DOUBLE) ? entryOld.getDoubleOrDefault("x", 0d) : 0.0);
+            entryNew.putDouble("z", entryOld.contains("z", Constants.NBT.TAG_DOUBLE) ? entryOld.getDoubleOrDefault("z", 0d) : 0.0);
+            entryNew.putDouble("rot", entryOld.contains("rotation", Constants.NBT.TAG_FLOAT) ? (double) entryOld.getFloatOrDefault("rotation", 0f) : 0.0);
+            entryNew.putByte("type", (byte) (entryOld.contains("type", Constants.NBT.TAG_STRING) ? convertMapDecoration(entryOld.getStringOrDefault("type", "")) : 0));
 
             newTags.add(entryNew);
         }
@@ -956,30 +960,30 @@ public class SchematicDowngradeConverter
         };
     }
 
-    private static Tag processSherds(Tag oldSherds)
+    private static BaseData processSherds(BaseData oldSherds)
     {
         return oldSherds;
     }
 
-    private static Tag processLootTable(Tag oldLoot)
+    private static BaseData processLootTable(BaseData oldLoot)
     {
-        CompoundTag oldTable = oldLoot.asCompound().orElse(new CompoundTag());;
-        CompoundTag newTable = new CompoundTag();
+        CompoundData oldTable = oldLoot.asCompound().orElse(new CompoundData());
+        CompoundData newTable = new CompoundData();
 
-        if (oldTable.contains("loot_table"))
+        if (oldTable.contains("loot_table", Constants.NBT.TAG_COMPOUND))
         {
-            CompoundTag loot = oldTable.getCompoundOrEmpty("loot_table");
-            newTable.merge(loot);
+            CompoundData loot = oldTable.getCompound("loot_table");
+            newTable.combine(loot);
         }
-        if (oldTable.contains("seed"))
+        if (oldTable.contains("seed", Constants.NBT.TAG_LONG))
         {
-            newTable.putLong("LootTableSeed", oldTable.getLongOr("seed", 0L));
+            newTable.putLong("LootTableSeed", oldTable.getLongOrDefault("seed", 0L));
         }
 
         return newTable;
     }
 
-    private static String processItemName(Tag oldName, RegistryAccess registryManager)
+    private static String processItemName(BaseData oldName, RegistryAccess registry)
     {
         if (oldName != null)
         {
@@ -989,64 +993,64 @@ public class SchematicDowngradeConverter
         return "minecraft:air";
     }
 
-    private static int processDyedColor(Tag oldDye)
+    private static int processDyedColor(BaseData oldDye)
     {
-        CompoundTag oldColor = oldDye.asCompound().orElse(new CompoundTag());;
+        CompoundData oldColor = oldDye.asCompound().orElse(new CompoundData());
 
-        if (oldColor.contains("rgb"))
+        if (oldColor.contains("rgb", Constants.NBT.TAG_INT))
         {
-            return oldColor.getIntOr("rgb", 10511680);
+            return oldColor.getIntOrDefault("rgb", 10511680);
         }
 
         // Default
         return 10511680;
     }
 
-    private static Tag processRecipes(Tag oldRecipes)
+    private static BaseData processRecipes(BaseData oldRecipes)
     {
         return oldRecipes;
     }
 
-    private static Tag processInstrument(Tag oldGoat)
+    private static BaseData processInstrument(BaseData oldGoat)
     {
         return oldGoat;
     }
 
-    private static Tag processSuspiciousStewEffects(Tag oldEffects)
+    private static BaseData processSuspiciousStewEffects(BaseData oldEffects)
     {
         return oldEffects;
     }
 
-    private static Tag processMapId(Tag oldMapId)
+    private static BaseData processMapId(BaseData oldMapId)
     {
         return oldMapId;
     }
 
-    private static Tag processTrim(Tag oldTrim)
+    private static BaseData processTrim(BaseData oldTrim)
     {
         return oldTrim;
     }
 
-    private static ListTag processChargedProjectile(Tag oldProjectiles, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static ListData processChargedProjectile(BaseData oldProjectiles, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        ListTag oldNbt = oldProjectiles.asList().orElse(new ListTag());
-        ListTag newNbt = new ListTag();
+        ListData oldNbt = oldProjectiles.asList().orElse(new ListData());
+        ListData newNbt = new ListData();
 
         for (int i = 0; i < oldNbt.size(); i++)
         {
-            CompoundTag itemEntry = oldNbt.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData itemEntry = oldNbt.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
 
-            if (!itemEntry.contains("id"))
+            if (!itemEntry.contains("id", Constants.NBT.TAG_STRING))
             {
                 continue;
             }
-            String idName = itemEntry.getStringOr("id", "");
+            String idName = itemEntry.getStringOrDefault("id", "");
             newEntry.putString("id", idName);
-            newEntry.putByte("Count", (byte) (itemEntry.contains("count") ? itemEntry.getInt("count") : 1));
-            if (itemEntry.contains("components"))
+            newEntry.putByte("Count", (byte) (itemEntry.contains("count", Constants.NBT.TAG_INT) ? itemEntry.getInt("count") : 1));
+            if (itemEntry.contains("components", Constants.NBT.TAG_COMPOUND))
             {
-                newEntry.put("tag", processComponentsTag(itemEntry.getCompoundOrEmpty("components"), idName, minecraftDataVersion, registryManager));
+                newEntry.put("tag", processComponentsTag(itemEntry.getCompound("components"), idName, minecraftDataVersion, registry));
             }
 
             newNbt.add(newEntry);
@@ -1055,46 +1059,46 @@ public class SchematicDowngradeConverter
         return newNbt;
     }
 
-    private static boolean processUnbreakable(Tag oldNbt)
+    private static boolean processUnbreakable(BaseData oldNbt)
     {
-        CompoundTag oldUnbr = oldNbt.asCompound().orElse(new CompoundTag());;
+        CompoundData oldUnbr = oldNbt.asCompound().orElse(new CompoundData());
 
-        if (oldUnbr.contains("show_in_tooltip"))
+        if (oldUnbr.contains("show_in_tooltip", Constants.NBT.TAG_BYTE))
         {
-            return oldUnbr.getBooleanOr("show_in_tooltip", false);
+            return oldUnbr.getBooleanOrDefault("show_in_tooltip", false);
         }
 
         return false;
     }
 
-    private static void processBlockEntityData(Tag oldBeData, CompoundTag beNbt, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static void processBlockEntityData(BaseData oldBeData, CompoundData beNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag newData = downgradeBlockEntity_to_1_20_4((CompoundTag) oldBeData, minecraftDataVersion, registryManager);
+        CompoundData newData = downgradeBlockEntity_to_1_20_4((CompoundData) oldBeData, minecraftDataVersion, registry);
 
-        for (String key : newData.keySet())
+        for (String key : newData.getKeys())
         {
-            beNbt.put(key, newData.get(key));
+            beNbt.put(key, newData.getData(key).orElse(new CompoundData()));
         }
     }
 
-    private static Tag processDecoratedPot(Tag oldPot, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static BaseData processDecoratedPot(BaseData oldPot, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag oldNbt = oldPot.asCompound().orElse(new CompoundTag());;
-        CompoundTag newNbt = new CompoundTag();
+        CompoundData oldNbt = oldPot.asCompound().orElse(new CompoundData());
+        CompoundData newNbt = new CompoundData();
 
-        for (String key : oldNbt.keySet())
+        for (String key : oldNbt.getKeys())
         {
             switch (key)
             {
-                case "id" -> newNbt.putString("id", oldNbt.getStringOr("id", ""));
-                case "count" -> newNbt.putByte("Count", (byte) oldNbt.getIntOr("count", 1));
-                case "components" -> newNbt.put("tag", processComponentsTag(oldNbt.getCompoundOrEmpty("components"), oldNbt.getStringOr("id", ""), minecraftDataVersion, registryManager));
+                case "id" -> newNbt.putString("id", oldNbt.getStringOrDefault("id", ""));
+                case "count" -> newNbt.putByte("Count", (byte) oldNbt.getIntOrDefault("count", 1));
+                case "components" -> newNbt.put("tag", processComponentsTag(oldNbt.getCompound("components"), oldNbt.getStringOrDefault("id", ""), minecraftDataVersion, registry));
             }
         }
 
-        if (!newNbt.contains("tag") && oldNbt.contains("id") && needsDamageTag(oldNbt.getStringOr("id", "")))
+        if (!newNbt.contains("tag", Constants.NBT.TAG_COMPOUND) && oldNbt.contains("id", Constants.NBT.TAG_STRING) && needsDamageTag(oldNbt.getStringOrDefault("id", "")))
         {
-            CompoundTag newTag = new CompoundTag();
+            CompoundData newTag = new CompoundData();
             newTag.putInt("Damage", 0);
             newNbt.put("tag", newTag);
         }
@@ -1102,30 +1106,30 @@ public class SchematicDowngradeConverter
         return newNbt;
     }
 
-    private static Tag processEnchantments(Tag oldNbt, boolean fullId, boolean shortInt)
+    private static BaseData processEnchantments(BaseData oldNbt, boolean fullId, boolean shortInt)
     {
-        CompoundTag oldEnchants = oldNbt.asCompound().orElse(new CompoundTag());;
-        CompoundTag oldLevels = oldEnchants.getCompoundOrEmpty("levels");
-        ListTag newEnchants = new ListTag();
+        CompoundData oldEnchants = oldNbt.asCompound().orElse(new CompoundData());
+        CompoundData oldLevels = oldEnchants.getCompound("levels");
+        ListData newEnchants = new ListData();
         boolean showTooltip = false;
 
-        if (oldEnchants.contains("show_in_tooltip"))
+        if (oldEnchants.contains("show_in_tooltip", Constants.NBT.TAG_BYTE))
         {
-            showTooltip = oldEnchants.getBooleanOr("show_in_tooltip", false);
+            showTooltip = oldEnchants.getBooleanOrDefault("show_in_tooltip", false);
             // todo - Has no function under 1.20.4
         }
 
-        for (String key : oldLevels.keySet())
+        for (String key : oldLevels.getKeys())
         {
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData newEntry = new CompoundData();
             Identifier id = Identifier.parse(key);
             if (shortInt)
             {
-                newEntry.putShort("lvl", (short) oldLevels.getIntOr(key, 1));
+                newEntry.putShort("lvl", (short) oldLevels.getIntOrDefault(key, 1));
             }
             else
             {
-                newEntry.putInt("lvl", oldLevels.getIntOr(key, 1));
+                newEntry.putInt("lvl", oldLevels.getIntOrDefault(key, 1));
             }
             newEntry.putString("id", fullId ? id.toString() : id.getPath());
             newEnchants.add(newEntry);
@@ -1134,19 +1138,19 @@ public class SchematicDowngradeConverter
         return newEnchants;
     }
 
-    private static String processCustomNameTag(CompoundTag nameTag, String key, @Nonnull RegistryAccess registry)
+    private static String processCustomNameTag(CompoundData nameTag, String key, @Nonnull RegistryAccess registry)
     {
         // Sometimes this is missing the 'text' designation ?
 
         /*
         String oldNameString = nameTag.getString(key);
-        MutableText oldCustomName = Text.Serialization.fromJson(oldNameString, registryManager);
+        MutableText oldCustomName = Text.Serialization.fromJson(oldNameString, registry);
 
         //System.out.printf("processCustomNameTag(): oldName [%s], text: [%s], newString [%s]\n", oldNameString, oldCustomName.getString(), newCustomName);
 
          */
 
-        MutableComponent oldName = (MutableComponent) NbtBlockUtils.getCustomNameFromNbt(nameTag, registry, key);
+        MutableComponent oldName = (MutableComponent) DataBlockUtils.getCustomName(nameTag, registry, key);
         return legacyTextDeserializer(oldName, registry);
     }
 
@@ -1177,36 +1181,36 @@ public class SchematicDowngradeConverter
         }
     }
 
-    private static Tag processBlockState(Tag bsTag)
+    private static BaseData processBlockState(BaseData bsTag)
     {
-        CompoundTag oldBS = bsTag.asCompound().orElse(new CompoundTag());;
-        CompoundTag newBS = new CompoundTag();
+        CompoundData oldBS = bsTag.asCompound().orElse(new CompoundData());
+        CompoundData newBS = new CompoundData();
 
-        for (String key : oldBS.keySet())
+        for (String key : oldBS.getKeys())
         {
-            newBS.put(key, oldBS.get(key));
+            newBS.put(key, oldBS.getData(key).orElse(new CompoundData()));
         }
 
         return bsTag;
     }
 
-    private static Tag processFireworks(Tag rocket)
+    private static BaseData processFireworks(BaseData rocket)
     {
-        CompoundTag oldRocket = rocket.asCompound().orElse(new CompoundTag());;
-        CompoundTag newRocket = new CompoundTag();
+        CompoundData oldRocket = rocket.asCompound().orElse(new CompoundData());
+        CompoundData newRocket = new CompoundData();
 
-        if (oldRocket.contains("flight_duration"))
+        if (oldRocket.contains("flight_duration", Constants.NBT.TAG_BYTE))
         {
-            newRocket.putByte("Flight", oldRocket.getByteOr("flight_duration", (byte) 1));
+            newRocket.putByte("Flight", oldRocket.getByteOrDefault("flight_duration", (byte) 1));
         }
-        if (oldRocket.contains("explosions"))
+        if (oldRocket.containsList("explosions", Constants.NBT.TAG_COMPOUND))
         {
-            ListTag oldExplosions = oldRocket.getListOrEmpty("explosions");
-            ListTag newExplosions = new ListTag();
+            ListData oldExplosions = oldRocket.getList("explosions");
+            ListData newExplosions = new ListData();
 
             for (int i = 0; i < oldExplosions.size(); i++)
             {
-                newExplosions.add(processFireworkExplosion(oldExplosions.getCompoundOrEmpty(i)));
+                newExplosions.add(processFireworkExplosion(oldExplosions.getCompoundAt(i)));
             }
 
             newRocket.put("Explosions", newExplosions);
@@ -1215,30 +1219,30 @@ public class SchematicDowngradeConverter
         return newRocket;
     }
 
-    private static Tag processFireworkExplosion(Tag explosion)
+    private static BaseData processFireworkExplosion(BaseData explosion)
     {
-        CompoundTag oldExplosion = explosion.asCompound().orElse(new CompoundTag());;
-        CompoundTag newExplosion = new CompoundTag();
+        CompoundData oldExplosion = explosion.asCompound().orElse(new CompoundData());
+        CompoundData newExplosion = new CompoundData();
 
-        if (oldExplosion.contains("shape"))
+        if (oldExplosion.contains("shape", Constants.NBT.TAG_STRING))
         {
-            newExplosion.putByte("Type", (byte) convertFireworkShape(oldExplosion.getStringOr("shape", "")));
+            newExplosion.putByte("Type", (byte) convertFireworkShape(oldExplosion.getStringOrDefault("shape", "")));
         }
-        if (oldExplosion.contains("colors"))
+        if (oldExplosion.contains("colors", Constants.NBT.TAG_INT_ARRAY))
         {
-            newExplosion.putIntArray("Colors", oldExplosion.getIntArray("colors").orElse(new int[0]));
+            newExplosion.putIntArray("Colors", oldExplosion.getIntArrayOrDefault("colors", new int[0]));
         }
-        if (oldExplosion.contains("fade_colors"))
+        if (oldExplosion.contains("fade_colors", Constants.NBT.TAG_INT_ARRAY))
         {
-            newExplosion.putIntArray("FadeColors", oldExplosion.getIntArray("fade_colors").orElse(new int[0]));
+            newExplosion.putIntArray("FadeColors", oldExplosion.getIntArrayOrDefault("fade_colors", new int[0]));
         }
-        if (oldExplosion.contains("has_trail"))
+        if (oldExplosion.contains("has_trail", Constants.NBT.TAG_BYTE))
         {
-            newExplosion.putBoolean("Trail", oldExplosion.getBooleanOr("has_trail", false));
+            newExplosion.putBoolean("Trail", oldExplosion.getBooleanOrDefault("has_trail", false));
         }
-        if (oldExplosion.contains("has_twinkle"))
+        if (oldExplosion.contains("has_twinkle", Constants.NBT.TAG_BYTE))
         {
-            newExplosion.putBoolean("Flicker", oldExplosion.getBooleanOr("has_twinkle", false));
+            newExplosion.putBoolean("Flicker", oldExplosion.getBooleanOrDefault("has_twinkle", false));
         }
 
         return newExplosion;
@@ -1257,55 +1261,55 @@ public class SchematicDowngradeConverter
         };
     }
 
-    private static Tag processRecordItem(Tag itemIn, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static BaseData processRecordItem(BaseData itemIn, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag oldRecord = itemIn.asCompound().orElse(new CompoundTag());;
-        CompoundTag recordOut = new CompoundTag();
+        CompoundData oldRecord = itemIn.asCompound().orElse(new CompoundData());
+        CompoundData recordOut = new CompoundData();
 
-        recordOut.putString("id", oldRecord.getStringOr("id", ""));
-        recordOut.putByte("Count", (byte) oldRecord.getIntOr("count", 1));
+        recordOut.putString("id", oldRecord.getStringOrDefault("id", ""));
+        recordOut.putByte("Count", (byte) oldRecord.getIntOrDefault("count", 1));
 
-        if (oldRecord.contains("components"))
+        if (oldRecord.contains("components", Constants.NBT.TAG_COMPOUND))
         {
-            recordOut.put("tag", processComponentsTag(oldRecord.getCompoundOrEmpty("components"), oldRecord.getStringOr("id", ""), minecraftDataVersion, registryManager));
+            recordOut.put("tag", processComponentsTag(oldRecord.getCompound("components"), oldRecord.getStringOrDefault("id", ""), minecraftDataVersion, registry));
         }
 
         return recordOut;
     }
 
-    private static Tag processBookTag(Tag bookNbt, int minecraftDataVersion, RegistryAccess registryManager)
+    private static BaseData processBookTag(BaseData bookNbt, int minecraftDataVersion, RegistryAccess registry)
     {
-        CompoundTag oldBook = bookNbt.asCompound().orElse(new CompoundTag());;
-        CompoundTag newBook = new CompoundTag();
+        CompoundData oldBook = bookNbt.asCompound().orElse(new CompoundData());
+        CompoundData newBook = new CompoundData();
 
-        newBook.putString("id", oldBook.getStringOr("id", ""));
-        newBook.putByte("Count", (byte) oldBook.getIntOr("count", 1));
+        newBook.putString("id", oldBook.getStringOrDefault("id", ""));
+        newBook.putByte("Count", (byte) oldBook.getIntOrDefault("count", 1));
 
-        if (oldBook.contains("Page"))
+        if (oldBook.contains("Page", Constants.NBT.TAG_INT))
         {
-            newBook.putInt("Page", oldBook.getIntOr("Page", 1));
+            newBook.putInt("Page", oldBook.getIntOrDefault("Page", 1));
         }
-        if (oldBook.contains("components"))
+        if (oldBook.contains("components", Constants.NBT.TAG_COMPOUND))
         {
-            newBook.put("tag", processComponentsTag(oldBook.getCompoundOrEmpty("components"), oldBook.getStringOr("id", ""), minecraftDataVersion, registryManager));
+            newBook.put("tag", processComponentsTag(oldBook.getCompound("components"), oldBook.getStringOrDefault("id", ""), minecraftDataVersion, registry));
         }
 
         return newBook;
     }
 
-    private static CompoundTag processWritableBookContent(CompoundTag bookNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
+    private static CompoundData processWritableBookContent(CompoundData bookNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag newBook = new CompoundTag();
-        ListTag newPages = new ListTag();
+        CompoundData newBook = new CompoundData();
+        ListData newPages = new ListData();
 
-        if (bookNbt.contains("pages"))
+        if (bookNbt.containsList("pages", Constants.NBT.TAG_COMPOUND))
         {
-            ListTag pages = bookNbt.getListOrEmpty("pages");
+            ListData pages = bookNbt.getList("pages");
 
             for (int i = 0; i < pages.size(); i++)
             {
-                CompoundTag page = pages.getCompoundOrEmpty(i);
-                String oldPage = page.getStringOr("raw", "");
+                CompoundData page = pages.getCompoundAt(i);
+                String oldPage = page.getStringOrDefault("raw", "");
 
                 try
                 {
@@ -1313,11 +1317,11 @@ public class SchematicDowngradeConverter
 //                    MutableText oldText = Text.Serialization.fromJson(oldPage, registry);
 //                    String newPage = Text.Serialization.toJsonString(oldText, registry);
                     String newPage = legacyTextDeserializer(oldText, registry);
-                    newPages.add(i, StringTag.valueOf(newPage));
+                    newPages.add(i, new StringData(newPage));
                 }
                 catch (Exception e)
                 {
-                    newPages.add(i, StringTag.valueOf(oldPage));
+                    newPages.add(i, new StringData(oldPage));
                 }
             }
         }
@@ -1329,42 +1333,42 @@ public class SchematicDowngradeConverter
         return newBook;
     }
 
-    private static CompoundTag processWrittenBookContent(CompoundTag bookNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
+    private static CompoundData processWrittenBookContent(CompoundData bookNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag newBook = new CompoundTag();
-        CompoundTag filtered = new CompoundTag();
-        ListTag newPages = new ListTag();
+        CompoundData newBook = new CompoundData();
+        CompoundData filtered = new CompoundData();
+        ListData newPages = new ListData();
 
-        if (bookNbt.contains("author"))
+        if (bookNbt.contains("author", Constants.NBT.TAG_STRING))
         {
-            newBook.putString("author", bookNbt.getStringOr("author", "?"));
+            newBook.putString("author", bookNbt.getStringOrDefault("author", "?"));
         }
-        if (bookNbt.contains("title"))
+        if (bookNbt.contains("title", Constants.NBT.TAG_COMPOUND))
         {
-            CompoundTag title = bookNbt.getCompoundOrEmpty("title");
-            newBook.putString("title", title.getStringOr("raw", ""));
+            CompoundData title = bookNbt.getCompound("title");
+            newBook.putString("title", title.getStringOrDefault("raw", ""));
         }
-        if (bookNbt.contains("resolved"))
+        if (bookNbt.contains("resolved", Constants.NBT.TAG_BYTE))
         {
-            newBook.putBoolean("resolved", bookNbt.getBooleanOr("resolved", false));
+            newBook.putBoolean("resolved", bookNbt.getBooleanOrDefault("resolved", false));
         }
-        if (bookNbt.contains("generation"))
+        if (bookNbt.contains("generation", Constants.NBT.TAG_INT))
         {
-            newBook.putInt("generation", bookNbt.getIntOr("generation", 1));
+            newBook.putInt("generation", bookNbt.getIntOrDefault("generation", 1));
         }
 
-        if (bookNbt.contains("pages"))
+        if (bookNbt.containsList("pages", Constants.NBT.TAG_COMPOUND))
         {
-            ListTag pages = bookNbt.getListOrEmpty("pages");
+            ListData pages = bookNbt.getList("pages");
 
             for (int i = 0; i < pages.size(); i++)
             {
-                CompoundTag page = pages.getCompoundOrEmpty(i);
-                String oldPage = page.getStringOr("raw", "");
+                CompoundData page = pages.getCompoundAt(i);
+                String oldPage = page.getStringOrDefault("raw", "");
 
-                if (page.contains("filtered"))
+                if (page.contains("filtered", Constants.NBT.TAG_STRING))
                 {
-                    String filterPage = page.getStringOr("filtered", "");
+                    String filterPage = page.getStringOrDefault("filtered", "");
                     try
                     {
                         MutableComponent filteredText = legacyTextSerializer(filterPage, registry);
@@ -1385,11 +1389,11 @@ public class SchematicDowngradeConverter
 //                    MutableText oldText = Text.Serialization.fromJson(oldPage, registry);
 //                    String newPage = Text.Serialization.toJsonString(oldText, registry);
                     String newPage = legacyTextDeserializer(oldText, registry);
-                    newPages.add(i, StringTag.valueOf(newPage));
+                    newPages.add(i, new StringData(newPage));
                 }
                 catch (Exception e)
                 {
-                    newPages.add(i, StringTag.valueOf(oldPage));
+                    newPages.add(i, new StringData(oldPage));
                 }
             }
         }
@@ -1405,17 +1409,17 @@ public class SchematicDowngradeConverter
         return newBook;
     }
 
-    private static Tag processBannerPatterns(Tag oldPatterns)
+    private static BaseData processBannerPatterns(BaseData oldPatterns)
     {
-        ListTag oldList = oldPatterns.asList().orElse(new ListTag());
-        ListTag newList = new ListTag();
+        ListData oldList = oldPatterns.asList().orElse(new ListData());
+        ListData newList = new ListData();
 
         for (int i = 0; i < oldList.size(); i++)
         {
-            CompoundTag oldEntry = oldList.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
-            String color = oldEntry.getStringOr("color", "");
-            String pattern = oldEntry.getStringOr("pattern", "");
+            CompoundData oldEntry = oldList.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
+            String color = oldEntry.getStringOrDefault("color", "");
+            String pattern = oldEntry.getStringOrDefault("pattern", "");
             DyeColor dye = DyeColor.byName(color, DyeColor.WHITE);
 
             newEntry.putString("Pattern", convertBannerPattern(pattern));
@@ -1479,15 +1483,15 @@ public class SchematicDowngradeConverter
         };
     }
 
-    private static Tag processSkullProfile(Tag oldProfile, CompoundTag dispNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
+    private static BaseData processSkullProfile(BaseData oldProfile, CompoundData dispNbt, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag profile = oldProfile.asCompound().orElse(new CompoundTag());
-        CompoundTag newProfile = new CompoundTag();
-        String customName1 = dispNbt.getStringOr("Name", "");         // Can be either an Item Name or Custom Name Data Component
-        String customName2 = dispNbt.getStringOr("CustomName", "");   // Only if invoked without it being stored in a Chest
-        String name = profile.getStringOr("name", "");                // The regular Skull Owner Name
+        CompoundData profile = oldProfile.asCompound().orElse(new CompoundData());
+        CompoundData newProfile = new CompoundData();
+        String customName1 = dispNbt.getStringOrDefault("Name", "");         // Can be either an Item Name or Custom Name Data Component
+        String customName2 = dispNbt.getStringOrDefault("CustomName", "");   // Only if invoked without it being stored in a Chest
+        String name = profile.getStringOrDefault("name", "");                // The regular Skull Owner Name
         //UUID uuid = profile.getUuid("id");
-        UUID uuid = profile.read("id", UUIDUtil.AUTHLIB_CODEC, registry.createSerializationContext(NbtOps.INSTANCE)).orElse(Util.NIL_UUID);
+        UUID uuid = profile.getCodec("id", UUIDUtil.AUTHLIB_CODEC, registry.createSerializationContext(DataOps.INSTANCE)).orElse(Util.NIL_UUID);
 
 //        LOGGER.debug("processSkullProfile(): oldNBT [{}]", profile.toString());
         if (name.isEmpty() && !customName1.isEmpty())
@@ -1543,25 +1547,25 @@ public class SchematicDowngradeConverter
 
         newProfile.putString("Name", name);
         //newProfile.putUuid("Id", uuid);
-        newProfile.store("Id", UUIDUtil.CODEC, uuid);
+        newProfile.putCodec("Id", UUIDUtil.CODEC, uuid);
 
 //        LOGGER.debug("processSkullProfile(): name [{}], uuid [{}]", name, uuid.toString());
 
-        ListTag properties = profile.getListOrEmpty("properties");
-        CompoundTag newProperties = new CompoundTag();
+        ListData properties = profile.getList("properties");
+        CompoundData newProperties = new CompoundData();
 
         for (int i = 0; i < properties.size(); i++)
         {
-            CompoundTag property = properties.getCompoundOrEmpty(i);
-            String propName = property.getStringOr("name", "");
-            String propValue = property.getStringOr("value", "");
+            CompoundData property = properties.getCompoundAt(i);
+            String propName = property.getStringOrDefault("name", "");
+            String propValue = property.getStringOrDefault("value", "");
 
 //            LOGGER.debug("processSkullProfile(): entry[{}], name [{}]", i, propName);
 
             if (propName.equals("textures"))
             {
-                ListTag textures = new ListTag();
-                CompoundTag value = new CompoundTag();
+                ListData textures = new ListData();
+                CompoundData value = new CompoundData();
                 value.putString("Value", propValue);
                 textures.add(value);
                 newProperties.put("textures", textures);
@@ -1574,11 +1578,11 @@ public class SchematicDowngradeConverter
         return newProfile;
     }
 
-    private static Tag processFlowerPos(CompoundTag oldNbt, String key, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static BaseData processFlowerPos(CompoundData oldNbt, String key, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        CompoundTag flowerOut = new CompoundTag();
+        CompoundData flowerOut = new CompoundData();
         //BlockPos flowerPos = NbtHelper.toBlockPos(oldNbt, key).orElse(null);
-        BlockPos flowerPos = oldNbt.read(key, BlockPos.CODEC, registryManager.createSerializationContext(NbtOps.INSTANCE)).orElse(null);
+        BlockPos flowerPos = oldNbt.getCodec(key, BlockPos.CODEC, registry.createSerializationContext(DataOps.INSTANCE)).orElse(null);
 
         if (flowerPos != null)
         {
@@ -1590,19 +1594,19 @@ public class SchematicDowngradeConverter
         return flowerOut;
     }
 
-    private static Tag processBeesTag(Tag beesTag, int minecraftDataVersion, @Nonnull RegistryAccess registryManager)
+    private static BaseData processBeesTag(BaseData beesTag, int minecraftDataVersion, @Nonnull RegistryAccess registry)
     {
-        ListTag oldBees = beesTag.asList().orElse(new ListTag());
-        ListTag newBees = new ListTag();
+        ListData oldBees = beesTag.asList().orElse(new ListData());
+        ListData newBees = new ListData();
 
         for (int i = 0; i < oldBees.size(); i++)
         {
-            CompoundTag oldEntry = oldBees.getCompoundOrEmpty(i);
-            CompoundTag newEntry = new CompoundTag();
+            CompoundData oldEntry = oldBees.getCompoundAt(i);
+            CompoundData newEntry = new CompoundData();
 
-            newEntry.putInt("TicksInHive", oldEntry.getIntOr("ticks_in_hive", 0));
-            newEntry.putInt("MinOccupationTicks", oldEntry.getIntOr("min_ticks_in_hive", 0));
-            newEntry.put("EntityData", downgradeEntity_to_1_20_4(oldEntry.getCompoundOrEmpty("entity_data"), minecraftDataVersion, registryManager));
+            newEntry.putInt("TicksInHive", oldEntry.getIntOrDefault("ticks_in_hive", 0));
+            newEntry.putInt("MinOccupationTicks", oldEntry.getIntOrDefault("min_ticks_in_hive", 0));
+            newEntry.put("EntityData", downgradeEntity_to_1_20_4(oldEntry.getCompound("entity_data"), minecraftDataVersion, registry));
 
             newBees.add(newEntry);
         }
