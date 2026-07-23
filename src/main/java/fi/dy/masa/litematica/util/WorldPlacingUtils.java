@@ -10,8 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +27,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.Vec3;
 
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.data.tag.util.DataTypeUtils;
 import fi.dy.masa.malilib.util.nbt.NbtView;
 import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.Litematica;
@@ -71,7 +71,7 @@ public class WorldPlacingUtils
 
                 if (placement != null && placement.isEnabled())
                 {
-                    Map<BlockPos, CompoundTag> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
+                    Map<BlockPos, CompoundData> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
 
                     filledChunk = placeBlocksToProtoChunk(chunk, chunkPos, regionName, container, blockEntityMap, origin, schematicPlacement, placement);
 
@@ -105,7 +105,7 @@ public class WorldPlacingUtils
     public static ProtoChunkSchematic placeBlocksToProtoChunk(@Nonnull ProtoChunkSchematic chunk,
                                                               ChunkPos chunkPos, String regionName,
                                                               LitematicaBlockStateContainer container,
-                                                              Map<BlockPos, CompoundTag> blockEntityMap,
+                                                              Map<BlockPos, CompoundData> blockEntityMap,
                                                               BlockPos origin,
                                                               SchematicPlacement schematicPlacement,
                                                               SubRegionPlacement placement)
@@ -200,7 +200,7 @@ public class WorldPlacingUtils
                     }
 
                     posMutable.set(x, y, z);
-                    CompoundTag teNBT = blockEntityMap.get(posMutable);
+                    CompoundData teNBT = blockEntityMap.get(posMutable);
                     BlockPos origPos = posMutable.immutable();
 
                     posMutable.set(posMinRelMinusRegX + x,
@@ -355,8 +355,8 @@ public class WorldPlacingUtils
 
             if (x >= minX && x < maxX && z >= minZ && z < maxZ)
             {
-                CompoundTag tag = info.nbt().copy();
-                String id = tag.getStringOr("id", "");
+                CompoundData tag = info.nbt().copy();
+                String id = tag.getStringOrDefault("id", "");
 
                 // Avoid warning about invalid hanging position.
                 // Note that this position isn't technically correct, but it only needs to be within 16 blocks
@@ -366,13 +366,14 @@ public class WorldPlacingUtils
                     id.equals("minecraft:leash_knot") ||
                     id.equals("minecraft:painting"))
                 {
-                    Vec3 p = NbtUtils.readEntityPositionFromTag(tag);
+//                    Vec3 p = NbtUtils.readEntityPositionFromTag(tag);
+                    Vec3 p = DataTypeUtils.readVec3dFromListTag(tag);
 
                     if (p == null)
                     {
                         p = new Vec3(x, y, z);
-//                        NbtUtils.writeEntityPositionToTag(p, tag);
-                        NbtUtils.putVec3dCodec(tag, p, "Pos");
+//                        NbtUtils.putVec3dCodec(tag, p, "Pos");
+                        DataTypeUtils.putVec3dCodec(tag, p, "Pos");
                     }
 
                     tag.putInt("TileX", (int) p.x);
@@ -380,16 +381,16 @@ public class WorldPlacingUtils
                     tag.putInt("TileZ", (int) p.z);
 
                     // Block-Attached Pos (1.21.5+) Fix
-	                tag.read("block_pos", BlockPos.CODEC)
+	                tag.getCodec("block_pos", BlockPos.CODEC)
                        .ifPresent(px ->
-                                          tag.store("block_pos", BlockPos.CODEC, new BlockPos((int) x, (int) y, (int) z))
+                                          tag.putCodec("block_pos", BlockPos.CODEC, new BlockPos((int) x, (int) y, (int) z))
                        );
 
                 }
 
-                ListTag rotation = tag.getListOrEmpty("Rotation");
-                origRot[0] = rotation.getFloatOr(0, 0f);
-                origRot[1] = rotation.getFloatOr(1, 0f);
+                ListData rotation = tag.getList("Rotation");
+                origRot[0] = rotation.getFloatAt(0);
+                origRot[1] = rotation.getFloatAt(1);
 
                 chunk.addEntityPairForLater(Pair.of(new EntityPosAndRot(x, y, z, rotationCombined, mirrorMain, mirrorSub, origRot), tag));
             }
@@ -398,7 +399,7 @@ public class WorldPlacingUtils
         return chunk;
     }
 
-    public static void spawnEntityToWorldNow(@Nonnull Level world, Pair<EntityPosAndRot, CompoundTag> entityPair)
+    public static void spawnEntityToWorldNow(@Nonnull Level world, Pair<EntityPosAndRot, CompoundData> entityPair)
     {
         double x = entityPair.getLeft().x;
         double y = entityPair.getLeft().y;
@@ -408,7 +409,7 @@ public class WorldPlacingUtils
         Mirror mirrorSub = entityPair.getLeft().mirrorSub();
         float[] origRot = entityPair.getLeft().origRot();
 
-        Entity entity = EntityUtils.createEntityAndPassengersFromNBT(entityPair.getRight(), world);
+        Entity entity = EntityUtils.createEntityAndPassengersFromData(entityPair.getRight(), world);
 
         if (entity != null)
         {

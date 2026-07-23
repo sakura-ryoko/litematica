@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.ApiStatus;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.interfaces.ISchematicPlacementEventListener;
 import fi.dy.masa.litematica.interfaces.ISchematicPlacementEventManager;
@@ -248,14 +250,15 @@ public class SchematicPlacementEventHandler implements ISchematicPlacementEventM
     }
 
     @ApiStatus.Internal
-    public void onPlacementCreateFromNbt(SchematicPlacement placement, LitematicaSchematic schematic, BlockPos origin, String name, Rotation rotation, Mirror mirror, boolean enabled, boolean enableRender, CompoundTag nbt)
+    public void onPlacementCreateFromData(SchematicPlacement placement, LitematicaSchematic schematic, BlockPos origin, String name, Rotation rotation, Mirror mirror, boolean enabled, boolean enableRender, CompoundData nbt)
     {
         this.handlers.forEach(
                 (handler, list) ->
                 {
                     if (list.contains(SchematicPlacementEventFlag.FROM_NBT))
                     {
-                        handler.onPlacementCreateFromNbt(placement, schematic, origin, name, rotation, mirror, enabled, enableRender, nbt);
+                        handler.onPlacementCreateFromData(placement, schematic, origin, name, rotation, mirror, enabled, enableRender, nbt);
+//                        handler.onPlacementCreateFromNbt(placement, schematic, origin, name, rotation, mirror, enabled, enableRender, DataConverterNbt.toVanillaCompound(nbt));
                     }
                 }
         );
@@ -276,14 +279,15 @@ public class SchematicPlacementEventHandler implements ISchematicPlacementEventM
     }
 
     @ApiStatus.Internal
-    public void onSavePlacementToNbt(SchematicPlacement placement, CompoundTag nbt)
+    public void onSavePlacementToData(SchematicPlacement placement, CompoundData nbt)
     {
         this.handlers.forEach(
                 (handler, list) ->
                 {
                     if (list.contains(SchematicPlacementEventFlag.TO_NBT))
                     {
-                        handler.onSavePlacementToNbt(placement, nbt);
+                        handler.onSavePlacementToData(placement, nbt);
+//                        handler.onSavePlacementToNbt(placement, DataConverterNbt.toVanillaCompound(nbt));
                     }
                 }
         );

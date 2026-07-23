@@ -1,11 +1,11 @@
 package fi.dy.masa.litematica.util;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
-import net.minecraft.util.StringRepresentable;
 import com.google.common.collect.ImmutableList;
+
+import net.minecraft.util.StringRepresentable;
 
 import fi.dy.masa.litematica.materials.MaterialListCustom;
 
@@ -53,19 +53,6 @@ public enum FileType implements StringRepresentable
 		return UNKNOWN;
 	}
 
-	@Deprecated
-	public static FileType fromFile(File file)
-	{
-		if (file.isFile() && file.canRead())
-		{
-			return fromName(file.getName());
-		}
-		else
-		{
-			return INVALID;
-		}
-	}
-
 	public static FileType fromFile(Path file)
 	{
 		if (Files.exists(file) && Files.isReadable(file))
@@ -82,14 +69,14 @@ public enum FileType implements StringRepresentable
 	{
 		return switch (type)
 		{
-			case LITEMATICA_SCHEMATIC -> ".litematic";
-			case SCHEMATICA_SCHEMATIC -> ".schematic";
-			case SPONGE_SCHEMATIC -> ".schem";
-			case VANILLA_STRUCTURE -> ".nbt";
-			case JSON -> ".json";
-			case TEXT -> MaterialListCustom.TEXT_FILE_EXTENSION;
-			case INVALID -> ".invalid";
-			case UNKNOWN -> ".unknown";
+			case LITEMATICA_SCHEMATIC   -> ".litematic";
+			case SCHEMATICA_SCHEMATIC   -> ".schematic";
+			case SPONGE_SCHEMATIC       -> ".schem";
+			case VANILLA_STRUCTURE      -> ".nbt";
+			case JSON                   -> ".json";
+			case TEXT                   -> MaterialListCustom.TEXT_FILE_EXTENSION;
+			case INVALID                -> ".invalid";
+			case UNKNOWN                -> ".unknown";
 		};
 	}
 
@@ -97,14 +84,14 @@ public enum FileType implements StringRepresentable
 	{
 		return switch (type)
 		{
-			case LITEMATICA_SCHEMATIC -> "litematic";
-			case SCHEMATICA_SCHEMATIC -> "schematic";
-			case SPONGE_SCHEMATIC -> "sponge";
-			case VANILLA_STRUCTURE -> "vanilla_nbt";
-			case JSON -> "JSON";
-			case TEXT -> "TEXT";
-			case INVALID -> "invalid";
-			case UNKNOWN -> "unknown";
+			case LITEMATICA_SCHEMATIC   -> "litematic";
+			case SCHEMATICA_SCHEMATIC   -> "schematic";
+			case SPONGE_SCHEMATIC       -> "sponge";
+			case VANILLA_STRUCTURE      -> "vanilla_nbt";
+			case JSON                   -> "JSON";
+			case TEXT                   -> "TEXT";
+			case INVALID                -> "invalid";
+			case UNKNOWN                -> "unknown";
 		};
 	}
 

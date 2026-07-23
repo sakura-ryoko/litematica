@@ -4,6 +4,7 @@ import java.util.*;
 import javax.annotation.Nullable;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.ApiStatus;
 
 import com.mojang.datafixers.util.Either;
 import net.minecraft.client.Minecraft;
@@ -473,30 +474,37 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
 
 	public void requestMetadata()
     {
-        if (DataManager.getInstance().hasIntegratedServer() == false &&
+        if (!DataManager.getInstance().hasIntegratedServer() &&
             Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
         {
-            CompoundTag nbt = new CompoundTag();
-            nbt.putString("version", Reference.MOD_STRING);
-
+            CompoundData nbt = new CompoundData();
+            nbt.putInt("version", ServuxLitematicaPacket.PROTOCOL_VERSION);
             HANDLER.encodeClientData(ServuxLitematicaPacket.MetadataRequest(nbt));
         }
     }
 
-    public boolean receiveServuxMetadata(CompoundTag data)
+    public boolean receiveServuxMetadata(CompoundData data)
     {
-        if (DataManager.getInstance().hasIntegratedServer() == false)
+        if (!DataManager.getInstance().hasIntegratedServer())
         {
             Litematica.debugLog("LitematicDataChannel: received METADATA from Servux");
 
             if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
-                if (data.getIntOr("version", -1) != ServuxLitematicaPacket.PROTOCOL_VERSION)
+                final int version = data.getIntOrDefault("version", -1);
+                final String servux = data.getStringOrDefault("servux", "?");
+
+                if (version != ServuxLitematicaPacket.PROTOCOL_VERSION || !servux.startsWith("servux-"+Reference.MOD_TYPE+"-"+Reference.MC_VERSION))
                 {
-                    Litematica.LOGGER.warn("LitematicDataChannel: Mis-matched protocol version!");
+                    Litematica.LOGGER.warn("LitematicDataChannel: Mis-matched protocol version! (Expected: {} but got {} running on: {})", ServuxLitematicaPacket.PROTOCOL_VERSION, version, servux);
+                    HANDLER.encodeClientData(ServuxLitematicaPacket.UnregisterReply(new CompoundData()));
+                    HANDLER.unregisterPlayReceiver();
+                    Configs.Generic.ENTITY_DATA_SYNC.setBooleanValue(false);
+                    return false;
                 }
 
-                this.setServuxVersion(data.getStringOr("servux", "?"));
+                Litematica.debugLog("LitematicDataChannel: Connected to: {}", servux);
+                this.setServuxVersion(servux);
                 this.setIsServuxServer();
 
                 return true;
@@ -520,6 +528,42 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         }
 
         // Do something?
+    }
+
+    @ApiStatus.Experimental
+    public void sendServuxTaskRequest(CompoundData data)
+    {
+        if (this.hasServuxServer())
+        {
+            // TODO (For things like Delete, Fill, etc)
+        }
+    }
+
+    @ApiStatus.Experimental
+    public void receiveServuxTaskResponse(CompoundData data)
+    {
+        if (this.hasServuxServer())
+        {
+            // TODO (For things like Delete, Fill, etc)
+        }
+    }
+
+    @ApiStatus.Experimental
+    public void receiveServuxTaskStatusSync(CompoundData data)
+    {
+        if (this.hasServuxServer())
+        {
+            // TODO (For things like Delete, Fill, etc)
+        }
+    }
+
+    @ApiStatus.Experimental
+    public void sendServuxTaskCancel(CompoundData data)
+    {
+        if (this.hasServuxServer())
+        {
+            // TODO (For things like Delete, Fill, etc)
+        }
     }
 
     /**
@@ -680,7 +724,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
     public void requestServuxBulkEntityData(ChunkPos chunkPos, int minY, int maxY)
     {
         if (!this.hasServuxServer()) { return; }
-        CompoundTag req = new CompoundTag();
+        CompoundData req = new CompoundData();
 
         this.completedChunks.remove(chunkPos);
         this.pendingChunks.add(chunkPos);

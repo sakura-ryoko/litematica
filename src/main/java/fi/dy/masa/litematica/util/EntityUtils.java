@@ -30,6 +30,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.malilib.util.nbt.NbtView;
 import fi.dy.masa.litematica.Litematica;
@@ -280,8 +284,15 @@ public class EntityUtils
         return entitytype.canSerialize() && id != null ? id.toString() : null;
     }
 
+    @Deprecated(forRemoval = true)
     @Nullable
     private static Entity createEntityFromNBTSingle(CompoundTag nbt, Level world)
+    {
+        return createEntityFromDataSingle(DataConverterNbt.fromVanillaCompound(nbt), world);
+    }
+
+    @Nullable
+    private static Entity createEntityFromDataSingle(CompoundData nbt, Level world)
     {
         try
         {
@@ -299,14 +310,14 @@ public class EntityUtils
                     entity = cm;    // Fixes Class Cast exception for rendering
                 }
 
-                if (!nbt.contains("UUID"))
+                if (!nbt.containsLenient("UUID"))
                 {
                     entity.setUUID(UUID.randomUUID());
                 }
 
-                if (nbt.contains("LastEntityID"))
+                if (nbt.contains("LastEntityID", Constants.NBT.TAG_INT))
                 {
-                    entity.setId(nbt.getIntOr("LastEntityID", -1));
+                    entity.setId(nbt.getIntOrDefault("LastEntityID", -1));
                 }
                 else
                 {
@@ -342,10 +353,12 @@ public class EntityUtils
 
     /**
      * Note: This does NOT spawn any of the entities in the world!
-     * @param nbt ()
+     *
+     * @param nbt   ()
      * @param world ()
      * @return ()
      */
+    @Deprecated(forRemoval = true)
     @Nullable
     public static Entity createEntityAndPassengersFromNBT(CompoundTag nbt, Level world)
     {
@@ -364,6 +377,42 @@ public class EntityUtils
                 for (int i = 0; i < taglist.size(); ++i)
                 {
                     Entity passenger = createEntityAndPassengersFromNBT(taglist.getCompoundOrEmpty(i), world);
+
+                    if (passenger != null)
+                    {
+                        passenger.startRiding(entity, true, false);
+                    }
+                }
+            }
+
+            return entity;
+        }
+    }
+
+    /**
+     * Note: This does NOT spawn any of the entities in the world!
+     * @param nbt ()
+     * @param world ()
+     * @return ()
+     */
+    @Nullable
+    public static Entity createEntityAndPassengersFromData(CompoundData nbt, Level world)
+    {
+        Entity entity = createEntityFromDataSingle(nbt, world);
+
+        if (entity == null)
+        {
+            return null;
+        }
+        else
+        {
+            if (nbt.containsList("Passengers", Constants.NBT.TAG_COMPOUND))
+            {
+                ListData taglist = nbt.getList("Passengers");
+
+                for (int i = 0; i < taglist.size(); ++i)
+                {
+                    Entity passenger = createEntityAndPassengersFromData(taglist.getCompoundAt(i), world);
 
                     if (passenger != null)
                     {

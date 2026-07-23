@@ -9,8 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Display;
@@ -29,7 +27,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTicks;
 import net.minecraft.world.ticks.ScheduledTick;
 
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.data.tag.util.DataTypeUtils;
 import fi.dy.masa.malilib.util.nbt.NbtView;
 import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.Litematica;
@@ -86,7 +86,7 @@ public class SchematicPlacingUtils
 
                 if (placement.isEnabled())
                 {
-                    Map<BlockPos, CompoundTag> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
+                    Map<BlockPos, CompoundData> blockEntityMap = schematic.getBlockEntityMapForRegion(regionName);
                     Map<BlockPos, ScheduledTick<Block>> scheduledBlockTicks = schematic.getScheduledBlockTicksForRegion(regionName);
                     Map<BlockPos, ScheduledTick<Fluid>> scheduledFluidTicks = schematic.getScheduledFluidTicksForRegion(regionName);
 
@@ -118,7 +118,7 @@ public class SchematicPlacingUtils
 
     public static boolean placeBlocksWithinChunk(Level world, ChunkPos chunkPos, String regionName,
                                                  LitematicaBlockStateContainer container,
-                                                 Map<BlockPos, CompoundTag> blockEntityMap,
+                                                 Map<BlockPos, CompoundData> blockEntityMap,
                                                  BlockPos origin,
                                                  SchematicPlacement schematicPlacement,
                                                  SubRegionPlacement placement,
@@ -217,7 +217,7 @@ public class SchematicPlacingUtils
                     }
 
                     posMutable.set(x, y, z);
-                    CompoundTag teNBT = blockEntityMap.get(posMutable);
+                    CompoundData teNBT = blockEntityMap.get(posMutable);
                     BlockPos origPos = posMutable.immutable();
 
                     posMutable.set(posMinRelMinusRegX + x,
@@ -402,13 +402,13 @@ public class SchematicPlacingUtils
         return true;
     }
 
-    private static void dumpBlockEntityMap(Map<BlockPos, CompoundTag> teMap)
+    private static void dumpBlockEntityMap(Map<BlockPos, CompoundData> teMap)
     {
         System.out.print("DUMP TE-MAP:\n");
 
         for (BlockPos pos : teMap.keySet())
         {
-            CompoundTag nbt = teMap.get(pos);
+            CompoundData nbt = teMap.get(pos);
 
             System.out.printf("  pos[%s]: %s\n", pos.toShortString(), nbt.toString());
         }
@@ -468,8 +468,8 @@ public class SchematicPlacingUtils
 
             if (x >= minX && x < maxX && z >= minZ && z < maxZ)
             {
-                CompoundTag tag = info.nbt().copy();
-                String id = tag.getStringOr("id", "");
+                CompoundData tag = info.nbt().copy();
+                String id = tag.getStringOrDefault("id", "");
 
                 // Avoid warning about invalid hanging position.
                 // Note that this position isn't technically correct, but it only needs to be within 16 blocks
@@ -479,13 +479,14 @@ public class SchematicPlacingUtils
                     id.equals("minecraft:leash_knot") ||
                     id.equals("minecraft:painting"))
                 {
-                    Vec3 p = NbtUtils.readEntityPositionFromTag(tag);
+//                    Vec3 p = NbtUtils.readEntityPositionFromTag(tag);
+                    Vec3 p = DataTypeUtils.readVec3dFromListTag(tag);
 
                     if (p == null)
                     {
                         p = new Vec3(x, y, z);
-//                        NbtUtils.writeEntityPositionToTag(p, tag);
-                        NbtUtils.putVec3dCodec(tag, p, "Pos");
+//                        NbtUtils.putVec3dCodec(tag, p, "Pos");
+                        DataTypeUtils.putVec3dCodec(tag, p, "Pos");
                     }
 
                     tag.putInt("TileX", (int) p.x);
@@ -493,19 +494,19 @@ public class SchematicPlacingUtils
                     tag.putInt("TileZ", (int) p.z);
 
                     // Block-Attached Pos (1.21.5+) Fix
-                    BlockPos px = tag.read("block_pos", BlockPos.CODEC).orElse(null);
+                    BlockPos px = tag.getCodec("block_pos", BlockPos.CODEC).orElse(null);
 
                     if (px != null)
                     {
-                        tag.store("block_pos", BlockPos.CODEC, new BlockPos((int) x, (int) y, (int) z));
+                        tag.putCodec("block_pos", BlockPos.CODEC, new BlockPos((int) x, (int) y, (int) z));
                     }
                 }
 
-                ListTag rotation = tag.getListOrEmpty("Rotation");
-                origRot[0] = rotation.getFloatOr(0, 0f);
-                origRot[1] = rotation.getFloatOr(1, 0f);
+                ListData rotation = tag.getList("Rotation");
+                origRot[0] = rotation.getFloatAt(0);
+                origRot[1] = rotation.getFloatAt(1);
 
-                Entity entity = EntityUtils.createEntityAndPassengersFromNBT(tag, world);
+                Entity entity = EntityUtils.createEntityAndPassengersFromData(tag, world);
 
                 if (entity != null)
                 {

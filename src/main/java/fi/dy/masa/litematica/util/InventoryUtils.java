@@ -600,66 +600,67 @@ public class InventoryUtils
 		return Optional.empty();
 	}
 
-    /**
-     * Converts an NbtCompound representation of an ItemStack into a '/give' compatible string.
-     * This is the format used by the ItemStringReader(), including Data Components.
-     *
-     * @param nbt (Nbt Input, must be valid ItemStack.encode() format)
-     * @return (The String Result | NULL if the NBT is invalid)
-     */
-    @Nullable
-    public static String convertItemNbtToString(CompoundTag nbt)
-    {
-        StringBuilder result = new StringBuilder();
+	/**
+	 * Converts an NbtCompound representation of an ItemStack into a '/give' compatible string.
+	 * This is the format used by the ItemStringReader(), including Data Components.
+	 *
+	 * @param nbt (Nbt Input, must be valid ItemStack.encode() format)
+	 * @return (The String Result | NULL if the NBT is invalid)
+	 */
+	@Deprecated(forRemoval = true)
+	@Nullable
+	public static String convertItemNbtToString(CompoundTag nbt)
+	{
+		StringBuilder result = new StringBuilder();
 
-        if (nbt.isEmpty())
-        {
-            return null;
-        }
+		if (nbt.isEmpty())
+		{
+			return null;
+		}
 
-        if (nbt.contains("id"))
-        {
-            result.append(nbt.getStringOr("id", "?"));
-        }
-        else
-        {
-            return null;
-        }
-        if (nbt.contains("components"))
-        {
-            CompoundTag components = nbt.getCompoundOrEmpty("components");
-            int count = 0;
+		if (nbt.contains("id"))
+		{
+			result.append(nbt.getStringOr("id", "?"));
+		}
+		else
+		{
+			return null;
+		}
+		if (nbt.contains("components"))
+		{
+			CompoundTag components = nbt.getCompoundOrEmpty("components");
+			int count = 0;
 
-            result.append("[");
+			result.append("[");
 
-            for (String key : components.keySet())
-            {
-                if (count > 0)
-                {
-                    result.append(", ");
-                }
+			for (String key : components.keySet())
+			{
+				if (count > 0)
+				{
+					result.append(", ");
+				}
 
-                result.append(key);
-                result.append("=");
-                result.append(components.get(key));
-                count++;
-            }
+				result.append(key);
+				result.append("=");
+				result.append(components.get(key));
+				count++;
+			}
 
-            result.append("]");
-        }
-        if (nbt.contains("count"))
-        {
-            int count = nbt.getIntOr("count", 1);
+			result.append("]");
+		}
+		if (nbt.contains("count"))
+		{
+			int count = nbt.getIntOr("count", 1);
 
-            if (count > 1)
-            {
-                result.append(" ");
-                result.append(count);
-            }
-        }
+			if (count > 1)
+			{
+				result.append(" ");
+				result.append(count);
+			}
+		}
 
-        return result.toString();
-    }
+		return result.toString();
+	}
 
     /**
      * Post Re-Write Code
