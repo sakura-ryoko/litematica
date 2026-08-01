@@ -1165,7 +1165,7 @@
     "litematica.tool_hud.block_2": "교체: %s",
     "litematica.tool_hud.facing": "주시 방향: %s",
     "litematica.tool_mode.name.area_selection": "영역 선택",
-    "litematica.tool_mode.name.delete": "제거",
+    "litematica.tool_mode.name.delete": "삭제",
     "litematica.tool_mode.name.fill": "채우기",
     "litematica.tool_mode.name.grid_paste": "월드에 스키매틱 테두리 붙여넣기",
     "litematica.tool_mode.name.move": "이동",
