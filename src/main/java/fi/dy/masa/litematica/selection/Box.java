@@ -12,6 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import fi.dy.masa.malilib.util.data.json.JsonUtils;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
@@ -205,8 +206,8 @@ public class Box
     {
         if (JsonUtils.hasString(obj, "name"))
         {
-            BlockPos pos1 = JsonUtils.getBlockPos(obj, "pos1");
-            BlockPos pos2 = JsonUtils.getBlockPos(obj, "pos2");
+            BlockPos pos1 = JsonUtils.getBlockPosOrDefault(obj, "pos1", BlockPos.ZERO);
+            BlockPos pos2 = JsonUtils.getBlockPosOrDefault(obj, "pos2", BlockPos.ZERO);
 
             if (pos1 != null || pos2 != null)
             {
@@ -248,5 +249,22 @@ public class Box
         obj.add("name", new JsonPrimitive(this.name));
 
         return this.pos1 != null || this.pos2 != null ? obj : null;
+    }
+
+    public net.minecraft.world.level.levelgen.structure.BoundingBox toVanilla()
+    {
+        if (this.pos1 == null)
+        {
+            this.pos1 = BlockPos.ZERO;
+        }
+
+        return new BoundingBox(
+                Math.min(this.pos1.getX(), this.pos2.getX()),
+                Math.min(this.pos1.getY(), this.pos2.getY()),
+                Math.min(this.pos1.getZ(), this.pos2.getZ()),
+                Math.max(this.pos1.getX(), this.pos2.getX()),
+                Math.max(this.pos1.getY(), this.pos2.getY()),
+                Math.max(this.pos1.getZ(), this.pos2.getZ())
+        );
     }
 }

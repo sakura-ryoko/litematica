@@ -145,7 +145,9 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
                 if (DataManager.getInstance().hasIntegratedServer() == false && this.hasServuxServer())
                 {
                     this.servuxServer = false;
+                    HANDLER.encodeClientData(ServuxLitematicaPacket.UnregisterReply(new CompoundData()));
                     HANDLER.unregisterPlayReceiver();
+                    HANDLER.reset(this.getNetworkChannel());
                 }
 
                 if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() == false)
@@ -497,8 +499,14 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
                 if (version != ServuxLitematicaPacket.PROTOCOL_VERSION || !servux.startsWith("servux-"+Reference.MOD_TYPE+"-"+Reference.MC_VERSION))
                 {
                     Litematica.LOGGER.warn("LitematicDataChannel: Mis-matched protocol version! (Expected: {} but got {} running on: {})", ServuxLitematicaPacket.PROTOCOL_VERSION, version, servux);
-                    HANDLER.encodeClientData(ServuxLitematicaPacket.UnregisterReply(new CompoundData()));
+
+                    if (version > 2)
+                    {
+                        HANDLER.encodeClientData(ServuxLitematicaPacket.UnregisterReply(new CompoundData()));
+                    }
+
                     HANDLER.unregisterPlayReceiver();
+                    HANDLER.reset(this.getNetworkChannel());
                     Configs.Generic.ENTITY_DATA_SYNC.setBooleanValue(false);
                     return false;
                 }

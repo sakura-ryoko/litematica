@@ -191,7 +191,7 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
         {
             this.sortChunkList();
 
-            ChunkPos pos = this.pendingChunks.get(0);
+            ChunkPos pos = this.pendingChunks.getFirst();
 
             if (this.canProcessChunk(pos))
             {
@@ -216,7 +216,7 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
 
         if (list.isEmpty() == false)
         {
-            this.currentBox = list.get(0);
+            this.currentBox = list.getFirst();
             this.onStartNextBox(this.currentBox);
         }
         else

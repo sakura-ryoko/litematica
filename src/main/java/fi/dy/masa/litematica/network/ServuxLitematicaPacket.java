@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import io.netty.buffer.Unpooled;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.ChunkPos;
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.util.data.tag.BaseData;
 import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
 import fi.dy.masa.malilib.util.data.tag.util.DataByteBufUtils;
 import fi.dy.masa.litematica.Litematica;
 
@@ -238,6 +240,28 @@ public class ServuxLitematicaPacket implements IClientPayloadData
 		return this.nbt;
 	}
 
+	@Deprecated
+	private static CompoundData fromVanilla(CompoundTag nbt)
+	{
+		if (nbt != null && !nbt.isEmpty())
+		{
+			return DataConverterNbt.fromVanillaCompound(nbt);
+		}
+
+		return new CompoundData();
+	}
+
+	@Deprecated
+	private CompoundTag toVanilla()
+	{
+		if (this.nbt != null && !this.nbt.isEmpty())
+		{
+			return DataConverterNbt.toVanillaCompound(this.nbt);
+		}
+
+		return new CompoundTag();
+	}
+
 	public ChunkPos getChunkPos() {return this.chunkPos;}
 
 	public FriendlyByteBuf getBuffer()
@@ -337,12 +361,25 @@ public class ServuxLitematicaPacket implements IClientPayloadData
 					Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing buffer data to packet: [{}]", e.getLocalizedMessage());
 				}
 			}
-			case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA, PACKET_C2S_UNREGISTER_REPLY, PACKET_C2S_TASK_REQUEST, PACKET_S2C_TASK_RESPONSE, PACKET_S2C_TASK_STATUS_SYNC, PACKET_C2S_TASK_CANCEL ->
+			case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA ->
 			{
 				// Write NBT
 				try
 				{
-//                    output.writeNbt(this.nbt);
+					output.writeNbt(this.toVanilla());
+//					DataByteBufUtils.toByteBuf(output, this.nbt, "");
+				}
+				catch (Exception e)
+				{
+					Litematica.LOGGER.error("ServuxEntitiesPacket#toPacket: error writing Data to packet: [{}]", e.getLocalizedMessage());
+				}
+			}
+			case PACKET_C2S_UNREGISTER_REPLY, PACKET_C2S_TASK_REQUEST, PACKET_S2C_TASK_RESPONSE, PACKET_S2C_TASK_STATUS_SYNC, PACKET_C2S_TASK_CANCEL ->
+			{
+				// Write NBT
+				try
+				{
+//                    output.writeNbt(DataConverterNbt.toVanillaCompound(this.nbt));
 					DataByteBufUtils.toByteBuf(output, this.nbt, "");
 				}
 				catch (Exception e)
@@ -472,12 +509,12 @@ public class ServuxLitematicaPacket implements IClientPayloadData
 				// Read Nbt
 				try
 				{
-					Optional<BaseData> opt = DataByteBufUtils.fromByteBuf(input);
-//                    return ServuxLitematicaPacket.MetadataRequest(input.readNbt());
-					if (opt.isPresent())
-					{
-						return ServuxLitematicaPacket.MetadataRequest((CompoundData) opt.get());
-					}
+//					Optional<BaseData> opt = DataByteBufUtils.fromByteBuf(input);
+                    return ServuxLitematicaPacket.MetadataRequest(fromVanilla(input.readNbt()));
+//					if (opt.isPresent())
+//					{
+//						return ServuxLitematicaPacket.MetadataRequest((CompoundData) opt.get());
+//					}
 				}
 				catch (Exception e)
 				{
@@ -489,12 +526,12 @@ public class ServuxLitematicaPacket implements IClientPayloadData
 				// Read Nbt
 				try
 				{
-					Optional<BaseData> opt = DataByteBufUtils.fromByteBuf(input);
-//                    return ServuxLitematicaPacket.MetadataResponse(input.readNbt());
-					if (opt.isPresent())
-					{
-						return ServuxLitematicaPacket.MetadataResponse((CompoundData) opt.get());
-					}
+//					Optional<BaseData> opt = DataByteBufUtils.fromByteBuf(input);
+                    return ServuxLitematicaPacket.MetadataResponse(fromVanilla(input.readNbt()));
+//					if (opt.isPresent())
+//					{
+//						return ServuxLitematicaPacket.MetadataResponse((CompoundData) opt.get());
+//					}
 				}
 				catch (Exception e)
 				{
