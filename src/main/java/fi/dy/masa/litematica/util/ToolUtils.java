@@ -9,9 +9,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.data.tag.util.DataOps;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.EntityDataManager;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
+import fi.dy.masa.litematica.scheduler.info_hud.InfoHudSync;
 import fi.dy.masa.litematica.scheduler.tasks.TaskDeleteArea;
 import fi.dy.masa.litematica.scheduler.tasks.TaskDeleteBlocksByPlacement;
 import fi.dy.masa.litematica.scheduler.tasks.TaskFillArea;
@@ -40,11 +45,44 @@ public class ToolUtils
                 Box currentBox = area.getSelectedSubRegionBox();
                 final ImmutableList<Box> boxes = currentBox != null ? ImmutableList.of(currentBox) : ImmutableList.copyOf(area.getAllSubRegionBoxes());
 
-                TaskFillArea task = new TaskFillArea(boxes, state, stateToReplace, false);
-                int interval = Configs.Generic.COMMAND_TASK_INTERVAL.getIntegerValue();
-                TaskScheduler.getServerInstanceIfExistsOrClient().scheduleTask(task, interval);
+                if (EntityDataManager.getInstance().hasServuxServer())
+                {
+                    CompoundData data = new CompoundData();
+                    ListData list = new ListData();
 
-                InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_added");
+                    data.putString("Task", "Fill");
+                    data.putBoolean("RemoveEntities", false);
+                    data.putInt("Interval", 1);
+                    data.putCodec("FillState", BlockState.CODEC, state);
+
+                    if (stateToReplace != null)
+                    {
+                        data.putCodec("ReplaceState", BlockState.CODEC, stateToReplace);
+                    }
+
+                    for (Box box : boxes)
+                    {
+                        list.add(Box.CODEC.encodeStart(DataOps.INSTANCE, box).getPartialOrThrow());
+                    }
+
+                    if (!list.isEmpty())
+                    {
+                        data.put("Boxes", list);
+                        EntityDataManager.getInstance().sendServuxTaskRequest(data, new InfoHudSync(null));
+                        InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_to_servux");
+                    }
+                    else
+                    {
+                        InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.empty_area_selection");
+                    }
+                }
+                else
+                {
+                    final int interval = Configs.Generic.COMMAND_TASK_INTERVAL.getIntegerValue();
+                    TaskFillArea task = new TaskFillArea(boxes, state, stateToReplace, false);
+                    TaskScheduler.getServerInstanceIfExistsOrClient().scheduleTask(task, interval);
+                    InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_added");
+                }
             }
             else
             {
@@ -99,17 +137,44 @@ public class ToolUtils
                 Box currentBox = area.getSelectedSubRegionBox();
                 final ImmutableList<Box> boxes = currentBox != null ? ImmutableList.of(currentBox) : ImmutableList.copyOf(area.getAllSubRegionBoxes());
 
-                TaskDeleteArea task = new TaskDeleteArea(boxes, removeEntities);
-
-                if (listener != null)
+                if (EntityDataManager.getInstance().hasServuxServer())
                 {
-                    task.setCompletionListener(listener);
+                    CompoundData data = new CompoundData();
+                    ListData list = new ListData();
+
+                    data.putString("Task", "Delete");
+                    data.putBoolean("RemoveEntities", removeEntities);
+                    data.putInt("Interval", 1);
+
+                    for (Box box : boxes)
+                    {
+                        list.add(Box.CODEC.encodeStart(DataOps.INSTANCE, box).getPartialOrThrow());
+                    }
+
+                    if (!list.isEmpty())
+                    {
+                        data.put("Boxes", list);
+                        EntityDataManager.getInstance().sendServuxTaskRequest(data, new InfoHudSync(listener));
+                        InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_to_servux");
+                    }
+                    else
+                    {
+                        InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.empty_area_selection");
+                    }
                 }
+                else
+                {
+                    final int interval = Configs.Generic.COMMAND_TASK_INTERVAL.getIntegerValue();
+                    TaskDeleteArea task = new TaskDeleteArea(boxes, removeEntities);
 
-                int interval = Configs.Generic.COMMAND_TASK_INTERVAL.getIntegerValue();
-                TaskScheduler.getServerInstanceIfExistsOrClient().scheduleTask(task, interval);
+                    if (listener != null)
+                    {
+                        task.setCompletionListener(listener);
+                    }
 
-                InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_added");
+                    TaskScheduler.getServerInstanceIfExistsOrClient().scheduleTask(task, interval);
+                    InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_added");
+                }
             }
             else
             {

@@ -1,6 +1,7 @@
 package fi.dy.masa.litematica.data;
 
 import java.util.*;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,6 +60,7 @@ import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
+import fi.dy.masa.litematica.scheduler.info_hud.InfoHudSync;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
@@ -101,6 +103,8 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
     // Backup Chunk Saving task
     private final HashMap<ChunkPos, Set<BlockPos>> pendingBackupChunk_BlockEntities = new HashMap<>();
     private final HashMap<ChunkPos, Set<Integer>>  pendingBackupChunk_Entities      = new HashMap<>();
+
+    private InfoHudSync infoSync = null;
 
     @Override
     @Nullable
@@ -268,6 +272,12 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         this.pendingChunkTimeout.clear();
         this.pendingBackupChunk_BlockEntities.clear();
         this.pendingBackupChunk_Entities.clear();
+
+        if (this.infoSync != null)
+        {
+            this.infoSync.clearInfo();
+            this.infoSync = null;
+        }
     }
 
     private boolean shouldUseQuery()
@@ -539,40 +549,58 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
     }
 
     @ApiStatus.Experimental
-    public void sendServuxTaskRequest(CompoundData data)
+    public void sendServuxTaskRequest(CompoundData data, @Nonnull InfoHudSync infoSync)
     {
-        if (this.hasServuxServer())
+        if (this.hasServuxServer() &&
+            data != null && data.contains("Task", Constants.NBT.TAG_STRING))
         {
-            // TODO (For things like Delete, Fill, etc)
+            this.infoSync = infoSync;
+            HANDLER.encodeClientData(ServuxLitematicaPacket.TaskRequest(data));
         }
     }
 
-    @ApiStatus.Experimental
-    public void receiveServuxTaskResponse(CompoundData data)
+    public void setInfoHudSync(@Nonnull InfoHudSync infoSync)
     {
-        if (this.hasServuxServer())
+        if (this.infoSync != null)
         {
-            // TODO (For things like Delete, Fill, etc)
+            this.infoSync.clearInfo();
         }
+
+        this.infoSync = infoSync;
     }
+
+//    @ApiStatus.Experimental
+//    public void receiveServuxTaskResponse(CompoundData data)
+//    {
+//        if (this.hasServuxServer())
+//        {
+//            // TODO (For things like Delete, Fill, etc)
+//        }
+//    }
 
     @ApiStatus.Experimental
     public void receiveServuxTaskStatusSync(CompoundData data)
     {
-        if (this.hasServuxServer())
+        if (this.hasServuxServer() && this.infoSync != null)
         {
-            // TODO (For things like Delete, Fill, etc)
+            this.infoSync.onReceiveInfoSync(data);
+
+            if (this.infoSync.isComplete())
+            {
+                this.infoSync.clearInfo();
+                this.infoSync = null;
+            }
         }
     }
 
-    @ApiStatus.Experimental
-    public void sendServuxTaskCancel(CompoundData data)
-    {
-        if (this.hasServuxServer())
-        {
-            // TODO (For things like Delete, Fill, etc)
-        }
-    }
+//    @ApiStatus.Experimental
+//    public void sendServuxTaskCancel(CompoundData data)
+//    {
+//        if (this.hasServuxServer())
+//        {
+//            // TODO (For things like Delete, Fill, etc)
+//        }
+//    }
 
     /**
      * These are required due to the Schematic World
@@ -733,6 +761,11 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
     {
         if (!this.hasServuxServer()) { return; }
         CompoundData req = new CompoundData();
+
+        if (this.pendingChunks.isEmpty())
+        {
+            this.setInfoHudSync(new InfoHudSync(null));
+        }
 
         this.completedChunks.remove(chunkPos);
         this.pendingChunks.add(chunkPos);

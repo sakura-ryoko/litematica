@@ -101,13 +101,13 @@ public abstract class ServuxLitematicaHandler<T extends CustomPacketPayload> imp
 //                        EntityDataManager.getInstance().receiveServuxTaskResponse(packet.getCompound());
 //                    }
 //                }
-//                case PACKET_S2C_TASK_STATUS_SYNC ->
-//                {
-//                    if (this.servuxRegistered)
-//                    {
-//                        EntityDataManager.getInstance().receiveServuxTaskStatusSync(packet.getCompound());
-//                    }
-//                }
+                case PACKET_S2C_TASK_STATUS_SYNC ->
+                {
+                    if (this.servuxRegistered)
+                    {
+                        EntityDataManager.getInstance().receiveServuxTaskStatusSync(packet.getCompound());
+                    }
+                }
                 case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE ->
                 {
                     if (this.servuxRegistered)

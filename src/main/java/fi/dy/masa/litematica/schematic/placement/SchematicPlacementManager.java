@@ -49,6 +49,7 @@ import fi.dy.masa.litematica.network.ServuxLitematicaPacket;
 import fi.dy.masa.litematica.render.OverlayRenderer;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
+import fi.dy.masa.litematica.scheduler.info_hud.InfoHudSync;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkBase;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkCommand;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkDirect;
@@ -1125,8 +1126,10 @@ public class SchematicPlacementManager
                     {
                         Litematica.debugLog("Found a Servux server, I am sending the Schematic Placement to it.");
                         InfoUtils.showGuiOrActionBarMessage(MessageType.INFO, "litematica.message.paste_with_servux");
-                        CompoundData nbt = schematicPlacement.toData(true);
+                        CompoundData data = schematicPlacement.toData(true);
 //                        final int maxSize = PacketSplitter.DEFAULT_MAX_RECEIVE_SIZE_S2C - 4096;
+
+                        EntityDataManager.getInstance().setInfoHudSync(new InfoHudSync(null));
 
                         // Slice Extra-large schematics... :(
 //                        if (Configs.Generic.PASTE_SERVUX_EXPERIMENTAL.getBooleanValue())
@@ -1138,8 +1141,9 @@ public class SchematicPlacementManager
 //                        }
 //                        else
 //                        {
-                            nbt.putString("Task", "LitematicaPaste");
-                            ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(nbt));
+                            data.putString("Task", "LitematicaPaste");
+                            data.putInt("Interval", 1);
+                            ServuxLitematicaHandler.getInstance().encodeClientData(ServuxLitematicaPacket.ResponseC2SStart(data));
 //                        }
                     }
                     else
