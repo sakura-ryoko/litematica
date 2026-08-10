@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "명백한/수동 영역 기준점을 제거하였습니다.",
     "litematica.message.removed_selection_box": "선택 박스가 제거되었습니다. %s",
     "litematica.message.scheduled_task_added": "예약된 작업 추가됨...",
+    "litematica.message.scheduled_task_to_servux": "작업이 Servux로 전달됨 ...",
     "litematica.message.schematic_edit_replace_selection": "선택 ‘%s’이(가) 현재 스키매틱에 복사되었습니다. (메모리 내 전용)",
     "litematica.message.schematic_exported_as": "스키매틱이 내보내기 되었습니다. '%s'",
     "litematica.message.schematic_pasted": "월드에 스키매틱 붙여넣기 되었습니다.",

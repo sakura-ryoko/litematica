@@ -1116,6 +1116,7 @@
     "litematica.message.removed_area_origin": "Manuel alan başlangıç noktası kaldırıldı",
     "litematica.message.removed_selection_box": "%s seçim kutusu kaldırıldı",
     "litematica.message.scheduled_task_added": "Planlanmış görev eklendi...",
+    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
     "litematica.message.schematic_edit_replace_selection": "'%s' konumundaki seçim mevcut şematiğe kopyalandı (Sadece bellekte)",
     "litematica.message.schematic_exported_as": "Şematik '%s' olarak dışa aktarıldı",
     "litematica.message.schematic_pasted": "Şematik dünyaya yapıştırıldı",
