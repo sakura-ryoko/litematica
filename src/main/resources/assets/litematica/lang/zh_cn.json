@@ -1116,7 +1116,7 @@
     "litematica.message.removed_area_origin": "§a已移除显式/手动区域原点§r",
     "litematica.message.removed_selection_box": "§a已移除选区框 %s§r",
     "litematica.message.scheduled_task_added": "§a已添加计划任务...§r",
-    "litematica.message.scheduled_task_to_servux": "Task submitted to Servux ...",
+    "litematica.message.scheduled_task_to_servux": "任务已提交给 Servux ……",
     "litematica.message.schematic_edit_replace_selection": "选择“%s”已复制到当前原理图（仅在内存中）",
     "litematica.message.schematic_exported_as": "§a原理图已导出为'%s'§r",
     "litematica.message.schematic_pasted": "§a原理图已粘贴至世界§r",
