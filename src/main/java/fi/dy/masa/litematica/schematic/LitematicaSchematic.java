@@ -2522,6 +2522,7 @@ public class LitematicaSchematic
 
 //                BlockState state = net.minecraft.nbt.NbtUtils.readBlockState(lookup, t);
 				BlockState state = DataTypeUtils.readBlockStateFromTag(t, SchematicWorldHandler.INSTANCE.getRegistryManager());
+
 				list.add(state);
 			}
 
