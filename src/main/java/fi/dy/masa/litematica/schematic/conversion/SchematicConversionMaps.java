@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.TagParser;
@@ -506,13 +507,21 @@ public class SchematicConversionMaps
 			if (!oldName.equalsIgnoreCase(blockName))
 			{
 				oldBlockState.putString("Name", blockName);
-//			      Litematica.LOGGER.error("updateBlockName: [{}] -> [{}]", oldName, blockName);
+//				Litematica.LOGGER.error("updateBlockName: [{}] -> [{}]", oldName, blockName);
 			}
 		}
 
 		try
 		{
-			return (CompoundData) DataFixers.getDataFixer().update(References.BLOCK_STATE, new Dynamic<>(DataOps.INSTANCE, oldBlockState), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+			// FIXME -- for some reason this fails as a CompoundData
+			CompoundTag oldTags = DataConverterNbt.toVanillaCompound(oldBlockState);
+//			CompoundData result = (CompoundData) DataFixers.getDataFixer()
+//			                                               .update(References.BLOCK_STATE, new Dynamic<>(DataOps.INSTANCE, oldBlockState), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION)
+//			                                               .getValue();
+			CompoundTag result = (CompoundTag) DataFixers.getDataFixer()
+			                                              .update(References.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, oldTags), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION)
+			                                              .getValue();
+			return DataConverterNbt.fromVanillaCompound(result);
 		}
 		catch (Exception e)
 		{
@@ -526,7 +535,12 @@ public class SchematicConversionMaps
 	{
 		try
 		{
-			return (CompoundData) DataFixers.getDataFixer().update(References.BLOCK_ENTITY, new Dynamic<>(DataOps.INSTANCE, oldBlockEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+			// FIXME -- for some reason this fails as a CompoundData
+			CompoundTag oldTags = DataConverterNbt.toVanillaCompound(oldBlockEntity);
+			CompoundTag result = (CompoundTag) DataFixers.getDataFixer()
+			                                .update(References.BLOCK_ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldTags), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION)
+			                                .getValue();
+			return DataConverterNbt.fromVanillaCompound(result);
 		}
 		catch (Exception e)
 		{
@@ -542,7 +556,12 @@ public class SchematicConversionMaps
 	{
 		try
 		{
-			return (CompoundData) DataFixers.getDataFixer().update(References.ENTITY, new Dynamic<>(DataOps.INSTANCE, oldEntity), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION).getValue();
+			// FIXME -- for some reason this fails as a CompoundData
+			CompoundTag oldTags = DataConverterNbt.toVanillaCompound(oldEntity);
+			CompoundTag result = (CompoundTag) DataFixers.getDataFixer()
+			                                .update(References.ENTITY, new Dynamic<>(NbtOps.INSTANCE, oldTags), oldVersion, LitematicaSchematic.MINECRAFT_DATA_VERSION)
+			                                .getValue();
+			return DataConverterNbt.fromVanillaCompound(result);
 		}
 		catch (Exception e)
 		{
