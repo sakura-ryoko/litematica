@@ -6,7 +6,8 @@ import fi.dy.masa.litematica.Litematica;
 
 public enum InfoHudSyncType
 {
-	STRING("string", InfoHudSyncString.class),
+	REMAINING_CHUNKS    ("remaining_chunks",    InfoHudSyncChunks.class),
+	STRING              ("string",              InfoHudSyncString.class),
 	;
 
 	private final String name;
