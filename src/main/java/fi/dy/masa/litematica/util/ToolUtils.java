@@ -72,7 +72,7 @@ public class ToolUtils
                     {
                         data.put("Boxes", list);
                         EntityDataManager.getInstance().sendServuxTaskRequest(data, new InfoHudSync(null));
-                        InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_to_servux");
+                        InfoUtils.showGuiOrInGameMessage(MessageType.INFO, 2500, "litematica.message.scheduled_task_to_servux");
                     }
                     else
                     {
@@ -158,7 +158,7 @@ public class ToolUtils
                     {
                         data.put("Boxes", list);
                         EntityDataManager.getInstance().sendServuxTaskRequest(data, new InfoHudSync(listener));
-                        InfoUtils.showGuiOrInGameMessage(MessageType.INFO, "litematica.message.scheduled_task_to_servux");
+                        InfoUtils.showGuiOrInGameMessage(MessageType.INFO, 2500, "litematica.message.scheduled_task_to_servux");
                     }
                     else
                     {
