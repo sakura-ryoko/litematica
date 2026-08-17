@@ -11,6 +11,10 @@ import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.malilib.util.data.tag.ListData;
 import fi.dy.masa.malilib.util.data.tag.StringData;
 
+/**
+ * @deprecated Probably was not the best way to do this
+ */
+@Deprecated
 public class InfoHudSyncString extends AbstractInfoHudSync<String>
 {
 	private final List<String> infoHudFeedback;
