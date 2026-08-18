@@ -58,6 +58,7 @@ public class KeyCallbacks
         Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.setValueChangeCallback(renderChangeCallback);
 //        Configs.Visuals.ENABLE_SCHEMATIC_ENTITY_HITBOXES.setValueChangeCallback(renderChangeCallback); // Not needed
         Configs.Visuals.ENABLE_SCHEMATIC_FAKE_LIGHTING.setValueChangeCallback(renderChangeCallback);
+        Configs.Visuals.IGNORE_CROP_AGE.setValueChangeCallback(renderChangeCallback);
         Configs.Visuals.OVERLAY_REDUCED_INNER_SIDES.setValueChangeCallback(renderChangeCallback);
         Configs.Visuals.RENDER_AO_MODERN_ENABLE.setValueChangeCallback(renderChangeCallback);
         Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.setValueChangeCallback(renderChangeCallback);

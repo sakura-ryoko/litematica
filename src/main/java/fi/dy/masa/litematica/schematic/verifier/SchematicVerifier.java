@@ -702,6 +702,19 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
 
         if (stateClient != stateSchematic && (stateClient.isAir() == false || stateSchematic.isAir() == false))
         {
+            if (Configs.Visuals.IGNORE_CROP_AGE.getBooleanValue() &&
+                BlockUtils.areStatesEqualIgnoringAge(stateSchematic, stateClient))
+            {
+                ItemUtils.setItemForBlock(this.worldClient, pos, stateClient);
+                this.correctStateCounts.addTo(stateClient, 1);
+
+                if (stateSchematic.isAir() == false)
+                {
+                    ++this.correctStatesCount;
+                }
+                return;
+            }
+
             MUTABLE_PAIR.setLeft(stateSchematic);
             MUTABLE_PAIR.setRight(stateClient);
 
