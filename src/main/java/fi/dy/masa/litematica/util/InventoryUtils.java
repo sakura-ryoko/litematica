@@ -531,7 +531,7 @@ public class InventoryUtils
                 }
             }
 
-            inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, pos, false);
+            inv = EntityDataManager.getInstance().getBlockInventoryWrapped(world, pos, true);
         }
 
         if (data != null && !data.isEmpty())
@@ -546,6 +546,20 @@ public class InventoryUtils
 
 //        Litematica.LOGGER.warn("getTarget(): [SchematicWorld? {}] pos [{}], inv [{}], be [{}], nbt [{}]", world instanceof WorldSchematic ? "YES" : "NO", pos.toShortString(), inv != null, be != null, data != null ? data.getString("id") : new CompoundData());
 
+	    if (be == null)
+	    {
+		    be = world.getBlockEntity(pos);
+
+		    if (inv == null || inv.isEmpty())
+		    {
+			    if (be instanceof Container cc)
+			    {
+				    inv = cc;
+			    }
+		    }
+	    }
+
+		// Continue showing nothing when null
         if (inv == null || data == null)
         {
             return null;
