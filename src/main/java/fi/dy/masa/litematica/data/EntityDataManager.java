@@ -142,11 +142,17 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
         if ((now - this.lastTickTime) > 50)
         {
             // In this block, we do something every server tick
-            if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() == false)
+            if (!Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
-                this.lastTickTime = now;
+                if (this.mc.level == null || this.mc.player == null)
+                {
+                    this.getCache().clearAll();
+                    this.getRequestTracker().clearAll();
+                    this.lastTickTime = now;
+                    return;
+                }
 
-                if (DataManager.getInstance().hasIntegratedServer() == false && this.hasServuxServer())
+                if (!DataManager.getInstance().hasIntegratedServer() && this.hasServuxServer())
                 {
                     this.servuxServer = false;
                     HANDLER.encodeClientData(ServuxLitematicaPacket.UnregisterReply(new CompoundData()));
@@ -154,16 +160,17 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
                     HANDLER.reset(this.getNetworkChannel());
                 }
 
-                if (Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() == false)
+                if (!Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue())
                 {
                     this.requestTracker.clearAll();
-                    return;
+//                    this.lastTickTime = now;
+//                    return;
                 }
             }
             else if (Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue() &&
-                     DataManager.getInstance().hasIntegratedServer() == false &&
-                     this.hasServuxServer() == false &&
-                     this.hasInValidServux == false &&
+		            !DataManager.getInstance().hasIntegratedServer() &&
+		            !this.hasServuxServer() &&
+		            !this.hasInValidServux &&
                      this.getBestWorld() != null)
             {
                 // Make sure we're Play Registered, and request Metadata
@@ -343,14 +350,40 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
     public long getCacheTimeout()
     {
         // Increase cache timeout when in Backup Mode.
-        int modifier = Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() ? 5 : 1;
-        return (long) (MathUtils.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier), 1.0f, 50.0f) * 1000L);
+        int modifier = 1;
+
+        if (!this.hasServuxServer())
+        {
+            if (!this.hasBackupStatus())
+            {
+                modifier = 10;
+            }
+            else
+            {
+                modifier = 5;
+            }
+        }
+
+        return (long) (MathUtils.clamp((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier), 1.0f, 500.0f) * 1000L);
     }
 
     private long getCacheTimeoutLong()
     {
         // Increase cache timeout when in Backup Mode.
-        final int modifier = Configs.Generic.ENTITY_DATA_SYNC_BACKUP.getBooleanValue() ? 5 : 1;
+        int modifier = 1;
+
+        if (!this.hasServuxServer())
+        {
+            if (!this.hasBackupStatus())
+            {
+                modifier = 10;
+            }
+            else
+            {
+                modifier = 5;
+            }
+        }
+
         final long result = (long) (MathUtils.clamp(((Configs.Generic.ENTITY_DATA_SYNC_CACHE_TIMEOUT.getFloatValue() * modifier) * LONG_CACHE_TIMEOUT), 120.0f, (300.0f * modifier)) * 1000L);
 
         // Add extra time if using QueryNbt only
