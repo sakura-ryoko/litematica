@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
@@ -28,14 +29,19 @@ public abstract class MixinEntityHitboxDebugRenderer implements IEntityHitboxDeb
 	                                             Frustum frustum, float partialTicks,
 	                                             CallbackInfo ci)
 	{
-		ProfilerFiller profiler = Profiler.get();
-
-		if (profiler instanceof ActiveProfiler ps && !((IMixinActiveProfiler) ps).litematica_isStarted())
+		if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&
+			Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() &&
+			Configs.Visuals.RENDER_SCHEMATIC_ENTITIES.getBooleanValue())
 		{
-			profiler.startTick();
-		}
+			ProfilerFiller profiler = Profiler.get();
 
-		LitematicaRenderer.getInstance().renderEntityDebugHitboxes((IEntityHitboxDebugRendererInvoker) this, camX, camY, camZ, debugValues, frustum, partialTicks, profiler);
+			if (profiler instanceof ActiveProfiler ps && !((IMixinActiveProfiler) ps).litematica_isStarted())
+			{
+				profiler.startTick();
+			}
+
+			LitematicaRenderer.getInstance().renderEntityDebugHitboxes((IEntityHitboxDebugRendererInvoker) this, camX, camY, camZ, debugValues, frustum, partialTicks, profiler);
+		}
 	}
 
 	@Override

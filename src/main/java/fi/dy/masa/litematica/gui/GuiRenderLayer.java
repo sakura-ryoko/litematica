@@ -22,17 +22,28 @@ public class GuiRenderLayer extends GuiRenderLayerEditBase
         int x = 10;
         int y = 26;
 
-        x += this.createTabButton(x, y, -1, ConfigGuiTab.GENERIC);
-        x += this.createTabButton(x, y, -1, ConfigGuiTab.INFO_OVERLAYS);
-        x += this.createTabButton(x, y, -1, ConfigGuiTab.VISUALS);
-        x += this.createTabButton(x, y, -1, ConfigGuiTab.COLORS);
-        x += this.createTabButton(x, y, -1, ConfigGuiTab.HOTKEYS);
-        x += this.createTabButton(x, y, -1, ConfigGuiTab.RENDER_LAYERS);
+        for (ConfigGuiTab tab : ConfigGuiTab.values())
+        {
+            if (!this.useAllTab() && tab == ConfigGuiTab.ALL) continue;
+            x += this.createTabButton(x, y, -1, tab);
+        }
+
+//        x += this.createTabButton(x, y, -1, ConfigGuiTab.GENERIC);
+//        x += this.createTabButton(x, y, -1, ConfigGuiTab.INFO_OVERLAYS);
+//        x += this.createTabButton(x, y, -1, ConfigGuiTab.VISUALS);
+//        x += this.createTabButton(x, y, -1, ConfigGuiTab.COLORS);
+//        x += this.createTabButton(x, y, -1, ConfigGuiTab.HOTKEYS);
+//        x += this.createTabButton(x, y, -1, ConfigGuiTab.RENDER_LAYERS);
 
         x = 10;
         y = 60;
 
         this.createLayerEditControls(x, y, this.getLayerRange());
+    }
+
+    private boolean useAllTab()
+    {
+        return true;
     }
 
     @Override

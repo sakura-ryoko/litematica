@@ -308,7 +308,7 @@ public class SchematicVerifier extends TaskBase implements IInfoHudRenderer
         this.ignoreBlockRegistry = new IgnoreBlockRegistry();
 
         this.setCompletionListener(completionListener);
-        this.requiredChunks.addAll(schematicPlacement.getTouchedChunks(SubRegionPlacement.RequiredEnabled.ANY));
+        this.requiredChunks.addAll(schematicPlacement.getTouchedChunks(SubRegionPlacement.RequiredEnabled.PLACEMENT_ENABLED));
         this.totalRequiredChunks = this.requiredChunks.size();
         this.verificationStarted = true;
 
