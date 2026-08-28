@@ -105,6 +105,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN          = new ConfigBoolean("materialListContainerScan", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN_SHULKERS = new ConfigBoolean("materialListContainerScanShulkers", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN_BUNDLES  = new ConfigBoolean("materialListContainerScanBundles", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       MATERIAL_LIST_COUNT_ENDER_CACHE       = new ConfigBoolean("materialListCountEnderCache", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_IGNORE_STATE  = new ConfigBoolean("materialListIgnoreState", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_RECIPE_DETAILS= new ConfigBoolean("materialListRecipeDetails", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       PASTE_ALWAYS_USE_FILL       = new ConfigBoolean("pasteAlwaysUseFill", false).apply(GENERIC_KEY);
@@ -189,6 +190,7 @@ public class Configs implements IConfigHandler
                 MATERIAL_LIST_CONTAINER_SCAN,
                 MATERIAL_LIST_CONTAINER_SCAN_SHULKERS,
                 MATERIAL_LIST_CONTAINER_SCAN_BUNDLES,
+                MATERIAL_LIST_COUNT_ENDER_CACHE,
                 MATERIAL_LIST_IGNORE_STATE,
                 MATERIAL_LIST_RECIPE_DETAILS,
                 PASTE_ALWAYS_USE_FILL,

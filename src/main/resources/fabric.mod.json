@@ -38,9 +38,9 @@
 
 	"depends": {
 		"minecraft": "~26.2-",
-		"malilib": ">=0.29.4- <0.30.0-"
+		"malilib": ">=0.29.5- <0.30.0-"
 	},
 	"breaks": {
-		"malilib": "<0.29.4-"
+		"malilib": "<0.29.5-"
 	}
 }
