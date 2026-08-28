@@ -3,20 +3,25 @@ package fi.dy.masa.litematica.materials;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
+import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.data.ItemType;
+import fi.dy.masa.malilib.util.nbt.NbtInventory;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 
@@ -47,17 +52,33 @@ public class MaterialListUtils
         }
 
         Object2IntOpenHashMap<ItemType> playerInvItems = null;
+        Object2IntOpenHashMap<ItemType> enderItems = null;
 
         if (player != null)
         {
             playerInvItems = getInventoryItemCounts(player.getInventory());
+            NbtInventory ender = Registry.ENTITY_DATA_REGISTRY.chestTracker().getEnderCache();
+
+            if (Configs.Generic.MATERIAL_LIST_COUNT_ENDER_CACHE.getBooleanValue() && ender != null)
+            {
+                Container ec = ender.toInventory(NbtInventory.DEFAULT_SIZE);
+
+                if (ec != null)
+                {
+                    enderItems = getInventoryItemCounts(ec);
+                }
+            }
         }
 
         for (java.util.Map.Entry<ItemType, Integer> entry : items.entrySet())
         {
             ItemType type = entry.getKey();
             int count = entry.getValue();
-            int countAvailable = playerInvItems != null ? playerInvItems.getInt(type) : 0;
+            int countAvailable = playerInvItems != null
+                                 ? playerInvItems.getInt(type)
+                                 : 0;
+
+            countAvailable += enderItems != null ? enderItems.getInt(type) : 0;
 
             // For custom item lists, total = missing (no placement state to compare against)
             list.add(new MaterialListEntry(
@@ -128,14 +149,29 @@ public class MaterialListUtils
             if (player != null)
             {
                 Object2IntOpenHashMap<ItemType> playerInvItems = getInventoryItemCounts(player.getInventory());
+                Object2IntOpenHashMap<ItemType> enderItems = null;
+                NbtInventory ender = Registry.ENTITY_DATA_REGISTRY.chestTracker().getEnderCache();
+
+                if (Configs.Generic.MATERIAL_LIST_COUNT_ENDER_CACHE.getBooleanValue() && ender != null)
+                {
+                    Container ec = ender.toInventory(NbtInventory.DEFAULT_SIZE);
+
+                    if (ec != null)
+                    {
+                        enderItems = getInventoryItemCounts(ec);
+                    }
+                }
 
                 for (ItemType type : itemTypesTotal.keySet())
                 {
+                    final int enderCount = enderItems != null ? enderItems.getInt(type) : 0;
+
                     list.add(new MaterialListEntry(type.getStack().copy(),
                                                    itemTypesTotal.getInt(type),
                                                    itemTypesMissing.getInt(type),
                                                    itemTypesMismatch.getInt(type),
-                                                   playerInvItems.getInt(type)));
+                                                   playerInvItems.getInt(type) + enderCount
+                    ));
                 }
             }
             else
@@ -196,11 +232,25 @@ public class MaterialListUtils
     {
         if (player == null) return;
         Object2IntOpenHashMap<ItemType> playerInvItems = getInventoryItemCounts(player.getInventory());
+        Object2IntOpenHashMap<ItemType> enderItems = null;
+        NbtInventory ender = Registry.ENTITY_DATA_REGISTRY.chestTracker().getEnderCache();
+
+        if (Configs.Generic.MATERIAL_LIST_COUNT_ENDER_CACHE.getBooleanValue() && ender != null)
+        {
+            Container ec = ender.toInventory(NbtInventory.DEFAULT_SIZE);
+
+            if (ec != null)
+            {
+                enderItems = getInventoryItemCounts(ec);
+            }
+        }
 
         for (MaterialListEntry entry : list)
         {
             ItemType type = new ItemType(entry.getStack(), true, false);
-            int countAvailable = playerInvItems.getInt(type);
+            int countAvailable = enderItems != null
+                                 ? playerInvItems.getInt(type) + enderItems.getInt(type)
+                                 : playerInvItems.getInt(type);
             entry.setCountAvailable(countAvailable);
         }
     }

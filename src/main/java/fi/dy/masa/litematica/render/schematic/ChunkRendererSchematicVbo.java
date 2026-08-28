@@ -82,6 +82,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 	protected Color4f overlayColor;
 	protected boolean hasOverlay;
 	private boolean ignoreClientWorldFluids;
+	private boolean ignoreCropAge;
 	private IgnoreBlockRegistry ignoreBlockRegistry;
 
 	protected ChunkCacheSchematic schematicWorldView;
@@ -1091,6 +1092,11 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 
 					return OverlayType.WRONG_BLOCK;
 				}
+				// Same block, but states differ
+				else if (this.ignoreCropAge && fi.dy.masa.litematica.util.BlockUtils.areStatesEqualIgnoringAge(stateSchematic, stateClient))
+				{
+					return OverlayType.NONE;
+				}
 				// Wrong state
 				else
 				{
@@ -1609,6 +1615,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 		synchronized (this.boxes)
 		{
 			this.ignoreClientWorldFluids = Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue();
+			this.ignoreCropAge = Configs.Visuals.IGNORE_CROP_AGE.getBooleanValue();
 			this.ignoreBlockRegistry = new IgnoreBlockRegistry();
 			ClientLevel worldClient = Minecraft.getInstance().level;
 			assert worldClient != null;

@@ -104,6 +104,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN          = new ConfigBoolean("materialListContainerScan", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN_SHULKERS = new ConfigBoolean("materialListContainerScanShulkers", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_CONTAINER_SCAN_BUNDLES  = new ConfigBoolean("materialListContainerScanBundles", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       MATERIAL_LIST_COUNT_ENDER_CACHE       = new ConfigBoolean("materialListCountEnderCache", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_IGNORE_STATE  = new ConfigBoolean("materialListIgnoreState", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       MATERIAL_LIST_RECIPE_DETAILS= new ConfigBoolean("materialListRecipeDetails", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       PASTE_ALWAYS_USE_FILL       = new ConfigBoolean("pasteAlwaysUseFill", false).apply(GENERIC_KEY);
@@ -188,6 +189,7 @@ public class Configs implements IConfigHandler
                 MATERIAL_LIST_CONTAINER_SCAN,
                 MATERIAL_LIST_CONTAINER_SCAN_SHULKERS,
                 MATERIAL_LIST_CONTAINER_SCAN_BUNDLES,
+                MATERIAL_LIST_COUNT_ENDER_CACHE,
                 MATERIAL_LIST_IGNORE_STATE,
                 MATERIAL_LIST_RECIPE_DETAILS,
                 PASTE_ALWAYS_USE_FILL,
@@ -262,6 +264,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       IGNORE_EXISTING_FLUIDS              = new ConfigBoolean("ignoreExistingFluids", false).apply(VISUALS_KEY);
         public static final ConfigBoolean       IGNORE_EXISTING_BLOCKS              = new ConfigBoolean("ignoreExistingBlocks", false).apply(VISUALS_KEY);
         public static final ConfigStringList    IGNORABLE_EXISTING_BLOCKS           = new ConfigStringList("ignorableExistingBlocks", ImmutableList.of()).apply(VISUALS_KEY);
+        public static final ConfigBoolean       IGNORE_CROP_AGE                     = new ConfigBoolean("ignoreCropAge", false).apply(VISUALS_KEY);
         public static final ConfigBooleanHotkeyed OVERLAY_REDUCED_INNER_SIDES       = new ConfigBooleanHotkeyed("overlayReducedInnerSides", false, "").apply(VISUALS_KEY);
         public static final ConfigDouble        PLACEMENT_BOX_SIDE_ALPHA            = new ConfigDouble( "placementBoxSideAlpha", 0.2, 0, 1).apply(VISUALS_KEY);
         public static final ConfigBooleanHotkeyed RENDER_AO_MODERN_ENABLE           = new ConfigBooleanHotkeyed("renderAOModernEnable", false, "").apply(VISUALS_KEY);
@@ -307,6 +310,7 @@ public class Configs implements IConfigHandler
                 IGNORE_EXISTING_FLUIDS,
                 IGNORE_EXISTING_BLOCKS,
                 IGNORABLE_EXISTING_BLOCKS,
+                IGNORE_CROP_AGE,
                 OVERLAY_REDUCED_INNER_SIDES,
                 RENDER_AO_MODERN_ENABLE,
                 RENDER_AREA_SELECTION_BOX_SIDES,
