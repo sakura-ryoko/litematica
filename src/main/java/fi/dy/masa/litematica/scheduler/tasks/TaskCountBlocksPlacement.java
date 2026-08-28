@@ -5,12 +5,14 @@ import java.util.Collection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.materials.IMaterialList;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement.RequiredEnabled;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.BlockInfoListType;
+import fi.dy.masa.litematica.util.BlockUtils;
 
 public class TaskCountBlocksPlacement extends TaskCountBlocksBase
 {
@@ -66,8 +68,12 @@ public class TaskCountBlocksPlacement extends TaskCountBlocksBase
             else if (stateClient != stateSchematic &&
                     (this.ignoreState == false || stateClient.getBlock() != stateSchematic.getBlock()))
             {
-                this.countsMissing.addTo(stateSchematic, 1);
-                this.countsMismatch.addTo(stateSchematic, 1);
+                if (Configs.Visuals.IGNORE_CROP_AGE.getBooleanValue() == false ||
+                    BlockUtils.areStatesEqualIgnoringAge(stateSchematic, stateClient) == false)
+                {
+                    this.countsMissing.addTo(stateSchematic, 1);
+                    this.countsMismatch.addTo(stateSchematic, 1);
+                }
             }
         }
     }
