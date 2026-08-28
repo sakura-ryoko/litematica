@@ -185,4 +185,22 @@ public class BlockUtils
 
         return Optional.empty();
     }
+
+    public static boolean areStatesEqualIgnoringAge(BlockState state1, BlockState state2)
+    {
+        if (state1.equals(state2)) { return true; }
+        if (!state1.getBlock().equals(state2.getBlock())) { return false; }
+
+        for (Property<?> prop : state1.getProperties())
+        {
+            if (prop.getName().equalsIgnoreCase("age"))
+            {
+                continue;
+            }
+
+            if (!state1.getValue(prop).equals(state2.getValue(prop))) { return false; }
+        }
+
+        return true;
+    }
 }
