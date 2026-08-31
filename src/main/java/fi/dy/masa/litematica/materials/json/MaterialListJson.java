@@ -68,7 +68,7 @@ public class MaterialListJson
 
     public boolean readMaterialListMissingOnly(MaterialListBase materialList, MaterialListJsonCache cache, boolean craftingOnly)
     {
-        List<MaterialListEntry> materials = materialList.getMaterialsMissingOnly(false);
+        List<MaterialListEntry> materials = materialList.getMaterialsMissingOnly(true);
 
         if (materials.isEmpty())
         {

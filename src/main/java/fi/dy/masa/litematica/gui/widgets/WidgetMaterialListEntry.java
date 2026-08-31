@@ -155,29 +155,30 @@ public class WidgetMaterialListEntry extends WidgetListEntrySortable<MaterialLis
         switch (column)
         {
             case 0:
-                // Column 0 cycles between NAME and CACHE_ORDER
-                SortCriteria currentCriteria = this.materialList.getSortCriteria();
-                if (currentCriteria == SortCriteria.NAME)
-                {
-                    this.materialList.setSortCriteria(SortCriteria.CACHE_ORDER);
-                }
-                else if (currentCriteria == SortCriteria.CACHE_ORDER)
-                {
-                    // If already on CACHE_ORDER, toggle reverse (or go back to NAME if reversed)
-                    if (!this.materialList.getSortInReverse())
-                    {
-                        this.materialList.setSortCriteria(SortCriteria.CACHE_ORDER); // toggles reverse
-                    }
-                    else
-                    {
-                        this.materialList.setSortCriteria(SortCriteria.NAME);
-                    }
-                }
-                else
-                {
+                // Blame AI for this mess
+//                // Column 0 cycles between NAME and CACHE_ORDER
+//                SortCriteria currentCriteria = this.materialList.getSortCriteria();
+//                if (currentCriteria == SortCriteria.NAME)
+//                {
+//                    this.materialList.setSortCriteria(SortCriteria.CACHE_ORDER);
+//                }
+//                else if (currentCriteria == SortCriteria.CACHE_ORDER)
+//                {
+//                    // If already on CACHE_ORDER, toggle reverse (or go back to NAME if reversed)
+//                    if (!this.materialList.getSortInReverse())
+//                    {
+//                        this.materialList.setSortCriteria(SortCriteria.CACHE_ORDER); // toggles reverse
+//                    }
+//                    else
+//                    {
+//                        this.materialList.setSortCriteria(SortCriteria.NAME);
+//                    }
+//                }
+//                else
+//                {
                     // From any other sort, clicking column 0 goes to NAME
-                    this.materialList.setSortCriteria(SortCriteria.NAME);
-                }
+                this.materialList.setSortCriteria(SortCriteria.NAME);
+//                }
                 break;
             case 1:
                 this.materialList.setSortCriteria(SortCriteria.COUNT_TOTAL);
@@ -380,7 +381,7 @@ public class WidgetMaterialListEntry extends WidgetListEntrySortable<MaterialLis
 
 		public enum ButtonType
 		{
-			IGNORE("litematica.gui.button.material_list.ignore");
+			IGNORE  ("litematica.gui.button.material_list.ignore");
 
 			private final String translationKey;
 

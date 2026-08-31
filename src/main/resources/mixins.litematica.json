@@ -50,7 +50,6 @@
         "render.MixinGameRenderer",
         "render.MixinWorldRenderer",
         "screen.IMixinAbstractContainerScreen",
-        "screen.MixinAbstractContainerScreen",
         "world.MixinClientLevel"
     ],
     "server": [],
