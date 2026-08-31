@@ -55,7 +55,6 @@
         "render.MixinGameRenderer",
         "render.MixinLevelRenderer",
         "screen.IMixinAbstractContainerScreen",
-        "screen.MixinAbstractContainerScreen",
         "screen.MixinVideoSettingsScreen",
         "world.MixinClientLevel"
     ],

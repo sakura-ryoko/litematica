@@ -45,7 +45,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
     @Override
     public int getBrowserHeight()
     {
-        return this.getScreenHeight() - 80;
+        return this.getScreenHeight() - 100;
     }
 
     @Override

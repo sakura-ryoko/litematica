@@ -33,6 +33,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 
+import fi.dy.masa.malilib.MaLiLibReference;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.interfaces.IDataSyncer;
@@ -539,7 +540,7 @@ public class EntityDataManager implements IClientTickHandler, IDataSyncer
                 final int version = data.getIntOrDefault("version", -1);
                 final String servux = data.getStringOrDefault("servux", "?");
 
-                if (version != ServuxLitematicaPacket.PROTOCOL_VERSION || !servux.startsWith("servux-"+Reference.MOD_TYPE+"-"+Reference.MC_VERSION))
+                if (version != ServuxLitematicaPacket.PROTOCOL_VERSION || !servux.startsWith("servux-"+Reference.MOD_TYPE+"-"+MaLiLibReference.MC_VERSION))
                 {
                     Litematica.LOGGER.warn("LitematicDataChannel: Mis-matched protocol version! (Expected: {} but got {} running on: {})", ServuxLitematicaPacket.PROTOCOL_VERSION, version, servux);
 
