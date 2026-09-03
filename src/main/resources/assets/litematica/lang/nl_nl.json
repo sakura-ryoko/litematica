@@ -706,6 +706,7 @@
     "litematica.gui.button.hover.area_editor.shift_for_in_memory": "Hold Shift to create an in-memory-only schematic",
     "litematica.gui.button.hover.area_selections.unselect": "Unselects the current Area Selection",
     "litematica.gui.button.hover.material_list.clear_cache": "Clears the Material Cache\nNormally this should not be needed\nThis can be used instead of deleting the 'material_cache.nbt'\nfile in case the cache has some wrong data, like items\nstored for blocks that shouldn't have them, like piston heads",
+    "litematica.gui.button.hover.material_list.export_as": "Click to execute the selected Export Type\n§bClick the button on the right to cycle this option.",
     "litematica.gui.button.hover.material_list.export_custom_json": "Export this material list to a simple JSON file that can be\nloaded back from the schematic browser as a custom item list.\nThe file will be saved to the schematics directory.",
     "litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only": "Hold shift to write the missing raw materials only; and optionally\nhold alt to prioritize crafting recipes over stonecutter recipes\n§6NOTE: Results may differ, depending on if\n§6you have discovered all of the required recipes or not",
     "litematica.gui.button.hover.material_list.write_hold_shift_for_csv": "Hold shift to write to a CSV file,\ninstead of the normal ASCII-art table text file.\n§dHold ALT for a JSON export",

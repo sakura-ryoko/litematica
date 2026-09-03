@@ -706,6 +706,7 @@
     "litematica.gui.button.hover.area_editor.shift_for_in_memory": "Håll Shift för att skapa ett schema som endast finns i minnet",
     "litematica.gui.button.hover.area_selections.unselect": "Avmarkerar den aktuella områdesmarkeringen",
     "litematica.gui.button.hover.material_list.clear_cache": "Rensar Material Cache\nNormalt bör detta inte behövas\nDetta kan användas i stället för att radera filen 'material_cache.nbt'\nom cachen innehåller felaktig data, till exempel objekt\nlagrade för block som inte borde ha dem, såsom kolvhuvuden",
+    "litematica.gui.button.hover.material_list.export_as": "Click to execute the selected Export Type\n§bClick the button on the right to cycle this option.",
     "litematica.gui.button.hover.material_list.export_custom_json": "Export this material list to a simple JSON file that can be\nloaded back from the schematic browser as a custom item list.\nThe file will be saved to the schematics directory.",
     "litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only": "Håll Shift för att endast skriva de saknade råmaterialen; och valfritt\nhåll Alt för att prioritera crafting-recept framför stonecutter-recept\n§6OBS: Resultaten kan skilja sig, beroende på om\n§6du har upptäckt alla nödvändiga recept eller inte",
     "litematica.gui.button.hover.material_list.write_hold_shift_for_csv": "Håll Shift för att skriva till en CSV-fil,\ni stället för den vanliga ASCII-tabelltextfilen.\n§dHåll ALT för JSON-export",
