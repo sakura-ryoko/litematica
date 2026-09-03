@@ -726,7 +726,7 @@
     "litematica.gui.button.material_list.clear_cache": "Limpiar caché",
     "litematica.gui.button.material_list.clear_ignored": "Limpiar ignorados",
     "litematica.gui.button.material_list.export": "Export",
-    "litematica.gui.button.material_list.export_custom_json": "Export JSON",
+    "litematica.gui.button.material_list.export_custom_json": "As JSON",
     "litematica.gui.button.material_list.hide_available": "Ocultar disponibles: %s",
     "litematica.gui.button.material_list.ignore": "Ignorar",
     "litematica.gui.button.material_list.list_type": "Mostrar: %s",

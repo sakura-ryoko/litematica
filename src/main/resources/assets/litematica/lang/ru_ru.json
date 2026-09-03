@@ -726,7 +726,7 @@
     "litematica.gui.button.material_list.clear_cache": "Очистить кэш",
     "litematica.gui.button.material_list.clear_ignored": "Показать скрытые",
     "litematica.gui.button.material_list.export": "Экспорт",
-    "litematica.gui.button.material_list.export_custom_json": "Экспорт JSON",
+    "litematica.gui.button.material_list.export_custom_json": "As JSON",
     "litematica.gui.button.material_list.hide_available": "Скрыть доступные: %s",
     "litematica.gui.button.material_list.ignore": "Скрыть",
     "litematica.gui.button.material_list.list_type": "Отображение: %s",

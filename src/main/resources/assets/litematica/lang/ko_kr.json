@@ -726,7 +726,7 @@
     "litematica.gui.button.material_list.clear_cache": "캐시 지우기",
     "litematica.gui.button.material_list.clear_ignored": "무시하기 초기화",
     "litematica.gui.button.material_list.export": "내보내기",
-    "litematica.gui.button.material_list.export_custom_json": "JSON으로 내보내기",
+    "litematica.gui.button.material_list.export_custom_json": "As JSON",
     "litematica.gui.button.material_list.hide_available": "사용가능 숨기기: %s",
     "litematica.gui.button.material_list.ignore": "무시하기",
     "litematica.gui.button.material_list.list_type": "표시: %s",

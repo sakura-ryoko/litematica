@@ -41,7 +41,7 @@ public abstract class GuiMaterialListSaveBase extends GuiMaterialListBrowserBase
     @Override
     public int getBrowserHeight()
     {
-        return this.getScreenHeight() - 80;
+        return this.getScreenHeight() - 100;
     }
 
     @Override
@@ -191,7 +191,7 @@ public abstract class GuiMaterialListSaveBase extends GuiMaterialListBrowserBase
 
         private final String labelKey;
 
-        private ButtonType(String labelKey)
+        ButtonType(String labelKey)
         {
             this.labelKey = labelKey;
         }

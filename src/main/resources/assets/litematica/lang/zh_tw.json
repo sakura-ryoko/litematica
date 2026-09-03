@@ -726,7 +726,7 @@
     "litematica.gui.button.material_list.clear_cache": "清除快取",
     "litematica.gui.button.material_list.clear_ignored": "清除忽略",
     "litematica.gui.button.material_list.export": "Export",
-    "litematica.gui.button.material_list.export_custom_json": "Export JSON",
+    "litematica.gui.button.material_list.export_custom_json": "As JSON",
     "litematica.gui.button.material_list.hide_available": "隱藏可用：%s",
     "litematica.gui.button.material_list.ignore": "忽略",
     "litematica.gui.button.material_list.list_type": "顯示：%s",
