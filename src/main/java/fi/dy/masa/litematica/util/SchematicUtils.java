@@ -3,9 +3,11 @@ package fi.dy.masa.litematica.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import javax.annotation.Nullable;
+import com.google.common.annotations.VisibleForTesting;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import net.minecraft.client.Minecraft;
@@ -37,6 +39,10 @@ import fi.dy.masa.malilib.interfaces.IStringDualConsumerFeedback;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.LayerRange;
+import fi.dy.masa.malilib.util.data.tag.BaseData;
+import fi.dy.masa.malilib.util.data.tag.CompoundData;
+import fi.dy.masa.malilib.util.data.tag.ListData;
+import fi.dy.masa.malilib.util.log.AnsiLogger;
 import fi.dy.masa.malilib.util.position.SubChunkPos;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -1174,6 +1180,73 @@ public class SchematicUtils
         public boolean setStrings(String string1, String string2)
         {
             return DataManager.getSchematicProjectsManager().commitNewVersion(string1, string2);
+        }
+    }
+
+    @VisibleForTesting
+    public static void dumpDataBase(AnsiLogger LOGGER, BaseData tag)
+    {
+        LOGGER = LOGGER != null ? LOGGER : new AnsiLogger(SchematicUtils.class, true, true);
+
+        ListData ld = tag.asList().orElse(new ListData());
+
+        if (!ld.isEmpty())
+        {
+            dumpDataList(LOGGER, ld);
+            return;
+        }
+
+        CompoundData cd = tag.asCompound().orElse(new CompoundData());
+
+        if (!cd.isEmpty())
+        {
+            dumpDataCompound(LOGGER, cd);
+            return;
+        }
+
+        LOGGER.debug("dumpEntityDataBase:: type: {}, value: {}", tag.getType(), tag.toString());
+    }
+
+    @VisibleForTesting
+    public static void dumpDataList(AnsiLogger LOGGER, ListData tag)
+    {
+        LOGGER = LOGGER != null ? LOGGER : new AnsiLogger(SchematicUtils.class, true, true);
+
+        if (tag.isEmpty())
+        {
+            LOGGER.warn("dumpEntityDataList:EMPTY: type: {}, value: {}", tag.getType(), tag.toString());
+        }
+        else
+        {
+            for (int i = 0; i < tag.size(); i++)
+            {
+                LOGGER.warn("dumpEntityDataList:{}: -->", i);
+                BaseData d = tag.get(i);
+                dumpDataBase(LOGGER, d);
+            }
+        }
+    }
+
+    @VisibleForTesting
+    public static void dumpDataCompound(AnsiLogger LOGGER, CompoundData tag)
+    {
+        LOGGER = LOGGER != null ? LOGGER : new AnsiLogger(SchematicUtils.class, true, true);
+
+        if (tag.isEmpty())
+        {
+            LOGGER.warn("dumpDataCompound:EMPTY: type: {}, value: {}", tag.getType(), tag.toString());
+        }
+        else
+        {
+            for (Map.Entry<String, BaseData> entry : tag.entrySet())
+            {
+                String key = entry.getKey();
+                BaseData d = entry.getValue();
+
+                LOGGER.error("dumpDataCompound:{}: -->", key);
+
+                dumpDataBase(LOGGER, d);
+            }
         }
     }
 }
