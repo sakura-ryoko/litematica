@@ -13,6 +13,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.decoration.painting.Painting;
@@ -30,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.malilib.util.data.tag.ListData;
 import fi.dy.masa.malilib.util.data.tag.util.DataTypeUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.malilib.util.nbt.NbtView;
 import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import fi.dy.masa.litematica.Litematica;
@@ -358,6 +360,18 @@ public class WorldPlacingUtils
                 CompoundData tag = info.nbt().copy();
                 String id = tag.getStringOrDefault("id", "");
 
+//                Vec3 p = NbtUtils.readEntityPositionFromTag(tag);
+                Vec3 p = DataTypeUtils.readVec3dFromListTag(tag);
+                Vec3 pn = new Vec3(x, y, z);
+
+                // Entity Pos Fix
+                if (p == null || (!p.equals(pn)))
+                {
+                    p = pn;
+//                    NbtUtils.putVec3dCodec(tag, p, "Pos");
+                    DataTypeUtils.putVec3dCodec(tag, pn, NbtKeys.POS);
+                }
+
                 // Avoid warning about invalid hanging position.
                 // Note that this position isn't technically correct, but it only needs to be within 16 blocks
                 // of the entity position to avoid the warning.
@@ -366,31 +380,54 @@ public class WorldPlacingUtils
                     id.equals("minecraft:leash_knot") ||
                     id.equals("minecraft:painting"))
                 {
-//                    Vec3 p = NbtUtils.readEntityPositionFromTag(tag);
-                    Vec3 p = DataTypeUtils.readVec3dFromListTag(tag);
-
-                    if (p == null)
-                    {
-                        p = new Vec3(x, y, z);
-//                        NbtUtils.putVec3dCodec(tag, p, "Pos");
-                        DataTypeUtils.putVec3dCodec(tag, p, "Pos");
-                    }
-
                     tag.putInt("TileX", (int) p.x);
                     tag.putInt("TileY", (int) p.y);
                     tag.putInt("TileZ", (int) p.z);
 
                     // Block-Attached Pos (1.21.5+) Fix
-	                tag.getCodec("block_pos", BlockPos.CODEC)
-                       .ifPresent(px ->
-                                          tag.putCodec("block_pos", BlockPos.CODEC, new BlockPos((int) x, (int) y, (int) z))
-                       );
+                    BlockPos ps = tag.getCodec(NbtKeys.ATTACHED_BLOCK_POS, BlockPos.CODEC).orElse(null);
+                    BlockPos nps = new BlockPos((int) x, (int) y, (int) z);
 
+                    if (ps == null || (!ps.equals(nps)))
+                    {
+                        tag.putCodec(NbtKeys.ATTACHED_BLOCK_POS, BlockPos.CODEC, nps);
+                    }
                 }
 
                 ListData rotation = tag.getList("Rotation");
                 origRot[0] = rotation.getFloatAt(0);
                 origRot[1] = rotation.getFloatAt(1);
+
+                // TODO -- this can "only" fix leashes saved with newer builds!
+                // Leash-Knot fix (We can't fix the UUID part, unless the other Mob has the *exact same* UUID in the Schematic World)
+                BlockPos lp = tag.getCodec(NbtKeys.LEASH, BlockPos.CODEC).orElse(null);
+
+                if (lp != null && !lp.equals(BlockPos.ZERO))
+                {
+                    final int adjX = lp.getX() + offX;
+                    final int adjY = lp.getY() + offY;
+                    final int adjZ = lp.getZ() + offZ;
+
+                    BlockPos nlp = new BlockPos(adjX, adjY, adjZ);
+                    tag.putCodec(NbtKeys.LEASH, BlockPos.CODEC, nlp);
+                }
+
+                // Home Pos fix
+                BlockPos hp = tag.getCodec(NbtKeys.HOME_POS, BlockPos.CODEC).orElse(null);
+
+                if (hp != null && !hp.equals(BlockPos.ZERO))
+                {
+                    final int hr = tag.getIntOrDefault(NbtKeys.HOME_RADIUS, -1);
+                    final int adjX = hp.getX() + offX;
+                    final int adjY = hp.getY() + offY;
+                    final int adjZ = hp.getZ() + offZ;
+
+                    if (hr > 0)
+                    {
+                        BlockPos nhp = new BlockPos(adjX, adjY, adjZ);
+                        tag.putCodec(NbtKeys.HOME_POS, BlockPos.CODEC, nhp);
+                    }
+                }
 
                 chunk.addEntityPairForLater(Pair.of(new EntityPosAndRot(x, y, z, rotationCombined, mirrorMain, mirrorSub, origRot), tag));
             }
@@ -456,10 +493,39 @@ public class WorldPlacingUtils
 
             EntityUtils.spawnEntityAndPassengersInWorld(entity, world);
 
-            if (entity instanceof Display)
+            if (entity instanceof Display || entity instanceof Leashable)
             {
                 entity.tick(); // Required to set the full data for rendering
             }
+
+            // TODO -- doesn't work
+//            // Try to re-Attach leashes
+//            if (entity instanceof Leashable l && world instanceof WorldSchematic ws)
+//            {
+//                Leashable.LeashData leashData = l.getLeashData();
+//
+//                if (leashData != null && leashData.delayedLeashInfo != null)
+//                {
+//                    Optional<UUID> uuid = leashData.delayedLeashInfo.left();
+//                    Optional<BlockPos> pos = leashData.delayedLeashInfo.right();
+//
+//                    if (uuid.isPresent())
+//                    {
+//                        Entity holder = ws.getEntity(uuid.get());
+//
+//                        if (holder != null)
+//                        {
+//                            l.setLeashedTo(holder, true);
+//                        }
+//                    }
+//                    else
+//                    {
+//                        pos.ifPresent(blockPos ->
+//                                              l.setLeashedTo(LeashFenceKnotEntity.getOrCreateKnot(ws, blockPos), true)
+//                        );
+//                    }
+//                }
+//            }
         }
     }
 
