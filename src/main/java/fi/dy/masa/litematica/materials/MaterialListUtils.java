@@ -304,6 +304,7 @@ public class MaterialListUtils
     {
         Object2IntOpenHashMap<ItemType> map = new Object2IntOpenHashMap<>();
         NonNullList<ItemStack> items = InventoryUtils.getStoredItems(stackShulkerBox);
+		int multiplier = stackShulkerBox.getCount();
 
         for (ItemStack boxStack : items)
         {
@@ -319,8 +320,8 @@ public class MaterialListUtils
                         bundleMap.forEach(map::addTo);
                     }
                 }
-
-                map.addTo(new ItemType(boxStack, false, false), boxStack.getCount());
+				
+                map.addTo(new ItemType(boxStack, false, false), boxStack.getCount() * multiplier);
             }
         }
 
