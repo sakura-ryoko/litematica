@@ -814,9 +814,12 @@ public class LitematicaSchematic
 					if (entity instanceof BlockAttachedEntity bae)
 					{
 						BlockPos p = bae.getPos();
-						BlockPos pAdj = new BlockPos(p.getX() - regionPosAbs.getX(), p.getY() - regionPosAbs.getY(), p.getZ() - regionPosAbs.getZ());
 
-						tag.putCodec(NbtKeys.ATTACHED_BLOCK_POS, BlockPos.CODEC, pAdj);
+						if (p != null)
+						{
+							BlockPos pAdj = new BlockPos(p.getX() - regionPosAbs.getX(), p.getY() - regionPosAbs.getY(), p.getZ() - regionPosAbs.getZ());
+							tag.putCodec(NbtKeys.ATTACHED_BLOCK_POS, BlockPos.CODEC, pAdj);
+						}
 					}
 
 					// Fix leash position
@@ -824,7 +827,7 @@ public class LitematicaSchematic
 					{
 						Leashable.LeashData ld = le.getLeashData();
 
-						if (ld.leashHolder instanceof LeashFenceKnotEntity knot)
+						if (ld != null && ld.leashHolder instanceof LeashFenceKnotEntity knot)
 						{
 							BlockPos kp = knot.getPos();
 							BlockPos adjKp = new BlockPos(kp.getX() - regionPosAbs.getX(), kp.getY() - regionPosAbs.getY(), kp.getZ() - regionPosAbs.getZ());
@@ -837,7 +840,7 @@ public class LitematicaSchematic
 					{
 						BlockPos hp = m.getHomePosition();
 
-						if (m.hasHome() && !hp.equals(BlockPos.ZERO))
+						if (hp != null && m.hasHome() && !hp.equals(BlockPos.ZERO))
 						{
 							BlockPos adjHp = new BlockPos(hp.getX() - regionPosAbs.getX(), hp.getY() - regionPosAbs.getY(), hp.getZ() - regionPosAbs.getZ());
 							tag.putCodec(NbtKeys.HOME_POS, BlockPos.CODEC, adjHp);
@@ -946,9 +949,12 @@ public class LitematicaSchematic
 						if (entity instanceof BlockAttachedEntity bae)
 						{
 							BlockPos p = bae.getPos();
-							BlockPos pAdj = new BlockPos(p.getX() - regionPosAbs.getX(), p.getY() - regionPosAbs.getY(), p.getZ() - regionPosAbs.getZ());
 
-							tag.putCodec(NbtKeys.ATTACHED_BLOCK_POS, BlockPos.CODEC, pAdj);
+							if (p != null)
+							{
+								BlockPos pAdj = new BlockPos(p.getX() - regionPosAbs.getX(), p.getY() - regionPosAbs.getY(), p.getZ() - regionPosAbs.getZ());
+								tag.putCodec(NbtKeys.ATTACHED_BLOCK_POS, BlockPos.CODEC, pAdj);
+							}
 						}
 
 						// Fix leash position
@@ -956,7 +962,7 @@ public class LitematicaSchematic
 						{
 							Leashable.LeashData ld = le.getLeashData();
 
-							if (ld.leashHolder instanceof LeashFenceKnotEntity knot)
+							if (ld != null && ld.leashHolder instanceof LeashFenceKnotEntity knot)
 							{
 								BlockPos kp = knot.getPos();
 								BlockPos adjKp = new BlockPos(kp.getX() - regionPosAbs.getX(), kp.getY() - regionPosAbs.getY(), kp.getZ() - regionPosAbs.getZ());
@@ -969,7 +975,7 @@ public class LitematicaSchematic
 						{
 							BlockPos hp = m.getHomePosition();
 
-							if (m.hasHome() && !hp.equals(BlockPos.ZERO))
+							if (hp != null && m.hasHome() && !hp.equals(BlockPos.ZERO))
 							{
 								BlockPos adjHp = new BlockPos(hp.getX() - regionPosAbs.getX(), hp.getY() - regionPosAbs.getY(), hp.getZ() - regionPosAbs.getZ());
 								tag.putCodec(NbtKeys.HOME_POS, BlockPos.CODEC, adjHp);
