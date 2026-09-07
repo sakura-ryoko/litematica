@@ -505,112 +505,11 @@ public class WidgetSchematicVerificationResult extends WidgetListEntrySortable<B
 
     public static void renderModelInGui(GuiContext ctx, int x, int y, float z, BlockState state)
     {
-//        Matrix3x2fStack matrixStack = drawContext.getMatrices();
-
         if (state.getBlock() == Blocks.AIR)
         {
             return;
         }
-
-        int size = 16;
-        float scale = 0.625f;
-
-        // FIXME
-//        RenderUtils.addSpecialElement(drawContext,
-//                                      new MaLiLibBlockStateModelGuiElement(
-//                                              state,
-//                                              x, y,
-//                                              size,
-//                                              z, scale,
-//                                              RenderUtils.peekLastScissor(drawContext))
-//        );
-
-//        RenderUtils.bindGuiOverlayTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, drawContext);
-//        mc.getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
-
-//        RenderUtils.color(1f, 1f, 1f, 1f);
-
-//        MatrixStack matrices = new MatrixStack();
-//
-////        matrixStack.push();
-//        matrixStack.translate((float) (x + 8.0), (float) (y + 8.0)); // z + 100.0
-//        matrixStack.scale(16, -16); // 16
-//
-//        Quaternionf rot = new Quaternionf().rotationXYZ(30 * (float) (Math.PI / 180.0), 225 * (float) (Math.PI / 180.0), 0.0F);
-//        matrixStack.mul(rot);
-//        matrixStack.scale(0.625f, 0.625f);  // 0.625f
-//        matrixStack.translate((float) -0.5, (float) -0.5);  // -0.5
-//
-//        renderModel(model, state, matrixStack);
-
-//        matrixStack.pop();
     }
-
-//    private static void renderModel(BlockStateModel model, BlockState state, Matrix3x2fStack matrixStack)
-//    {
-////        BufferAllocator allocator = new BufferAllocator(RenderLayer.DEFAULT_BUFFER_SIZE);
-////        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(allocator);
-////        VertexConsumer vertexConsumer = immediate.getBuffer(RenderLayer.getTranslucent());
-//
-//        RenderContext ctx = new RenderContext(() -> "litematica:verification_result/quad", RenderPipelines.TRANSLUCENT);
-//        BufferBuilder builder = ctx.getBuilder();
-//
-//        MatrixStack.Entry matrixEntry = matrixStack.peek();
-//
-//        int l = LightmapTextureManager.pack(15, 15);
-//        int[] light = new int[] { l, l, l, l };
-//        float[] brightness = new float[] { 0.75f, 0.75f, 0.75f, 1.0f };
-//
-////            DiffuseLighting.enableGuiDepthLighting();
-//
-//        List<BlockModelPart> parts = model.getParts(RAND);
-//
-//        for (BlockModelPart part : parts)
-//        {
-//            for (Direction face : PositionUtils.ALL_DIRECTIONS)
-//            {
-//                RAND.setSeed(0);
-//                renderQuads(part.getQuads(face), brightness, light, matrixEntry, builder);
-//            }
-//
-//            RAND.setSeed(0);
-//            renderQuads(part.getQuads(null), brightness, light, matrixEntry, builder);
-//        }
-//
-
-	/// /        immediate.draw();
-	/// /        allocator.close();
-	//        try
-	//        {
-	//            BuiltBuffer meshData = builder.endNullable();
-	//
-	//            if (meshData != null)
-	//            {
-	//                ctx.draw(meshData, false);
-	//                meshData.close();
-	//            }
-	//
-	//            ctx.close();
-	//        }
-	//        catch (Exception err)
-	//        {
-	//        }
-	//    }
-	//
-	//    private static void renderQuads(List<BakedQuad> quads, float[] brightness, int[] light,
-	//                                    MatrixStack.Entry matrixEntry, BufferBuilder builder)
-	//    {
-	//        for (BakedQuad quad : quads)
-	//        {
-	//            renderQuad(quad, brightness, light, matrixEntry, builder);
-	//        }
-	//    }
-	//
-	//    private static void renderQuad(BakedQuad quad, float[] brightness, int[] light,
-	//                                   MatrixStack.Entry matrixEntry, BufferBuilder builder)
-	//    {
-	//        builder.quad(matrixEntry, quad, brightness, 1.0f, 1.0f, 1.0f, 1.0f, light, OverlayTexture.DEFAULT_UV, true);
-	//    }
 
 	private record ButtonListener(ButtonType type, BlockMismatchEntry mismatchEntry,
 	                              GuiSchematicVerifier guiSchematicVerifier) implements IButtonActionListener

@@ -81,92 +81,6 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
     {
         super.initGui();
 
-//        boolean isNarrow = this.getScreenWidth() < this.getElementTotalWidth();
-//
-//        int x = 12;
-//        int y = 24;
-//        int buttonWidth;
-//        String label;
-//        ButtonGeneric button;
-//
-//        String str = StringUtils.translate("litematica.gui.label.material_list.multiplier");
-//        int w = this.getStringWidth(str);
-//        this.addLabel(this.getScreenWidth() - w - 56, y + 5, w, 12, 0xFFFFFFFF, str);
-//
-//        GuiTextFieldInteger tf = new GuiTextFieldInteger(this.getScreenWidth() - 52, y + 2, 40, 16, this.font);
-//        tf.setValueWrapper(String.valueOf(this.materialList.getMultiplier()));
-//        MultiplierListener listener = new MultiplierListener(this.materialList, this);
-//        this.addTextField(tf, listener, TextFieldType.STRING);
-//
-//        this.addWidget(new WidgetInfoIcon(this.getScreenWidth() - 23, 10, Icons.INFO_11, "litematica.info.material_list"));
-//
-//        int gap = 1;
-//        x += this.createButton(x, y, -1, ButtonListener.Type.REFRESH_LIST) + gap;
-//
-//        if (this.materialList.supportsRenderLayers())
-//        {
-//            x += this.createButton(x, y, -1, ButtonListener.Type.LIST_TYPE) + gap;
-//        }
-//
-//        x += this.createButtonOnOff(x, y, -1, this.materialList.getHideAvailable(), ButtonListener.Type.HIDE_AVAILABLE) + gap;
-//        x += this.createButtonOnOff(x, y, -1, this.materialList.getHudRenderer().getShouldRenderCustom(), ButtonListener.Type.TOGGLE_INFO_HUD) + gap;
-//
-//        if (isNarrow)
-//        {
-//            x = 12;
-//            y = this.getScreenHeight() - 22;
-//        }
-//
-//        x += this.createButton(x, y, -1, ButtonListener.Type.CLEAR_IGNORED) + gap;
-//        x += this.createButton(x, y, -1, ButtonListener.Type.CLEAR_CACHE) + gap;
-////        x += this.createButton(x, y, -1, ButtonListener.Type.WRITE_TO_FILE) + gap;
-////        x += this.createButton(x, y, -1, ButtonListener.Type.WRITE_TO_JSON) + gap;
-////        x += this.createButton(x, y, -1, ButtonListener.Type.EXPORT) + gap;
-//        y += 22;
-//
-//        y = this.getScreenHeight() - 36;
-//        ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
-//        label = StringUtils.translate(type.getLabelKey());
-//        buttonWidth = this.getStringWidth(label) + 20;
-//        x = this.getScreenWidth() - buttonWidth - 10;
-//        button = new ButtonGeneric(x, y, buttonWidth, 20, label);
-//        this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
-//
-//        // Progress: Done xx % / Missing xx % / Wrong xx %
-//        long total = this.materialList.getCountTotal();
-//        long missing = this.materialList.getCountMissing() - this.materialList.getCountMismatched();
-//        long mismatch = this.materialList.getCountMismatched();
-//
-//        if (total != 0 && (this.materialList instanceof MaterialListAreaAnalyzer) == false)
-//        {
-//            double pctDone = ((double) (total - (missing + mismatch)) / (double) total) * 100;
-//            double pctMissing = ((double) missing / (double) total) * 100;
-//            double pctMismatch = ((double) mismatch / (double) total) * 100;
-//            String strp;
-//            String strt = StringUtils.translate("litematica.gui.label.material_list.total", total);
-//
-//            if (missing == 0 && mismatch == 0)
-//            {
-//                strp = StringUtils.translate("litematica.gui.label.material_list.progress.done", String.format("%.0f %%%%", pctDone));
-//            }
-//            else
-//            {
-//                String str1 = StringUtils.translate("litematica.gui.label.material_list.progress.done", String.format("%.1f %%%%", pctDone));
-//                String str2 = StringUtils.translate("litematica.gui.label.material_list.progress.missing", String.format("%.1f %%%%", pctMissing));
-//                String str3 = StringUtils.translate("litematica.gui.label.material_list.progress.mismatch", String.format("%.1f %%%%", pctMismatch));
-//                strp = String.format("%s / %s / %s", str1, str2, str3);
-//            }
-//
-//            str = strt + " / " + StringUtils.translate("litematica.gui.label.material_list.progress", strp);
-//            w = this.getStringWidth(str);
-//            this.addLabel(12, this.getScreenHeight() - 36, w, 12, 0xFFFFFFFF, str);
-//        }
-//
-//        if (this.mc.player == null)
-//        {
-//            this.addMessage(MessageType.WARNING, 3000, "litematica.message.warn.material_list.no_player_inv");
-//        }
-
         this.createMultiplier();
         this.createButtons();
         this.createCounts();
@@ -215,9 +129,6 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
         x += this.createButton(x, y, ButtonListener.Type.CLEAR_IGNORED) + gap;
         x += this.createButton(x, y, ButtonListener.Type.CLEAR_CACHE) + gap;
-//        x += this.createButton(x, y, ButtonListener.Type.WRITE_TO_FILE) + gap;
-//        x += this.createButton(x, y, ButtonListener.Type.WRITE_TO_JSON) + gap;
-//        x += this.createButton(x, y, ButtonListener.Type.EXPORT) + gap;
         x += this.createButton(x, y, ButtonListener.Type.EXPORT) + gap;
         x += this.createButton(x, y, ButtonListener.Type.EXPORT_TYPE) + gap;
         y += 22;
@@ -308,25 +219,6 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
             }
         }
 
-//        ButtonGeneric button = new ButtonGeneric(x, y, width, 20, label);
-//
-//        if (type == ButtonListener.Type.CLEAR_CACHE)
-//        {
-//            button.setHoverStrings("litematica.gui.button.hover.material_list.clear_cache");
-//        }
-//        else if (type == ButtonListener.Type.WRITE_TO_FILE)
-//        {
-//            button.setHoverStrings("litematica.gui.button.hover.material_list.write_hold_shift_for_csv");
-//        }
-//        else if (type == ButtonListener.Type.WRITE_TO_JSON)
-//        {
-//            button.setHoverStrings("litematica.gui.button.hover.material_list.json_hold_shift_for_missing_only");
-//        }
-//        else if (type == ButtonListener.Type.EXPORT)
-//        {
-//            button.setHoverStrings("litematica.gui.button.hover.material_list.export_custom_json");
-//        }
-
         this.addButton(button, new ButtonListener(type, this));
 
         return button.getWidth();
@@ -340,8 +232,6 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
         width += this.getStringWidth(ButtonListener.Type.LIST_TYPE.getDisplayName(this.materialList.getMaterialListType().getDisplayName()));
         width += this.getStringWidth(ButtonListener.Type.CLEAR_IGNORED.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.CLEAR_CACHE.getDisplayName());
-//        width += this.getStringWidth(ButtonListener.Type.WRITE_TO_FILE.getDisplayName());
-//        width += this.getStringWidth(ButtonListener.Type.WRITE_TO_JSON.getDisplayName());
         width += this.getStringWidth(ButtonListener.Type.EXPORT.getDisplayName());
         width += this.getStringWidth(this.exportType.getDisplayName());
         width += (new ButtonOnOff(0, 0, -1, false, ButtonListener.Type.HIDE_AVAILABLE.getTranslationKey(), false)).getWidth();
@@ -634,9 +524,6 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
             CLEAR_CACHE         ("litematica.gui.button.material_list.clear_cache", "litematica.gui.button.hover.material_list.clear_cache"),
             EXPORT              ("litematica.gui.button.material_list.export",      "litematica.gui.button.hover.material_list.export_as"),
             EXPORT_TYPE         (""),
-//            WRITE_TO_FILE       ("litematica.gui.button.material_list.write_to_file"),
-//            WRITE_TO_JSON       ("litematica.gui.button.material_list.write_to_json"),
-//            EXPORT              ("litematica.gui.button.material_list.export"),
             ;
 
             private final String translationKey;

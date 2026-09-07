@@ -1,42 +1,5 @@
 package fi.dy.masa.litematica.compat.iris;
 
-import java.util.OptionalDouble;
-import javax.annotation.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
-
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
-import com.mojang.blaze3d.framegraph.FramePass;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.resource.ResourceHandle;
-import com.mojang.blaze3d.systems.GpuDevice;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.AddressMode;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuSampler;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelTargetBundle;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
-import net.minecraft.client.renderer.fog.FogData;
-import net.minecraft.client.renderer.fog.FogRenderer;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.state.level.LevelRenderState;
-import net.minecraft.util.profiling.ActiveProfiler;
-import net.minecraft.util.profiling.Profiler;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.material.FogType;
-
-import fi.dy.masa.malilib.compat.iris.IrisCompat;
-import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
-import fi.dy.masa.litematica.render.LitematicaRenderer;
-import fi.dy.masa.litematica.world.SchematicWorldHandler;
-
 public class IrisRenderingFix
 {
 	public static final IrisRenderingFix INSTANCE = new IrisRenderingFix();

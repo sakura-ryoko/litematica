@@ -4,9 +4,9 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4fc;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.textures.GpuSampler;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -120,14 +120,10 @@ public class LitematicaRenderer
         // Don't initialize early.
         if (this.worldRenderer == null) { return; }
 
-        if (this.getWorldRenderer().getChunkFixUniform() != null)
+        if (this.getWorldRenderer().getLegacyTerrainFixUniform() != null)
         {
-            this.getWorldRenderer().getChunkFixUniform().endFrame();
+            this.getWorldRenderer().getLegacyTerrainFixUniform().endFrame();
         }
-//        if (this.getWorldRenderer().getLegacyTerrainFixUniform() != null)
-//        {
-//            this.getWorldRenderer().getLegacyTerrainFixUniform().endFrame();
-//        }
 
         // Why Iris?
         if (IrisCompat.isShaderActive())
@@ -139,8 +135,7 @@ public class LitematicaRenderer
     public void onClose()
     {
 //        Litematica.LOGGER.error("LitematicaRenderer.onClose()");
-        this.getWorldRenderer().clearChunkFixUniform();
-//        this.getWorldRenderer().clearLegacyTerrainFixUniform();
+        this.getWorldRenderer().clearLegacyTerrainFixUniform();
         this.getWorldRenderer().closeGpuSampler();
 
         // Why Iris?

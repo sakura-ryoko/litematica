@@ -28,13 +28,6 @@ public class GuiRenderLayer extends GuiRenderLayerEditBase
             x += this.createTabButton(x, y, -1, tab);
         }
 
-//        x += this.createTabButton(x, y, -1, ConfigGuiTab.GENERIC);
-//        x += this.createTabButton(x, y, -1, ConfigGuiTab.INFO_OVERLAYS);
-//        x += this.createTabButton(x, y, -1, ConfigGuiTab.VISUALS);
-//        x += this.createTabButton(x, y, -1, ConfigGuiTab.COLORS);
-//        x += this.createTabButton(x, y, -1, ConfigGuiTab.HOTKEYS);
-//        x += this.createTabButton(x, y, -1, ConfigGuiTab.RENDER_LAYERS);
-
         x = 10;
         y = 60;
 

@@ -49,11 +49,13 @@
         "network.MixinClientCommonPacketListenerImpl",
         "network.MixinClientPacketListener",
         "render.IMixinGameRenderer",
+        "render.MixinBindGroupLayouts",
         "render.MixinEntityHitboxDebugRenderer",
         "render.MixinEntityRenderDispatcher",
         "render.MixinGameRenderer",
         "render.MixinLevelExtractor",
         "render.MixinLevelRenderer",
+        "render.MixinRenderPipelines",
         "screen.IMixinAbstractContainerScreen",
         "screen.MixinVideoSettingsScreen",
         "world.MixinClientLevel"

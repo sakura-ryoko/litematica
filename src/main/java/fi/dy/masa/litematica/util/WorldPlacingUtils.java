@@ -124,7 +124,8 @@ public class WorldPlacingUtils
         BlockPos regionPos = placement.getPos();
 
         // These are the untransformed relative positions
-        BlockPos posEndRel = (new BlockPos(PositionUtils.getRelativeEndPositionFromAreaSize(regionSize))).offset(regionPos);
+        BlockPos size = PositionUtils.getRelativeEndPositionFromAreaSize(regionSize);
+        BlockPos posEndRel = (new BlockPos(size.getX(), size.getY(), size.getZ())).offset(regionPos);
         BlockPos posMinRel = PositionUtils.getMinCorner(regionPos, posEndRel);
 
         // The transformed sub-region origin position

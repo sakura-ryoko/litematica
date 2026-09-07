@@ -16,7 +16,6 @@ public class Litematica implements ModInitializer
     public void onInitialize()
     {
         InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
-//        RenderEventHandler.getInstance().registerSpecialGuiRenderer();
     }
 
     public static void debugLog(String msg, Object... args)

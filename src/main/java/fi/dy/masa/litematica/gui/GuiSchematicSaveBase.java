@@ -1,9 +1,11 @@
 package fi.dy.masa.litematica.gui;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -14,8 +16,8 @@ import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntryType;
 import fi.dy.masa.malilib.render.GuiContext;
 import fi.dy.masa.malilib.util.FileNameUtils;
-import fi.dy.masa.malilib.util.KeyCodes;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 
 public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
@@ -186,7 +188,7 @@ public abstract class GuiSchematicSaveBase extends GuiSchematicBrowserBase imple
             this.getListWidget().clearSelection();
             return true;
         }
-        else if (input.key() == KeyCodes.KEY_TAB)
+        else if (input.key() == ScanCodes.SCAN_TAB)
         {
             this.textField.setFocusedWrapper(! this.textField.isFocusedWrapper());
             return true;

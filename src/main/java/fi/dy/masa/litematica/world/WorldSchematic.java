@@ -25,7 +25,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.Continuation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.TickRateManager;
@@ -37,7 +37,6 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ChunkPos;
@@ -45,7 +44,6 @@ import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -460,7 +458,7 @@ public class WorldSchematic extends Level
 
                 if (list.size() >= max)
                 {
-                    return AbortableIterationConsumer.Continuation.ABORT;
+                    return Continuation.ABORT;
                 }
             }
 
@@ -476,13 +474,13 @@ public class WorldSchematic extends Level
 
                         if (list.size() >= max)
                         {
-                            return AbortableIterationConsumer.Continuation.ABORT;
+                            return Continuation.ABORT;
                         }
                     }
                 }
             }
 
-            return AbortableIterationConsumer.Continuation.CONTINUE;
+            return Continuation.CONTINUE;
         });
     }
 
@@ -495,7 +493,7 @@ public class WorldSchematic extends Level
             if (predicate.test(e))
             {
                 result.set(true);
-                return AbortableIterationConsumer.Continuation.ABORT;
+                return Continuation.ABORT;
             }
             else
             {
@@ -508,12 +506,12 @@ public class WorldSchematic extends Level
                         if (entity != null && predicate.test(entity))
                         {
                             result.set(true);
-                            return AbortableIterationConsumer.Continuation.ABORT;
+                            return Continuation.ABORT;
                         }
                     }
                 }
 
-                return AbortableIterationConsumer.Continuation.CONTINUE;
+                return Continuation.CONTINUE;
             }
         });
 
@@ -781,32 +779,6 @@ public class WorldSchematic extends Level
 
 		return null;
 	}
-
-	@Override
-    public @Nonnull PotionBrewing potionBrewing()
-    {
-        if (this.mc != null && this.mc.level != null)
-        {
-            return this.mc.level.potionBrewing();
-        }
-        else
-        {
-            return PotionBrewing.EMPTY;
-        }
-    }
-
-    @Override
-    public @Nonnull FuelValues fuelValues()
-    {
-        if (this.mc != null && this.mc.level != null)
-        {
-            return this.mc.level.fuelValues();
-        }
-        else
-        {
-            return null;
-        }
-    }
 
     @Override
     public @Nonnull FeatureFlagSet enabledFeatures()

@@ -28,6 +28,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -617,7 +618,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
             if (tag != null)
             {
                 // Remove redundant tags to save on the command string length
-                if (signBe.getFrontText().hasMessage(this.mc.player) == false)
+                if (signBe.getText(SignTextSlot.FRONT).hasMessage(false) == false)
                 {
                     tag.remove("front_text");
                 }
@@ -625,11 +626,11 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 {
                     CompoundTag frontText = tag.getCompoundOrEmpty("front_text");
 
-                    if (signBe.getFrontText().hasGlowingText() == false)
+                    if (signBe.getText(SignTextSlot.FRONT).hasGlowingText() == false)
                     {
                         frontText.remove("has_glowing_text");
                     }
-                    if (signBe.getFrontText().getColor() == DyeColor.BLACK)
+                    if (signBe.getText(SignTextSlot.FRONT).getColor() == DyeColor.BLACK)
                     {
                         frontText.remove("color");
                     }
@@ -637,7 +638,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                     tag.put("front_text", frontText);
                 }
 
-                if (signBe.getBackText().hasMessage(this.mc.player) == false)
+                if (signBe.getText(SignTextSlot.BACK).hasMessage(false) == false)
                 {
                     tag.remove("back_text");
                 }
@@ -645,11 +646,11 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
                 {
                     CompoundTag backText = tag.getCompoundOrEmpty("back_text");
 
-                    if (signBe.getBackText().hasGlowingText() == false)
+                    if (signBe.getText(SignTextSlot.BACK).hasGlowingText() == false)
                     {
                         backText.remove("has_glowing_text");
                     }
-                    if (signBe.getBackText().getColor() == DyeColor.BLACK)
+                    if (signBe.getText(SignTextSlot.BACK).getColor() == DyeColor.BLACK)
                     {
                         backText.remove("color");
                     }

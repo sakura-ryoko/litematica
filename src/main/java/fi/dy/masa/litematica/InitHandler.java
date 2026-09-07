@@ -48,7 +48,6 @@ public class InitHandler implements IInitializationHandler
 
         IRenderer renderer = new RenderHandler();
         RenderEventHandler.getInstance().registerInGameGuiRenderer(renderer);
-        RenderEventHandler.getInstance().registerWorldPreWeatherRenderer(renderer);
         RenderEventHandler.getInstance().registerWorldLastRenderer(renderer);
 
         ServerHandler.getInstance().registerServerHandler(new ServerListener());

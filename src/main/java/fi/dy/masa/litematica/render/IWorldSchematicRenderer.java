@@ -4,9 +4,11 @@ import java.util.List;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.textures.GpuSampler;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.textures.GpuSampler;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -31,8 +33,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
-import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
 import fi.dy.masa.litematica.render.schematic.*;
+import fi.dy.masa.litematica.render.uniform.LegacyTerrainFixUniform;
 import fi.dy.masa.litematica.util.invoker.IEntityHitboxDebugRendererInvoker;
 import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -46,8 +48,8 @@ import fi.dy.masa.litematica.world.WorldSchematic;
  * The goal with any future Renderer is to off load *all* Meshing
  * tasks into a separate thread; while maintaining the drawing, and
  * resorting tasks in the Game's Rendering thread; along with anything
- * else that is calling {@link com.mojang.blaze3d.systems.RenderSystem};
- * such as building the {@link com.mojang.blaze3d.buffers.GpuBuffer} objects.
+ * else that is calling {@link RenderSystem};
+ * such as building the {@link GpuBuffer} objects.
  */
 public interface IWorldSchematicRenderer
 {
@@ -121,17 +123,13 @@ public interface IWorldSchematicRenderer
 
 	void setChunkSchematicState(int chunkX, int chunkZ, ChunkSchematicState state);
 
-	ChunkFixUniform getChunkFixUniform();
-
-//	LegacyTerrainFixUniform getLegacyTerrainFixUniform();
+	LegacyTerrainFixUniform getLegacyTerrainFixUniform();
 
 	GpuSampler getGpuSampler();
 
 	void closeGpuSampler();
 
-	void clearChunkFixUniform();
-
-//	void clearLegacyTerrainFixUniform();
+	void clearLegacyTerrainFixUniform();
 
 	void clearWorldRenderStates();
 

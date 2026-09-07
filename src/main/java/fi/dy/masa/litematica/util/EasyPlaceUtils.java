@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
@@ -627,13 +628,14 @@ public class EasyPlaceUtils
 
 		if (result == InteractionResult.PASS)
 		{
-			if (InteractionResult.SUCCESS.swingSource().equals(InteractionResult.SwingSource.CLIENT) &&
+			if (InteractionResult.SUCCESS.shouldSwing() &&
 				Configs.Generic.EASY_PLACE_SWING_HAND.getBooleanValue())
 			{
-				player.swing(hand);
+				player.swing(hand, SwingAnimation.DEFAULT, true);
 			}
-			//GameWrap.getClient().entityRenderer.itemRenderer.resetEquippedProgress(hand);
-			mc.getEntityRenderDispatcher().getItemInHandRenderer().itemUsed(hand);
+
+//			mc.getEntityRenderDispatcher().getItemInHandRenderer().itemUsed(hand);
+			mc.player.itemUsed(hand);
 
 			if (isSlab && stateSchematic.getValue(SlabBlock.TYPE).equals(SlabType.DOUBLE))
 			{

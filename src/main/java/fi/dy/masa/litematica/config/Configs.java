@@ -56,7 +56,6 @@ public class Configs implements IConfigHandler
         public static final ConfigString        CUSTOM_SCHEMATIC_BASE_DIRECTORY         = new ConfigString( "customSchematicBaseDirectory", DataManager.getDefaultBaseSchematicDirectory().toAbsolutePath().toString()).apply(GENERIC_KEY);
 
         public static final ConfigBoolean       AREAS_PER_WORLD             = new ConfigBoolean("areaSelectionsPerWorld", true).apply(GENERIC_KEY);
-//        public static final ConfigBoolean       BETTER_RENDER_ORDER         = new ConfigBoolean("betterRenderOrder", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       CHANGE_SELECTED_CORNER      = new ConfigBoolean("changeSelectedCornerOnMove", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       CLONE_AT_ORIGINAL_POS       = new ConfigBoolean("cloneAtOriginalPosition", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       COMMAND_DISABLE_FEEDBACK    = new ConfigBoolean("commandDisableFeedback", true).apply(GENERIC_KEY);
@@ -91,10 +90,8 @@ public class Configs implements IConfigHandler
         public static final ConfigBooleanHotkeyed ENTITY_DATA_SYNC          = new ConfigBooleanHotkeyed("entityDataSync", false, "").apply(GENERIC_KEY);
         public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP     = new ConfigBoolean("entityDataSyncBackup", false).apply(GENERIC_KEY);
         public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_TIMEOUT= new ConfigFloat("entityDataSyncCacheTimeout", 2.75f, 1.0f, 100.0f).apply(GENERIC_KEY);
-//        public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT        = new ConfigBoolean("entityDataSyncLoadNbt", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       EXECUTE_REQUIRE_TOOL        = new ConfigBoolean("executeRequireHoldingTool", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_CHEST_MIRROR            = new ConfigBoolean("fixChestMirror", true).apply(GENERIC_KEY);
-//        public static final ConfigBoolean       FIX_GLAZED_TERRACOTTA_MIRROR= new ConfigBoolean("fixGlazedTerracottaMirror", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_RAIL_ROTATION           = new ConfigBoolean("fixRailRotation", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       FIX_STAIRS_MIRROR           = new ConfigBoolean("fixStairsMirror", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       GENERATE_LOWERCASE_NAMES    = new ConfigBoolean("generateLowercaseNames", false).apply(GENERIC_KEY);
@@ -118,7 +115,6 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PASTE_USE_FILL_COMMAND      = new ConfigBoolean("pasteUseFillCommand", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       PASTE_USING_COMMANDS_IN_SP  = new ConfigBoolean("pasteUsingCommandsInSp", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       PASTE_USING_SERVUX          = new ConfigBoolean("pasteUsingServux", true).apply(GENERIC_KEY);
-//        public static final ConfigBoolean       PASTE_SERVUX_EXPERIMENTAL   = new ConfigBoolean("pasteServuxExperimental", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       PICK_BLOCK_AVOID_DAMAGEABLE = new ConfigBoolean("pickBlockAvoidDamageable", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       PICK_BLOCK_AVOID_TOOLS      = new ConfigBoolean("pickBlockAvoidTools", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       PICK_BLOCK_ENABLED          = new ConfigBoolean("pickBlockEnabled", true).apply(GENERIC_KEY);
@@ -128,7 +124,6 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       PLACEMENT_RESTRICTION       = new ConfigBoolean("placementRestriction", false).apply(GENERIC_KEY);
         public static final ConfigInteger       PLACEMENT_MANAGER_THREAD_COUNT= new ConfigInteger("placementManagerThreadCount", 2, PlacementManagerDaemonHandler.MIN_PLATFORM_THREADS,
                                                                                                   MathUtils.max(PlacementManagerDaemonHandler.MAX_PLATFORM_THREADS, PlacementManagerDaemonHandler.MIN_PLATFORM_THREADS)).apply(GENERIC_KEY);
-//        public static final ConfigOptionList    PLACEMENT_MANAGER_PROFILE   = new ConfigOptionList("placementManagerProfile", PlacementManagerThreadProfile.DEFAULT).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_MATERIALS_IN_GUI     = new ConfigBoolean("renderMaterialListInGuis", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       RENDER_THREAD_NO_TIMEOUT    = new ConfigBoolean("renderThreadNoTimeout", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       REVERSE_OP_MODE_DIRECTION   = new ConfigBoolean("reverseOperationModeDirection", false).apply(GENERIC_KEY);
@@ -143,10 +138,8 @@ public class Configs implements IConfigHandler
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 PLACEMENT_MANAGER_THREAD_COUNT,
-//                PLACEMENT_MANAGER_PROFILE,
 
                 AREAS_PER_WORLD,
-//				BETTER_RENDER_ORDER,
                 CHANGE_SELECTED_CORNER,
                 CLONE_AT_ORIGINAL_POS,
                 COMMAND_DISABLE_FEEDBACK,
@@ -176,10 +169,8 @@ public class Configs implements IConfigHandler
                 ENTITY_DATA_SYNC,
                 ENTITY_DATA_SYNC_BACKUP,
                 ENTITY_DATA_SYNC_CACHE_TIMEOUT,
-//                ENTITY_DATA_LOAD_NBT,
                 EXECUTE_REQUIRE_TOOL,
                 FIX_CHEST_MIRROR,
-//                FIX_GLAZED_TERRACOTTA_MIRROR,
                 FIX_RAIL_ROTATION,
                 FIX_STAIRS_MIRROR,
                 GENERATE_LOWERCASE_NAMES,
@@ -204,7 +195,6 @@ public class Configs implements IConfigHandler
                 PASTE_USE_FILL_COMMAND,
                 PASTE_USING_COMMANDS_IN_SP,
                 PASTE_USING_SERVUX,
-//                PASTE_SERVUX_EXPERIMENTAL,
                 PICK_BLOCK_AVOID_DAMAGEABLE,
                 PICK_BLOCK_AVOID_TOOLS,
                 PICK_BLOCK_ENABLED,
