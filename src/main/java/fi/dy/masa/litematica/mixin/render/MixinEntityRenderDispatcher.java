@@ -86,7 +86,7 @@ public abstract class MixinEntityRenderDispatcher implements IEntityRendererInvo
 		{
 			return false;
 		}
-		else if (!this.effectedByCullingWrapper(entity))
+		else if (!this.litematica_effectedByCullingWrapper(entity))
 		{
 			return true;
 		}
@@ -122,7 +122,7 @@ public abstract class MixinEntityRenderDispatcher implements IEntityRendererInvo
 	}
 
 	@Unique
-	private <E extends Entity> boolean effectedByCullingWrapper(E e)
+	private <E extends Entity> boolean litematica_effectedByCullingWrapper(E e)
 	{
 		if (e instanceof EnderDragon || e instanceof EnderDragonPart || e instanceof FishingHook || e instanceof LightningBolt)
 		{

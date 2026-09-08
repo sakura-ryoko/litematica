@@ -101,7 +101,7 @@ public interface IWorldSchematicRenderer
 
 	boolean renderFluid(FluidModelRendererSchematic renderer, BlockAndTintGetter world, BlockState blockState, FluidState fluidState, BlockPos pos, FluidRenderer.Output output, final float offsetY);
 
-	void drawBlockLayerGroup(ChunkSectionLayerGroup group, @Nullable GpuSampler sampler);
+	void drawBlockLayerGroup(ChunkSectionLayerGroup group);
 
 	void scheduleTranslucentSorting(Vec3 cameraPos, ProfilerFiller profiler);
 

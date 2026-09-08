@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import fi.dy.masa.litematica.render.LitematicaPipelines;
 
 @ApiStatus.Internal
-@Mixin(value = BindGroupLayouts.class, priority = 900)
+@Mixin(value = BindGroupLayouts.class, priority = 600)
 public class MixinBindGroupLayouts
 {
 	@Inject(method = "<clinit>", at = @At("TAIL"))

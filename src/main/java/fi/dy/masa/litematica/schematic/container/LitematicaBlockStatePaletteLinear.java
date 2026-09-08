@@ -75,12 +75,6 @@ public class LitematicaBlockStatePaletteLinear implements ILitematicaBlockStateP
     }
 
     @Override
-    public Codec<LitematicaBlockStatePaletteLinear> codec()
-    {
-        return CODEC;
-    }
-
-    @Override
     public void setResizer(ILitematicaBlockStatePaletteResizer resizer)
     {
         this.resizeHandler = resizer;

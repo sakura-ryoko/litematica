@@ -572,7 +572,7 @@ public class SchematicConversionMaps
 	}
 
 	// Fix missing "id" tags.  This seems to be an issue with 1.19.x litematics.
-	public static CompoundData checkForIdTag(CompoundData tags)
+	public static CompoundData checkForIdTag(CompoundData tags, int minecraftDataVersion)
 	{
 		if (tags.contains("id", Constants.NBT.TAG_STRING))
 		{
@@ -687,7 +687,7 @@ public class SchematicConversionMaps
 		// Fix any erroneous Items tags with the null "tag" tag.
 		if (tags.containsList("Items", Constants.NBT.TAG_COMPOUND))
 		{
-			ListData items = fixItemsTag(tags.getList("Items"));
+			ListData items = fixItemsTag(tags.getList("Items"), minecraftDataVersion);
 			tags.put("Items", items);
 		}
 
@@ -695,13 +695,13 @@ public class SchematicConversionMaps
 	}
 
 	// Fix null 'tag' entries.  This seems to be an issue with 1.19.x litematics.
-	private static ListData fixItemsTag(ListData items)
+	private static ListData fixItemsTag(ListData items, int minecraftDataVersion)
 	{
 		ListData newList = new ListData();
 
 		for (int i = 0; i < items.size(); i++)
 		{
-			CompoundData itemEntry = fixItemTypesFrom1_21_2(items.getCompoundAt(i));
+			CompoundData itemEntry = fixItemTypesFrom1_21_2(items.getCompoundAt(i), minecraftDataVersion);
 
 			if (itemEntry.contains("tag", Constants.NBT.TAG_COMPOUND))
 			{
@@ -728,7 +728,7 @@ public class SchematicConversionMaps
 
 						if (entityEntry.containsList("Items", Constants.NBT.TAG_COMPOUND))
 						{
-							ListData nestedItems = fixItemsTag(entityEntry.getList("Items"));
+							ListData nestedItems = fixItemsTag(entityEntry.getList("Items"), minecraftDataVersion);
 							entityEntry.put("Items", nestedItems);
 						}
 
@@ -745,7 +745,7 @@ public class SchematicConversionMaps
 		return newList;
 	}
 
-	private static CompoundData fixItemTypesFrom1_21_2(CompoundData nbt)
+	private static CompoundData fixItemTypesFrom1_21_2(CompoundData nbt, int minecraftDataVersion)
 	{
 		if (!nbt.contains("id", Constants.NBT.TAG_STRING))
 		{
@@ -757,8 +757,10 @@ public class SchematicConversionMaps
 
 		switch (id)
 		{
-			case "minecraft:pale_oak_boat" -> newId = Identifier.withDefaultNamespace("oak_boat");
-			case "minecraft:pale_oak_chest_boat" -> newId = Identifier.withDefaultNamespace("oak_chest_boat");
+			case "minecraft:pale_oak_boat", "minecraft:poplar_boat" ->
+					newId = Identifier.withDefaultNamespace("oak_boat");
+			case "minecraft:pale_oak_chest_boat", "minecraft:poplar_chest_boat" ->
+					newId = Identifier.withDefaultNamespace("oak_chest_boat");
 		}
 
 		if (newId != null)
@@ -769,7 +771,7 @@ public class SchematicConversionMaps
 		return nbt;
 	}
 
-	public static CompoundData fixEntityTypesFrom1_21_2(CompoundData nbt)
+	public static CompoundData fixEntityTypesFrom1_21_2(CompoundData nbt, int minecraftDataVersion)
 	{
 		if (!nbt.contains("id", Constants.NBT.TAG_STRING))
 		{
@@ -779,7 +781,7 @@ public class SchematicConversionMaps
 		// Fix any erroneous Items tags with the null "tag" tag.
 		if (nbt.containsList("Items", Constants.NBT.TAG_COMPOUND))
 		{
-			ListData items = fixItemsTag(nbt.getList("Items"));
+			ListData items = fixItemsTag(nbt.getList("Items"), minecraftDataVersion);
 			nbt.put("Items", items);
 		}
 

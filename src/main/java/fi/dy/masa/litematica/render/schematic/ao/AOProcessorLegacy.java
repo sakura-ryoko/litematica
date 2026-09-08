@@ -121,7 +121,7 @@ public class AOProcessorLegacy extends AOProcessor
 //			this.fs[index] *= b;
 //		}
 		CardinalLighting lighting = world.cardinalLighting();
-		instance.scaleColor(quad.materialInfo().shade() ? lighting.byFace(face) : lighting.up());
+		instance.scaleColor(this.getDirectionalBrightness(lighting, quad, face));
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class AOProcessorLegacy extends AOProcessor
 		}
 
 		CardinalLighting lighting = world.cardinalLighting();
-		float directionalBrightness = quad.materialInfo().shade() ? lighting.byFace(quad.direction()) : lighting.up();
+		float directionalBrightness = getDirectionalBrightness(lighting, quad, quad.direction());
 		instance.setColor(ARGB.gray(directionalBrightness));
 	}
 

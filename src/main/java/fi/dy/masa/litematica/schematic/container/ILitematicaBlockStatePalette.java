@@ -2,20 +2,13 @@ package fi.dy.masa.litematica.schematic.container;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.ApiStatus;
 
-import com.mojang.serialization.Codec;
+import net.minecraft.world.level.block.state.BlockState;
 
 import fi.dy.masa.malilib.util.data.tag.ListData;
-import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
 
 public interface ILitematicaBlockStatePalette
 {
-    @ApiStatus.Experimental
-    Codec<? extends ILitematicaBlockStatePalette> codec();
-
     void setResizer(ILitematicaBlockStatePaletteResizer resizer);
 
     /**
@@ -31,24 +24,6 @@ public interface ILitematicaBlockStatePalette
     BlockState getBlockState(int indexKey);
 
     int getPaletteSize();
-
-    /**
-     * @deprecated use readFromData()
-     */
-    @Deprecated(forRemoval = true)
-    default void readFromNBT(ListTag tagList)
-    {
-        this.readFromData(DataConverterNbt.fromVanillaList(tagList));
-    }
-
-    /**
-     * @deprecated use writeToData()
-     */
-    @Deprecated(forRemoval = true)
-    default ListTag writeToNBT()
-    {
-        return DataConverterNbt.toVanillaList(this.writeToData());
-    }
 
     void readFromData(ListData tagList);
 

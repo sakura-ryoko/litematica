@@ -5,23 +5,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import com.mojang.blaze3d.IndexType;
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuSampler;
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.IndexType;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuSampler;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.util.profiling.ProfilerFiller;
-
-import fi.dy.masa.malilib.compat.iris.IrisCompat;
 
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
@@ -41,7 +40,7 @@ public record ChunkRenderBatchDraw(
         ChunkSectionLayer[] layers = group.layers();
         Minecraft mc = Minecraft.getInstance();
 	    boolean wf = SharedConstants.DEBUG_HOTKEYS && mc.wireframe;
-        RenderTarget fb = group.outputTarget();
+        RenderTarget fb = mc.gameRenderer.mainRenderTarget();
 
         profiler.push("draw_group");
 		try (RenderPass pass = RenderSystem.getDevice()
@@ -61,9 +60,9 @@ public record ChunkRenderBatchDraw(
 //				pass.setUniform("DynamicTransforms", this.dynamicTransform());
 //			}
 
-			pass.setUniform("ChunkFix", this.chunkFixUBO);
-			pass.bindTexture("Sampler0", this.atlasTexture, sampler);
-			pass.bindTexture("Sampler2", mc.gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
+			pass.setUniform("LegacyTerrainFix", this.chunkFixUBO);
+			pass.setUniform("Sampler0", this.atlasTexture, sampler);
+			pass.setUniform("Sampler2", mc.gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
 
 			for (ChunkSectionLayer layer : layers)
 			{
@@ -77,29 +76,30 @@ public record ChunkRenderBatchDraw(
 						draws = draws.reversed();
 					}
 
+					RenderPipeline pipeline;
+
 					if (wf)
 					{
-						pass.setPipeline(this.renderCollidingBlocks()
-						                 ? ChunkRenderLayers.getWireframe().getRight()
-						                 : ChunkRenderLayers.getWireframe().getLeft());
+						pipeline = this.renderCollidingBlocks()
+						           ? ChunkRenderLayers.getWireframe().getRight()
+						           : ChunkRenderLayers.getWireframe().getLeft();
 					}
 					else
 					{
 						if (this.renderTranslucent())
 						{
-							pass.setPipeline(this.renderCollidingBlocks()
-							                 ? ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getRight()
-							                 : ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getLeft()
-							);
+							pipeline = this.renderCollidingBlocks()
+							           ? ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getRight()
+							           : ChunkRenderLayers.PIPELINE_MAP.get(ChunkSectionLayer.TRANSLUCENT).getLeft();
 						}
 						else
 						{
-							pass.setPipeline(this.renderCollidingBlocks()
-							                 ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
-							                 : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft()
-							);
+							pipeline = this.renderCollidingBlocks()
+							           ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
+							           : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft();
 						}
 
+						pass.setPipeline(RenderSystem.getCompiledPipeline(pipeline));
 						pass.drawMultipleIndexed(draws, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
 					}
 				}

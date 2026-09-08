@@ -29,7 +29,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private final String namePrefix = Reference.MOD_NAME+" Placement Manager";
 	private int threadCount;
 	private final ConcurrentHashMap<String, ThreadExecutorPair<PlacementManagerTask>> threadMap;
-//	private final LinkedBlockingQueue<PlacementManagerTask> queueUnload = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> queueRebuild = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> queueOther = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<PlacementManagerTask> deferredQueue = new LinkedBlockingQueue<>();
@@ -57,7 +56,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	{
 		this.threadCount = MathUtils.max(MAX_PLATFORM_THREADS, MIN_PLATFORM_THREADS);
 		this.threadMap = new ConcurrentHashMap<>(this.threadCount, 0.9f, 1);
-//		this.buildThreadMap();      // Build the map later (After world join)
 		this.lastTick = System.currentTimeMillis();
 	}
 
@@ -94,7 +92,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	private int getDeferredCap()
 	{
-//		return MathUtils.clamp(this.getProfile().deferredCap(), 64, MAX_DEFERRED_CAP);
 		return MAX_DEFERRED_CAP;
 	}
 
@@ -174,7 +171,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	public void start()
 	{
 		if (this.forceStop) { return; }
-		// , this.getProfile().getDisplayName()
 		Litematica.LOGGER.info("Starting [{}] Placement Manager Daemon threads", this.threadMap.size());
 		Set<String> keys = this.threadMap.keySet();
 
@@ -268,7 +264,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 		switch (newTask)
 		{
-//			case PlacementManagerTaskUnload tU -> this.queueUnload.offer(newTask);
 			case PlacementManagerTaskRebuild tL -> this.queueRebuild.offer(newTask);
 			default -> this.queueOther.offer(newTask);
 		}
@@ -289,11 +284,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	@Override
 	public synchronized PlacementManagerTask getNextTask()
 	{
-//		if (!this.queueUnload.isEmpty())
-//		{
-//			return this.queueUnload.poll();
-//		}
-
 		if (!this.queueRebuild.isEmpty())
 		{
 			return this.queueRebuild.poll();
@@ -309,21 +299,18 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	protected synchronized int getTaskCount()
 	{
-		//  + this.queueUnload.size()
 		return this.queueRebuild.size() + this.queueOther.size() + this.deferredQueue.size();
 	}
 
 	// Get any non-deferred tasks to be considered "active"
 	protected synchronized boolean hasActiveTasks()
 	{
-		// !this.queueUnload.isEmpty() ||
 		return !this.queueRebuild.isEmpty() || !this.queueOther.isEmpty();
 	}
 
 	@Override
 	public synchronized boolean hasTasks()
 	{
-		// !this.queueUnload.isEmpty() ||
 		return !this.queueRebuild.isEmpty() || !this.queueOther.isEmpty() || !this.deferredQueue.isEmpty();
 	}
 
@@ -336,7 +323,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	private boolean checkIfTasksAreFull()
 	{
 		final int threadCount = this.threadMap.size();
-		// this.queueUnload.size() +
 		final int total = this.queueRebuild.size() + this.queueOther.size();
 		final int calc = MathUtils.clamp((threadCount / 2), 1, threadCount) * this.getDeferredCap();
 		return total >= calc && total > 0;
@@ -344,7 +330,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	protected boolean allDone()
 	{
-		// this.queueUnload.isEmpty() &&
 		if (this.queueRebuild.isEmpty() &&
 			this.queueOther.isEmpty())
 		{
@@ -445,11 +430,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		}
 	}
 
-//	protected void removeUnloadTasksFor(int x, int z)
-//	{
-//		this.queueUnload.removeIf(task -> task.cx() == x && task.cz() == z);
-//	}
-
 	protected void removeRebuildTasksFor(int x, int z)
 	{
 		this.queueRebuild.removeIf(task -> task.cx() == x && task.cz() == z);
@@ -470,11 +450,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 		return this.hasAnyRebuildTasksFor(pos.x(), pos.z());
 	}
 
-//	public synchronized boolean hasAnyUnloadTasksFor(int cx, int cz)
-//	{
-//		return this.queueUnload.stream().anyMatch(task -> (task.cx() == cx && task.cz() == cz));
-//	}
-
 	public synchronized boolean hasAnyRebuildTasksFor(int cx, int cz)
 	{
 		return this.queueRebuild.stream().anyMatch(task -> (task.cx() == cx && task.cz() == cz));
@@ -492,15 +467,9 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public boolean hasAnyTasks()
 	{
-		// this.hasAnyUnloadTasks() ||
 		return  this.hasAnyRebuildTasks() ||
 				this.hasAnyOtherTasks()  || this.hasAnyDeferredTasks();
 	}
-
-//	public boolean hasAnyUnloadTasks()
-//	{
-//		return !this.queueUnload.isEmpty();
-//	}
 
 	public boolean hasAnyRebuildTasks()
 	{
@@ -519,7 +488,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public boolean hasAnyTasksFor(int cx, int cz)
 	{
-		// this.hasAnyUnloadTasksFor(cx, cz) ||
 		return
 				this.hasAnyRebuildTasksFor(cx, cz) ||
 				this.hasAnyOtherTasksFor(cx, cz) ||
@@ -530,17 +498,8 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 	{
 		this.removeOtherTasksFor(cx, cz);
 		this.removeRebuildTasksFor(cx, cz);
-//		this.removeUnloadTasksFor(cx, cz);
 		this.removeDeferredTasksFor(cx, cz);
 	}
-
-//	protected void removeAllUnloadTasks()
-//	{
-//		synchronized (this.queueUnload)
-//		{
-//			this.queueUnload.clear();
-//		}
-//	}
 
 	protected void removeAllRebuildTasks()
 	{
@@ -568,11 +527,9 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public String getDebugString()
 	{
-		// UL: %02d
 		return String.format("T: %02d RB: %03d O: %02d D: %02d",
 		                     this.threadMap.size(),
 		                     this.queueRebuild.size(),
-//		                     this.queueUnload.size(),
 		                     this.queueOther.size(),
 		                     this.deferredQueue.size()
 		);
@@ -580,7 +537,6 @@ public class PlacementManagerDaemonHandler implements IThreadDaemonHandler<Place
 
 	public void clearAllTasks()
 	{
-//		this.removeAllUnloadTasks();
 		this.removeAllRebuildTasks();
 		this.removeAllOtherTasks();
 		this.removeAllDeferredTasks();

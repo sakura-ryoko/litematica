@@ -1,5 +1,7 @@
 package fi.dy.masa.litematica.schematic.conversion;
 
+import java.util.List;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
@@ -29,16 +31,16 @@ public class SchematicConversionFixers
     private static final BooleanProperty[] HORIZONTAL_CONNECTING_BLOCK_PROPS = new BooleanProperty[] { null, null, CrossCollisionBlock.NORTH, CrossCollisionBlock.SOUTH, CrossCollisionBlock.WEST, CrossCollisionBlock.EAST };
     private static final BlockState REDSTONE_WIRE_DOT_OLD = Blocks.REDSTONE_WIRE.defaultBlockState();
     private static final BlockState REDSTONE_WIRE_DOT = Blocks.REDSTONE_WIRE.defaultBlockState()
-                          .setValue(RedStoneWireBlock.POWER, 0)
-                          .setValue(RedStoneWireBlock.NORTH, RedstoneSide.NONE)
-                          .setValue(RedStoneWireBlock.EAST, RedstoneSide.NONE)
-                          .setValue(RedStoneWireBlock.SOUTH, RedstoneSide.NONE)
-                          .setValue(RedStoneWireBlock.WEST, RedstoneSide.NONE);
+                          .setValue(RedstoneWireBlock.POWER, 0)
+                          .setValue(RedstoneWireBlock.NORTH, RedstoneSide.NONE)
+                          .setValue(RedstoneWireBlock.EAST, RedstoneSide.NONE)
+                          .setValue(RedstoneWireBlock.SOUTH, RedstoneSide.NONE)
+                          .setValue(RedstoneWireBlock.WEST, RedstoneSide.NONE);
     private static final BlockState REDSTONE_WIRE_CROSS = Blocks.REDSTONE_WIRE.defaultBlockState()
-                          .setValue(RedStoneWireBlock.NORTH, RedstoneSide.SIDE)
-                          .setValue(RedStoneWireBlock.EAST, RedstoneSide.SIDE)
-                          .setValue(RedStoneWireBlock.SOUTH, RedstoneSide.SIDE)
-                          .setValue(RedStoneWireBlock.WEST, RedstoneSide.SIDE);
+                          .setValue(RedstoneWireBlock.NORTH, RedstoneSide.SIDE)
+                          .setValue(RedstoneWireBlock.EAST, RedstoneSide.SIDE)
+                          .setValue(RedstoneWireBlock.SOUTH, RedstoneSide.SIDE)
+                          .setValue(RedstoneWireBlock.WEST, RedstoneSide.SIDE);
 
     public static final IStateFixer FIXER_BANNER = (reader, state, pos) -> {
         CompoundData tag = reader.getBlockEntityData(pos);
@@ -324,7 +326,7 @@ public class SchematicConversionFixers
     };
 
     public static final IStateFixer FIXER_REDSTONE_WIRE = (reader, state, pos) -> {
-        RedStoneWireBlock wire = (RedStoneWireBlock) state.getBlock();
+        RedstoneWireBlock wire = (RedstoneWireBlock) state.getBlock();
         BlockState stateAdj = ((IMixinRedstoneWireBlock) wire).litematica_GetPlacementState(reader, state, pos);
 
         if (stateAdj.equals(state) == false)
@@ -333,9 +335,9 @@ public class SchematicConversionFixers
             stateAdj = state;
         }
         // Turn all old dots into crosses, while keeping the power level
-        if (stateAdj.equals(REDSTONE_WIRE_DOT) == false && stateAdj.setValue(RedStoneWireBlock.POWER, 0) == REDSTONE_WIRE_DOT_OLD)
+        if (stateAdj.equals(REDSTONE_WIRE_DOT) == false && stateAdj.setValue(RedstoneWireBlock.POWER, 0) == REDSTONE_WIRE_DOT_OLD)
         {
-            stateAdj = REDSTONE_WIRE_CROSS.setValue(RedStoneWireBlock.POWER, stateAdj.getValue(RedStoneWireBlock.POWER));
+            stateAdj = REDSTONE_WIRE_CROSS.setValue(RedstoneWireBlock.POWER, stateAdj.getValue(RedstoneWireBlock.POWER));
         }
 
         return stateAdj;
@@ -367,11 +369,11 @@ public class SchematicConversionFixers
 
 			DyeColor color = DyeColor.byName(tag.getStringOrDefault("Color", ""), DyeColor.BLACK);
 			boolean glowing = tag.getBooleanOrDefault("GlowingText", false);
-	        SignText frontText = new SignText(new Component[]{text1, text2, text3, text4},
-	                                          new Component[]{Component.empty(), Component.empty(), Component.empty(), Component.empty()},
+	        SignText frontText = new SignText(List.of(text1, text2, text3, text4),
+	                                          List.of(Component.empty(), Component.empty(), Component.empty(), Component.empty()),
 	                                          color, glowing);
 
-	        tag.putCodec("front_text", SignText.DIRECT_CODEC, frontText);
+	        tag.putCodec("front_text", SignText.CODEC, frontText);
 
             tag.remove("Color");
             tag.remove("GlowingText");
@@ -543,7 +545,7 @@ public class SchematicConversionFixers
             }
             else
             {
-                return block == Blocks.REDSTONE_WIRE ? state.getValue(RedStoneWireBlock.POWER) : state.getDirectSignal(reader, pos, side);
+                return block == Blocks.REDSTONE_WIRE ? state.getValue(RedstoneWireBlock.POWER) : state.getDirectSignal(reader, pos, side);
             }
         }
         else

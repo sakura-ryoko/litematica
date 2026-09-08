@@ -185,7 +185,7 @@ public class SchematicConverter
     private void addPostUpdateBlocksLitematica()
     {
         // Fixers to fix the state according to the adjacent blocks
-        this.fixersPerBlock.put(RedStoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
+        this.fixersPerBlock.put(RedstoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
         this.fixersPerBlock.put(WallBlock.class,                    WallStateFixer.INSTANCE);
 
         // Fixers to get values from old TileEntity data
@@ -212,7 +212,7 @@ public class SchematicConverter
         this.fixersPerBlock.put(MyceliumBlock.class,                SchematicConversionFixers.FIXER_DIRT_SNOWY);
         this.fixersPerBlock.put(IronBarsBlock.class,                    SchematicConversionFixers.FIXER_PANE); // Iron Bars & Glass Pane
         this.fixersPerBlock.put(RepeaterBlock.class,                SchematicConversionFixers.FIXER_REDSTONE_REPEATER);
-        this.fixersPerBlock.put(RedStoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
+        this.fixersPerBlock.put(RedstoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
         this.fixersPerBlock.put(SnowyBlock.class,                   SchematicConversionFixers.FIXER_DIRT_SNOWY); // Podzol
         this.fixersPerBlock.put(StemBlock.class,                    SchematicConversionFixers.FIXER_STEM);
         this.fixersPerBlock.put(StainedGlassPaneBlock.class,        SchematicConversionFixers.FIXER_PANE);

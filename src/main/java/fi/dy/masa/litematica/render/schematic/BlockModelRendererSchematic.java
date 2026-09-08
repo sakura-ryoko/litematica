@@ -153,8 +153,8 @@ public class BlockModelRendererSchematic
             for (Direction side : PositionUtils.ALL_DIRECTIONS)
             {
 				int mask = 1 << side.ordinal();
-				boolean valid = (isValid & mask) == 1;
-	            boolean shouldRender = (shouldRenderFace & mask) == 1;
+				boolean valid = (isValid & mask) != 0;
+	            boolean shouldRender = (shouldRenderFace & mask) != 0;
 
 				if (!valid || shouldRender)
 				{
@@ -211,8 +211,8 @@ public class BlockModelRendererSchematic
 			for (Direction side : PositionUtils.ALL_DIRECTIONS)
 			{
 				int mask = 1 << side.ordinal();
-				boolean valid = (isValid & mask) == 1;
-				boolean shouldRender = (shouldRenderFace & mask) == 1;
+				boolean valid = (isValid & mask) != 0;
+				boolean shouldRender = (shouldRenderFace & mask) != 0;
 
 				if (!valid || shouldRender)
 				{

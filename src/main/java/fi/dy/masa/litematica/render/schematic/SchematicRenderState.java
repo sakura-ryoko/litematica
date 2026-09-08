@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 
-import fi.dy.masa.malilib.render.uniform.ChunkFixUniform;
+import fi.dy.masa.litematica.render.uniform.LegacyTerrainFixUniform;
 
 public class SchematicRenderState
 {
@@ -15,8 +15,7 @@ public class SchematicRenderState
 	protected final List<BlockEntityRenderState> blockEntityStates;
 	protected final List<EntityRenderState> entityStates;
 	protected ChunkRenderBatchDraw batchDraw;
-	protected ChunkFixUniform chunkFixUniform;
-//	protected LegacyTerrainFixUniform legacyTerrainFix;
+	protected LegacyTerrainFixUniform legacyTerrainFix;
 
 	protected SchematicRenderState()
 	{
@@ -24,8 +23,7 @@ public class SchematicRenderState
 		this.blockEntityStates = new ArrayList<>();
 		this.entityStates = new ArrayList<>();
 		this.batchDraw = null;
-		this.chunkFixUniform = new ChunkFixUniform();
-//		this.legacyTerrainFix = new LegacyTerrainFixUniform();
+		this.legacyTerrainFix = new LegacyTerrainFixUniform();
 	}
 
 	protected boolean hasBatchDraw()
@@ -46,24 +44,13 @@ public class SchematicRenderState
 	}
 
 	// Performed under `endFrame()`
-	protected void clearChunkFixUniform()
+	protected void clearLegacyTerrainFixUniform()
 	{
 		try
 		{
-			this.chunkFixUniform.close();
+			this.legacyTerrainFix.close();
 		}
 		catch (Exception _) {}
-		this.chunkFixUniform = new ChunkFixUniform();
+		this.legacyTerrainFix = new LegacyTerrainFixUniform();
 	}
-
-	// Performed under `endFrame()`
-//	protected void clearLegacyTerrainFixUniform()
-//	{
-//		try
-//		{
-//			this.legacyTerrainFix.close();
-//		}
-//		catch (Exception _) {}
-//		this.legacyTerrainFix = new LegacyTerrainFixUniform();
-//	}
 }

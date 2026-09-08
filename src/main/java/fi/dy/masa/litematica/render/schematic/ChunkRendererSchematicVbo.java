@@ -8,9 +8,6 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import com.mojang.authlib.minecraft.client.MinecraftClient;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.systems.CommandEncoder;
-import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;

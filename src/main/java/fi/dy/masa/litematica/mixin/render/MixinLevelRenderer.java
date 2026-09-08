@@ -1,20 +1,15 @@
 package fi.dy.masa.litematica.mixin.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
-import com.mojang.blaze3d.resource.ResourceHandle;
-import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.DeltaTracker;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
@@ -37,12 +32,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
-@Mixin(value = LevelRenderer.class, priority = 850)
+@Mixin(value = LevelRenderer.class, priority = 600)
 public abstract class MixinLevelRenderer
 {
 	@Shadow @Final private SubmitNodeStorage submitNodeStorage;
-	@Shadow private @Nullable GpuSampler chunkLayerSampler;
-	@Shadow @Final private LevelTargetBundle targets;
+	@Shadow @Final private GameRenderer gameRenderer;
 	@Unique private ProfilerFiller profiler;
 
     @Unique
@@ -60,11 +54,11 @@ public abstract class MixinLevelRenderer
 
     @Inject(method = "render",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/LevelRenderer;prepareChunkRenders(Lorg/joml/Matrix4fc;)Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;",
-                    shift = At.Shift.AFTER))
-    private void litematica_onPreRenderMain(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker, boolean renderOutline,
-                                            CameraRenderState cameraState, Matrix4fc modelViewMatrix, GpuBufferSlice terrainFog, Vector4f fogColor,
-                                            boolean shouldRenderSky, CallbackInfo ci,
+                    target = "Lnet/minecraft/client/renderer/LevelRenderer;addMainPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher$PreparedFrame;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;Z)V",
+                    shift = At.Shift.BEFORE))
+    private void litematica_onPreRenderMain(GraphicsResourceAllocator resourceAllocator, boolean renderOutline,
+                                            CameraRenderState cameraState, GpuBufferSlice terrainFog, Vector4f fogColor,
+                                            boolean shouldRenderSky, boolean consistentDepthRequired, CallbackInfo ci,
                                             @Local(name = "profiler") ProfilerFiller profiler)
     {
         this.profiler = profiler;
@@ -73,7 +67,7 @@ public abstract class MixinLevelRenderer
     }
 
 	@Inject(method = "prepareChunkRenders", at = @At("TAIL"))
-    private void litematica_onPrepareBlockLayersPost(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir)
+    private void litematica_onPrepareBlockLayersPost(Matrix4fc modelViewMatrix, boolean respectTranslucentOrder, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
 	    // Why Iris?
 //		if (IrisCompat.isShaderActive()) { return; }
@@ -81,50 +75,28 @@ public abstract class MixinLevelRenderer
 	    LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
     }
 
-	// BYTECODE (Virtual Method) Mixin for Section Group rendering
-	@Inject(method = "lambda$addMainPass$0(Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/util/profiling/ProfilerFiller;Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;Lcom/mojang/blaze3d/resource/ResourceHandle;Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher$PreparedFrame;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;)V",
-	        at = @At(value = "INVOKE",
-	                 target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
-	                 ordinal = 0,
-	                 shift = At.Shift.AFTER))
-	private void litematica_renderMainSection_Opaque(GpuBufferSlice terrainFog, LevelRenderState levelRenderState, ProfilerFiller profiler,
-	                                                 ChunkSectionsToRender chunkSectionsToRender, ResourceHandle<RenderTarget> entityOutlineTarget,
-	                                                 FeatureRenderDispatcher.PreparedFrame featureFrame, ResourceHandle<RenderTarget> translucentTarget,
-	                                                 ResourceHandle<RenderTarget> mainTarget, ResourceHandle<RenderTarget> itemEntityTarget,
-	                                                 ResourceHandle<RenderTarget> particleTarget, CallbackInfo ci)
+	@Inject(method = "executeSolid", at = @At("TAIL"))
+	private void litematica_renderMainSection_Opaque(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, RenderPass renderPass, CallbackInfo ci)
 	{
-		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.OPAQUE, this.chunkLayerSampler);
+		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.OPAQUE);
 	}
 
-	@Inject(method = "lambda$addMainPass$0(Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/util/profiling/ProfilerFiller;Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;Lcom/mojang/blaze3d/resource/ResourceHandle;Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher$PreparedFrame;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;)V",
-			at = @At(value = "INVOKE",
-					 target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
-					 ordinal = 1,
-					 shift = At.Shift.AFTER))
-	private void litematica_renderMainSection_Translucent(GpuBufferSlice terrainFog, LevelRenderState levelRenderState, ProfilerFiller profiler,
-	                                                      ChunkSectionsToRender chunkSectionsToRender, ResourceHandle<RenderTarget> entityOutlineTarget,
-	                                                      FeatureRenderDispatcher.PreparedFrame featureFrame, ResourceHandle<RenderTarget> translucentTarget,
-	                                                      ResourceHandle<RenderTarget> mainTarget, ResourceHandle<RenderTarget> itemEntityTarget,
-	                                                      ResourceHandle<RenderTarget> particleTarget, CallbackInfo ci)
+	@Inject(method = "executeClassicTransparency", at = @At("TAIL"))
+	private void litematica_renderMainSection_TranslucentClassic(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, RenderPass renderPass, CallbackInfo ci)
 	{
-		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT, this.chunkLayerSampler);
+		if (!this.gameRenderer.useImprovedTransparency())
+		{
+			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT);
+		}
 	}
 
-	@Inject(method = "render",
-	        at = @At(value = "INVOKE",
-	                 target = "Lnet/minecraft/client/renderer/LevelRenderer;addWeatherPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V",
-	                 shift = At.Shift.BEFORE))
-	private void litematica_renderMainPass(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker,
-	                                       boolean renderOutline, CameraRenderState cameraState, Matrix4fc modelViewMatrix,
-	                                       GpuBufferSlice terrainFog, Vector4f fogColor, boolean shouldRenderSky, CallbackInfo ci,
-	                                       @Local(name = "frame") FrameGraphBuilder frame,
-                                           @Local(name = "featureFrame") FeatureRenderDispatcher.PreparedFrame featureFrame,
-                                           @Local(name = "profiler") ProfilerFiller profiler)
+	@Inject(method = "executeOit", at = @At("TAIL"))
+	private void litematica_renderMainSection_TranslucentOit(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, CallbackInfo ci)
 	{
-//		if (IrisCompat.isShaderActive())
-//		{
-//			IrisRenderingFix.INSTANCE.renderMainPassWithShadersOn(frame, this.targets, featureFrame, profiler);
-//		}
+		if (this.gameRenderer.useImprovedTransparency())
+		{
+			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT);
+		}
 	}
 
 	@Inject(method = "submitEntities", at = @At("RETURN"))

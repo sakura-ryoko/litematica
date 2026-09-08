@@ -31,7 +31,7 @@ public abstract class MixinClientLevel extends Level
     }
 
     @Inject(method = "setServerVerifiedBlockState", at = @At("HEAD"))
-    private void litematica_onHandleBlockUpdate(BlockPos pos, BlockState state, int flags, CallbackInfo ci)
+    private void litematica_onHandleBlockUpdate(BlockPos pos, BlockState blockState, int updateFlag, CallbackInfo ci)
     {
         SchematicVerifier.markVerifierBlockChanges(pos);
 

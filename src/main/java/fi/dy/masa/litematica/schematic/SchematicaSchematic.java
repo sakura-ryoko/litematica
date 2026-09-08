@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -475,15 +474,6 @@ public class SchematicaSchematic
         return null;
     }
 
-    /**
-     * @deprecated use readFromData()
-     */
-    @Deprecated(forRemoval = true)
-    public boolean readFromNBT(CompoundTag nbt)
-    {
-        return this.readFromData(DataConverterNbt.fromVanillaCompound(nbt));
-    }
-
     public boolean readFromData(CompoundData nbt)
     {
         if (this.readBlocksFromData(nbt))
@@ -507,15 +497,6 @@ public class SchematicaSchematic
             Litematica.LOGGER.error("SchematicaSchematic: Missing block data in the schematic '{}'", this.fileName);
             return false;
         }
-    }
-
-    /**
-     * @deprecated use readPaletteFromData()
-     */
-    @Deprecated(forRemoval = true)
-    private boolean readPaletteFromNBT(CompoundTag nbt)
-    {
-        return this.readPaletteFromData(DataConverterNbt.fromVanillaCompound(nbt));
     }
 
     private boolean readPaletteFromData(CompoundData nbt)
@@ -602,15 +583,6 @@ public class SchematicaSchematic
         return true;
     }
 
-    /**
-     * @deprecated use readBlocksFromDataMetadataOnly()
-     */
-    @Deprecated(forRemoval = true)
-    protected boolean readBlocksFromNBTMetadataOnly(Path file, CompoundTag nbt)
-    {
-        return this.readBlocksFromDataMetadataOnly(file, DataConverterNbt.fromVanillaCompound(nbt));
-    }
-
     protected boolean readBlocksFromDataMetadataOnly(Path file, CompoundData nbt)
     {
         if (nbt.contains("Blocks", Constants.NBT.TAG_BYTE_ARRAY) == false ||
@@ -658,15 +630,6 @@ public class SchematicaSchematic
         this.metadata.setFileType(FileType.SCHEMATICA_SCHEMATIC);
 
         return true;
-    }
-
-    /**
-     * @deprecated use readBlocksFromData()
-     */
-    @Deprecated(forRemoval = true)
-    private boolean readBlocksFromNBT(CompoundTag nbt)
-    {
-        return this.readBlocksFromData(DataConverterNbt.fromVanillaCompound(nbt));
     }
 
     private boolean readBlocksFromData(CompoundData nbt)
@@ -810,15 +773,6 @@ public class SchematicaSchematic
         }
     }
 
-    /**
-     * @deprecated use readEntitiesFromData()
-     */
-    @Deprecated(forRemoval = true)
-    private void readEntitiesFromNBT(CompoundTag nbt)
-    {
-        this.readEntitiesFromData(DataConverterNbt.fromVanillaCompound(nbt));
-    }
-
     private void readEntitiesFromData(CompoundData nbt)
     {
         this.entities.clear();
@@ -852,15 +806,6 @@ public class SchematicaSchematic
         }
     }
 
-    /**
-     * @deprecated use readTileEntitiesFromData()
-     */
-    @Deprecated(forRemoval = true)
-    private void readTileEntitiesFromNBT(CompoundTag nbt)
-    {
-        this.readTileEntitiesFromData(DataConverterNbt.fromVanillaCompound(nbt));
-    }
-
     private void readTileEntitiesFromData(CompoundData nbt)
     {
         this.tiles.clear();
@@ -889,11 +834,11 @@ public class SchematicaSchematic
             {
                 if (effective != null)
                 {
-                    this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(SchematicConversionMaps.checkForIdTag(tag), minecraftDataVersion));
+                    this.tiles.put(pos, SchematicConversionMaps.updateBlockEntity(SchematicConversionMaps.checkForIdTag(tag, minecraftDataVersion), minecraftDataVersion));
                 }
                 else
                 {
-                    this.tiles.put(pos, SchematicConversionMaps.checkForIdTag(tag));
+                    this.tiles.put(pos, SchematicConversionMaps.checkForIdTag(tag, minecraftDataVersion));
                 }
             }
         }

@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.fog.FogRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(GameRenderer.class)
+@Mixin(value = GameRenderer.class, priority = 600)
 public interface IMixinGameRenderer
 {
     @Accessor("fogRenderer")

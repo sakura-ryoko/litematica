@@ -16,7 +16,7 @@ public abstract class MixinMinecraftServer
     @Shadow public abstract boolean shouldInformAdmins();
 
     @Inject(method = "logTickMethodTime", at = @At("HEAD"))
-    private void litematica_onServerTickOmegaHackFixBecauseLunarBreaksMinecraftEvenThoughABooleanSupplierIsAlwaysSupposedToBeThereEvenAccordingToMojangMappingsButIsNotWhenYouAreRunningLunarAndTheyCannotExplainWhyThisWouldBreakButItDoesEvenThoughNothingHasChangedInMinecraftUnlessYouArePlayingWithLunar(long tickStartTime, CallbackInfo ci)
+    private void litematica_onServerTickOmegaHackFixBecauseLunarBreaksMinecraftEvenThoughABooleanSupplierIsAlwaysSupposedToBeThereEvenAccordingToMojangMappingsButIsNotWhenYouAreRunningLunarAndTheyCannotExplainWhyThisWouldBreakButItDoesEvenThoughNothingHasChangedInMinecraftUnlessYouArePlayingWithLunar(long startTime, CallbackInfo ci)
     {
         if (!this.isDedicatedServer() && this.shouldInformAdmins())
         {

@@ -2,7 +2,6 @@ package fi.dy.masa.litematica.render.uniform;
 
 import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
-
 import org.lwjgl.system.MemoryStack;
 
 import com.mojang.blaze3d.buffers.Std140Builder;
@@ -14,8 +13,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.TextureFilteringMethod;
 import net.minecraft.client.renderer.MappableRingBuffer;
 
-import fi.dy.masa.malilib.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.compat.iris.IrisCompat;
 
 public class LegacyTerrainFixUniform implements AutoCloseable
 {
@@ -24,7 +23,7 @@ public class LegacyTerrainFixUniform implements AutoCloseable
 
 	public LegacyTerrainFixUniform()
 	{
-		this.ubo = new MappableRingBuffer(() -> Reference.MOD_NAME+" ChunkFix UBO", 130, UBO_SIZE);
+		this.ubo = new MappableRingBuffer(() -> Reference.MOD_NAME+" LegacyTerrainFix UBO", 130, UBO_SIZE);
 
 		try (MemoryStack stack = MemoryStack.stackPush())
 		{
@@ -80,7 +79,7 @@ public class LegacyTerrainFixUniform implements AutoCloseable
 	 */
 	public void drawPass(@Nonnull RenderPass pass)
 	{
-		pass.setUniform("ChunkFix", this.getCurrentBufferSlice());
+		pass.setUniform("LegacyTerrainFix", this.getCurrentBufferSlice());
 	}
 
 	/**

@@ -521,7 +521,7 @@ public class SchematicDowngradeConverter
 
         if (!oldTE.contains("id", Constants.NBT.TAG_STRING))
         {
-            oldTE.combine(SchematicConversionMaps.checkForIdTag(oldTE));
+            oldTE.combine(SchematicConversionMaps.checkForIdTag(oldTE, minecraftDataVersion));
         }
         for (String key : oldTE.getKeys())
         {

@@ -22,8 +22,8 @@ public abstract class MixinClientPacketListener
     @Inject(method = "handleLevelChunkWithLight", at = @At("RETURN"))
     private void litematica_onUpdateChunk(ClientboundLevelChunkWithLightPacket packet, CallbackInfo ci)
     {
-        int chunkX = packet.getX();
-        int chunkZ = packet.getZ();
+        int chunkX = packet.x();
+        int chunkZ = packet.z();
         //Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onUpdateChunk({}, {})", chunkX, chunkZ);
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() &&

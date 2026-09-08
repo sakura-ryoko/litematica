@@ -7,8 +7,8 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 
-import com.mojang.blaze3d.IndexType;
 import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.renderpearl.api.pipeline.IndexType;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.chunk.VisibilitySet;

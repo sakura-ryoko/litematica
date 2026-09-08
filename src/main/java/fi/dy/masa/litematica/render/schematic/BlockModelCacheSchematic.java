@@ -59,10 +59,8 @@ public class BlockModelCacheSchematic
 	private SpriteGetter spriteGetter;
 	private PlayerSkinRenderCache skinCache;
 
-//	private BlockModelRendererSchematic blockModelRenderer;
 	private BlockEntityRenderDispatcher blockEntityRenderDispatcher;
 	private EntityRenderDispatcher entityRenderDispatcher;
-//	private FluidModelRendererSchematic fluidRenderer;
 	private FogRenderer fogRenderer;
 
 	private BlockModelCacheSchematic()
@@ -133,16 +131,6 @@ public class BlockModelCacheSchematic
 		return this.skinCache;
 	}
 
-//	protected BlockModelRendererSchematic blockModelRenderer()
-//	{
-//		if (this.blockModelRenderer == null)
-//		{
-//			this.blockModelRenderer = new BlockModelRendererSchematic();
-//		}
-//
-//		return this.blockModelRenderer;
-//	}
-
 	protected BlockEntityRenderDispatcher blockEntityRenderer()
 	{
 		if (this.blockEntityRenderDispatcher == null)
@@ -162,16 +150,6 @@ public class BlockModelCacheSchematic
 
 		return this.entityRenderDispatcher;
 	}
-
-//	protected FluidModelRendererSchematic fluidRenderer()
-//	{
-//		if (this.fluidRenderer == null)
-//		{
-//			this.fluidRenderer = new FluidModelRendererSchematic(this.fluidStateModelSet);
-//		}
-//
-//		return this.fluidRenderer;
-//	}
 
 	protected FogRenderer fogRenderer()
 	{
@@ -222,10 +200,8 @@ public class BlockModelCacheSchematic
 
 	private void refreshRenderers()
 	{
-//		this.blockModelRenderer = new BlockModelRendererSchematic();
 		this.entityRenderDispatcher = this.mc.getEntityRenderDispatcher();
 		this.blockEntityRenderDispatcher = this.mc.getBlockEntityRenderDispatcher();
-//		this.fluidRenderer = new FluidModelRendererSchematic(this.fluidStateModelSet);
 		this.fogRenderer = ((IMixinGameRenderer) this.mc.gameRenderer).litematica_getFogRenderer();
 	}
 

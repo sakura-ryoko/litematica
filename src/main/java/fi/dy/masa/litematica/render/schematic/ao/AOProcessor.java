@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.state.BlockState;
 
 import fi.dy.masa.litematica.config.Configs;
@@ -44,4 +46,10 @@ public abstract class AOProcessor
 
     public abstract void prepareShape(final BlockAndTintGetter world, final BlockState state, final BlockPos pos,
                                       final BakedQuad quad, final boolean useAO);
+
+    protected float getDirectionalBrightness(final CardinalLighting lighting, final BakedQuad quad, final Direction face)
+    {
+        Direction override = quad.materialInfo().shadeDirectionOverride();
+        return override != null ? lighting.byFace(override) : lighting.byFace(face);
+    }
 }

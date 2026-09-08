@@ -44,13 +44,13 @@ public class AOProcessorModern extends AOProcessor
 		int light3 = this.lightmap.brightnessCache.getLight(state3, world, pos);
 		float shade3 = this.lightmap.brightnessCache.getShade(state3, world, pos);
 		BlockState corner0 = world.getBlockState(pos.setWithOffset(basePos, info.corners[0]).move(face));
-		boolean translucent0 = !corner0.isViewBlocking(world, pos) || corner0.getLightDampening() == 0;
+		boolean translucent0 = corner0.isLightPermeable();
 		BlockState corner1 = world.getBlockState(pos.setWithOffset(basePos, info.corners[1]).move(face));
-		boolean translucent1 = !corner1.isViewBlocking(world, pos) || corner1.getLightDampening() == 0;
+		boolean translucent1 = corner1.isLightPermeable();
 		BlockState corner2 = world.getBlockState(pos.setWithOffset(basePos, info.corners[2]).move(face));
-		boolean translucent2 = !corner2.isViewBlocking(world, pos) || corner2.getLightDampening() == 0;
+		boolean translucent2 = corner2.isLightPermeable();
 		BlockState corner3 = world.getBlockState(pos.setWithOffset(basePos, info.corners[3]).move(face));
-		boolean translucent3 = !corner3.isViewBlocking(world, pos) || corner3.getLightDampening() == 0;
+		boolean translucent3 = corner3.isLightPermeable();
 		float shadeCorner02;
 		int lightCorner02;
 
@@ -202,7 +202,7 @@ public class AOProcessorModern extends AOProcessor
 		}
 
 		CardinalLighting lighting = world.cardinalLighting();
-		instance.scaleColor(quad.materialInfo().shade() ? lighting.byFace(face) : lighting.up());
+		instance.scaleColor(this.getDirectionalBrightness(lighting, quad, face));
 	}
 
 	@Override
@@ -220,7 +220,7 @@ public class AOProcessorModern extends AOProcessor
 		}
 
 		CardinalLighting lighting = world.cardinalLighting();
-		float directionalBrightness = quad.materialInfo().shade() ? lighting.byFace(quad.direction()) : lighting.up();
+		float directionalBrightness = this.getDirectionalBrightness(lighting, quad, quad.direction());
 		instance.setColor(ARGB.gray(directionalBrightness));
 	}
 

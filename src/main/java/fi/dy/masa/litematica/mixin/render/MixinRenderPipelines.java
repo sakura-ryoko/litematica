@@ -21,13 +21,10 @@ import fi.dy.masa.litematica.compat.iris.IrisCompat;
 import fi.dy.masa.litematica.render.LitematicaPipelines;
 
 @ApiStatus.Internal
-@Mixin(value = RenderPipelines.class, priority = 900)
+@Mixin(value = RenderPipelines.class, priority = 600)
 public abstract class MixinRenderPipelines
 {
 	@Shadow @Final private static Map<Identifier, RenderPipeline> PIPELINES_BY_LOCATION;
-
-	@Unique private static final BlendFunction MASA_BLEND = new BlendFunction(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA, BlendFactor.ONE, BlendFactor.ZERO);
-	@Unique private static final BlendFunction MASA_BLEND_SIMPLE = new BlendFunction(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
 
 	@Shadow
 	private static RenderPipeline register(RenderPipeline pipeline)
