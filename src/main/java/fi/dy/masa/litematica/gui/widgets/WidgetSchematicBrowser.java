@@ -427,6 +427,19 @@ public class WidgetSchematicBrowser extends WidgetFileBrowserBase
         }
     }
 
+    @Override
+    protected boolean displayHoverInfo()
+    {
+        return false;
+    }
+
+    @Override
+    protected String getEntryHoverInfoOverride(DirectoryEntry entry)
+    {
+        // TODO
+        return "";
+    }
+
     public static class FileFilterSchematics extends FileFilter
     {
         @Override

@@ -5,9 +5,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.malilib.MaLiLib;
+import fi.dy.masa.malilib.gui.GuiConfirmFileDrop;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.malilib.config.IConfigOptionList;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
@@ -193,6 +197,44 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
     {
         return previewGenerator != null;
     }
+
+	@Override
+	public boolean onMouseDropFiles(@NonNull List<Path> files)
+	{
+		if (this.getListWidget() != null)
+		{
+			Path dest;
+
+			if (this.getListWidget().getLastSelectedEntry() != null && Files.isDirectory(this.getListWidget().getLastSelectedEntry().getFullPath()))
+			{
+				dest = this.getListWidget().getLastSelectedEntry().getFullPath();
+			}
+			else if (this.getListWidget().getCurrentDirectory() != null && Files.isDirectory(this.getListWidget().getCurrentDirectory()))
+			{
+				dest = this.getListWidget().getCurrentDirectory();
+			}
+			else
+			{
+				return false;
+			}
+
+			final List<Path> filtered = files.stream().filter(
+					f ->
+					{
+						FileType ft = FileType.fromFile(f);
+						return ft != FileType.INVALID && ft != FileType.UNKNOWN;
+					}).toList();
+
+			if (Files.isDirectory(dest) && Files.isWritable(dest))
+			{
+				FileCopierMulti copier = new FileCopierMulti(dest, this.getListWidget(), true);
+				GuiBase.openGui(new GuiConfirmFileDrop(256, "malilib.gui.title.file_drop_confirm", filtered, copier, this, "malilib.message.file_drop_confirm", filtered.size(), dest.toAbsolutePath().toString()));
+				return true;
+			}
+		}
+
+		return false;
+	}
 
     private class ExportTypeWrapper implements IConfigOptionList
     {

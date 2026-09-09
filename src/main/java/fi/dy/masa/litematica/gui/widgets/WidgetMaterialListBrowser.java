@@ -134,6 +134,19 @@ public class WidgetMaterialListBrowser extends WidgetFileBrowserBase
         return meta;
     }
 
+    @Override
+    protected boolean displayHoverInfo()
+    {
+        return false;
+    }
+
+    @Override
+    protected String getEntryHoverInfoOverride(DirectoryEntry entry)
+    {
+        // TODO
+        return "";
+    }
+
     public static class FileFilterMaterials extends FileFilter
     {
         @Override
