@@ -45,34 +45,37 @@ public abstract class MixinRenderPipelines
 		// todo LEGACY_TERRAIN Snippet
 		LitematicaPipelines.LEGACY_TERRAIN_STAGE =
 				RenderPipeline.builder()
-				              .withVertexShader(getId("legacy_terrain"))
-				              .withFragmentShader(getId("legacy_terrain"))
+				              .withVertexShader(getId("core/legacy_terrain"))
+				              .withFragmentShader(getId("core/legacy_terrain"))
 				              .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
 				              .withBindGroupLayout(BindGroupLayouts.PROJECTION)
 				              .withBindGroupLayout(BindGroupLayouts.FOG)
 				              .withBindGroupLayout(BindGroupLayouts.SAMPLER0_SAMPLER2)
 				              .withBindGroupLayout(LitematicaPipelines.LEGACY_TERRAIN_GROUP)
                               .withVertexBinding(0, DefaultVertexFormat.BLOCK)
+                              .withColorTargetState(ColorTargetState.DEFAULT)
                               .withPrimitiveTopology(PrimitiveTopology.QUADS)
-                              .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
                               .buildSnippet();
 
 		// todo LEGACY_TERRAIN
 		LitematicaPipelines.LEGACY_SOLID_TERRAIN =
 				register(RenderPipeline.builder(LitematicaPipelines.LEGACY_TERRAIN_STAGE)
 				                       .withLocation(getId("pipeline/legacy/solid"))
+				                       .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
 				                       .build());
 
 		LitematicaPipelines.LEGACY_WIREFRAME =
 				register(RenderPipeline.builder(LitematicaPipelines.LEGACY_TERRAIN_STAGE)
 				                       .withLocation(getId("pipeline/legacy/wireframe"))
 				                       .withPolygonMode(PolygonMode.WIREFRAME)
+				                       .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
 				                       .build());
 
 		LitematicaPipelines.LEGACY_CUTOUT_TERRAIN =
 				register(RenderPipeline.builder(LitematicaPipelines.LEGACY_TERRAIN_STAGE)
 				                       .withLocation(getId("pipeline/legacy/cutout"))
 				                       .withShaderDefine("ALPHA_CUTOUT", 0.5F)
+				                       .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
 				                       .build());
 
 		// todo LEGACY_TERRAIN_OFFSET --> PRE-REGISTER

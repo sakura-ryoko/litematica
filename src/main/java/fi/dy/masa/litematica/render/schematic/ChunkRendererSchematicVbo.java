@@ -401,6 +401,7 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 				{
 					boolean translucent = Configs.Visuals.RENDER_BLOCKS_AS_TRANSLUCENT.getBooleanValue();
 					ChunkSectionLayer layer = translucent ? ChunkSectionLayer.TRANSLUCENT : quad.materialInfo().layer();
+//					LOGGER.error("blockOutput: layer: {}", layer.label());
 					BufferBuilder builder = this.preRenderBlocks(pack, layer);
 
 					if (!data.isBlockLayerStarted(layer))
@@ -516,6 +517,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 		{
 			chunkMeshData.setTimeBuilt(this.world.getGameTime());
 			data.setTimeBuilt(this.world.getGameTime());
+			data.setPos(this.getChunkPos());
+			data.setOrigin(this.getOrigin());
 
 			if (!chunkMeshData.isEmpty())
 			{
@@ -1219,10 +1222,8 @@ public class ChunkRendererSchematicVbo implements AutoCloseable
 				}
 			}
 
-//            if (this.builderCache.hasBuilder(layer))
 			if (pack.builderCache().hasBuilder(layer))
 			{
-//                BufferBuilder builder = this.builder(layer);
 				BufferBuilder builder = pack.getBuilder(layer);
 				meshData = builder.build();
 

@@ -7,11 +7,7 @@ import org.joml.Vector4f;
 import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.commands.RenderPass;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
@@ -37,6 +33,9 @@ public abstract class MixinLevelRenderer
 {
 	@Shadow @Final private SubmitNodeStorage submitNodeStorage;
 	@Shadow @Final private GameRenderer gameRenderer;
+	@Shadow @Final private LevelRenderState levelRenderState;
+	@Shadow @Final private LevelTargetBundle targets;
+	@Shadow @Final private boolean multiDrawIndirectAvailable;
 	@Unique private ProfilerFiller profiler;
 
     @Unique
@@ -67,36 +66,55 @@ public abstract class MixinLevelRenderer
     }
 
 	@Inject(method = "prepareChunkRenders", at = @At("TAIL"))
-    private void litematica_onPrepareBlockLayersPost(Matrix4fc modelViewMatrix, boolean respectTranslucentOrder, CallbackInfoReturnable<ChunkSectionsToRender> cir)
+    private void litematica_onPrepareBlockLayersPost1(Matrix4fc modelViewMatrix, boolean respectTranslucentOrder, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
 	    // Why Iris?
 //		if (IrisCompat.isShaderActive()) { return; }
-	    this.litematica$prepareProfiler();
-	    LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
+
+	    if (!this.useIndirect())
+	    {
+		    this.litematica$prepareProfiler();
+		    LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
+	    }
     }
 
-	@Inject(method = "executeSolid", at = @At("TAIL"))
-	private void litematica_renderMainSection_Opaque(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, RenderPass renderPass, CallbackInfo ci)
+	@Inject(method = "prepareChunkRendersIndirect", at = @At("TAIL"))
+	private void litematica_onPrepareBlockLayersPost2(Matrix4fc modelViewMatrix, boolean respectTranslucentOrder, CallbackInfoReturnable<ChunkSectionsToRender> cir)
 	{
-		LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.OPAQUE);
-	}
+		// Why Iris?
+//		if (IrisCompat.isShaderActive()) { return; }
 
-	@Inject(method = "executeClassicTransparency", at = @At("TAIL"))
-	private void litematica_renderMainSection_TranslucentClassic(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, RenderPass renderPass, CallbackInfo ci)
-	{
-		if (!this.gameRenderer.useImprovedTransparency())
+		if (this.useIndirect())
 		{
-			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT);
+			this.litematica$prepareProfiler();
+			LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(modelViewMatrix, this.profiler);
 		}
 	}
 
-	@Inject(method = "executeOit", at = @At("TAIL"))
-	private void litematica_renderMainSection_TranslucentOit(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, CallbackInfo ci)
+	@Inject(method = "executeOit", at = @At("HEAD"))
+	private void litematica_renderMainSection_Oit(ChunkSectionsToRender chunkSectionsToRender, FeatureRenderDispatcher.PreparedFrame featureFrame, CallbackInfo ci)
 	{
-		if (this.gameRenderer.useImprovedTransparency())
+		if (this.useOIT())
 		{
-			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup.TRANSLUCENT);
+			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(this.targets.main.get(), ChunkSectionLayerGroup.OPAQUE);
+			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(this.targets.main.get(), ChunkSectionLayerGroup.TRANSLUCENT);
 		}
+	}
+
+	@Inject(method = "executeOutline", at = @At("HEAD"))
+	private void litematica_renderMainSection_Outline1(FeatureRenderDispatcher.PreparedFrame featureFrame, CallbackInfo ci)
+	{
+		if (!this.useOIT())
+		{
+			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(this.targets.main.get(), ChunkSectionLayerGroup.OPAQUE);
+			LitematicaRenderer.getInstance().piecewiseDrawBlockLayerGroup(this.targets.main.get(), ChunkSectionLayerGroup.TRANSLUCENT);
+		}
+	}
+
+	@Inject(method = "executeOutline", at = @At("TAIL"))
+	private void litematica_renderMainSection_Outline2(FeatureRenderDispatcher.PreparedFrame featureFrame, CallbackInfo ci)
+	{
+		LitematicaRenderer.getInstance().piecewiseRenderOverlay(this.profiler);
 	}
 
 	@Inject(method = "submitEntities", at = @At("RETURN"))
@@ -123,5 +141,17 @@ public abstract class MixinLevelRenderer
 	private void litematica_onClose(CallbackInfo ci)
 	{
 		LitematicaRenderer.getInstance().onClose();
+	}
+
+	@Unique
+	private boolean useOIT()
+	{
+		return this.gameRenderer.useImprovedTransparency();
+	}
+
+	@Unique
+	private boolean useIndirect()
+	{
+		return this.multiDrawIndirectAvailable && this.levelRenderState.shouldUseMultiDrawIndirectForTerrain;
 	}
 }

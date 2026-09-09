@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4fc;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import net.minecraft.client.Camera;
@@ -305,6 +306,7 @@ public class LitematicaRenderer
 
     public void piecewisePrepareBlockLayers(Matrix4fc matrix4fc, ProfilerFiller profiler)
     {
+//        LOGGER.warn("[LR] piecewisePrepareBlockLayers()");
         if (this.renderPiecewiseBlocks)
         {
             profiler.push(Reference.MOD_ID + "_prepare_block_layers");
@@ -318,12 +320,12 @@ public class LitematicaRenderer
         }
     }
 
-    public void piecewiseDrawBlockLayerGroup(ChunkSectionLayerGroup group)
+    public void piecewiseDrawBlockLayerGroup(RenderTarget fb, ChunkSectionLayerGroup group)
     {
         if (this.renderPiecewiseBlocks)
         {
             // Use Saved Profiler later
-            this.getWorldRenderer().drawBlockLayerGroup(group);
+            this.getWorldRenderer().drawBlockLayerGroup(fb, group);
         }
     }
 

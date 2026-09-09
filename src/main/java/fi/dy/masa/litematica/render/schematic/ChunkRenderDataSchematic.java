@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 
 import fi.dy.masa.litematica.Litematica;
 
@@ -76,6 +78,8 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 	private final Set<ChunkSectionLayer> blockLayersStarted;
 	private final Set<OverlayRenderType> overlayLayersUsed;
 	private final Set<OverlayRenderType> overlayLayersStarted;
+	private ChunkPos pos;
+	private BlockPos origin;
 	private boolean blocksEmpty;
 	private boolean overlayEmpty;
 	private long timeBuilt;
@@ -89,6 +93,8 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		this.overlayLayersStarted = EnumSet.noneOf(OverlayRenderType.class);
 		this.blocksEmpty = true;
 		this.overlayEmpty = true;
+		this.pos = null;
+		this.origin = null;
 	}
 
 	public ChunkMeshDataSchematic getMeshDataCache()
@@ -212,6 +218,28 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		this.overlayLayersUsed.remove(type);
 	}
 
+	@Nullable
+	public ChunkPos getPos()
+	{
+		return this.pos;
+	}
+
+	protected void setPos(ChunkPos pos)
+	{
+		this.pos = pos;
+	}
+
+	@Nullable
+	public BlockPos getOrigin()
+	{
+		return this.origin;
+	}
+
+	protected void setOrigin(BlockPos origin)
+	{
+		this.origin = origin;
+	}
+
 	public long getTimeBuilt()
 	{
 		return this.timeBuilt;
@@ -242,6 +270,7 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		this.overlayLayersStarted.clear();
 		this.overlayEmpty = true;
 		this.blocksEmpty = true;
+		this.origin = null;
 	}
 
 	protected void dumpRenderDataDebug()
@@ -252,7 +281,10 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		}
 		else
 		{
-			System.out.printf("[RD] ChunkRenderDataSchematic; timeBuilt: [%d]\n", this.getTimeBuilt());
+			System.out.printf("[RD] ChunkRenderDataSchematic; pos: %s, origin: [%s], timeBuilt: [%d]\n",
+			                  this.getPos() != null ? this.getPos().toString() : "[<>]",
+			                  this.getOrigin() != null ? this.getOrigin().toShortString() : "<>",
+			                  this.getTimeBuilt());
 		}
 
 		if (this.meshDataCache != null)
@@ -283,6 +315,13 @@ public class ChunkRenderDataSchematic implements AutoCloseable
 		{
 			if (o1.isEmpty()) { return 1; }
 			else if (o2.isEmpty()) { return -1; }
+			else if (o1.getOrigin() == null) { return 1; }
+			else if (o2.getOrigin() == null) { return -1; }
+			else if (o1.getPos() == null) { return 1; }
+			else if (o2.getPos() == null) { return -1; }
+			else if (!o1.getOrigin().equals(o2.getOrigin())) { return -1; }
+			else if (!o1.getPos().equals(o2.getPos())) { return -1; }
+
 			final int timeCompare = Long.compare(o1.timeBuilt, o2.timeBuilt);
 //			System.out.printf("[RDC] timeBuilt: [%d] vs [%d] --> [%d]\n", o1.timeBuilt, o2.timeBuilt, -timeCompare);
 

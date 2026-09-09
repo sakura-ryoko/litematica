@@ -1,7 +1,7 @@
 package fi.dy.masa.litematica.render.schematic;
 
-import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -24,14 +24,14 @@ import net.minecraft.util.profiling.ProfilerFiller;
 
 public record ChunkRenderBatchDraw(
 		GpuTextureView atlasTexture,
-		EnumMap<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> drawData,
+		Map<ChunkSectionLayer, List<RenderPass.Draw<GpuBufferSlice[]>>> drawData,
         boolean renderCollidingBlocks,
 		boolean renderTranslucent,
         int maxIndicesRequired,
 		GpuBufferSlice[] dynamicTransforms,
 		GpuBufferSlice chunkFixUBO)
 {
-    public void draw(final ChunkSectionLayerGroup group, final GpuSampler sampler, ProfilerFiller profiler)
+    public void draw(RenderTarget fb, final ChunkSectionLayerGroup group, final GpuSampler sampler, ProfilerFiller profiler)
     {
 //	    Litematica.LOGGER.error("ChunkRenderBatchDraw::draw({})", group.label());
         RenderSystem.AutoStorageIndexBuffer defaultIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
@@ -40,7 +40,7 @@ public record ChunkRenderBatchDraw(
         ChunkSectionLayer[] layers = group.layers();
         Minecraft mc = Minecraft.getInstance();
 	    boolean wf = SharedConstants.DEBUG_HOTKEYS && mc.wireframe;
-        RenderTarget fb = mc.gameRenderer.mainRenderTarget();
+//        RenderTarget fb = mc.gameRenderer.mainRenderTarget();
 
         profiler.push("draw_group");
 		try (RenderPass pass = RenderSystem.getDevice()
@@ -71,7 +71,7 @@ public record ChunkRenderBatchDraw(
 				profiler.popPush("draw_group_" + layer.label());
 				if (!draws.isEmpty())
 				{
-					if (layer == ChunkSectionLayer.TRANSLUCENT)
+					if (layer.translucent() && !mc.gameRenderer.useImprovedTransparency())
 					{
 						draws = draws.reversed();
 					}
@@ -98,10 +98,10 @@ public record ChunkRenderBatchDraw(
 							           ? ChunkRenderLayers.PIPELINE_MAP.get(layer).getRight()
 							           : ChunkRenderLayers.PIPELINE_MAP.get(layer).getLeft();
 						}
-
-						pass.setPipeline(RenderSystem.getCompiledPipeline(pipeline));
-						pass.drawMultipleIndexed(draws, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
 					}
+
+					pass.setPipeline(RenderSystem.getCompiledPipeline(pipeline));
+					pass.drawMultipleIndexed(draws, defaultIBO, indexType, List.of("DynamicTransforms"), this.dynamicTransforms());
 				}
 			}
 		}

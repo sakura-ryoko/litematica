@@ -59,7 +59,7 @@ public class ChunkManagerSchematic extends ChunkSource
 
         if (this.loadedChunks.containsKey(key))
         {
-            return this.loadedChunks.get(key).getState();
+            return this.loadedChunks.getOrDefault(key, this.blankChunk).getState();
         }
         else
         {
@@ -73,7 +73,7 @@ public class ChunkManagerSchematic extends ChunkSource
 
         if (this.loadedChunks.containsKey(key))
         {
-            this.loadedChunks.get(key).setState(state);
+            this.loadedChunks.getOrDefault(key, this.blankChunk).setState(state);
         }
     }
 
