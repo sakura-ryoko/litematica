@@ -7,16 +7,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.jspecify.annotations.NonNull;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.malilib.MaLiLib;
-import fi.dy.masa.malilib.gui.GuiConfirmFileDrop;
-import fi.dy.masa.malilib.util.*;
+
 import fi.dy.masa.malilib.config.IConfigOptionList;
 import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiConfirmAction;
+import fi.dy.masa.malilib.gui.GuiConfirmFileDrop;
 import fi.dy.masa.malilib.gui.GuiTextInputFeedback;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
@@ -26,10 +25,17 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
 import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
-import com.mojang.blaze3d.platform.NativeImage;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.file_ops.FileCopier;
+import fi.dy.masa.malilib.util.file_ops.FileCopierMulti;
+import fi.dy.masa.malilib.util.file_ops.FileDeleter;
+import fi.dy.masa.malilib.util.file_ops.FileRenamer;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.gui.widgets.WidgetSchematicBrowser;
 import fi.dy.masa.litematica.materials.MaterialListCustom;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.util.FileType;
@@ -218,17 +224,11 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 				return false;
 			}
 
-			final List<Path> filtered = files.stream().filter(
-					f ->
-					{
-						FileType ft = FileType.fromFile(f);
-						return ft != FileType.INVALID && ft != FileType.UNKNOWN;
-					}).toList();
-
 			if (Files.isDirectory(dest) && Files.isWritable(dest))
 			{
-				FileCopierMulti copier = new FileCopierMulti(dest, this.getListWidget(), true);
-				GuiBase.openGui(new GuiConfirmFileDrop(256, "malilib.gui.title.file_drop_confirm", filtered, copier, this, "malilib.message.file_drop_confirm", filtered.size(), dest.toAbsolutePath().toString()));
+				FileCopierMulti copier = new FileCopierMulti(dest, this.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
+				GuiBase.openGui(new GuiConfirmFileDrop<>(256, "malilib.gui.title.file_drop_confirm", files, copier, WidgetSchematicBrowser.SCHEMATIC_FILTER, this,
+				                                         "malilib.message.file_drop_confirm", files.size(), dest.toAbsolutePath().toString()));
 				return true;
 			}
 		}

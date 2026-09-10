@@ -1,16 +1,14 @@
 package fi.dy.masa.litematica.gui;
 
-import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.data.SchematicHolder;
-import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
-import fi.dy.masa.litematica.materials.MaterialListCustom;
-import fi.dy.masa.litematica.materials.MaterialListSchematic;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
-import fi.dy.masa.litematica.util.FileType;
-import fi.dy.masa.litematica.util.WorldUtils;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+
+import net.minecraft.core.BlockPos;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiConfirmFileDrop;
 import fi.dy.masa.malilib.gui.GuiStringListSelection;
@@ -25,19 +23,23 @@ import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase;
 import fi.dy.masa.malilib.gui.widgets.WidgetFileBrowserBase.DirectoryEntry;
 import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
-import fi.dy.masa.malilib.util.*;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-
-import org.jspecify.annotations.NonNull;
-
-import net.minecraft.core.BlockPos;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.file_ops.FileCopierMulti;
+import fi.dy.masa.malilib.util.file_ops.FileRenamer;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.data.SchematicHolder;
+import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
+import fi.dy.masa.litematica.gui.widgets.WidgetSchematicBrowser;
+import fi.dy.masa.litematica.materials.MaterialListCustom;
+import fi.dy.masa.litematica.materials.MaterialListSchematic;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
+import fi.dy.masa.litematica.util.FileType;
+import fi.dy.masa.litematica.util.WorldUtils;
 
 public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
 {
@@ -182,17 +184,11 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 				return false;
 			}
 
-			final List<Path> filtered = files.stream().filter(
-					f ->
-					{
-						FileType ft = FileType.fromFile(f);
-						return ft != FileType.INVALID && ft != FileType.UNKNOWN;
-					}).toList();
-
 			if (Files.isDirectory(dest) && Files.isWritable(dest))
 			{
-				FileCopierMulti copier = new FileCopierMulti(dest, this.getListWidget(), true);
-				GuiBase.openGui(new GuiConfirmFileDrop(256, "malilib.gui.title.file_drop_confirm", filtered, copier, this, "malilib.message.file_drop_confirm", filtered.size(), dest.toAbsolutePath().toString()));
+				FileCopierMulti copier = new FileCopierMulti(dest, this.getListWidget(), Configs.Generic.DISPLAY_FILE_OPS_FEEDBACK.getBooleanValue());
+				GuiBase.openGui(new GuiConfirmFileDrop<>(256, "malilib.gui.title.file_drop_confirm", files, copier, WidgetSchematicBrowser.SCHEMATIC_FILTER, this,
+				                                         "malilib.message.file_drop_confirm", files.size(), dest.toAbsolutePath().toString()));
 				return true;
 			}
 		}

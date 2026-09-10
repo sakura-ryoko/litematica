@@ -32,7 +32,7 @@ import fi.dy.masa.litematica.util.FileType;
 
 public class WidgetSchematicBrowser extends WidgetFileBrowserBase
 {
-    protected static final FileFilter SCHEMATIC_FILTER = new FileFilterSchematics();
+    public static final FileFilter SCHEMATIC_FILTER = new FileFilterSchematics();
 
     protected final Map<Path, SchematicMetadata> cachedMetadata = new HashMap<>();
     protected final Map<Path, SchematicSchema> cachedVersion = new HashMap<>();
