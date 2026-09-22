@@ -34,6 +34,11 @@ public class ItemUtils
         return ItemStack.isSameItemSameComponents(ref, check);
     }
 
+    public static void clearCache()
+    {
+        ITEMS_FOR_STATES.clear();
+    }
+
     public static boolean isStale(ItemStack stack)
     {
         return stack.isEmpty() == false && stack.getPrototype() != stack.getItem().components();
