@@ -17,6 +17,7 @@ import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
 import fi.dy.masa.malilib.gui.wrappers.TextFieldType;
 import fi.dy.masa.malilib.interfaces.IStringConsumerFeedback;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.config.Hotkeys;
@@ -435,7 +436,7 @@ public class GuiAreaSelectionEditorNormal extends GuiListBase<String, WidgetSele
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
-            int amount = mouseButton == 1 ? -1 : 1;
+            int amount = mouseButton == ScanCodes.OFFSET_MOUSE_RIGHT ? -1 : 1;
             if (GuiBase.isCtrlDown()) { amount *= 100; }
             if (GuiBase.isShiftDown()) { amount *= 10; }
             if (GuiBase.isAltDown()) { amount *= 5; }

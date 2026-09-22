@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import fi.dy.masa.malilib.compat.sodium.SodiumCompat;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 
@@ -58,18 +59,26 @@ public abstract class MixinLevelRenderer
     private void litematica_onPreRenderMain(GraphicsResourceAllocator resourceAllocator, boolean renderOutline,
                                             CameraRenderState cameraState, GpuBufferSlice terrainFog, Vector4f fogColor,
                                             boolean shouldRenderSky, boolean consistentDepthRequired, CallbackInfo ci,
+											@Local(name = "terrainMatrix") Matrix4fc terrainMatrix,
                                             @Local(name = "profiler") ProfilerFiller profiler)
     {
         this.profiler = profiler;
 //		if (IrisCompat.isShaderActive()) { return; }
         LitematicaRenderer.getInstance().capturePreMainValues(cameraState, terrainFog, profiler);
+
+	    // Why Sodium?
+	    if (SodiumCompat.hasSodium())
+		{
+			this.litematica$prepareProfiler();
+			LitematicaRenderer.getInstance().piecewisePrepareBlockLayers(terrainMatrix, this.profiler);
+		}
     }
 
 	@Inject(method = "prepareChunkRenders", at = @At("TAIL"))
     private void litematica_onPrepareBlockLayersPost1(Matrix4fc modelViewMatrix, boolean respectTranslucentOrder, CallbackInfoReturnable<ChunkSectionsToRender> cir)
     {
-	    // Why Iris?
-//		if (IrisCompat.isShaderActive()) { return; }
+	    // Why Sodium?
+	    if (SodiumCompat.hasSodium()) { return; }
 
 	    if (!this.useIndirect())
 	    {
@@ -81,8 +90,8 @@ public abstract class MixinLevelRenderer
 	@Inject(method = "prepareChunkRendersIndirect", at = @At("TAIL"))
 	private void litematica_onPrepareBlockLayersPost2(Matrix4fc modelViewMatrix, boolean respectTranslucentOrder, CallbackInfoReturnable<ChunkSectionsToRender> cir)
 	{
-		// Why Iris?
-//		if (IrisCompat.isShaderActive()) { return; }
+		// Why Sodium?
+		if (SodiumCompat.hasSodium()) { return; }
 
 		if (this.useIndirect())
 		{

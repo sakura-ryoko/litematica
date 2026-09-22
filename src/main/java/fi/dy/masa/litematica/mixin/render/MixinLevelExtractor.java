@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fi.dy.masa.litematica.compat.iris.IrisCompat;
+import fi.dy.masa.malilib.compat.sodium.SodiumCompat;
 import fi.dy.masa.litematica.mixin.client.IMixinActiveProfiler;
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import fi.dy.masa.litematica.util.SchematicWorldRefresher;
@@ -90,7 +90,7 @@ public abstract class MixinLevelExtractor
 		LitematicaRenderer.getInstance().piecewisePrepareEntities(camera, frustum, output, deltaTracker, this.profiler);
 
 		// Why Sodium?
-		if (IrisCompat.hasSodium())
+		if (SodiumCompat.hasSodium())
 		{
 			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, output, deltaTracker.getGameTimeDeltaPartialTick(true), this.profiler);
 		}
@@ -100,7 +100,7 @@ public abstract class MixinLevelExtractor
 	private void litematica_onPostPrepareBlockEntities(Camera camera, float deltaPartialTick, LevelRenderState levelRenderState, CallbackInfo ci)
 	{
 		// Why Sodium?
-		if (!IrisCompat.hasSodium())
+		if (!SodiumCompat.hasSodium())
 		{
 			this.litematica$prepareProfiler();
 			LitematicaRenderer.getInstance().piecewisePrepareBlockEntities(camera, levelRenderState, deltaPartialTick, this.profiler);

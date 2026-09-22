@@ -13,6 +13,7 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 
 public class GuiMainMenu extends GuiBase
 {
@@ -220,7 +221,7 @@ public class GuiMainMenu extends GuiBase
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton)
         {
-            ToolMode mode = DataManager.getToolMode().cycle(Minecraft.getInstance().player, mouseButton == 0);
+            ToolMode mode = DataManager.getToolMode().cycle(Minecraft.getInstance().player, mouseButton == ScanCodes.OFFSET_MOUSE_LEFT);
             DataManager.setToolMode(mode);
             this.gui.initGui();
         }

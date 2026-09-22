@@ -26,6 +26,7 @@ import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 
 public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, WidgetSchematicVerificationResult, WidgetListSchematicVerificationResults>
                                     implements ISelectionListener<BlockMismatchEntry>, ICompletionListener
@@ -480,7 +481,7 @@ public class GuiSchematicVerifier   extends GuiListBase<BlockMismatchEntry, Widg
                     SchematicPlacement placement = this.parent.placement;
                     this.parent.verifier.reset();
                     BlockInfoListType type = placement.getSchematicVerifierType();
-                    placement.setSchematicVerifierType((BlockInfoListType) type.cycle(mouseButton == 0));
+                    placement.setSchematicVerifierType((BlockInfoListType) type.cycle(mouseButton == ScanCodes.OFFSET_MOUSE_LEFT));
                     break;
 
                 case RESET_IGNORED:

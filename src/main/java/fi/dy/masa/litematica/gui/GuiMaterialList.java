@@ -25,6 +25,7 @@ import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.ItemType;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 import fi.dy.masa.malilib.util.time.TimeFormat;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
@@ -309,7 +310,7 @@ public class GuiMaterialList extends GuiListBase<MaterialListEntry, WidgetMateri
 
                 case LIST_TYPE:
                     BlockInfoListType type = materialList.getMaterialListType();
-                    materialList.setMaterialListType((BlockInfoListType) type.cycle(mouseButton == 0));
+                    materialList.setMaterialListType((BlockInfoListType) type.cycle(mouseButton == ScanCodes.OFFSET_MOUSE_LEFT));
                     materialList.reCreateMaterialList();
                     break;
 

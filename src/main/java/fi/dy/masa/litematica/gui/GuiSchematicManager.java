@@ -31,6 +31,7 @@ import fi.dy.masa.malilib.util.file_ops.FileCopier;
 import fi.dy.masa.malilib.util.file_ops.FileCopierMulti;
 import fi.dy.masa.malilib.util.file_ops.FileDeleter;
 import fi.dy.masa.malilib.util.file_ops.FileRenamer;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -310,8 +311,8 @@ public class GuiSchematicManager extends GuiSchematicBrowserBase implements ISel
 		@Override
 		public void actionPerformedWithButton(ButtonBase button, int mouseButton)
 		{
-			if (this.type == Type.EDIT_SCHEMATIC && this.gui.editType == EditType.SET_PREVIEW
-				&& mouseButton == 1)
+			if (this.type == Type.EDIT_SCHEMATIC && this.gui.editType == EditType.SET_PREVIEW &&
+				mouseButton == ScanCodes.OFFSET_MOUSE_RIGHT)
 			{
 				if (previewGenerator != null)
 				{

@@ -88,7 +88,7 @@ public interface IWorldSchematicRenderer
 
 	void capturePreMainValues(CameraRenderState camera, GpuBufferSlice fogBuffer, ProfilerFiller profiler);
 
-	void uploadRemainingBuffers(long finishTimeNano, DeltaTracker deltaTracker, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
+//	void uploadRemainingBuffers(long finishTimeNano, DeltaTracker deltaTracker, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
 
 	int prepareBlockLayers(Matrix4fc matrix4fc, double cameraX, double cameraY, double cameraZ, ProfilerFiller profiler);
 

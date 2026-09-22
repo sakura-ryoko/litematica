@@ -642,20 +642,20 @@ public class WorldRendererSchematic implements IWorldSchematicRenderer
         this.profiler = profiler;
     }
 
-    @Override
-    public void uploadRemainingBuffers(long finishTimeNano, DeltaTracker deltaTracker,
-                                       double cameraX, double cameraY, double cameraZ,
-                                       ProfilerFiller profiler)
-    {
+//    @Override
+//    public void uploadRemainingBuffers(long finishTimeNano, DeltaTracker deltaTracker,
+//                                       double cameraX, double cameraY, double cameraZ,
+//                                       ProfilerFiller profiler)
+//    {
 //        LOGGER.warn("[WorldRenderer] uploadRemainingBuffers()");
-        this.profiler = profiler;
-        if (RenderSystem.isOnRenderThread())
-        {
-            profiler.push("upload_remaining_buffers");
-            this.needsUpdate |= this.renderDispatcher.runChunkUploads(finishTimeNano);
-            profiler.pop();
-        }
-    }
+//        this.profiler = profiler;
+//        if (RenderSystem.isOnRenderThread())
+//        {
+//            profiler.push("upload_remaining_buffers");
+//            this.needsUpdate |= this.renderDispatcher.runChunkUploads(finishTimeNano);
+//            profiler.pop();
+//        }
+//    }
 
     @Override
     public int prepareBlockLayers(Matrix4fc matrix4fc,

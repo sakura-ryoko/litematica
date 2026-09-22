@@ -20,6 +20,7 @@ import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
 import fi.dy.masa.malilib.gui.wrappers.TextFieldType;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.input.ScanCodes;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.gui.GuiMainMenu.ButtonListenerChangeMenu;
@@ -338,7 +339,7 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
                 return;
             }
 
-            int amount = mouseButton == 1 ? -1 : 1;
+            int amount = mouseButton == ScanCodes.OFFSET_MOUSE_RIGHT ? -1 : 1;
 
             if (GuiBase.isShiftDown())
             {
@@ -360,7 +361,7 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
 
                 case ROTATE:
                 {
-                    boolean reverse = mouseButton == 1;
+                    boolean reverse = mouseButton == ScanCodes.OFFSET_MOUSE_RIGHT;
                     Rotation rotation = PositionUtils.cycleRotation(this.placement.getRotation(), reverse);
                     this.placement.setRotation(rotation, this.parent);
                     break;
@@ -368,7 +369,7 @@ public class GuiPlacementConfiguration  extends GuiListBase<SubRegionPlacement, 
 
                 case MIRROR:
                 {
-                    boolean reverse = mouseButton == 1;
+                    boolean reverse = mouseButton == ScanCodes.OFFSET_MOUSE_RIGHT;
                     Mirror mirror = PositionUtils.cycleMirror(this.placement.getMirror(), reverse);
                     this.placement.setMirror(mirror, this.parent);
                     break;
