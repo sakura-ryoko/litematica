@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import fi.dy.masa.litematica.mixin.block.IMixinAbstractBlock;
+import fi.dy.masa.litematica.util.ItemUtils;
 
 public class MaterialCache
 {
@@ -42,7 +43,7 @@ public class MaterialCache
     {
         ItemStack stack = this.buildItemsForStates.get(state);
 
-        if (stack == null)
+        if (stack == null || ItemUtils.isStale(stack))
         {
             stack = this.getItemForStateFromWorld(state, true);
         }
@@ -54,7 +55,7 @@ public class MaterialCache
     {
         ItemStack stack = this.buildItemsForStates.get(state);
 
-        if (stack == null)
+        if (stack == null || ItemUtils.isStale(stack))
         {
             stack = this.getItemForStateFromWorld(state, world, pos, true);
         }
@@ -66,7 +67,7 @@ public class MaterialCache
     {
         ItemStack stack = this.displayItemsForStates.get(state);
 
-        if (stack == null)
+        if (stack == null || ItemUtils.isStale(stack))
         {
             stack = this.getItemForStateFromWorld(state, false);
         }
