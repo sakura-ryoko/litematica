@@ -1,6 +1,6 @@
 ## Pull Request Description
 
-### MaLiLib - Overview
+### Litematica - Overview
 <!-- Provide a concise summary of the changes introduced by this PR. -->
 
 ### Related Issues
