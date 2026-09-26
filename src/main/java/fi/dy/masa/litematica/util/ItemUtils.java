@@ -34,6 +34,16 @@ public class ItemUtils
         return ItemStack.isSameItemSameComponents(ref, check);
     }
 
+    public static void clearCache()
+    {
+        ITEMS_FOR_STATES.clear();
+    }
+
+    public static boolean isStale(ItemStack stack)
+    {
+        return stack.isEmpty() == false && stack.getPrototype() != stack.getItem().components();
+    }
+
     public static ItemStack getItemForState(BlockState state)
     {
         ItemStack stack = ITEMS_FOR_STATES.get(state);
@@ -42,7 +52,9 @@ public class ItemUtils
 
     public static void setItemForBlock(Level world, BlockPos pos, BlockState state)
     {
-        if (ITEMS_FOR_STATES.containsKey(state) == false)
+        ItemStack stack = ITEMS_FOR_STATES.get(state);
+
+        if (stack == null || isStale(stack))
         {
             ITEMS_FOR_STATES.put(state, getItemForBlock(world, pos, state, false));
         }
@@ -54,7 +66,7 @@ public class ItemUtils
         {
             ItemStack stack = ITEMS_FOR_STATES.get(state);
 
-            if (stack != null)
+            if (stack != null && isStale(stack) == false)
             {
                 return stack;
             }
