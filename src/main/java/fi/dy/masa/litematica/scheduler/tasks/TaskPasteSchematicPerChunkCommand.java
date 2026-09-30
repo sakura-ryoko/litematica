@@ -506,6 +506,11 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
         final int singleLayerVolume = (maxX - minX + 1) * (maxZ - minZ + 1);
         final int totalVolume = singleLayerVolume * (maxY - minY + 1);
 
+        if (state.is(BlockTags.LEAVES) && Configs.Generic.PASTE_ALWAYS_USE_PERSISTENT.getBooleanValue() && state.getValue(LeavesBlock.PERSISTENT) == false)
+        {
+            state = state.setValue(LeavesBlock.PERSISTENT, true);
+        }
+
         if (totalVolume <= this.maxBoxVolume || this.useWorldEdit)
         {
             this.queueFillCommandForBox(minX, minY, minZ, maxX, maxY, maxZ, state);
@@ -615,7 +620,7 @@ public class TaskPasteSchematicPerChunkCommand extends TaskPasteSchematicPerChun
     {
         if (Configs.Generic.PASTE_ALWAYS_USE_PERSISTENT.getBooleanValue() && state.getValue(LeavesBlock.PERSISTENT) == false)
         {
-            state.setValue(LeavesBlock.PERSISTENT, true);
+            state = state.setValue(LeavesBlock.PERSISTENT, true);
         }
 
         this.queueSetBlockCommand(pos.getX(), pos.getY(), pos.getZ(), state, commandHandler);
