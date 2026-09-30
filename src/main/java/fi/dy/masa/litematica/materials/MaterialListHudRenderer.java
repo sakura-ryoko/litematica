@@ -126,8 +126,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
             MaterialListEntry entry = list.get(i);
             maxTextLength = Math.max(maxTextLength, font.width(entry.getStack().getHoverName().getString()));
             int multiplier = this.materialList.getMultiplier();
-            int count = multiplier == 1 ? entry.getCountMissing() - entry.getCountAvailable() : entry.getCountTotal();
-            count *= multiplier;
+            int count = multiplier == 1 ? entry.getCountMissing() - entry.getCountAvailable() : entry.getCountTotal() * multiplier - entry.getCountAvailable();
             String strCount = GuiBase.TXT_RED + this.getFormattedCountString(count, entry.getStack().getMaxStackSize()) + GuiBase.TXT_RST;
             maxCountLength = Math.max(maxCountLength, font.width(strCount));
         }
@@ -192,8 +191,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer
             MaterialListEntry entry = list.get(i);
             String text = entry.getStack().getHoverName().getString();
             int multiplier = this.materialList.getMultiplier();
-            int count = multiplier == 1 ? entry.getCountMissing() - entry.getCountAvailable() : entry.getCountTotal();
-            count *= multiplier;
+            int count = multiplier == 1 ? entry.getCountMissing() - entry.getCountAvailable() : entry.getCountTotal() * multiplier - entry.getCountAvailable();
             String strCount = this.getFormattedCountString(count, entry.getStack().getMaxStackSize());
             int cntLen = font.width(strCount);
             int cntPosX = posX + maxLineLength - cntLen - 2;
