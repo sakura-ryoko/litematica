@@ -271,7 +271,7 @@ public class SchematicPlacingUtils
                     {
                         if (state.getValue(LeavesBlock.PERSISTENT) == false)
                         {
-                            state.setValue(LeavesBlock.PERSISTENT, true);
+                            state = state.setValue(LeavesBlock.PERSISTENT, true);
                         }
                     }
 
