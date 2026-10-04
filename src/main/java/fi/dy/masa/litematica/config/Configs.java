@@ -27,6 +27,7 @@ import fi.dy.masa.malilib.util.i18n.i18nMode;
 import fi.dy.masa.malilib.util.i18n.i18nOption;
 import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
+import fi.dy.masa.litematica.compat.voxy.VoxyCompat;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.render.LitematicaDebugHud;
 import fi.dy.masa.litematica.schematic.placement.PlacementManagerDaemonHandler;
@@ -499,6 +500,7 @@ public class Configs implements IConfigHandler
             DataManager.getInstance().setToolItemComponents(Generic.TOOL_ITEM_COMPONENTS.getStringValue(), Minecraft.getInstance().level.registryAccess());
         }
 
+        VoxyCompat.checkConfig();
         InventoryUtils.setPickBlockableSlots(Generic.PICK_BLOCKABLE_SLOTS.getStringValue());
         DataManager.getSelectionManager().checkSelectionModeConfig();
 	    LitematicaDebugHud.INSTANCE.checkConfig();

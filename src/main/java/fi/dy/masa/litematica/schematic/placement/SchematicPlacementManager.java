@@ -118,7 +118,7 @@ public class SchematicPlacementManager
         return (System.nanoTime() - DataManager.getClientTickStartTime()) <= 35000000L;
     }
 
-    protected boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
+    public boolean canHandleChunk(ClientLevel clientWorld, int chunkX, int chunkZ)
     {
         return Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue() ||
                WorldUtils.isClientChunkLoaded(clientWorld, chunkX, chunkZ);
