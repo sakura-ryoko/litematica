@@ -54,19 +54,15 @@ public class SchematicaSchematic
     public static final String FILE_EXTENSION = ".schematic";
 
     private final SchematicMetadata metadata = new SchematicMetadata();
-    private final SchematicConverter converter;
     private final BlockState[] palette = new BlockState[65536];
     private LitematicaBlockStateContainer blocks;
     private final Map<BlockPos, CompoundData> tiles = new HashMap<>();
     private final List<CompoundData> entities = new ArrayList<>();
     private Vec3i size = Vec3i.ZERO;
     private String fileName;
-    private IdentityHashMap<BlockState, IStateFixer> postProcessingFilter;
-    private boolean needsConversionPostProcessing;
 
     protected SchematicaSchematic()
     {
-        this.converter = SchematicConverter.createForSchematica();
     }
 
     public SchematicMetadata getMetadata()
@@ -521,7 +517,7 @@ public class SchematicaSchematic
                     return false;
                 }
 
-                if (this.converter.getConvertedStatesForBlock(id, key, this.palette) == false)
+                if (SchematicConverter.getConvertedStatesForBlock(id, key, this.palette) == false)
                 {
                     String str = String.format("SchematicaSchematic: Missing/non-existing block '%s' in SchematicaMapping", key);
                     InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
@@ -560,7 +556,7 @@ public class SchematicaSchematic
                     return false;
                 }
 
-                if (this.converter.getConvertedStatesForBlock(id, key, this.palette) == false)
+                if (SchematicConverter.getConvertedStatesForBlock(id, key, this.palette) == false)
                 {
                     String str = String.format("SchematicaSchematic: Missing/non-existing block '%s' in MCEdit2 palette", key);
                     InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, str);
@@ -571,13 +567,7 @@ public class SchematicaSchematic
         // No palette, use old vanilla IDs
         else
         {
-            this.converter.getVanillaBlockPalette(this.palette);
-        }
-
-        if (this.converter.createPostProcessStateFilter(this.palette))
-        {
-            this.postProcessingFilter = this.converter.getPostProcessStateFilter();
-            this.needsConversionPostProcessing = true;
+            SchematicConverter.getVanillaBlockPalette(this.palette);
         }
 
         return true;
@@ -767,9 +757,11 @@ public class SchematicaSchematic
 
     private void postProcessBlocks()
     {
-        if (this.needsConversionPostProcessing)
+        SchematicConverter converter = SchematicConverter.createForSchematica();
+        Map<BlockState, IStateFixer> postProcessingFilter = converter.createPostProcessStateFilter(this.palette);
+        if (postProcessingFilter.isEmpty() == false)
         {
-            SchematicConverter.postProcessBlocks(this.blocks, this.tiles, this.postProcessingFilter);
+            SchematicConverter.postProcessBlocks(this.blocks, this.tiles, postProcessingFilter);
         }
     }
 

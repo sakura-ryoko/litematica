@@ -29,7 +29,6 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 public class SchematicConversionFixers
 {
     private static final BooleanProperty[] HORIZONTAL_CONNECTING_BLOCK_PROPS = new BooleanProperty[] { null, null, CrossCollisionBlock.NORTH, CrossCollisionBlock.SOUTH, CrossCollisionBlock.WEST, CrossCollisionBlock.EAST };
-    private static final BlockState REDSTONE_WIRE_DOT_OLD = Blocks.REDSTONE_WIRE.defaultBlockState();
     private static final BlockState REDSTONE_WIRE_DOT = Blocks.REDSTONE_WIRE.defaultBlockState()
                           .setValue(RedstoneWireBlock.POWER, 0)
                           .setValue(RedstoneWireBlock.NORTH, RedstoneSide.NONE)
@@ -159,7 +158,7 @@ public class SchematicConversionFixers
         return state;
     };
 
-    public static final IStateFixer FIXER_CHRORUS_PLANT = (reader, state, pos) -> ChorusPlantBlock.getStateWithConnections(reader, pos, state);
+    public static final IStateFixer FIXER_CHORUS_PLANT = (reader, state, pos) -> ChorusPlantBlock.getStateWithConnections(reader, pos, state);
 
     public static final IStateFixer FIXER_DIRT_SNOWY = (reader, state, pos) -> {
         Block block = reader.getBlockState(pos.above()).getBlock();
@@ -325,24 +324,28 @@ public class SchematicConversionFixers
         return state.setValue(RepeaterBlock.LOCKED, Boolean.valueOf(getIsRepeaterPoweredOnSide(reader, pos, state)));
     };
 
-    public static final IStateFixer FIXER_REDSTONE_WIRE = (reader, state, pos) -> {
+    public static final IStateFixer FIXER_REDSTONE_CROSS = (reader, state, pos) -> {
+        // Turn all old dots into crosses, while keeping the power level (v2531)
+        if (state.setValue(RedstoneWireBlock.POWER, 0) == REDSTONE_WIRE_DOT)
+        {
+            state = REDSTONE_WIRE_CROSS.setValue(RedstoneWireBlock.POWER, state.getValue(RedstoneWireBlock.POWER));
+        }
+
+        return state;
+    };
+
+    // Recompute blockstate of redstone wire, since it did not store sides before the flattening, and then apply cross fixer
+    public static final IStateFixer FIXER_REDSTONE_WIRE_ADJACENCY = (reader, state, pos) -> {
         RedstoneWireBlock wire = (RedstoneWireBlock) state.getBlock();
         BlockState stateAdj = ((IMixinRedstoneWireBlock) wire).litematica_GetPlacementState(reader, state, pos);
 
-        if (stateAdj.equals(state) == false)
-        {
-            // Vanilla breaks Redstone connections when it doesn't detect the neighbor being powered
-            stateAdj = state;
-        }
-        // Turn all old dots into crosses, while keeping the power level
-        if (stateAdj.equals(REDSTONE_WIRE_DOT) == false && stateAdj.setValue(RedstoneWireBlock.POWER, 0) == REDSTONE_WIRE_DOT_OLD)
-        {
-            stateAdj = REDSTONE_WIRE_CROSS.setValue(RedstoneWireBlock.POWER, stateAdj.getValue(RedstoneWireBlock.POWER));
-        }
+        stateAdj = FIXER_REDSTONE_CROSS.fixState(reader, stateAdj, pos);
 
         return stateAdj;
     };
 
+    // sign block entity fix (v3439)
+    // this is only needed to fix signs with missing block entity `id`, vanilla datafixer should handle them normally
     public static final IStateFixer FIXER_SIGN = (reader, state, pos) -> {
         CompoundData tag = reader.getBlockEntityData(pos);
 
