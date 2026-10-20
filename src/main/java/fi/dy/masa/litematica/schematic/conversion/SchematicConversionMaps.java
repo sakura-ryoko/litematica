@@ -678,6 +678,10 @@ public class SchematicConversionMaps
 		{
 			tags.putString("id", "minecraft:piston");
 		}
+		else if (tags.containsLenient("Text1") || tags.containsLenient("Text2") || tags.containsLenient("Text3") || tags.containsLenient("Text4"))
+		{
+			tags.putString("id", "minecraft:sign");
+		}
 		else if (tags.containsLenient("x") && tags.containsLenient("y") && tags.containsLenient("z"))
 		{
 			// Might only have x y z pos
