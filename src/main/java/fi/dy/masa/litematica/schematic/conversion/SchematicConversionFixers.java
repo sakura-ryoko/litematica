@@ -47,7 +47,8 @@ public class SchematicConversionFixers
         if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
-            DyeColor colorFromData = DyeColor.byId(15 - tag.getIntOrDefault("Base", 0));
+            // Running the vanilla datafixer beforehand should carry out the 15 - Base invert
+            DyeColor colorFromData = DyeColor.byId(tag.getIntOrDefault("Base", 0));
 
             if (colorOrig != colorFromData)
             {
@@ -86,7 +87,8 @@ public class SchematicConversionFixers
         if (tag != null && tag.contains("Base", Constants.NBT.TAG_INT))
         {
             DyeColor colorOrig = ((AbstractBannerBlock) state.getBlock()).getColor();
-            DyeColor colorFromData = DyeColor.byId(15 - tag.getIntOrDefault("Base", 0));
+            // Running the vanilla datafixer beforehand should carry out the 15 - Base invert
+            DyeColor colorFromData = DyeColor.byId(tag.getIntOrDefault("Base", 0));
 
             if (colorOrig != colorFromData)
             {
