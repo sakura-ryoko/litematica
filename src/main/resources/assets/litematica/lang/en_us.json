@@ -462,6 +462,7 @@
     "litematica.message.scheduled_task_added": "Scheduled task added...",
     "litematica.message.schematic_exported_as": "Schematic exported as '%s'",
     "litematica.message.schematic_pasted": "Schematic pasted in world",
+    "litematica.message.paste_with_servux": "Pasting the schematic via the Servux server-side paste",
     "litematica.message.schematic_pasted_using_fill_and_setblock": "Schematic pasted using §b%s§r fill and §b%s§r setblock commands",
     "litematica.message.schematic_pasted_using_setblock": "Schematic pasted using §b%s§r setblock commands",
     "litematica.message.schematic_pasted_using_world_edit": "Schematic pasted using §b%s§r World Edit //set commands",

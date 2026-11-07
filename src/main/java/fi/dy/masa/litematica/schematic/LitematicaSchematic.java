@@ -1020,7 +1020,7 @@ public class LitematicaSchematic
         return this.pendingFluidTicks.get(regionName);
     }
 
-    private NbtCompound writeToNBT()
+    public NbtCompound writeToNBT()
     {
         NbtCompound nbt = new NbtCompound();
 
