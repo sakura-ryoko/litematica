@@ -8,6 +8,7 @@ import fi.dy.masa.litematica.event.KeyCallbacks;
 import fi.dy.masa.litematica.event.RenderHandler;
 import fi.dy.masa.litematica.event.WorldLoadListener;
 import fi.dy.masa.litematica.network.CarpetHelloPacketHandler;
+import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.render.infohud.StatusInfoRenderer;
 import fi.dy.masa.litematica.scheduler.ClientTickHandler;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -41,6 +42,7 @@ public class InitHandler implements IInitializationHandler
         WorldLoadHandler.getInstance().registerWorldLoadPostHandler(listener);
 
         ClientPacketChannelHandler.getInstance().registerClientChannelHandler(CarpetHelloPacketHandler.INSTANCE);
+        ServuxLitematicaHandler.register();
 
         KeyCallbacks.init(MinecraftClient.getInstance());
         StatusInfoRenderer.init();

@@ -40,6 +40,7 @@ import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkBase;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkCommand;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicPerChunkDirect;
 import fi.dy.masa.litematica.scheduler.tasks.TaskPasteSchematicSetblockToMcfunction;
+import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement.RequiredEnabled;
 import fi.dy.masa.litematica.util.EntityUtils;
@@ -808,6 +809,32 @@ public class SchematicPlacementManager
                 }
                 else if(mc.isIntegratedServerRunning() == false || Configs.Generic.PASTE_USING_COMMANDS_IN_SP.getBooleanValue())
                 {
+                    if (mc.isIntegratedServerRunning() == false &&
+                        Configs.Generic.PASTE_USING_SERVUX.getBooleanValue() &&
+                        ServuxLitematicaHandler.INSTANCE.hasServuxServer() == false)
+                    {
+                        // Not known yet; ask the server and use the normal paste this time
+                        ServuxLitematicaHandler.INSTANCE.requestMetadata();
+                    }
+
+                    if (mc.isIntegratedServerRunning() == false &&
+                        Configs.Generic.PASTE_USING_SERVUX.getBooleanValue() &&
+                        ServuxLitematicaHandler.INSTANCE.hasServuxServer())
+                    {
+                        net.minecraft.nbt.NbtCompound nbt = schematicPlacement.toNbt(true);
+                        nbt.putString("Task", "LitematicaPaste");
+
+                        if (ServuxLitematicaHandler.INSTANCE.sendPasteRequest(nbt))
+                        {
+                            if (printMessage)
+                            {
+                                InfoUtils.showGuiOrActionBarMessage(MessageType.INFO, "litematica.message.paste_with_servux");
+                            }
+
+                            return;
+                        }
+                    }
+
                     TaskPasteSchematicPerChunkBase task = new TaskPasteSchematicPerChunkCommand(Collections.singletonList(schematicPlacement), range, changedBlocksOnly);
                     TaskScheduler.getInstanceClient().scheduleTask(task, Configs.Generic.COMMAND_TASK_INTERVAL.getIntegerValue());
 

@@ -21,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.materials.MaterialListBase;
@@ -90,6 +91,41 @@ public class SchematicPlacement
         this.enabled = enabled;
         this.enableRender = enableRender;
         this.placementManager = placementManager;
+    }
+
+    public net.minecraft.nbt.NbtCompound toNbt(boolean withSchematic)
+    {
+        net.minecraft.nbt.NbtCompound compound = new net.minecraft.nbt.NbtCompound();
+        compound.putString("Name", this.name);
+
+        if (withSchematic)
+        {
+            compound.put("Schematics", this.schematic.writeToNBT());
+        }
+
+        compound.putIntArray("Origin", new int[]{ this.origin.getX(), this.origin.getY(), this.origin.getZ() });
+        compound.putInt("Rotation", this.rotation.ordinal());
+        compound.putInt("Mirror", this.mirror.ordinal());
+        net.minecraft.nbt.NbtCompound subs = new net.minecraft.nbt.NbtCompound();
+
+        for (java.util.Map.Entry<String, SubRegionPlacement> entry : this.relativeSubRegionPlacements.entrySet())
+        {
+            SubRegionPlacement sub = entry.getValue();
+            net.minecraft.nbt.NbtCompound tag = new net.minecraft.nbt.NbtCompound();
+            tag.putString("Name", sub.getName());
+            tag.putIntArray("Pos", new int[]{ sub.getPos().getX(), sub.getPos().getY(), sub.getPos().getZ() });
+            tag.putInt("Rotation", sub.getRotation().ordinal());
+            tag.putInt("Mirror", sub.getMirror().ordinal());
+            tag.putBoolean("Enabled", sub.isEnabled());
+            tag.putBoolean("IgnoreEntities", sub.ignoreEntities());
+            subs.put(entry.getKey(), tag);
+        }
+
+        compound.put("SubRegions", subs);
+        compound.putString("ReplaceMode", Configs.Generic.PASTE_REPLACE_BEHAVIOR.getStringValue());
+        compound.putString("PasteLayerBehavior", "all");
+
+        return compound;
     }
 
     public static SchematicPlacement createFor(LitematicaSchematic schematic, BlockPos origin, String name, boolean enabled, boolean enableRender)

@@ -6,6 +6,7 @@ import net.minecraft.client.world.ClientWorld;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionMaps;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
+import fi.dy.masa.litematica.network.ServuxLitematicaHandler;
 import fi.dy.masa.malilib.interfaces.IWorldLoadListener;
 
 public class WorldLoadListener implements IWorldLoadListener
@@ -23,6 +24,16 @@ public class WorldLoadListener implements IWorldLoadListener
     @Override
     public void onWorldLoadPost(@Nullable ClientWorld worldBefore, @Nullable ClientWorld worldAfter, MinecraftClient mc)
     {
+        if (worldAfter == null)
+        {
+            ServuxLitematicaHandler.INSTANCE.reset();
+        }
+        else
+        {
+            // Ask the server whether it has the Servux litematics channel
+            ServuxLitematicaHandler.INSTANCE.requestMetadata();
+        }
+
         SchematicWorldHandler.INSTANCE.recreateSchematicWorld(worldAfter == null);
 
         if (worldAfter != null)

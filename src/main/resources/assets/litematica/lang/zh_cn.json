@@ -462,6 +462,7 @@
   "litematica.message.scheduled_task_added": "添加的计划任务...",
   "litematica.message.schematic_exported_as": "原理图导出为 '%s'",
   "litematica.message.schematic_pasted": "在世界上粘贴原理图",
+  "litematica.message.paste_with_servux": "正在通过 Servux 服务端粘贴投影",
   "litematica.message.schematic_pasted_using_fill_and_setblock": "Schematic pasted using §b%s§r fill and §b%s§r setblock commands",
   "litematica.message.schematic_pasted_using_setblock": "原理图粘贴使用 %s 放置命令",
   "litematica.message.schematic_pasted_using_world_edit": "Schematic pasted using §b%s§r World Edit //set commands",
