@@ -24,6 +24,7 @@ import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.render.GuiContext;
+import fi.dy.masa.malilib.render.InventoryOverlayContext;
 import fi.dy.masa.malilib.render.MaLiLibPipelines;
 import fi.dy.masa.malilib.render.RenderContext;
 import fi.dy.masa.malilib.util.GuiUtils;
@@ -486,17 +487,17 @@ public class OverlayRenderer
 
         if (mc.level != null && mc.player != null)
         {
-            boolean infoOverlayKeyActive = Hotkeys.RENDER_INFO_OVERLAY.getKeybind().isKeybindHeld();
             boolean verifierOverlayRendered = false;
 
             profiler.popPush("render_verifier_overlay");
-            if (infoOverlayKeyActive && Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
+            if (Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue() &&
+                Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue())
             {
                 verifierOverlayRendered = this.renderVerifierOverlay(ctx);
             }
 
             boolean renderBlockInfoLines = Configs.InfoOverlays.BLOCK_INFO_LINES_ENABLED.getBooleanValue();
-            boolean renderBlockInfoOverlay = verifierOverlayRendered == false && infoOverlayKeyActive && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
+            boolean renderBlockInfoOverlay = !verifierOverlayRendered && Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ENABLED.getBooleanValue();
             RayTraceWrapper traceWrapper = null;
 
             profiler.popPush("generic_trace");
@@ -604,8 +605,10 @@ public class OverlayRenderer
         }
         BlockState stateClient = ctx.mc().level.getBlockState(pos);
         BlockState stateSchematic = worldSchematic.getBlockState(pos);
-        boolean hasInvClient = InventoryUtils.getTargetInventory(worldClient, pos) != null;
-        boolean hasInvSchematic = InventoryUtils.getTargetInventory(worldSchematic, pos) != null;
+        InventoryOverlayContext invClient = InventoryUtils.getTargetInventory(worldClient, pos);
+        InventoryOverlayContext invSchematic = InventoryUtils.getTargetInventory(worldSchematic, pos);
+        boolean hasInvClient = invClient != null && invClient.inv() != null && invClient.inv().isEmpty() == false;
+        boolean hasInvSchematic = invSchematic != null && invSchematic.inv() != null && invSchematic.inv().isEmpty() == false;
         int invHeight = 0;
         int offY = Configs.InfoOverlays.BLOCK_INFO_OVERLAY_OFFSET_Y.getIntegerValue();
         BlockInfoAlignment align = (BlockInfoAlignment) Configs.InfoOverlays.BLOCK_INFO_OVERLAY_ALIGNMENT.getOptionListValue();
