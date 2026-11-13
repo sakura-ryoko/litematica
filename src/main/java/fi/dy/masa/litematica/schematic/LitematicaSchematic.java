@@ -111,7 +111,6 @@ public class LitematicaSchematic
 	private final Map<String, BlockPos> subRegionPositions = new HashMap<>();
 	private final Map<String, BlockPos> subRegionSizes = new HashMap<>();
 	private final SchematicMetadata metadata = new SchematicMetadata();
-	private final SchematicConverter converter;
 	private int totalBlocksReadFromWorld;
 	@Nullable
 	private final Path schematicFile;
@@ -122,7 +121,6 @@ public class LitematicaSchematic
 		this.readFromData(nbt);
 		this.schematicFile = file;
 		this.schematicType = type;
-		this.converter = SchematicConverter.createForLitematica();
 	}
 
 	private LitematicaSchematic(@Nullable Path file)
@@ -134,7 +132,6 @@ public class LitematicaSchematic
 	{
 		this.schematicFile = file;
 		this.schematicType = schematicType;
-		this.converter = SchematicConverter.createForLitematica();
 	}
 
 	@Nullable
@@ -2536,9 +2533,10 @@ public class LitematicaSchematic
 	{
 		List<BlockState> states = getStatesFromPaletteData(palette);
 
-		if (this.converter.createPostProcessStateFilter(states))
+		SchematicConverter converter = SchematicConverter.createForLitematica(this.metadata.minecraftDataVersion);
+		Map<BlockState, SchematicConversionFixers.IStateFixer> postProcessingFilter = converter.createPostProcessStateFilter(states);
+		if (postProcessingFilter.isEmpty() == false)
 		{
-			IdentityHashMap<BlockState, SchematicConversionFixers.IStateFixer> postProcessingFilter = this.converter.getPostProcessStateFilter();
 			SchematicConverter.postProcessBlocks(container, tiles, postProcessingFilter);
 		}
 	}

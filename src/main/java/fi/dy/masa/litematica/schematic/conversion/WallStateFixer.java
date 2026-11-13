@@ -16,6 +16,8 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+// Walls did not store adjacent sides in blockstate prior to the flattening, and WallSides were
+// changed to none/low/tall (v2503)
 public class WallStateFixer implements SchematicConversionFixers.IStateFixer
 {
     public static final WallStateFixer INSTANCE = new WallStateFixer();

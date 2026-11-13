@@ -4,6 +4,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import fi.dy.masa.malilib.util.data.Schema;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.*;
@@ -17,10 +18,11 @@ import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.litematica.schematic.container.LitematicaBlockStateContainer;
 import fi.dy.masa.litematica.schematic.conversion.SchematicConversionFixers.IStateFixer;
 
+/// Converter for Schematic block container, for converters requiring neighbor blocks
 public class SchematicConverter
 {
-    private final IdentityHashMap<Class<? extends Block>, IStateFixer> fixersPerBlock = new IdentityHashMap<>();
-    private final IdentityHashMap<BlockState, IStateFixer> postProcessingStateFixers = new IdentityHashMap<>();
+    // filtered by sourceDataVersion when created
+    private final Map<Class<? extends Block>, IStateFixer> fixersPerBlock = new IdentityHashMap<>();
 
     private SchematicConverter()
     {
@@ -33,14 +35,14 @@ public class SchematicConverter
         return converter;
     }
 
-    public static SchematicConverter createForLitematica()
+    public static SchematicConverter createForLitematica(int sourceDataVersion)
     {
         SchematicConverter converter = new SchematicConverter();
-        converter.addPostUpdateBlocksLitematica();
+        converter.addPostUpdateBlocksLitematica(sourceDataVersion);
         return converter;
     }
 
-    public boolean getConvertedStatesForBlock(int schematicBlockId, String blockName, BlockState[] paletteOut)
+    public static boolean getConvertedStatesForBlock(int schematicBlockId, String blockName, BlockState[] paletteOut)
     {
         int shiftedOldVanillaId = SchematicConversionMaps.getOldNameToShiftedBlockId(blockName);
         int successCount = 0;
@@ -69,7 +71,7 @@ public class SchematicConverter
         return successCount > 0;
     }
 
-    public boolean getVanillaBlockPalette(BlockState[] paletteOut)
+    public static boolean getVanillaBlockPalette(BlockState[] paletteOut)
     {
         for (int idMeta = 0; idMeta < paletteOut.length; ++idMeta)
         {
@@ -92,7 +94,7 @@ public class SchematicConverter
         for (int schematicBlockId = 0; schematicBlockId < blockPalette.length; ++schematicBlockId)
         {
             String blockName = blockPalette[schematicBlockId];
-            this.getConvertedStatesForBlock(schematicBlockId, blockName, palette);
+            SchematicConverter.getConvertedStatesForBlock(schematicBlockId, blockName, palette);
         }
 
         return palette;
@@ -101,9 +103,9 @@ public class SchematicConverter
     /**
      * Creates the post process state filter array.
      * @param palette ()
-     * @return true if there are at least some states that need post-processing
+     * @return map containing states that need post-processing, if there are any
      */
-    public boolean createPostProcessStateFilter(BlockState[] palette)
+    public Map<BlockState, IStateFixer> createPostProcessStateFilter(BlockState[] palette)
     {
         return this.createPostProcessStateFilter(Arrays.asList(palette));
     }
@@ -111,31 +113,23 @@ public class SchematicConverter
     /**
      * Creates the post process state filter array.
      * @param palette ()
-     * @return true if there are at least some states that need post-processing
+     * @return map containing states that need post-processing, if there are any
      */
-    public boolean createPostProcessStateFilter(Collection<BlockState> palette)
+    public Map<BlockState, IStateFixer> createPostProcessStateFilter(Collection<BlockState> palette)
     {
-        boolean needsPostProcess = false;
-        this.postProcessingStateFixers.clear();
-
         // The main reason to lazy-construct the state-to-fixer map is to check if a given
         // schematic even has any states that need fixing.
-
+        Map<BlockState, IStateFixer> postProcessingStateFixers = new IdentityHashMap<>();
         for (BlockState state : palette)
         {
             if (this.needsPostProcess(state))
             {
-                this.postProcessingStateFixers.put(state, this.getFixerFor(state));
-                needsPostProcess = true;
+                postProcessingStateFixers.put(state, this.getFixerFor(state));
             }
         }
 
-        return needsPostProcess;
-    }
+        return postProcessingStateFixers;
 
-    public IdentityHashMap<BlockState, IStateFixer> getPostProcessStateFilter()
-    {
-        return this.postProcessingStateFixers;
     }
 
     private boolean needsPostProcess(BlockState state)
@@ -150,7 +144,7 @@ public class SchematicConverter
     }
 
     public static void postProcessBlocks(LitematicaBlockStateContainer container, @Nullable Map<BlockPos, CompoundData> tiles,
-                                         IdentityHashMap<BlockState, IStateFixer> postProcessingFilter)
+                                         Map<BlockState, IStateFixer> postProcessingFilter)
     {
         final int sizeX = container.getSize().getX();
         final int sizeY = container.getSize().getY();
@@ -182,57 +176,79 @@ public class SchematicConverter
         }
     }
 
-    private void addPostUpdateBlocksLitematica()
+    private void addPostUpdateBlocksLitematica(int sourceVersion)
     {
+        if (sourceVersion < Schema.SCHEMA_17W47A.getDataVersion())
+        {
+            // Apply flattening adjacency fixer and redstone cross fixer
+            this.fixersPerBlock.put(RedstoneWireBlock.class, SchematicConversionFixers.FIXER_REDSTONE_WIRE_ADJACENCY);
+        }
+        else if (sourceVersion < Schema.SCHEMA_20W22A.getDataVersion())
+        {
+            // convert dots to crosses v2531
+            this.fixersPerBlock.put(RedstoneWireBlock.class, SchematicConversionFixers.FIXER_REDSTONE_CROSS);
+        }
         // Fixers to fix the state according to the adjacent blocks
-        this.fixersPerBlock.put(RedstoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
-        this.fixersPerBlock.put(WallBlock.class,                    WallStateFixer.INSTANCE);
+        if (sourceVersion < Schema.SCHEMA_20W06A.getDataVersion())
+        {
+            this.fixersPerBlock.put(WallBlock.class, WallStateFixer.INSTANCE);
+        }
 
-        // Fixers to get values from old TileEntity data
-        this.fixersPerBlock.put(BannerBlock.class,                  SchematicConversionFixers.FIXER_BANNER);
-        this.fixersPerBlock.put(WallBannerBlock.class,              SchematicConversionFixers.FIXER_BANNER_WALL);
-        this.fixersPerBlock.put(BedBlock.class,                     SchematicConversionFixers.FIXER_BED);
-        this.fixersPerBlock.put(FlowerPotBlock.class,               SchematicConversionFixers.FIXER_FLOWER_POT);
-        this.fixersPerBlock.put(NoteBlock.class,                    SchematicConversionFixers.FIXER_NOTE_BLOCK);
-        this.fixersPerBlock.put(StandingSignBlock.class,                    SchematicConversionFixers.FIXER_SIGN);
-        this.fixersPerBlock.put(SkullBlock.class,                   SchematicConversionFixers.FIXER_SKULL);
-        this.fixersPerBlock.put(WallSignBlock.class,                SchematicConversionFixers.FIXER_SIGN);
-        this.fixersPerBlock.put(WallSkullBlock.class,               SchematicConversionFixers.FIXER_SKULL_WALL);
+        // Fixers to get values from pre-Flattening TileEntity data v1450, v1451
+        if (sourceVersion < Schema.SCHEMA_17W47A.getDataVersion())
+        {
+            this.fixersPerBlock.put(BannerBlock.class,     SchematicConversionFixers.FIXER_BANNER);
+            this.fixersPerBlock.put(WallBannerBlock.class, SchematicConversionFixers.FIXER_BANNER_WALL);
+            this.fixersPerBlock.put(BedBlock.class,        SchematicConversionFixers.FIXER_BED);
+            this.fixersPerBlock.put(FlowerPotBlock.class,  SchematicConversionFixers.FIXER_FLOWER_POT);
+            this.fixersPerBlock.put(NoteBlock.class,       SchematicConversionFixers.FIXER_NOTE_BLOCK);
+            this.fixersPerBlock.put(SkullBlock.class,      SchematicConversionFixers.FIXER_SKULL);
+            this.fixersPerBlock.put(WallSkullBlock.class,  SchematicConversionFixers.FIXER_SKULL_WALL);
+        }
+
+        // Fixers to get values from pre-1.20 sign TileEntity data
+        if (sourceVersion < Schema.SCHEMA_23W12A.getDataVersion())
+        {
+            this.fixersPerBlock.put(WallSignBlock.class,     SchematicConversionFixers.FIXER_SIGN);
+            this.fixersPerBlock.put(StandingSignBlock.class, SchematicConversionFixers.FIXER_SIGN);
+        }
     }
 
+    // Schematica is always assumed to be 1.12.2
     private void addPostUpdateBlocksSchematica()
     {
-        // Fixers to fix the state according to the adjacent blocks
-        this.fixersPerBlock.put(ChorusPlantBlock.class,             SchematicConversionFixers.FIXER_CHRORUS_PLANT);
+        // Fixers to fix the state according to the adjacent blocks (pre-Flattening did not store these as blockstates)
+        this.fixersPerBlock.put(ChorusPlantBlock.class,             SchematicConversionFixers.FIXER_CHORUS_PLANT);
         this.fixersPerBlock.put(DoorBlock.class,                    SchematicConversionFixers.FIXER_DOOR);
         this.fixersPerBlock.put(FenceBlock.class,                   SchematicConversionFixers.FIXER_FENCE);
         this.fixersPerBlock.put(FenceGateBlock.class,               SchematicConversionFixers.FIXER_FENCE_GATE);
         this.fixersPerBlock.put(FireBlock.class,                    SchematicConversionFixers.FIXER_FIRE);
         this.fixersPerBlock.put(GrassBlock.class,                   SchematicConversionFixers.FIXER_DIRT_SNOWY);
         this.fixersPerBlock.put(MyceliumBlock.class,                SchematicConversionFixers.FIXER_DIRT_SNOWY);
-        this.fixersPerBlock.put(IronBarsBlock.class,                    SchematicConversionFixers.FIXER_PANE); // Iron Bars & Glass Pane
+        this.fixersPerBlock.put(IronBarsBlock.class,                SchematicConversionFixers.FIXER_PANE); // Iron Bars & Glass Pane
         this.fixersPerBlock.put(RepeaterBlock.class,                SchematicConversionFixers.FIXER_REDSTONE_REPEATER);
-        this.fixersPerBlock.put(RedstoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE);
+        this.fixersPerBlock.put(RedstoneWireBlock.class,            SchematicConversionFixers.FIXER_REDSTONE_WIRE_ADJACENCY); // Adjacency fixer and cross fixer
         this.fixersPerBlock.put(SnowyBlock.class,                   SchematicConversionFixers.FIXER_DIRT_SNOWY); // Podzol
         this.fixersPerBlock.put(StemBlock.class,                    SchematicConversionFixers.FIXER_STEM);
         this.fixersPerBlock.put(StainedGlassPaneBlock.class,        SchematicConversionFixers.FIXER_PANE);
-        this.fixersPerBlock.put(StairBlock.class,                  SchematicConversionFixers.FIXER_STAIRS);
+        this.fixersPerBlock.put(StairBlock.class,                   SchematicConversionFixers.FIXER_STAIRS);
         this.fixersPerBlock.put(TallFlowerBlock.class,              SchematicConversionFixers.FIXER_DOUBLE_PLANT);
-        this.fixersPerBlock.put(DoublePlantBlock.class,               SchematicConversionFixers.FIXER_DOUBLE_PLANT);
+        this.fixersPerBlock.put(DoublePlantBlock.class,             SchematicConversionFixers.FIXER_DOUBLE_PLANT);
         this.fixersPerBlock.put(TripWireBlock.class,                SchematicConversionFixers.FIXER_TRIPWIRE);
         this.fixersPerBlock.put(VineBlock.class,                    SchematicConversionFixers.FIXER_VINE);
-        this.fixersPerBlock.put(WallBlock.class,                    WallStateFixer.INSTANCE);
+        this.fixersPerBlock.put(WallBlock.class, WallStateFixer.INSTANCE);
 
-        // Fixers to get values from old TileEntity data
+        // Fixers to get values from pre-Flattening TileEntity data v1450, v1451
         this.fixersPerBlock.put(BannerBlock.class,                  SchematicConversionFixers.FIXER_BANNER);
         this.fixersPerBlock.put(WallBannerBlock.class,              SchematicConversionFixers.FIXER_BANNER_WALL);
         this.fixersPerBlock.put(BedBlock.class,                     SchematicConversionFixers.FIXER_BED);
         this.fixersPerBlock.put(FlowerPotBlock.class,               SchematicConversionFixers.FIXER_FLOWER_POT);
         this.fixersPerBlock.put(NoteBlock.class,                    SchematicConversionFixers.FIXER_NOTE_BLOCK);
-        this.fixersPerBlock.put(StandingSignBlock.class,                    SchematicConversionFixers.FIXER_SIGN);
         this.fixersPerBlock.put(SkullBlock.class,                   SchematicConversionFixers.FIXER_SKULL);
-        this.fixersPerBlock.put(WallSignBlock.class,                SchematicConversionFixers.FIXER_SIGN);
         this.fixersPerBlock.put(WallSkullBlock.class,               SchematicConversionFixers.FIXER_SKULL_WALL);
+        // Fixers to get values from pre-1.20 sign TileEntity data
+        this.fixersPerBlock.put(WallSignBlock.class,                SchematicConversionFixers.FIXER_SIGN);
+        this.fixersPerBlock.put(StandingSignBlock.class,            SchematicConversionFixers.FIXER_SIGN);
     }
 
     public static class BlockReaderLitematicaContainer implements IBlockReaderWithData
