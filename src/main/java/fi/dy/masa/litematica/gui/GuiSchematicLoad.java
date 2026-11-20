@@ -43,9 +43,22 @@ import fi.dy.masa.litematica.util.WorldUtils;
 
 public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelectionListener<DirectoryEntry>
 {
+    private static final int MARGIN_LEFT = 12;
+    private static final int MARGIN_RIGHT = 10;
+    private static final int SCHEMATIC_LIST_TOP = 24;
+    private static final int INFO_PANEL_EXTRA = 10;
+    private static final int BUTTON_HEIGHT = 20;
+    private static final int BUTTON_SPACING = 4;
+    private static final int BUTTON_ROW_HEIGHT = BUTTON_HEIGHT + 2;
+    private static final int BOTTOM_ROW_HEIGHT = 26;
+    private static final int CHECKBOX_OFFSET_Y = 40;
+    private static final int TEXT_BUTTON_PADDING = 10;
+    private static final int MAIN_MENU_BUTTON_PADDING = 20;
+    private static final int LOADED_SCHEMATICS_BUTTON_PADDING = 30;
+
     public GuiSchematicLoad()
     {
-        super(12, 24);
+        super(MARGIN_LEFT, SCHEMATIC_LIST_TOP);
 
         this.title = StringUtils.translate("litematica.gui.title.load_schematic");
     }
@@ -63,9 +76,72 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
     }
 
     @Override
+    protected int getBrowserHeight()
+    {
+        return super.getBrowserHeight() - this.getExtraRowSpace();
+    }
+
+    @Override
     public int getMaxInfoHeight()
     {
-        return this.getBrowserHeight() + 10;
+        return this.getBrowserHeight() + INFO_PANEL_EXTRA;
+    }
+
+    private boolean isExtraRowSpaceNeeded()
+    {
+        int widthUsed = MARGIN_LEFT;
+
+        for (ButtonListener.Type button : ButtonListener.Type.values())
+        {
+            widthUsed += this.getButtonWidth(button) + BUTTON_SPACING;
+        }
+
+        widthUsed += this.getLoadedSchematicsButtonWidth() + BUTTON_SPACING;
+        widthUsed += this.getMainMenuButtonWidth() + MARGIN_RIGHT;
+
+        return widthUsed > this.getScreenWidth();
+    }
+
+    private int getExtraRowSpace()
+    {
+        if(!this.isExtraRowSpaceNeeded())
+        {
+            return 0;
+        }
+
+        int maxRowX = this.getScreenWidth() - MARGIN_RIGHT;
+        int curRowX = MARGIN_LEFT;
+        int rowCnt = 1;
+
+        for (ButtonListener.Type button : ButtonListener.Type.values())
+        {
+            int candidateButtonWidth = this.getButtonWidth(button);
+
+            if (curRowX > MARGIN_LEFT && curRowX + candidateButtonWidth > maxRowX)
+            {
+                curRowX = MARGIN_LEFT;
+                ++rowCnt;
+            }
+
+            curRowX += candidateButtonWidth + BUTTON_SPACING;
+        }
+
+        return rowCnt * BUTTON_ROW_HEIGHT;
+    }
+
+    private int getButtonWidth(ButtonListener.Type type)
+    {
+        return this.getStringWidth(StringUtils.translate(type.getTranslationKey())) + TEXT_BUTTON_PADDING;
+    }
+
+    private int getLoadedSchematicsButtonWidth()
+    {
+        return this.getStringWidth(StringUtils.translate(ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS.getLabelKey())) + LOADED_SCHEMATICS_BUTTON_PADDING;
+    }
+
+    private int getMainMenuButtonWidth()
+    {
+        return this.getStringWidth(StringUtils.translate(ButtonListenerChangeMenu.ButtonType.MAIN_MENU.getLabelKey())) + MAIN_MENU_BUTTON_PADDING;
     }
 
     @Override
@@ -78,8 +154,9 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 
 	private void createButtons()
 	{
-		int x = 12;
-		int y = this.getScreenHeight() - 40;
+		int extraRowSpace = this.getExtraRowSpace();
+		int x = MARGIN_LEFT;
+		int y = this.getScreenHeight() - CHECKBOX_OFFSET_Y - extraRowSpace;
 		int buttonWidth;
 		String label;
 		ButtonGeneric button;
@@ -93,39 +170,58 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 
 		DirectoryEntry selected = this.getListWidget().getLastSelectedEntry();
 
-		y = this.getScreenHeight() - 26;
+		y = this.getScreenHeight() - BOTTOM_ROW_HEIGHT - extraRowSpace;
 
 		if (this.getListWidget() == null) return;
 		if (selected != null)
 		{
 			FileType type = FileType.fromFile(selected.getFullPath());
+			List<ButtonListener.Type> buttonList = List.of();
 
 			if (type == FileType.LITEMATICA_SCHEMATIC || type == FileType.SPONGE_SCHEMATIC ||
 				type == FileType.SCHEMATICA_SCHEMATIC || type == FileType.VANILLA_STRUCTURE)
 			{
-				x += this.createButton(x, y, -1, ButtonListener.Type.LOAD_SCHEMATIC) + 4;
-				x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
-				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_SCHEMATIC) + 4;
-				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
+				buttonList = List.of(ButtonListener.Type.LOAD_SCHEMATIC, ButtonListener.Type.MATERIAL_LIST,
+				                  ButtonListener.Type.RENAME_SCHEMATIC, ButtonListener.Type.RENAME_FILE);
 			}
 			else if (type == FileType.TEXT || type == FileType.JSON)
 			{
-				x += this.createButton(x, y, -1, ButtonListener.Type.MATERIAL_LIST) + 4;
-				x += this.createButton(x, y, -1, ButtonListener.Type.RENAME_FILE) + 4;
+				buttonList = List.of(ButtonListener.Type.MATERIAL_LIST, ButtonListener.Type.RENAME_FILE);
 			}
+
+			int maxRowX = this.getScreenWidth() - MARGIN_RIGHT;
+
+			for (ButtonListener.Type buttonItem : buttonList)
+			{
+				buttonWidth = this.getButtonWidth(buttonItem);
+
+				if (extraRowSpace > 0 && x > MARGIN_LEFT && x + buttonWidth > maxRowX)
+				{
+					x = MARGIN_LEFT;
+					y += BUTTON_ROW_HEIGHT;
+				}
+
+				x += this.createButton(x, y, buttonWidth, buttonItem) + BUTTON_SPACING;
+			}
+		}
+
+		if (extraRowSpace > 0)
+		{
+			x = MARGIN_LEFT;
+			y = this.getScreenHeight() - BOTTOM_ROW_HEIGHT;
 		}
 
 		ButtonListenerChangeMenu.ButtonType type = ButtonListenerChangeMenu.ButtonType.LOADED_SCHEMATICS;
 		label = StringUtils.translate(type.getLabelKey());
-		buttonWidth = this.getStringWidth(label) + 30;
-		button = new ButtonGeneric(x, y, buttonWidth, 20, label, type.getIcon());
+		buttonWidth = this.getLoadedSchematicsButtonWidth();
+		button = new ButtonGeneric(x, y, buttonWidth, BUTTON_HEIGHT, label, type.getIcon());
 		this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
 
 		type = ButtonListenerChangeMenu.ButtonType.MAIN_MENU;
 		label = StringUtils.translate(type.getLabelKey());
-		buttonWidth = this.getStringWidth(label) + 20;
-		x = this.getScreenWidth() - buttonWidth - 10;
-		button = new ButtonGeneric(x, y, buttonWidth, 20, label);
+		buttonWidth = this.getMainMenuButtonWidth();
+		x = this.getScreenWidth() - buttonWidth - MARGIN_RIGHT;
+		button = new ButtonGeneric(x, y, buttonWidth, BUTTON_HEIGHT, label);
 		this.addButton(button, new ButtonListenerChangeMenu(type, this.getParent()));
 	}
 
@@ -136,10 +232,10 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 
         if (width == -1)
         {
-            width = this.getStringWidth(label) + 10;
+            width = this.getButtonWidth(type);
         }
 
-        ButtonGeneric button = new ButtonGeneric(x, y, width, 20, label);
+        ButtonGeneric button = new ButtonGeneric(x, y, width, BUTTON_HEIGHT, label);
 
         if (type == ButtonListener.Type.MATERIAL_LIST)
         {
@@ -154,6 +250,7 @@ public class GuiSchematicLoad extends GuiSchematicBrowserBase implements ISelect
 	@Override
 	public void onSelectionChange(@Nullable WidgetFileBrowserBase.DirectoryEntry entry)
 	{
+		this.clearWidgets();
 		this.clearButtons();
 		this.createButtons();
 	}
