@@ -932,6 +932,30 @@ public class EasyPlaceUtils
 			if (!((IMixinWallMountedBlock)stateBlock).litematica_invokeCanPlaceAt(stateSchematic, world, pos))
 				placementData.mustFail = true;
 		}
+		else if (stateBlock instanceof BaseRailBlock railBlock && world != null)
+		{
+			if (Block.canSupportRigidBlock(world, pos.below()) == false)
+			{
+				placementData.mustFail = true;
+			}
+			else
+			{
+				RailShape shape = stateSchematic.getValue(railBlock.getShapeProperty());
+				BlockPos slopeSupportPos = switch (shape)
+				{
+					case ASCENDING_EAST -> pos.east();
+					case ASCENDING_WEST -> pos.west();
+					case ASCENDING_NORTH -> pos.north();
+					case ASCENDING_SOUTH -> pos.south();
+					default -> null;
+				};
+
+				if (slopeSupportPos != null && Block.canSupportRigidBlock(world, slopeSupportPos) == false)
+				{
+					placementData.mustFail = true;
+				}
+			}
+		}
 
 		return placementData;
 	}
